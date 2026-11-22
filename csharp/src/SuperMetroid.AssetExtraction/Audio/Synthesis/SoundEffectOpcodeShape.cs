@@ -4,5 +4,5 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <param name="Opcode">The opcode.</param>
 /// <param name="ArgumentCount">The argument count.</param>
 /// <param name="Terminal">Whether the command ends the program.</param>
-internal sealed record SoundEffectOpcodeShape(int Opcode, int ArgumentCount, bool Terminal)
+internal sealed partial record SoundEffectOpcodeShape(int Opcode, int ArgumentCount, bool Terminal)
     : SoundEffectInstructionShape(ArgumentCount, Terminal);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Block reactions spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
 [RoomLifetime]
-internal sealed class BlockReactionObjects
+internal sealed partial class BlockReactionObjects
 {
     /// <summary>Frees the animals a shot block holds in when a shot that breaks it hits.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
@@ -214,6 +214,7 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>What <see cref="TrySpawnProjectileShotBlock"/> comes to for each <see cref="ShotBlockReaction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>> TrySpawnProjectileShotBlockForShotBlockReaction => field ??= new(new Dictionary<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>>
     {
         [ShotBlockReaction.CollisionProbe] = (level, position, shootable, reaction, projectileFamily, place, block) =>

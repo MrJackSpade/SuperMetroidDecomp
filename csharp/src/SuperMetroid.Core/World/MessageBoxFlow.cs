@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// persistence and suit transformation that follow a box closing, and the sounds a box's updates make outside gameplay's
 /// own requests.
 /// </summary>
-internal sealed class MessageBoxFlow
+internal sealed partial class MessageBoxFlow
 {
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;

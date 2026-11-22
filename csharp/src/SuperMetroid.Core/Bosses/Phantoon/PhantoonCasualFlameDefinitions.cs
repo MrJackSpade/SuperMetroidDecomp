@@ -2,7 +2,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's casual-flame bursts (#2258).</summary>
-public static class PhantoonCasualFlameDefinitions
+public static partial class PhantoonCasualFlameDefinitions
 {
     /// <summary>Mouth-scheduler updates every burst waits after its last flame.</summary>
     private const int BurstCooldown = 180;

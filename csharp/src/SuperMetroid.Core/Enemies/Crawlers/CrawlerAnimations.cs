@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// each of its four surfaces, and the Viola's one crawl on every surface (#2061). Each frame shows a
 /// <see cref="EnemyFrameId"/> and no beat raises a cue: the surface a crawler shows sets its crawl.
 /// </summary>
-internal static class CrawlerAnimations
+internal static partial class CrawlerAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<CrawlerSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -131,7 +131,7 @@ internal static class CrawlerAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = Segments.EachLooping(
+    internal static Dictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = Segments.EachLooping(
         P.SciserOnLeftWall, P.SciserOnRightWall, P.SciserOnCeiling, P.SciserOnFloor, P.ZeroOnLeftWall,
         P.ZeroOnRightWall, P.ZeroOnCeiling, P.ZeroOnFloor, P.ViolaIdle, P.SpinyCrawlerOnLeftWall,
         P.SpinyCrawlerOnRightWall, P.SpinyCrawlerOnCeiling, P.SpinyCrawlerOnFloor);

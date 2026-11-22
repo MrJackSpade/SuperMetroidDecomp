@@ -1,4 +1,4 @@
-using System.Reflection;
+
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -12,9 +12,6 @@ internal static class WeaponDamageFactorAccess
     extension(WeaponDamageFactor)
     {
         /// <summary>The factor of <paramref name="halves"/> halves of the weapon's damage, zero or more, as a table byte stores it.</summary>
-        internal static WeaponDamageFactor FromStoredHalves(int halves) =>
-            (WeaponDamageFactor)(typeof(WeaponDamageFactor).GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(int)])
-                ?? throw new MissingMemberException(nameof(WeaponDamageFactor), "constructor"))
-            .Invoke(BindingFlags.DoNotWrapExceptions, binder: null, [halves], culture: null);
+        internal static WeaponDamageFactor FromStoredHalves(int halves) => new(halves);
     }
 }

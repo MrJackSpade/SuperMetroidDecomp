@@ -23,16 +23,22 @@ namespace SuperMetroid.Core.Compatibility;
 /// the first.
 /// </remarks>
 /// <typeparam name="TExplosion">An enemy's death explosion.</typeparam>
-/// <param name="small">The small explosion, which zero, any number past four and no number name.</param>
-/// <param name="samusContact">The explosion of an enemy Samus's contact kills, which one names.</param>
-/// <param name="normal">The normal explosion, which two names.</param>
-/// <param name="fakeKraid">Fake Kraid's explosion, which three names.</param>
-/// <param name="big">The big explosion, which four names.</param>
 [CompatibilityService("an enemy death that takes its explosion from a leftover number dies in the explosion the number names in the authored order, or in the small explosion past the last")]
-public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, TExplosion samusContact, TExplosion normal, TExplosion fakeKraid, TExplosion big)
+public sealed partial class LeftoverNumberDeathExplosion<TExplosion>
 {
+    /// <summary>Creates a <see cref="LeftoverNumberDeathExplosion{TExplosion}"/>.</summary>
+    /// <param name="small">The small explosion, which zero, any number past four and no number name.</param>
+    /// <param name="samusContact">The explosion of an enemy Samus's contact kills, which one names.</param>
+    /// <param name="normal">The normal explosion, which two names.</param>
+    /// <param name="fakeKraid">Fake Kraid's explosion, which three names.</param>
+    /// <param name="big">The big explosion, which four names.</param>
+    public LeftoverNumberDeathExplosion(TExplosion small, TExplosion samusContact, TExplosion normal, TExplosion fakeKraid, TExplosion big)
+    {
+        this._numbered = [small, samusContact, normal, fakeKraid, big];
+    }
+
     /// <summary>The death explosions in the order the leftover numbers zero through four name them.</summary>
-    private readonly TExplosion[] _numbered = [small, samusContact, normal, fakeKraid, big];
+    private readonly TExplosion[] _numbered;
 
     /// <summary>
     /// The explosion <paramref name="leftoverNumber"/> names: zero through four the small, Samus contact, normal, Fake

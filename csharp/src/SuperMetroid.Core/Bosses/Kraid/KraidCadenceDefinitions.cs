@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// The counter cadences and phases of Kraid's fight (#1606, #1619): his rising rocks, his spit rocks, his lints' charge
 /// flash and the sway and ceiling rocks his height paces as he rises.
 /// </summary>
-internal static class KraidCadenceDefinitions
+internal static partial class KraidCadenceDefinitions
 {
     /// <summary>
     /// The phase of Kraid's height that sets which way his rising body sways (#1619): for two pixels of height, then

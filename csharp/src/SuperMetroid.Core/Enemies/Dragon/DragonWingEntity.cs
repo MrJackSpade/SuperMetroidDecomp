@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="place">The place the wing occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="state">The wing's state: the one its body began as it was placed, or, for a wing no body was listed before, its own.</param>
-internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     DragonWingState state)
     : DragonPartEntity(species, occupant, place, common), IEnemyTypedAnimation
 {

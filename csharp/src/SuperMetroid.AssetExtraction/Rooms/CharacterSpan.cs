@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Set">The character set the run lies in.</param>
 /// <param name="First">The run's first character.</param>
 /// <param name="Count">The characters in the run.</param>
-internal readonly record struct CharacterSpan(BgCharacterSet Set, int First, int Count);
+internal readonly partial record struct CharacterSpan(BgCharacterSet Set, int First, int Count);

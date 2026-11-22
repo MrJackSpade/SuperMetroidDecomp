@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// background's origin is negative.
 /// </param>
 /// <param name="RoomShake">The room shake displayed with this frame.</param>
-public readonly record struct GameplayRenderSnapshot(
+public readonly partial record struct GameplayRenderSnapshot(
     Position16<RoomPixels> ForegroundPosition,
     Offset16<RoomPixels> ForegroundScroll,
     Offset16<BackgroundPixels> BackgroundScroll,

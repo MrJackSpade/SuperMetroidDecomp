@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="AfterReaching">After the leg reaches.</param>
 /// <param name="AfterPlanting">After the leg plants.</param>
 /// <param name="AfterPlanted">After the leg stands planted, before the next step lifts the other.</param>
-internal sealed record TorizoStridePaces(int AfterLifting, int AfterSwinging, int AfterReaching, int AfterPlanting, int AfterPlanted);
+internal sealed partial record TorizoStridePaces(int AfterLifting, int AfterSwinging, int AfterReaching, int AfterPlanting, int AfterPlanted);

@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The gunship takeoff's installed frames: their validation, the frame each transfer uploads, and their identity.</summary>
-internal static class GunshipLiftoffArtwork
+internal static partial class GunshipLiftoffArtwork
 {
 
     /// <summary>A copy of five complete native-size atlases, each keyed by the takeoff transfer that uploads it.</summary>

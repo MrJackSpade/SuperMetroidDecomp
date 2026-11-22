@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The shape of Crocomire's mouth volley: each shot's gradient and the speed its angle is scaled to.</summary>
-public static class CrocomireProjectileDefinitions
+public static partial class CrocomireProjectileDefinitions
 {
     /// <summary>A shot's speed along its angle, in whole pixels an update.</summary>
     public const int VolleySpeed = 4;

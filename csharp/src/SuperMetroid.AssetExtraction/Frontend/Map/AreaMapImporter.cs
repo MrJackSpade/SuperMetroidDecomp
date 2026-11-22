@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Extracts native area map tilemaps and reveal masks before gameplay starts.</summary>
-public static class AreaMapImporter
+public static partial class AreaMapImporter
 {
     /// <summary>Resolves one area's native tilemap and map-station reveal-mask pointers, copies their bytes, and decodes the split native tilemap layout into row-major cells.</summary>
     /// <param name="bus">Supported-cartridge address space containing the area pointer tables and map data.</param>

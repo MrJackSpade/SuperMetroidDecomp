@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// kept part with the arithmetic it replaced.
 /// </remarks>
 [CompatibilityService("the extending grapple rope's step keeps parts of the update before's step, so its four substeps need not add up to its speed")]
-public static class GrappleExtensionStepCarryover
+public static partial class GrappleExtensionStepCarryover
 {
     /// <summary>The substeps the extending rope moves and probes in each update, each by a quarter of its speed.</summary>
     public const int Substeps = 4;

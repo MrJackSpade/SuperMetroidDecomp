@@ -138,11 +138,10 @@ internal static class AudioClipExportVerification
         {
             Music = [clips.Manifest.Music[0] with { Clip = first with { Path = "../escaped.wav" } }],
         };
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, InstalledAudioClips.ManifestOptions));
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
         AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "a clip path outside the audio root is rejected");
 
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(
-            clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, InstalledAudioClips.ManifestOptions));
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
         AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "another manifest format is rejected");
         File.WriteAllText(manifestPath, manifestText);
     }

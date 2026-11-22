@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's death sequence state outside his enemy places: the bridge collapse, the acid, the melt's passes, the
 /// hidden wall's rumble and the baring of his skeleton.
 /// </summary>
-public sealed class CrocomireDeathState
+public sealed partial class CrocomireDeathState
 {
     /// <summary>
     /// Bridge fragments the collapse has launched so far, zero through

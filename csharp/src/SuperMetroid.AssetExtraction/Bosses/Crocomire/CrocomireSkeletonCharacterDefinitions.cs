@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 /// The installed skeleton characters Crocomire's death shows, chunk by chunk (#1463): the import pipeline's knowledge of
 /// the bytes each skeleton chunk holds, which the skeleton look's finished pictures are composed from (#1538).
 /// </summary>
-internal static class CrocomireSkeletonCharacterDefinitions
+internal static partial class CrocomireSkeletonCharacterDefinitions
 {
     /// <summary>The skeleton character chunks Crocomire's death loads, in the order it loads them.</summary>
     internal const int ChunkCount = 6;

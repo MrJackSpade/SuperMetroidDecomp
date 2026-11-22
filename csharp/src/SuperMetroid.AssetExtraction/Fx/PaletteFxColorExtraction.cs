@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads a palette-FX colour family's colours from the cartridge, frame by frame.</summary>
-internal static class PaletteFxColorExtraction
+internal static partial class PaletteFxColorExtraction
 {
     /// <summary>Every colour of <paramref name="colorFrames"/>, read from its bank-$8D colour word.</summary>
     internal static PaletteRgb5[][] ReadFrames(ISnesAddressSpace bus, PaletteFxColorFrames colorFrames)

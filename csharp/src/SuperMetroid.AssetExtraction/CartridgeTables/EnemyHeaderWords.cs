@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the pinned disassembly. A cleared slot's zero names no definition: the slot holds no enemy.
 /// </summary>
 [EncodingOwner("bank-$A0 enemy header pointer words")]
-internal static class EnemyHeaderWords
+internal static partial class EnemyHeaderWords
 {
 
     /// <summary>The bank-$A0 pointer of each enemy definition's 64-byte header.</summary>

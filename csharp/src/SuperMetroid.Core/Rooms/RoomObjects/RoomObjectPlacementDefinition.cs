@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Block">The block it is placed on.</param>
 /// <param name="Setup">The setup its family runs, with what the placement gives it.</param>
 /// <param name="Site">Whether the block is one of the room's grid or of the terrain beyond the room.</param>
-internal readonly record struct RoomObjectPlacementDefinition(
+internal readonly partial record struct RoomObjectPlacementDefinition(
     Position16<RoomBlocks> Block, RoomObjectPlacementSetup Setup, RoomObjectSite Site = RoomObjectSite.RoomGrid);

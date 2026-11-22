@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it.</param>
 /// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
-internal sealed class CollectibleObject(
+internal sealed partial class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
     CollectibleTerrain terrain,
@@ -32,7 +32,7 @@ internal sealed class CollectibleObject(
     /// The block the item's setup left at its place, its collision made the item's own (#2484): a concealing shot block
     /// draws it back as it hides the item again, and a collected item's shot block as it respawns.
     /// </summary>
-    private RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
+    internal RoomTerrainBlock SavedTerrain { get; } = savedTerrain;
 
     /// <summary>Where the item lies in the game's item record, which its collection marks collected.</summary>
     internal ItemLocation Location { get; } = Ensure.NotNull(location);
@@ -56,6 +56,7 @@ internal sealed class CollectibleObject(
         AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase>.Starting(CollectibleSequenceAnimations.Segments,
             phase == CollectiblePhase.ChozoOrb ? CollectibleSequenceAnimations.OrbPulsing : CollectibleSequenceAnimations.Exposed);
     /// <summary>What <c>Update</c> does for each <see cref="CollectiblePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForCollectiblePhase => field ??= new(new Dictionary<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [CollectiblePhase.AwaitingMessage] = (place, context) => { },

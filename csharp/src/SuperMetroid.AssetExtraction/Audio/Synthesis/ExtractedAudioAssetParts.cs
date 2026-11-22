@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The extracted audio streams, sample banks, metadata and identity an audio asset catalog is built from (#633).</summary>
-internal sealed record ExtractedAudioAssetParts
+internal sealed partial record ExtractedAudioAssetParts
 {
     /// <summary>Streams.</summary>
     public required IReadOnlyDictionary<AudioBank, byte[]> Streams { get; init; }

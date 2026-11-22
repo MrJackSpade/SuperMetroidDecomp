@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Rinka species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpawnSettings>
+internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -56,7 +56,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     /// <summary>A special Rinka whose spawn choice waits for the door loader's camera.</summary>
     /// <param name="Place">The Rinka's place.</param>
     /// <param name="Shared">The spawn point it shares with Mother Brain's other Rinkas.</param>
-    private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaSharedSpawn Shared);
+    private readonly partial record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaSharedSpawn Shared);
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. <see cref="BeginEnemyFrame"/> refreshes
@@ -160,6 +160,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     }
 
     /// <summary>What <see cref="RunRinkaMain"/> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RinkaAction, Action<RoomEnemyOccupant, RinkaSpawnSettings, RoomEnemyPlace, RinkaEnemyState, SamusState>> RunRinkaMainForRinkaAction => field ??= new(new Dictionary<RinkaAction, Action<RoomEnemyOccupant, RinkaSpawnSettings, RoomEnemyPlace, RinkaEnemyState, SamusState>>
     {
         [RinkaAction.WatchForLeavingViewport] = (occupant, settings, place, state, samus) =>
@@ -227,7 +228,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     /// Finishes a Rinka's reaction to a touch, a shot or a power bomb after the common damage: a killed Rinka either
     /// dies, or, one of Mother Brain's, hides and waits to respawn.
     /// </summary>
-    private void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place, RinkaEnemyState state)
+    internal void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RinkaSpawnSettings rinkaSpawnSettings, RoomEnemyPlace place, RinkaEnemyState state)
     {
         if (place.Health != 0)
             return;
@@ -356,12 +357,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     /// <param name="rinka">The Rinka the reaction is built for.</param>
     /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyBombReaction RinkaBombReaction(RoomEnemyOccupant rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyBombReaction RinkaBombReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
     {
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
+<<<<<<< HEAD
         AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+=======
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
@@ -384,28 +391,47 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<RinkaSpa
     /// <param name="rinka">The Rinka the reaction is built for.</param>
     /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyPowerBombReaction RinkaPowerBombReaction(RoomEnemyOccupant rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyPowerBombReaction RinkaPowerBombReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
     {
-        SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
+        SkipsEnemy = IsHidden,
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
+<<<<<<< HEAD
         AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+=======
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
+>>>>>>> origin/main
     };
+
+    /// <summary>Whether a Rinka is hidden, which a Power Bomb skips.</summary>
+    private static bool IsHidden(RoomEnemyPlace enemy) => enemy.Presence.HasAny(EnemyPresence.Hidden);
 
     /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
     /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction RinkaShotReaction(RoomEnemyOccupant rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyShotReaction RinkaShotReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
     {
         // Rinka's own death follows damage only; a shot that freezes it at once skips it.
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
+<<<<<<< HEAD
         AfterCommon = c =>
         {
             if (!c.Froze)
                 ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state);
         },
+||||||| 418ca79935
+        AfterCommon = c =>
+        {
+            if (!c.Froze)
+                ResolveRinkaCombatAfterCommon(rinka, c.Enemy);
+        },
+=======
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>

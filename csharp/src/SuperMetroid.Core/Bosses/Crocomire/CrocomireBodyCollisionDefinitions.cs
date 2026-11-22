@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Component placements (jaw, body bands) and list rectangles are fitted to the drawings and retained; Crocomire has no
 /// mirrored facing.
 /// </remarks>
-internal static class CrocomireBodyCollisionDefinitions
+internal static partial class CrocomireBodyCollisionDefinitions
 {
     /// <summary>Lower-front body rectangle using the standard touch and shot reactions.</summary>
     /// <remarks>The hitbox lists precede the frames that reference them: static fields initialise in declaration

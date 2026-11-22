@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Kraid's two visual BG2 source maps. These are tile references, not the boss's
 /// attack, collision, or growth instructions; the engine composes the working map.
 /// </summary>
-public sealed class KraidBackgroundArtwork
+public sealed partial class KraidBackgroundArtwork
 {
 
     /// <summary>Immutable head tilemaps keyed by the head pose each shows.</summary>

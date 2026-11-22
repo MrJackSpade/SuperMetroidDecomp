@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// content identity from each scene's map and characters and the reward icon's transfer. The import pictures the turning
 /// floors' sheets from it; the game draws those sheets and never loads this artwork (#1555).
 /// </summary>
-public sealed class EndingFloorCharacters
+public sealed partial class EndingFloorCharacters
 {
     /// <summary>Zebes zoom-out backdrop used by the side-cloud escape.</summary>
     private readonly EndingFloorSceneCharacters sideCloudEscape;

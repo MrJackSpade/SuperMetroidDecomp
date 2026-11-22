@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// helmet compositions the file-select sheets are composed from, read from the import-data artwork document, which the game
 /// never receives (#1616).
 /// </summary>
-public sealed class FileSelectSourcePresentation
+public sealed partial class FileSelectSourcePresentation
 {
     /// <summary>Each bordered heading's sprite.</summary>
     internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
@@ -95,23 +95,23 @@ public sealed class FileSelectSourcePresentation
 
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
-    private readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
+    internal readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
     /// <summary>The common backdrop tilemap.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>Each slot-field patch.</summary>
-    private readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
+    internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
     /// <summary>The installed digit glyphs, zero to nine.</summary>
     private readonly BackgroundTile[] digits;
     /// <summary>The installed slot-letter glyphs, one per save slot.</summary>
     private readonly IReadOnlyDictionary<SaveSlot, BackgroundTile> slotLetters;
 
     /// <summary>The installed tile of decimal digit <paramref name="digit"/>.</summary>
-    private BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
+    internal BackgroundTile Digit(int digit) => (uint)digit < FileSelectPresentationDefinitions.DigitCount
         ? digits[digit]
         : throw new ArgumentOutOfRangeException(nameof(digit));
 
     /// <summary>The installed tile of save slot <paramref name="slot"/>'s letter.</summary>
-    private BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
+    internal BackgroundTile SlotLetter(SaveSlot slot) => Ensure.Listed(slotLetters, slot);
 
     /// <summary>
     /// Every picture of file select the menus' sheet holds (#1467): the backdrop and each page, then each field picture
@@ -130,7 +130,7 @@ public sealed class FileSelectSourcePresentation
     /// The field pictures, each placed at its anchor: each patch with its cells where they lie from the anchor, each digit,
     /// the energy tank filled and empty, and each slot letter.
     /// </summary>
-    private IEnumerable<ScreenPictureSubject> FieldSubjects()
+    internal IEnumerable<ScreenPictureSubject> FieldSubjects()
     {
         Extent16<CharacterCells> cell = new(1, 1);
         foreach (FileSelectPatch name in FileSelectPresentationFormat.Patches)
@@ -319,13 +319,13 @@ public sealed class FileSelectSourcePresentation
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
     /// <param name="document">Authored layout to serialize; its collections are not modified.</param>
     public static void Write(Stream output, FileSelectLayoutDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectLayoutDocument>(ArtworkJson.Options)));
 
     /// <summary>Serializes an authored artwork document to the output.</summary>
     /// <param name="output">Writable stream receiving UTF-8 JSON at its current position; left open.</param>
     /// <param name="document">Authored artwork to serialize; its collections are not modified.</param>
     public static void WriteArtwork(Stream output, FileSelectArtworkDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options)));
 
     /// <summary>Rejects authored field patches or time digits that would escape the page.</summary>
     private static void ValidatePatchPlacements(
@@ -436,19 +436,19 @@ public sealed class FileSelectSourcePresentation
     /// <param name="Foreground">Each foreground page's tiles.</param>
     /// <param name="Background">The common BG2 background's tiles.</param>
     /// <param name="Patches">Each slot-field patch.</param>
-    private sealed record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background,
+    private sealed partial record FileSelectPages(Dictionary<FileSelectPage, BackgroundTile[]> Foreground, BackgroundTile[] Background,
         Dictionary<FileSelectPatch, FileSelectCompiledPatch> Patches);
 
     /// <summary>The compiled digit and slot-letter glyphs.</summary>
     /// <param name="Digits">The ten digit glyphs.</param>
     /// <param name="SlotLetters">The three slot-letter glyphs.</param>
-    private sealed record FileSelectGlyphs(BackgroundTile[] Digits, IReadOnlyDictionary<SaveSlot, BackgroundTile> SlotLetters);
+    private sealed partial record FileSelectGlyphs(BackgroundTile[] Digits, IReadOnlyDictionary<SaveSlot, BackgroundTile> SlotLetters);
 
     /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
     /// <param name="Borders">Each bordered heading's composition.</param>
     /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
     /// <param name="Helmets">The helmet's composition of each of its pictures.</param>
-    private sealed record FileSelectSprites(
+    private sealed partial record FileSelectSprites(
         Dictionary<FileSelectBorder, SpriteComposition> Borders,
         Dictionary<MenuMissileFrame, SpriteComposition> Cursors,
         Dictionary<FileSelectHelmetFrame, SpriteComposition> Helmets);

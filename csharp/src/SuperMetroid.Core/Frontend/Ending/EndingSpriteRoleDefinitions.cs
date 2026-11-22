@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Each ending actor role's pictures, sprite layer and motion (#2489): the starfields lie behind every other sprite
 /// (#1514), and each role names the motion its actors start with.
 /// </summary>
-internal static class EndingSpriteRoleDefinitions
+internal static partial class EndingSpriteRoleDefinitions
 {
     /// <summary>Every ending actor role's definition.</summary>
     internal static IdentityTable<EndingSpriteRole, EndingSpriteRoleDefinition> Roles { get; } = new(new Dictionary<EndingSpriteRole, EndingSpriteRoleDefinition>

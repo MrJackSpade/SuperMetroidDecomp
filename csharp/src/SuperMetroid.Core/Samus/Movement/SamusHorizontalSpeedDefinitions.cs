@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's horizontal speeds: each movement's acceleration, maximum and deceleration in air, in water and in lava or
 /// acid, and the speeds of the two movements that set their own (a diagonal bomb jump and a grapple release).
 /// </summary>
-internal static class SamusHorizontalSpeedDefinitions
+internal static partial class SamusHorizontalSpeedDefinitions
 {
     /// <summary>The extra run speed the Speed Booster's dash is held at: seven pixels an update.</summary>
     internal static readonly UnsignedSixteenSixteen BoostedExtraRunSpeedCap = UnsignedSixteenSixteen.FromWholePixels(7);

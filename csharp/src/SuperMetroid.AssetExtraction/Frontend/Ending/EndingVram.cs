@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Typed view of the ending's VRAM allocations (#630).</summary>
-internal readonly struct EndingVram(SnesVram vram)
+internal readonly partial struct EndingVram(SnesVram vram)
 {
     /// <summary>The escape/explosion OBJ sheet.</summary>
     public VramRegion ExplosionObjects => new(vram, EndingVramLayout.ExplosionObjects);

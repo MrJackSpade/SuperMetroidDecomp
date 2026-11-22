@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
 [RoomLifetime]
-internal sealed class GunshipBehavior : IEnemyEntityFactory
+internal sealed partial class GunshipBehavior : IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -27,6 +27,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// was listed before plays its own, as the game's does.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.ShipTop], (occupant, _, place, common, surroundings) =>
@@ -63,7 +64,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>The dust clouds the gunship's liftoff raises, its own (#2571).</summary>
-    private GunshipLiftoffDust.GunshipDustBehavior Dust { get; } = new();
+    internal GunshipLiftoffDust.GunshipDustBehavior Dust { get; } = new();
     /// <summary>The loaded room's bindings: its events and the game-state services that set up Samus's pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy places, where the top hull finds the ship's other pieces when it is placed.</summary>
@@ -198,6 +199,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunGunshipTopMain"/> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GunshipPhase, Action<RoomEnemyPlace, GunshipTop, SamusState, GameplayAction>> RunGunshipTopMainForGunshipPhase => field ??= new(new Dictionary<GunshipPhase, Action<RoomEnemyPlace, GunshipTop, SamusState, GameplayAction>>
     {
         [GunshipPhase.DescendAfterCeres] = (top, ship, samus, _) => DescendPostCeresGunship(top, ship.Ship, ship.Pieces, samus),
@@ -299,7 +301,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Applies the authored brake offsets, then opens the pad and aligns Samus.</summary>
-    private void BouncePostCeresGunship(RoomEnemyPlace top, GunshipState gunshipState, GunshipPieces gunshipPieces, SamusState samus)
+    internal void BouncePostCeresGunship(RoomEnemyPlace top, GunshipState gunshipState, GunshipPieces gunshipPieces, SamusState samus)
     {
         GunshipLandingBrake brake = gunshipState.LandingBrake;
         int yDelta = brake.YDelta;
@@ -361,7 +363,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private static bool BobsWhileLanded(GunshipPhase phase) => GunshipPhaseDefinitions.BobbingWhileLanded.Contains(phase);
 
     /// <summary>Cycles the four idle-bob phases while moving the hull and pad together.</summary>
-    private static void StepGunshipBob(GunshipState gunshipState, GunshipPieces gunshipPieces)
+    internal static void StepGunshipBob(GunshipState gunshipState, GunshipPieces gunshipPieces)
     {
         if (!gunshipState.BobTimer.Step())
             return;
@@ -481,7 +483,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// Waits for the engines to fire up: when the <see cref="GunshipTakeoffDefinitions.EngineStartUpdates"/> wait runs out the
     /// gunship shows its takeoff look from this update's frame on, and the engines fire up.
     /// </summary>
-    private void WaitForGunshipEngines(GunshipState gunshipState)
+    internal void WaitForGunshipEngines(GunshipState gunshipState)
     {
         if (!TickGunshipPhaseTimer(gunshipState))
             return;

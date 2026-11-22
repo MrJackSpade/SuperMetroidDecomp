@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Tourian room-header region, in table order.</summary>
-internal static class TourianRoomEnemyGraphicsSetDefinitions
+internal static partial class TourianRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The members of every Metroid room set, Metroids and Rinkas, in record order.</summary>
     private static readonly RoomEnemyGraphicsSetMember[] MetroidsAndRinkas =

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Golden Torizo's health bands (#2242), each equally wide from none upward, the highest holding the rest: he
 /// starts at full health, in <see cref="Unhurt"/>, and each lower band shows him more hurt.
 /// </summary>
-public static class GoldenTorizoHealthBandDefinitions
+public static partial class GoldenTorizoHealthBandDefinitions
 {
     /// <summary>Golden Torizo in his highest band, the one he starts in.</summary>
     public static GoldenTorizoHealthBand Unhurt { get; } = new(12288, "unhurt");

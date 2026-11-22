@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// beside a door's fade, completes sooner and shows its goal from that step, without the counter's values changing how
 /// far its colours have come.
 /// </summary>
-internal readonly record struct StepCountedFadeProgress
+internal readonly partial record struct StepCountedFadeProgress
 {
     /// <summary>Holds a fade that has moved <paramref name="moved"/> of its <paramref name="length"/> parts.</summary>
     private StepCountedFadeProgress(int moved, int length)

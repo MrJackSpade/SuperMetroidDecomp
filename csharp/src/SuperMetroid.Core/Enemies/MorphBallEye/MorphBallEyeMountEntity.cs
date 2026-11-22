@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountSpawnSettings settings)
+internal sealed partial class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

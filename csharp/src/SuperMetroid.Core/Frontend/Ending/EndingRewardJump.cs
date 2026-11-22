@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Reward jump/landing actor owner, ending at the screen-shot request.</summary>
-internal sealed class EndingRewardJump
+internal sealed partial class EndingRewardJump
 {
     /// <summary>
     /// The animation Samus's body falls by once she passes above the screen. A suited jump's head flies ahead of the body
@@ -39,11 +39,11 @@ internal sealed class EndingRewardJump
     /// </summary>
     private readonly Func<EndingRewardJumpCue, bool> bodyCues;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
-    private SignedSixteenSixteen Velocity { get; set; }
+    internal SignedSixteenSixteen Velocity { get; set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
-    private bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
+    internal bool FellBack => bodyMotion is EndingRewardJumpMotion.Falling or EndingRewardJumpMotion.Landed;
     /// <summary>Whole-pixel body height used to select the falling and landed animations.</summary>
-    private int BodyY => body.ScreenPlace.Y;
+    internal int BodyY => body.ScreenPlace.Y;
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
@@ -124,6 +124,7 @@ internal sealed class EndingRewardJump
     private bool HandleCue(EndingRewardJumpCue cue) => CueReactions[cue]();
 
     /// <summary>What each cue of the jump animations does, and whether it is the shoot event.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingRewardJumpCue, Func<bool>> CueReactions => field ??= new(new Dictionary<EndingRewardJumpCue, Func<bool>>
     {
         [EndingRewardJumpCue.Launch] = () =>

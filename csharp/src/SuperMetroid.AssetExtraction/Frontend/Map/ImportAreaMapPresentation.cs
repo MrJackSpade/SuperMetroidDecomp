@@ -28,7 +28,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// the map presentation (<see cref="MapPresentationFiles.Load"/>) reads no import data.
 /// </summary>
 [ArchitectureReview("context-bag", "The import's characters and colours of the map presentation; every member is immutable artwork data the import composes and pre-colours pictures from, not a service.")]
-public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
+public sealed partial class ImportAreaMapPresentation : InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds and the characters, colours and documents only the import reads.</summary>
     internal ImportAreaMapPresentation(InstalledScreenContent game, ImportPresentationCharacters characters,

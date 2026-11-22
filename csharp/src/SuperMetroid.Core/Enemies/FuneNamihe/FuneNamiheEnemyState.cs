@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// <see cref="FuneEnemyState"/>, which waits on a cooldown; a Namihe's a <see cref="NamiheEnemyState"/>, which waits for
 /// Samus.
 /// </summary>
-public abstract class FuneNamiheEnemyState
+public abstract partial class FuneNamiheEnemyState
 {
     /// <summary>Closes the hierarchy to the two species declared here.</summary>
     private protected FuneNamiheEnemyState()

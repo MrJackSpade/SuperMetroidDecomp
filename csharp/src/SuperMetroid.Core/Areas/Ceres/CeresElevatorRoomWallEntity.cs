@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>

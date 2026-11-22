@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// Reads the enemy OAM composition documents against the enemy-bank frame schema (#1395): import data whose parts are the
 /// original's packed sprite placements (#1638), which only the import composes the enemy sheets from.
 /// </summary>
-public static class EnemySpritemapDocuments
+public static partial class EnemySpritemapDocuments
 {
     /// <summary>Validates authored frames and compiles visual-only fields into OAM parts.</summary>
     /// <param name="json">Caller-owned JSON stream, left open; duplicate and unknown properties are rejected.</param>

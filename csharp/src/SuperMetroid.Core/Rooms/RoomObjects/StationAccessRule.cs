@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="AcquiredAnimation">The animation the station shows once its reward is held; null when it keeps its ordinary one.</param>
 /// <param name="CompletedMessage">The message the station's activation shows.</param>
 /// <param name="Reward">What the station's activation gives Samus: a refill, or its area's map.</param>
-internal sealed record StationAccessRule(
+internal sealed partial record StationAccessRule(
     StationKind Kind,
     int RightOffset,
     int LeftOffset,

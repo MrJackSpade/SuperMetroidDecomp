@@ -161,21 +161,19 @@ internal static class IntroCinematicArtworkVerification
             }
             string paletteStockPath = Path.Combine(importData, IntroCinematicPaletteFile.FileName);
             IntroCinematicPaletteDocument paletteDocument =
-                JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
-                    File.ReadAllBytes(paletteStockPath),
-                    CaseInsensitiveJson)
+                JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(File.ReadAllBytes(paletteStockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>(CaseInsensitiveJson))
                 ?? throw new InvalidDataException("Extracted opening palette is empty.");
             AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Take(255).ToArray(),
-                }))), "opening palette rejects a truncated color table");
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>()))), "opening palette rejects a truncated color table");
             AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select((color, index) =>
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
-                }))), "opening palette rejects out-of-range RGB5 channels");
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>()))), "opening palette rejects out-of-range RGB5 channels");
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
             AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, importData),
@@ -191,9 +189,7 @@ internal static class IntroCinematicArtworkVerification
             string finalLineStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
                 SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroFinalLineTilemapFormat.FileName);
             IntroFinalLineTilemapDocument finalLineDocument =
-                JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
-                    File.ReadAllBytes(finalLineStockPath),
-                    CaseInsensitiveJson)
+                JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(File.ReadAllBytes(finalLineStockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>(CaseInsensitiveJson))
                 ?? throw new InvalidDataException("Extracted final-line map is empty.");
             var nativeFinalLineState = CreateRetailIntroFixture();
             var stockFinalLineState = CreateRetailIntroFixture(characterArtwork: stock);
@@ -206,7 +202,7 @@ internal static class IntroCinematicArtworkVerification
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(finalLineDocument with
                 {
                     Cells = finalLineDocument.Cells.Take(127).ToArray(),
-                }))), "final-line map rejects a truncated tilemap");
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>()))), "final-line map rejects a truncated tilemap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed final-line map never rereads its cartridge source");
 

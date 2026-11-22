@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<HibashiSpawnSettings>
+internal sealed partial class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<HibashiSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -28,6 +28,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>What <see cref="ApplyHibashiCue"/> does for each <see cref="HibashiCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<HibashiCueKind, Action<RoomEnemyPlace, HibashiEnemyState>> ApplyHibashiCueForHibashiCueKind => field ??= new(new Dictionary<HibashiCueKind, Action<RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiCueKind.PlayEruptionSound] = (_, _) => PlayHibashiEruptionSound(),
@@ -52,7 +53,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// <param name="Place">The place the cases read.</param>
     /// <param name="State">The flame's state the cases read.</param>
     /// <param name="Owner">The <see cref="HibashiBehavior"/> reacting.</param>
-    private readonly record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiEnemyState State, HibashiBehavior Owner);
+    private readonly partial record struct ApplyHibashiCueContext(RoomEnemyPlace Place, HibashiEnemyState State, HibashiBehavior Owner);
 
     /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
     /// <returns>The state the collision part holds from its setup.</returns>
@@ -82,6 +83,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     }
 
     /// <summary>What <see cref="RunHibashiMain"/> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private static IdentityTable<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiAction.Inactive] = (_, place, state) => RunHibashiInactive(place, state),
@@ -116,7 +118,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// Rests the flame whose eruption has finished, which hid it: its wait restarts at its placement's inactive time and the
     /// update it runs out on (#2340).
     /// </summary>
-    private static void RestHibashi(HibashiFlameSpawnSettings hibashiFlameSpawnSettings, HibashiEnemyState state)
+    internal static void RestHibashi(HibashiFlameSpawnSettings hibashiFlameSpawnSettings, HibashiEnemyState state)
     {
         state.InactiveTimer = UpdateCountdown.For(hibashiFlameSpawnSettings.InactiveTime + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = HibashiAction.Inactive;
@@ -133,7 +135,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<Hibash
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
     /// half-height, and the first step its half-width.
     /// </summary>
-    private static void ApplyHibashiEruptionStep(HibashiEnemyState state, HibashiEruptionStep step)
+    internal static void ApplyHibashiEruptionStep(HibashiEnemyState state, HibashiEruptionStep step)
     {
         RoomEnemyPlace hitbox = state.Hitbox;
         hitbox.Position = hitbox.Position.WithWholeY(state.SpawnY - step.YOffset);

@@ -46,8 +46,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.PhantoonColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Phantoon color JSON is null.");
         PhantoonColorCatalog colors = native;
 

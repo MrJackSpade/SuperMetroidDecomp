@@ -147,7 +147,7 @@ public sealed class ControllerBindings : IEquatable<ControllerBindings>
     }
 
     /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
-    private bool IsUniquePermutation
+    internal bool IsUniquePermutation
     {
         get
         {

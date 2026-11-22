@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the three ordinary suit palettes; selection and palette timing stay compiled.</summary>
-public static class SamusSuitColorExtractor
+public static partial class SamusSuitColorExtractor
 {
     /// <summary>Exports the ordinary Power, Varia, and Gravity suit OBJ palette rows, not suit-up effects or transient palette cycles.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for $9B:9400, $9B:9520, and $9B:9800 respectively.</param>

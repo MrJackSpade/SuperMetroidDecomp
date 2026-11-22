@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// speeds. Solid enemies stop the ball through the shared block collision, conveyors carry it as inside-block
 /// reactions, and bomb-jump displacement lives in <see cref="SamusBombJumpMovement"/>.
 /// </remarks>
-public static class SamusMorphBallMovement
+public static partial class SamusMorphBallMovement
 {
     /// <summary>
     /// Executes <see cref="SamusMovementType.MorphBallGround"/> or <see cref="SamusMovementType.SpringBallGround"/>

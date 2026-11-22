@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <param name="definition">The actor's animation, colouring and slide.</param>
 /// <param name="sprite">The cinematic sprite showing the actor: its position and animation.</param>
 /// <param name="slideAcceleration">How fast the actor's upward slide grows, Zebes's faster than each star quarter's.</param>
-internal sealed class ZebesRevealSlider(
+internal sealed partial class ZebesRevealSlider(
     CeresDestructionActorDefinition definition,
     CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite,
     SignedEightEight slideAcceleration)

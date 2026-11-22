@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// One row of the controller page (#2206): a row that assigns a button to an action, then Exit and Reset;
 /// <see cref="GameOptionsPageRows.Controller"/> places them from the top.
 /// </summary>
-public abstract record GameOptionsControllerRow
+public abstract partial record GameOptionsControllerRow
 {
     /// <summary>Closes the hierarchy to the rows declared here.</summary>
     private GameOptionsControllerRow()
@@ -22,14 +22,14 @@ public abstract record GameOptionsControllerRow
 
     /// <summary>Assigns the physical button pressed on it to <see cref="Action"/>, swapping the button it displaces.</summary>
     /// <param name="Action">The action the row assigns.</param>
-    public sealed record AssignsAction(ControllerAction Action) : GameOptionsControllerRow
+    public sealed partial record AssignsAction(ControllerAction Action) : GameOptionsControllerRow
     {
         /// <inheritdoc/>
         internal override void React<TContext>(GameOptionsControllerRowReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).AssignsAction(this, context);
     }
 
     /// <summary>Returns to the primary page.</summary>
-    public sealed record Exit : GameOptionsControllerRow
+    public sealed partial record Exit : GameOptionsControllerRow
     {
         /// <inheritdoc/>
         internal override void React<TContext>(GameOptionsControllerRowReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Exit(this, context);
@@ -39,7 +39,7 @@ public abstract record GameOptionsControllerRow
     }
 
     /// <summary>Restores the default button permutation.</summary>
-    public sealed record Reset : GameOptionsControllerRow
+    public sealed partial record Reset : GameOptionsControllerRow
     {
         /// <inheritdoc/>
         internal override void React<TContext>(GameOptionsControllerRowReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Reset(this, context);
@@ -54,4 +54,4 @@ public abstract record GameOptionsControllerRow
 /// <param name="Exit">Reacts to a <see cref="GameOptionsControllerRow.Exit"/>.</param>
 /// <param name="Reset">Reacts to a <see cref="GameOptionsControllerRow.Reset"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record GameOptionsControllerRowReactions<TContext>(Action<GameOptionsControllerRow.AssignsAction, TContext> AssignsAction, Action<GameOptionsControllerRow.Exit, TContext> Exit, Action<GameOptionsControllerRow.Reset, TContext> Reset);
+public sealed partial record GameOptionsControllerRowReactions<TContext>(Action<GameOptionsControllerRow.AssignsAction, TContext> AssignsAction, Action<GameOptionsControllerRow.Exit, TContext> Exit, Action<GameOptionsControllerRow.Reset, TContext> Reset);

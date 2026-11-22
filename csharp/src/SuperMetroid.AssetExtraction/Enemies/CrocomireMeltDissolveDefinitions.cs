@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// step erases, and how much of the image it erases. The import turns it into each melt picture's dissolve, which Core
 /// shows; Core holds none of it.
 /// </summary>
-internal static class CrocomireMeltDissolveDefinitions
+internal static partial class CrocomireMeltDissolveDefinitions
 {
     /// <summary>
     /// The column each step of the dissolve erases, by step: the step erases a pixel of the group of eight pixel columns

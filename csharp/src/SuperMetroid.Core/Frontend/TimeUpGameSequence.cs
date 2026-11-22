@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the white-out.</param>
 /// <param name="stage">The step the time-up enters at.</param>
-internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay, TimeUpGameSequence.Stage stage) : IGameplayPhase
+internal sealed partial class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay, TimeUpGameSequence.Stage stage) : IGameplayPhase
 {
     /// <summary>The step that runs, with what it holds (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);

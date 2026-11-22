@@ -6,12 +6,12 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable room background tile placements, preserving each 32x32 page's cell order.</summary>
-public sealed class RoomBackgroundTilemapAtlas
+public sealed partial class RoomBackgroundTilemapAtlas
 {
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     private readonly BackgroundTile[] tiles;
     /// <summary>Retains a validated one- or two-page tilemap independent of JSON arrays.</summary>
-    private RoomBackgroundTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
+    internal RoomBackgroundTilemapAtlas(BackgroundTile[] tiles) => this.tiles = tiles;
 
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     public ReadOnlyMemory<BackgroundTile> Tiles => tiles;
@@ -58,7 +58,7 @@ public sealed class RoomBackgroundTilemapAtlas
     public static void Write(Stream json, RoomBackgroundTilemapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapDocument>(JsonOptions)));
     }
 
     /// <summary>Accepts casing variations but rejects unknown or duplicate tilemap properties.</summary>

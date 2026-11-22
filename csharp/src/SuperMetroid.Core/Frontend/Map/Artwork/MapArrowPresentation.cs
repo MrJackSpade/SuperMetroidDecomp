@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Immutable map-arrow anchors; no controller bindings.</summary>
-public sealed class MapArrowPresentation
+public sealed partial class MapArrowPresentation
 {
     /// <summary>The four validated direction entries, with no neutral arrow selection.</summary>
     private readonly FrozenDictionary<MapScrollDirection, MapArrowVisual> visuals;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// The installed key of each <see cref="RoomSound"/> (#2520), written out so renaming a member never changes a name the
 /// installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomSoundKeys
+internal static partial class RoomSoundKeys
 {
     /// <summary>Each RoomSound member's installed key.</summary>
     internal static InstalledKeys<RoomSound> Installed { get; } = new(new Dictionary<RoomSound, string>

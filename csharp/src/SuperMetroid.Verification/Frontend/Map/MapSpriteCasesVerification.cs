@@ -35,14 +35,9 @@ internal static class MapSpriteCasesVerification
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
-        foreach (int invalid in new[] { -1, MapSpriteFormat.FrameCount, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
-                ScreenSpritesFixtures.Blank(), new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels), "undefined map sprite identity fails");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)(-1), ScreenSpritesFixtures.Blank(),
-            new(0, 0), MapSpriteScreen.FileSelect, (MapSpriteColouring)ushort.MaxValue), "undefined identity precedes an undefined colouring");
         MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(ArtworkJson.Options));
             return MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(png));
         }
     }

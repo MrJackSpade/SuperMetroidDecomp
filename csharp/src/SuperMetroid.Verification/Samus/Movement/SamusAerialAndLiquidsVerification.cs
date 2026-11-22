@@ -349,7 +349,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         }.InPose(SamusPoseId.MovingRightNormalPose);
-        global::SuperMetroid.Core.PrivateState.Set(ordinary.LiquidPhysics, "Surface", submerged ? new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: false) : global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
+        ordinary.LiquidPhysics.Surface = submerged ? new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: false) : global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None;
         if (cinematic)
             ordinary.Presentation.PresentInCinematic();
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(ordinary, SamusPoseId.SpinJumpRightPose);
@@ -458,7 +458,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire preserves fractional vertical speed");
     AssertEqual(SamusAccelerationMode.Decelerating, spinFire.HorizontalSpeed.AccelerationMode,
         "spin Fire retains extra-run aerial acceleration");
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), spinFire.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Right), spinFire.TransitionShot.Handed,
         "spin Fire publishes target shot direction");
     AssertTrue(spinFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw Attack requests normal suit palette");
@@ -491,7 +491,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot preserves whole vertical speed");
     AssertEqual(0x2345, wallFire.Kinematics.VerticalVelocity.Speed.Fraction,
         "wall-jump Shot preserves fractional vertical speed");
-    AssertEqual<SamusTransitionShot?>(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Right }), wallFire.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Right), wallFire.TransitionShot.Handed,
         "wall-jump Shot publishes target shot direction");
     AssertTrue(wallFire.HorizontalSpeed.SuitShade.IsDue,
         "leaving Screw wall-jump requests normal suit palette");
@@ -1091,7 +1091,7 @@ internal static void VerifySamusAtmosphericEffects()
     // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
     samus.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(110));
     samus.Health = 99;
-    PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.None);
+    samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
     samus.EquippedItems = 0;
     int beforeSpray = particles.Count;
     samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -1274,7 +1274,7 @@ internal static void VerifySamusAtmosphericEffects()
         "cinematic landing suppresses both sound libraries");
     AssertEqual(beforeCinematic + 2, landingParticles.Count, "Norfair cinematic still dispatches landing dust");
     AssertEqual(SamusParticleKind.Dust, landingParticles[^1].Kind, "Norfair cinematic landing particles are dust");
-    PrivateState.Set(landing.Presentation, nameof(SamusPresentation.Mode), default(SamusPresentationMode));
+    landing.Presentation.Mode = default(SamusPresentationMode);
 
     landing.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(111));
     int beforeSurface = landingParticles.Count;
@@ -1300,7 +1300,7 @@ internal static void VerifySamusAtmosphericEffects()
     // effects did; particles already shown run out on their own. Zero vertical speed returns even earlier and therefore
     // ends nothing.
     landing.Ground = RoomDefinitions.FirstIn(AreaId.Ceres).Ground;
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
+    landing.LiquidPhysics.Surface = global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None;
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithWhole(1));
     int beforeCeres = landingParticles.Count;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1319,8 +1319,8 @@ internal static void VerifySamusAtmosphericEffects()
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
     landing.Ground = RoomDefinitions.LandingSite.Ground;
-    PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
-    global::SuperMetroid.Core.PrivateState.Set(landing.LiquidPhysics, "Surface", global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None);
+    landing.LiquidPhysics.FxType = RoomFxType.Rain;
+    landing.LiquidPhysics.Surface = global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None;
     landing.Kinematics.VerticalVelocity = landing.Kinematics.VerticalVelocity.WithSpeed(landing.Kinematics.VerticalVelocity.Speed.WithFraction(1));
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
@@ -1573,28 +1573,28 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = 0 };
 
         samus.Health = 50;
-        PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits));
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits);
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(1, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
         AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
-        PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.Holding(QuarterUnit));
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(QuarterUnit);
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(1, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
         AssertEqual(ThreeQuarterUnits, samus.EnergyFraction.Parts, "an uncovered fraction wraps to the remainder");
 
         samus.Health = 0;
-        PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.None);
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromStoredParts(0, HalfUnit));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
-        PrivateState.Set(samus, "EnergyFraction", PeriodicDamageEnergyFraction.Holding(HalfUnit));
+        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(HalfUnit);
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(2));
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");

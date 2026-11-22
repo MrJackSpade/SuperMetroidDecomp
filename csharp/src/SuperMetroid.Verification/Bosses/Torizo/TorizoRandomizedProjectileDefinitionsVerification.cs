@@ -56,12 +56,20 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
+<<<<<<< HEAD
             EnemyProjectile projectile = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.BombTorizoChozoOrb,
                 new SpriteGraphics(SpawnedObjectOwner.Of(EnemyDefinitionId.BombTorizo), torizo.Shading));
             enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(enemies.TorizoBehavior.Attacks.ChozoOrb, projectile, torizo, definition);
+||||||| 418ca79935
+            EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.BombTorizoChozoOrb);
+            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(enemies.TorizoBehavior.Attacks.ChozoOrb, projectile, torizo, definition);
+=======
+            // The spawn starts the definition's animation with the projectile (#2553); its placement and speed follow.
+            EnemyProjectile projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.BombTorizoChozoOrb,
+                new TorizoProjectileAnimation(enemies.TorizoBehavior.Attacks.ChozoOrb, definition.Animation));
+            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
+>>>>>>> origin/main
 
-            AssertEqual<TorizoProjectileSegment?>(definition.Animation, (projectile.Animation as TorizoProjectileAnimation)?.PlayingSegment,
-                $"{name} production program");
             AssertEqual(unchecked((ushort)(1000 + definition.Offset.X)), projectile.Position.X.Whole,
                 $"{name} production X");
             AssertEqual(unchecked((ushort)(definition.BaseVelocity.X.InTwoHundredFiftySixthsOfPixel - 128)), projectile.Velocity.X.RawValue,

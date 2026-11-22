@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ceres Ridley's health bands (#2242), by accepted hits. He has no badly wounded band: from <see cref="NearlyDead"/>'s
 /// first hit on he shows the nearly-dead colouring.
 /// </summary>
-internal static class CeresRidleyHealthBandDefinitions
+internal static partial class CeresRidleyHealthBandDefinitions
 {
     /// <summary>Ceres Ridley before he is wounded: his own colours.</summary>
     internal static CeresRidleyHealthBand Unhurt { get; } = new(minimumHits: 0, healthShade: null);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Progression;
 /// seconds, minutes and hours it shows and a save keeps are derived from that count, so play never leaves the clock's
 /// domain (#1692), and the clock loads only a reading.
 /// </remarks>
-public sealed class GameTimeState
+public sealed partial class GameTimeState
 {
     /// <summary>
     /// The longest play time, in whole minutes, the clock reaches in play: 99 hours and 59 minutes, where it saturates

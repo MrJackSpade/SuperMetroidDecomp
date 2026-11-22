@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Samus;
 /// The periodic damage Samus takes: liquids, spikes, heat, the grapple's spikes and Draygon's turrets, and enemies and
 /// room objects add to one amount through an update, and Samus's movement applies it once, divided by her suit.
 /// </summary>
-public sealed class SamusPeriodicDamage
+public sealed partial class SamusPeriodicDamage
 {
     /// <summary>
     /// The periodic damage accumulated and not yet applied, in whole energy and its fraction: <see cref="Apply"/> applies and
     /// clears it once an update, so it holds no more than one update's contributions.
     /// </summary>
-    private EnergyAmount Pending { get; set; }
+    internal EnergyAmount Pending { get; set; }
 
     /// <summary>Adds one periodic-damage contribution, in whole energy and its fraction.</summary>
     /// <remarks>

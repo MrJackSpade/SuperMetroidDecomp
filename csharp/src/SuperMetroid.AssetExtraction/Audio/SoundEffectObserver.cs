@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="renderer">The renderer whose frame count positions each poll.</param>
 /// <param name="soundLibrary">The library the sound belongs to.</param>
 /// <param name="command">The request byte.</param>
-internal sealed class SoundEffectObserver(SpcAudioClipRenderer renderer, SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
+internal sealed partial class SoundEffectObserver(SpcAudioClipRenderer renderer, SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
 
     /// <summary>Most channels any library allocates (library 1).</summary>

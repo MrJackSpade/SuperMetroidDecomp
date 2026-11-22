@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TEnemy">The enemies a place holds.</typeparam>
 [CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
-public sealed class RemovedEnemyLeftovers<TEnemy>
+public sealed partial class RemovedEnemyLeftovers<TEnemy>
     where TEnemy : class
 {
     /// <summary>The enemy the place's last deletion left there as it left, or null when its last removal was a kill or none.</summary>

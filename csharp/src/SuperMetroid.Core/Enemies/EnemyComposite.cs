@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <typeparam name="TRole">The roles the members play.</typeparam>
 /// <param name="ListedRoles">Every member's role, in the order the population lists the members.</param>
-internal sealed record EnemyComposite<TRole>(IReadOnlyList<TRole> ListedRoles) where TRole : notnull;
+internal sealed partial record EnemyComposite<TRole>(IReadOnlyList<TRole> ListedRoles) where TRole : notnull;

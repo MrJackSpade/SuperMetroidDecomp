@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <see cref="TitleSequenceDefinitions.Timing.BabyFrameDuration"/> updates, over and over. The pulse starts on its first
 /// pose, one update from its next.
 /// </summary>
-internal static class TitleBabyAnimation
+internal static partial class TitleBabyAnimation
 {
     /// <summary>The pulse's one segment.</summary>
     internal static AnimationSegments<TitleBabySegment, TitleBabyPose, NoAnimationCue> Segments { get; } = new(

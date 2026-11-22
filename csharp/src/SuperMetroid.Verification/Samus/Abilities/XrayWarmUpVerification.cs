@@ -48,7 +48,7 @@ internal static class XrayWarmUpVerification
         }
 
         // Debugger-state boundary: undefined saved enum values are rejected.
-        AssertThrows<InvalidDataException>(() => DebuggerEnumValues.Decode(typeof(XraySuspendedSubsystems), (byte)0x80),
+        AssertThrows<InvalidDataException>(() => StateGraphTypes.Shared.EnumOf<XraySuspendedSubsystems>().Decode("128", zeroStorageSlot: false),
             "undefined flags bits are rejected at the boundary");
         Console.WriteLine("X-ray warm-up: eight updates, blending from the third, the beam's first step on the ninth.");
     }

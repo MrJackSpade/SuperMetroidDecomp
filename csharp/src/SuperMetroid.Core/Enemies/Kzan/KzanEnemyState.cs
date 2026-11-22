@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// fall or rise carries Samus by the move it makes that update (#2473), and landing sets the rise wait before it counts
 /// down.
 /// </summary>
-public sealed class KzanEnemyState
+public sealed partial class KzanEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal KzanEnemyState(KzanAction action) => Action = action;

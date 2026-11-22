@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number a rainy room reads to choose its wind, exactly as the game read it")]
-internal static class RainWindRandomRoll
+internal static partial class RainWindRandomRoll
 {
     /// <summary>
     /// The roll of four a rainy room's wind is chosen by: the number's third and fourth places.

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// What an enemy's death leaves (#2558): nothing, with no roll made, or a pickup its drop chances roll for. An enemy that
 /// drops nothing has no chances to roll, so none stand for its absence.
 /// </summary>
-public abstract record EnemyDrops
+public abstract partial record EnemyDrops
 {
     /// <summary>Only the two cases below are drops.</summary>
     private EnemyDrops()
@@ -19,9 +19,9 @@ public abstract record EnemyDrops
     public static EnemyDrops Rolling(EnemyDropChances chances) => new Rolled(chances);
 
     /// <summary>The death drops nothing.</summary>
-    public sealed record DropsNothing : EnemyDrops;
+    public sealed partial record DropsNothing : EnemyDrops;
 
     /// <summary>The death rolls <paramref name="Chances"/> for its pickup.</summary>
     /// <param name="Chances">The chances the roll reads.</param>
-    public sealed record Rolled(EnemyDropChances Chances) : EnemyDrops;
+    public sealed partial record Rolled(EnemyDropChances Chances) : EnemyDrops;
 }

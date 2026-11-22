@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// The count stays in Core (#2471): her rainbow's images are made of its frames (<see cref="MotherBrainRainbowImage"/>), as
 /// well as the import reading it.
 /// </remarks>
-public static class MotherBrainRainbowColourFormat
+public static partial class MotherBrainRainbowColourFormat
 {
     /// <summary>The rainbow colour cycle's ten frames.</summary>
     public const int RainbowFrameCount = 10;

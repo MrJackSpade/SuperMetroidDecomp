@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The shots that set a downward gate's trigger off (#2484): only the named families, or every family but them.
 /// </summary>
-internal sealed class DownwardGateTriggerShots
+internal sealed partial class DownwardGateTriggerShots
 {
     /// <summary>The families whose shots set the trigger off.</summary>
     private readonly HashSet<SamusProjectileFamily> _accepted;

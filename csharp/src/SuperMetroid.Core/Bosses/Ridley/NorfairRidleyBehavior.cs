@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's encounter.
 /// </summary>
 [RoomLifetime]
-internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncounter<NorfairRidleyState>
+internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncounter<NorfairRidleyState>
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -92,7 +92,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which a missed lunge dodges.</param>
-    private void RunNorfairRidleyPhase(
+    internal void RunNorfairRidleyPhase(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -107,6 +107,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     }
 
     /// <summary>What <see cref="RunNorfairRidleyFightPhase"/> does for each <see cref="NorfairRidleyPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>> RunNorfairRidleyFightPhaseForNorfairRidleyPhase => field ??= new(new Dictionary<NorfairRidleyPhase, Action<RoomEnemyPlace, NorfairRidleyState, SamusState, GameplayAction, RoomLevelData, SamusPowerBombExplosionState>>
     {
         [NorfairRidleyPhase.EnterArena] = (place, state, samus, controllerInput, level, powerBomb) =>
@@ -270,7 +271,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
     /// <param name="controllerInput">The actions held this update.</param>
     /// <param name="level">The room's terrain.</param>
     /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which the chosen phase may read at once.</param>
-    private void SelectNorfairRidleyAttack(
+    internal void SelectNorfairRidleyAttack(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,

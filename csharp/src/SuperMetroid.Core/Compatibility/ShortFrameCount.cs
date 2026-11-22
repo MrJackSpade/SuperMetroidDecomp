@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Ridley full-movie check reads it on every update of a door transition, and the SMV replays' enemy cadences sample it.
 /// </remarks>
 [CompatibilityService("the short frame count, which returns to zero at the end of its period and which a door's scroll restarts")]
-public readonly record struct ShortFrameCount
+public readonly partial record struct ShortFrameCount
 {
     /// <summary>How many frames the count counts before it returns to zero.</summary>
     private const int Period = 256;

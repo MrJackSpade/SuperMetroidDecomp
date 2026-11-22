@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -96,18 +97,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
         AssertEqual("", string.Join(", ", withoutSpecies),
             "every definition the game names has a species");
 
-        var unknownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace unknown = unknownEnemies.Places.InUpdateOrder[0];
-        // A definition no species owns has no entity to become (#2010): binding it fails, naming the definition, instead
-        // of creating a placeholder that runs nothing.
-        const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
-        InvalidOperationException unknownException = AssertThrows<InvalidOperationException>(
-            () => unknown.Bind(unowned, unknown.KeptDefinition),
-            "binding a definition no species owns fails");
-        AssertTrue(
-            unknownException.Message.Contains($"No enemy species owns definition {unowned}", StringComparison.Ordinal),
-            "the failure names the unowned definition");
-
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
             $"{translated.Count} translated initializers, {owned.Count} compiled " +
@@ -133,6 +122,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0,
                     EnemySpawnSettingsCodec.FirstParameterPlacing(definitionPointer), 0)];
 
+        // The open room every record sets up in is built once for the definition: an enemy's setup reads the room's blocks
+        // and changes none (blocks change only through room objects, which these enemy systems have none of), so each
+        // record finds it as built. Building it per record was the most of the check's allocation (about 500 KB a record).
+        RoomLevelData room = RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
         bool definitionTranslated = false;
         bool definitionNeedsOwner = false;
         bool definitionHasOwner = false;
@@ -166,14 +159,14 @@ internal static class EnemyInstructionOwnerCoverageVerification
             place.Processing = population.Processing;
             place.Presence = population.Presence;
             place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-            SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), false);
+            place.AnimationClock.ShowsNewFrame = false;
 
             place.AnimationClock.StepOnNextUpdate();
 
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
+                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(room, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

@@ -7,11 +7,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// Each layer's records dim its first row's colours towards black in equal steps on each channel; this describes the
 /// authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
+public static partial class ZebesExplosionLayerFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 15;
+    internal const int ColorsPerFrame = 15;
 
     /// <summary>The crust's one-shot fade.</summary>
     internal static ZebesExplosionLayerFadePaletteFxColorDefinition FadeOutExplodingZebesCrust { get; } = new(ColourEffectId.FadeOutExplodingZebesCrust, ColorsPerFrame);

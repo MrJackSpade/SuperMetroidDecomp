@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// bomb-jump scan alone runs from the first place up, so the last overlapping bomb in place order decides Samus's launch.
 /// </remarks>
 [RoomLifetime]
-public sealed class SamusBombProjectileSystem
+public sealed partial class SamusBombProjectileSystem
 {
     /// <summary>The Samus artwork whose installed projectile frames each bomb's frames draw.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -32,7 +32,7 @@ public sealed class SamusBombProjectileSystem
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
 
     /// <summary>A placed Power Bomb.</summary>
-    private static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
+    internal static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBomb[] _bombs =
@@ -81,7 +81,7 @@ public sealed class SamusBombProjectileSystem
     public int BombCounter
     {
         get;
-        private set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
+        internal set => field = Ensure.BetweenInclusive(0, PlaceCount, value);
     }
 
     /// <summary>Holds the bomb count full for one update of the Baby Metroid's drain (<see cref="DrainHoldsBombCount"/>).</summary>
@@ -127,7 +127,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
-    private GameplaySoundRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
@@ -477,7 +477,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Installs five bombs with each place's own launch and clears Samus's stored charge.</summary>
-    private void SpawnBombSpread(SamusState samus)
+    internal void SpawnBombSpread(SamusState samus)
     {
         // One bomb for each authored launch, from the spread's leftmost place to its rightmost.
         int place = 0;
@@ -542,7 +542,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Takes <paramref name="bomb"/>'s place with a bomb of <paramref name="kind"/> and the damage its bomb definition gives.</summary>
-    private static SamusBombOccupant Place(SamusBomb bomb, SamusBombKind kind) =>
+    internal static SamusBombOccupant Place(SamusBomb bomb, SamusBombKind kind) =>
         bomb.Occupy(kind, SamusProjectileDamage.Read(SamusProjectileSelection.Bomb(kind)));
 
     /// <summary>Starts a bomb's animation, from the bomb definition of its kind.</summary>
@@ -700,7 +700,7 @@ public sealed class SamusBombProjectileSystem
     /// Tests the bomb center against room bounds, the block its cell stands for (<see cref="ContinuedBlocks"/>), solid blocks
     /// and the game's non-square slope heights.
     /// </summary>
-    private static bool BombSpreadCollides(
+    internal static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBomb bomb)
     {
@@ -749,7 +749,7 @@ public sealed class SamusBombProjectileSystem
     /// every corner is reached twice. The edges are those of the blast's reach clipped to the room, fixed before the first
     /// block reacts.
     /// </summary>
-    private static List<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
+    internal static List<Position16<RoomBlocks>> PowerBombBoundaryBlocks(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius)
@@ -810,7 +810,7 @@ public sealed class SamusBombProjectileSystem
     /// Reacts to a bombed cell: a room's block it stands for (<see cref="ContinuedBlocks"/>) reacts; a cell that stands for
     /// nothing is air, and a plain terrain's air, solid blocks and slopes reach nothing.
     /// </summary>
-    private static void ReactToBombedBlock(
+    internal static void ReactToBombedBlock(
         SamusTerrain terrain,
         Position16<RoomBlocks> bombedBlock,
         SamusProjectileType projectileType)
@@ -906,7 +906,7 @@ public sealed class SamusBombProjectileSystem
     /// <param name="bomb">The bomb whose animation plays.</param>
     /// <param name="animation">The animation the bomb is playing.</param>
     /// <exception cref="InvalidDataException">The animation shows a still picture, which no bomb animation does.</exception>
-    private void AdvanceProjectileAnimation(
+    internal void AdvanceProjectileAnimation(
         SamusBombOccupant bomb,
         AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation) =>
         // A bomb shows each frame its animation reaches, as the game's animation does.

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>
     /// An Evir's body, which only the room's population load places, facing the loading Samus: it offers the arms and spit
@@ -14,6 +14,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// body's definition; only their placement tells them apart. Arms or a spit no body offered are refused.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Loads<EvirSpawnSettings>([EnemyDefinitionId.Evir], CreateBody);
@@ -70,6 +71,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyEvirCue"/> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
     {
         [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),
@@ -122,7 +124,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// direction-change period of the Evir body or arms placed there, which the species' factory lends it from the part's
     /// own settings as it builds the part (#2554).
     /// </summary>
-    private sealed class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
+    private sealed partial class PlaceLender : IEvirHalfCycleLender<RoomEnemyPlace>
     {
         /// <summary>The direction-change period each Evir body and arms the room has placed carries, by its place.</summary>
         private readonly Dictionary<RoomEnemyPlace, int> _periods = [];
@@ -434,13 +436,28 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyBombHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyPowerBombContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveEvirCombatAfterCommon(EnemyShotHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
+
     /// <summary>
     /// Finishes a bomb's hit on an Evir part as its other reactions do after the common damage, on
     /// <paramref name="followers"/>, the enemies its follow-up reaches.
     /// </summary>
     internal static EnemyBombReaction EvirBombReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
+||||||| 418ca79935
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveEvirCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
@@ -489,7 +506,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after
         // them in the room's list.
+<<<<<<< HEAD
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
+||||||| 418ca79935
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveEvirCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
@@ -498,7 +521,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // After every accepted shot's common damage, ice that froze the body included, the body passes its frozen
         // time to its arms and its attached (idle) spit.
+<<<<<<< HEAD
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
+||||||| 418ca79935
+        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveEvirCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>

@@ -9,13 +9,13 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// enemy's tiles from, every set rooms draw under to compose the variants of, and the set each room state and population
 /// draws under (#1599). The game knows no set: it draws each population's enemies in the variants the import names for it.
 /// </summary>
-internal static class RoomEnemyGraphicsSetLists
+internal static partial class RoomEnemyGraphicsSetLists
 {
     /// <summary>Number of distinct retail graphics-set identities, including empty sets and separately addressed sets with matching content.</summary>
-    private const int ListCount = 301;
+    internal const int ListCount = 301;
 
     /// <summary>Total member records across all retail sets; not a count of unique enemy definitions or artwork images.</summary>
-    private const int RecordCount = 423;
+    internal const int RecordCount = 423;
 
     /// <summary>Every retail set's members, in the game's list order, checked complete when built.</summary>
     internal static IReadOnlyList<RoomEnemyGraphicsSetMembers> Retail { get; } = RoomEnemyGraphicsSets.Complete(
@@ -35,7 +35,7 @@ internal static class RoomEnemyGraphicsSetLists
             .ToDictionary(set => set.Set);
 
     /// <summary>Every retail graphics set, in the game's list order.</summary>
-    private static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All { get; } =
+    internal static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All { get; } =
         [.. Retail.Select(set => set.Set)];
 
     /// <summary>

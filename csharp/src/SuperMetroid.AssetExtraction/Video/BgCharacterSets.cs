@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>The extent of each background character set (#1406).</summary>
-public static class BgCharacterSets
+public static partial class BgCharacterSets
 {
     /// <summary>The bytes one character of <paramref name="set"/> holds: 32 for four-bit characters, 16 for two-bit.</summary>
     public static int CharacterBytes(this BgCharacterSet set) => set switch

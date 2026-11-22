@@ -13,10 +13,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Each move pushes Samus by its speed: a fraction past a whole pixel carries into the whole pixels, and her current
 /// and previous positions both take the result.
 /// </remarks>
-public sealed class MotherBrainRainbowBeamSamusMovement
+public sealed partial class MotherBrainRainbowBeamSamusMovement
 {
     /// <summary>The velocity the beam forces on Samus.</summary>
-    private PixelVelocity<RoomPixels> CustomVelocity { get; set; }
+    internal PixelVelocity<RoomPixels> CustomVelocity { get; set; }
 
     /// <summary>
     /// The beam angle the aim step sets; zero points down and the
@@ -111,7 +111,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>The beam's speed along its angle, vertically.</summary>
     /// <param name="speed">The beam's speed, whose size the sine scales.</param>
     /// <param name="angle">The live beam angle.</param>
-    private static SignedEightEight CalculateYVelocity(
+    internal static SignedEightEight CalculateYVelocity(
         SignedEightEight speed,
         RotationAngle angle)
     {

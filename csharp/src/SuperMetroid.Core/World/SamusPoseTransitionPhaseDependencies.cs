@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="SamusPoseTransitionPhase"/> is constructed with, built by its <see cref="SamusFramePhases"/> owner.</summary>
-internal sealed record SamusPoseTransitionPhaseDependencies
+internal sealed partial record SamusPoseTransitionPhaseDependencies
 {
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }

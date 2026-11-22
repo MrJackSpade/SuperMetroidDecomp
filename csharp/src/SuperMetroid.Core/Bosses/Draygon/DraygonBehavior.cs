@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonBody];
 
     /// <summary>
@@ -56,7 +57,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     internal DraygonParts Parts { get; }
 
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-    private DraygonTurrets Turrets { get; }
+    internal DraygonTurrets Turrets { get; }
 
     /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
     internal DraygonIntro Intro { get; }
@@ -71,7 +72,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     internal DraygonGoop Goop { get; }
 
     /// <summary>The goop and turret shots as projectiles.</summary>
-    private DraygonShots Shots { get; }
+    internal DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     internal DraygonGrab Grab { get; }
@@ -129,7 +130,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyS
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
-    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
+    internal sealed partial record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
 
     /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,

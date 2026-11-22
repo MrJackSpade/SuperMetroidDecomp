@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -70,7 +70,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     }
 
     /// <summary>Wakes when Samus comes within its activation distance across and rises facing her.</summary>
-    private static void RunZoaWait(
+    internal static void RunZoaWait(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         SamusState samus)
@@ -87,7 +87,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     }
 
     /// <summary>Reveals Zoa and rises until it reaches Samus's height, then starts its shooting animation.</summary>
-    private static void RunZoaRising(
+    internal static void RunZoaRising(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         SamusState samus)
@@ -105,7 +105,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     }
 
     /// <summary>Travels in the selected facing direction and resets whole-pixel position when its center exits the camera square.</summary>
-    private static void RunZoaShooting(
+    internal static void RunZoaShooting(
         RoomEnemyPlace place,
         ZoaEnemyState state,
         Position16<RoomPixels> camera)
@@ -132,7 +132,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     }
 
     /// <summary>Starts <paramref name="segment"/>'s animation, restarting its timers, only when it differs from the one playing (#2145).</summary>
-    private static void SetZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state, ZoaSegment segment) =>
+    internal static void SetZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state, ZoaSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, ZoaAnimations.StartingWith(segment));
 
     /// <summary>Runs Zoa's main AI.</summary>

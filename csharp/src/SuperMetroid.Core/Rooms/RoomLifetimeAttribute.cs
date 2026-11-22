@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms;
 /// SME6410).
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false)]
-internal sealed class RoomLifetimeAttribute : Attribute;
+internal sealed partial class RoomLifetimeAttribute : Attribute;

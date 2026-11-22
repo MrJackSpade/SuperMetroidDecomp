@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// outside the statue room, where the background keeps its own vertical scroll (#2385).
 /// </param>
 /// <param name="XrayReveal">The X-ray reveal background shows while X-ray is active, drawn from the room's block pictures (#1392).</param>
-public sealed record OrdinaryRoomFrameLatch(
+public sealed partial record OrdinaryRoomFrameLatch(
     ShownHud Hud,
     PicturedHud PicturedHud,
     GameplayRenderSnapshot Scrolls,

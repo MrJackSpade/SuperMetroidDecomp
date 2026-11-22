@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// station's save completed, or a map or refill station's completion message. Each is its own type, so the frame opens
 /// what the action asks and cannot receive an impossible combination of station and message.
 /// </summary>
-public abstract record StationActivationEvent
+public abstract partial record StationActivationEvent
 {
     /// <summary>Only the station actions below derive from this.</summary>
     private protected StationActivationEvent()

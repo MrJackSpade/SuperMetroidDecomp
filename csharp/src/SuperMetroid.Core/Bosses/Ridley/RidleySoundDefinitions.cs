@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The enemy-library sounds Ridley queues.</summary>
-internal static class RidleySoundDefinitions
+internal static partial class RidleySoundDefinitions
 {
     /// <summary>The roar, queued by the body animation's roar cue at normal priority.</summary>
     internal static readonly SoundEffectId Roar = EnemySound.RidleyRoar;

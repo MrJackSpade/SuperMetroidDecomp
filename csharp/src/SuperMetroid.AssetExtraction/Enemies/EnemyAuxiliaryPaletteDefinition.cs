@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Id">The family.</param>
 /// <param name="FrameCount">The family's colour frames.</param>
 /// <param name="ColorCount">The colours one frame holds.</param>
-internal readonly record struct EnemyAuxiliaryPaletteDefinition(EnemyAuxiliaryPalette Id, int FrameCount, int ColorCount);
+internal readonly partial record struct EnemyAuxiliaryPaletteDefinition(EnemyAuxiliaryPalette Id, int FrameCount, int ColorCount);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// the right one, the opposite, anything but. Only a blue trigger turns a shot away without a sound. Its setup makes the
 /// block on the trigger's own side shootable (<see cref="GateObjects.SetupDownwardGateShotBlock"/>).
 /// </summary>
-internal static class DownwardGateTriggerDefinitions
+internal static partial class DownwardGateTriggerDefinitions
 {
     /// <summary>Each trigger's definition.</summary>
     internal static IReadOnlyDictionary<DownwardGateTrigger, DownwardGateTriggerDefinition> Triggers { get; } =

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <summary>
 /// Draws the pause screen's reserve tanks (<see cref="PauseReserveTankDefinitions"/>): each tank's anchor, frame and fill level.
 /// </summary>
-public static class PauseReserveTankParts
+public static partial class PauseReserveTankParts
 {
     /// <summary>The pause sheet's frame for the reserve-strip frame <paramref name="frame"/>.</summary>
     [InstalledKey]

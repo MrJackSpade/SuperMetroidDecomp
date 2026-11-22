@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// One spread bomb's fuse and launch velocity, in pixels per update: its horizontal velocity, negative leftward, and its
 /// vertical velocity, negative upward, before any held-Down bonus (<see cref="SamusBombSpreadLaunches.Launch"/>).
 /// </summary>
-internal readonly record struct BombSpreadLaunchDefinition(
+internal readonly partial record struct BombSpreadLaunchDefinition(
     int FuseTimer, SignedSixteenSixteen HorizontalVelocity, SignedSixteenSixteen VerticalVelocity);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>How each kind of Samus's particles moves and is placed (<see cref="SamusParticles"/>).</summary>
-internal static class SamusParticleKindDefinitions
+internal static partial class SamusParticleKindDefinitions
 {
     /// <summary>
     /// Each kind: the diving splash is held on the water's surface; splashes, spray and dust are centred on the particle,

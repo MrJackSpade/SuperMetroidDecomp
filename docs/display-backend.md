@@ -3,8 +3,8 @@
 The Direct3D 11 backend (`csharp/src/SuperMetroid.Rendering.Direct3D11`) draws a `DisplayPacket` and nothing else
 (#1408). It knows no console memory image, palette memory, sprite table, register or bit depth: its inputs are the
 packet's typed layers and effect descriptions, and the installed pre-coloured images the packet's layers and draws
-name. `--packet-input` in `SuperMetroid.RenderVerification` checks that the renderer takes no other frame input and that
-none of its code names a hardware type.
+name. Since #1422 removed Core's Hardware module there is no hardware type for it to take: `D3D11FrameRenderer.Render`
+takes the packet, and the render checks in `SuperMetroid.RenderVerification` draw packets and compare the pixels.
 
 The backend is an intermediate step. v1.0.0 ports each rule below into Godot's own rendering, one by one; this page is
 the list to port. Every rule reproduces a visible result of the game exactly: each was proven against the software

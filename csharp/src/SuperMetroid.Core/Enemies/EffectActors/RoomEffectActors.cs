@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// limit on how many are live at once.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomEffectActors
+internal sealed partial class RoomEffectActors
 {
     /// <summary>Publishes the objects from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;
@@ -42,7 +42,7 @@ internal sealed class RoomEffectActors
     }
 
     /// <summary>The live objects, in the order they spawned.</summary>
-    private IEnumerable<RoomEffectActor> Live => _objects.Where(static spawned => spawned.IsActive);
+    internal IEnumerable<RoomEffectActor> Live => _objects.Where(static spawned => spawned.IsActive);
 
     /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, after every live object.</summary>
     /// <returns>The object, which its spawner holds when it moves, recolours or ends it.</returns>

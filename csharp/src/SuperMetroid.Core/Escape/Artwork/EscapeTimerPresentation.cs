@@ -3,13 +3,13 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>The escape timer's editable layout: where its label and digit pairs sit and how far apart a pair's digits are.</summary>
-public sealed class EscapeTimerPresentation
+public sealed partial class EscapeTimerPresentation
 {
     /// <summary>The base of the decimal digits each pair shows.</summary>
     private const int DigitBase = 10;
 
     /// <summary>Every anchor's installed screen-relative offset from the timer's origin.</summary>
-    private readonly Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors;
+    internal readonly Dictionary<EscapeTimerAnchor, Offset16<ScreenPixels>> anchors;
 
     /// <summary>Holds every installed anchor and the digit spacing the import pipeline validated.</summary>
     /// <exception cref="InvalidDataException">An anchor has no installed offset.</exception>

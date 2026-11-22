@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <typeparam name="TPicture">The pictures packed.</typeparam>
 /// <param name="Size">The sheet's width and height.</param>
 /// <param name="Pictures">Each picture with its rectangle's top-left corner on the sheet, in the order they were packed.</param>
-internal sealed record PackedSheet<TPicture>(Extent16<ImagePixels> Size, IReadOnlyList<PackedPicture<TPicture>> Pictures);
+internal sealed partial record PackedSheet<TPicture>(Extent16<ImagePixels> Size, IReadOnlyList<PackedPicture<TPicture>> Pictures);

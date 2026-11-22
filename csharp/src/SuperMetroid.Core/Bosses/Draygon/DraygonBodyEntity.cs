@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+internal sealed partial class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
     /// <summary>The encounter his body began as it was built (#2554).</summary>
@@ -52,13 +52,33 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupa
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == DraygonReactions.Shot ? OwnShotReaction : base.ShotReaction;
 
     /// <summary>The body's own shot reaction, built once for its encounter (#2553).</summary>
-    private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.DraygonShotReaction(Encounter);
+    private EnemyShotReaction OwnShotReaction => field ??= Species.Combat.DraygonShotReaction(this);
 
     /// <summary>The body's own stages around common bomb damage, built once for its encounter (#2553).</summary>
-    private EnemyBombReaction OwnBombReaction => field ??= Species.Combat.DraygonBombReaction(Encounter);
+    private EnemyBombReaction OwnBombReaction => field ??= DraygonCombat.DraygonBombReaction(this);
 
     /// <summary>The body's own Power Bomb reaction, built once for its encounter (#2553).</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= Species.Combat.DraygonPowerBombReaction(Encounter);
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= DraygonCombat.DraygonPowerBombReaction(this);
+
+    /// <summary>Speeds his swoop up as a bomb strikes his eye, before its common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void AdvanceShotAcceleration(EnemyBombHitContext context) => DraygonCombat.AdvanceDraygonShotAcceleration(Encounter);
+
+    /// <summary>Speeds his swoop up as a shot strikes his eye, after its impact.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void AdvanceShotAcceleration(EnemyShotContext context) => DraygonCombat.AdvanceDraygonShotAcceleration(Encounter);
+
+    /// <summary>Resolves his encounter's reaction to a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void ResolveReaction(EnemyBombHitContext context) => Species.Combat.ResolveDraygonReaction(context.Enemy, Encounter, context.Samus);
+
+    /// <summary>Resolves his encounter's reaction to a Power Bomb's common damage.</summary>
+    /// <param name="context">The Power Bomb's hit.</param>
+    internal void ResolveReaction(EnemyPowerBombContext context) => Species.Combat.ResolveDraygonReaction(context.Enemy, Encounter, context.Samus);
+
+    /// <summary>Resolves his encounter's reaction to a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void ResolveReaction(EnemyShotHitContext context) => Species.Combat.ResolveDraygonReaction(context.Enemy, Encounter, context.Samus);
 
     /// <summary>
     /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The counter cadences and phases of the Metroids' and Mochtroids' drains and hurt flash (#1606).</summary>
-internal static class MetroidCadenceDefinitions
+internal static partial class MetroidCadenceDefinitions
 {
     /// <summary>
     /// The enemy passes on which a Metroid or Mochtroid draining Samus queues the energy-drain sound: the last place of

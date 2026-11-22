@@ -76,7 +76,6 @@ SME6472 | Design | Error | InlineDefinitionDataAnalyzer
 SME6474 | Design | Error | UnreadResultAnalyzer
 SME6475 | Design | Error | NullableThenThrowAnalyzer
 SME6476 | Design | Error | MagicAbsenceAnalyzer
-SME6477 | Design | Error | PrivateStateMemberAnalyzer
 SME6482 | Design | Error | ListPositionAnalyzer
 SME6485 | Design | Error | ClosedChoiceAsBoolAnalyzer
 SME6479 | Design | Error | CoreDocumentationStorageAndHistoryAnalyzer
@@ -86,3 +85,10 @@ SME6484 | Design | Error | IdentityListingAnalyzer
 SME6486 | Design | Error | RandomPlaceSelectionAnalyzer
 SME6487 | Design | Error | ParallelListAnalyzer
 SME6488 | Design | Error | IdentityDuplicationAnalyzer
+SME6489 | Architecture | Error | GameReflectionAnalyzer
+SME6490 | Build | Error | GeneratedTextGenerator
+SME6491 | Build | Error | StateGraphGenerator
+SME6492 | Build | Error | StateGraphGenerator
+SME6493 | Build | Error | StateGraphGenerator
+SME6494 | Build | Error | StateGraphExposure
+SME6495 | Build | Error | NamedMembersGenerator

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Areas.Ceres;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>The Ceres Baby's installed colours, fifteen RGB5 colours for each shade it glows with, excluding the transparent colour.</summary>
-public sealed record CeresBabyShadeColorsDocument
+public sealed partial record CeresBabyShadeColorsDocument
 {
     /// <summary>The resting colours, restored when the expressive loop ends.</summary>
     public required PaletteRgb5[] Resting { get; init; }

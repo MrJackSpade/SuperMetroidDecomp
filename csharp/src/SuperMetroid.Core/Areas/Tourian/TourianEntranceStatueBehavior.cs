@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawnFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
+internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawnFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
 {
 
     /// <inheritdoc/>
@@ -62,7 +62,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawn
     /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. The scene's
     /// placements and every projectile of the scene show it alike.
     /// </summary>
-    private PictureShading SceneShading { get; set; } = PictureShading.Standard;
+    internal PictureShading SceneShading { get; set; } = PictureShading.Standard;
 
     /// <summary>The graphics a statue scene projectile spawns with: the shared sheet in the scene's look.</summary>
     internal SpriteGraphics SceneGraphics => SpriteGraphics.SharedIn(SceneShading);
@@ -190,12 +190,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawn
     /// The behaviour of the statue's base decoration, Ridley and Phantoon (#1760, #2382): their spawner starts their
     /// animations, and they follow the statue room's statue down.
     /// </summary>
-    private DecorationBehavior Decorations { get; }
+    internal DecorationBehavior Decorations { get; }
 
     /// <summary>A decoration: it follows the statue's reveal and descent, and settles at its place.</summary>
     /// <param name="statue">The statues' shared animation state, whose rest finishes the statue's sinking.</param>
     /// <param name="statueRoom">The statue room, which says how far the statue has sunk.</param>
-    internal sealed class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
+    internal sealed partial class DecorationBehavior(TourianStatueAnimation statue, ITourianStatueRoom statueRoom)
         : TourianStatueProjectileBehavior<TourianStatueDecorationMotion>(TourianStatueDecorationMotion.Settled)
     {
         /// <summary>The base decoration's animation starts it following the statue's reveal.</summary>
@@ -204,6 +204,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawn
             projectile.StartMotion(this, TourianStatueDecorationMotion.FollowingReveal);
 
         /// <summary>What <c>Move</c> does for each <see cref="TourianStatueDecorationMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueDecorationMotion => field ??= new(new Dictionary<TourianStatueDecorationMotion, Action<EnemyProjectileMotionContext>>
         {
             [TourianStatueDecorationMotion.FollowingReveal] = context => PositionTourianEntranceStatueProjectile(context.Projectile),

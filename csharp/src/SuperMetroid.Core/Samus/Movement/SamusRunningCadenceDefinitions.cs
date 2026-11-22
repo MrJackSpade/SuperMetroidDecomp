@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// full sound queue selects is not authored, and <see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>
 /// reproduces it (#1473).
 /// </remarks>
-internal static class SamusRunningCadenceDefinitions
+internal static partial class SamusRunningCadenceDefinitions
 {
     /// <summary>Each authored cadence's timing: ordinary running's and each Speed Booster stage's (#2324).</summary>
     internal static IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> Timings { get; } =

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Places Mother Brain's glass shards at the emitter each one bursts from.</summary>
-internal static class MotherBrainGlassShards
+internal static partial class MotherBrainGlassShards
 {
     /// <summary>
     /// One of the horizontal emitter positions on the glass: right, left or centre, all below the glass's origin block;

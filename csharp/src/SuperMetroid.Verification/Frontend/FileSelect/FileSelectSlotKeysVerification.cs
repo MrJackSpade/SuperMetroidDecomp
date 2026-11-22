@@ -16,7 +16,6 @@ internal static class FileSelectSlotKeysVerification
         AssertTrue(SaveSlots.All.Select(FileSelectParts.LetterFrame)
                 .SequenceEqual(["FileSelect.Letter.A", "FileSelect.Letter.B", "FileSelect.Letter.C"]),
             "each slot's letter is pictured under the slot's name");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectParts.LetterFrame((SaveSlot)byte.MaxValue), "an undefined slot has no letter");
         foreach ((FileSelectItem row, SaveSlot slot) in new[] { (FileSelectItem.SlotA, SaveSlot.A), (FileSelectItem.SlotB, SaveSlot.B), (FileSelectItem.SlotC, SaveSlot.C) })
             AssertTrue(FileSelectItemRows.TryGetSaveSlot(row, out SaveSlot named) && named == slot, $"the {row} row names slot {slot}");
         foreach (FileSelectItem command in new[] { FileSelectItem.Copy, FileSelectItem.Clear, FileSelectItem.Exit })

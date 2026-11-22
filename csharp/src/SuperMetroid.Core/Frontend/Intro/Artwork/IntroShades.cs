@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// crossfade level below full of each crossfaded scene over the scene pictures and actors, and each colour variant a
 /// narration letter's typing or glow gives it. Which inks each recolours, and to what, is the import's.
 /// </summary>
-public static class IntroShades
+public static partial class IntroShades
 {
     /// <summary>The shade family of the narration letters' colour variants.</summary>
     public const string GlowEffect = "IntroTextGlow";

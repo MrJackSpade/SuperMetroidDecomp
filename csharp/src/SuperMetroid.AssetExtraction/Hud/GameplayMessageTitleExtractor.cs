@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts the one-row item/status messages as editable UTF-8 titles.</summary>
-public static class GameplayMessageTitleExtractor
+public static partial class GameplayMessageTitleExtractor
 {
     /// <summary>Decodes the fifteen editable one-row item/status titles and preserves their common 32-cell border as tiles.</summary>
     /// <param name="bus">Cartridge source for the bank-$85 message definitions, small title rows, and border artwork.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>How Draygon holds Samus and how she escapes (#2111).</summary>
-public static class SamusDraygonHoldDefinitions
+public static partial class SamusDraygonHoldDefinitions
 {
     /// <summary>The counted presses of the directions that free Samus from Draygon's hold.</summary>
     public const int EscapePresses = 60;

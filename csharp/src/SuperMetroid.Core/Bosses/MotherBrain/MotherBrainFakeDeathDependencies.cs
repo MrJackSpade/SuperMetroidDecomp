@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="MotherBrainFakeDeath"/> is constructed with, built once by its owner.</summary>
 [RoomLifetime]
-internal sealed record MotherBrainFakeDeathDependencies
+internal sealed partial record MotherBrainFakeDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }

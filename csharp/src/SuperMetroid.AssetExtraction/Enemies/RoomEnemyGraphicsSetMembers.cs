@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="set">The set whose members these are.</param>
 /// <param name="records">The set's ordered members.</param>
-internal sealed class RoomEnemyGraphicsSetMembers(RoomEnemyGraphicsSetDefinition set, RoomEnemyGraphicsSetMember[] records)
+internal sealed partial class RoomEnemyGraphicsSetMembers(RoomEnemyGraphicsSetDefinition set, RoomEnemyGraphicsSetMember[] records)
 {
     /// <summary>The members in the set's order.</summary>
     private readonly RoomEnemyGraphicsSetMember[] members = Ensure.NotNull(records);

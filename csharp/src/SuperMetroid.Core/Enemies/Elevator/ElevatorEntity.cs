@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, ElevatorSpawnSettings settings)
+internal sealed partial class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, ElevatorSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

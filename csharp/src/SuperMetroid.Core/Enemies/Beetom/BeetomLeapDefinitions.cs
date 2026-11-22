@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>How high a Beetom's leaps and lunge climb, and how fast each climbs along the quadratic speed curve (#2026).</summary>
-internal static class BeetomLeapDefinitions
+internal static partial class BeetomLeapDefinitions
 {
     /// <summary>The short leap: it climbs 48 pixels, four marks a pass.</summary>
     internal static QuadraticCurveClimb ShortLeap { get; } = new(SignedSixteenSixteen.FromWholePixels(48), QuadraticSpeedCurvePlace.FromMarks(BeetomMotionDefinitions.ShortHopMarks));

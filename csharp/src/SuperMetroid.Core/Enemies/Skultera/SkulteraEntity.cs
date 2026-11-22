@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, SkulteraSpawnSettings settings)
+internal sealed partial class SkulteraEntity(SkulteraBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, SkulteraSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

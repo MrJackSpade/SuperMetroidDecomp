@@ -5,10 +5,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>One of four Baby-Metroid slime drops created when the confused baby first cries.</summary>
-internal sealed class IntroEggSlimeDrop
+internal sealed partial class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
-    private readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
+    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
     /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>

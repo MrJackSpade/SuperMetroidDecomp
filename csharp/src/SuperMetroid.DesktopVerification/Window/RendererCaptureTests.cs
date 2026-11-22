@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-using System.Reflection;
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Rendering.Direct3D11.Presentation;
@@ -13,7 +11,6 @@ using SuperMetroid.TestSupport.FrameRendering;
 internal static class RendererCaptureTests
 {
     /// <summary>Direct3D 11 stepping, resize, paused state restore, generation reset and asynchronous shutdown.</summary>
-    [ReflectionAudit("hidden forms receive no native resize message, so WinForms OnResize is raised directly")]
     internal static async Task Verify()
     {
         // Private fixture data lives in a new directory, never in the player's live slots.
@@ -21,7 +18,7 @@ internal static class RendererCaptureTests
         string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = PlaceInstalledRom(directory);
-        using var form = new Form { ClientSize = new(900, 760), ShowInTaskbar = false };
+        using var form = new HiddenHostForm { ClientSize = new(900, 760), ShowInTaskbar = false };
         using var control = DesktopAccess.CreateGameControl(rom, new HostOptions { AudioEnabled = false });
         form.Controls.Add(control);
         // Construct handles without Show/ShowDialog; the UI loop remains alive for DXGI.
@@ -52,10 +49,10 @@ internal static class RendererCaptureTests
             form.WindowState = FormWindowState.Minimized;
             // Hidden forms do not receive native minimize messages. Raise the
             // real host event explicitly while retaining their child dimensions.
-            (typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Form).GetMethod(\"OnResize\", BindingFlags.Instance | BindingFlags.NonPublic).")).Invoke(form, [EventArgs.Empty]);
+            form.RaiseResize();
             await Until(() => worker.IsSurfaceSuspended, worker);
             form.WindowState = FormWindowState.Normal;
-            (typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw new InvalidOperationException("Verification requires typeof(Form).GetMethod(\"OnResize\", BindingFlags.Instance | BindingFlags.NonPublic).")).Invoke(form, [EventArgs.Empty]);
+            form.RaiseResize();
             await Until(() => !worker.IsSurfaceSuspended, worker);
             var canvas = control.canvas;
             await Until(() => worker.LastDrawnSize
@@ -72,5 +69,12 @@ internal static class RendererCaptureTests
         // recorder streams and HWNDs close. Failures retain their fixture for diagnosis.
         Directory.Delete(directory, recursive: true);
         Console.WriteLine("  Direct3D11: retained load/reset display verified; test-owned files removed.");
+    }
+
+    /// <summary>The test's own host window, which raises its resize event itself: a hidden form receives no native resize message.</summary>
+    private sealed class HiddenHostForm : Form
+    {
+        /// <summary>Raises the form's resize event, as a native resize message would.</summary>
+        internal void RaiseResize() => OnResize(EventArgs.Empty);
     }
 }

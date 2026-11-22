@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// Waver's steady and spinning animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WaverCue"/> naming what it does.
 /// </summary>
-internal static class WaverAnimations
+internal static partial class WaverAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<WaverSegment, EnemyFrameId, WaverCue> Segments { get; } = new(
@@ -28,7 +28,7 @@ internal static class WaverAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<WaverSegment, Animation<WaverSegment>> StartingAt { get; } = new Dictionary<WaverSegment, Animation<WaverSegment>>
+    internal static Dictionary<WaverSegment, Animation<WaverSegment>> StartingAt { get; } = new Dictionary<WaverSegment, Animation<WaverSegment>>
     {
         [P.SteadyFacingLeft] = new([Segments.Whole(P.SteadyFacingLeft)], AnimationEnd.Holds),
         [P.SteadyFacingRight] = new([Segments.Whole(P.SteadyFacingRight)], AnimationEnd.Holds),

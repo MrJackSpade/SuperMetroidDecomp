@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the three elevator-platform frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectElevatorPlatformVisualFiles
+public static partial class RoomObjectElevatorPlatformVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the elevator platform's three six-cell artwork frames.</summary>
-    private const string VisualFileName = "elevator-platforms.json";
+    internal const string VisualFileName = "elevator-platforms.json";
 
     /// <summary>The platform's frames in the installed file's order (#2567): dim, glowing, bright.</summary>
     private static readonly IReadOnlyList<ElevatorPlatformDraw> FrameOrder = Ensure.EveryMemberOnce<ElevatorPlatformDraw>(
@@ -36,7 +36,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the three platform frames in order.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> DrawLists
     {
         get
         {
@@ -48,7 +48,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     }
 
     /// <summary>Maps a platform draw to its stable artwork identifier.</summary>
-    private static string VisualId(RoomObjectDraw request) =>
+    internal static string VisualId(RoomObjectDraw request) =>
         ElevatorPlatformDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list"));
 
     /// <summary>The draw list of <paramref name="draw"/>, which must be one of the elevator platform draws.</summary>
@@ -60,7 +60,7 @@ public static class RoomObjectElevatorPlatformVisualFiles
     /// The draw list of a platform frame (#1862): its block shape written as its two upper edge blocks, the object's and
     /// the one three right of it, then the four-block row below them.
     /// </summary>
-    private static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGetDraw(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(ElevatorPlatformDraws.Family, request, out RoomBlockShape? shape))
         {

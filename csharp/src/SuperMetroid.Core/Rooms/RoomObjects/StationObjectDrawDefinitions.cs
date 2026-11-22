@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The block shape each of the twenty station draws draws (#1862). What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class StationObjectDrawDefinitions
+internal static partial class StationObjectDrawDefinitions
 {
     /// <summary>A map station's display: its block and the one left of it, both solid.</summary>
     private static readonly RoomBlockShape MapDisplay = new([new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-1, 0), RoomCollisionType.SolidBlock)]);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable pause equipment-page label schema, separating inventory-owned text from the backdrop, wireframe, and reserve controls.</summary>
-public sealed record PauseEquipmentLabelDocument
+public sealed partial record PauseEquipmentLabelDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="PauseEquipmentLabelArtworkDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

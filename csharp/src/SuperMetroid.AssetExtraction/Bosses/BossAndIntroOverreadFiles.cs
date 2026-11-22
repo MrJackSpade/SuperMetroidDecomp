@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Extracts what Kraid's fingernails, Crocomire's volley and the opening cinematic's egg shell read past their data,
 /// decoded from the player's cartridge (#1500), and loads it as the boss and intro overread services.
 /// </summary>
-public static class BossAndIntroOverreadFiles
+public static partial class BossAndIntroOverreadFiles
 {
     /// <summary>
     /// Decodes every read and writes the results as JSON. No manifest is written (#1693): the document names its own format,
@@ -25,7 +25,7 @@ public static class BossAndIntroOverreadFiles
         IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         BossAndIntroOverreadDocument document = BossAndIntroOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, BossAndIntroOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument>(BossAndIntroOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, BossAndIntroOverreadFormat.FileName), bytes);
     }
 

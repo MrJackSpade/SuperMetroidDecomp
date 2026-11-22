@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// phase the session runs (#2554): it holds the countdown it counts, and its type names what it runs on, so no step reads
 /// another step's countdown and none runs on gameplay it does not have.
 /// </summary>
-internal abstract class AttractDemoGameSequence
+internal abstract partial class AttractDemoGameSequence
 {
     /// <summary>The step of the demo run against <paramref name="session"/>; only the steps below derive from it.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// a walk in the open leads to each other hole in turn and then back into the hole he left; a walk inside the wall leads to
 /// each other hole, the last taken by two rolls, since no wall path leads back into the hole he left.
 /// </summary>
-internal static class BotwoonWalkDestinations
+internal static partial class BotwoonWalkDestinations
 {
     /// <summary>The choice of a walk in the open from each hole of <paramref name="holes"/>, read from <paramref name="draw"/>.</summary>
     /// <param name="holes">The holes in the order the choices list them.</param>

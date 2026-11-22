@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainRainbowAndDeath
+internal sealed partial class MotherBrainRainbowAndDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -59,7 +59,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Carries out what one step of her death asked of the room: explosions, fades, music, the escape and its door.</summary>
-    private void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
+    internal void ApplyLiveMotherBrainDeath(MotherBrainEnemyState state, MotherBrainRainbowBeamAttackStepResult step)
     {
         foreach (var explosion in step.DeathExplosions)
         {
@@ -127,7 +127,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
-    private void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
+    internal void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
         DustExplosionAnimation animation = request.Animation;
         var projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainDeathExplosion, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new DustExplosionProjectileAnimation(animation));
@@ -138,7 +138,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
-    private void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
+    internal void SpawnMotherBrainDoorFragment(MotherBrainDoorFragmentDefinition definition)
     {
         var fragment = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.EscapeDoorParticle));
         if (fragment is null) return;
@@ -180,7 +180,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// Carries out what one step of the late fight asked of the room: colours, the beam's sound and earthquake, Samus's
     /// cooldown, the Baby's spawn, beam explosions and her death's requests. The phases wrote her own state in place.
     /// </summary>
-    private void ApplyLiveMotherBrainRainbowState(
+    internal void ApplyLiveMotherBrainRainbowState(
         MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult current,
@@ -235,7 +235,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Spawns a rainbow explosion that follows Samus at the requested offset.</summary>
-    private void SpawnMotherBrainRainbowExplosion(
+    internal void SpawnMotherBrainRainbowExplosion(
         Position16<RoomPixels> samusBeforeMovement,
         MotherBrainRainbowExplosionRequest request)
     {

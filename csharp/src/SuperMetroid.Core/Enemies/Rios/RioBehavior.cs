@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -43,6 +43,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     }
 
     /// <summary>What <see cref="RunRioMain"/> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunRioMainForRioAction => field ??= new(new Dictionary<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [RioAction.WaitingForSamus] = (place, state, samus, level, camera) =>
@@ -207,7 +208,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawn
     /// The Rio's hover velocity along <paramref name="angle"/>'s sine: one pixel per update at its peak, the sine itself
     /// with no speed of its own, unlike Rinka's.
     /// </summary>
-    private static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
+    internal static SignedEightEight HoverVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>

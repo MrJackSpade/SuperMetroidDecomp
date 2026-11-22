@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="Look">The look shown.</param>
 /// <param name="Paint">Which paint draws it: the cap's own, the grey caps' or the blue's.</param>
-internal readonly record struct DoorCapShown(DoorCapLook Look, DoorCapShownPaint Paint);
+internal readonly partial record struct DoorCapShown(DoorCapLook Look, DoorCapShownPaint Paint);

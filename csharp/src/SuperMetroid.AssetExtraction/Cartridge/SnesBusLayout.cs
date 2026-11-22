@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// windows, the ROM window and the reserved windows no device drives.
 /// </summary>
 [EncodingOwner("SNES CPU bus windows a LoROM cartridge sees")]
-public static class SnesBusLayout
+public static partial class SnesBusLayout
 {
     /// <summary>The highest 24-bit bus address.</summary>
     public const int MaximumAddress = 0x00ff_ffff;

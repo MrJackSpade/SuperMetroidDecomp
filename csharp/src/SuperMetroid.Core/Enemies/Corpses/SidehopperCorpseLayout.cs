@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// How a dead Sidehopper lies in its room (#2558): placed already dead, drained from the start, or Baby Metroid's victim,
 /// whose drain has gone as far as its stage. Only the victim has a drain.
 /// </summary>
-public abstract record SidehopperCorpseLayout
+public abstract partial record SidehopperCorpseLayout
 {
     /// <summary>Only the two layouts below exist.</summary>
     private protected SidehopperCorpseLayout()
@@ -41,7 +41,7 @@ public abstract record SidehopperCorpseLayout
     internal abstract SidehopperCorpseLayout DrainedOneStep();
 
     /// <summary>A corpse placed already dead.</summary>
-    private sealed record PlacedDeadSidehopper : SidehopperCorpseLayout
+    private sealed partial record PlacedDeadSidehopper : SidehopperCorpseLayout
     {
         /// <inheritdoc/>
         internal override bool IsDrained => true;

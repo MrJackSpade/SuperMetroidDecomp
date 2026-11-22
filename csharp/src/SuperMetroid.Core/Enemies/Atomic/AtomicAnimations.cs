@@ -9,18 +9,18 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 /// Atomic's four spinning animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class AtomicAnimations
+internal static partial class AtomicAnimations
 {
     /// <summary>The updates each of Atomic's turning frames shows for.</summary>
     private const int TurnUpdates = 8;
 
     /// <summary>Atomic turning while it faces up and right, a sixth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpRightTurn { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] UpRightTurn { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.AtomicFacingUpRightTurned0, EnemyFrameId.AtomicFacingUpRightTurned60, EnemyFrameId.AtomicFacingUpRightTurned120,
         EnemyFrameId.AtomicFacingUpRightTurned180, EnemyFrameId.AtomicFacingUpRightTurned240, EnemyFrameId.AtomicFacingUpRightTurned300);
 
     /// <summary>Atomic turning while it faces up and left, a sixth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] UpLeftTurn { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] UpLeftTurn { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.AtomicFacingUpLeftTurned0, EnemyFrameId.AtomicFacingUpLeftTurned60, EnemyFrameId.AtomicFacingUpLeftTurned120,
         EnemyFrameId.AtomicFacingUpLeftTurned180, EnemyFrameId.AtomicFacingUpLeftTurned240, EnemyFrameId.AtomicFacingUpLeftTurned300);
 
@@ -35,7 +35,7 @@ internal static class AtomicAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
+    internal static Dictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
         [P.UpRightTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpRightTurning)]),
         [P.UpLeftTurning] = Animation<AtomicSegment>.Looping([Segments.Whole(P.UpLeftTurning)]),

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>A Ki-Hunter body's state: its patrol, swoop, wingless hops and whether it still has its wings.</summary>
-public sealed class KiHunterBodyState
+public sealed partial class KiHunterBodyState
 {
     /// <summary>Starts the state in <paramref name="action"/>, with the place of <paramref name="wings"/>.</summary>
     internal KiHunterBodyState(KiHunterAction action, RoomEnemyPlace wings)

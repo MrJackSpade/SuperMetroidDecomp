@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Color">The trigger's colour.</param>
 /// <param name="Side">The side of its gate the trigger sits on.</param>
-public readonly record struct DownwardGateTrigger(DownwardGateTriggerColor Color, HorizontalDirection Side);
+public readonly partial record struct DownwardGateTrigger(DownwardGateTriggerColor Color, HorizontalDirection Side);

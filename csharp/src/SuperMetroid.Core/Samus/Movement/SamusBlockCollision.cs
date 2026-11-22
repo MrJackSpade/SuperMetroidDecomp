@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// hurting her; a door block leads through its door; and special and bomb blocks start their room objects, which
 /// decide whether she passes. An extension block stands for the block it extends.
 /// </remarks>
-public static class SamusBlockCollision
+public static partial class SamusBlockCollision
 {
     /// <summary>
     /// Runs the block-only observation of the wall-jump block collision check.
@@ -414,7 +414,7 @@ public static class SamusBlockCollision
 
     /// <summary>Vertical scan result including sand contact, which can affect motion without blocking travel.</summary>
     [IndependentFlag("independent scan facts: a collision, and sand contact")]
-    private readonly record struct VerticalTerrainScan(SignedSixteenSixteen AcceptedDisplacement, bool Collided, bool SandContact);
+    private readonly partial record struct VerticalTerrainScan(SignedSixteenSixteen AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>
     /// The vertical block scans (left to right) and the mirrored scan

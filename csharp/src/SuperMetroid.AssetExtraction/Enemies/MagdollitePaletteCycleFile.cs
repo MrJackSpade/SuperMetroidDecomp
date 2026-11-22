@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes the installed Magdollite palette cycle document.</summary>
-public static class MagdollitePaletteCycleFile
+public static partial class MagdollitePaletteCycleFile
 {
     /// <summary>Validates the four installed RGB5 glow rows and keeps them as installed.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
@@ -51,5 +51,5 @@ public static class MagdollitePaletteCycleFile
     /// <param name="document">Four complete RGB5 glow rows to serialize; their arrays are not retained.</param>
     /// <returns>JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
     public static byte[] Write(MagdollitePaletteCycleDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.MagdollitePaletteCycleDocument>(ArtworkJson.Options));
 }

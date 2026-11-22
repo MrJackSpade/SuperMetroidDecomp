@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// of the background and sprites, with the pictures fixed in the room behind the floor (#1545). The HUD is its own layer (#1466).
 /// </summary>
 /// <remarks>Band boundaries are screen lines; the floor's turning is measured from the top of the screen, never from a band's start.</remarks>
-public sealed record TurningRoomLayer : DisplayLayer
+public sealed partial record TurningRoomLayer : DisplayLayer
 {
     /// <summary>How the floor appears on the screen, measured from the top of the screen even below the HUD.</summary>
     public FloorView Transform { get; }

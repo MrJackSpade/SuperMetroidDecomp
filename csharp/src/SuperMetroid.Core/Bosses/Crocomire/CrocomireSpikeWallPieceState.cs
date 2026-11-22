@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// falling speed.
 /// </summary>
 /// <param name="piece">The piece of the wall it is, which sets its motion and its landing sound.</param>
-internal sealed class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece) : EnemyProjectileState
+internal sealed partial class CrocomireSpikeWallPieceState(CrocomireSpikeWallPiece piece) : EnemyProjectileState
 {
     /// <summary>The piece of the wall it is, which sets its motion and its landing sound.</summary>
     internal CrocomireSpikeWallPiece Piece { get; } = Ensure.NotNull(piece);

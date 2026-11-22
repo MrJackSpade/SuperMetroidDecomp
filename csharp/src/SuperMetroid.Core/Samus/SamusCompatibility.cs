@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// long as she does: a new Samus starts with no recorded movement, no spark acceleration, no crash orbit travel, no shared
 /// counts and no effect waits.
 /// </summary>
-internal sealed class SamusCompatibility
+internal sealed partial class SamusCompatibility
 {
     /// <summary>The motion her shots inherit when they launch.</summary>
     public required ProjectileLaunchInheritance LaunchInheritance { get; init; }

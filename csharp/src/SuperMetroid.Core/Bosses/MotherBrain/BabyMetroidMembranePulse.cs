@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One phase of the Baby Metroid's eight-phase membrane pulse (#2259), whose colours its membrane shows. Each pulse that reaches
 /// <see cref="CryPhase"/> counts toward its periodic cry.
 /// </summary>
-public readonly record struct BabyMetroidMembranePulse
+public readonly partial record struct BabyMetroidMembranePulse
 {
     /// <summary>The phase at <paramref name="step"/> of the cycle.</summary>
     private BabyMetroidMembranePulse(int step) => Step = step;

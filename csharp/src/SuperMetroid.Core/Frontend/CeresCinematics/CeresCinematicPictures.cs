@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// planet, which the import composes once in the flight's colours. The scenes place the pictures their state shows on
 /// a plane, each at its cell.
 /// </summary>
-public static class CeresCinematicPictures
+public static partial class CeresCinematicPictures
 {
     /// <summary>The name of the picture of the caption's letter <paramref name="index"/>.</summary>
     public static string CaptionLetter(int index) => $"caption-{index}";

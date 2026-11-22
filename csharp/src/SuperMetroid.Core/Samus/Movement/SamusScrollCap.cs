@@ -4,7 +4,7 @@
 /// The scrolling-speed cap for enemies that place Samus (Draygon and Yapping Maw): it rewrites her
 /// previous position so the camera follows at most one pixel past <see cref="SamusCameraDefinitions.PreviousPositionCap"/> a frame.
 /// </summary>
-internal sealed class SamusScrollCap
+internal sealed partial class SamusScrollCap
 {
     /// <summary>
     /// The camera's frame-start Samus checkpoint for this enemy frame. The live previous-position

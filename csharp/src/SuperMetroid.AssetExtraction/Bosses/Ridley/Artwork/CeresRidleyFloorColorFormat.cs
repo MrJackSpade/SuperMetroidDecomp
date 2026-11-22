@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Editable color-resource filename and JSON revision, separate from zoom-state and palette-destination definitions.</summary>
-public static class CeresRidleyFloorColorFormat
+public static partial class CeresRidleyFloorColorFormat
 {
     /// <summary>JSON filename loaded by the presentation catalog for the nine Mode-7 getaway shades.</summary>
     public const string FileName = "ceres-ridley-mode7-colors.json";

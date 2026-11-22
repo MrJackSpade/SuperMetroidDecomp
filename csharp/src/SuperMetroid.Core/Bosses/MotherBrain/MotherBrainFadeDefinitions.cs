@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// the shared animation player from its own progress (<see cref="MotherBrainFadeProgress"/>, #2404), over once its last
 /// image has shown its hold out.
 /// </summary>
-public static class MotherBrainFadeDefinitions
+public static partial class MotherBrainFadeDefinitions
 {
     /// <summary>Her brain greying as she fakes her death.</summary>
     public static MotherBrainFade FakeDeathToGrey { get; } = new("mother-brain-fake-death-to-grey", MotherBrainFakeDeathFadeDefinitions.FrameCount,

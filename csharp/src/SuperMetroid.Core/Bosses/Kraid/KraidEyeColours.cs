@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// them and fades back to them, and times his roar from the eyes reaching them; the rest of his colours belong to the
 /// import, which pre-colours his pictures.
 /// </summary>
-public sealed class KraidEyeColours
+public sealed partial class KraidEyeColours
 {
     /// <summary>The eyes' colours under the hurt flash.</summary>
     private readonly RgbColor[] hurt;

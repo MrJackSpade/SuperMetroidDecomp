@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// Each corpse keeps its own schedule. No room holds two corpses that rot at once, so no corpse's rot reaches
 /// another's (#1472).
 /// </remarks>
-public sealed class CorpseRotSchedule
+public sealed partial class CorpseRotSchedule
 {
     /// <summary>Starts the schedule of a corpse <paramref name="rowCount"/> pixel rows tall, before its first rot update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse is shorter than <see cref="CorpseRotScheduleDefinitions.FewestRows"/>.</exception>

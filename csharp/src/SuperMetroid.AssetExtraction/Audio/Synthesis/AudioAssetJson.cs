@@ -5,7 +5,7 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Serializes large audio manifests with exact byte lists and low-allocation music instruction records.</summary>
-internal static class AudioAssetJson
+internal static partial class AudioAssetJson
 {
     /// <summary>Camel-case manifest settings with converters that preserve the authored JSON structure.</summary>
     internal static readonly JsonSerializerOptions Options = new()
@@ -23,7 +23,7 @@ internal static class AudioAssetJson
     /// written-out key codecs (#2548): an effect's key names an effect command, which its opcode must
     /// name too, and every other key names its kind.
     /// </summary>
-    private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
+    private sealed partial class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
     {
         /// <summary>Reads an authored instruction directly, retaining default and last-duplicate JSON behavior.</summary>
         /// <exception cref="JsonException">The operation names no command, or names an effect its opcode does not.</exception>
@@ -127,23 +127,23 @@ internal static class AudioAssetJson
                 : AudioMusicInstructionKindKeys.Installed.Of(value.Kind));
             writer.WriteNumber("opcode"u8, value.Opcode);
             writer.WritePropertyName("timing"u8);
-            JsonSerializer.Serialize(writer, value.Timing, options);
+            JsonSerializer.Serialize(writer, value.Timing, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WritePropertyName("arguments"u8);
-            JsonSerializer.Serialize(writer, value.Arguments, options);
+            JsonSerializer.Serialize(writer, value.Arguments, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WriteEndObject();
         }
 
         /// <summary>The command an operation's key names.</summary>
         /// <param name="Kind">What the command is.</param>
         /// <param name="Effect">The effect an effect command's key names; null for any other command.</param>
-        private readonly record struct MusicOperation(AudioMusicInstructionKind Kind, SpcMusicEffect? Effect);
+        private readonly partial record struct MusicOperation(AudioMusicInstructionKind Kind, SpcMusicEffect? Effect);
     }
 
     /// <summary>
     /// Reads every instruction's timing/argument bytes into one exact array instead of a
     /// growing list. Writes the same JSON number array the default collection writer emits.
     /// </summary>
-    private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
+    private sealed partial class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
     {
         /// <summary>Reads a byte array with stack storage for short operands and a pooled buffer for larger ones.</summary>
         public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

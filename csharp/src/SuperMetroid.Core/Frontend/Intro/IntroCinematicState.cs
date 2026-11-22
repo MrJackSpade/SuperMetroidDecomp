@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// page, and the colour transition into the Mother Brain gameplay flashback.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own flashback level, Samus projectiles and colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class IntroCinematicState : IFrontendScreen
+public sealed partial class IntroCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -49,7 +49,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     }
 
     /// <summary>Binds the installed sprite sheets the flashbacks' Samus and projectiles draw from.</summary>
-    private void BindSpriteSheets(InstalledSpriteSheets sheets)
+    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
         SceneSheets = Ensure.NotNull(sheets);
         projectileSheets = ProjectileSheets.IntroFlashbacks(sheets);
@@ -71,7 +71,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
-    private IntroCinematicArtwork CharacterArtwork { get; set; }
+    internal IntroCinematicArtwork CharacterArtwork { get; set; }
     /// <summary>The installed Samus artwork the flashbacks' Samus draws from, rebound with the host's artwork.</summary>
     private readonly SamusArtworkBinding flashbackSamusArtwork;
     /// <summary>
@@ -96,7 +96,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         }
     }
     /// <summary>Binds the opening's installed backdrops and the Ceres scenes' placements when the game is bound to its installed content.</summary>
-    private void BindCharacterArtwork(IntroCinematicArtwork value)
+    internal void BindCharacterArtwork(IntroCinematicArtwork value)
     {
         CharacterArtwork = Ensure.NotNull(value);
         CurrentCeresFlight?.BindArtwork(value.CeresFlight);
@@ -114,13 +114,13 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly AudioQueues audio;
     /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
-    private readonly IntroNarrationText narrationText = new();
+    internal readonly IntroNarrationText narrationText = new();
     /// <summary>The cinematic actors' sprites over the intro sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
-    private readonly SamusProjectileSystem flashbackProjectiles;
+    internal readonly SamusProjectileSystem flashbackProjectiles;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to the flashbacks' Samus and projectiles.</summary>
     private readonly SamusOverreadServices samusOverreads;
     /// <summary>The installed steps the egg's shell fragments fall by past their gravity curve, handed to the discovery scene.</summary>
@@ -151,16 +151,16 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// The opening's colour effects (#1733): the old Mother Brain fight's background lights, from the end of the crossfade
     /// into the fight until page two's crossfade recolours the room.
     /// </summary>
-    private ColourEffectSystem ColourEffects { get; set; } = ColourEffectSystem.ForScreen();
+    internal ColourEffectSystem ColourEffects { get; set; } = ColourEffectSystem.ForScreen();
     /// <summary>
     /// The Mother Brain flashback while it runs, from its setup until the discovery's setup carries its Samus on and
     /// releases it; none outside it.
     /// </summary>
-    private IntroMotherBrainFlashback? MotherBrainFlashback { get; set; }
+    internal IntroMotherBrainFlashback? MotherBrainFlashback { get; set; }
     /// <summary>How the Mother Brain flashback shows Samus: the flashback shows her, and deleting Mother Brain hides her.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
     /// <summary>Egg and baby actors in the SR388 discovery flashback.</summary>
-    private IntroBabyDiscoveryState? CurrentBabyDiscovery { get; set; }
+    internal IntroBabyDiscoveryState? CurrentBabyDiscovery { get; set; }
     /// <summary>Laboratory actors shared by delivery and examination scenes.</summary>
     internal IntroScientistCutsceneState? CurrentScientistCutscene { get; private set; }
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
@@ -241,7 +241,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <see cref="IntroCinematicPhase.PageAwaitingInput"/> and <see cref="IntroCinematicPhase.PageCrossfade"/> show, and
     /// the one the illustration it turned to has followed.
     /// </summary>
-    private IntroNarrationPageId Page { get; set; } = IntroNarrationPageDefinitions.FirstPage;
+    internal IntroNarrationPageId Page { get; set; } = IntroNarrationPageDefinitions.FirstPage;
 
     /// <summary>True when the SPACE COLONY caption and its final fade have completed.</summary>
     public bool CeresFlightFinished => CurrentCeresFlight?.Finished ?? false;
@@ -475,7 +475,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// </summary>
     /// <param name="flashback">The running flashback.</param>
     /// <param name="explosionsExistedBeforeThisFrame">Whether her fourth hit spawned the explosions before this update.</param>
-    private void StepMotherBrainFlashbackActors(IntroMotherBrainFlashback flashback, bool explosionsExistedBeforeThisFrame)
+    internal void StepMotherBrainFlashbackActors(IntroMotherBrainFlashback flashback, bool explosionsExistedBeforeThisFrame)
     {
         // The cinematic step runs Samus's input and movement phases, ahead of the sprite pass, only while the intro shows her.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
@@ -649,7 +649,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Replaces the Mother Brain flashback with the discovery scene: the SR388 egg and baby.</summary>
     /// <param name="narration">The narration actors the pages run with.</param>
     /// <param name="flashback">The Mother Brain flashback the discovery replaces, whose Samus it carries on.</param>
-    private void SetupBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroMotherBrainFlashback flashback)
+    internal void SetupBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroMotherBrainFlashback flashback)
     {
         Ensure.NotNull(narration);
         Ensure.NotNull(flashback);
@@ -676,7 +676,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
     /// <param name="narration">The narration actors the pages run with.</param>
     /// <param name="discovery">The discovery scene the crossfade shows.</param>
-    private void StepBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroBabyDiscoveryState discovery)
+    internal void StepBabyDiscoveryCrossfade(IntroNarrationActors narration, IntroBabyDiscoveryState discovery)
     {
         if (!AdvanceCrossfade())
             return;
@@ -778,7 +778,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Runs the scripted Samus gameplay, projectiles, collisions, and colour updates for the Mother Brain flashback.</summary>
     /// <param name="flashback">The running flashback.</param>
-    private void StepMotherBrainDemo(IntroMotherBrainFlashback flashback)
+    internal void StepMotherBrainDemo(IntroMotherBrainFlashback flashback)
     {
         DemoInputState demoInput = flashback.DemoInput;
         SamusState samus = flashback.Samus;
@@ -946,7 +946,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// Prepares Mother Brain's sprites once per display; trail drawing advances state, so a captured frame cannot be redrawn through this path.
     /// </summary>
     /// <param name="flashback">The running flashback.</param>
-    private SpriteFrameBuffer PrepareMotherBrainSprites(IntroMotherBrainFlashback flashback)
+    internal SpriteFrameBuffer PrepareMotherBrainSprites(IntroMotherBrainFlashback flashback)
     {
         // Both direct rendering and detached capture enter here once per display.
         var sprites = new SpriteFrameBuffer();
@@ -1034,7 +1034,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Collects the persistent caret, the Japanese text's next-page arrow and illustrated-page cinematic actors in display order.</summary>
     /// <param name="narration">The narration actors the pages run with.</param>
-    private SpriteFrameBuffer PrepareIllustratedPageSprites(IntroNarrationActors narration)
+    internal SpriteFrameBuffer PrepareIllustratedPageSprites(IntroNarrationActors narration)
     {
         Ensure.NotNull(narration);
         var sprites = new SpriteFrameBuffer();
@@ -1059,9 +1059,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         return sprites;
     }
 
-
     /// <summary>Builds the portrait page, clears optional Japanese glyphs, and seeds progressive narration and caret state.</summary>
-    private void SetupFirstIllustratedPage()
+    internal void SetupFirstIllustratedPage()
     {
         // The pages show blank text rows over the installed final line, drawn with the Japanese glyphs blanked (#1467).
         narrationText.ClearText();
@@ -1086,12 +1085,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Clears the narration's text rows.</summary>
     private void ClearVisibleNarrationText() => narrationText.ClearText();
 
-
     /// <summary>
     /// The Mother Brain room's shading: the crossfade's, with the record the fight's background lights last showed laid
     /// over it while they run (#1733).
     /// </summary>
-    private PictureShading FightRoomShading =>
+    internal PictureShading FightRoomShading =>
         ColourEffects.FrameOf(ColourEffectColours.OldMotherBrainBackgroundLights) is { } lights
             ? crossfade.SceneShading.With(ColourEffectShades.Of(ColourEffectColours.OldMotherBrainBackgroundLights, lights))
             : crossfade.SceneShading;
@@ -1143,7 +1141,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         }, fade.Level);
     }
 
-
     /// <summary>
     /// The colour the opening shows where nothing is drawn (#1512): the installed backdrop at the narration's level, as the
     /// backdrop fades with the narration.
@@ -1185,5 +1182,4 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>The installed sheets the scene pictures are drawn from.</summary>
     private InstalledSpriteSheets SceneSheets { get; set; }
-
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <param name="Animation">The animation playing.</param>
 /// <param name="Place">Where it stands.</param>
-internal readonly record struct AnimationPlayback<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
+internal readonly partial record struct AnimationPlayback<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
     where TSegment : struct
 {
     /// <summary>The segment the playing phase plays; before the first play, the first phase's (#1886).</summary>

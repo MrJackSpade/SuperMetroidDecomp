@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Spore Spawn's initial, health, and death RGB5 images.</summary>
-public static class SporeSpawnColorExtractor
+public static partial class SporeSpawnColorExtractor
 {
     /// <summary>Exports the independent spore palette, four health-dependent body images, and separate sprite/level/background death-color sequences.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$A5 color bands beginning at $E359, $E379, $E3F9, $E4F9, and $E5D9 respectively.</param>

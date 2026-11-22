@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Fx;
 /// </para>
 /// </remarks>
 [RoomLifetime]
-public sealed class ColourEffectSystem : IGameplayShadingSource
+public sealed partial class ColourEffectSystem : IGameplayShadingSource
 {
     /// <summary>
     /// The running effects, in turn order: the order they started (#1592, #1598), an effect that starts joining after every
@@ -32,7 +32,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
     /// the room loads and run until the room ends.
     /// </summary>
-    private readonly List<RoomColourEffect> effects = [];
+    internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
     /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
     /// colours, without taking a turn, until an effect showing the same colours settles after it or the room ends.
@@ -59,7 +59,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// </summary>
     /// <param name="session">Whether the effects run and the heat phases, which room loading never clears.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects, or none for a frontend screen's.</param>
-    private ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests? sounds)
+    internal ColourEffectSystem(ColourEffectSessionState session, GameplaySoundRequests? sounds)
     {
         _session = Ensure.NotNull(session);
         this.sounds = sounds;
@@ -199,7 +199,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedEffect">A room effect to use instead of the door's selection.</param>
     /// <param name="sounds">The update's sound requests of the runtime running the effects.</param>
-    private static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
+    internal static ColourEffectSystem ForEffect(ColourEffectSessionState session, RoomFxSelection? fx, DoorDefinition? door,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomEffectDefinition? suppliedEffect, GameplaySoundRequests sounds)
     {
@@ -341,7 +341,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <param name="Conditions">The conditions the cases read.</param>
     /// <param name="Effect">The effect the cases read.</param>
     /// <param name="Owner">The <see cref="ColourEffectSystem"/> reacting.</param>
-    private readonly record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);
+    private readonly partial record struct CheckConditionContext(ColourEffectInputs Conditions, RoomColourEffect Effect, ColourEffectSystem Owner);
 
     /// <summary>
     /// The heat shimmer's condition. The shimmer owns both its look and the heat's damage: an unprotected Samus takes the
@@ -474,6 +474,6 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>An effect that shows a look now, with the frame it shows.</summary>
     /// <param name="Effect">The effect.</param>
     /// <param name="Frame">The frame it shows.</param>
-    private readonly record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
+    private readonly partial record struct ShowingEffect(RoomColourEffect Effect, ColourEffectFrame Frame);
 
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// The state of a Squeept's cosmetic follower, the second half its room lists right after the jumping parent: only its
 /// animation. It shows while its parent rises and reads everything else from the parent.
 /// </summary>
-public sealed class NorfairLavaJumperFollowerState
+public sealed partial class NorfairLavaJumperFollowerState
 {
     /// <summary>Creates the follower's state, following the parent it found as it was placed.</summary>
     /// <param name="parent">The parent's state.</param>

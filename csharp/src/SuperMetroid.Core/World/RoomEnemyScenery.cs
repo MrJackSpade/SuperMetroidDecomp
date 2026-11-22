@@ -19,5 +19,5 @@ namespace SuperMetroid.Core.World;
 /// places Ceres Ridley, whose getaway writes Ceres's warning, and Mother Brain, whose death types Zebes's (#2554).
 /// </param>
 [RoomLifetime]
-internal sealed record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, TourianStatueRoom? TourianStatueRoom,
+internal sealed partial record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, TourianStatueRoom? TourianStatueRoom,
     RoomWarnings? Warnings);

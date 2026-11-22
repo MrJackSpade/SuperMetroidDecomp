@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's typed fireball and afterburn animations (#641, #1600, #2011), each beat the installed
 /// <see cref="EnemyProjectileFrameId"/> it shows.
 /// </summary>
-internal static class RidleyFireballAnimations
+internal static partial class RidleyFireballAnimations
 {
     /// <summary>
     /// Every fireball and afterburn segment's beats: the fireball stops, shows its two four-update launch poses and starts

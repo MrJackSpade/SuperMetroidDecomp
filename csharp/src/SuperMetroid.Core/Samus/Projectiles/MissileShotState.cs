@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// A missile's ignition (#2346), created when the missile is fired or reflected; a Super Missile and its link keep theirs
 /// with the link they name (<see cref="SuperMissileShotState"/>).
 /// </summary>
-internal class MissileShotState : SamusShotKindState
+internal partial class MissileShotState : SamusShotKindState
 {
     /// <summary>Starts a missile's ignition pending.</summary>
     /// <param name="ignition">Where the missile starts in its ignition: pending when fired, pending after a reflection when reflected.</param>

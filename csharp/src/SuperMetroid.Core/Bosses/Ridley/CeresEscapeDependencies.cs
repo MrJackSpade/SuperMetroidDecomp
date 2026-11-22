@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="CeresEscape"/> is constructed with, built once by its owner.</summary>
 [RoomLifetime]
-internal sealed record CeresEscapeDependencies
+internal sealed partial record CeresEscapeDependencies
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }

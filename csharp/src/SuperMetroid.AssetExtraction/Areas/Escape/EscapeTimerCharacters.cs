@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// The installed escape-timer typeface as the import pipeline reads it (#1409): the installed PNG's pixels compiled to the
 /// timer's four-bit planar characters, which only the import reads (#1513).
 /// </summary>
-public sealed class EscapeTimerCharacters
+public sealed partial class EscapeTimerCharacters
 {
     /// <summary>The 25 timer characters in four-bit planar load order.</summary>
     internal readonly byte[] characters;

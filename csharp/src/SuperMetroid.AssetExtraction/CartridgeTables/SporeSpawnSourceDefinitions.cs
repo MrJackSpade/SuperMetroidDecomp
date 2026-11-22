@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed Spore Spawn colour document.
 /// </summary>
 [EncodingOwner("cartridge addresses of Spore Spawn's colour tables")]
-internal static class SporeSpawnSourceDefinitions
+internal static partial class SporeSpawnSourceDefinitions
 {
     /// <summary>$A5:E359, the spore colour image the initializer copies to sprite palette seven.</summary>
     internal const int SporeColors = 0xa5e359;

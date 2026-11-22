@@ -47,8 +47,7 @@ internal static class CeresFlightSpriteArtworkVerification
         }
 
         string stockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), CeresFlightSpriteFormat.FileName);
-        CeresFlightSpriteDocument document = JsonSerializer.Deserialize<CeresFlightSpriteDocument>(
-            File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+        CeresFlightSpriteDocument document = JsonSerializer.Deserialize<CeresFlightSpriteDocument>(File.ReadAllBytes(stockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Ceres flight sprites are empty.");
         document.Frames.Remove("stars");
         AssertThrows<InvalidDataException>(() =>

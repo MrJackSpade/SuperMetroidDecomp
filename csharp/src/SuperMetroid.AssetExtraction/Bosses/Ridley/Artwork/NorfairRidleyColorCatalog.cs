@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Lower Norfair Ridley's installed initial and arena-reveal colours, kept as installed.</summary>
-public sealed class NorfairRidleyColorCatalog
+public sealed partial class NorfairRidleyColorCatalog
 {
     /// <summary>The installed initial colours.</summary>
     private readonly InstalledColourRows initial;

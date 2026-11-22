@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>Where Samus is and how the area map is revealed for one minimap update (#633).</summary>
-public sealed record MinimapFrame
+public sealed partial record MinimapFrame
 {
     /// <summary>The area the minimap shows.</summary>
     public required AreaId Area { get; init; }

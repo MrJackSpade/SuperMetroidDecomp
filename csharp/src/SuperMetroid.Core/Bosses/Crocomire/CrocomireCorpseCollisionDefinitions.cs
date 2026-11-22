@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Physical components and hitboxes of the 33 Crocomire corpse frames. Each frame lists only its body's component (#1937):
 /// the bones' components had no hitboxes, so the frames that show only bones have none.
 /// </summary>
-internal static class CrocomireCorpseCollisionDefinitions
+internal static partial class CrocomireCorpseCollisionDefinitions
 {
     /// <summary>The corpse's two body rectangles.</summary>
     private static readonly EnemyCollisionHitbox[] CorpseBody = [new(-38, -16, 0, 31, EnemyReaction.Ignore, CrocomireReactions.DustShot), new(0, -29, 26, 28, EnemyReaction.Ignore, CrocomireReactions.DustShot)];

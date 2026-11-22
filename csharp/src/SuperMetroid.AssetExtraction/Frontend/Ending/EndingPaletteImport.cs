@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// each scene's backdrop from. Nothing installs them as a colour table: the game draws the pre-coloured sheets and shows
 /// the installed backdrops.
 /// </summary>
-internal static class EndingPaletteImport
+internal static partial class EndingPaletteImport
 {
     /// <summary>Decodes all seven ending colour resources, recognising the logo's calculated crossfade.</summary>
     /// <param name="bus">Cartridge import source for the colour words and the logo crossfade's pointer-selected backward copies.</param>
@@ -52,7 +52,7 @@ internal static class EndingPaletteImport
     }
 
     /// <summary>The native colour words of resource <paramref name="id"/>, <paramref name="count"/> colours: the crossfade's in its destination order, any other resource's as stored.</summary>
-    private static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id, int count) =>
+    internal static byte[] ReadNativePalette(ISnesAddressSpace bus, EndingPaletteId id, int count) =>
         Ensure.Listed(EndingPaletteDefinitions.Palettes, id).Kind == EndingPaletteKind.LogoCrossfade
             ? ReadNativeCrossfade(bus, count)
             : RomDataReader.ReadFixedBank(bus, EndingPaletteSources.Source(id), count * sizeof(ushort));

@@ -10,10 +10,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
-public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingCompletionTextSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled digits and colon keyed by the poses that show them.</summary>
-    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Compiled typed-text steps keyed by the text and the letters each shows typed (#2195).</summary>
     private readonly Dictionary<EndingTextTyping, SpriteComposition> typings;
@@ -77,8 +77,7 @@ public sealed class EndingCompletionTextSpritePresentation : ICinematicSpriteFra
     public static void Write(Stream json, EndingCompletionTextSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

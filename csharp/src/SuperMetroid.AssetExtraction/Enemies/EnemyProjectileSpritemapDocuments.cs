@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// and timed program frames the projectile sheets are composed from. Gameplay draws the composed sheets and never reads
 /// this document.
 /// </summary>
-public static class EnemyProjectileSpritemapDocuments
+public static partial class EnemyProjectileSpritemapDocuments
 {
     /// <summary>
     /// The document schema revision extraction writes and loading accepts; 17 keys every program frame by what its picture
@@ -84,7 +84,7 @@ public static class EnemyProjectileSpritemapDocuments
 
     /// <summary>Writes the document as camel-case JSON.</summary>
     internal static byte[] Write(EnemyProjectileSpritemapDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(Options));
 
     /// <summary>
     /// Validates the import data's ordered sprite parts against the sheet's bounds and decodes them into the parts the import

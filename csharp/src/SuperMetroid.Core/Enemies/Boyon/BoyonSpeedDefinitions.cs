@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The samples of the Boyon's bounce curve, and how far down it rises before it saturates.</summary>
-public static class BoyonSpeedDefinitions
+public static partial class BoyonSpeedDefinitions
 {
     /// <summary>
     /// The curve's rising speeds from its top (#2369, #2555), before the Boyon's multiplier scales them: at place k the sum

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// (<see cref="CeresDestructionActor"/>) or one of the station's blasts (<see cref="CeresBlast"/>), each moving its own way.
 /// </summary>
 /// <param name="sprite">The cinematic sprite showing the actor: its position and animation.</param>
-internal abstract class CeresSceneActor(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
+internal abstract partial class CeresSceneActor(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
 {
     /// <summary>The cinematic sprite showing the actor: its position and animation.</summary>
     internal CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> Sprite { get; } = Ensure.NotNull(sprite);

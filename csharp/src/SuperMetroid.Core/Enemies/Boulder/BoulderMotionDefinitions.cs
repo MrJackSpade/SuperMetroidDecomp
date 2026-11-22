@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>How a Boulder falls, bounces, rolls and breaks (#2279).</summary>
-internal static class BoulderMotionDefinitions
+internal static partial class BoulderMotionDefinitions
 {
     /// <summary>
     /// The largest bounce clock: the place past the curve's last mark, which the curve rejects before another increment.

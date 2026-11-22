@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Looks up the enemy definitions by identity: the definitions room states reference, checked when their
 /// catalog is indexed, and the auxiliary definitions runtime-created actors use.
 /// </summary>
-public static class RoomEnemyDefinitionLookup
+public static partial class RoomEnemyDefinitionLookup
 {
     /// <summary>Indexes the definitions by identity, checking that each identity is defined once.</summary>
     /// <exception cref="InvalidDataException">An identity repeats.</exception>

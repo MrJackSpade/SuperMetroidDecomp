@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Animation selection for the Yapping Maw.</summary>
-internal static class YappingMawAnimationDefinitions
+internal static partial class YappingMawAnimationDefinitions
 {
     /// <summary>The eight attack bites in the clockwise octant order, starting facing up.</summary>
     internal static readonly IdentityTable<YappingMawAim, YappingMawSegment> Attacks = new(new Dictionary<YappingMawAim, YappingMawSegment>()

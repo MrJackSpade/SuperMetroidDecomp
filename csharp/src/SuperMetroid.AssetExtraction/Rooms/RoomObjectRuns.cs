@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where a run of the cartridge's room-object draw list places its cells (#1557, #1862).</summary>
-internal static class RoomObjectRuns
+internal static partial class RoomObjectRuns
 {
     /// <summary>Where <paramref name="run"/>'s cell <paramref name="index"/> lies from the draw's origin.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not one of the run's cells.</exception>

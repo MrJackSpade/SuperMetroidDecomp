@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// The title cards (#1979): each types its text a letter at a time (<see cref="LetterFrames"/>), holds its whole text, then starts
 /// its turning-floor scene and ends. <see cref="TitleCards"/> builds each card's steps.
 /// </summary>
-internal static class TitleCardDefinitions
+internal static partial class TitleCardDefinitions
 {
     /// <summary>Each letter's duration before the text's final hold, in title updates.</summary>
     internal const int LetterFrames = 8;

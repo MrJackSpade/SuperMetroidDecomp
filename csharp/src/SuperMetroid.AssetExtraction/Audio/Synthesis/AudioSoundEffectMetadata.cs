@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Stable identity, routing and voice-allocation class for a one-based SFX command.</summary>
-public sealed record AudioSoundEffectMetadata(
+public sealed partial record AudioSoundEffectMetadata(
     int Command,
     string Id,
     int StreamPointer,

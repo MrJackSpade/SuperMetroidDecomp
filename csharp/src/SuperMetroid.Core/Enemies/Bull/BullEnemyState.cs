@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
 /// place (<see cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
-public sealed class BullEnemyState
+public sealed partial class BullEnemyState
 {
     /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>
@@ -34,7 +34,7 @@ public sealed class BullEnemyState
     /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; braking after a kick can take it below zero, which stops the
     /// flight (<see cref="HasStopped"/>).
     /// </summary>
-    internal SignedEightEight Acceleration { private get; set; }
+    internal SignedEightEight Acceleration { get; set; }
 
     /// <summary>
     /// The change in <see cref="Acceleration"/> at each interval expiry, <see cref="BullMovementDefinitions.AccelerationStep"/>

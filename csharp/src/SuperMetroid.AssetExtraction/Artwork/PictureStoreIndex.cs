@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Pictures">Every stored picture's page and rectangle, by its tag, in write order.</param>
 /// <param name="RecolourRegionMaps">The recolour-region maps, or null where no frame shows a picture with one.</param>
 /// <param name="BlendMaps">The blend maps, or null where no frame shows a picture with one.</param>
-internal sealed record PictureStoreIndex(int Version, int PageCount, Dictionary<string, StoredPictureDocument> Pictures,
+internal sealed partial record PictureStoreIndex(int Version, int PageCount, Dictionary<string, StoredPictureDocument> Pictures,
     StoredMapsDocument? RecolourRegionMaps, StoredMapsDocument? BlendMaps)
 {
     /// <summary>

@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a Wave shot's scan past the room's ceiling finds terrain made of the end of one block and the start of the next")]
-public sealed class StraddledTerrain<TTerrain>
+public sealed partial class StraddledTerrain<TTerrain>
     where TTerrain : notnull
 {
     /// <summary>The class of what the end of each first block contributes, by the block as the room holds it.</summary>

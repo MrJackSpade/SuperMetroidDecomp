@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Rooms.LevelData.ShotBlockReactionDefinitions;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Reads what the shot-block response does with a shootable block's reaction.</summary>
-public static class ShotBlockReactions
+public static partial class ShotBlockReactions
 {
     /// <summary>
     /// The shot-block response's reaction for <paramref name="reaction"/>, or null for no reaction or a reaction the response does

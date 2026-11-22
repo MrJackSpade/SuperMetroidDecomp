@@ -3,7 +3,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>The file-select menu's glyph counts and the names its pieces are pictured under.</summary>
-public static class FileSelectPresentationDefinitions
+public static partial class FileSelectPresentationDefinitions
 {
     /// <summary>The decimal digits, zero through nine, file select writes its counts with.</summary>
     public const int DigitCount = 10;

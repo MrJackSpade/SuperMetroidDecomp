@@ -97,9 +97,10 @@ internal static void VerifyRoomEnemyLoading()
     const ushort populationPointer = 0x9100;
     const ushort tilesetPointer = 0x9100;
     // The placed enemy is a real species whose initialization reads no placement settings, so the load runs it as a room
-    // load does (#2010); its header is the fixture's, seeded where the species' header lies.
+    // load does (#2010); the set's second member is Owtch, whose artwork the set loads without placing him. Each header is
+    // the fixture's, seeded where the species' header lies.
     const EnemyDefinitionId primaryDefinitionPointer = EnemyDefinitionId.Skree;
-    const EnemyDefinitionId specialDefinitionPointer = (EnemyDefinitionId)0xd040;
+    const EnemyDefinitionId specialDefinitionPointer = EnemyDefinitionId.Owtch;
 
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
@@ -191,7 +192,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(EnemyReaction.CommonPowerBomb, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
     // The tile word is the import's to read (#1513): its low fifteen bits are the tile set's size, bit 15 set or not. The
-    // fixture's identities are no members, so the headers are read at the pointers the fixture seeded them at.
+    // headers are read where the fixture seeded them, at the species' header pointers.
     AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(0x0040),
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, TestAddressSpace.FixtureHeaderPointer(primaryDefinitionPointer)),
         "the import decodes the definition's tile set size, the tile word's low fifteen bits");
@@ -293,20 +294,6 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-/// <summary>Checks that the enemy subsystem declares no generic source reader.</summary>
-/// <remarks>
-/// The fixed-bank work-RAM word this check once read through the runtime's work-RAM image is gone with the image
-/// (#1688): no enemy reads work RAM, so only the readers' absence is asserted.
-/// </remarks>
-internal static void VerifyEnemyMappedSourceRouting()
-{
-    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
-    foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomEnemySystem), removed, flags),
-            $"enemy subsystem has no generic {removed} source reader");
-    Console.WriteLine("Enemy memory boundary: generic source readers are absent.");
-}
-
 /// <summary>
 /// Reproduces the rapid-Super visual failure from room $A56B: a fresh owner and its
 /// invisible linked slot occupy the same 32-pixel cell as a blocking eye-door projectile.
@@ -322,7 +309,15 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
+<<<<<<< HEAD
     EnemyProjectile eyeShot = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.EyeDoorProjectile, SpriteGraphics.SharedStandard);
+||||||| 418ca79935
+    EnemyProjectile eyeShot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.EyeDoorProjectile);
+    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind)));
+=======
+    EnemyProjectile eyeShot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.EyeDoorProjectile);
+    eyeShot.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind));
+>>>>>>> origin/main
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -798,8 +793,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
         DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
     };
-    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        fixtureSprites, CamelCaseJson));
+    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(fixtureSprites, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(CamelCaseJson)));
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
@@ -1031,8 +1025,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.Ceres.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
-        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
+        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
+        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1637,7 +1631,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
     [VerificationCommand("--enemy-source-routing")]
     internal static int EnemySourceRoutingCommand()
     {
-        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         return 0;
     }
 

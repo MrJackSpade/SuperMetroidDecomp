@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="statue">The entrance statue.</param>
 /// <param name="unlock">The unlock effects.</param>
 [RoomLifetime]
-internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
+internal sealed partial class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <summary>The unlock effects.</summary>
-    private TourianUnlockBehavior Unlock { get; } = unlock;
+    internal TourianUnlockBehavior Unlock { get; } = unlock;
 
     /// <inheritdoc/>
     public TourianStatueAnimation Animation => statue.StatueRoom.Animation;

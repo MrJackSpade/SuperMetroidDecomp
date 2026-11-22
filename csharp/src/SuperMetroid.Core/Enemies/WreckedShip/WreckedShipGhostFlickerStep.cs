@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// long it lasts before the next starts, what starting it does to the ghost's visibility, and the step after it (#2512).
 /// The flicker ends when the last step does.
 /// </summary>
-public sealed class WreckedShipGhostFlickerStep
+public sealed partial class WreckedShipGhostFlickerStep
 {
     /// <summary>The step of <paramref name="timing"/>, followed by <paramref name="next"/>.</summary>
     private WreckedShipGhostFlickerStep(WreckedShipGhostFlickerTiming timing, WreckedShipGhostFlickerStep? next)

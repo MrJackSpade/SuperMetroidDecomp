@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;

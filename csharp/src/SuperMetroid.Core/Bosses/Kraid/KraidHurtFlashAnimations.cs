@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// and his band's, each for <see cref="KraidArenaDefinitions.HurtFlashStepUpdates"/>, and rests on his band's colours. A hit while it plays starts it again; his health
 /// running out cuts it short.
 /// </summary>
-internal static class KraidHurtFlashAnimations
+internal static partial class KraidHurtFlashAnimations
 {
     /// <summary>The flash's runs, each beat the colours it shows with the updates it shows them.</summary>
     internal static AnimationSegments<KraidHurtFlashSegment, S, NoAnimationCue> Segments { get; } = new(

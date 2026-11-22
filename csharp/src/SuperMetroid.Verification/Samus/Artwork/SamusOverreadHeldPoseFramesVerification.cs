@@ -63,10 +63,11 @@ internal static class SamusOverreadHeldPoseFramesVerification
 
         // The Draygon-held ball has the Draygon-held movement type, whose normal entry only clears the vertical collision
         // result, so without Draygon placing her she does not move.
-        var samus = global::SuperMetroid.Core.PrivateState.With<SamusState>(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+        var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
-            }.InPose(SamusPoseId.DraygonHeldBallLeftPose), "SolidVerticalCollisionResult", SamusVerticalCollisionResult.Landed);
+            SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed
+            }.InPose(SamusPoseId.DraygonHeldBallLeftPose));
         SamusDraygonGrabbedState.StepMovement(samus);
         AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult, "the Draygon-held ball's movement clears the vertical collision result");
         AssertEqual(0x0080, samus.Position.X.Whole, "the Draygon-held ball does not move horizontally");

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// and its horizontal extension, and chewing opens them. The foliage is spiked air. What each frame shows is its installed
 /// picture (#1557).
 /// </summary>
-internal static class SamusEaterObjectDrawDefinitions
+internal static partial class SamusEaterObjectDrawDefinitions
 {
     /// <summary>
     /// A waiting mouth: four blocks along its row from two left of the origin, its outer halves solid and its inner halves the

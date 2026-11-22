@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, YardSpawnSettings settings)
+internal sealed partial class YardEntity(YardEnemyBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, YardSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' YardShotReaction, built once for this enemy with its state (#2554).</summary>

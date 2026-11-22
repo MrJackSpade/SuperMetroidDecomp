@@ -1,5 +1,7 @@
 using System.Runtime.CompilerServices;
 
+// The bound session content is a type of this assembly, so a debugger state names it through its generated members (#2602).
+[assembly: SuperMetroid.Core.StateGraphAssembly(PartialTypesOnly = true)]
 [assembly: InternalsVisibleTo("SuperMetroid.Desktop")]
 [assembly: InternalsVisibleTo("SuperMetroid.Android")]
 [assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]

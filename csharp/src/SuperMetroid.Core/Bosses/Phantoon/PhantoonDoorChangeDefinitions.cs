@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Where Phantoon's door changes are spawned, and the terrain change each makes.</summary>
-internal static class PhantoonDoorChangeDefinitions
+internal static partial class PhantoonDoorChangeDefinitions
 {
     /// <summary>The room block both door changes are spawned at: the top block of the door's transition column.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(0, 6);

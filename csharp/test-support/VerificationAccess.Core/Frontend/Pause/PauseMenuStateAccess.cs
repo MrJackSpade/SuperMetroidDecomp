@@ -28,11 +28,31 @@ internal static class PauseMenuStateAccess
             int frameCount = 0) =>
             self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, new Compatibility.ShortFrameCount(frameCount), NoFrozenBombs());
 
+<<<<<<< HEAD
+||||||| 418ca79935
+        /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
+        internal void FrameMap(MapScroll scroll) =>
+            PrivateFrontendState.Set(self, nameof(PauseMenuState.CurrentMapScroll), Ensure.NotNull(scroll));
+
+=======
+        /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
+        internal void FrameMap(MapScroll scroll) =>
+            self.CurrentMapScroll = Ensure.NotNull(scroll);
+
+>>>>>>> origin/main
         /// <summary>
         /// Moves the map page's scroll to <paramref name="scroll"/> under the framing and limits the menu set up, as a check
         /// or an imported snapshot places it between scroll steps.
         /// </summary>
+<<<<<<< HEAD
         internal void ScrollMapTo(Offset16<MapPixels> scroll) => self.ActiveMapScroll.Scroll = scroll;
+||||||| 418ca79935
+        internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
+            self.FrameMap(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.Map.MapScroll>([typeof(global::SuperMetroid.Core.Frontend.Map.MapFraming), typeof(global::SuperMetroid.Core.Frontend.Map.MapScrollLimits), typeof(global::SuperMetroid.Core.Spatial.Offset16<global::SuperMetroid.Core.Spatial.MapPixels>)], new object?[] { self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll }));
+=======
+        internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
+            self.FrameMap(new global::SuperMetroid.Core.Frontend.Map.MapScroll(self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll));
+>>>>>>> origin/main
 
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
         internal bool IsPageTransitionActive => self.Transition is not null;

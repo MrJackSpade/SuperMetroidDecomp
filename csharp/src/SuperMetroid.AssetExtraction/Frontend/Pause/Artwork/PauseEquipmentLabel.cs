@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>One horizontal strip of pause BG tile artwork and its destination within the equipment page's 32x32 tilemap.</summary>
-public sealed record PauseEquipmentLabel
+public sealed partial record PauseEquipmentLabel
 {
     /// <summary>Zero-based destination tile column 0..31, not an artwork-atlas column; the displayed label must fit within the tilemap row.</summary>
     public required int Column { get; init; }

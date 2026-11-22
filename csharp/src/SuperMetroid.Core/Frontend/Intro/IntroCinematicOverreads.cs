@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="Samus">The services reproducing Samus's glitch reads.</param>
 /// <param name="ShellFall">The steps the egg's shell fragments fall by past their gravity curve.</param>
 /// <exception cref="InvalidDataException">A shell fragment is still in the air after every installed step.</exception>
-public sealed record IntroCinematicOverreads(SamusOverreadServices Samus, ShellFragmentFallPastCurve ShellFall)
+public sealed partial record IntroCinematicOverreads(SamusOverreadServices Samus, ShellFragmentFallPastCurve ShellFall)
 {
     /// <summary>The steps the egg's shell fragments fall by past their gravity curve, within which every fragment lands.</summary>
     public ShellFragmentFallPastCurve ShellFall { get; init; } = IntroEggParticle.ConfirmEveryFragmentLands(ShellFall);

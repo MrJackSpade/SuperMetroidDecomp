@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// his health band, his grab and carry of Samus, his pogo and his death. The combat values carry the meanings their
 /// consumers establish.
 /// </summary>
-public sealed class NorfairRidleyState : RidleyEncounterState
+public sealed partial class NorfairRidleyState : RidleyEncounterState
 {
     /// <summary>Begins Lower Norfair Ridley's encounter below his arena, facing right.</summary>
     internal NorfairRidleyState()

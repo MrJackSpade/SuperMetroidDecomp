@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// that drive him off, the energy at which he gives up on Samus, the hits his health shades start at and how long each hit
 /// flashes.
 /// </summary>
-internal static class CeresRidleyFightDefinitions
+internal static partial class CeresRidleyFightDefinitions
 {
     /// <summary>The accepted hits that drive Ceres Ridley into his fake retreat; he never loses ordinary health.</summary>
     internal const int HitsToDriveOff = 100;

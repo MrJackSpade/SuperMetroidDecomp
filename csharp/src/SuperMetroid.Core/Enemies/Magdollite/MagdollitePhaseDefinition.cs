@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="DistanceThreshold">The rise, in whole pixels, past which the arm grows into this stage.</param>
 /// <param name="BodyAnimation">The pillar the arm's body shows.</param>
 /// <param name="OverlayYOffset">How far above the body the tracking overlay rides, in pixels.</param>
-internal readonly record struct MagdollitePhaseDefinition(
+internal readonly partial record struct MagdollitePhaseDefinition(
     int DistanceThreshold,
     MagdolliteBodySegment BodyAnimation,
     int OverlayYOffset);

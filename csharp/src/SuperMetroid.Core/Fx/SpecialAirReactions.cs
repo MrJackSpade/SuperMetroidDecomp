@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// the scroll trigger) does nothing here; no reaction is rejected. These are the game's rules for its special-air blocks,
 /// not editable room or presentation assets.
 /// </summary>
-public static class SpecialAirReactions
+public static partial class SpecialAirReactions
 {
     /// <summary>What each special-air reaction does to Samus inside the block and when her movement reaches it.</summary>
     private static readonly IdentityTable<SpecialAirReaction, SpecialAirReactionEffects> Reactions = new(new Dictionary<SpecialAirReaction, SpecialAirReactionEffects>

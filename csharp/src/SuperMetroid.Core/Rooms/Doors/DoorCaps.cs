@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The draws of the door caps (#1296, #1554, #1994): the cleared opening, the blue, grey and coloured caps closed and
 /// sliding aside, and the blue image a hit flashes, each per facing.
 /// </summary>
-internal static class DoorCaps
+internal static partial class DoorCaps
 {
     /// <summary>
     /// The draw of <paramref name="image"/> of a cap painted <paramref name="paint"/> facing <paramref name="orientation"/>:

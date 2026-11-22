@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// frame read past another animation's end or a named place landing in it reaches. Animations no pose animates by are here
 /// because such a read reaches them. These are gameplay cadence and transition definitions, not editable sprite artwork.
 /// </remarks>
-internal static class SamusAnimationDelayDefinitions
+internal static partial class SamusAnimationDelayDefinitions
 {
     /// <summary>The segments the aiming poses that hold still share: a two-update lead, then one picture shown for sixteen updates, repeating.</summary>
     private static readonly SamusAnimationSegment[] AimHeldSegments =

@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="Place">The body's place, whose position the attached wings follow.</param>
 /// <param name="Occupant">The body, whose spawn settings say whether it starts wingless.</param>
 /// <param name="Settings">What the body's population entry tells it.</param>
-internal sealed record KiHunterWingsBody(RoomEnemyPlace Place, RoomEnemyOccupant Occupant, KiHunterSpawnSettings Settings);
+internal sealed partial record KiHunterWingsBody(RoomEnemyPlace Place, RoomEnemyOccupant Occupant, KiHunterSpawnSettings Settings);

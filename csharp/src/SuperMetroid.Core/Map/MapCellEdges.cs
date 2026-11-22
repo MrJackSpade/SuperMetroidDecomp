@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Map;
 /// <param name="Bottom">What bounds the cell's bottom edge.</param>
 /// <param name="Left">What bounds the cell's left edge.</param>
 /// <param name="Right">What bounds the cell's right edge.</param>
-public readonly record struct MapCellEdges(MapCellEdge Top, MapCellEdge Bottom, MapCellEdge Left, MapCellEdge Right)
+public readonly partial record struct MapCellEdges(MapCellEdge Top, MapCellEdge Bottom, MapCellEdge Left, MapCellEdge Right)
 {
     /// <summary>A cell open on every edge.</summary>
     public static MapCellEdges Open { get; } = new(MapCellEdge.Open, MapCellEdge.Open, MapCellEdge.Open, MapCellEdge.Open);

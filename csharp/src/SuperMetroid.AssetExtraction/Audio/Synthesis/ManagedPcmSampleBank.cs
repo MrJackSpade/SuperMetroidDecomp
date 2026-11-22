@@ -2,7 +2,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Source-number mappings installed by one common or music-bank upload.</summary>
-public sealed class ManagedPcmSampleBank
+public sealed partial class ManagedPcmSampleBank
 {
     /// <summary>Installed PCM keyed by the source numbers written into S-DSP voices.</summary>
     private readonly Dictionary<int, ManagedPcmSample> samples;

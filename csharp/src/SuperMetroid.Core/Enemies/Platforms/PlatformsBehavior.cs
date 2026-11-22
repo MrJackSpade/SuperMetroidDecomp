@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<PlatformSpawnSettings>
+internal sealed partial class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<PlatformSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -102,6 +102,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>What <see cref="MovePlatformVertically"/> does for each <see cref="PlatformVerticalMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PlatformVerticalMovement, Action<PlatformSpawnSettings, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>> MovePlatformVerticallyForPlatformVerticalMovement => field ??= new(new Dictionary<PlatformVerticalMovement, Action<PlatformSpawnSettings, RoomEnemyPlace, PlatformEnemyState, SamusState, RoomLevelData, int>>
     {
         [PlatformVerticalMovement.Rising] = (settings, place, state, samus, level, preHorizontalX) => RaisePlatform(settings, place, state, level),
@@ -192,7 +193,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// Steps the place one mark on along the quadratic speed curve, holding it at the cap its spawn settings name: as many
     /// marks on as their vertical acceleration updates.
     /// </summary>
-    private static void IncrementAndClampPlatformYSpeed(PlatformSpawnSettings platformSpawnSettings, PlatformEnemyState state)
+    internal static void IncrementAndClampPlatformYSpeed(PlatformSpawnSettings platformSpawnSettings, PlatformEnemyState state)
     {
         QuadraticSpeedCurvePlace cap = QuadraticSpeedCurvePlace.FromMarks(platformSpawnSettings.VerticalAccelerationUpdates);
         state.YSpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -223,7 +224,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>Selects the moving animation from which platform it is and its current horizontal direction.</summary>
-    private static void StartPlatformMovingAnimationForHeading(
+    internal static void StartPlatformMovingAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -232,7 +233,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     }
 
     /// <summary>Selects the stationary animation from which platform it is and its current horizontal direction.</summary>
-    private static void StartPlatformStillAnimationForHeading(
+    internal static void StartPlatformStillAnimationForHeading(
         RoomEnemyPlace place,
         PlatformEnemyState state)
     {
@@ -258,12 +259,38 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyBombReaction TripperBombReaction(PlatformEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c =>
         {
             if (c.Enemy.Freeze.IsRunning)
                 c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
         },
+||||||| 418ca79935
+        AfterCommon = c =>
+        {
+            if (c.Enemy.Freeze.IsRunning)
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+        },
+=======
+        AfterCommon = ShowFrozenFrameAfterBomb,
+>>>>>>> origin/main
     };
+
+    /// <summary>Shows a frozen Tripper's frame for its movement after a bomb's common damage.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private static void ShowFrozenFrameAfterBomb(EnemyBombHitContext c)
+    {
+        if (c.Enemy.Freeze.IsRunning)
+            c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+    }
+
+    /// <summary>Shows a Tripper's frozen frame for its movement after a shot froze it at once.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private static void ShowFrozenFrameAfterShot(EnemyShotHitContext c)
+    {
+        if (c.Froze)
+            c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+    }
 
     /// <summary>Runs Platforms's main AI.</summary>
     internal void RunPlatformsMainAi(PlatformSpawnSettings platformSpawnSettings, RoomEnemyPlace place, PlatformEnemyState platformEnemyState, IEnemyAiFrame frame)
@@ -287,11 +314,21 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<Plat
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction TripperShotReaction(PlatformEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c =>
         {
             if (c.Froze)
                 c.Enemy.Frame = TripperFrozenFrame(state.XMovement);
         },
+||||||| 418ca79935
+        AfterCommon = c =>
+        {
+            if (c.Froze)
+                c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
+        },
+=======
+        AfterCommon = ShowFrozenFrameAfterShot,
+>>>>>>> origin/main
     };
 
     /// <summary>

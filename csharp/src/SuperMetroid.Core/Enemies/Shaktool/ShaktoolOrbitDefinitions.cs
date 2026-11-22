@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The turns, orbit and head directions Shaktool's segments move and aim by.</summary>
-internal static class ShaktoolOrbitDefinitions
+internal static partial class ShaktoolOrbitDefinitions
 {
     /// <summary>The turn a straightening chain's segments and target make each update: one whole step.</summary>
     internal static RotationAngle StraighteningTurn { get; } = RotationAngle.FromSteps(1);

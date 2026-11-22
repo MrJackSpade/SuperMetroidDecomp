@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// from rest because it has not moved before it, and its shinespark starts from rest because the charge stops it
 /// (<see cref="StartCharging"/>). Its speed-boost echoes keep their own state (<see cref="DachoraEchoState"/>, #2147).
 /// </summary>
-public sealed class DachoraEnemyState
+public sealed partial class DachoraEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal DachoraEnemyState(DachoraAction action) => Action = action;
@@ -27,7 +27,7 @@ public sealed class DachoraEnemyState
     public SignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>While blinking or charging: the phase's wait, which ends the phase on its last update.</summary>
-    public UpdateCountdown PhaseTimer { get; private set; } = UpdateCountdown.Ended();
+    public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// While shinesparking: the updates before the body next places an echo on its trail, which the launch clears so the
@@ -63,7 +63,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>The updates left before the glow cycle shows <see cref="GlowFrame"/>.</summary>
     [IntegerQuantity("updates left before the glow cycle advances")]
-    private int GlowTicks => _glowCycle.UpdatesLeft;
+    internal int GlowTicks => _glowCycle.UpdatesLeft;
 
     /// <summary>Sets the glow cycle to <paramref name="cycle"/>, as the run, wall, launch and ceiling phases restart or clear it.</summary>
     internal void SetGlowCycle(DachoraGlowCycle cycle) => _glowCycle = cycle;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number Norfair Ridley's breakup fragments read for their speed, exactly as the game read it")]
-internal static class RidleyRandomRolls
+internal static partial class RidleyRandomRolls
 {
     /// <summary>
     /// The roll of four a breakup fragment's sideways speed takes its sixteenths of a pixel from: the number's fifth and

@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 /// <param name="Frame">The frame the animation stands on.</param>
 /// <param name="Delay">The delay its timer starts from, before Samus's extra animation delay is added.</param>
-internal readonly record struct SamusAnimationDelayFrame(SamusAnimationFrame Frame, SamusAnimationDelay Delay);
+internal readonly partial record struct SamusAnimationDelayFrame(SamusAnimationFrame Frame, SamusAnimationDelay Delay);

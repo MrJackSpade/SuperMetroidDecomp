@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// switch over room-object identities builds or sets it up. The statues' hands are <see cref="ChozoStatueHandObject"/>s. The plug's two crumbles are one object spawned two ways, each
 /// leaving its own picture.
 /// </summary>
-public sealed class ChozoStatueRoomObject
+public sealed partial class ChozoStatueRoomObject
 {
     /// <summary>The object's name, for diagnostics.</summary>
     private readonly string _name;

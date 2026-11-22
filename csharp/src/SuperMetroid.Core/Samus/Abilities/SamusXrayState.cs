@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// crouching input. The cone's angle and width reach the display through <see cref="SamusXrayDisplaySnapshot"/>, from
 /// which the display draws the cone and the blocks it reveals.
 /// </remarks>
-public sealed class SamusXrayState
+public sealed partial class SamusXrayState
 {
     /// <summary>The special suit colouring holding Samus's suit, which the X-ray visor takes.</summary>
     private readonly SamusSpecialColouring _colouring;
@@ -62,14 +62,14 @@ public sealed class SamusXrayState
     /// <summary>
     /// True when Reserve recovery let time run under X-Ray's still-live finishing beam, which then cannot end itself.
     /// </summary>
-    private bool IsReserveMode => Mode == XrayScopeMode.ReserveMode;
+    internal bool IsReserveMode => Mode == XrayScopeMode.ReserveMode;
 
     /// <summary>
     /// The four independent subsystems X-Ray setup disables. Unlike shared
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
-    private XraySuspendedSubsystems SuspendedSubsystems { get; set; }
+    internal XraySuspendedSubsystems SuspendedSubsystems { get; set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -94,7 +94,7 @@ public sealed class SamusXrayState
     /// The beam's warm-up: the updates of frozen time it spends after X-ray starts before its own step begins changing
     /// the beam's phase; over whenever no beam is warming up.
     /// </summary>
-    public XrayWarmUp WarmUp { get; private set; }
+    public XrayWarmUp WarmUp { get; internal set; }
 
     /// <summary>The beam's phase once its warm-up is over.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }
@@ -114,7 +114,7 @@ public sealed class SamusXrayState
     /// <see cref="AngularWideningSpeed"/> on each widening update, and clamped to exactly
     /// <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/> once it would reach a step beyond.
     /// </summary>
-    private RotationAngle AngularHalfWidth { get; set; }
+    internal RotationAngle AngularHalfWidth { get; set; }
 
     /// <summary>The whole steps of <see cref="AngularHalfWidth"/>, up to <see cref="XrayScopeDefinitions.Cone.WidestHalfWidth"/>, which aim clamps and the cone read.</summary>
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
@@ -123,20 +123,20 @@ public sealed class SamusXrayState
     /// The widening speed, the turn the half-width grows by each update: zero at admission and raised by the fixed
     /// widening step before each widening update adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    private RotationAngle AngularWideningSpeed { get; set; }
+    internal RotationAngle AngularWideningSpeed { get; set; }
 
     /// <summary>
     /// The sequence of colours X-ray's suit colouring shows on the visor: widening at admission, full beam once the colouring
     /// sees the full-beam phase, and a request to restore the normal suit colours after teardown.
     /// </summary>
-    private XrayVisorShadeMode VisorShadeMode { get; set; }
+    internal XrayVisorShadeMode VisorShadeMode { get; set; }
 
     /// <summary>
     /// The visor's shade sequence for <see cref="VisorShadeMode"/> (#2285, #2387), each shade shown for the same colouring
     /// updates: widening shows the widening glow's shades and rests on its widest, showing it again each time it runs out;
     /// the full beam cycles the steady visor cycle's. Its first shade shows on the colouring update after it starts.
     /// </summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Visor { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.XrayVisorWidening));
 
 /// <summary>
@@ -527,7 +527,7 @@ public sealed class SamusXrayState
     /// </summary>
     /// <param name="center">The beam's centre.</param>
     /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
-    private static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    internal static RotationAngle AimedUp(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.Zero)
         : TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.Zero);
 
@@ -538,7 +538,7 @@ public sealed class SamusXrayState
     /// </summary>
     /// <param name="center">The beam's centre.</param>
     /// <param name="halfWidth">The whole steps from the centre to each edge.</param>
-    private static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
+    internal static RotationAngle AimedDown(RotationAngle center, TrigonometryAngle halfWidth) => center < RotationAngle.HalfTurn
         ? TurnedOnToLaterEdgeLimit(center, halfWidth, RotationAngle.HalfTurn)
         : TurnedBackToEarlierEdgeLimit(center, halfWidth, RotationAngle.HalfTurn);
 
@@ -667,7 +667,7 @@ public sealed class SamusXrayState
 
     /// <summary>The live X-ray scope (<see cref="Scope"/>): its cone effect steps from its activation until its teardown.</summary>
     /// <param name="xray">The X-ray state the scope belongs to.</param>
-    internal readonly struct LiveScope(SamusXrayState xray)
+    internal readonly partial struct LiveScope(SamusXrayState xray)
     {
         /// <summary>
         /// Advances the cone effect by one update: an update of the beam's warm-up, until that is over, and then the beam's
@@ -679,7 +679,7 @@ public sealed class SamusXrayState
 
     /// <summary>The X-ray's hold on Samus's pose input and movement (<see cref="Control"/>).</summary>
     /// <param name="xray">The X-ray state that holds them.</param>
-    internal readonly struct SamusControl(SamusXrayState xray)
+    internal readonly partial struct SamusControl(SamusXrayState xray)
     {
         /// <summary>
         /// Runs X-ray's own pose input, including the exact standing and crouching turns and their completion on the

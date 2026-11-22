@@ -15,17 +15,17 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// caption over the flight's object characters, and the Zebes planet over the characters the destruction leaves once the
 /// reveal loads its own, all under the flight's palette, each installed whole (#1634).
 /// </summary>
-internal static class CeresCinematicPictureSheetComposer
+internal static partial class CeresCinematicPictureSheetComposer
 {
     /// <summary>The katakana caption's width in characters: an eight-by-two block below SPACE COLONY.</summary>
-    private const int JapaneseWidth = 8;
+    internal const int JapaneseWidth = 8;
 
     /// <summary>The name of every picture the sheet holds.</summary>
     internal static IEnumerable<string> FrameNames =>
         [.. Enumerable.Range(0, SpaceColonyCaptionDefinitions.LetterCount).Select(CeresCinematicPictures.CaptionLetter), CeresCinematicPictures.JapaneseCaption, CeresCinematicPictures.ZebesPlanet];
 
     /// <summary>The caption character visible letter <paramref name="index"/> draws.</summary>
-    private static char CaptionCharacter(int index) => SpaceColonyCaptionDefinitions.Text[SpaceColonyCaption.TextIndex(index)];
+    internal static char CaptionCharacter(int index) => SpaceColonyCaptionDefinitions.Text[SpaceColonyCaption.TextIndex(index)];
 
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -46,7 +46,7 @@ internal static class CeresCinematicPictureSheetComposer
     /// artwork, as an installation whose flight artwork is replaced composes it.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    private static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, ImportIntroCinematicArtwork intro)
+    internal static ComposedSpriteSheet Compose(CeresFlightCharacters ceresFlight, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);

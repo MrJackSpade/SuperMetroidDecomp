@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The random choices that spread a dying corpse's dust clouds: how far right each cloud lies.</summary>
-internal static class CorpseDustDefinitions
+internal static partial class CorpseDustDefinitions
 {
 
     /// <summary>The pixels one fine spread step moves a Tourian or Sidehopper corpse's dust cloud.</summary>

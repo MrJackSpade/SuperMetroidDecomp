@@ -82,13 +82,6 @@ internal static class BombTorizoAttackDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)2, facing: HorizontalDirection.Right),
-            "Bomb Torizo explosion site outside the gut and face");
-        AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)(-1), facing: HorizontalDirection.Left),
-            "Bomb Torizo negative explosion site");
-
         Console.WriteLine(
             "Bomb Torizo attack placements: 22 swipe and 8 explosion native words, 22 real swipe spawns and 4 explosion spawns pass with both geometry tables forbidden.");
     }

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// (<see cref="EndingObjectCharacters"/>).
 /// </summary>
 [ArchitectureReview("context-bag", "The ending's installed object documents read together; every member is an immutable map or composition the pictures are composed from and named by, not a service.")]
-public sealed record EndingObjectArtworkParts
+public sealed partial record EndingObjectArtworkParts
 {
 
     /// <summary>The four 32-by-32-cell explosion maps, each keyed by the explosion picture it holds.</summary>

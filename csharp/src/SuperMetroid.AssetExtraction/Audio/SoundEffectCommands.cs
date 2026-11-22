@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// and encodes a sound or stop back to its request for the sound program and the clip and override identities (#1410,
 /// #2580). This is the only place the game's sounds and stops meet their cartridge numbering.
 /// </summary>
-internal static class SoundEffectCommands
+internal static partial class SoundEffectCommands
 {
     /// <summary>Each library's requests: the sound or stop of each request number.</summary>
     private static readonly FrozenDictionary<SoundEffectLibrary, FrozenDictionary<int, SoundEffectId>> Requests =

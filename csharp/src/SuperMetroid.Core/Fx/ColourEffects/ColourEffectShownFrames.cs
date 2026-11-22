@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// every frame of every run an effect's animation plays, its loop returning only to one of them. The import pre-colours a
 /// shade for each; the ending names the shade family of each.
 /// </summary>
-internal static class ColourEffectShownFrames
+internal static partial class ColourEffectShownFrames
 {
     /// <summary>
     /// Every colour group and frame <paramref name="effects"/> can show, each once, ordered by group and effect in their

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// each draw takes the sheet of its own beams (#1586). A sheet is resolved only when something is drawn.
 /// </summary>
 /// <param name="Sheets">The context's installed projectile sheets.</param>
-public readonly record struct ProjectileDrawArtwork(ProjectileSheets Sheets)
+public readonly partial record struct ProjectileDrawArtwork(ProjectileSheets Sheets)
 {
     /// <summary>The sheet a draw pictured with <paramref name="beams"/> shows.</summary>
     public SpriteSheet SheetOf(SamusBeamCombination beams) => Sheets.For(beams);

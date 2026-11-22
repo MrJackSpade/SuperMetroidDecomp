@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// its successor, so no switch over phase identities runs them. A phase whose scene has actors of its own is run by that
 /// scene.
 /// </summary>
-internal class EndingCreditsPhase
+internal partial class EndingCreditsPhase
 {
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 /// The installed pictures of the Tourian access floor's frames: the empty row, the crumble rows and the six-row clear
 /// (#1557). The frames' terrain and run offsets stay the game's.
 /// </summary>
-public sealed class RoomObjectTourianAccessVisuals : IRoomObjectFamilyPictures
+public sealed partial class RoomObjectTourianAccessVisuals : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every access-floor frame.</summary>
     /// <param name="images">Every access-floor frame's picture, keyed by its draw.</param>

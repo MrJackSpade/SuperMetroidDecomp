@@ -192,7 +192,7 @@ internal static class CrocomireBodyVisualsVerification
             place.Shading = PictureShading.Standard;
             place.CollidesByFrameHitboxes = true;
             if (newFrame)
-                SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
+                place.AnimationClock.ShowsNewFrame = true;
             place.SpritemapPointer = pointer;
             place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();

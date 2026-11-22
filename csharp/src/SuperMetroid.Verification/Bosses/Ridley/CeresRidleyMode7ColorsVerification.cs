@@ -43,9 +43,7 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         CeresRidleyMode7ColorDocument document =
-            JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(
-                File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)),
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
         var enemies = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(),
             SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom());

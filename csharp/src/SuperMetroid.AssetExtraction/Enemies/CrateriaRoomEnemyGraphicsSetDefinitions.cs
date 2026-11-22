@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Crateria room-header region, in table order. It opens with the set Draygon and Mother Brain share.</summary>
-internal static class CrateriaRoomEnemyGraphicsSetDefinitions
+internal static partial class CrateriaRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The members of every set here that loads a face block and Stoke, in record order.</summary>
     private static readonly RoomEnemyGraphicsSetMember[] FaceBlockAndStoke =

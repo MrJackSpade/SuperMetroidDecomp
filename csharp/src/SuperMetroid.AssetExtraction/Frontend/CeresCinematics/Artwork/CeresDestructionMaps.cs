@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// The destruction's editable Mode 7 maps (#1467): two destruction views and the native clear-map slice, which the import
 /// composes the Ceres floor's shots from; the game draws those installed floor pictures and reads none of these cells.
 /// </summary>
-public sealed class CeresDestructionMaps
+public sealed partial class CeresDestructionMaps
 {
     /// <summary>Retains the validated map cells.</summary>
     private CeresDestructionMaps(byte[] views) => Views = views;
@@ -37,8 +37,7 @@ public sealed class CeresDestructionMaps
     public static void Write(Stream json, CeresDestructionMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionMapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 
@@ -48,8 +47,7 @@ public sealed class CeresDestructionMaps
         CeresDestructionMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresDestructionMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresDestructionMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres destruction map JSON is null.");
         }
         catch (JsonException error)

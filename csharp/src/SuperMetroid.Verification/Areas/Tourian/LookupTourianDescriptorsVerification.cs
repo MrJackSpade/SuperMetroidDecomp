@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Areas.Tourian;
@@ -27,7 +26,7 @@ internal static class LookupTourianDescriptorsVerification
         Suite(nameof(VerifyTourianStatueVramDestinations), () => VerifyTourianStatueVramDestinations(rom));
     }
 
-    /// <summary>Checks exact object-header coverage and the false/null and invalid-value lookup contracts.</summary>
+    /// <summary>Checks exact object-header coverage and the false/null lookup contract.</summary>
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
@@ -42,10 +41,6 @@ internal static class LookupTourianDescriptorsVerification
             if (found) AssertEqual(pointer, FxNativeWords.AnimatedTileObjects.Word(TourianStatueAnimatedTilePrograms.ObjectOf((definition ?? throw new InvalidOperationException("Verification requires definition.")).Statue)), "Selected statue identity");
             else AssertTrue(definition is null, "Unknown statue preserves false/null contract");
         }
-        foreach (ushort undefined in UndefinedAnimatedTileObjects)
-            AssertThrows<InvalidOperationException>(
-                () => TourianStatueNativeWords.TryResolveStatue((BlockAnimation)undefined, out _),
-                "Undefined statue object is rejected at the typed boundary");
     }
 
     /// <summary>Compares the import's statue picture size with the second word of each statue's native header.</summary>

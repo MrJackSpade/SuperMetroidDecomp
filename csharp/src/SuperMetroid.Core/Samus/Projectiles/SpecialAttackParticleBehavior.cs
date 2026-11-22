@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// then ends it. The sound the update makes joins the update's audio requests at once.
 /// </summary>
 /// <typeparam name="TState">The state the particle's kind keeps.</typeparam>
-internal abstract class SpecialAttackParticleBehavior<TState> : SamusShotBehavior<TState>
+internal abstract partial class SpecialAttackParticleBehavior<TState> : SamusShotBehavior<TState>
     where TState : SpecialAttackParticleState
 {
     /// <inheritdoc/>

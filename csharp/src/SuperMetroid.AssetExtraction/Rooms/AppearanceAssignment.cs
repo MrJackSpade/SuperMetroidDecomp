@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// One assignment of a value to each appearance input that reaches some characters (#1466, #2565): each input held with the
 /// value it takes, so a value is found by its input, never by its place in a second list.
 /// </summary>
-internal sealed class AppearanceAssignment
+internal sealed partial class AppearanceAssignment
 {
     /// <summary>Each input's value.</summary>
     private readonly Dictionary<AppearanceInput, string> values;

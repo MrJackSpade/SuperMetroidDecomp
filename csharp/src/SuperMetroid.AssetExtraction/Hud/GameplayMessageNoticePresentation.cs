@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Editable bounded text regions for station-completion and save-confirmation notices.
 /// Confirmation input, timing and save behavior remain compiled.
 /// </summary>
-public sealed class GameplayMessageNoticePresentation
+public sealed partial class GameplayMessageNoticePresentation
 {
     /// <summary>Validated templates and bounded text overlays indexed by supported message ID.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
@@ -197,8 +197,7 @@ public sealed class GameplayMessageNoticePresentation
     /// <param name="document">The document to serialize.</param>
     public static void Write(Stream output, GameplayMessageNoticeDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessageNoticeDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
@@ -210,7 +209,7 @@ public sealed class GameplayMessageNoticePresentation
                 "The gameplay-message notice catalog does not own this message.");
 
     /// <summary>Validated tilemap content.</summary>
-    private sealed record CompiledNotice(
+    private sealed partial record CompiledNotice(
         int RowCount,
         BackgroundTile[] Template,
         CompiledTextRegion[] Text);
@@ -221,7 +220,7 @@ public sealed class GameplayMessageNoticePresentation
     private sealed record SaveSelectionRows(BackgroundTile[] Yes, BackgroundTile[] No);
 
     /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
-    private sealed record CompiledTextRegion(
+    private sealed partial record CompiledTextRegion(
         int Row,
         int Column,
         int Width,

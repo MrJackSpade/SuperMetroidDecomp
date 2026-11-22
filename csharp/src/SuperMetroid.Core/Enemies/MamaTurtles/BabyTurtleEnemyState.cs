@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The state of a Baby Turtle.</summary>
-public sealed class BabyTurtleEnemyState
+public sealed partial class BabyTurtleEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>, in the family of the Mama <paramref name="family"/> names.</summary>
     internal BabyTurtleEnemyState(BabyTurtleAction action, MamaTurtleFamily family)

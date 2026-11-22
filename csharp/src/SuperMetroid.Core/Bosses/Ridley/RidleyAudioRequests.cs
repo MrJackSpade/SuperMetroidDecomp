@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's sound and music requests, each queued as Ridley makes it, after the update's earlier requests.</summary>
-internal static class RidleyAudioRequests
+internal static partial class RidleyAudioRequests
 {
     /// <summary>Queues the sound of a small explosion around the dying Norfair Ridley.</summary>
     internal static void RequestRidleyDeathExplosionSound(this EnemyAudioQueue audio) =>

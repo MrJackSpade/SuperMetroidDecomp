@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicSpawnSettings>
+internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicSpawnSettings>
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];

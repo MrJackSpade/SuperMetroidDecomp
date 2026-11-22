@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Executes the ending's transfers once over the installed artwork into the memory image its sprite pages are cut from
 /// (#1358, #1467), each at the native words, lanes and order its transfer wrote.
 /// </summary>
-internal static class EndingScreenImage
+internal static partial class EndingScreenImage
 {
     /// <summary>The image <paramref name="transfers"/> leave over <paramref name="artwork"/>, in order.</summary>
     internal static byte[] Compose(IReadOnlyList<EndingTransfer> transfers, EndingTransferArtwork artwork)
@@ -22,7 +22,7 @@ internal static class EndingScreenImage
     }
 
     /// <summary>Writes one transfer into <paramref name="vram"/>.</summary>
-    private static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
+    internal static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
     {
         var ending = new EndingVram(vram);
         switch (transfer)

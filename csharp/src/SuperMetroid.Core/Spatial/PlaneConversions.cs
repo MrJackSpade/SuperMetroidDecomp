@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// Names the plane pixel a gameplay or map position shows at the screen's top-left, for display layers that draw any
 /// pictured plane. The coordinates are unchanged; only the space is renamed.
 /// </summary>
-public static class PlaneConversions
+public static partial class PlaneConversions
 {
     /// <summary>The foreground plane pixel a gameplay foreground scroll shows at the screen's top-left.</summary>
     public static Position16<PlanePixels> AsPlaneScroll(this Position16<RoomPixels> scroll) => new(scroll.X, scroll.Y);

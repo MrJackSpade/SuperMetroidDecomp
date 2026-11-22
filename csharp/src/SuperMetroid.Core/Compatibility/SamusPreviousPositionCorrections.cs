@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// to the sampled record where the scrolling reads it.
 /// </remarks>
 [CompatibilityService("owners before the scrolling correct the camera's record of where Samus was in place")]
-public sealed class SamusPreviousPositionCorrections
+public sealed partial class SamusPreviousPositionCorrections
 {
     /// <summary>The previous whole-pixel X an owner wrote this update, or null when none did.</summary>
     private int? _x;

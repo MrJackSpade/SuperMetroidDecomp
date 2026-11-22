@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="ScrollingSky">The scrolling sky's vertical scroll, when the room has a sky.</param>
 /// <param name="Room">The loaded room whose X-ray blending the frame shows.</param>
 /// <param name="Boss">The loaded boss, which the X-ray blending reads, or null.</param>
-public readonly record struct GameplayLatchedScene(
+public readonly partial record struct GameplayLatchedScene(
     RoomEffectBlend? Blend,
     LatchedScrollingSky? ScrollingSky,
     RoomDefinition Room,

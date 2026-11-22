@@ -11,7 +11,7 @@ internal static class SamusShownFrameAnalysisAccess
     {
         /// <summary>The picture frames of <paramref name="pose"/>, by their places in its animation's layout, in order.</summary>
         internal IEnumerable<int> Pictures(SamusPoseId pose) =>
-            PrivateState.Field<SamusShownFrameAnalysis, Dictionary<SamusPoseId, SortedSet<int>>>(self, "pictured")
+            self.pictured
                 .TryGetValue(pose, out SortedSet<int>? frames) ? frames : [];
     }
 }

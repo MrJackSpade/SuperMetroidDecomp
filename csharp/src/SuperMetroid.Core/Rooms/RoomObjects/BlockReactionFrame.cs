@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Image">What the image shows: a draw at the reaction's block, or the block's saved terrain restored.</param>
 /// <param name="Updates">The updates the image stays before the next image, or before the reaction ends.</param>
 /// <param name="SoundBefore">The sound requested as the image shows; null for none.</param>
-internal readonly record struct BlockReactionFrame(
+internal readonly partial record struct BlockReactionFrame(
     BlockReactionImage Image,
     int Updates,
     SoundEffectId? SoundBefore = null)

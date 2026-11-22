@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves wireframe pointers at import, exposing only visual atlas cells to authors.</summary>
-public static class PauseWireframeExtractor
+public static partial class PauseWireframeExtractor
 {
     /// <summary>Resolves every native suit wireframe pointer and converts its tile words to bounded semantic atlas cells.</summary>
     /// <param name="bus">Supported-cartridge address space containing wireframe pointers and fixed-size tilemaps.</param>

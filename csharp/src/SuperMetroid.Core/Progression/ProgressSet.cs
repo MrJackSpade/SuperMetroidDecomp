@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// kind declares them and rejects anything that is not one of them.
 /// </summary>
 /// <typeparam name="T">The kind of progress.</typeparam>
-public sealed class ProgressSet<T>
+public sealed partial class ProgressSet<T>
     where T : notnull
 {
     /// <summary>

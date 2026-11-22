@@ -9,19 +9,19 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Samus's presentation: her whole body picture, its placement, her particles, and the animation-frame sequencing that drives them.</summary>
-internal sealed class SamusPresentation
+internal sealed partial class SamusPresentation
 {
     /// <summary>
     /// The whole body picture the body last drew, which the speed-booster echoes repeat; none before the body is drawn.
     /// While invincibility flicker hides the body the echoes keep repeating the picture last drawn (#1392).
     /// </summary>
-    private SamusBodyFrame? DrawnFrame { get; set; }
+    internal SamusBodyFrame? DrawnFrame { get; set; }
 
     /// <summary>
     /// The signed screen place Samus's body picture was last drawn at, from her world position and the foreground scroll:
     /// left of or above the screen is negative.
     /// </summary>
-    private Offset16<ScreenPixels> DrawOrigin { get; set; }
+    internal Offset16<ScreenPixels> DrawOrigin { get; set; }
 
     /// <summary>The installed artwork she draws from, bound by whoever built her; never part of save state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -33,7 +33,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Whether she is presented in play or as a cinematic's figure; the intro's flashback is the one cinematic.</summary>
-    public SamusPresentationMode Mode { get; private set; } = SamusPresentationMode.Gameplay;
+    public SamusPresentationMode Mode { get; internal set; } = SamusPresentationMode.Gameplay;
 
     /// <summary>Presents her as a cinematic's figure from now on (<see cref="SamusPresentationMode.Cinematic"/>).</summary>
     internal void PresentInCinematic() => Mode = SamusPresentationMode.Cinematic;
@@ -341,7 +341,7 @@ internal sealed class SamusPresentation
     /// <param name="Samus">Samus, whose animation reaches the cue.</param>
     /// <param name="ProspectiveInputPose">The pose her input selected this update, if any.</param>
     /// <param name="DemoPoseInput">Whether a demo drives her pose input.</param>
-    private readonly record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
+    private readonly partial record struct SamusCueRun(SamusState Samus, SamusPoseId? ProspectiveInputPose, bool DemoPoseInput);
 
     /// <summary>
     /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.

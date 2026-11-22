@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Exports bank-$87 room-FX, Wrecked Ship treadmill, and Tourian statue characters.</summary>
-public static class RoomFxBlockAnimationAtlasExtractor
+public static partial class RoomFxBlockAnimationAtlasExtractor
 {
     /// <summary>Concatenates the defined room-FX, treadmill, statue, spore, and spike character segments into their stable atlas order.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the native bank-$87 two-bit planar artwork spans.</param>

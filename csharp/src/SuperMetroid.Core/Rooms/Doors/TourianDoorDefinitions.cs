@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Tourian rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class TourianDoorDefinitions
+public static partial class TourianDoorDefinitions
 {
     /// <summary>The door from the Tourian First room to the Metroids 1 room.</summary>
     public static DoorDefinition TourianFirstToMetroids1 { get; } = new("TourianFirstToMetroids1", RoomDefinitions.Metroids1, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 6), new(5, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

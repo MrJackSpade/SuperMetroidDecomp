@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// freeze and the protection after a hit last, how far a weapon's hit extends the hurt flash, and what an enemy's touch
 /// does to Samus.
 /// </summary>
-internal static class EnemyCollisionDefinitions
+internal static partial class EnemyCollisionDefinitions
 {
     /// <summary>The damage a Speed Booster contact deals an enemy, before the enemy's Speed Booster vulnerability.</summary>
     internal const int SpeedBoosterContactDamage = 500;

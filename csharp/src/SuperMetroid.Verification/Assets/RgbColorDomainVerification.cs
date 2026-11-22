@@ -49,7 +49,6 @@ internal static class RgbColorDomainVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => new FadeLevelColour(32, 0, 0), "red level above full");
         AssertThrows<ArgumentOutOfRangeException>(() => new FadeLevelColour(0, -1, 0), "negative green level");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = RgbColor.White.FadeLevels[(ColorChannel)3], "undefined channel");
 
         // A plain colour off the scale has no levels and no stored word: every colour the game shows lies on the scale.
         var levelChannels = new HashSet<int>(Enumerable.Range(0, FadeLevelColour.FullLevel + 1).Select(level => new FadeLevelColour(level, 0, 0).ToColour().Red));

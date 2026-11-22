@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Which projectile kind each shot, bomb, special attack and echo is, by what fires it: a beam combination and
 /// whether the shot was charged, a projectile family, or an echo.
 /// </summary>
-internal static class SamusProjectileSelectionDefinitions
+internal static partial class SamusProjectileSelectionDefinitions
 {
     /// <summary>The kind of each beam combination's uncharged shot.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> UnchargedBeamShots =

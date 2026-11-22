@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// among the room's room objects.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyTerrain
+internal sealed partial class EnemyTerrain
 {
     /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into.</summary>
     private readonly EnemyBreakableTerrainObjects _breakableTerrain;
@@ -371,7 +371,7 @@ internal sealed class EnemyTerrain
     /// <param name="startBlock">The block the scan reached, in the room's columns (<see cref="BlockScanCycle"/>).</param>
     /// <param name="reached">The block the extension links lead to, where a reaction to it takes place.</param>
     /// <returns>The terrain and behaviour of <paramref name="reached"/>.</returns>
-    private static RoomCollisionBlock ResolveEnemyMoverBlock(
+    internal static RoomCollisionBlock ResolveEnemyMoverBlock(
         RoomLevelData level,
         Position16<RoomBlocks> startBlock,
         out Position16<RoomBlocks> reached)
@@ -572,7 +572,7 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>Adjusts the enemy center when the sampled floor or ceiling pixel penetrates a matching non-square slope.</summary>
-    private static bool AlignAgainstSlopeAtPixel(
+    internal static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         IEnemyTerrainBody place,
         Position16<RoomPixels> pixel,
@@ -620,7 +620,7 @@ internal sealed class EnemyTerrain
     /// <param name="level">The room's terrain.</param>
     /// <param name="position">The spike block the enemy's lookup reached.</param>
     /// <param name="spike">The reaction the spike block carries.</param>
-    private bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, SpikeReaction spike)
+    internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, SpikeReaction spike)
     {
         if (!EnemyBreakableTerrain.IsEnemyBreakable(spike)) return true;
         _breakableTerrain.SpawnEnemyBreakableBlock(level, position);

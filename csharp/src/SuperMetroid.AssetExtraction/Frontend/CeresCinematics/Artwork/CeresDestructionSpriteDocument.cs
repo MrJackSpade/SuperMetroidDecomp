@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable OAM composition schema for the Ceres explosion and Zebes reveal, separate from cinematic actors, motion, timing, and the shared approach artwork.</summary>
-public sealed record CeresDestructionSpriteDocument
+public sealed partial record CeresDestructionSpriteDocument
 {
     /// <summary>Composition schema revision; loading requires <see cref="CeresDestructionSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }

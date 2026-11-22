@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// right-facing step on its left leg deciding once more whether to jump back before its last pace, is written where that
 /// step is.
 /// </summary>
-internal static class TorizoFacedAnimations
+internal static partial class TorizoFacedAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them: the left-facing segments, then the right-facing.</summary>
     internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()

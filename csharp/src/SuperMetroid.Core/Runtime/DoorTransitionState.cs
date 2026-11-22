@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <see cref="DoorDestinationSetupWait"/>'s, and how far loading has progressed on each scroll update is
 /// <see cref="IRoomLoadProgress"/>'s.
 /// </remarks>
-internal sealed class DoorTransitionState
+internal sealed partial class DoorTransitionState
 {
     /// <summary>
     /// The transition under way, which <see cref="Begin"/> creates with everything it holds and its last fade step
@@ -34,7 +34,7 @@ internal sealed class DoorTransitionState
     public DoorTransitionPhase Phase => stage.Phase;
 
     /// <summary>Gets whether the transition has begun and has not yet completed.</summary>
-    private bool IsActive => stage is OrdinaryDoorTransition or OpeningDoorTransition;
+    internal bool IsActive => stage is OrdinaryDoorTransition or OpeningDoorTransition;
 
     /// <summary>
     /// Whether the next update continues the destination's load from the update before, which began it on

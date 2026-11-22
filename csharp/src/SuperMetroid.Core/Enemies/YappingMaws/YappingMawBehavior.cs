@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>The Yapping Maw species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<YappingMawSpawnSettings>
+internal sealed partial class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<YappingMawSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -43,6 +43,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>What <see cref="ApplyYappingMawCue"/> does for each <see cref="YappingMawCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<YappingMawCueKind, Action<YappingMawEnemyState>> ApplyYappingMawCueForYappingMawCueKind => field ??= new(new Dictionary<YappingMawCueKind, Action<YappingMawEnemyState>>
     {
         [YappingMawCueKind.PlayBiteSound] = state => PlayYappingMawAttackSound(state),
@@ -65,7 +66,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="State">The state the cases read.</param>
     /// <param name="Owner">The <see cref="YappingMawBehavior"/> reacting.</param>
-    private readonly record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
+    private readonly partial record struct ApplyYappingMawCueContext(YappingMawEnemyState State, YappingMawBehavior Owner);
 
     /// <summary>Initializes the Yapping Maw.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -104,6 +105,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>What <see cref="RunYappingMawMain"/> does for each <see cref="YappingMawAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<YappingMawAction, Action<YappingMawSpawnSettings, RoomEnemyPlace, YappingMawEnemyState, SamusState>> RunYappingMawMainForYappingMawAction => field ??= new(new Dictionary<YappingMawAction, Action<YappingMawSpawnSettings, RoomEnemyPlace, YappingMawEnemyState, SamusState>>
     {
         [YappingMawAction.WaitingForSamus] = (settings, place, state, samus) => WaitForSamusWithYappingMaw(settings, state, samus),
@@ -163,7 +165,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>Runs the one-frame setup action.</summary>
-    private static void BeginYappingMawExtension(RoomEnemyPlace place, YappingMawEnemyState state)
+    internal static void BeginYappingMawExtension(RoomEnemyPlace place, YappingMawEnemyState state)
     {
         state.Extension = YappingMawCurl.None;
         state.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
@@ -188,7 +190,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// extension only runs while the curl is 0 through <see cref="YappingMawAttackDefinitions.LargestCurl"/>: setup starts it at zero, the
     /// clamp caps it, and the update that carries it negative leaves the extension; a curl outside that range is refused.
     /// </summary>
-    private static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl.WholeUnits, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
+    internal static int BendStepOf(int curl) => Ensure.BetweenInclusive(0, YappingMawAttackDefinitions.LargestCurl.WholeUnits, curl) / YappingMawAttackDefinitions.CurlPerBendStep;
 
     /// <summary>Runs the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
@@ -264,7 +266,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>Adds the current quadratic speed to the curl, carrying the fraction, then advances its place along the curve.</summary>
-    private static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
+    internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
         state.Extension = state.Extension.MovedBy(state.CurlPhase.CurlChange(state.SpeedCurvePlace.Speed.Speed));
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
@@ -333,6 +335,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
         samus.Control.LockOutPlayer();
     }
 
+    /// <summary>Runs <see cref="ResolveYappingMawShotAfterCommon(RoomEnemyPlace, YappingMawEnemyState, SamusState)"/> after a bomb's common damage.</summary>
+    private static void ResolveYappingMawShotAfterCommon(EnemyBombHitContext context) =>
+        ResolveYappingMawShotAfterCommon(context.Enemy, context.StruckOccupant.Require<YappingMawEnemyState>(), context.Samus);
+
+    /// <summary>Runs <see cref="ResolveYappingMawShotAfterCommon(RoomEnemyPlace, YappingMawEnemyState, SamusState)"/> after a shot's common damage.</summary>
+    private static void ResolveYappingMawShotAfterCommon(EnemyShotHitContext context) =>
+        ResolveYappingMawShotAfterCommon(context.Enemy, context.StruckOccupant.Require<YappingMawEnemyState>(), context.Samus);
+
     /// <summary>
     /// Runs after a hit's common damage on the Maw it struck. Ice releases a living Maw's captive; death additionally
     /// destroys all four body-link projectiles and the root effect actor, which the killed Maw's state still names.
@@ -398,7 +408,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     }
 
     /// <summary>Holds a grabbed Samus at the mouth offset of <paramref name="aim"/>, as the hold cue asks.</summary>
-    private static void SetYappingMawHeldOffset(
+    internal static void SetYappingMawHeldOffset(
         YappingMawEnemyState state,
         YappingMawAim aim)
     {
@@ -455,11 +465,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
     /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read.
     /// </summary>
-    private static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
+    internal static YappingMawAim AimOf(TrigonometryAngle aim) => YappingMawAnimationDefinitions.Aims.At(
         Array.IndexOf(TrigonometryAngle.DirectionsClockwise, aim.NearestDirection()));
 
     /// <summary>X is the Y offset a quarter turn behind.</summary>
-    private static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
+    internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
         CalculateYappingMawY(angle - TrigonometryAngle.QuarterTurn, length);
 
     /// <summary>
@@ -469,7 +479,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// (<see cref="UnitComponent.ReachRoundedDownToPixelPairsOf"/>), so a point on the negative side short of a pair lies a
     /// whole pair further out (#1620, #2453); its consumers wrap it onto the room's axis.
     /// </summary>
-    private static int CalculateYappingMawY(TrigonometryAngle angle, int length) =>
+    internal static int CalculateYappingMawY(TrigonometryAngle angle, int length) =>
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
         UnitComponent.CoarseFineSineOf(angle).Reversed.ReachRoundedDownToPixelPairsOf(ShortCircleProduct.RadiusInUse(length));
 
@@ -477,7 +487,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyBombReaction YappingMawBombReaction(YappingMawEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, state, c.Samus),
+||||||| 418ca79935
+        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+=======
+        AfterCommon = ResolveYappingMawShotAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs YappingMaw's main AI.</summary>
@@ -504,7 +520,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemySpawnFactory<Yap
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction YappingMawShotReaction(YappingMawEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, state, c.Samus),
+||||||| 418ca79935
+        AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.StruckOccupant.Require<YappingMawEnemyState>(), c.Samus),
+=======
+        AfterCommon = ResolveYappingMawShotAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs contact as a grab that locks Samus without ordinary touch damage.</summary>

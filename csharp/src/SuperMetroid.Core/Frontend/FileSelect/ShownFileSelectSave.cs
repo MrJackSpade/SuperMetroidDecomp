@@ -3,14 +3,14 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>What one save slot's field shows (#1467): its health, its maximum, and its game time, each as the field shows it.</summary>
-internal sealed record ShownFileSelectSave
+internal sealed partial record ShownFileSelectSave
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="health">The slot's health.</param>
     /// <param name="maxHealth">The slot's maximum health.</param>
     /// <param name="hours">The slot's game-time hours, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
     /// <param name="minutes">The slot's game-time minutes, at most <see cref="FileSelectFieldDefinitions.MaximumTimePart"/>.</param>
-    private ShownFileSelectSave(int health, int maxHealth, int hours, int minutes)
+    internal ShownFileSelectSave(int health, int maxHealth, int hours, int minutes)
     {
         Health = health;
         MaxHealth = maxHealth;

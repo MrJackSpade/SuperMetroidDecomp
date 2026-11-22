@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="escape">The station's escape, whose getaway the room main runs.</param>
 /// <param name="doors">The room's Ceres doors, the door of Ridley's room among them.</param>
 [RoomLifetime]
-internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape, CeresDoorBehavior doors) : ICeresEncounter
+internal sealed partial class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape, CeresDoorBehavior doors) : ICeresEncounter
 {
     /// <inheritdoc/>
     public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }

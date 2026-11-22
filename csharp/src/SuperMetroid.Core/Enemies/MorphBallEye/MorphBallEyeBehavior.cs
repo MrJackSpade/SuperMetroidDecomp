@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<MorphBallEyeSpawnSettings>
+internal sealed partial class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<MorphBallEyeSpawnSettings>
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -75,6 +75,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemySpawnFactory<M
     }
 
     /// <summary>What <see cref="RunMorphBallEyeMain"/> does for each <see cref="MorphBallEyeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MorphBallEyeAction, Action<MorphBallEyeBodySpawnSettings, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>> RunMorphBallEyeMainForMorphBallEyeAction => field ??= new(new Dictionary<MorphBallEyeAction, Action<MorphBallEyeBodySpawnSettings, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>>
     {
         [MorphBallEyeAction.WaitForSamus] = (settings, place, state, samus) => WaitForSamusNearMorphBallEye(settings, place, state, samus),

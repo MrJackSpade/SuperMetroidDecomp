@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Standing">The drop while he stands.</param>
 /// <param name="LegsHalfExtended">The drop with his legs half extended.</param>
 /// <param name="LegsExtended">The drop with his legs extended.</param>
-internal readonly record struct RidleyClawDrop(int Standing, int LegsHalfExtended, int LegsExtended)
+internal readonly partial record struct RidleyClawDrop(int Standing, int LegsHalfExtended, int LegsExtended)
 {
     /// <summary>The drop for <paramref name="height"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="height"/> is not one of the three claw heights.</exception>

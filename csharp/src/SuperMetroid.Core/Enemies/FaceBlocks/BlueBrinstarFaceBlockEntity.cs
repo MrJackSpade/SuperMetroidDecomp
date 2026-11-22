@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, FaceBlockSpawnSettings settings)
+internal sealed partial class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, FaceBlockSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

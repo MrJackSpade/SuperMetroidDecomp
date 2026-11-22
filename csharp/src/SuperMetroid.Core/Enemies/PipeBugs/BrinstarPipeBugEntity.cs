@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="place">The place the Pipe Bug occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BrinstarPipeBugSpawnSettings settings)
+internal sealed partial class BrinstarPipeBugEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BrinstarPipeBugSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

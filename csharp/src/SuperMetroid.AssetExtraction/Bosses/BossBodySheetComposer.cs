@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// each animation a frame shows are pictured again over every frame of that animation. The tilemap words the cartridge
 /// writes are read here, once, and nowhere else.
 /// </summary>
-internal static class BossBodySheetComposer
+internal static partial class BossBodySheetComposer
 {
     /// <summary>The boss bodies in the order their sheets are composed and listed (#2567).</summary>
     private static readonly BossBodyOwner[] OwnerOrder = [.. Ensure.EveryMemberOnce<BossBodyOwner>(
@@ -113,7 +113,7 @@ internal static class BossBodySheetComposer
     /// Composes <paramref name="owner"/>'s sheet over the first room state, in room order, that shows the boss: the
     /// characters every frame reads there, as the tile word sheets were composed before (#1392).
     /// </summary>
-    private static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
+    internal static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
         BossRoomCharacters characters = RoomBlockUploads.ShownUnderBoss(inputs, FirstStateShowing(owner));
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
@@ -133,7 +133,7 @@ internal static class BossBodySheetComposer
     internal static string SheetNameOf(BossBodyOwner owner) => $"BossBody.{BossBodyOwnerKeys.Installed.Of(owner)}";
 
     /// <summary>The tile <paramref name="owner"/> clears its body layer with.</summary>
-    private static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch
+    internal static BackgroundTile BlankOf(BossBodyOwner owner) => owner switch
     {
         BossBodyOwner.Kraid => KraidWorkingMapDefinitions.BlankTile,
         BossBodyOwner.Phantoon or BossBodyOwner.Draygon or BossBodyOwner.Crocomire or BossBodyOwner.MotherBrain => BossBodySourceDefinitions.BlankTile,
@@ -142,7 +142,7 @@ internal static class BossBodySheetComposer
 
     /// <summary>Every frame <paramref name="owner"/> shows, whole, at the layer cells it covers.</summary>
     /// <exception cref="InvalidDataException">The boss's installed artwork is missing.</exception>
-    private static IEnumerable<BossBodyFrameSource> Frames(BossSourceArtwork bosses, BossBodyOwner owner)
+    internal static IEnumerable<BossBodyFrameSource> Frames(BossSourceArtwork bosses, BossBodyOwner owner)
     {
         switch (owner)
         {

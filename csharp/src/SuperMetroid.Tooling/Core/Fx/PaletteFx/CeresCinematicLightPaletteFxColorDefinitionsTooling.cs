@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class CeresCinematicLightPaletteFxColorDefinitionsTooling
 {
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
-    [AccessedByReflection]
     public static IReadOnlyList<CeresCinematicLightPaletteFxColorDefinition> All { get; } = new ProgramEntries();
     /// <summary>Enumerates the three Ceres light owners without retaining duplicate program tables.</summary>
     internal sealed class ProgramEntries : IReadOnlyList<CeresCinematicLightPaletteFxColorDefinition>

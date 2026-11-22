@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// checks read them: they go to the audio component's import-data directory, the installation holds the rendered clips
 /// alone, and audio is replaced by clip.
 /// </summary>
-public static class SpcAudioAssetExtractor
+public static partial class SpcAudioAssetExtractor
 {
 
     /// <summary>Extracts the audio's import data directly from a user's cartridge, without raw files or an upstream checkout.</summary>
@@ -97,7 +97,7 @@ public static class SpcAudioAssetExtractor
         // Stream the UTF-8 JSON into the file; the manifest is large enough that one
         // intermediate string per install dominated extraction allocation.
         using (var output = File.Create(Path.Combine(root, ExtractedAudioAssetCatalog.ManifestFileName)))
-            JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(output, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return manifest;
     }
 
@@ -263,7 +263,7 @@ public static class SpcAudioAssetExtractor
     }
 
     /// <summary>Builds an exact finite PCM prefix and recurring loop from BRR predictor states.</summary>
-    private static bool TryDecodeBrr(
+    internal static bool TryDecodeBrr(
         byte[] ram,
         bool[] written,
         int start,
@@ -417,7 +417,7 @@ public static class SpcAudioAssetExtractor
     /// durable identity. Content hashes are only deduplication and integrity mechanisms:
     /// replacing a WAV later does not force callers to rename its sample ID.
     /// </summary>
-    private sealed class CanonicalSampleBuilder
+    private sealed partial class CanonicalSampleBuilder
     {
         /// <summary>Import-data root the manifest's stable relative WAV paths start from.</summary>
         private readonly string root;

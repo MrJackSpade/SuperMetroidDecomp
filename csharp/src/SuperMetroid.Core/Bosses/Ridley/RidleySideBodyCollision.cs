@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Facing">The way the frame faces; a right-facing frame mirrors the left-facing component origins.</param>
 /// <param name="Legs">The frame's leg rectangles.</param>
 /// <param name="Head">The frame's head rectangles.</param>
-internal sealed record RidleySideBodyCollision(HorizontalDirection Facing, EnemyHitboxRectangle[] Legs, EnemyHitboxRectangle[] Head);
+internal sealed partial record RidleySideBodyCollision(HorizontalDirection Facing, EnemyHitboxRectangle[] Legs, EnemyHitboxRectangle[] Head);

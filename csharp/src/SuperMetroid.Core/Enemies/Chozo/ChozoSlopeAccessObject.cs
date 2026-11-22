@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// the room on its second update, turns the statue room's spikes into slopes or its slopes back into spikes.
 /// </summary>
 [RoomLifetime]
-internal sealed class ChozoSlopeAccessObject : TerrainChangeObject
+internal sealed partial class ChozoSlopeAccessObject : TerrainChangeObject
 {
     /// <summary>The terrain change the access makes to the statue room's slope as it ends.</summary>
     private readonly Action<RoomLevelData> _slopeChange;

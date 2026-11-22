@@ -27,7 +27,7 @@ internal static class EndingPostCreditsScrollVerification
         // The post-shot is reached only after the reward has shown the producer panel and replaced it with the
         // copyright, which the white flash then clears; the production steps show that text before the shot begins.
         ending.ShowCastPhase(EndingCreditsPhase.PostCreditsWaitingBackdrop);
-        PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(1));
+        ending.PhaseHold = UpdateCountdown.Lasting(1);
         ending.Step();
         AssertEqual(EndingCreditsPhase.PostCreditsWaitingSamus, ending.Phase, "the waiting backdrop shows the producer panel");
         AssertEqual(EndingPostCreditsPanel.Result, text.Panel, "the waiting backdrop's end shows the result panel");
@@ -37,8 +37,7 @@ internal static class EndingPostCreditsScrollVerification
         // A leftover drop from an earlier move down must not survive the white flash.
         int leftover = ScrollDownCalls * PixelsPerCall;
         text.Drop = leftover;
-        PrivateState.Set(ending, nameof(EndingCreditsState.Scene),
-            new EndingPostShotScene(new EndingRewardJump(ending.Stage.EndingReward), new EndingPostShot()));
+        ending.Scene = new EndingPostShotScene(new EndingRewardJump(ending.Stage.EndingReward), new EndingPostShot());
         for (int call = 0; ending.Phase == EndingCreditsPhase.PostCreditsShot; call++)
         {
             if (call == MaximumShotCalls)
@@ -52,8 +51,8 @@ internal static class EndingPostCreditsScrollVerification
 
         // The move down runs below the final logo, once the item percentage has typed.
         _ = ending.CreditsRoll.StartItemPercentage();
-        PrivateState.Set(ending, nameof(EndingCreditsState.Scene), new EndingItemPercentageDropScene());
-        PrivateState.Set(ending, nameof(EndingCreditsState.PhaseHold), UpdateCountdown.Lasting(ScrollDownCalls));
+        ending.Scene = new EndingItemPercentageDropScene();
+        ending.PhaseHold = UpdateCountdown.Lasting(ScrollDownCalls);
         for (int call = 1; call <= ScrollDownCalls; call++)
         {
             ending.Step();

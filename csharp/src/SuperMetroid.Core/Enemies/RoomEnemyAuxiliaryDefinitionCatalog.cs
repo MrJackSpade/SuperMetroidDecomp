@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Enemy definitions used by actors the game creates as it runs but not selected by any room's enemy population or the
 /// enemy artwork rooms load. They hold the same immutable gameplay fields as ordinary room definitions.
 /// </summary>
-internal static class RoomEnemyAuxiliaryDefinitionCatalog
+internal static partial class RoomEnemyAuxiliaryDefinitionCatalog
 {
     /// <summary>The Baby Metroid of Mother Brain's cutscene.</summary>
     internal static readonly RoomEnemyDefinition BabyMetroidCutscene = new(
@@ -53,7 +53,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = RoomEnemyDefinitionCatalog.CeresDoorAndWall;
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
-    private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
+    internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {
         [EnemyDefinitionId.BabyMetroidCutscene] = BabyMetroidCutscene,

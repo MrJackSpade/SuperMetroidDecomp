@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// this is the only place a placed tile meets the cell that stores it (#2556).
 /// </summary>
 [EncodingOwner("import-data background tilemap cell")]
-public sealed record RoomBackgroundTilemapCell
+public sealed partial record RoomBackgroundTilemapCell
 {
     /// <summary>The cell that stores <paramref name="tile"/>.</summary>
     internal static RoomBackgroundTilemapCell Of(BackgroundTile tile) => new()

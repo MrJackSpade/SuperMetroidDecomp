@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Enemies;
 /// species' creation once, checking the entry's settings against the type that creation takes.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemySpeciesRegistry
+internal sealed partial class EnemySpeciesRegistry
 {
     /// <summary>How each definition a population places binds its entries.</summary>
     private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _placed;
 
     /// <summary>The creations parts already placed offer the parts the room lists after them.</summary>
-    private readonly EnemyPartOffers _offers;
+    internal readonly EnemyPartOffers _offers;
 
     /// <summary>Composes the registry from <paramref name="registrar"/>'s registrations.</summary>
     internal EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)

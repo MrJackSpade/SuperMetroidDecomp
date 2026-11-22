@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The launch positions of Crocomire's crumbling bridge actors.</summary>
-internal static class CrocomireBridgeFragmentDefinitions
+internal static partial class CrocomireBridgeFragmentDefinitions
 {
     /// <summary>
     /// Where each bridge fragment of Crocomire's fall starts, in the order the bridge crumbles (#2303): the bridge's

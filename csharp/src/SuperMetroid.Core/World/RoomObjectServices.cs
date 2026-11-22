@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// <see cref="IRoomLiquid.TargetSurface"/>).
 /// </summary>
 [RoomLifetime]
-public sealed record RoomObjectServices
+public sealed partial record RoomObjectServices
 {
     /// <summary>Samus as room objects see her.</summary>
     public required IRoomSamusAccess Samus { get; init; }

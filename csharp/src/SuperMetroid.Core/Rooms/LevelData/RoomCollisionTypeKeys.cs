@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="RoomCollisionType"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomCollisionTypeKeys
+internal static partial class RoomCollisionTypeKeys
 {
     /// <summary>Each RoomCollisionType member's installed key.</summary>
     internal static InstalledKeys<RoomCollisionType> Installed { get; } = new(new Dictionary<RoomCollisionType, string>

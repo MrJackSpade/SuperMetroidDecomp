@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Fixed randomized launch definitions shared by Bomb and Golden Torizo, each written for a launch to the right and mirrored
 /// for one to the left (#2411).
 /// </summary>
-internal static class TorizoRandomizedProjectileDefinitions
+internal static partial class TorizoRandomizedProjectileDefinitions
 {
     /// <summary>Bomb Torizo's Chozo-orb launch, the way it faces.</summary>
     internal static TorizoLaunch BombChozoOrb { get; } = new(TorizoProjectileSegment.ChozoOrbMovingLeft, TorizoProjectileSegment.ChozoOrbMovingRight,

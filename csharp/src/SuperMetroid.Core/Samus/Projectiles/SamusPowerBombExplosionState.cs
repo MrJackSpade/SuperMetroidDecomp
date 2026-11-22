@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Samus's Power Bomb explosion: the one-at-a-time Power Bomb lock, the room point the blast is centred on, and the blast's
 /// timeline (<see cref="Blast"/>), with the oval of added colour each frame shows (<see cref="ShownOval"/>).
 /// </summary>
-public sealed class SamusPowerBombExplosionState
+public sealed partial class SamusPowerBombExplosionState
 {
     /// <summary>The blast's stages, radii and glow (#2000).</summary>
     public PowerBombBlastTimeline Blast { get; } = new();

@@ -3,7 +3,7 @@ using S = SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStage;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The phase definitions of Magdollite's rising body.</summary>
-internal static class MagdollitePhaseDefinitions
+internal static partial class MagdollitePhaseDefinitions
 {
     /// <summary>
     /// Maximum whole-pixel rise before Magdollite reaches its apex; whether the arm grows a final phase there is

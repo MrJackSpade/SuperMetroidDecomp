@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves reserve visual data once, validating the compiled native fill-to-shape mapping.</summary>
-public static class PauseReserveTankExtractor
+public static partial class PauseReserveTankExtractor
 {
     /// <summary>Validates the native reserve fill-to-shape bindings, resolves tank anchors and palette, and serializes every referenced sprite frame.</summary>
     /// <param name="bus">Supported-cartridge address space containing reserve mappings, positions, palette attributes, and spritemaps.</param>

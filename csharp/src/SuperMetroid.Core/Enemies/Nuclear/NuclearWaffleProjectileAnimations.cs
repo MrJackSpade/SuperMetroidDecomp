@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// The Nuclear Waffle's body animation (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class NuclearWaffleProjectileAnimations
+internal static partial class NuclearWaffleProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

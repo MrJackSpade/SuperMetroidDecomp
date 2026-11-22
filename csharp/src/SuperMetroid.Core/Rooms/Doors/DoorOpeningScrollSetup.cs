@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>A door-opening scroll's direction, camera and destination (#633).</summary>
-internal sealed record DoorOpeningScrollSetup
+internal sealed partial record DoorOpeningScrollSetup
 {
     /// <summary>The direction the door scrolls the screen.</summary>
     public required DoorDirection Direction { get; init; }

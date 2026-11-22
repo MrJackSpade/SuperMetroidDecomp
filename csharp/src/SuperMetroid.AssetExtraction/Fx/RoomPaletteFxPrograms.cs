@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Every colour program of the room palette-effect document, each listed once, in the document's order.</summary>
-internal static class RoomPaletteFxPrograms
+internal static partial class RoomPaletteFxPrograms
 {
     /// <summary>The programs, in the order the document stores them.</summary>
     internal static IReadOnlyList<RoomPaletteFxProgram> All { get; } =

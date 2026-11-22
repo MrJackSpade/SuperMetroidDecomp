@@ -65,9 +65,7 @@ internal static class CeresRidleyColorsVerification
                 CeresRidleyColorFormat.BabyColorCount,
                 color => native.ResolveBaby(shadeOperand.Shade, color));
 
-        CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)),
-            ArtworkJson.Options)
+        CeresRidleyColorDocument document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Ceres Ridley colors are null.");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
         runtime.Artwork.ScreenContent = original;

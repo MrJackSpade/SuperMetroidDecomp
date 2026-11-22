@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Where the ending's turning floors are installed (#1467).</summary>
-public static class EndingFloorDefinitions
+public static partial class EndingFloorDefinitions
 {
     /// <summary>The name of the whole floor's picture in each ending floor sheet.</summary>
     public const string FrameName = "floor";

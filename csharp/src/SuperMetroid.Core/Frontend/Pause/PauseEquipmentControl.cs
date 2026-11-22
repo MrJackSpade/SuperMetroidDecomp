@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// position. The controls are <see cref="PauseEquipmentControls"/>'s instances, each column an ordered list of them; the
 /// cursor holds a control and moves between list neighbours.
 /// </summary>
-public abstract class PauseEquipmentControl
+public abstract partial class PauseEquipmentControl
 {
     /// <summary>Names a control of <paramref name="category"/> whose selector stands at the installed anchor <paramref name="anchor"/>.</summary>
     private protected PauseEquipmentControl(PauseEquipmentCategory category, string anchor)

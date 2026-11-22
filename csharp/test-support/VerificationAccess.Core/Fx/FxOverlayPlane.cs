@@ -8,7 +8,7 @@
 public sealed class FxOverlayPlane
 {
     /// <summary>The overlay of a room whose effect shows nothing on it.</summary>
-    private static FxOverlayPlane Cleared { get; } = new(null);
+    internal static FxOverlayPlane Cleared { get; } = new(null);
 
     /// <summary>The overlay showing each effect, shared so a frame showing the same effect reuses its resolved picture.</summary>
     private static readonly Dictionary<RoomFxType, FxOverlayPlane> ShowingEach =

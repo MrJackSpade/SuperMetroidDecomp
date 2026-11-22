@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The hurt flash's updates (#2111): which of the flash's counted updates show its colours, play the impact, recover the
 /// interrupted movement sound and end it.
 /// </summary>
-public static class SamusHurtFlashDefinitions
+public static partial class SamusHurtFlashDefinitions
 {
     /// <summary>The update on which the flash plays the impact sound.</summary>
     public const int ImpactSoundUpdate = 2;

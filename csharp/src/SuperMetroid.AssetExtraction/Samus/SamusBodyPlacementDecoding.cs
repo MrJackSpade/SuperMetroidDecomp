@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// drawing reads only the placements of the frames a pose shows.
 /// </para>
 /// </remarks>
-public static class SamusBodyPlacementDecoding
+public static partial class SamusBodyPlacementDecoding
 {
     /// <summary>Decodes every pose's placement from the cartridge's tables.</summary>
     /// <param name="artOrigins">Each pose's signed art origin, in the cartridge's pose order.</param>

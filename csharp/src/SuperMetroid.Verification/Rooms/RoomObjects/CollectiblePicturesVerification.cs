@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;

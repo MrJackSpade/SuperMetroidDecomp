@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Tourian population places the Sidehopper there. Asking past the final enemy is refused.
 /// </remarks>
 [CompatibilityService("the Baby Metroid feeds on whichever enemy its room places directly after it, which in the retail room is the Sidehopper")]
-public static class BabyMetroidVictim
+public static partial class BabyMetroidVictim
 {
     /// <summary>The enemy placed directly after the Baby Metroid.</summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// the background by its rectangles, and the block picture each block-sized cell shows in the image's place where the room bound
 /// other artwork there after loading.
 /// </summary>
-public sealed class RoomBackgroundImagePlane
+public sealed partial class RoomBackgroundImagePlane
 {
     /// <summary>Each cell's picture, null where the image shows; the array is never written after it is shared.</summary>
     private readonly LayeredPicture?[] cells;

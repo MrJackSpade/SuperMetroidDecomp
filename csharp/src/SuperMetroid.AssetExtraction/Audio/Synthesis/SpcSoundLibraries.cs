@@ -6,7 +6,7 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The SPC driver's three sound-effect libraries: their requests, configuration and channels.</summary>
-internal sealed class SpcSoundLibraries
+internal sealed partial class SpcSoundLibraries
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     private readonly SpcRam ram;

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Splits station drawing positions from the cartridge's mixed drawing/discovery records.</summary>
-public static class MapStationLayoutExtractor
+public static partial class MapStationLayoutExtractor
 {
     /// <summary>Exports every missile, energy, and map station's drawing anchor while checking its native area-map discovery cell and record count.</summary>
     /// <param name="bus">Import-capable cartridge source for bank-$82 per-area station-list pointers and mixed coordinate/discovery records.</param>

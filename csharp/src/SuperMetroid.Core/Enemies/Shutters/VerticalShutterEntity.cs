@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the shutter's population entry tells its species.</param>
 /// <param name="pose">The pose the shutter shows.</param>
-internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal abstract partial class VerticalShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     ShutterSpawnSettings settings, ShutterSegment pose)
     : ShuttersEntity(species, occupant, place, common)
 {
@@ -22,7 +22,36 @@ internal abstract class VerticalShutterEntity(ShuttersBehavior species, RoomEnem
     internal VerticalShutterEnemyState State { get; } = ShuttersBehavior.InitializeVerticalShutter(settings, place, pose);
 
     /// <summary>The vertical shutters' own Power Bomb reaction, built once for this shutter.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= Species.VerticalShutterPowerBombReaction(Settings, State);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= ShuttersBehavior.VerticalShutterPowerBombReaction(this);
+
+    /// <summary>Sets the shutter off on a Power Bomb, in place of its common damage.</summary>
+    /// <param name="context">The Power Bomb's blast meeting the shutter.</param>
+    internal void ReactToPowerBomb(EnemyPowerBombContext context) => Species.ReactVerticalShutter(Settings, Ensure.NotNull(context).Enemy, State, context.Camera);
+
+    /// <summary>
+    /// Marks a shot's collision with the shootable shutter and sets it off, after the Super Missile quake: a shot deals the
+    /// shutter no damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the shutter.</param>
+    /// <returns>Always true: setting the shutter off replaces the rest of the shot reaction.</returns>
+    internal bool ReactToShootableShot(in EnemyShotContext c)
+    {
+        // A shot deals the shutter no damage and starts it moving; the shot's collision is still marked, a Super
+        // Missile's quake included.
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        Species.ReactVerticalShutter(Settings, c.Enemy, State, c.Camera);
+        return true;
+    }
+
+    /// <summary>Sets the destroyable shutter off after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void ReactDestroyableAfterCommon(EnemyBombHitContext context) =>
+        Species.ReactDestroyableShutterAfterCommon(Settings, Ensure.NotNull(context).Enemy, State, context.Camera);
+
+    /// <summary>Sets the destroyable shutter off after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void ReactDestroyableAfterCommon(EnemyShotHitContext context) =>
+        Species.ReactDestroyableShutterAfterCommon(Settings, Ensure.NotNull(context).Enemy, State, context.Camera);
 
     /// <summary>Whether the vertical shutters' own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == ShutterReactions.Touch || base.ReactsToTouch;

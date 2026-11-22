@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// and facing right lifts it straight on; facing right on its left leg, it decides whether to jump back as its leg plants
 /// rather than as it reaches. A pose shown twice running, with nothing between, is one beat of both durations (#2331).
 /// </summary>
-internal static class GoldenTorizoAnimations
+internal static partial class GoldenTorizoAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()

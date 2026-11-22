@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Named, editable bank-$8D enemy-projectile OAM compositions, which the import pipeline composes the spawned-object
 /// sheets' projectile pictures from (#1463).
 /// </summary>
-public sealed class EnemyProjectileSpritemapCatalog
+public sealed partial class EnemyProjectileSpritemapCatalog
 {
 
     /// <summary>The installed compositions and timed program frames.</summary>

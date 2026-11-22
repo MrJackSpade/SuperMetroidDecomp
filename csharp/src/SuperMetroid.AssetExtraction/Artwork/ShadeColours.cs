@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Shade">The shade's name, which the game's draws give.</param>
 /// <param name="Colours">The colours it shows, one for each ink of its run.</param>
-internal sealed record ShadeColours(PictureShade Shade, RgbColor[] Colours);
+internal sealed partial record ShadeColours(PictureShade Shade, RgbColor[] Colours);

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The fields of the room's random numbers Torizo's AI and spawns read. A decision that needs several single-bit fields
 /// is a <see cref="RandomClearBitsChance"/>, taken when every one of them reads zero, so the number of fields sets its odds.
 /// </summary>
-internal static class TorizoRandomDefinitions
+internal static partial class TorizoRandomDefinitions
 {
 
     /// <summary>Golden Torizo's forward leap goes while held directions draw a sample whose two single-bit fields both read zero: one time in four.</summary>

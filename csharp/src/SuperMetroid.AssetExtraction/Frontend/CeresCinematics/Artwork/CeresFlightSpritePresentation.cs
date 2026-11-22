@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// frames shared by the Ceres approach and destruction scenes. Animation timing
 /// and actor motion remain in their compiled owners.
 /// </summary>
-public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
+public sealed partial class CeresFlightSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Installed Ceres compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -58,8 +58,7 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

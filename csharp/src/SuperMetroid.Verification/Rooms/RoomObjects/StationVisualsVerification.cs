@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupStationStockVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

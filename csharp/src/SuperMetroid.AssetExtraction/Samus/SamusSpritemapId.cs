@@ -5,4 +5,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// frame, explosion frame or atmosphere frame that shows it; the import composes whole body pictures from it (#1585).
 /// </summary>
 /// <param name="Name">The composition's name.</param>
-public readonly record struct SamusSpritemapId(string Name);
+public readonly partial record struct SamusSpritemapId(string Name);

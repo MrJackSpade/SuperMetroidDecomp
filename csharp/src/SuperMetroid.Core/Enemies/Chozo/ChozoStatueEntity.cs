@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="place">The place the statue occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ChozoStatueSpawnSettings settings)
+internal sealed partial class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ChozoStatueSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

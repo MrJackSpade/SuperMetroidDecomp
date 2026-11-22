@@ -8,10 +8,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 /// #1637). They are import data (#1693): only the import reads them, pre-colouring the map sprite sheet in one highlight
 /// shade per frame. The game reads each frame's hold from the installed cycle (<see cref="MapHighlightTimingFile"/>).
 /// </summary>
-public sealed class MapPaletteCycle
+public sealed partial class MapPaletteCycle
 {
     /// <summary>The installed hold of every frame, in frame order.</summary>
-    private readonly int[] durations;
+    internal readonly int[] durations;
 
     /// <summary>The installed highlight colour of every frame, in frame order.</summary>
     private readonly RgbColor[] highlights;
@@ -35,7 +35,7 @@ public sealed class MapPaletteCycle
     public MapHighlightCycle Timing { get; }
 
     /// <summary>Rejects a frame index outside the selected cycle.</summary>
-    private void CheckFrame(int frame)
+    internal void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
     }

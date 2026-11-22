@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The installed damage-state colors for Mother Brain's final-phase body and rear legs, kept as installed.</summary>
-public sealed class MotherBrainHealthPalettePresentation
+public sealed partial class MotherBrainHealthPalettePresentation
 {
     /// <summary>The installed body and brain colors across four health bands.</summary>
     internal readonly InstalledKeyedColourRows<MotherBrainHealthBand> body;

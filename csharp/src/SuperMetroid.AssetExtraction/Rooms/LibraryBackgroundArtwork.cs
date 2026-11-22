@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed artwork a library background's command list is replayed over (#1406): the tilemaps it decompresses, the
 /// sky pages it copies, and the character artwork it brings.
 /// </summary>
-internal sealed record LibraryBackgroundArtwork
+internal sealed partial record LibraryBackgroundArtwork
 {
     /// <summary>The installed decompressed tilemaps, by the compressed stream each stands for.</summary>
     public required RoomBackgroundTilemaps TilemapArt { get; init; }

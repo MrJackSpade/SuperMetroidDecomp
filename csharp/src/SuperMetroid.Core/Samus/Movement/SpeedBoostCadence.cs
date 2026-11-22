@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// full sound queue selects (<see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>). Each gives the countdown
 /// the boost restarts with and the delay of each running frame.
 /// </summary>
-internal abstract class SpeedBoostCadence
+internal abstract partial class SpeedBoostCadence
 {
     /// <summary>The unauthored cadence, which the session's unauthored Speed Booster cadence times.</summary>
     internal static SpeedBoostCadence Unauthored { get; } = new UnauthoredStage();
@@ -26,7 +26,7 @@ internal abstract class SpeedBoostCadence
     /// <summary>An authored boost stage's cadence: its own delays and restart countdown.</summary>
     /// <param name="timing">The stage's frame delays.</param>
     /// <param name="boost">The stage's restart.</param>
-    private sealed class AuthoredStage(SamusRunningCadenceTiming timing, SamusBoostStageTiming boost) : SpeedBoostCadence
+    private sealed partial class AuthoredStage(SamusRunningCadenceTiming timing, SamusBoostStageTiming boost) : SpeedBoostCadence
     {
         /// <inheritdoc/>
         internal override int CountdownAfterAdvance => boost.CountdownAfterAdvance;
@@ -36,7 +36,7 @@ internal abstract class SpeedBoostCadence
     }
 
     /// <summary>The unauthored cadence, timed by the session's unauthored Speed Booster cadence.</summary>
-    private sealed class UnauthoredStage : SpeedBoostCadence
+    private sealed partial class UnauthoredStage : SpeedBoostCadence
     {
         /// <inheritdoc/>
         internal override int CountdownAfterAdvance => UnauthoredBoostCadence.CountdownAfterAdvance;

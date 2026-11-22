@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Installed Phantoon BG2 presentation; only visual tilemap writes are editable.
 /// Physical hitboxes and native frame timing remain engine-owned.
 /// </summary>
-public sealed class PhantoonBg2FrameCatalog
+public sealed partial class PhantoonBg2FrameCatalog
 {
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>

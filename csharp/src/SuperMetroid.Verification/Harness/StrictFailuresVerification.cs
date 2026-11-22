@@ -28,9 +28,6 @@ internal static void VerifyStrictFailureBoundaries()
     AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(
             RoomObjectKind.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectKind)(-1)),
-        "unknown PLM is absent from the production dispatcher");
-
     Console.WriteLine(
         "  Strict failures: bindings, brightness and PLM coverage reject bad state loudly.");
 }

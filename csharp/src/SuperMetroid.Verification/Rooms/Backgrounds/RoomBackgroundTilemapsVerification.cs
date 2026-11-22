@@ -57,7 +57,7 @@ internal static class RoomBackgroundTilemapsVerification
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         malformed.Required("pages").Required(0).Required("cells").Required(0)["palette"] = RoomBackgroundTilemapFormat.PaletteCount;
         AssertThrows<InvalidDataException>(() => RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed)),
+                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed, global::SuperMetroid.Verification.VerificationJson.Info<global::System.Text.Json.Nodes.JsonNode>())),
                 compiled[ceresTilemap].Bytes.Length),
             "background tilemap rejects an invalid palette selector");
         Console.WriteLine($"  Room background tilemaps: {files.Count} compressed retail sources " +

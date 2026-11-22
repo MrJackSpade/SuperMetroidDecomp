@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
 [RoomLifetime]
-internal sealed class DraygonParts
+internal sealed partial class DraygonParts
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -192,7 +192,7 @@ internal sealed class DraygonParts
     /// <param name="State">The state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>
-    private readonly record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
+    private readonly partial record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>
@@ -215,10 +215,10 @@ internal sealed class DraygonParts
     /// <summary>The eye's look toward one straight direction, facing right and facing left.</summary>
     /// <param name="FacingRight">The look while Draygon faces right.</param>
     /// <param name="FacingLeft">The look while Draygon faces left.</param>
-    private readonly record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
+    private readonly partial record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
 
     /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
-    private void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
+    internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
         // The eye's mouth, toward his facing, is where its bubble rises and where its gaze starts.
@@ -280,7 +280,7 @@ internal sealed class DraygonParts
         facing == HorizontalDirection.Right ? facingRight : facingRight.MirroredX();
 
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
-    private void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
+    internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
         EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop), new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         if (goop is null)

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>Kago's quake and its bugs' random jump selection, waits and motion.</summary>
-internal static class KagoDefinitions
+internal static partial class KagoDefinitions
 {
     /// <summary>The random field that adds zero to three <see cref="JumpHeightStepPixels"/> to a Kago bug's upward jump speed.</summary>
     internal static readonly RandomSampleField JumpHeightSteps = RandomSampleField.SecondOf(4);

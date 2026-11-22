@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="name">The list's name.</param>
 /// <param name="placements">The list's placements in order, at least one; a list that places none is an <see cref="EmptyRoomEnemyPopulationDefinition"/>.</param>
 /// <param name="deathQuota">The kills, zero or more, that clear the room.</param>
-public sealed class PlacedRoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements, int deathQuota)
+public sealed partial class PlacedRoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements, int deathQuota)
     : RoomEnemyPopulationDefinition(name, Ensure.NotEmpty(placements))
 {
     /// <summary>

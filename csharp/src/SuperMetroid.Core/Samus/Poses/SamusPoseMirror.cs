@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Reflects a pose across the vertical axis, so a rule written for one facing serves the other.</summary>
-internal static class SamusPoseMirror
+internal static partial class SamusPoseMirror
 {
     /// <summary>Each facing pose's mirror, both ways round.</summary>
     private static readonly FrozenDictionary<SamusPoseId, SamusPoseId> Opposites = SamusPoseMirrorDefinitions.Pairs

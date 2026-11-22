@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The Rio's idle, swoop and cooldown animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="RioCue"/> naming what it does.
 /// </summary>
-internal static class RioAnimations
+internal static partial class RioAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<RioSegment, EnemyFrameId, RioCue> Segments { get; } = new(
@@ -54,7 +54,7 @@ internal static class RioAnimations
     /// The animation that starts at each segment an owner can start or restart at: at the tucked wingbeat the idle, one
     /// tucked wingbeat before the hover (#2451, #2512). No owner starts the hanging wingbeat itself.
     /// </summary>
-    private static Dictionary<RioSegment, Animation<RioSegment>> StartingAt { get; } = new Dictionary<RioSegment, Animation<RioSegment>>
+    internal static Dictionary<RioSegment, Animation<RioSegment>> StartingAt { get; } = new Dictionary<RioSegment, Animation<RioSegment>>
     {
         [P.TuckedWingbeat] = Animation<RioSegment>.Looping([Segments.Whole(P.TuckedWingbeat), .. Hover()]),
         [P.SwoopOpening] = new([Segments.Whole(P.SwoopOpening)], AnimationEnd.Holds),

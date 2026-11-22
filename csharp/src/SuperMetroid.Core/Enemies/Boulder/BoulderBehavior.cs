@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<BoulderSpawnSettings>
+internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<BoulderSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -52,6 +52,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>What <see cref="RunBoulderMain"/> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BoulderAction, Action<BoulderSpawnSettings, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>> RunBoulderMainForBoulderAction => field ??= new(new Dictionary<BoulderAction, Action<BoulderSpawnSettings, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>>
     {
         [BoulderAction.WaitingForSamus] = (settings, place, state, samus, level) => RunBoulderWaiting(settings, place, state, samus),
@@ -135,7 +136,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<Boulde
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounces while a boulder that breaks on impact breaks at the first.</summary>
-    private void RunBoulderFalling(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
+    internal void RunBoulderFalling(BoulderSpawnSettings boulderSpawnSettings, RoomEnemyPlace place, BoulderEnemyState state, RoomLevelData level)
     {
         SignedSixteenSixteen verticalDisplacement = state.BounceCurvePlace.Speed.Positive;
         if (_terrain.MoveEnemyVertically(level, place, verticalDisplacement))

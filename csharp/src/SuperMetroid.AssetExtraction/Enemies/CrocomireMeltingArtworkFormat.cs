@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Stable filenames and exact four-bit PNG transfer geometry for both melts.</summary>
-public static class CrocomireMeltingArtworkFormat
+public static partial class CrocomireMeltingArtworkFormat
 {
     /// <summary>Import-data indexed PNG filename for the first dissolve image, assembled from the native bank-$A4 copies beginning at $A07D.</summary>
     public const string FleshFileName = "crocomire-melt-flesh.png";

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The flames that circle Phantoon's room before he appears (#1933): which comes next and whether they orbit.</summary>
-public sealed class PhantoonStartingFlamesState
+public sealed partial class PhantoonStartingFlamesState
 {
     /// <summary>The next starting flame to spawn among the intro's starts (<see cref="PhantoonFlameSpawns.StartingFlameStarts"/>).</summary>
     public ListStep<TrigonometryAngle> NextFlame { get; internal set; } = First;

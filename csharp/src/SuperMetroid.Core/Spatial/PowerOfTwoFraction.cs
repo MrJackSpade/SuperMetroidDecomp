@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// thirty-seconds of a pixel), and each measure keeps them without rounding because its finest unit is itself such a
 /// fraction of the whole.
 /// </summary>
-internal static class PowerOfTwoFraction
+internal static partial class PowerOfTwoFraction
 {
     /// <summary>
     /// The count of finest units in <paramref name="numerator"/> <paramref name="denominator"/>ths of a whole, the

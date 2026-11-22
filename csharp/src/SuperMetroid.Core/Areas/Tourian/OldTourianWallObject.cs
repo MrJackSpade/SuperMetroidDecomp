@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <param name="samus">Samus as the room reads her.</param>
 /// <param name="explosion">The enemy effects that set off the wall's explosion.</param>
-internal sealed class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWallExplosion explosion) : RoomObjectBehaviour
+internal sealed partial class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWallExplosion explosion) : RoomObjectBehaviour
 {
     /// <summary>Samus as the room reads her.</summary>
     private readonly IRoomSamusAccess _samus = samus;
@@ -22,6 +22,7 @@ internal sealed class OldTourianWallObject(IRoomSamusAccess samus, IOldTourianWa
     internal OldTourianWallPhase Phase { get; private set; } = OldTourianWallPhase.Starting;
 
     /// <summary>What <c>Update</c> does for each <see cref="OldTourianWallPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OldTourianWallPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForOldTourianWallPhase => field ??= new(new Dictionary<OldTourianWallPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [OldTourianWallPhase.Starting] = (place, context) => Phase = OldTourianWallPhase.Waiting,

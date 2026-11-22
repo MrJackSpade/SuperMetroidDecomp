@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The glow's kind decides how it plays. The game decided by whether the Hyper Beam is equipped, and only a Hyper
 /// Beam glow ever runs while it is: the Hyper Beam fires no ordinary charged shot and is never unequipped.
 /// </remarks>
-public sealed class ChargedShotGlow
+public sealed partial class ChargedShotGlow
 {
     /// <summary>Starts a glow of <paramref name="kind"/>, showing nothing until its first update shows its first shade.</summary>
     private ChargedShotGlow(ChargedShotGlowKind kind, SamusGlowSegment sequence)
@@ -30,10 +30,10 @@ public sealed class ChargedShotGlow
     public static ChargedShotGlow StartHyperBeamGlow() => new(ChargedShotGlowKind.HyperBeamGlow, SamusGlowSegment.Of(SamusGlow.HyperShotGlow));
 
     /// <summary>Which glow this is.</summary>
-    private ChargedShotGlowKind Kind { get; }
+    internal ChargedShotGlowKind Kind { get; }
 
     /// <summary>The play of the glow's sequence: the shade it shows and the updates that shade has left.</summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }
 
     /// <summary>
     /// Plays the glow one update on and returns the shade the update shows anew: its next shade once the shade shown last

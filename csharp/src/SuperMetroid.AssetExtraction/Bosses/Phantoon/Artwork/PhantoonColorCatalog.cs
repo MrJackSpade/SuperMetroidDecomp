@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 /// Phantoon's installed RGB5 color targets for its health, materialization and ship-power transitions, each kept as
 /// installed. Boss phase selection and interpolation arithmetic remain compiled.
 /// </summary>
-public sealed class PhantoonColorCatalog
+public sealed partial class PhantoonColorCatalog
 {
     /// <summary>The installed health palettes, by band.</summary>
     private readonly Dictionary<PhantoonHealthBand, InstalledColourRows> health;

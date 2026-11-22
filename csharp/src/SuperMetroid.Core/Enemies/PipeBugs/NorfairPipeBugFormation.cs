@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// below it.
 /// </summary>
 /// <param name="Members">The members, the leader first, each with its role.</param>
-internal sealed record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMember> Members)
+internal sealed partial record NorfairPipeBugFormation(IReadOnlyList<NorfairPipeBugMember> Members)
 {
     /// <summary>
     /// The formation <paramref name="leader"/> leads: itself and the four its room lists with it in the formation's roles

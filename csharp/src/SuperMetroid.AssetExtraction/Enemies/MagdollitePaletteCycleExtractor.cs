@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts only the four colors that the Magdollite draw hook actually cycles.</summary>
-public static class MagdollitePaletteCycleExtractor
+public static partial class MagdollitePaletteCycleExtractor
 {
     /// <summary>Exports OBJ-row colors nine through twelve from each of the four Magdollite palette rows at $A8:AC1C.</summary>
     /// <param name="bus">Non-null import-capable cartridge source containing four sixteen-color source rows.</param>

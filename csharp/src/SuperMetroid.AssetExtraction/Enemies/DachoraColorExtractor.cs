@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts Dachora's contiguous default, speed and shine RGB5 frames.</summary>
-public static class DachoraColorExtractor
+public static partial class DachoraColorExtractor
 {
     /// <summary>Imports Dachora's default palette and ordered speed and shine frames as editable RGB5 colors.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native Dachora palette tables.</param>

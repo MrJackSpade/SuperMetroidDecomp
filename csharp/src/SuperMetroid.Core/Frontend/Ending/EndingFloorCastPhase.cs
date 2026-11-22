@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>A phase the ending's cast shows whose turning floor shows a shot (#2558).</summary>
-internal sealed class EndingFloorCastPhase : EndingCastPhase, IEndingFloorPhase
+internal sealed partial class EndingFloorCastPhase : EndingCastPhase, IEndingFloorPhase
 {
     /// <summary>A cast phase named <paramref name="name"/> whose floor shows <paramref name="floorShot"/>, stepped by <paramref name="step"/>.</summary>
     /// <param name="name">The phase's name, for diagnostics.</param>

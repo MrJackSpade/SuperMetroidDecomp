@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Bosses.Kraid.KraidArmCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collision of Kraid's arm: each rectangle's reactions, and the components of the frame shown.</summary>
-internal static class KraidArmCollision
+internal static partial class KraidArmCollision
 {
     /// <summary>The components of Kraid-arm frame <paramref name="frame"/>, when it is one.</summary>
     internal static bool TryGetComponents(EnemyFrameId? frame, out ImmutableArray<KraidCollisionComponent> components)
@@ -21,7 +21,7 @@ internal static class KraidArmCollision
     /// The rectangles of one of Kraid's arm hitbox lists, in collision order; the first overlapping rectangle wins.
     /// Each reacts to touch as its list does, and to a shot as the arm.
     /// </summary>
-    private static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) => HitboxLists[list];
+    internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) => HitboxLists[list];
 
     /// <summary>Each arm hitbox list's rectangles in collision order, with their touch and shot reactions.</summary>
     private static readonly IdentityTable<KraidArmHitboxList, ImmutableArray<EnemyCollisionHitbox>> HitboxLists = new(

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The scroll the band's lines show, any whole number of pixels: the plane repeats along the axis, so a scroll and the
 /// same scroll a whole number of plane lengths on show the same lines.
 /// </param>
-public readonly record struct ScrollBand(int FirstLine, int Scroll)
+public readonly partial record struct ScrollBand(int FirstLine, int Scroll)
 {
     /// <summary>The screen line the band begins on.</summary>
     public int FirstLine { get; init; } = Ensure.BetweenInclusive(0, ScreenGeometry.ScreenHeightPixels, FirstLine);

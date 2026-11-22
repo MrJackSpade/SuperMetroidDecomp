@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// How Draygon carries the Samus he holds (#2300): his chase to her, the spiral he spins her through and the tail whip that
 /// pauses it.
 /// </summary>
-internal static class DraygonGrabDefinitions
+internal static partial class DraygonGrabDefinitions
 {
     /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
     internal const int ChaseSpeed = 2;

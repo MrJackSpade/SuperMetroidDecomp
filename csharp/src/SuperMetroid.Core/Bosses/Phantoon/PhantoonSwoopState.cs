@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's swoop at Samus (#1933): the swoop's velocity and the target it chases. A swoop's start sets its velocity and
 /// target before its first update reads them; whether his vulnerable window ends in one is <see cref="PhantoonEnemyState.WindowEnd"/>.
 /// </summary>
-public sealed class PhantoonSwoopState
+public sealed partial class PhantoonSwoopState
 {
     /// <summary>The swoop's velocity in pixels an update.</summary>
     public PixelVelocity<RoomPixels> Velocity { get; internal set; }

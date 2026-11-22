@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Editable JSON payload of native Ridley/Baby palette rows; colors use independent integer RGB5 channels, and row indices describe paint phases rather than animation durations.</summary>
-public sealed record CeresRidleyColorDocument
+public sealed partial record CeresRidleyColorDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork.CeresRidleyColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

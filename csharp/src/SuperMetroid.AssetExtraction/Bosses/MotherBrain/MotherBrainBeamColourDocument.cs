@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// backdrop shows as the beam starts, and the colours it cycles through while the beam fires. Her rainbow, drain, revival
 /// and restoration colours are import data, which only pre-colours her pictures. Each colour is written as <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record MotherBrainBeamColourDocument
+public sealed partial record MotherBrainBeamColourDocument
 {
     /// <summary>Schema revision; loading requires <c>Version</c>.</summary>
     public required int Version { get; init; }

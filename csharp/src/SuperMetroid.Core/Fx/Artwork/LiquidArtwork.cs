@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// A liquid's artwork (#1706): the strip its surface shows and the body below it, which repeats down from the strip's last
 /// line. The strip's origin is the pixel on the liquid's surface line, so the strip may show rows above the surface.
 /// </summary>
-public sealed record LiquidArtwork : RoomEffectArtwork
+public sealed partial record LiquidArtwork : RoomEffectArtwork
 {
     /// <summary>Checks that both pictures install a part and that the strip's two parts place the surface alike.</summary>
     /// <param name="surface">The surface strip, its origin on the surface line.</param>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// credits follow, Zebes's destruction, the results and the credits themselves (<see cref="EndingCreditsGamePhase"/>, #2554).
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class EndingGameSequence(FrontendSession session) : IGameplayPhase
+internal sealed partial class EndingGameSequence(FrontendSession session) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;

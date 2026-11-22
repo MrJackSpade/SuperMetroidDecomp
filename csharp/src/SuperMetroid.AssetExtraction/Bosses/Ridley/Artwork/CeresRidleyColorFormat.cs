@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Filename and schema version of the installed Ridley/Baby RGB5 palette asset.</summary>
-public static class CeresRidleyColorFormat
+public static partial class CeresRidleyColorFormat
 {
     /// <summary>Resource-root JSON filename consumed by the presentation catalog loader.</summary>
     public const string FileName = "ceres-ridley-colors.json";

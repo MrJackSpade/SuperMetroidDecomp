@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>
 /// Exports one tile-aligned four-bit cartridge source to indexed PNG. Callers own its identity.
 /// </summary>
-internal static class IndexedTilePageExtractor
+internal static partial class IndexedTilePageExtractor
 {
     /// <summary>Reads a bounded four-bit tile page and emits indexed PNG.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus, int sourceAddress,

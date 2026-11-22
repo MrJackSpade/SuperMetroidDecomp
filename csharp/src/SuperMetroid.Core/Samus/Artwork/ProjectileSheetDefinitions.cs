@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// combination with pictures of its own, whose pictures and beam colours differ, and one for the intro's flashbacks,
 /// and the names of the frames each holds.
 /// </summary>
-public static class ProjectileSheetDefinitions
+public static partial class ProjectileSheetDefinitions
 {
     /// <summary>
     /// The trail poses every projectile sheet holds, in the sheet's order (#2567): the Ice sparkle's, the Wave ring's, then

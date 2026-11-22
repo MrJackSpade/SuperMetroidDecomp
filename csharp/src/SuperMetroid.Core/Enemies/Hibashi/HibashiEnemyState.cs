@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// The state of a Hibashi's visible flame, which holds the pillar's pictures and timing and moves and sizes the invisible
 /// collision part listed right after it (<see cref="HibashiCollisionPartState"/>).
 /// </summary>
-public sealed class HibashiEnemyState
+public sealed partial class HibashiEnemyState
 {
     /// <summary>Starts the flame in <paramref name="action"/>, moving and sizing <paramref name="hitbox"/>.</summary>
     internal HibashiEnemyState(HibashiAction action, RoomEnemyPlace hitbox)

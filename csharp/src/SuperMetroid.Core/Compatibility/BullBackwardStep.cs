@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// that negation over the game's sines.
 /// </remarks>
 [CompatibilityService("a Bull's step up or left with no fraction lies one 65536th of a pixel further than its step down or right reversed")]
-public static class BullBackwardStep
+public static partial class BullBackwardStep
 {
     /// <summary>The finest distance a position tells apart: one 65536th of a pixel.</summary>
     private static readonly SignedSixteenSixteen FinestDistance = SignedSixteenSixteen.FromPixelFraction(1, 65536);

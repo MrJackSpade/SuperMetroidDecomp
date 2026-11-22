@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Fx;
 /// </remarks>
 /// <param name="Phase">The phase of the cycle the wave shows.</param>
 /// <param name="UpdatesShown">The updates the wave has shown its phase, zero before its first update.</param>
-internal readonly record struct WaveCycle(int Phase, int UpdatesShown)
+internal readonly partial record struct WaveCycle(int Phase, int UpdatesShown)
 {
     /// <summary>A wave that starts at <paramref name="phase"/> and shows it for a whole phase from its first update.</summary>
     internal static WaveCycle StartingAt(int phase) => new(phase, 0);

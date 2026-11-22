@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <param name="CollectedItems">The items collected.</param>
 /// <param name="EquippedItems">The items equipped.</param>
 /// <param name="HyperBeam">Whether Hyper replaces the beams.</param>
-internal readonly record struct PauseInventory(SamusBeamFlags CollectedBeams, SamusBeamFlags EquippedBeams,
+internal readonly partial record struct PauseInventory(SamusBeamFlags CollectedBeams, SamusBeamFlags EquippedBeams,
     SamusEquipmentFlags CollectedItems, SamusEquipmentFlags EquippedItems, bool HyperBeam)
 {
     /// <summary>How the label of <paramref name="upgrade"/> shows: blank uncollected, else enabled while equipped and disabled otherwise.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Immutable lookup tables embedded in Super Metroid's uploaded music driver.</summary>
-internal static class SpcMusicTables
+internal static partial class SpcMusicTables
 {
     /// <summary>Returns the operand count for the zero-based native effect index 0..30.</summary>
     /// <remarks>

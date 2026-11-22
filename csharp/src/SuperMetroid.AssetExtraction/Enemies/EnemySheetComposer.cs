@@ -23,7 +23,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// sheet is also pre-coloured in the shades its enemy shows (#1512): a hit or freeze flash and the enemy projectiles'
 /// colours as the cartridge ORs their row into each part's own, and its own effects.
 /// </summary>
-internal static class EnemySheetComposer
+internal static partial class EnemySheetComposer
 {
     /// <summary>The enemies in the order a sheet appends those its set does not load (#2567), each listed once.</summary>
     private static readonly IReadOnlyList<EnemyDefinitionId> AppendedOrder = Ensure.EveryMemberOnce(EnemyDefinitionIdKeys.ListedOrder);
@@ -81,8 +81,8 @@ internal static class EnemySheetComposer
         }, _ => { });
         SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
-        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
-        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
+        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyVariantDocument>()));
+        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetDocument>()));
         var setArtwork = new Dictionary<RoomEnemyGraphicsSetDefinition, PopulationArtworkDocument>();
         // The session start's variants are named first, as each owner's standard variant.
         foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Set == RoomEnemyGraphicsSetDefinitions.SessionStart ? 0 : 1))
@@ -180,31 +180,31 @@ internal static class EnemySheetComposer
     /// <param name="Set">The set.</param>
     /// <param name="Enemies">Each enemy sheet's source and layout.</param>
     /// <param name="Spawned">Each spawned-object sheet's source and layout.</param>
-    private sealed record SetLayouts(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidOutEnemySheet> Enemies,
+    private sealed partial record SetLayouts(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidOutEnemySheet> Enemies,
         IReadOnlyList<LaidOutSpawnedSheet> Spawned);
 
     /// <summary>An enemy sheet's source and the layout of its pictures.</summary>
     /// <param name="Source">The sheet's source.</param>
     /// <param name="Layout">The layout of the source's pictures.</param>
-    private sealed record LaidOutEnemySheet(EnemySheetSource Source, SpriteSheetLayout Layout);
+    private sealed partial record LaidOutEnemySheet(EnemySheetSource Source, SpriteSheetLayout Layout);
 
     /// <summary>A spawned-object sheet's source and the layout of its pictures.</summary>
     /// <param name="Source">The sheet's source.</param>
     /// <param name="Layout">The layout of the source's pictures.</param>
-    private sealed record LaidOutSpawnedSheet(SpawnedObjectSheetSource Source, SpriteSheetLayout Layout);
+    private sealed partial record LaidOutSpawnedSheet(SpawnedObjectSheetSource Source, SpriteSheetLayout Layout);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
     /// <param name="Set">The set.</param>
     /// <param name="Enemies">Each enemy's sheet, in the order the set's sources list them.</param>
     /// <param name="Spawned">Each spawned-object sheet, in the order the set's sources list them.</param>
-    private sealed record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
+    private sealed partial record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
 
     /// <summary>One enemy's sheet under a graphics set.</summary>
     /// <param name="Enemy">The enemy.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
     /// <param name="LookChanges">How encounters' looks change each frame they change.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
-    private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
+    private sealed partial record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures);
 
     /// <summary>
@@ -220,7 +220,7 @@ internal static class EnemySheetComposer
     /// <param name="LookChanges">How encounters' looks change each frame they change.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="Empty">The frames' finished pictures that show nothing.</param>
-    private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
+    private sealed partial record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures, IReadOnlySet<string> Empty);
 
     /// <summary>
@@ -230,7 +230,7 @@ internal static class EnemySheetComposer
     /// </summary>
     /// <typeparam name="TDocument">How the manifest spells a variant.</typeparam>
     /// <param name="spelling">How the manifest spells a document; two variants are the same exactly when they spell alike.</param>
-    private sealed class VariantNames<TDocument>(Func<TDocument, string> spelling)
+    private sealed partial class VariantNames<TDocument>(Func<TDocument, string> spelling)
     {
         /// <summary>The name of the variant with each identity: its owner and how the manifest spells it.</summary>
         private readonly Dictionary<string, string> named = new(StringComparer.Ordinal);
@@ -265,7 +265,7 @@ internal static class EnemySheetComposer
     /// frame list and the looks its draws show, so where those are the same the sheets are installed once, every set's
     /// variant names that one sheet, and the variants, then spelled alike, are one variant every placement draws in.
     /// </summary>
-    private sealed class SheetNames
+    private sealed partial class SheetNames
     {
         /// <summary>The name each converted sheet was given.</summary>
         private readonly Dictionary<InstalledSheet, string> names = new(ReferenceEqualityComparer.Instance);
@@ -311,7 +311,7 @@ internal static class EnemySheetComposer
     /// draws from characters it uploads, has no sheet. And each spawned-object sheet, when its spawned objects draw from
     /// sheets.
     /// </summary>
-    private static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+    internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         LoadedGraphicsSet loaded = Load(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
@@ -384,7 +384,7 @@ internal static class EnemySheetComposer
     /// and the enemies drawn under it, its members in record order, then each enemy its rooms place without the set
     /// loading it, then the enemies those enemies' encounters spawn.
     /// </summary>
-    private static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+    internal static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
@@ -420,7 +420,7 @@ internal static class EnemySheetComposer
     /// (#1513), its members as <paramref name="members"/> holds them by set.
     /// </summary>
     /// <exception cref="InvalidDataException">A common spawner has no presence, or the set's members are not catalogued.</exception>
-    private static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set,
+    internal static IReadOnlyList<CommonSpawnedObjects> CommonSpawnersOf(RoomEnemyGraphicsSetDefinition set,
         IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> members)
     {
         Ensure.NotNull(set);
@@ -476,7 +476,7 @@ internal static class EnemySheetComposer
     /// <param name="Colours">Its sprite colours and the row each enemy drawn under it draws in.</param>
     /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    internal sealed record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
+    internal sealed partial record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
         IReadOnlyList<EnemyDefinitionId> Drawn);
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
@@ -534,7 +534,7 @@ internal static class EnemySheetComposer
     /// <param name="Frame">The enemy frame it shows.</param>
     /// <param name="Name">The sheet frame's name.</param>
     /// <param name="Pieces">Its pieces in drawing order, frontmost first, each placed from the frame's origin.</param>
-    private readonly record struct ComposedFrame(EnemyFrameId Frame, string Name, ReadOnlyMemory<EnemyExtendedDrawComponent> Pieces)
+    private readonly partial record struct ComposedFrame(EnemyFrameId Frame, string Name, ReadOnlyMemory<EnemyExtendedDrawComponent> Pieces)
     {
         /// <summary>
         /// The frame's one whole picture over characters from <paramref name="tileBase"/>: each piece's parts moved by

@@ -8,10 +8,10 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// The Ceres door's installed artwork as the import pipeline holds it (#1484): the door's characters, which only its
 /// pre-coloured sprite sheet is composed from, beside the colours gameplay reads.
 /// </summary>
-public sealed class CeresDoorSourceArtwork
+public sealed partial class CeresDoorSourceArtwork
 {
     /// <summary>The door's validated four-bit characters.</summary>
-    private readonly RoomCharacterAtlas tiles;
+    internal readonly RoomCharacterAtlas tiles;
 
     /// <summary>Retains the door's characters, validating their count, beside its colours.</summary>
     /// <param name="tiles">The installed <c>ceres-door-tiles.png</c> characters, 32 of them.</param>

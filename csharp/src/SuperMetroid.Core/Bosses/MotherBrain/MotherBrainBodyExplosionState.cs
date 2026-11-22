@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="motherBrain">The encounter whose body the explosion follows.</param>
 /// <param name="offset">The explosion's place relative to her body, in pixels.</param>
-internal sealed class MotherBrainBodyExplosionState(MotherBrainEnemyState motherBrain, Offset16<RoomPixels> offset)
+internal sealed partial class MotherBrainBodyExplosionState(MotherBrainEnemyState motherBrain, Offset16<RoomPixels> offset)
     : MotherBrainProjectileState(motherBrain)
 {
     /// <summary>The explosion's place relative to her body, in pixels.</summary>

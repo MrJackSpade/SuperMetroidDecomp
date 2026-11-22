@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// glass-tube collapse. They are separate from room population lists because
 /// the cutscene selects one entry at a time after the initial room load.
 /// </summary>
-internal static class MotherBrainFallingTubePopulationDefinitions
+internal static partial class MotherBrainFallingTubePopulationDefinitions
 {
 
     /// <summary>

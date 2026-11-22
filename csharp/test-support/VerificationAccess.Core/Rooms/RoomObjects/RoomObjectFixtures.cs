@@ -5,6 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
@@ -62,12 +63,25 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Unbound(RoomObjectArtwork artwork)
     {
         var visuals = new RoomObjectVisuals(artwork);
-        var room = (RoomObjectRoom)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectRoom));
-        var services = (RoomObjectServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomObjectServices));
-        var roomObjects = new RoomObjectSystem(room, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
+        // Services no room installed: each fails, or holds a fixture's own flags, where a family reaches it.
+        var services = new RoomObjectServices
+        {
+            Samus = FixtureRoomSamus.Uninstalled, Bosses = new FixtureAreaBossFlags(), Events = new FixtureEventFlags(),
+            RoomFx = new FixtureRoomObjectFx(), Earthquake = new FixtureRoomEarthquake(), Enemies = new FixtureObjectEnemyEffects(),
+        };
+        var roomObjects = new RoomObjectSystem(NoRoom, services, ReachedByEnemies(services), visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
         VisualsTable(roomObjects).Add(roomObjects, visuals);
         return roomObjects;
     }
+
+    /// <summary>
+    /// The room an unbound system stands in: one block of air in Crateria, with a fresh session's shared state. A family
+    /// that reads the room it stands in reads this one; a check that needs a room binds the system to it.
+    /// </summary>
+    private static RoomObjectRoom NoRoom => new(
+        new RoomLevelData(new(1, 1), new RoomLevelPlanes(new RoomTerrainBlock[1], new RoomBlockBehavior[1], new RoomBlockAppearance[1]),
+            RoomLevelData.NothingBeyondGrid(), []),
+        new SharedGameState(new Compatibility.SharedRandom()), AreaId.Crateria);
 
     /// <summary>
     /// Where a fixture's thrown projectiles would spawn: a fixture has no enemy projectiles, so a thrown projectile that

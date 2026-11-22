@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, the wall sweep, the pogo attack and grabbing Samus.</summary>
 [RoomLifetime]
-internal sealed class NorfairRidleyCombat
+internal sealed partial class NorfairRidleyCombat
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -311,7 +311,7 @@ internal sealed class NorfairRidleyCombat
     /// Launches a pogo bounce: one of the health band's four launches, chosen by the current random number, its sideways
     /// speed taken toward the bounce's side (<see cref="NorfairRidleyState.PogoBounce"/>).
     /// </summary>
-    private void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
+    internal void InitializeNorfairRidleyPogoVelocity(NorfairRidleyState state)
     {
         // The pogo choice samples the current random number; it does not advance shared RNG.
         RidleyPogoDefinition definition = state.HealthBand.PogoLaunch.Choose(_room.Random.Read());
@@ -424,7 +424,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Tests Samus's radius against the facing and foot-frame adjusted claw point.</summary>
-    private static bool RidleyClawOverlapsSamus(
+    internal static bool RidleyClawOverlapsSamus(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus,
@@ -460,7 +460,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>
-    private static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
+    internal static int ReadRidleyHealthMovementDivisor(NorfairRidleyState state) => state.HealthBand.HoverDivisor;
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState samus)
@@ -573,7 +573,7 @@ internal sealed class NorfairRidleyCombat
     /// for the arena's centre, one past his movement bounds heads back inside them, and otherwise the seed decides whether
     /// the bounce heads toward Samus or away.
     /// </summary>
-    private void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
+    internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
     {
         int x = place.Position.X.Whole;
         if (state.Flight.Velocity.X.IsZero)

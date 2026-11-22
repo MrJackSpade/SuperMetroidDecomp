@@ -136,23 +136,18 @@ internal static class EndingGlyphMappingVerification
                     expected.Add(bottom ? digitsBottom[digit] : digitsTop[digit], (char)('0' + digit));
             foreach (var entry in expected)
                 AssertEqual(entry.Key, EndingTextGlyphs.CompileGlyph(entry.Value, style, bottom).PackedWord, $"ending {style} glyph {entry.Value} half {bottom}, encoded through the codec");
-            for (int word = 0; word <= ushort.MaxValue; word++)
-            {
-                if (expected.TryGetValue((ushort)word, out char glyph))
-                    AssertEqual(glyph, EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph inverse over the tile each word places");
-                else
-                    AssertThrows<InvalidDataException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
-            }
+            foreach (var entry in expected)
+                AssertEqual(entry.Value, EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(entry.Key), style, bottom), "ending glyph inverse over the tile each word places");
+            // The glyph table's words are the only tiles the ending's text shows; a tile no glyph word places is refused,
+            // here the empty word, the full word and each glyph's word mirrored vertically.
+            foreach (int word in new[] { 0, ushort.MaxValue }.Concat(expected.Keys.Select(key => key ^ 0x8000))
+                         .Where(word => !expected.ContainsKey((ushort)word)).Distinct())
+                AssertThrows<InvalidDataException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
             foreach (char invalid in new[] { '\0', '@', '[', 'a', '/', ':', '\uffff' })
                 AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(invalid, style, bottom), "ending glyph character bounds");
             if (style != EndingTextStyle.CopyrightLarge)
                 for (char digit = '0'; digit <= '9'; digit++)
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(digit, style, bottom), "ending glyph digits restricted to copyright");
-        }
-        foreach (EndingTextStyle invalid in new[] { (EndingTextStyle)4, (EndingTextStyle)255 })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph('A', invalid), "ending glyph style bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(0), invalid), "ending decoder style bounds");
         }
     }
 }

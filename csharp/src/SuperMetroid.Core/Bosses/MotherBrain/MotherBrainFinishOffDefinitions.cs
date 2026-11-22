@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// final beam once Samus's energy is within a few onion ring hits, and keeps to onion rings rather than her bomb once it
 /// is within one bomb hit, each threshold padded by the same margin.
 /// </summary>
-internal static class MotherBrainFinishOffDefinitions
+internal static partial class MotherBrainFinishOffDefinitions
 {
     /// <summary>
     /// The onion ring hits, as Samus's suit divides them, that Samus's energy, less <see cref="EnergyMargin"/>, must be

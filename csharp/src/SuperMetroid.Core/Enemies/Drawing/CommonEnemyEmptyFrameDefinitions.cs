@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>The enemy frames that draw nothing (<see cref="CommonEnemyEmptyFrames"/>).</summary>
-internal static class CommonEnemyEmptyFrameDefinitions
+internal static partial class CommonEnemyEmptyFrameDefinitions
 {
     /// <summary>
     /// The frames that draw nothing: the empty frame, whose one hitbox is the single point at its origin, which an enemy

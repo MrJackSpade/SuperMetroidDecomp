@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// shows, and the encounter's sound and music requests.
 /// </summary>
 [RoomLifetime]
-internal sealed class MotherBrainEncounter
+internal sealed partial class MotherBrainEncounter
 {
     /// <summary>Receives the encounter's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;

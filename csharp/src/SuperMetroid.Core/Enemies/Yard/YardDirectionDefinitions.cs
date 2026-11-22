@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Crawlers;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
-internal static class YardDirectionDefinitions
+internal static partial class YardDirectionDefinitions
 {
     /// <summary>
     /// The direction a Yard holds before its first direction cue sets its live direction (#2556): a Yard starts with only

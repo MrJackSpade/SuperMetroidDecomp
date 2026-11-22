@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the enemy's drop chances weigh (<see cref="EnemyDropChances"/>); nothing dropping leaves the death to end without a
 /// pickup.
 /// </summary>
-internal abstract record EnemyDropRoll
+internal abstract partial record EnemyDropRoll
 {
     /// <summary>The roll's outcome when nothing drops.</summary>
     internal static EnemyDropRoll Nothing { get; } = new NothingDrops();
@@ -15,9 +15,9 @@ internal abstract record EnemyDropRoll
     internal static EnemyDropRoll Pickup(EnemyPickupKind kind) => new PickupDrops(kind);
 
     /// <summary>Nothing drops.</summary>
-    internal sealed record NothingDrops : EnemyDropRoll;
+    internal sealed partial record NothingDrops : EnemyDropRoll;
 
     /// <summary>A pickup drops.</summary>
     /// <param name="Kind">The pickup that drops.</param>
-    internal sealed record PickupDrops(EnemyPickupKind Kind) : EnemyDropRoll;
+    internal sealed partial record PickupDrops(EnemyPickupKind Kind) : EnemyDropRoll;
 }

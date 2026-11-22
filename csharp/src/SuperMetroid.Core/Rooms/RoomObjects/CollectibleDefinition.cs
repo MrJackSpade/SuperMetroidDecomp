@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Message">The message its pickup opens.</param>
 /// <param name="Consequence">What its pickup changes in the gameplay frame as the message opens.</param>
 /// <param name="Picture">Whether it shows a picture of its own or one of the tank blocks every room loads.</param>
-internal sealed record CollectibleDefinition(
+internal sealed partial record CollectibleDefinition(
     CollectibleGrant Grant,
     GameplayMessageId Message,
     CollectiblePickupConsequence Consequence,

@@ -39,7 +39,15 @@ internal static class DraygonGoopTouchOrderVerification
             samus.KnockbackHold = UpdateCountdown.For(5);
             samus.SlowdownLevel = 0;
             var enemies = runtime.Enemies;
+<<<<<<< HEAD
             var goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
+||||||| 418ca79935
+            var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
+            global::SuperMetroid.Core.PrivateState.Set(goop, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind)));
+=======
+            var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
+            goop.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind));
+>>>>>>> origin/main
             goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopFlying);
             goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.Goop));
             // The goop flies as Draygon's spit launches it; at no speed it stays where the fixture places it.
@@ -49,7 +57,7 @@ internal static class DraygonGoopTouchOrderVerification
             if (powerBombed)
             {
                 powerBomb.Spawn(goop.Position.Whole);
-                PrivateState.Set(powerBomb.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
+                powerBomb.Blast.ExplosionRadius = PowerBombRadius.FromWholePixels(32);
             }
             enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus, samusBombs: runtime.BombProjectiles);
 

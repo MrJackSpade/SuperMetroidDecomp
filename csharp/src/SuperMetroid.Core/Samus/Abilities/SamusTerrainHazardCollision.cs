@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// top points during the input phase, before movement. Keeping both checks
 /// here prevents their similar damage values from erasing that timing distinction.
 /// </remarks>
-public static class SamusTerrainHazardCollision
+public static partial class SamusTerrainHazardCollision
 {
     /// <summary>
     /// Runs the damaging subset of Samus's inside-block detection and

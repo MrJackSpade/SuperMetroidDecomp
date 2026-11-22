@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class PoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : WorkRobotEntity(species, occupant, place, common), IEnemyDeparture
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>

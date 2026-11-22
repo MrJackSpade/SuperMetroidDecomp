@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// Names the options document's pictures, headings, controller labels and toggles
 /// (<see cref="GameOptionsPresentationDefinitions"/>).
 /// </summary>
-public static class GameOptionsNames
+public static partial class GameOptionsNames
 {
     /// <summary>The name the pictures of options page <paramref name="page"/> are filed under.</summary>
     public static string PageName(GameOptionsScreen page) =>

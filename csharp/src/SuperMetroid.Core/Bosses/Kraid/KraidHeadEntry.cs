@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 /// <param name="Playback">The head animation, standing just past the entered pose.</param>
 /// <param name="Delay">The entered pose's duration, in updates: the head holds the entered pose for it.</param>
-internal readonly record struct KraidHeadEntry(AnimationPlayback<KraidHeadSegment> Playback, int Delay);
+internal readonly partial record struct KraidHeadEntry(AnimationPlayback<KraidHeadSegment> Playback, int Delay);

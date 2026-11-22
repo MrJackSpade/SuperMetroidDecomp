@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// with the cell it is typed at and the style it shows in. The import builds them from the installed ending text; the
 /// game types them and places each glyph's installed picture, reading nothing else of the text.
 /// </summary>
-public sealed class EndingTypewriterText
+public sealed partial class EndingTypewriterText
 {
     /// <summary>The item-percentage labels' characters, in typing order.</summary>
     private readonly ImmutableArray<EndingTextCharacter> itemPercentage;

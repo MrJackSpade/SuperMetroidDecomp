@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// The state of a Cacatac: its patrol direction and action, plus its two patrol bounds. It walks at its spawn settings'
 /// speed and hangs or stands as they mount it, which it reads where it uses them (#2476).
 /// </summary>
-public sealed class CacatacEnemyState
+public sealed partial class CacatacEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal CacatacEnemyState(CacatacAction action) => Action = action;

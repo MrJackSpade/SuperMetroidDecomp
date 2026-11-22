@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The speeds an Etecoon hops, jumps and runs at (#2279).</summary>
-internal static class EtecoonMotionDefinitions
+internal static partial class EtecoonMotionDefinitions
 {
     /// <summary>The vertical speed an ordinary hop starts at: three pixels per update upward.</summary>
     internal static readonly SignedSixteenSixteen HopSpeed = SignedSixteenSixteen.FromWholePixels(-3);

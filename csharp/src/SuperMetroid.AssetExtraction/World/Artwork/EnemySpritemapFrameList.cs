@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Exposes every composed frame with its document name, in the authored listing the document is written in.</summary>
-internal sealed class EnemySpritemapFrameList : IReadOnlyCollection<EnemyFrameName>
+internal sealed partial class EnemySpritemapFrameList : IReadOnlyCollection<EnemyFrameName>
 {
     /// <summary>The installed compositions, each with its document name.</summary>
     private readonly ImmutableArray<EnemyFrameName> frames =

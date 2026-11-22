@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Each station frame the import pictures (#1557, #1862): the stations whose kind draws it, and its block shape written as
 /// rows, the object's block first.
 /// </summary>
-internal static class StationFrameDefinitions
+internal static partial class StationFrameDefinitions
 {
     /// <summary>The object's own block, which every frame writes first.</summary>
     private static readonly RoomObjectShapeRun Own = RoomObjectShapeRun.Row(new(0, 0), 1);

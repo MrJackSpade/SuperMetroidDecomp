@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The grounds rooms are made of (<see cref="RoomGround"/>), and each area's own (#2416).</summary>
-internal static class RoomGroundDefinitions
+internal static partial class RoomGroundDefinitions
 {
     /// <summary>Dry ground whose landings raise nothing.</summary>
     internal static readonly RoomGround Bare = new(RoomGroundWetness.Dry, DryLandingsRaiseDust: false);

@@ -9,12 +9,12 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// VMADD base and the byte-address arithmetic stay behind the view. A struct over the backend,
 /// so uploads and reads allocate nothing.
 /// </summary>
-internal readonly struct VramRegion
+internal readonly partial struct VramRegion
 {
     /// <summary>Backend VRAM whose words are exposed through this bounded view.</summary>
-    private readonly SnesVram vram;
+    internal readonly SnesVram vram;
     /// <summary>First physical VMADD word in the region.</summary>
-    private readonly int first;
+    internal readonly int first;
 
     /// <summary>Binds the VRAM words described by <paramref name="cell"/>.</summary>
     public VramRegion(SnesVram vram, PpuLayoutCell cell)
@@ -33,10 +33,10 @@ internal readonly struct VramRegion
     }
 
     /// <summary>The region's size in words.</summary>
-    private int WordCount { get; }
+    internal int WordCount { get; }
 
     /// <summary>The region's size in bytes.</summary>
-    private int ByteCount => WordCount * sizeof(ushort);
+    internal int ByteCount => WordCount * sizeof(ushort);
 
     /// <summary>Copies consecutive bytes in, as the VRAM-targeting decompressor or a byte DMA does.</summary>
     public void Load(ReadOnlySpan<byte> bytes, int byteOffset = 0)

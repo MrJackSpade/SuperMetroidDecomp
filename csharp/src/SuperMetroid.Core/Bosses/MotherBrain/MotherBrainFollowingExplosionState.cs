@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// (<see cref="MotherBrainBodyExplosionState"/>).
 /// </summary>
 /// <param name="offset">The explosion's place relative to Samus, in pixels.</param>
-internal sealed class MotherBrainFollowingExplosionState(Offset16<RoomPixels> offset) : EnemyProjectileState
+internal sealed partial class MotherBrainFollowingExplosionState(Offset16<RoomPixels> offset) : EnemyProjectileState
 {
     /// <summary>The explosion's place relative to Samus, in pixels.</summary>
     internal Offset16<RoomPixels> Offset { get; } = offset;

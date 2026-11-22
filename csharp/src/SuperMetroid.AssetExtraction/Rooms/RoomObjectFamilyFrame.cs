@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Frame">The frame.</param>
 /// <param name="Layout">The frame's geometry as the cartridge writes it.</param>
 /// <param name="Id">The frame's published name in the installed file.</param>
-internal sealed record RoomObjectFamilyFrame<TFrame>(TFrame Frame, RoomObjectFrameLayout Layout, string Id) where TFrame : notnull;
+internal sealed partial record RoomObjectFamilyFrame<TFrame>(TFrame Frame, RoomObjectFrameLayout Layout, string Id) where TFrame : notnull;

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The installed initial and six fade RGB5 images for the Mother Brain cutscene Baby, kept as installed.</summary>
-public sealed class BabyMetroidCutsceneColorCatalog
+public sealed partial class BabyMetroidCutsceneColorCatalog
 {
     /// <summary>The installed initial image.</summary>
     private readonly InstalledColourRows initial;

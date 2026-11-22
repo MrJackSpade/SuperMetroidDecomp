@@ -10,13 +10,13 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// Reads and writes the installed colours of Mother Brain's rainbow beam backdrop (#1637): the only colours of her rainbow
 /// attack the game works with, named by what they colour, without the colour groups and places the cartridge kept them at.
 /// </summary>
-public static class MotherBrainBeamColourFile
+public static partial class MotherBrainBeamColourFile
 {
     /// <summary>The installed document's file name, beside the map presentation.</summary>
     public const string FileName = "mother-brain-beam-colours.json";
 
     /// <summary>Supported schema revision: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
-    private const int Version = 2;
+    internal const int Version = 2;
 
     /// <summary>The document holding <paramref name="colours"/>.</summary>
     /// <param name="colours">The beam backdrop's first colour and its cycle.</param>
@@ -29,7 +29,7 @@ public static class MotherBrainBeamColourFile
             Version = Version,
             First = InstalledColourText.Format(colours.BeamInitialColor),
             Cycle = [.. colours.BeamCycle.Select(InstalledColourText.Format)],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads the beam backdrop's colours a document holds, as installed.</summary>

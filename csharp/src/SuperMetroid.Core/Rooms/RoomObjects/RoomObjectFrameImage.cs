@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// object's origin, the block of the room's block sheet it shows and how that block is mirrored. The import pictures
 /// every frame; the game shows it as installed. How the frame's cells collide stays with the frame's own geometry.
 /// </summary>
-public sealed class RoomObjectFrameImage
+public sealed partial class RoomObjectFrameImage
 {
 
     /// <summary>Holds a frame's picture, which the import has checked covers exactly the frame's cells.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and dimensions of the reward-jump icon artwork.</summary>
-public static class EndingRewardIconArtworkFormat
+public static partial class EndingRewardIconArtworkFormat
 {
     /// <summary>Editable JSON filename for the full post-credits beam/icon tilemap.</summary>
     public const string MapFileName = "post-credits-icon-map.json";

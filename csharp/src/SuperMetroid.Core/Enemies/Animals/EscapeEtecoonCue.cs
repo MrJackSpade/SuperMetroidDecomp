@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>One cue of the escaping Etecoons' animations: what it does, with the values it acts on.</summary>
-internal abstract record EscapeEtecoonCue
+internal abstract partial record EscapeEtecoonCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private EscapeEtecoonCue()
@@ -21,7 +21,7 @@ internal abstract record EscapeEtecoonCue
     /// instead.
     /// </summary>
     /// <param name="Running">The way the Etecoon runs.</param>
-    internal sealed record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue
+    internal sealed partial record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LowTideRunStarts(this, context);
@@ -29,7 +29,7 @@ internal abstract record EscapeEtecoonCue
 
     /// <summary>Moves the Etecoon horizontally.</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(int Offset) : EscapeEtecoonCue
+    internal sealed partial record Move(int Offset) : EscapeEtecoonCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
@@ -37,7 +37,7 @@ internal abstract record EscapeEtecoonCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue
+    internal sealed partial record Signal(EscapeEtecoonCueKind Kind) : EscapeEtecoonCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeEtecoonCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
@@ -50,4 +50,4 @@ internal abstract record EscapeEtecoonCue
 /// <param name="Move">Makes a <see cref="EscapeEtecoonCue.Move"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="EscapeEtecoonCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record EscapeEtecoonCueCases<TContext, TResult>(Func<EscapeEtecoonCue.LowTideRunStarts, TContext, TResult> LowTideRunStarts, Func<EscapeEtecoonCue.Move, TContext, TResult> Move, Func<EscapeEtecoonCue.Signal, TContext, TResult> Signal);
+internal sealed partial record EscapeEtecoonCueCases<TContext, TResult>(Func<EscapeEtecoonCue.LowTideRunStarts, TContext, TResult> LowTideRunStarts, Func<EscapeEtecoonCue.Move, TContext, TResult> Move, Func<EscapeEtecoonCue.Signal, TContext, TResult> Signal);

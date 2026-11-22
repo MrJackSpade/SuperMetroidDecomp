@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Bomb Torizo waits on.
 /// </summary>
 [RoomLifetime]
-internal sealed class BombTorizoHandObjects
+internal sealed partial class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;

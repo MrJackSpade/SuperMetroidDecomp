@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
-public sealed class InstalledGrappleSprites
+public sealed partial class InstalledGrappleSprites
 {
     /// <summary>The installed appearance of each of the rope's four pictures (#1596, #2565), keyed by the picture.</summary>
     private readonly Dictionary<GrappleRopePicture, SpritePart> segments;
@@ -48,7 +48,7 @@ public sealed class InstalledGrappleSprites
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(Options)
+            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options))
                 ?? throw new InvalidDataException("Grapple sprite document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple sprite JSON.", error); }
@@ -73,7 +73,7 @@ public sealed class InstalledGrappleSprites
     /// <param name="document">Authored endpoint and segment styles read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(GrappleSpriteDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options));
 
     /// <summary>Rejects duplicate style keys before JSON deserialization can overwrite them.</summary>
     private static void RejectDuplicates(JsonElement value) =>

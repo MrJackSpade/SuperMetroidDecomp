@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// The generic enemy-death explosions, the drops they become and the respawn pause (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyDeathAndDropCue"/> with the values it acts on.
 /// </summary>
-internal static class EnemyDeathAndDropAnimations
+internal static partial class EnemyDeathAndDropAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static HidingUnpausedAnimationSegments<EnemyDeathAndDropSegment, EnemyProjectileFrameId, EnemyDeathAndDropCue> Segments { get; } = new(

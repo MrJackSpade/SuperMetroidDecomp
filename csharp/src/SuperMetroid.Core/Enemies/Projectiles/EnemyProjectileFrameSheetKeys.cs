@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// (<see cref="EnemyProjectileFrameNameDefinitions"/>) in Pascal case, as an enemy frame's is (<see cref="EnemyFrameSheetKeys"/>).
 /// The key stays derived from the document name, so renaming a frame's identity never changes a key on disk.
 /// </summary>
-internal static class EnemyProjectileFrameSheetKeys
+internal static partial class EnemyProjectileFrameSheetKeys
 {
     /// <summary>Each frame's key.</summary>
     private static readonly IdentityTable<EnemyProjectileFrameId, string> Keys =

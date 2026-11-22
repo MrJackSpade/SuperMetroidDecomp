@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the shutter's population entry tells its species.</param>
-internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     GrowingShutterSpawnSettings settings)
     : ShuttersEntity(species, occupant, place, common)
 {
@@ -19,12 +19,9 @@ internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOc
     /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly GrowingShutterEnemyState state = ShuttersBehavior.InitializeGrowingShutter(settings, place);
 
-
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, state);
-
-
 }

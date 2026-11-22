@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>
 /// The speeds do not climb evenly (#2344): a few marks are slower than the mark before them.
 /// </remarks>
-public static class QuadraticSpeedCurveDefinitions
+public static partial class QuadraticSpeedCurveDefinitions
 {
     /// <summary>
     /// The speed at each mark along the curve, its start through its last mark, toward increasing coordinates, in pixels

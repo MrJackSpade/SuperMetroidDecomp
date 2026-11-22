@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The state of one Puyo.</summary>
-public sealed class PuyoEnemyState
+public sealed partial class PuyoEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal PuyoEnemyState(PuyoAction action) => Action = action;
@@ -53,6 +53,7 @@ public sealed class PuyoEnemyState
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
     /// <summary>What <see cref="StepAirbornePlace"/> does for a Puyo falling and one rising.</summary>
+    [field: NonSerialized]
     private IdentityTable<VerticalDirection, Action<QuadraticSpeedCurvePlace>> StepAirbornePlaceByHeading => field ??= new(new Dictionary<VerticalDirection, Action<QuadraticSpeedCurvePlace>>
     {
         [VerticalDirection.Down] = delta =>

@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The staff credits (#2541): their scroll, which the credits' setup starts.</summary>
 /// <param name="scroll">The staff credits' scroll.</param>
-internal sealed class EndingCreditsRollScene(CreditsScroll scroll) : EndingActorScene
+internal sealed partial class EndingCreditsRollScene(CreditsScroll scroll) : EndingActorScene
 {
     /// <summary>The staff credits' scroll.</summary>
-    private CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
+    internal CreditsScroll Scroll { get; } = Ensure.NotNull(scroll);
 
     /// <inheritdoc/>
     internal override EndingCreditsPhase Phase => EndingCreditsPhase.Credits;

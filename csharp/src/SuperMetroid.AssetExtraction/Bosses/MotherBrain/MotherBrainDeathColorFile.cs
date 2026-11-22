@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain death colour document.</summary>
-public static class MotherBrainDeathColorFile
+public static partial class MotherBrainDeathColorFile
 {
     /// <summary>The body and leg fade images, shown in order before the body is cleared.</summary>
     public const int BodyFadeFrameCount = 16;
@@ -42,7 +42,7 @@ public static class MotherBrainDeathColorFile
     /// <param name="document">Palette-stage colors to serialize; their collections are not retained.</param>
     /// <returns>JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     public static byte[] Write(MotherBrainDeathColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainDeathColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source,

@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Exports the native cannon-cover pose/OAM selectors and twelve character tiles: the installation holds each pose's typed
 /// placement, which the game binds, and the extracted document and the cover page are import data (#1636, #1638).
 /// </summary>
-public static class SamusArmCannonArtworkFiles
+public static partial class SamusArmCannonArtworkFiles
 {
     /// <summary>Exports each pose's selector by the pose's name, bounded bank-$90 drawing descriptors, ten direction styles/tile lists, and twelve cannon-cover characters.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for cover placement/OBJ attributes and bank-$9A character pixels.</param>

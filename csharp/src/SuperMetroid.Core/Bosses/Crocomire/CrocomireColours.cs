@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Crocomire's colours (#1512): whether his body on the background shows its fight colours or its white hurt flash, and the
 /// colours his skeleton's death adds to his sprites, the arm's and then the wall spikes'.
 /// </summary>
-internal sealed class CrocomireColours : IGameplayShadingSource
+internal sealed partial class CrocomireColours : IGameplayShadingSource
 {
     /// <summary>The shading his wall and the bridge's fragments draw in.</summary>
     internal static PictureShading WallShading { get; } = PictureShading.Shaded(CrocomireShades.Wall);
@@ -16,10 +16,10 @@ internal sealed class CrocomireColours : IGameplayShadingSource
     internal static PictureShading ProjectileShading { get; } = PictureShading.Shaded(CrocomireShades.Projectiles);
 
     /// <summary>What his body shows (#2560): the room's colours until its first update, then his fight colours or the hurt flash.</summary>
-    private CrocomireBodyColours Body { get; set; }
+    internal CrocomireBodyColours Body { get; set; }
 
     /// <summary>How far his death's colours have reached his sprites (#2560): none, the wall spikes', then the skeleton's arm's too.</summary>
-    private CrocomireDeathColours DeathColours { get; set; }
+    internal CrocomireDeathColours DeathColours { get; set; }
 
     /// <summary>Shows <paramref name="colours"/> on his body: his fight colours or the white hurt flash.</summary>
     internal void ShowBody(CrocomireBodyColours colours) => Body = colours;

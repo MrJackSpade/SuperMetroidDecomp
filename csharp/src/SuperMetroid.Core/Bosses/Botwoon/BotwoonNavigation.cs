@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's room navigation: its holes, the walk each draw leads to and the steps along it.</summary>
-internal static class BotwoonNavigation
+internal static partial class BotwoonNavigation
 {
     /// <summary>The room hole <paramref name="hole"/>.</summary>
     internal static BotwoonHoleDefinition Hole(BotwoonHole hole) =>

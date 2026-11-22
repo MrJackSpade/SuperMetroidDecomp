@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>
 /// The Chozo statues' carry, pose by pose (Wrecked Ship and Lower Norfair): the walking speed and where Samus is held.
 /// </summary>
-internal static class ChozoCarryPoseDefinitions
+internal static partial class ChozoCarryPoseDefinitions
 {
     /// <summary>
     /// Each carry pose's speed and hold, for a statue facing right. The poses that take and hold Samus stand still,

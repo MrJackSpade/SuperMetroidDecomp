@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The installed enemy-projectile OAM compositions: finding a composition or timed program frame, and their identity.
 /// </summary>
-internal static class EnemyProjectileSpritemaps
+internal static partial class EnemyProjectileSpritemaps
 {
 
 

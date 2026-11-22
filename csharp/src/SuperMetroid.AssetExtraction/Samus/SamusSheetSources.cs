@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>What each of Samus's sheets composes from the installed stock artwork (#1392).</summary>
-internal static class SamusSheetSources
+internal static partial class SamusSheetSources
 {
     /// <summary>
     /// Each of Samus's sheets, bound to the composer that builds it from her stock artwork: Grapple, her body, its

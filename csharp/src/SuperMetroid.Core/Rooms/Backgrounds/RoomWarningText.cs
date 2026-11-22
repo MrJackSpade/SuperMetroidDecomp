@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// its place in the room, scrolling with it, and a later picture covers an earlier one where they overlap. Everything shown
 /// stays shown until Samus leaves the room. Immutable; each picture shown publishes a copy.
 /// </summary>
-public sealed class RoomWarningText
+public sealed partial class RoomWarningText
 {
     /// <summary>The overlay with nothing written.</summary>
     public static RoomWarningText Empty { get; } = new([]);

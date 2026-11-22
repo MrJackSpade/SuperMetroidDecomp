@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <remarks>Each entry holds a room's area, map position, size in screens, camera
 /// scroll offsets and whether its door transitions are isolated. The developers' debug room is not among them.</remarks>
 [NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position anything indexes.")]
-public static class RoomDefinitions
+public static partial class RoomDefinitions
 {
     /// <summary><paramref name="room"/> as a wet room whose camera leads a fall by the shallower amount.</summary>
     private static RoomDefinition WetWithShallowerFall(RoomDefinition room) =>

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Deaths;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Chooses the death animation an enemy's death explosion starts.</summary>
-internal static class EnemyDeathExplosions
+internal static partial class EnemyDeathExplosions
 {
     /// <summary>The death animation <paramref name="explosion"/> starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="explosion"/> is no death explosion.</exception>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// The Yapping Maw's state: its aim and curl, its tongue's four links from root to mouth (#2162) and its hold on
 /// Samus.
 /// </summary>
-public sealed class YappingMawEnemyState
+public sealed partial class YappingMawEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }

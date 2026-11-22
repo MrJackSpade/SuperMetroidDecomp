@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// A pose input list's decision (#2560), one closed choice: a condition matched with its transition, the conditions were
 /// exhausted, or the list has none.
 /// </summary>
-internal abstract record SamusPoseInputMatch
+internal abstract partial record SamusPoseInputMatch
 {
     /// <summary>Only the three outcomes derive from it (#2560).</summary>
     private SamusPoseInputMatch()
@@ -40,11 +40,11 @@ internal abstract record SamusPoseInputMatch
 
     /// <summary>A condition matched.</summary>
     /// <param name="Choice">The transition it chose.</param>
-    internal sealed record Matched(SamusPoseTransition Choice) : SamusPoseInputMatch;
+    internal sealed partial record Matched(SamusPoseTransition Choice) : SamusPoseInputMatch;
 
     /// <summary>The list's conditions were all tried and none matched.</summary>
-    private sealed record ConditionsExhausted : SamusPoseInputMatch;
+    private sealed partial record ConditionsExhausted : SamusPoseInputMatch;
 
     /// <summary>The list has no transitions.</summary>
-    private sealed record EmptyList : SamusPoseInputMatch;
+    private sealed partial record EmptyList : SamusPoseInputMatch;
 }

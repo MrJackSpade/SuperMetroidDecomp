@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The import pipeline's map between the bank-$8F special X-ray pointers room states store and the overlays they name;
 /// the simulation and the installed reveals know only the named overlays.
 /// </summary>
-public static class XrayRoomOverlaySources
+public static partial class XrayRoomOverlaySources
 {
 
     /// <summary>The bank-$8F pointer of <paramref name="overlay"/>'s list.</summary>

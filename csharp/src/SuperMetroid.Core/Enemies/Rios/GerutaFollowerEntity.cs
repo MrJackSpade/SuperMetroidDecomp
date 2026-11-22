@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
-internal sealed class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     GerutaEntity parent)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {

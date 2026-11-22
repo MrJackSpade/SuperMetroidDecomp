@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJoiningFactory<BabyMetroidCutsceneState, EnemySpawnSettings>
+internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJoiningFactory<BabyMetroidCutsceneState, EnemySpawnSettings>
 {
     /// <summary>The cutscene Baby, only spawned joining the late fight that makes it (<see cref="SpawnMotherBrainBabyMetroid"/>).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
@@ -100,11 +100,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJ
     }
 
     /// <summary>Shows the Baby's arrival colours.</summary>
-    private static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
+    internal static void ShowBabyMetroidArrival(MotherBrainColours colours) =>
         Ensure.NotNull(colours).ShowBabyArrived();
 
     /// <summary>Advances the later Baby place, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
-    private void RunMotherBrainBabyMetroidMain(
+    internal void RunMotherBrainBabyMetroidMain(
         RoomEnemyPlace place, BabyMetroidCutsceneState baby,
         SamusState samus,
         Position16<RoomPixels> camera)
@@ -169,7 +169,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJ
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
 
     /// <summary>Applies one step's music, sounds, dust, fade and recovery-light requests to room systems.</summary>
-    private void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
+    internal void ApplyBabyMetroidFrameEffects(MotherBrainColours colours, BabyMetroidCutsceneStepResult step)
     {
         Ensure.NotNull(colours);
         if (step.FatalBlowStarted)
@@ -208,7 +208,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJ
     }
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
-    private static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
+    internal static void ShowBabyMetroidFade(MotherBrainColours colours, MotherBrainFadeImage image) =>
         Ensure.NotNull(colours).ShowFade(image);
 
     /// <summary>Runs BabyMetroidCutscene's main AI.</summary>

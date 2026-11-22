@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// legs and spawned objects and of her room's pictures, in the order the encounter shows them.
 /// Her authored fades show their images' shades (<see cref="Fade"/>).
 /// </summary>
-public static class MotherBrainShades
+public static partial class MotherBrainShades
 {
     /// <summary>Her body, brain and rear legs in <paramref name="band"/>'s colours (#2259).</summary>
     public static PictureShade Health(MotherBrainHealthBand band) => new($"mother-brain-health-{Ensure.NotNull(band).Key}", 0);

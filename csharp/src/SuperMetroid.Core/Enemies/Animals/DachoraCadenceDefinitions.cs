@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The counter phase on which the Dachora's speed echoes flicker (#1606).</summary>
-internal static class DachoraCadenceDefinitions
+internal static partial class DachoraCadenceDefinitions
 {
     /// <summary>
     /// The phase of the frame counter on which a Dachora echo that shows on odd updates is shown:

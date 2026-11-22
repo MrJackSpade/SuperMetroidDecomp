@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Dachora species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<DachoraSpawnSettings>
+internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<DachoraSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -91,6 +91,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     }
 
     /// <summary>What <see cref="RunDachoraMain"/> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>> RunDachoraMainForDachoraAction => field ??= new(new Dictionary<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>>
     {
         [DachoraAction.WaitingForSamus] = (place, state, samus, level) => RunDachoraWaiting(place, state, samus, level),
@@ -216,7 +217,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     /// speed glow's cycle (DachoraGlowCycle): once its last frame is reached, the game shows that brightest
     /// speed glow frame again at each step instead of wrapping to frame zero.
     /// </summary>
-    private SignedSixteenSixteen AccelerateDachora(
+    internal SignedSixteenSixteen AccelerateDachora(
         RoomEnemyPlace place,
         DachoraEnemyState state,
         RoomLevelData level)
@@ -391,7 +392,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     }
 
     /// <summary>Runs the shine glow.</summary>
-    private static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
+    internal static void StepDachoraShineGlow(RoomEnemyPlace place, DachoraEnemyState state)
     {
         ShowDachoraColours(place, DachoraColourPhase.Shine, state.GlowFrame);
         state.AdvanceShineGlow();
@@ -402,7 +403,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemySpawnFactory<Dachor
     /// glow, which the import pre-coloured its pictures in. Only the Dachora shows it (#1544).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase has no such frame.</exception>
-    private static void ShowDachoraColours(
+    internal static void ShowDachoraColours(
         RoomEnemyPlace place, DachoraColourPhase phase, int frame)
     {
         int lastFrame = DachoraColorDefinitions.PhaseFrameCounts[phase] - 1;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// top-left block, which the three crumble frames and the clear all leave open. What each frame shows is its installed
 /// picture (#1557).
 /// </summary>
-internal static class SporeSpawnCeilingObjectDrawDefinitions
+internal static partial class SporeSpawnCeilingObjectDrawDefinitions
 {
     /// <summary>The opened ceiling: the two-by-two square right of and below the ceiling's top-left block, every block open.</summary>
     private static readonly RoomBlockShape OpenedCeiling = RoomBlockShapes.Rectangle(new(2, 2), RoomCollisionType.Air);

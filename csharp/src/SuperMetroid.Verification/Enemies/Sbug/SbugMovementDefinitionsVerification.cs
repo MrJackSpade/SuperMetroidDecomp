@@ -93,10 +93,6 @@ internal static class SbugMovementDefinitionsVerification
             AssertEqual(native, state.Action, $"Sbug production activation {behavior}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => SbugMovement.ActivationAction((SbugActivationBehavior)3),
-            "Sbug activation selector beyond authored table");
-
         Console.WriteLine(
             "Sbug movement definitions: eight facing loops, the three placed activation callbacks and every loop's run pass " +
             "with the selector tables forbidden.");

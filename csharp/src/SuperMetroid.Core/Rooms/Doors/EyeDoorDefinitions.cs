@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The sounds and terrain an eye door's components install.</summary>
-internal static class EyeDoorDefinitions
+internal static partial class EyeDoorDefinitions
 {
     /// <summary>The sound the eye's shot makes.</summary>
     public static readonly SoundEffectId ProjectileSound = EnemySound.AcidSpit;

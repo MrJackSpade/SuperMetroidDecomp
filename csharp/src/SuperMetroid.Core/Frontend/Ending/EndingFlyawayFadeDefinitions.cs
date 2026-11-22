@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>White-fade values and cadence for Samus's flyaway in the ending sequence.</summary>
-internal static class EndingFlyawayFadeDefinitions
+internal static partial class EndingFlyawayFadeDefinitions
 {
     /// <summary>The updates the fast emergence holds its full white before the white fade begins.</summary>
     public const int WhiteHoldFrames = 192;

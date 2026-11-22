@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Choosing a game: the save slots, the selected game's options and a saved game's area map.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="stage">The step choosing a game enters at.</param>
-internal sealed class FileSelectGameSequence(FrontendSession session, FileSelectGameSequence.Stage stage) : IFrontendPhase
+internal sealed partial class FileSelectGameSequence(FrontendSession session, FileSelectGameSequence.Stage stage) : IFrontendPhase
 {
     /// <summary>The step that runs, with the screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);

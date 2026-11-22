@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Decodes the native map highlight sequence into each frame's hold and highlight colour, not an executable palette program or palette rows (#1637).</summary>
-internal static class MapPaletteCycleExtractor
+internal static partial class MapPaletteCycleExtractor
 {
     /// <summary>Reads timed map-highlight frames until the native $FF duration terminator and writes the bounded editable
     /// cycle document, each frame's look as the colour its highlight shows.</summary>

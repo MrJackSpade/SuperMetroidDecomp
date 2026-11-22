@@ -30,7 +30,7 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Samus.Abilities;
 /// (<see cref="SharedEscapeAndDrainCount{TStage}"/>).
 /// </para>
 /// </remarks>
-public sealed class SamusSuitPickupState
+public sealed partial class SamusSuitPickupState
 {
     /// <summary>Whether the post-message transformation currently owns Samus input: it runs a light-beam stage (#2560).</summary>
     public bool IsActive => runningStage is not null;
@@ -51,7 +51,7 @@ public sealed class SamusSuitPickupState
     /// The light-beam stage the next update runs, which the light beam leaves behind; a finished transformation stands at
     /// the first stage again, as its finish resets it, and leaves that.
     /// </summary>
-    private SamusSuitPickupStage Stage
+    internal SamusSuitPickupStage Stage
     {
         get => runningStage ?? SamusSuitPickupStage.LightBeamAppears;
         set => runningStage = value;
@@ -151,6 +151,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusSuitPickupStage, Action<SamusState, SamusColours>> StepForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState, SamusColours>>
     {
         [SamusSuitPickupStage.LightBeamAppears] = (samus, colours) => StepLightBeamAppears(),
@@ -180,6 +181,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>What <see cref="LeaveProgress"/> does for each <see cref="SamusSuitPickupStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusSuitPickupStage, Action<SamusState>> LeaveProgressForSamusSuitPickupStage => field ??= new(new Dictionary<SamusSuitPickupStage, Action<SamusState>>
     {
         [SamusSuitPickupStage.LightBeamAppears] = samus => samus.SparkCarryover.LeaveLines(Stage, _lightBeamLines),

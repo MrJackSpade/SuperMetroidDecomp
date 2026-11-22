@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="FirstFrameDelay">The updates from the object's spawn to its first frame, at least one.</param>
 /// <param name="Frames">The frames in the order they draw.</param>
-internal sealed record TerrainChange(int FirstFrameDelay, IReadOnlyList<TerrainChangeFrame> Frames)
+internal sealed partial record TerrainChange(int FirstFrameDelay, IReadOnlyList<TerrainChangeFrame> Frames)
 {
     /// <summary>A change that draws <paramref name="draw"/> on the object's first update and ends on its second.</summary>
     internal static TerrainChange DrawnOnce(RoomObjectDraw draw) => new(1, [new TerrainChangeFrame(draw, 1)]);

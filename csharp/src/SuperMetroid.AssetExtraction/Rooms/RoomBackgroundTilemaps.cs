@@ -3,10 +3,10 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Complete host-selected set of compressed library-background visual tilemaps.</summary>
-public sealed class RoomBackgroundTilemaps
+public sealed partial class RoomBackgroundTilemaps
 {
     /// <summary>Copied tilemap lookup; each selected atlas remains the caller's installed compilation.</summary>
-    private readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
+    internal readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
 
     /// <summary>Installs every background tilemap the library-background programs decompress, copying the lookup while retaining the supplied compiled atlases.</summary>
     /// <param name="byTilemap">Complete mapping from every <see cref="RoomBackgroundTilemap"/> to its nonnull selected tilemap.</param>

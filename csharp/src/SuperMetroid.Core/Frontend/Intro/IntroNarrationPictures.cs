@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// whose colour variants its glow shows are shades (#1512), which the import composes once from the narration font under the cinematic's
 /// colours. The cinematic places them at the screen pixels its text scene shows them at.
 /// </summary>
-public static class IntroNarrationPictures
+public static partial class IntroNarrationPictures
 {
     /// <summary>The name of the first card's picture.</summary>
     public const string FirstCard = "first-card";
@@ -19,7 +19,7 @@ public static class IntroNarrationPictures
     public const string FinalLine = "final-line";
 
     /// <summary>The row, counted in glyphs from the narration's top, the final line's picture starts at.</summary>
-    private const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
+    internal const int FinalLineRow = IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows;
 
     /// <summary>The side of one narration glyph in pixels.</summary>
     private const int GlyphPixels = ScreenGeometry.BackgroundCellSizePixels;

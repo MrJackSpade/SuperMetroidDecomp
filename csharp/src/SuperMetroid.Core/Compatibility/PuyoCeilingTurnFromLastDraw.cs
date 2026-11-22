@@ -42,7 +42,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a Puyo that strikes a ceiling while rising turns back unless an enemy or an effect actor in view was the last thing drawn and the charge flare has not drawn since the HUD's last redraw")]
-public sealed class PuyoCeilingTurnFromLastDraw
+public sealed partial class PuyoCeilingTurnFromLastDraw
 {
     /// <summary>How far left of the view the area effect actors are drawn in begins, in pixels.</summary>
     private const int EffectActorWindowLeftMargin = 16;

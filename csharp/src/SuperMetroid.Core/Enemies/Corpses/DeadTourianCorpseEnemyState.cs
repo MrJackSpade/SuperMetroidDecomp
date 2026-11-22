@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Typed corpse state for one dead Zoomer, Ripper, or Skree.</summary>
-public sealed class DeadTourianCorpseEnemyState
+public sealed partial class DeadTourianCorpseEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DeadTourianSegment> Playback { get; set; }

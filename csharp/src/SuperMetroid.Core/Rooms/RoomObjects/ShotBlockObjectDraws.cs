@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The breakup and restoration draws of the ordinary shot blocks (#1557, #1862, #1994, #2034): the block shape each draws,
 /// by its arrangement (#2484), and the installed picture each shows at each <see cref="BlockBreakupStage"/> of the breakup.
 /// </summary>
-internal static class ShotBlockObjectDraws
+internal static partial class ShotBlockObjectDraws
 {
     /// <summary>The shot blocks' breakup frames, pictured by the installed shot-block frames.</summary>
     internal static RoomObjectDrawFamily<BreakupDraw> BreakupFamily { get; } =
@@ -42,7 +42,7 @@ internal static class ShotBlockObjectDraws
     /// </summary>
     /// <param name="Layout">The blocks' arrangement.</param>
     /// <param name="Stage">What the breaking blocks show.</param>
-    internal readonly record struct BreakupDraw(BlockArrangement Layout, BlockBreakupStage Stage)
+    internal readonly partial record struct BreakupDraw(BlockArrangement Layout, BlockBreakupStage Stage)
     {
         /// <summary>Whether the draw is a breakup's last stage, which leaves the broken block open.</summary>
         internal bool BreaksOpen => Stage == BlockBreakupStage.Gone;
@@ -56,7 +56,7 @@ internal static class ShotBlockObjectDraws
     /// installed picture (#1557).
     /// </summary>
     /// <param name="Layout">The blocks' arrangement, never a single block.</param>
-    internal readonly record struct RestorationDraw(BlockArrangement Layout)
+    internal readonly partial record struct RestorationDraw(BlockArrangement Layout)
     {
         /// <summary>The blocks the draw rebuilds around its shootable parent.</summary>
         internal RoomBlockShape Blocks => Restored[Layout];

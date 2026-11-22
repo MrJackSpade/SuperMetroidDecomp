@@ -7,11 +7,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The records brighten from black to the logo's final colours in equal steps on each channel; this describes the
 /// authored colours, not arithmetic the game performs.
 /// </remarks>
-public static class TitleLogoFadePaletteFxColorDefinitions
+public static partial class TitleLogoFadePaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
-    private const int ColorsPerFrame = 15;
+    internal const int ColorsPerFrame = 15;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.FadeInSuperMetroidTitleLogo, ColorsPerFrame);

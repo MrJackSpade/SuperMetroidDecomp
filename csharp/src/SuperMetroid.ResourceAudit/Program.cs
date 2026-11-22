@@ -146,7 +146,7 @@ internal static class Program
             {
                 string absolute = Path.GetFullPath(jsonPath);
                 Directory.CreateDirectory((Path.GetDirectoryName(absolute) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(absolute).")));
-                File.WriteAllText(absolute, JsonSerializer.Serialize(report, AuditReport.JsonOptions) + Environment.NewLine);
+                File.WriteAllText(absolute, JsonSerializer.Serialize(report, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.ResourceAudit.Reports.AuditReport>(AuditReport.JsonOptions)) + Environment.NewLine);
                 Console.WriteLine("Report: " + absolute);
             }
             // Unresolved coverage is a failure, not a warning pretending to be a

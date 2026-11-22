@@ -7,10 +7,13 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// Which composition a charge-flare component shows for its picture and Samus's facing (#1624, #2553). The main flare's
 /// pictures are the same either way; each spark ring shows its own facing's six compositions.
 /// </summary>
-public static class ChargeFlarePictures
+public static partial class ChargeFlarePictures
 {
     /// <summary>The composition the main flare shows for <paramref name="picture"/>, facing either way.</summary>
     public static ProjectileSpriteId MainFlare(MainFlarePicture picture) => MainFlareCompositions[picture];
+
+    /// <summary>The composition the main flare shows for <paramref name="picture"/>: the same facing <paramref name="facing"/> or the other way.</summary>
+    internal static ProjectileSpriteId MainFlareFacing(HorizontalDirection facing, MainFlarePicture picture) => MainFlareCompositions[picture];
 
     /// <summary>The composition the slow spark ring shows for <paramref name="picture"/> facing left or right.</summary>
     public static ProjectileSpriteId SlowSparks(HorizontalDirection facing, SparkPicture picture) =>

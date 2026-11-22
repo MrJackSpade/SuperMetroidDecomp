@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// background rather than the cartridge's operands, which extraction decodes once. A program holds no terminator; its end
 /// is the end of its instructions.
 /// </summary>
-public abstract record LibraryBackgroundInstruction
+public abstract partial record LibraryBackgroundInstruction
 {
     /// <summary>Limits the instructions to the kinds nested here.</summary>
     private LibraryBackgroundInstruction()
@@ -22,17 +22,17 @@ public abstract record LibraryBackgroundInstruction
     /// producer supplies a sixteen-bit operand (at most 4096 in retail), nothing modifies it, and it is only compared and
     /// used as a span length.
     /// </param>
-    public abstract record Copy(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
+    public abstract partial record Copy(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
         : LibraryBackgroundInstruction;
 
     /// <summary>A copy every room loading the program makes.</summary>
     /// <inheritdoc cref="Copy" path="/param"/>
-    public sealed record Transfer(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
+    public sealed partial record Transfer(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
         : Copy(Source, Destination, ByteCount);
 
     /// <summary>A copy of Kraid's list, the only one that may move the HUD's characters.</summary>
     /// <inheritdoc cref="Copy" path="/param"/>
-    public sealed record TransferForKraid(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
+    public sealed partial record TransferForKraid(LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
         : Copy(Source, Destination, ByteCount);
 
     /// <summary>A copy made only by a room entered through <paramref name="Door"/>, which shows a picture of its own.</summary>
@@ -40,19 +40,19 @@ public abstract record LibraryBackgroundInstruction
     /// <param name="Source">What the copy reads.</param>
     /// <param name="Destination">Where it puts it.</param>
     /// <param name="ByteCount">The payload length in bytes.</param>
-    public sealed record TransferForDoor(DoorDefinition Door, LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
+    public sealed partial record TransferForDoor(DoorDefinition Door, LibraryBackgroundSource Source, LibraryBackgroundDestination Destination, int ByteCount)
         : Copy(Source, Destination, ByteCount);
 
     /// <summary>A decompression of <paramref name="Source"/> into the tilemap staging, which later transfers read.</summary>
     /// <param name="Source">The compressed tilemap.</param>
-    public sealed record Decompress(LibraryBackgroundSource.CompressedTilemap Source) : LibraryBackgroundInstruction;
+    public sealed partial record Decompress(LibraryBackgroundSource.CompressedTilemap Source) : LibraryBackgroundInstruction;
 
     /// <summary>The clear of the effects layer's tilemap, whose pages the command fixes.</summary>
-    public sealed record ClearFxTilemap : LibraryBackgroundInstruction;
+    public sealed partial record ClearFxTilemap : LibraryBackgroundInstruction;
 
     /// <summary>The clear of the background layer's pages, which the command fixes.</summary>
-    public sealed record ClearBg2 : LibraryBackgroundInstruction;
+    public sealed partial record ClearBg2 : LibraryBackgroundInstruction;
 
     /// <summary>The clear of the background layer's pages and Kraid's own page before them.</summary>
-    public sealed record ClearBg2ForKraid : LibraryBackgroundInstruction;
+    public sealed partial record ClearBg2ForKraid : LibraryBackgroundInstruction;
 }

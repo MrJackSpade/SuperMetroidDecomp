@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="encounter">The encounter his body began, which the tongue joins as it is built.</param>
-internal sealed class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     CrocomireEnemyState encounter)
     : CrocomireEntity(species, occupant, place, common)
 {

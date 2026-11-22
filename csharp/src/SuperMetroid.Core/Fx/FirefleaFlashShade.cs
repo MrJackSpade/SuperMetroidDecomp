@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// One look of the Fireflea room's flash (#2367): the grey, in fade levels, the flash adds to the darkness the room
 /// subtracts, from none at its darkest to <see cref="Brightest"/> at its brightest.
 /// </summary>
-public readonly record struct FirefleaFlashShade
+public readonly partial record struct FirefleaFlashShade
 {
     /// <summary>The flash's brightest look, which the room holds once enough Firefleas are killed.</summary>
     public static FirefleaFlashShade Brightest { get; } = new(BrightestLevel);

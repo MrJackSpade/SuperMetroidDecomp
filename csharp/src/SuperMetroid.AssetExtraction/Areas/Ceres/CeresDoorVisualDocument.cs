@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable door palette schema, separate from the indexed 4bpp character PNG and engine-owned door/escape timing; the elevator platform's strips are pictures of the room's floor (#1467).</summary>
-public sealed record CeresDoorVisualDocument
+public sealed partial record CeresDoorVisualDocument
 {
     /// <summary>Visual schema revision; loading and serialization currently require version 1.</summary>
     public required int Version { get; init; }

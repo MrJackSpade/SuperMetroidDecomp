@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The Magdollite's thrown-lava animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="MagdolliteLavaCue"/> naming what it does.
 /// </summary>
-internal static class MagdolliteLavaAnimations
+internal static partial class MagdolliteLavaAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<MagdolliteLavaSegment, EnemyProjectileFrameId, MagdolliteLavaCue> Segments { get; } = new(

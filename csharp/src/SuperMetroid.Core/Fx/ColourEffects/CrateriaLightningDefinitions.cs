@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>What the landing site's lightning watches while it runs.</summary>
-internal static class CrateriaLightningDefinitions
+internal static partial class CrateriaLightningDefinitions
 {
     /// <summary>
     /// The room height Samus must stand below for the landing site's lightning to play on: while she stands higher, it

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The dust clouds the gunship's liftoff raises below Samus: their spawn into the room's enemy projectiles, and their
 /// behaviour, which holds still and leaves when the cloud's animation ends.
 /// </summary>
-internal static class GunshipLiftoffDust
+internal static partial class GunshipLiftoffDust
 {
     /// <summary>
     /// Spawns one of the liftoff's six dust clouds, <paramref name="placement"/>, below <paramref name="samus"/> into
@@ -26,7 +26,7 @@ internal static class GunshipLiftoffDust
     }
 
     /// <summary>A gunship liftoff dust cloud, which ends with its animation.</summary>
-    internal sealed class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
+    internal sealed partial class GunshipDustBehavior : EnemyProjectileBehavior, IEnemyProjectileCues<GunshipDustCue>
     {
         /// <summary>What <see cref="RunCue"/> does for each <see cref="GunshipDustCue"/> member, each member's own arm.</summary>
         private static IdentityTable<GunshipDustCue, Action<EnemyProjectileCueContext>> RunCueForGunshipDustCue => field ??= new(new Dictionary<GunshipDustCue, Action<EnemyProjectileCueContext>>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Where a Yapping Maw holds Samus for each way it aims.</summary>
-internal static class YappingMawHoldDefinitions
+internal static partial class YappingMawHoldDefinitions
 {
     /// <summary>
     /// Samus's offset from the maw's mouth for each aim: an equal-step diamond of sixteen pixels' Manhattan radius, each

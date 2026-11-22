@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// (<see cref="CommonPowerBomb"/>). A species whose frames' hitboxes tell several of its own reactions apart declares them
 /// beside its hitboxes; only that species' code reads them. Each reaction is its own identity.
 /// </summary>
-public sealed class EnemyReaction
+public sealed partial class EnemyReaction
 {
     /// <summary>Creates the reaction named <paramref name="name"/>, ordinary or a dud as <paramref name="kind"/> says.</summary>
     private EnemyReaction(string name, EnemyReactionKind kind = EnemyReactionKind.Own)

@@ -48,9 +48,9 @@ internal static class AnalyzerTests
 
     /// <summary>Requires a fixture to compile cleanly, then compares its analyzer output with one expected diagnostic or none.</summary>
     internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
-        DiagnosticAnalyzer? analyzer = null, string assemblyName = "EnsureAnalyzerCase", bool allowUnsafe = false)
+        DiagnosticAnalyzer? analyzer = null, string assemblyName = "EnsureAnalyzerCase", bool allowUnsafe = false, string path = "")
     {
-        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
+        var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview), path: path);
         var compilation = CSharpCompilation.Create(
             assemblyName,
             [tree],
@@ -687,7 +687,7 @@ internal static class AnalyzerTests
         string assemblies = (string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")
             ?? throw new InvalidOperationException("Trusted platform assemblies are unavailable.");
         return assemblies.Split(Path.PathSeparator)
-            .Append(typeof(Ensure).Assembly.Location)
+            .Append(Path.Combine(AppContext.BaseDirectory, "SuperMetroid.Core.dll"))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Select(path => MetadataReference.CreateFromFile(path))
             .ToArray();

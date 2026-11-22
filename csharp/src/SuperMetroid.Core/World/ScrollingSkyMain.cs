@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="sky">The room's sky.</param>
 /// <param name="explosions">Where the room's escape explosions go off, or null for a room that sets off none.</param>
 [RoomLifetime]
-internal sealed class ScrollingSkyMain(ScrollingSkyState sky, EscapeExplosionSite? explosions) : IRoomMain
+internal sealed partial class ScrollingSkyMain(ScrollingSkyState sky, EscapeExplosionSite? explosions) : IRoomMain
 {
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)

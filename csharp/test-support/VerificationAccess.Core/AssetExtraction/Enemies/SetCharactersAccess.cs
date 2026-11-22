@@ -25,7 +25,7 @@ internal static class SetCharactersAccess
             SetCharacters.FrameLookPart[] parts = [.. shown.Select(look => self.Encounters.FirstOrDefault(encounter => EncounterLookUploads.ShownAs(encounter.Encounter) == look.Encounter)
                 is { } played ? new SetCharacters.FrameLookPart(played, [ComposedLook.Of(played.Encounter, look)], look.Encounter)
                 : throw new InvalidDataException($"The set's members play no encounter that shows {look}."))];
-            return self.Page(parts, [.. parts.Select(part => part.Looks[0])]);
+            return self.Page([.. parts.Select(part => new SetCharacters.PartLook(part, part.Looks[0]))]);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ internal static class SetCharactersAccess
             EncounterLookSteps played = self.Encounters.FirstOrDefault(candidate => candidate.Encounter == encounter)
                 ?? throw new InvalidDataException($"The set's members do not play {encounter}.");
             ComposedLook shownLook = EncounterLookUploads.Looks(encounter)[look];
-            return self.Page([new SetCharacters.FrameLookPart(played, [shownLook], EncounterLookUploads.ShownAs(encounter))], [shownLook]);
+            return self.Page([new SetCharacters.PartLook(new SetCharacters.FrameLookPart(played, [shownLook], EncounterLookUploads.ShownAs(encounter)), shownLook)]);
         }
     }
 }

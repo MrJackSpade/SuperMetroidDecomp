@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 /// <param name="owner">The Torizo that fired or caught the projectile.</param>
 /// <param name="ownerState">The state that Torizo holds (#2554).</param>
-internal sealed class TorizoOwnedProjectileState(RoomEnemyPlace owner, TorizoEnemyState ownerState) : EnemyProjectileState
+internal sealed partial class TorizoOwnedProjectileState(RoomEnemyPlace owner, TorizoEnemyState ownerState) : EnemyProjectileState
 {
     /// <summary>The Torizo that fired or caught the projectile.</summary>
     internal RoomEnemyPlace Owner { get; } = Ensure.NotNull(owner);

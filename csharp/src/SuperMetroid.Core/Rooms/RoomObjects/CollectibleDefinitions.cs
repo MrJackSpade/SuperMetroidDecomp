@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// transformation; every other pickup changes nothing more. The four tanks are pictured by blocks every room loads, every
 /// other item by a picture of its own.
 /// </summary>
-internal static class CollectibleDefinitions
+internal static partial class CollectibleDefinitions
 {
     /// <summary>Each permanent item's definition.</summary>
     internal static IReadOnlyDictionary<Kind, CollectibleDefinition> Items { get; } = new Dictionary<Kind, CollectibleDefinition>

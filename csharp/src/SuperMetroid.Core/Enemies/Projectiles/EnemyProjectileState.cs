@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// fields (#1470). Each family defines its own state with named fields; the spawner gives the projectile its state and
 /// the family's behaviour reads it back as its own type.
 /// </summary>
-internal abstract class EnemyProjectileState;
+internal abstract partial class EnemyProjectileState;

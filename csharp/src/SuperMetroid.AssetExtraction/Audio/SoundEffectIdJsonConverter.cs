@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <see cref="SoundEffectId.Key"/> spells them (for example <c>SamusSound.UnchargedPowerBeam</c>), so the index keys each
 /// sound by the game's identity rather than the library's request number (#1693, #2520).
 /// </summary>
-internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
+internal sealed partial class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
 {
     /// <summary>Every sound and every stop (#2580) of every library by its name.</summary>
     private static readonly FrozenDictionary<string, SoundEffectId> SoundsByName =

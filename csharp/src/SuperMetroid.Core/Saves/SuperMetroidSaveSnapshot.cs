@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>What a save station, checkpoint or save editor hands a save slot to keep: Samus, options and progress.</summary>
-public sealed record SuperMetroidSaveSnapshot
+public sealed partial record SuperMetroidSaveSnapshot
 {
     /// <summary>The button bound to each of the seven configurable actions, no button bound to two.</summary>
     public required ControllerBindings ControllerBindings { get; init; }

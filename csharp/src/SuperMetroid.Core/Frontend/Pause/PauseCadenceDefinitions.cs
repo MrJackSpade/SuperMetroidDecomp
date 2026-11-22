@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause screen's held-button repeat delay and the counter phases of its reserve tank display (#1606): the AUTO
 /// arrow's pulse and the flickering fill step.
 /// </summary>
-internal static class PauseCadenceDefinitions
+internal static partial class PauseCadenceDefinitions
 {
     /// <summary>
     /// The pause map and item screens' held-button delay: the unchanged updates a held button waits through before it moves

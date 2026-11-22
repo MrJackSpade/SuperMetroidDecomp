@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 /// <param name="draygon">The encounter his body began, which the tail joins as it is built.</param>
-internal sealed class DraygonTailEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+internal sealed partial class DraygonTailEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
     DraygonEnemyState draygon)
     : DraygonEntity(species, occupant, place, common, bossArtwork)
 {

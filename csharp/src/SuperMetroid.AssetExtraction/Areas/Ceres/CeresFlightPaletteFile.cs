@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Reads and writes the installed Ceres flight palette document.</summary>
-public static class CeresFlightPaletteFile
+public static partial class CeresFlightPaletteFile
 {
     /// <summary>Loads the supported palette schema with exactly 256 non-null RGB5 colors, rejecting malformed or duplicate JSON properties and channels outside 0..31; every colour is kept as installed.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the complete Ceres approach palette in CGRAM order.</param>
@@ -39,7 +39,6 @@ public static class CeresFlightPaletteFile
     public static void Write(Stream json, CeresFlightPaletteDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument>(ArtworkJson.Options)));
     }
 }

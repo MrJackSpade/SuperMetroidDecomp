@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
-internal static class RidleyAnimations
+internal static partial class RidleyAnimations
 {
     /// <summary>How long the standing pose lasts before the animation rests.</summary>
     private const int StandingDuration = 12;
@@ -70,7 +70,7 @@ internal static class RidleyAnimations
     /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
     /// runs on into its end, authored next, which rests.
     /// </summary>
-    private static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
+    internal static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
         [P.FireballingFacingLeft] = new([Segments.Whole(P.FireballingFacingLeft), Segments.Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
         [P.FireballingFacingRight] = new([Segments.Whole(P.FireballingFacingRight), Segments.Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
@@ -85,7 +85,7 @@ internal static class RidleyAnimations
     internal static Animation<RidleyBodySegment> StartingWith(RidleyBodySegment segment) => StartingAt[segment];
 
     /// <summary>The poses of one facing.</summary>
-    private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
+    private readonly partial record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
     {
         /// <summary>The left-facing poses.</summary>
         internal static Side Left { get; } = new(F.RidleyBodyLeft, F.RidleyBodyLeftMouthHalfOpen, F.RidleyBodyLeftMouthOpen, F.RidleyBodyLeftLegsHalfExtended, F.RidleyBodyLeftLegsExtended);

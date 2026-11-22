@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The random choices of Phantoon's fight: its timers, patterns and figure-eight starts.</summary>
-internal static class PhantoonRandomDefinitions
+internal static partial class PhantoonRandomDefinitions
 {
     /// <summary>
     /// How long an opened eye tracks Samus (#2510): the vulnerable-window timer's eight picks

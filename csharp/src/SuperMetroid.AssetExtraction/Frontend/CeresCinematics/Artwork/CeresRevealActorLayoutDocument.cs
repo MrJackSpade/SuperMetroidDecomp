@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable initial-position schema for the planet, four star sheets, and title shown after Ceres destruction.</summary>
-public sealed record CeresRevealActorLayoutDocument
+public sealed partial record CeresRevealActorLayoutDocument
 {
     /// <summary>Schema revision; loading requires <see cref="CeresRevealActorLayoutFormat.Version"/>.</summary>
     public required int Version { get; init; }

@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// level omits read as that fill, and the level space past the foreground grid holds the rest of the decompressed data,
 /// read as level words, and then the fill.
 /// </remarks>
-internal static class RoomLevelStreamDecoder
+internal static partial class RoomLevelStreamDecoder
 {
     /// <summary>Bytes in the leading size word.</summary>
     private const int SizeWordBytes = sizeof(ushort);
@@ -127,7 +127,7 @@ internal static class RoomLevelStreamDecoder
     /// <param name="LayerBytes">The foreground's byte count.</param>
     /// <param name="BlockCount">The grid's block count.</param>
     /// <param name="BehaviorOffset">Where the behaviour bytes start in the decompressed level.</param>
-    private readonly record struct LevelLayers(int LayerBytes, int BlockCount, int BehaviorOffset);
+    private readonly partial record struct LevelLayers(int LayerBytes, int BlockCount, int BehaviorOffset);
 
     /// <summary>
     /// A block's behaviour as the installation holds it (#1805). A door block holds none: where it leads is its room's own

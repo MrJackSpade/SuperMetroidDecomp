@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Lower Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
+internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -87,6 +87,7 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFol
     }
 
     /// <summary>What <see cref="RunHoltzMain"/> does for each <see cref="HoltzAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>> RunHoltzMainForHoltzAction => field ??= new(new Dictionary<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>>
     {
         [HoltzAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// resolved again only when one of its inputs changes, so a frame whose inputs stand still reuses its table.
 /// </summary>
 /// <param name="sheet">The room tileset's block sheet.</param>
-public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
+public sealed partial class RoomBlockPictureResolver(RoomBlockSheet sheet)
 {
     /// <summary>The foreground plane whose used pictures <see cref="used"/> holds.</summary>
     private RoomLevelPlane? foregroundPlane;
@@ -161,5 +161,5 @@ public sealed class RoomBlockPictureResolver(RoomBlockSheet sheet)
     /// <summary>One picture the planes use, with the value each of its inputs took when it was last resolved.</summary>
     /// <param name="Picture">The block or collectible picture.</param>
     /// <param name="Values">The value each of its inputs took when last resolved, in the order of its inputs.</param>
-    private sealed record UsedPicture(RoomCellPicture Picture, string[] Values);
+    private sealed partial record UsedPicture(RoomCellPicture Picture, string[] Values);
 }

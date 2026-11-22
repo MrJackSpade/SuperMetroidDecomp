@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// statues' grey-out, the escape's shutter flash and the landed gunship's glow (#1733). Each record an object's program shows is pre-coloured over the row
 /// from the group's first colour, as the handler wrote it there; the enemy that shows the group lays the record's shade.
 /// </summary>
-internal static class PaletteFxSpriteShades
+internal static partial class PaletteFxSpriteShades
 {
     /// <summary>Colours in one sprite row.</summary>
     private const int RowColours = 16;

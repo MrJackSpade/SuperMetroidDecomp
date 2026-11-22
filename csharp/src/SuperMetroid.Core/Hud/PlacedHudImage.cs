@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Hud;
 /// <param name="Corner">
 /// The screen pixel its upper-left corner shows at: the static top row across the HUD's top, the values drawn below it.
 /// </param>
-public readonly record struct PlacedHudImage(HudImage Image, Position16<ScreenPixels> Corner);
+public readonly partial record struct PlacedHudImage(HudImage Image, Position16<ScreenPixels> Corner);

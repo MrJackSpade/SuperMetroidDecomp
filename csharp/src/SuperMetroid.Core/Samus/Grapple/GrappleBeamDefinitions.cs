@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// Grapple runtime state deliberately remains elsewhere. This type names the beam shade, sounds, physics coefficients,
 /// firing definitions and rope drawing measures that define the subsystem's data contract.
 /// </remarks>
-public static class GrappleBeamDefinitions
+public static partial class GrappleBeamDefinitions
 {
     /// <summary>The beam shade grapple firing shows.</summary>
-    public static class BeamShades
+    public static partial class BeamShades
     {
         /// <summary>Firing selects the Ice beam's colours before entering the firing phase.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
     }
 
     /// <summary>The exact sound requests the grapple beam makes.</summary>
-    public static class Sounds
+    public static partial class Sounds
     {
         /// <summary>Stop the old beam before pose-change refiring.</summary>
         public static readonly SoundRequest RestartStop = new(SamusSound.GrappleEnd, SoundRequestPriority.Normal);
@@ -29,7 +29,7 @@ public static class GrappleBeamDefinitions
         public static readonly SoundRequest Stop = new(SamusSound.GrappleEnd, SoundRequestPriority.Essential);
     }
     /// <summary>Angular-physics coefficients embedded in behavior.</summary>
-    public static class Physics
+    public static partial class Physics
     {
         /// <summary>A fired beam that connects: how fast the rope retracts by itself, in pixels per frame, after connecting clears its change of length.</summary>
         public const int InitialConnectionRetraction = -8;
@@ -82,7 +82,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>The swinging rope's length and the points along Samus's body its sweeps test.</summary>
-    public static class Swing
+    public static partial class Swing
     {
         /// <summary>
         /// How far into its block a block anchor sits on an axis whose rope component is not negative: the rope leaves the
@@ -112,7 +112,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>What an enemy that hurts Samus through the grapple beam does to her.</summary>
-    public static class Contact
+    public static partial class Contact
     {
         /// <summary>The invulnerability, in updates, a grapple-beam hurt gives her.</summary>
         public const int HurtInvincibilityFrames = 96;
@@ -121,7 +121,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>Holding onto a wall with the beam, and the moments after letting go.</summary>
-    public static class WallGrab
+    public static partial class WallGrab
     {
         /// <summary>The updates after a wall grab ends in which Jump still wall-jumps.</summary>
         public const int WallJumpWindowFrames = 30;
@@ -130,7 +130,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>How a connection takes up a long rope and how a released beam drops Samus.</summary>
-    public static class Connection
+    public static partial class Connection
     {
         /// <summary>A connected rope this long or longer is shortened by <see cref="LongRopeShortening"/>.</summary>
         public const int LongRope = 64;
@@ -146,7 +146,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>Firing the beam: the pose-change auto-fire wait and the art origin of the poses Draygon holds Samus in.</summary>
-    public static class Firing
+    public static partial class Firing
     {
         /// <summary>What firing initializes the grapple's pose-change auto-fire timer to; the pose-change check counts down before checking the pose.</summary>
         public const int PoseChangeAutoFireFrames = 10;
@@ -155,7 +155,7 @@ public static class GrappleBeamDefinitions
     }
 
     /// <summary>How the rope is drawn: a chain of rope pictures from the muzzle toward the anchor, animated as one.</summary>
-    public static class Rendering
+    public static partial class Rendering
     {
         /// <summary>The distance in pixels between the centres of consecutive rope pictures along the rope.</summary>
         public const int SegmentSpacing = 8;

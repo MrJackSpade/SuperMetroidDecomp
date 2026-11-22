@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// The background characters gameplay's native VRAM words stand for (#1406): where the cartridge keeps the room's tile
 /// characters and layer 3's, decoded once into the sets and characters Core binds by.
 /// </summary>
-internal static class BgCharacterWords
+internal static partial class BgCharacterWords
 {
     /// <summary>Whether <paramref name="firstWord"/> lies among the room's tile characters.</summary>
     internal static bool AmongTiles(int firstWord) =>

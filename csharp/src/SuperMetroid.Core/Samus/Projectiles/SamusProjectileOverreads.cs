@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// data (#1474, #1500): what the projectile system hands its combos, firing, impacts, Chainsaw fuse and
 /// crash echoes as it builds them. Lifetime: the installation's, shared by every projectile system.
 /// </summary>
-public sealed class SamusProjectileOverreads
+public sealed partial class SamusProjectileOverreads
 {
     /// <summary>Keeps every decoded service the projectiles consult.</summary>
     /// <param name="spaceTimeOverwrite">What the Spacetime shot changes in saved progress.</param>

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// the bank and offset its graphics are read from, and the bytes of the image its copy fills, using
 /// <see cref="CrocomireMeltingSourceDefinitions"/>.
 /// </summary>
-internal static class CrocomireMeltingSources
+internal static partial class CrocomireMeltingSources
 {
     /// <summary>The bank and the offset of the first graphics chunk of <paramref name="illustration"/>'s image.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="illustration"/> is not a melt image.</exception>

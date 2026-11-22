@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// dimmest and one at each back up, each glow's wingbeat written once (#2477). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class FirefleaAnimations
+internal static partial class FirefleaAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FirefleaSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -32,7 +32,7 @@ internal static class FirefleaAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2369, #2477): its wings beat over at its
     /// brightest glow, once at each glow as it dims to its dimmest and once at each as it brightens back, repeating.
     /// </summary>
-    private static Dictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
+    internal static Dictionary<FirefleaSegment, Animation<FirefleaSegment>> StartingAt { get; } = new Dictionary<FirefleaSegment, Animation<FirefleaSegment>>
     {
         [P.BrightestWingbeat] = Animation<FirefleaSegment>.Looping(
         [

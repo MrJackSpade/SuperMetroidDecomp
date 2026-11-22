@@ -9,10 +9,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 37 post-credits Samus reward frames.</summary>
-public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingRewardSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated editable OAM compositions keyed by the poses that show them.</summary>
-    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
+    internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Retains compiled compositions after all published reward frames are checked.</summary>
     private EndingRewardSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
@@ -52,8 +52,7 @@ public sealed class EndingRewardSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingRewardSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

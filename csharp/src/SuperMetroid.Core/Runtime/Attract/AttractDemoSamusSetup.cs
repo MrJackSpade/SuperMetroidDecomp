@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// on the floor she stands on, the energy the low-health demonstration starts her with, or the shinespark she is already
 /// launched into. <see cref="AttractDemoSamusSetups"/> holds the demonstrations' setups.
 /// </summary>
-public abstract record AttractDemoSamusSetup
+public abstract partial record AttractDemoSamusSetup
 {
     /// <summary>Closes the hierarchy to the setups declared here.</summary>
     private AttractDemoSamusSetup()
@@ -23,7 +23,7 @@ public abstract record AttractDemoSamusSetup
     internal abstract void Apply(SamusState samus);
 
     /// <summary>Samus faces forward, as she stands on arriving at the Landing Site.</summary>
-    public sealed record ForwardFacing : AttractDemoSamusSetup
+    public sealed partial record ForwardFacing : AttractDemoSamusSetup
     {
         /// <inheritdoc />
         internal override void Apply(SamusState samus) => SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
@@ -32,7 +32,7 @@ public abstract record AttractDemoSamusSetup
     /// <summary>Samus starts in a pose, with less energy than her capacity when the setup names it.</summary>
     /// <param name="Pose">The pose Samus starts in, whose vertical radius also places her on a floor (<see cref="OnFloor"/>).</param>
     /// <param name="Energy">The energy Samus starts with in place of her capacity, or null for her full energy.</param>
-    public sealed record Posed(SamusPoseId Pose, int? Energy = null) : AttractDemoSamusSetup
+    public sealed partial record Posed(SamusPoseId Pose, int? Energy = null) : AttractDemoSamusSetup
     {
         /// <summary>
         /// Samus staged in <see cref="Pose"/> at room X <paramref name="x"/>, resting on a flat floor <paramref name="floorRow"/>
@@ -52,7 +52,7 @@ public abstract record AttractDemoSamusSetup
 
     /// <summary>Samus starts already launched into a shinespark.</summary>
     /// <param name="Launch">The shinespark launch she starts in.</param>
-    public sealed record Shinespark(ShinesparkLaunch Launch) : AttractDemoSamusSetup
+    public sealed partial record Shinespark(ShinesparkLaunch Launch) : AttractDemoSamusSetup
     {
         /// <inheritdoc />
         internal override void Apply(SamusState samus) => samus.Shinespark.BeginDemoLaunch(samus, Launch);

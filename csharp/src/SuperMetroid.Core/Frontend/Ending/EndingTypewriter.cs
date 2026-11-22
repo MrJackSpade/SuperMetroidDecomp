@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// animation player (<see cref="EndingTypewriterAnimations"/>, #2488), and shows what it has typed so far as glyph pictures
 /// at their screen places; nothing is written to a page.
 /// </summary>
-internal sealed class EndingTypewriter
+internal sealed partial class EndingTypewriter
 {
     /// <summary>Collected ammo and item counts used for the item percentage.</summary>
     private readonly EndingInventorySnapshot inventory;
@@ -65,6 +65,7 @@ internal sealed class EndingTypewriter
     public void Step() => typing.Step(CarryOut);
 
     /// <summary>What <see cref="CarryOut"/> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
     {
         [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),

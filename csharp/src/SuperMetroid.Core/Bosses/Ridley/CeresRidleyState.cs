@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ceres Ridley's encounter (#2228): the shared flight and tail with his Ceres phase, the hundred hits that end his fight,
 /// his hover's attack count, his fireball's anchor and the Baby he carries.
 /// </summary>
-public sealed class CeresRidleyState : RidleyEncounterState
+public sealed partial class CeresRidleyState : RidleyEncounterState
 {
     /// <summary>Begins Ceres Ridley's encounter with his body at <paramref name="body"/>, the Baby in his arms.</summary>
     /// <param name="body">Where his body stands as he is placed.</param>

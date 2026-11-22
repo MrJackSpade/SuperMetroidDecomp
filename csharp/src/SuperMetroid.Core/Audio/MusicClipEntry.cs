@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="Clip">The rendered clip.</param>
 /// <param name="LoopStart">The loop's first frame, or null for a song that ends.</param>
 /// <param name="TempoSegments">The song's tempo map: how long the beat lasts from each frame on, in frame order, starting at frame zero.</param>
-public sealed record MusicClipEntry(
+public sealed partial record MusicClipEntry(
     MusicDataSet AudioSet,
     MusicTrack Track,
     AudioClipFile Clip,

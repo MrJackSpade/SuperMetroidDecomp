@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Mochtroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -50,6 +50,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
     }
 
     /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
     {
         [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),
@@ -135,7 +136,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<Enem
     }
 
     /// <summary>Starts a changed flight or attachment animation and restarts its frame timers (#2145).</summary>
-    private static void SetMochtroidAnimation(
+    internal static void SetMochtroidAnimation(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         MochtroidSegment segment) =>

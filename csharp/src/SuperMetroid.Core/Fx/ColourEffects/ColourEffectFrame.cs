@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 /// <param name="Effect">The effect that shows the frame.</param>
 /// <param name="Frame">The frame's place among the frames <paramref name="Effect"/> shows, from zero.</param>
-public readonly record struct ColourEffectFrame(ColourEffectId Effect, int Frame);
+public readonly partial record struct ColourEffectFrame(ColourEffectId Effect, int Frame);

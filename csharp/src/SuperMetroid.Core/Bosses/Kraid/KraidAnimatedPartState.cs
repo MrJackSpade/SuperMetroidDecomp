@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// What each of Kraid's animated parts, his arm, foot, lints and fingernails, holds beside what every part does: its typed
 /// animation (#2298), which the encounter begins with the animation the part's setup starts, so it is never unset.
 /// </summary>
-public abstract class KraidAnimatedPartState : KraidPartState
+public abstract partial class KraidAnimatedPartState : KraidPartState
 {
     /// <summary>Makes an animated part of <paramref name="kraid"/>'s encounter playing the animation from <paramref name="starting"/>.</summary>
     /// <param name="kraid">The encounter the part is part of.</param>

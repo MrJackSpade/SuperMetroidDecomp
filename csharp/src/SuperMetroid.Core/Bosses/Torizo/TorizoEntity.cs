@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
 /// <param name="variant">Which Torizo the entity is.</param>
-internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     EnemyPopulationSurroundings surroundings, TorizoVariant variant)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {

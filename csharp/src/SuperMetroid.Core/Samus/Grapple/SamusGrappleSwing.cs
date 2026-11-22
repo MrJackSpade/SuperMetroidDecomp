@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Swinging from a grapple point: the pendulum's angle, rope length and gravity, Samus's position and launch, and swing collision.</summary>
-public static class SamusGrappleSwing
+public static partial class SamusGrappleSwing
 {
     /// <summary>Places Samus at the pendulum body position and updates rope art, flare, and slow-scroll state.</summary>
     internal static void PositionSamusFromPendulum(
@@ -526,5 +526,5 @@ public static class SamusGrappleSwing
     /// rounded toward negative values, so an odd negative velocity rebounds one 256th of a step faster than the odd
     /// positive velocity of the same size.
     /// </summary>
-    private static AngularSpeed ReversedAtHalfSpeed(AngularSpeed velocity) => -velocity.HalvedRoundingDown();
+    internal static AngularSpeed ReversedAtHalfSpeed(AngularSpeed velocity) => -velocity.HalvedRoundingDown();
 }

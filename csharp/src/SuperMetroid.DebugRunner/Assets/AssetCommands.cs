@@ -163,7 +163,7 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
 // The manifest is deliberately human-readable: it is both an audit trail and the seed for
 // replacing hardcoded filenames with generated, strongly typed asset declarations later.
 var options = IndentedJson;
-File.WriteAllText(Path.Combine(outputDirectory, "manifest.json"), JsonSerializer.Serialize(records, options));
+File.WriteAllText(Path.Combine(outputDirectory, "manifest.json"), JsonSerializer.Serialize(records, global::SuperMetroid.DebugRunner.DebugRunnerJson.Info<global::System.Collections.Generic.List<global::SuperMetroid.DebugRunner.Assets.AssetCommands.AssetRecord>>(options)));
 Console.WriteLine($"Inventoried {records.Count} chunks; wrote {records.Count(r => r.Png is not null)} PNG previews to {outputDirectory}");
 return 0;
 }

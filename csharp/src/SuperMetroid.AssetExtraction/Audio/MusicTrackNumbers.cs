@@ -13,16 +13,16 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// number names a different song in each set.
 /// </summary>
 [EncodingOwner("track numbers of the sound driver's music data sets")]
-internal static class MusicTrackNumbers
+internal static partial class MusicTrackNumbers
 {
     /// <summary>The track number the sound driver stops the music for: zero, which names no song.</summary>
     internal const byte Silence = 0;
 
     /// <summary>The number of each data set's first own song, which a room that keeps the loaded set plays as its area theme.</summary>
-    private const int AreaThemeTrack = 5;
+    internal const int AreaThemeTrack = 5;
 
     /// <summary>Each shared song's track number, the same in every data set.</summary>
-    private static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
+    internal static readonly FrozenDictionary<MusicTrack, int> SharedNumbers = new Dictionary<MusicTrack, int>
     {
         [MusicTrack.SamusFanfare] = 1,
         [MusicTrack.ItemFanfare] = 2,

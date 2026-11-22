@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureAnalyzer.SourceLayout;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
@@ -347,6 +348,9 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             var reported = new ConcurrentDictionary<Location, byte>();
             void Report(Action<Diagnostic> report, string name, Location location, string finding)
             {
+                // Code a source generator emits names what its generator names, not the game (#2602).
+                if (location.SourceTree is { } tree && GeneratedSource.IsSourceGeneratorOutput(tree, start.CancellationToken))
+                    return;
                 if (reported.TryAdd(location, 0))
                     report(Diagnostic.Create(Rule, location, name, finding));
             }

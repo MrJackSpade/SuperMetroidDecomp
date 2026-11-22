@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
 [RoomLifetime]
-internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
+internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's hand owner.</summary>
     private readonly BombTorizoHandObjects _owner = Ensure.NotNull(owner);
@@ -30,6 +30,7 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();
 
     /// <summary>What <c>Update</c> does for each <see cref="BombTorizoHandPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForBombTorizoHandPhase => field ??= new(new Dictionary<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [BombTorizoHandPhase.Starting] = (place, context) =>

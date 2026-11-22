@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Application exploration semantics over the installed map content and the station reveal masks.</summary>
-internal sealed class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> stationCells) : IAreaMapView
+internal sealed partial class AreaMapStockRules(IAreaMapView stock, IReadOnlySet<int> stationCells) : IAreaMapView
 {
     /// <summary>Uses the installed map's area identity for exploration decisions.</summary>
     public AreaId Area => stock.Area;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// from the falling origin, or past the loop's last update, when the next falling update ends the loop. A loop only
 /// starts at its path's first sample and only counts forward through its samples, so no place outside the path exists.
 /// </summary>
-internal abstract class ChootFallLoop
+internal abstract partial class ChootFallLoop
 {
     /// <summary>Only the two places below exist.</summary>
     private ChootFallLoop() { }

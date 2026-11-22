@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// than 128 pixels above his body, so the record is read in play.
 /// </remarks>
 [CompatibilityService("a fingernail higher than Kraid's four contour ledges is pushed back at the record that follows them")]
-public sealed class KraidNailPastLedges
+public sealed partial class KraidNailPastLedges
 {
     /// <summary>The offset from Kraid's body a nail past the ledges is pushed back at, as a wrapped room coordinate.</summary>
     private readonly int _leftOffset;

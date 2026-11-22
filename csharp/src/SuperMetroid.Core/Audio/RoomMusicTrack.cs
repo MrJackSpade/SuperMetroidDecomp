@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// What a room state does with the music track when Samus enters (#1410): keep whatever plays, play one of the loaded
 /// data set's songs, play the loaded set's area theme (#1748), or silence the music.
 /// </summary>
-public abstract record RoomMusicTrack
+public abstract partial record RoomMusicTrack
 {
     /// <summary>Closes the hierarchy to the choices declared here.</summary>
     private RoomMusicTrack()
@@ -16,7 +16,7 @@ public abstract record RoomMusicTrack
     internal abstract bool Queues(RoomMusicEntry entry);
 
     /// <summary>Keeps the track that plays, through every door into the room (the Ceres escape relies on it).</summary>
-    public sealed record Inherit : RoomMusicTrack
+    public sealed partial record Inherit : RoomMusicTrack
     {
         /// <inheritdoc/>
         internal override bool Queues(RoomMusicEntry entry) => false;
@@ -24,7 +24,7 @@ public abstract record RoomMusicTrack
 
     /// <summary>Plays <paramref name="Track"/>, queued only when it is not already playing or the room changes the data set.</summary>
     /// <param name="Track">The track the room plays.</param>
-    public sealed record Play(MusicTrack Track) : RoomMusicTrack
+    public sealed partial record Play(MusicTrack Track) : RoomMusicTrack
     {
         /// <inheritdoc/>
         internal override bool Queues(RoomMusicEntry entry) => entry.DataSetDiffers || Track != entry.Playing;
@@ -35,7 +35,7 @@ public abstract record RoomMusicTrack
     /// set chooses: the song depends on the set loaded when the request plays. Queued only when the theme of the set
     /// loaded now is not already playing, or the room changes the data set.
     /// </summary>
-    public sealed record PlayAreaTheme : RoomMusicTrack
+    public sealed partial record PlayAreaTheme : RoomMusicTrack
     {
         /// <inheritdoc/>
         internal override bool Queues(RoomMusicEntry entry) =>
@@ -46,7 +46,7 @@ public abstract record RoomMusicTrack
     /// Silences the music, queued on every entry: the choice never equals the playing song, so the stop is always
     /// queued.
     /// </summary>
-    public sealed record Silence : RoomMusicTrack
+    public sealed partial record Silence : RoomMusicTrack
     {
         /// <inheritdoc/>
         internal override bool Queues(RoomMusicEntry entry) => true;

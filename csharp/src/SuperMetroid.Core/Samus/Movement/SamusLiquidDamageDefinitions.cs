@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Samus's liquid-damage rates.</summary>
-internal static class SamusLiquidDamageDefinitions
+internal static partial class SamusLiquidDamageDefinitions
 {
     /// <summary>Lava rate: one half energy per frame.</summary>
     internal static readonly EnergyAmount Lava = EnergyAmount.FromEnergyFraction(1, 2);

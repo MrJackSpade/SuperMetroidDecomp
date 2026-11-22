@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>What a scroll extension block writes: an extension leading one block back toward the trigger it extends.</summary>
 /// <param name="TowardTrigger">The way back to the trigger.</param>
-internal readonly record struct ScrollExtension(ScrollExtensionDirection TowardTrigger)
+internal readonly partial record struct ScrollExtension(ScrollExtensionDirection TowardTrigger)
 {
     /// <summary>Whether the extension runs along a row, its trigger to its left or right, rather than down a column.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The direction is undefined.</exception>

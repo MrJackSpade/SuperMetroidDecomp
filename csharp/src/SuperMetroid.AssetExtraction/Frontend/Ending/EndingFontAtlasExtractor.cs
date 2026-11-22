@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Exports the ending's 160 contiguous 4-bpp font and subtitle tiles as indexed PNG.</summary>
-public static class EndingFontAtlasExtractor
+public static partial class EndingFontAtlasExtractor
 {
     /// <summary>Decompresses the ending font source and converts its first 160 four-bit planar characters into an indexed tile atlas.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the compressed ending font and subtitle characters.</param>

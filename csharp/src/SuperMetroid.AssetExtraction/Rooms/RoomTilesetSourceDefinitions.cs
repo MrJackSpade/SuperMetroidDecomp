@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps each graphics set's room artwork sources.</summary>
 [EncodingOwner("cartridge addresses of the graphics sets' room artwork")]
-internal static class RoomTilesetSourceDefinitions
+internal static partial class RoomTilesetSourceDefinitions
 {
     /// <summary><c>$B9:8000 Tiles_CRE</c>: the compressed common room element characters every Zebes room loads.</summary>
     internal static readonly SnesAddress CreCharacters = new(0xb9, 0x8000);

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// hardware container whose storage it shares: a screen's VRAM allocation aliases
 /// <see cref="Vram"/>, and a palette range aliases the row, bank or whole CGRAM that covers it.
 /// </summary>
-public static class PpuMemoryLayout
+public static partial class PpuMemoryLayout
 {
     /// <summary>All 32,768 VRAM words (VMADD $0000-$7FFF); every screen mode reuses this store.</summary>
     public static readonly PpuLayoutCell Vram = new(nameof(Vram), PpuLayoutRegion.Vram, 0, SnesVram.WordCount,

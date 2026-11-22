@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// import supplies it: every frame of that colour effect sets the space's colour, so each frame shows it behind every
 /// layer. The ending's other colour-effect colours are pre-coloured into its sheets.
 /// </summary>
-public sealed class EndingSpaceBackdrops
+public sealed partial class EndingSpaceBackdrops
 {
     /// <summary>The backdrop each frame of the space's colours shows.</summary>
     private readonly FrozenDictionary<ColourEffectFrame, RgbColor> backdrops;

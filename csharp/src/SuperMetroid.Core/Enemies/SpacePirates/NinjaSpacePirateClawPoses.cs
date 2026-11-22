@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="ClawSwungForward">The claw swung forward, as it lets go.</param>
 /// <param name="ClawsSweptDown">Its claws swept down.</param>
 /// <param name="UprightClawsLowered">Upright, its claws lowered.</param>
-internal sealed record NinjaSpacePirateClawPoses(
+internal sealed partial record NinjaSpacePirateClawPoses(
     HorizontalDirection Facing, F Crouch, F ClawsReady, F ClawDrawnBack, F ClawRaisedHigh, F ClawRaisedOverhead, F ClawSwungForward,
     F ClawsSweptDown, F UprightClawsLowered)
 {

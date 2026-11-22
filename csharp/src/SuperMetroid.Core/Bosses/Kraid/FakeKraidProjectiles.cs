@@ -1,13 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Launches Fake Kraid's spit and body-spike projectiles.</summary>
-internal static class FakeKraidProjectiles
+internal static partial class FakeKraidProjectiles
 {
     /// <summary>
     /// The launch velocity of <paramref name="spit"/>: its speed toward <paramref name="direction"/> and the shots'
     /// common rise.
     /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="spit"/> is neither of the two shots.</exception>
     internal static PixelVelocity<RoomPixels> SpitLaunch(HorizontalDirection direction, FakeKraidSpit spit)
     {
         SignedEightEight horizontal = SignedEightEight.FromPixels(

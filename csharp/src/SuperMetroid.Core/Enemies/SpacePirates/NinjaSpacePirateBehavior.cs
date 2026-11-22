@@ -10,10 +10,11 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The gold and silver ninja Space Pirates, each with the settings its placement gives it.</summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateGoldNinja], (occupant, settings, place, common) =>
@@ -84,6 +85,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunNinjaSpacePirateMain"/> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>> RunNinjaSpacePirateMainForNinjaSpacePirateAction => field ??= new(new Dictionary<NinjaSpacePirateAction, Action<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, RoomLevelData, SamusProjectileSystem>>
     {
         [NinjaSpacePirateAction.StandingStill] = (place, state, samus, level, samusProjectiles) => { },
@@ -357,7 +359,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// Moves horizontally and falls by the divekick's step (<see cref="NinjaPirateDiveFallStep"/>) until the floor or the
     /// speed ends the dive.
     /// </summary>
-    private void StepNinjaPirateDive(
+    internal void StepNinjaPirateDive(
         RoomEnemyPlace place,
         NinjaSpacePirateEnemyState state,
         RoomLevelData level,
@@ -429,7 +431,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
-    private void SpawnNinjaPirateClaw(
+    internal void SpawnNinjaPirateClaw(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         HorizontalDirection thrown,
         Offset16<RoomPixels> spawnOffset)
@@ -516,9 +518,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <param name="State">The pirate's state <see cref="ApplyNinjaSpacePirateCue"/> works with.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="NinjaSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyNinjaSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, NinjaSpacePirateEnemyState State, SamusState Samus, NinjaSpacePirateBehavior Owner);
 
     /// <summary>What each of the ninja Space Pirates' signals does, and the animation it continues at, or null to run on.</summary>
+    [field: NonSerialized]
     private IdentityTable<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>> NinjaSignals => field ??=
         new(new Dictionary<NinjaSpacePirateCueKind, Func<RoomEnemyPlace, NinjaSpacePirateEnemyState, SamusState, NinjaSpacePirateSegment?>>
         {
@@ -559,10 +562,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// A Ninja Pirate's claw (#1760): its spawner starts its animation and chooses its throw's way, and the animation throws
     /// it.
     /// </summary>
-    private ClawBehavior Claw { get; } = new();
+    internal ClawBehavior Claw { get; } = new();
 
     /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
-    internal sealed class ClawBehavior()
+    internal sealed partial class ClawBehavior()
         : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <summary>Each claw's throw and its speed along it, given as its pirate throws it.</summary>

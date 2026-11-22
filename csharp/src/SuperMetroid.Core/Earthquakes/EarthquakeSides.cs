@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Earthquakes;
 
 /// <summary>The displacement an earthquake's side shows (#2569).</summary>
-public static class EarthquakeSides
+public static partial class EarthquakeSides
 {
     /// <summary>
     /// The displacement <paramref name="side"/> shows of <paramref name="displacement"/>: as it is from the near side, and

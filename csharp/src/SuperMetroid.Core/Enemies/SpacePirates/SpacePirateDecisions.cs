@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The random chances the ninja and wall Space Pirates read to choose their moves.</summary>
-internal static class SpacePirateDecisions
+internal static partial class SpacePirateDecisions
 {
     /// <summary>
     /// Whether a ninja Space Pirate about to divekick draws again (#2510): one draw in four is drawn again, so it draws

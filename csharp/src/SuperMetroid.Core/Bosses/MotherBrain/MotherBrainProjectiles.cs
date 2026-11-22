@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainProjectiles
+internal sealed partial class MotherBrainProjectiles
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -54,13 +54,13 @@ internal sealed class MotherBrainProjectiles
     /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret
     /// family's smoke, the animation its definition names for both.
     /// </summary>
-    private TurretBulletBehavior TurretBullet { get; } = new();
+    internal TurretBulletBehavior TurretBullet { get; } = new();
 
     /// <summary>
     /// A room turret's bullet: it flies, flickering its vulnerability, until it meets a solid block, and handles its turret
     /// animation's cues. It needs nothing of the encounter.
     /// </summary>
-    internal sealed class TurretBulletBehavior()
+    internal sealed partial class TurretBulletBehavior()
         : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<MotherBrainTurretCue>
     {
         /// <inheritdoc/>
@@ -100,7 +100,7 @@ internal sealed class MotherBrainProjectiles
     /// <param name="turretBullet">The behaviour the bullets a turret fires run.</param>
     /// <param name="spawned">The behaviour the sparkles and hand beams these spawn run; null for this behaviour itself.</param>
     /// <param name="touch">Where the effect touching Samus starts begins, or null when the kind has no touch animation of its own.</param>
-    internal sealed class MotherBrainProjectileBehavior(
+    internal sealed partial class MotherBrainProjectileBehavior(
         MotherBrainProjectileDependencies dependencies,
         TurretBulletBehavior turretBullet,
         MotherBrainProjectileBehavior? spawned = null,
@@ -171,6 +171,7 @@ internal sealed class MotherBrainProjectiles
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="MotherBrainProjectileMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForMotherBrainProjectileMotion => field ??= new(new Dictionary<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [MotherBrainProjectileMotion.TurretAiming] = (context, projectile) => OperateMotherBrainTurret(projectile, context.Camera),
@@ -220,6 +221,7 @@ internal sealed class MotherBrainProjectiles
         /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainHandBeamCue)"/> does for each
         /// <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.
         /// </summary>
+        [field: NonSerialized]
         private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),
@@ -233,6 +235,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<MotherBrainEffectCueKind, Action<EnemyProjectile>> ApplyMotherBrainEffectCueForMotherBrainEffectCueKind => field ??= new(new Dictionary<MotherBrainEffectCueKind, Action<EnemyProjectile>>
         {
             [MotherBrainEffectCueKind.DropDrool] = projectile =>
@@ -263,7 +266,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The projectile the cases read.</param>
         /// <param name="Owner">The <see cref="MotherBrainProjectileBehavior"/> reacting.</param>
-        private readonly record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
+        private readonly partial record struct ApplyMotherBrainEffectCueContext(EnemyProjectile Projectile, MotherBrainProjectileBehavior Owner);
 
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(
@@ -497,7 +500,7 @@ internal sealed class MotherBrainProjectiles
         /// <summary>
         /// Moves the onion ring. During her third phase a ring meets the Baby before Samus and the room's edges.
         /// </summary>
-        private void FlyMotherBrainOnionRing(
+        internal void FlyMotherBrainOnionRing(
             EnemyProjectile ring,
             SamusState samus,
             int cameraX)
@@ -628,7 +631,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Runs turret-bullet initialization.</summary>
-        private void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
+        internal void SpawnMotherBrainTurretBullet(EnemyProjectile turret)
         {
             MotherBrainTurretDirection direction = Turrets.Of(turret).Direction;
             // The bullet animation's first cue jumps to the pose for this direction.
@@ -763,7 +766,7 @@ internal sealed class MotherBrainProjectiles
     /// </summary>
     /// <param name="owner">The drool's behaviour, which carries out its splash's events.</param>
     /// <param name="drool">The falling drool.</param>
-    private static void DropMotherBrainDrool(
+    internal static void DropMotherBrainDrool(
         MotherBrainProjectileBehavior owner,
         EnemyProjectile drool)
     {
@@ -808,7 +811,7 @@ internal sealed class MotherBrainProjectiles
         OffRoomPlaces.Signed(projectile.Position.Whole);
 
     /// <summary>Turns the turret one direction the way it turns, or back the other way when that leaves its arc.</summary>
-    private static void SelectNextMotherBrainTurretDirection(MotherBrainProjectileBehavior owner, EnemyProjectile turret)
+    internal static void SelectNextMotherBrainTurretDirection(MotherBrainProjectileBehavior owner, EnemyProjectile turret)
     {
         MotherBrainTurretState state = owner.Turrets.Of(turret);
         MotherBrainTurretDirection candidate = MotherBrainTurrets.Turned(state.Direction, state.Turning);

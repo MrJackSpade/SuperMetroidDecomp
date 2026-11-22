@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// missiles' and Super Missiles' outcomes.
 /// </remarks>
 [CompatibilityService("a later projectile in the same update reaches Kraid's mouth only from the row the damaging hit before it leaves")]
-public static class KraidMouthHitReach
+public static partial class KraidMouthHitReach
 {
     /// <summary>The kinds of projectile hit that damage Kraid's mouth.</summary>
     public enum DamagingHit

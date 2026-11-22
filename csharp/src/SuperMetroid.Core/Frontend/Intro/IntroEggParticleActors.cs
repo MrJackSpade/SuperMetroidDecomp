@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>
 /// The intro egg shell pieces' actor definitions (<see cref="IntroEggEffectDefinitions"/>), by piece.
 /// </summary>
-internal static class IntroEggParticleActors
+internal static partial class IntroEggParticleActors
 {
     /// <summary>
     /// The actor of one of the six shell pieces: every piece flies as a shell piece does and shows its own picture, in the

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="body">The place of the body the room lists before the arms, which offered them their creation (#2554).</param>
-internal sealed class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {

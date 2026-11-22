@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// spawned-object sheet in all of them, and each enemy sheet in those its enemy can be drawn in (#1643): an enemy that is
 /// never frozen has no frozen look, so a draw asking its sheet for one fails.
 /// </summary>
-internal static class EnemyShades
+internal static partial class EnemyShades
 {
     /// <summary>The hurt flash: the flash colours a hurt enemy shows on the updates it flashes.</summary>
     internal static PictureShade HurtFlash { get; } = new("enemy-hit-flash", 0);

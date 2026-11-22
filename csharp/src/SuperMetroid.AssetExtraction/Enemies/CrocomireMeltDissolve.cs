@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// step (#1392, #1406): the cartridge erases one column of the four-bit characters per step, in a fixed order, through a
 /// mask chosen by the step. The simulation only counts the steps and selects each band's picture.
 /// </summary>
-internal static class CrocomireMeltDissolve
+internal static partial class CrocomireMeltDissolve
 {
     /// <summary>Characters in one row of a melt image, and so between the first characters of consecutive bands.</summary>
     public const int BandRowCharacters = 16;

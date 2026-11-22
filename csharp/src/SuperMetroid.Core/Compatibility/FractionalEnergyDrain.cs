@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// exceeds it, and the wrapped remainder it leaves.
 /// </remarks>
 [CompatibilityService("a Metroid's drain takes one energy whenever its suit's fraction exceeds what is held over from the last energy taken, keeping the rest of that energy for later updates")]
-public readonly record struct FractionalEnergyDrain
+public readonly partial record struct FractionalEnergyDrain
 {
     /// <summary>The parts one energy is drained in: a fraction and what is held over are counted in these parts.</summary>
     private const int PartsPerEnergy = WrappingCounter.LargestCount + 1;

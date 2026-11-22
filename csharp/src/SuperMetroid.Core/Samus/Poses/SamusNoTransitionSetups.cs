@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which setup the pose update runs when Samus's input chooses no new pose (#2506).</summary>
-internal static class SamusNoTransitionSetups
+internal static partial class SamusNoTransitionSetups
 {
     /// <summary>
     /// The setup of <paramref name="pose"/>, or, for a pose that names none, the setup of

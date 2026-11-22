@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>A background showing nothing (#2544): the backdrop shows wherever nothing in front of it is drawn.</summary>
-public sealed record NoRoomBackground : ShownRoomBackground
+public sealed partial record NoRoomBackground : ShownRoomBackground
 {
     /// <summary>The one background showing nothing, <see cref="ShownRoomBackground.Nothing"/>.</summary>
     internal NoRoomBackground()

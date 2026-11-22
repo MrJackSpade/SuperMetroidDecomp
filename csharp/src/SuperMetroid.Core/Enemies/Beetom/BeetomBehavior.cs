@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The Beetom species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
+internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -79,6 +79,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     }
 
     /// <summary>What <see cref="RunBeetomMain"/> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>> RunBeetomMainForBeetomAction => field ??= new(new Dictionary<BeetomAction, Action<RoomEnemyPlace, BeetomEnemyState, SamusState, RoomLevelData, GameplayAction>>
     {
         [BeetomAction.DecideAction] = (place, state, samus, level, controllerInput) =>
@@ -160,7 +161,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     /// Uses one random sample to choose to idle or hop (<see cref="BeetomDecisions.DistantChoice"/>, #2369) and which way to
     /// face.
     /// </summary>
-    private void ChooseDistantBeetomAction(BeetomEnemyState state)
+    internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
         BeetomDistantChoice choice = BeetomDecisions.DistantChoice.Choose(random);
@@ -172,7 +173,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     }
 
     /// <summary>Starts the crawl toward <paramref name="direction"/> and its animation.</summary>
-    private static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
+    internal static void StartBeetomCrawling(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection direction)
     {
         state.Begin(BeetomAction.Crawling, direction);
         SetBeetomAnimation(
@@ -230,7 +231,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     }
 
     /// <summary>Starts the attached blood-drain animation on <paramref name="side"/> of Samus.</summary>
-    private static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
+    internal static void StartBeetomDrain(RoomEnemyPlace place, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomAnimation(
             place,
@@ -464,8 +465,20 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyBombReaction BeetomBombReaction(BeetomEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveBeetomShotAfterCommon,
+>>>>>>> origin/main
     };
+
+    /// <summary>Lets a Beetom go of Samus after a bomb's common damage.</summary>
+    private static void ResolveBeetomShotAfterCommon(EnemyBombHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
+
+    /// <summary>Lets a Beetom go of Samus after a shot's common damage.</summary>
+    private static void ResolveBeetomShotAfterCommon(EnemyShotHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
 
     /// <summary>Runs Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemyPlace place, BeetomEnemyState beetomEnemyState, IEnemyAiFrame frame)
@@ -485,7 +498,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemyS
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction BeetomShotReaction(BeetomEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveBeetomShotAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>

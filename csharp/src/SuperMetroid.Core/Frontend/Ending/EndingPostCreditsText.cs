@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// far the text has been moved down the screen. What the screen shows is derived from this state each frame, each piece at
 /// its screen pixel moved down by <see cref="Drop"/>, without wrapping.
 /// </summary>
-internal sealed class EndingPostCreditsText
+internal sealed partial class EndingPostCreditsText
 {
     /// <summary>The panel shown.</summary>
     internal EndingPostCreditsPanel Panel { get; private set; }

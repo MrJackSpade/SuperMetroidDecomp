@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The terrain change of each of Mother Brain's room mutations.</summary>
-internal static class MotherBrainRoomMutationDefinitions
+internal static partial class MotherBrainRoomMutationDefinitions
 {
     /// <summary>
     /// The change each mutation makes: its layout, drawn on the mutation's first update; it is gone on the next.

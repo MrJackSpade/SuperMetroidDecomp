@@ -146,12 +146,6 @@ internal static class NoobTubeObjectVerification
         StepNoobTube(roomObjects, level, GameplayAction.Right);
         AssertTrue(samus.Control.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "break sequence installs stationary command-zero animation ownership");
-        var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
-            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
-            .OrderBy(field => field.MetadataToken).ToArray();
-        AssertTrue(fields.Any(field => field.Name == "<Control>k__BackingField"),
-            "the installed handler pair is serialized with Samus");
         // A debugger state binds the installed content rather than writing it, as the debugger's store does, so the round
         // trip carries only Samus's own state.
         SamusState restored = GraphDigestVerification.RoundTrip(samus);

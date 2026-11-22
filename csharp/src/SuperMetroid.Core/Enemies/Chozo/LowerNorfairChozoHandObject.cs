@@ -12,15 +12,16 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 /// <param name="statue">The room's Chozo statue objects, which hold the acid and the lowered-acid event.</param>
 [RoomLifetime]
-internal sealed class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
+internal sealed partial class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
 {
     /// <summary>The room's Chozo statue objects.</summary>
     private readonly ChozoStatueObjects _statue = Ensure.NotNull(statue);
 
     /// <summary>Where the hand is in its course.</summary>
-    private LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
+    internal LowerNorfairChozoHandPhase Phase { get; set; } = LowerNorfairChozoHandPhase.Starting;
 
     /// <summary>What <c>Update</c> does for each <see cref="LowerNorfairChozoHandPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForLowerNorfairChozoHandPhase => field ??= new(new Dictionary<LowerNorfairChozoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [LowerNorfairChozoHandPhase.Starting] = (place, context) =>

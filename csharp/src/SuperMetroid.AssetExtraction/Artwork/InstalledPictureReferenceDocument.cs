@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// rectangle, so an edit to the picture changes it wherever it shows; frames showing it with different maps name different
 /// maps, and frames showing it at different places in their rectangles name different places.
 /// </summary>
-public sealed record InstalledPictureReferenceDocument
+public sealed partial record InstalledPictureReferenceDocument
 {
     /// <summary>
     /// The picture's tag, unique in the installation (#1639): <c>P</c>, its page, a hyphen and its place in the page's write
@@ -92,7 +92,7 @@ public sealed record InstalledPictureReferenceDocument
     /// The rectangle the picture fills on the sheet image of a frame whose rectangle's top-left pixel is
     /// <paramref name="frameCorner"/>.
     /// </summary>
-    private FrameRectangle PlacedIn(Position16<ImagePixels> frameCorner) =>
+    internal FrameRectangle PlacedIn(Position16<ImagePixels> frameCorner) =>
         new(Position16<ImagePixels>.Of(frameCorner.X + Offset.X, frameCorner.Y + Offset.Y), Size);
 
     /// <summary>Whether the picture lies wholly inside a frame rectangle of <paramref name="frameSize"/>.</summary>

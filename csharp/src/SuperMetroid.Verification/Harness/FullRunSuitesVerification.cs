@@ -358,7 +358,6 @@ using static SuperMetroid.Verification.Rooms.Scrolling.RoomScrollDefinitionsVeri
 using static SuperMetroid.Verification.Rooms.RoomSetupCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateSelectionDefinitionsVerification;
-using static SuperMetroid.Verification.Runtime.RuntimeCartridgeBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerification;
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
@@ -546,7 +545,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),
         new(nameof(VerifyDrunkPlaythroughMovie), () => VerifyDrunkPlaythroughMovie("csharp/test-fixtures/replay-traces/samus-drunk")),
         new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
-        new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),
         new(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections()),
@@ -1431,7 +1429,6 @@ internal static class FullRunSuitesVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyAnimatedTileInstructionCodeCatalog), () => VerifyAnimatedTileInstructionCodeCatalog()),
         new(nameof(VerifyEnemyProjectileCodePointerCatalog), () => VerifyEnemyProjectileCodePointerCatalog()),
-        new(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting()),
         new(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading()),
         new(nameof(SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),
             SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="Progression">The persistent progress the save keeps; the slot owns this copy.</param>
 /// <param name="StartupRoute">The startup route the save resumes by.</param>
 /// <param name="Checkpoint">The load station the save resumes at.</param>
-public sealed record SuperMetroidSaveSlot(
+public sealed partial record SuperMetroidSaveSlot(
     SaveSlot Slot,
     SamusInventory Inventory,
     HudItem HudItem,

@@ -121,9 +121,10 @@ Other migrated switches are `--unhandled-exception-console-audit`, `--github-err
 `SuperMetroid.Game --replay` remains the player replay command. Its small
 `--dpi-awareness-audit` probe also remains, to verify the actual Game startup policy.
 It checks the STA apartment required by native Windows file dialogs as well as DPI awareness.
-`DesktopVerification --rom-picker-audit <published-Game.dll>` exercises the real Choose ROM
-button on the game's declared entry apartment, briefly opens and cancels its native dialog,
-and does not install content or touch player saves.
+`DesktopVerification --rom-picker-audit` runs the real Choose ROM handler on a
+single-threaded apartment, the one the Game's entry point declares and `--dpi-awareness-audit`
+checks, briefly opens and cancels its native dialog, and does not install content or touch
+player saves.
 
 ### Controls
 
@@ -460,7 +461,7 @@ project's suite plus the SMV replays. The replays read committed compact traces 
 ### Developer tools
 
 `SuperMetroid.DebugRunner` hosts file-taking developer tools: extracted-installation
-preparation and validation, Android bundle replay, assembly-metadata and captured-frame
+preparation and validation, Android bundle replay, captured-frame
 comparisons, state-fixture exporters, and the generated-definition writer
 `--generate-room-fx-records`. The enemy visual selector catalog is frozen generated data (#1367);
 `SuperMetroid.Verification --verify-enemy-visual-selectors` checks every entry against the cartridge. The dispatchers live in

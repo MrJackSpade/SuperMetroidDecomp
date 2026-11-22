@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// on which the Baby's hit area reaches Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
 [ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
-public sealed class BabyMetroidCutsceneState
+public sealed partial class BabyMetroidCutsceneState
 {
     /// <summary>
     /// Makes the Baby of <paramref name="lateFight"/> in <paramref name="place"/>, the place the final beam's spawn gave it,
@@ -40,7 +40,7 @@ public sealed class BabyMetroidCutsceneState
     /// The Baby's place in the room's enemy list, which the final beam's spawn gave it and which holds its position and
     /// health: the Baby is an enemy of its own, which Mother Brain's onion rings find there, not an effect her body draws.
     /// </summary>
-    private RoomEnemyPlace Place { get; }
+    internal RoomEnemyPlace Place { get; }
 
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
@@ -48,7 +48,7 @@ public sealed class BabyMetroidCutsceneState
     public const int YHitboxRadius = 36;
 
     /// <summary>The entrance's current phase, from the dash onto the screen its arrival starts.</summary>
-    public BabyMetroidCutscenePhase.Flying Phase { get; private set; } =
+    public BabyMetroidCutscenePhase.Flying Phase { get; internal set; } =
         new BabyMetroidCutscenePhase.Flying.DashOntoScreen();
 
     /// <summary>
@@ -76,7 +76,7 @@ public sealed class BabyMetroidCutsceneState
     public FixedPosition<RoomPixels> Position
     {
         get => Place.Position;
-        private set => Place.Position = value;
+        internal set => Place.Position = value;
     }
 
     /// <summary>
@@ -86,16 +86,16 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
-    private PixelVelocity<RoomPixels> Velocity { get; set; }
+    internal PixelVelocity<RoomPixels> Velocity { get; set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
-    private SignedEightEight Speed { get; set; }
+    internal SignedEightEight Speed { get; set; }
 
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
-    private RotationAngle Angle { get; set; }
+    internal RotationAngle Angle { get; set; }
 
     /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="BossCountdown"/>).</summary>
-    private BossCountdown PhaseTimer { get; } = new();
+    internal BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The leg of the ceiling-to-Samus route the Baby steers along once it reaches the ceiling, at its place on the route
@@ -110,7 +110,7 @@ public sealed class BabyMetroidCutsceneState
     public int Health
     {
         get => Place.Health;
-        private set => Place.Health = value;
+        internal set => Place.Health = value;
     }
 
     /// <summary>
@@ -682,6 +682,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>What <see cref="StepSamusRainbowColours"/> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BabyMetroidSamusRainbowPhase, Action<SamusState>> StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase => field ??= new(new Dictionary<BabyMetroidSamusRainbowPhase, Action<SamusState>>
     {
         [BabyMetroidSamusRainbowPhase.Inactive] = samus => { },

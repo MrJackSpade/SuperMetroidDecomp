@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="place">The place the limb occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="setUp">The part\'s setup once it has joined Kraid, which returns the encounter it joined.</param>
-internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal abstract partial class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     Func<KraidEnemyState> setUp)
     : KraidEntity(species, occupant, place, common, setUp), IEnemyTypedAnimation, IPlacedEnemyPicture
 {

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction;
 /// The import's Tourian statue colours (#1637), import data only the import pre-colours the statue's entrance and
 /// unlock-effect shades from; boss selectors and animation timing stay in runtime code.
 /// </summary>
-public sealed record TourianStatueColorDocument
+public sealed partial record TourianStatueColorDocument
 {
     /// <summary>Palette schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }

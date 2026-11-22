@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 /// <param name="sporeSpawn">The fight that set the emitter up, which holds it shut while he suppresses his spores.</param>
 /// <param name="drift">The way the spores the emitter releases first drift.</param>
-internal sealed class SporeSpawnEmitterState(SporeSpawnEnemyState sporeSpawn, HorizontalDirection drift) : EnemyProjectileState
+internal sealed partial class SporeSpawnEmitterState(SporeSpawnEnemyState sporeSpawn, HorizontalDirection drift) : EnemyProjectileState
 {
     /// <summary>The way the spores the emitter releases first drift (<see cref="SporeSpawnEmitter.Drift"/>).</summary>
     internal HorizontalDirection Drift { get; } = drift;

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid;
 /// begin with the hurt flash. Where each palette sits in the original game is the import's knowledge
 /// (<c>AssetExtraction/Bosses/KraidPaletteSources</c>).
 /// </summary>
-public static class KraidPalettes
+public static partial class KraidPalettes
 {
     /// <summary>Nine sixteen-colour health bands, including the flash band.</summary>
     public const int HealthBandCount = 9;

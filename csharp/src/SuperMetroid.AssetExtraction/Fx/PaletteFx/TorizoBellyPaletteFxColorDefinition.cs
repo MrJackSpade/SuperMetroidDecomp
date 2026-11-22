@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One Torizo-specific entry and six-frame belly palette loop.</summary>
-public sealed class TorizoBellyPaletteFxColorDefinition
+public sealed partial class TorizoBellyPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
     /// <param name="effect">The colour effect whose records the program holds.</param>

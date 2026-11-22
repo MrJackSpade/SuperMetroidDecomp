@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// for that room (#2486).
 /// </summary>
 [RoomLifetime]
-internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
+internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>
     internal GreyDoorObject(GreyDoorVariant variant, GreyDoorLock doorLock, PlacedDoor door)
@@ -27,32 +27,32 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     }
 
     /// <summary>The door the cap stands in, as its placement named it.</summary>
-    private PlacedDoor Door { get; }
+    internal PlacedDoor Door { get; }
 
     /// <summary>A cap whose door has been opened for good stays open behind Samus.</summary>
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
     /// <summary>Which grey cap this is.</summary>
-    private GreyDoorVariant Variant { get; }
+    internal GreyDoorVariant Variant { get; }
 
     /// <summary>What holds the cap locked: the condition it was placed with and what that condition reads (#2486).</summary>
-    private GreyDoorLock Lock { get; }
+    internal GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
-    private GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Placed;
+    internal GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Placed;
 
     /// <summary>
     /// What the cap waits for on each update: nothing until its first look locks it, and nothing once it opens. This is apart
     /// from what the cap plays: a closing behind Samus keeps it.
     /// </summary>
-    private GreyDoorWait Waits { get; set; }
+    internal GreyDoorWait Waits { get; set; }
 
     /// <summary>
     /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap waits for anything waits for
     /// it; a later shot before the cap takes it replaces it.
     /// </summary>
-    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
+    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);
@@ -80,6 +80,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     }
 
     /// <summary>What <c>React</c> comes to for each <see cref="GreyDoorWait"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>> ReactForGreyDoorWait => field ??= new(new Dictionary<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>>
     {
         [GreyDoorWait.Nothing] = (place, context, doors) => false,
@@ -118,6 +119,7 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForGreyDoorPhase => field ??= new(new Dictionary<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [GreyDoorPhase.Placed] = (place, context) => Look(place, context),

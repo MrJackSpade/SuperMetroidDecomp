@@ -5,7 +5,7 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Lists every state a retail room can select, for the import's per-state sheets and layouts.</summary>
-public static class RoomStateLists
+public static partial class RoomStateLists
 {
     /// <summary>Returns the default first, then every alternative in authored order.</summary>
     public static IReadOnlyList<RoomStateSettings> GetStates(RoomDefinition room)

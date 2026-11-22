@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>The options menu's pages, controller labels and the names its pieces are pictured under.</summary>
-public static class GameOptionsPresentationDefinitions
+public static partial class GameOptionsPresentationDefinitions
 {
     /// <summary>The assignable buttons whose glyphs the controller page shows, in selector order: X, A, B, Select, Y, L, R.</summary>
     public static IReadOnlyList<ControllerButton> ControllerLabelButtons { get; } =

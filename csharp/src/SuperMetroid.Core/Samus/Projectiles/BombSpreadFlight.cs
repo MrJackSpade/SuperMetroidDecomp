@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// horizontal velocity, which a wall reverses, its vertical velocity, which Samus's gravity accelerates every update,
 /// and the launch velocity a floor bounce restores. Velocities are in pixels per update, negative leftward and upward.
 /// </summary>
-public sealed class BombSpreadFlight
+public sealed partial class BombSpreadFlight
 {
     /// <summary>Starts a flight launched with <paramref name="horizontalVelocity"/> and <paramref name="launchVelocity"/>.</summary>
     internal BombSpreadFlight(SignedSixteenSixteen horizontalVelocity, SignedSixteenSixteen launchVelocity)
@@ -25,7 +25,7 @@ public sealed class BombSpreadFlight
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 
     /// <summary>The vertical velocity the bomb was launched with, its held-Down bonus included, which a floor bounce restores.</summary>
-    private SignedSixteenSixteen LaunchVelocity { get; }
+    internal SignedSixteenSixteen LaunchVelocity { get; }
 
     /// <summary>Accelerates the bomb's fall by <paramref name="gravity"/>, the fraction carrying into the whole pixels.</summary>
     internal void Accelerate(SignedSixteenSixteen gravity) => VerticalVelocity += gravity;

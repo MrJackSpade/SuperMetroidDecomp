@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="destruction">The destruction cinematic's screen (#2554).</param>
 /// <param name="outcome">Whether Samus escaped Ceres or is aboard it.</param>
-internal sealed class CeresDestructionGameSequence(FrontendSession session, CeresDestructionCinematicState destruction,
+internal sealed partial class CeresDestructionGameSequence(FrontendSession session, CeresDestructionCinematicState destruction,
     CeresDestructionOutcome outcome) : IRuntimePhase
 {
     /// <summary>The destruction cinematic's screen.</summary>
@@ -44,6 +44,7 @@ internal sealed class CeresDestructionGameSequence(FrontendSession session, Cere
     public bool IsWaitingOutDisplayFrame => Screen.IsWaitingOutDisplayFrame;
 
     /// <summary>What <c>Step</c> does for each <see cref="CeresDestructionOutcome"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CeresDestructionOutcome, Action<ControllerButton, SuperMetroidRuntime>> StepForCeresDestructionOutcome => field ??= new(new Dictionary<CeresDestructionOutcome, Action<ControllerButton, SuperMetroidRuntime>>
     {
         [CeresDestructionOutcome.SamusEscaped] = (controllerInput, runtime) => StepEscaped(controllerInput, runtime),

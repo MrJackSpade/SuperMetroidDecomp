@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// gives it, the controller's actions, the frame counter and the moonwalk setting, so the setups run through the pose
 /// phase without naming it.
 /// </summary>
-internal sealed class SamusPoseSetupSteps
+internal sealed partial class SamusPoseSetupSteps
 {
     /// <summary>Supplies the held and newly pressed controller buttons.</summary>
     private readonly ISetupInputs _playerActions;
@@ -39,8 +39,11 @@ internal sealed class SamusPoseSetupSteps
     internal SamusPoseSetupSteps(GameplayAction held, GameplayAction newlyPressed, int frameCounter)
     {
         _playerActions = _clock = new DemoInputs(held, newlyPressed, frameCounter);
-        _moonwalkEnabled = static () => false;
+        _moonwalkEnabled = MoonwalkUnset;
     }
+
+    /// <summary>The moonwalk option before any file is chosen: unset, so she does not moonwalk.</summary>
+    private static bool MoonwalkUnset() => false;
 
     /// <summary>What the setups read of the update: its buttons and its frame counter.</summary>
     private interface ISetupInputs
@@ -56,7 +59,7 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>Gameplay's live controller actions and clock, read as each setup runs.</summary>
-    private sealed class LiveInputs(GameplayActionInput actions, FrameClock clock) : ISetupInputs
+    private sealed partial class LiveInputs(GameplayActionInput actions, FrameClock clock) : ISetupInputs
     {
         /// <inheritdoc/>
         public GameplayAction Current => actions.Current;
@@ -69,7 +72,7 @@ internal sealed class SamusPoseSetupSteps
     }
 
     /// <summary>One demo update's recorded buttons and frame counter.</summary>
-    private sealed record DemoInputs(GameplayAction Current, GameplayAction NewlyPressed, int Counter) : ISetupInputs;
+    private sealed partial record DemoInputs(GameplayAction Current, GameplayAction NewlyPressed, int Counter) : ISetupInputs;
 
     /// <summary>Runs the <see cref="SamusPoseTransitionSetup.StartJump"/> setup.</summary>
     internal void SetUpStartJump(SamusState samus, SamusPoseId targetPose)

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The walking Space Pirates' walk, look, flinch and laser animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WalkingSpacePirateCue"/> with the values it acts on.
 /// </summary>
-internal static class WalkingSpacePirateAnimations
+internal static partial class WalkingSpacePirateAnimations
 {
     /// <summary>The updates each of the walking pirate's striding poses shows for.</summary>
     private const int StridePoseUpdates = 10;
@@ -29,14 +29,14 @@ internal static class WalkingSpacePirateAnimations
     /// The animation that starts at each segment an owner can start or restart at: a flinch walks on the way the pirate faces,
     /// and its lasers and its look turn it to walk the other way.
     /// </summary>
-    private static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } =
+    internal static Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } =
         FacedStarts(LeftSegments, RightSegments).Concat(FacedStarts(RightSegments, LeftSegments)).ToDictionary();
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<WalkingSpacePirateSegment> StartingWith(WalkingSpacePirateSegment segment) => StartingAt[segment];
 
     /// <summary>The segments a walking pirate plays facing one way.</summary>
-    private sealed record FacedSegments(P Flinch, P Walking, P WalkingStride, P FireLasers, P Looking);
+    private sealed partial record FacedSegments(P Flinch, P Walking, P WalkingStride, P FireLasers, P Looking);
 
     /// <summary>The beats of <paramref name="segments"/>, the pirate facing as <paramref name="side"/> does.</summary>
     private static Dictionary<P, AnimationBeat<EnemyFrameId, WalkingSpacePirateCue>[]> FacedBeats(WalkingSpacePirateSide side, FacedSegments segments) => new()

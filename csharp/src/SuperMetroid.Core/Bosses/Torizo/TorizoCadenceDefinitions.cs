@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The counter phases of the Torizos' hurt flash (#1606) and attack choice (#1619).</summary>
-internal static class TorizoCadenceDefinitions
+internal static partial class TorizoCadenceDefinitions
 {
     /// <summary>
     /// The phase of a Torizo attack choice's count on which it takes the first of its two attacks (#1619): for half

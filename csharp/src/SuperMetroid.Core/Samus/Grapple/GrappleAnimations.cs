@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <see cref="GrappleBeamDefinitions.Rendering.SegmentAnimationDelay"/> rope draws, the muzzle's segment showing the picture the animation stands on and each segment further along the rope
 /// the one before its neighbour's.
 /// </summary>
-internal static class GrappleAnimations
+internal static partial class GrappleAnimations
 {
     /// <summary>The endpoint's pictures, each with the beam draws it shows for.</summary>
     internal static AnimationSegments<GrappleEndpointSegment, E, NoAnimationCue> EndpointSegments { get; } = new(

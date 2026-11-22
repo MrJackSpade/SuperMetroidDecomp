@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <param name="Segment">The segment whose beat hides the owner.</param>
 /// <param name="Duration">The updates the owner stays hidden.</param>
-internal sealed record AnimationHiddenShown<TSegment, TFrame>(TSegment Segment, int Duration)
+internal sealed partial record AnimationHiddenShown<TSegment, TFrame>(TSegment Segment, int Duration)
     : IHidingAnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
     where TSegment : struct
     where TFrame : struct
@@ -57,7 +57,7 @@ internal interface IUnpausedHidingAnimationShown<TSegment, TFrame>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 /// <param name="Shown">Reacts to any outcome but a hidden stretch.</param>
 /// <param name="Hidden">Shows nothing for the stretch's updates.</param>
-internal sealed record HidingAnimationShownReactions<TSegment, TFrame, TContext>(
+internal sealed partial record HidingAnimationShownReactions<TSegment, TFrame, TContext>(
     Action<AnimationShown<TSegment, TFrame>, TContext> Shown,
     Action<AnimationHiddenShown<TSegment, TFrame>, TContext> Hidden)
     where TSegment : struct
@@ -70,7 +70,7 @@ internal sealed record HidingAnimationShownReactions<TSegment, TFrame, TContext>
 /// <typeparam name="TResult">What an outcome comes to.</typeparam>
 /// <param name="Shown">Any outcome that is no pause and no hidden stretch.</param>
 /// <param name="Hidden">A stretch of updates showing nothing.</param>
-internal sealed record UnpausedHidingAnimationShownCases<TSegment, TFrame, TContext, TResult>(
+internal sealed partial record UnpausedHidingAnimationShownCases<TSegment, TFrame, TContext, TResult>(
     Func<AnimationShown<TSegment, TFrame>.Unpaused, TContext, TResult> Shown,
     Func<AnimationHiddenShown<TSegment, TFrame>, TContext, TResult> Hidden)
     where TSegment : struct

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// once, as the room loads its effect, so the frame boundary latches the overlay's kind and blend with no choice left to
 /// make.
 /// </summary>
-public abstract record RoomEffectOverlayLook
+public abstract partial record RoomEffectOverlayLook
 {
     /// <summary>Keeps how the overlay blends; only the liquid and the atmosphere derive from this.</summary>
     /// <param name="blend">How the overlay blends with the room.</param>
@@ -52,7 +52,7 @@ public abstract record RoomEffectOverlayLook
     internal abstract ShownRoomEffectOverlay Latch(RoomFxOverlayRenderSnapshot fx, WrittenPictureResolver pictures, RoomAppearanceView appearance);
 
     /// <summary>A liquid: lava's, acid's or water's surface strip and body, shown below its surface.</summary>
-    private sealed record ShowsLiquid : RoomEffectOverlayLook
+    private sealed partial record ShowsLiquid : RoomEffectOverlayLook
     {
         /// <summary>Keeps how it blends.</summary>
         /// <param name="blend">How it blends with the room.</param>
@@ -67,7 +67,7 @@ public abstract record RoomEffectOverlayLook
     }
 
     /// <summary>An atmosphere: the rain's, the fog's or the spores' repeating picture.</summary>
-    private sealed record ShowsAtmosphere : RoomEffectOverlayLook
+    private sealed partial record ShowsAtmosphere : RoomEffectOverlayLook
     {
         /// <summary>Keeps how it blends.</summary>
         /// <param name="blend">How it blends with the room.</param>

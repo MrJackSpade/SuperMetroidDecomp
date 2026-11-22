@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="TravelDistance">The pixels it travels between its ends.</param>
 /// <param name="RestAfterMovingUp">How long it rests at its upper end, or that it stops there for good.</param>
 /// <param name="RestAfterMovingDown">How long it rests at its lower end, or that it stops there for good.</param>
-internal sealed record ShutterSpawnSettings(
+internal sealed partial record ShutterSpawnSettings(
     SignedSixteenSixteen Speed, VerticalDirection PrimaryDirection, ShutterTrigger Trigger, int TravelDistance,
     ShutterRest RestAfterMovingUp, ShutterRest RestAfterMovingDown) : EnemySpawnSettings
 {

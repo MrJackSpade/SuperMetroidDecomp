@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// common death cleared it, and deletes the seven records from that offset.
 /// </remarks>
 [CompatibilityService("a Shaktool chain's death deletes the seven enemies the room lists first")]
-public static class ShaktoolDeathDeletesFirstListed
+public static partial class ShaktoolDeathDeletesFirstListed
 {
     /// <summary>The enemies a chain's death deletes, in the order the room lists them.</summary>
     /// <typeparam name="TEnemy">An enemy place.</typeparam>

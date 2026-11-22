@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpawnSettings>
+internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -47,6 +47,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     }
 
     /// <summary>What <see cref="RunOwtchMain"/> does for each <see cref="OwtchBehaviorState"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OwtchBehaviorState, Action<OwtchSpawnSettings, RoomEnemyPlace, OwtchEnemyState>> RunOwtchMainForOwtchBehaviorState => field ??= new(new Dictionary<OwtchBehaviorState, Action<OwtchSpawnSettings, RoomEnemyPlace, OwtchEnemyState>>
     {
         [OwtchBehaviorState.MovingLeft] = (settings, place, state) =>
@@ -178,8 +179,18 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyBombReaction OwtchBombReaction(OwtchEnemyState state) => new()
     {
+<<<<<<< HEAD
         Rejects = c => !OwtchAcceptsOrdinaryShot(state),
+||||||| 418ca79935
+        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
+=======
+        Rejects = ShellRejects,
+>>>>>>> origin/main
     };
+
+    /// <summary>Whether the Owtch's shell turns a bomb away: it does unless the Owtch walks left.</summary>
+    private static bool ShellRejects(EnemyBombContext context) =>
+        !OwtchAcceptsOrdinaryShot(context.Enemy.RequireSpeciesState<OwtchEnemyState>());
 
     /// <summary>Runs Owtch's main AI.</summary>
     internal void RunOwtchMainAi(OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
@@ -203,6 +214,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction OwtchShotReaction(OwtchEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
             if (OwtchAcceptsOrdinaryShot(state))
@@ -211,5 +223,32 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<OwtchSpa
                 c.Shot.Spend();
             return true;
         },
+||||||| 418ca79935
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+        {
+            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
+                return false;
+            if (c.MarksCollision)
+                c.Shot.Spend();
+            return true;
+        },
+=======
+        AfterSuperMissileQuake = TurnShotAwayFromShell,
+>>>>>>> origin/main
     };
+
+    /// <summary>
+    /// Turns an ordinary shot away from the Owtch's shell after the Super Missile quake, unless it walks left: a shot that
+    /// marks its collision ends where it struck.
+    /// </summary>
+    /// <param name="c">The shot meeting the Owtch.</param>
+    /// <returns>Whether the shell turned the shot away.</returns>
+    private static bool TurnShotAwayFromShell(in EnemyShotContext c)
+    {
+        if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
+            return false;
+        if (c.MarksCollision)
+            c.Shot.Spend();
+        return true;
+    }
 }

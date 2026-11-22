@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number each of Mother Brain's random choices reads, exactly as the game read it")]
-internal static class MotherBrainRandomRolls
+internal static partial class MotherBrainRandomRolls
 {
     /// <summary>
     /// The chance a falling glass shard sparkles each update, one in four: the number's sixth and eleventh places both

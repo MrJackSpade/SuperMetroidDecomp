@@ -6,7 +6,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>What Maridia's n00b tube does: what wakes it, the block it occupies, its sounds, its earthquake and its debris counts.</summary>
-public static class NoobTubeObjectDefinitions
+public static partial class NoobTubeObjectDefinitions
 {
     /// <summary>The newly pressed actions that wake the tube once it is cracked: Dash, item cancel, Left, Right, Jump and Shoot.</summary>
     public const GameplayAction AcceptedWakeInputMask =

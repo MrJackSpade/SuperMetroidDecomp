@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="From">The zoom the stretch's first update shows.</param>
 /// <param name="Updates">How many updates the stretch lasts, at least one.</param>
-internal abstract record CeresRidleyGetawayZoomStretch(FloorZoom From, int Updates)
+internal abstract partial record CeresRidleyGetawayZoomStretch(FloorZoom From, int Updates)
 {
     /// <summary>A stretch that holds <paramref name="zoom"/> for <paramref name="updates"/> updates.</summary>
     internal static CeresRidleyGetawayZoomStretch Hold(FloorZoom zoom, int updates) => new Holding(zoom, updates);
@@ -21,7 +21,7 @@ internal abstract record CeresRidleyGetawayZoomStretch(FloorZoom From, int Updat
     /// <summary>A stretch that holds its zoom.</summary>
     /// <param name="From">The zoom the stretch shows.</param>
     /// <param name="Updates">How many updates the stretch lasts, at least one.</param>
-    private sealed record Holding(FloorZoom From, int Updates) : CeresRidleyGetawayZoomStretch(From, Updates)
+    private sealed partial record Holding(FloorZoom From, int Updates) : CeresRidleyGetawayZoomStretch(From, Updates)
     {
         /// <inheritdoc/>
         internal override FloorZoom ZoomAfter(int updatesIn) => From;
@@ -31,7 +31,7 @@ internal abstract record CeresRidleyGetawayZoomStretch(FloorZoom From, int Updat
     /// <param name="From">The zoom the stretch's first update shows.</param>
     /// <param name="NarrowedEachUpdate">How far each later update of the stretch narrows the zoom.</param>
     /// <param name="Updates">How many updates the stretch lasts, at least one.</param>
-    private sealed record NarrowingStretch(FloorZoom From, FloorZoomStep NarrowedEachUpdate, int Updates)
+    private sealed partial record NarrowingStretch(FloorZoom From, FloorZoomStep NarrowedEachUpdate, int Updates)
         : CeresRidleyGetawayZoomStretch(From, Updates)
     {
         /// <inheritdoc/>

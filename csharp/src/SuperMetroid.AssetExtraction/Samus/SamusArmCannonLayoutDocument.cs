@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Versioned installed <c>samus-arm-cannon.json</c>: what the game binds of the arm cannon, each pose's placement (#1638).</summary>
-public sealed record SamusArmCannonLayoutDocument
+public sealed partial record SamusArmCannonLayoutDocument
 {
     /// <summary>Layout schema revision; loading requires <see cref="SamusArmCannonArtworkFormat.Version"/>.</summary>
     public required int Version { get; init; }

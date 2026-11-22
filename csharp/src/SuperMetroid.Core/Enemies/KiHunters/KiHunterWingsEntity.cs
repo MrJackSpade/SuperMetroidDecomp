@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="partner">The body the room lists right before the wings, which offered them their creation (#2554).</param>
-internal sealed class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KiHunterWingsSpawnSettings settings,
+internal sealed partial class KiHunterWingsEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KiHunterWingsSpawnSettings settings,
     KiHunterWingsBody partner)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {

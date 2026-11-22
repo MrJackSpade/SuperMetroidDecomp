@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Skree;
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>The state of one Metaree.</summary>
-public sealed class MetareeEnemyState
+public sealed partial class MetareeEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal MetareeEnemyState(MetareeAction action) => Action = action;

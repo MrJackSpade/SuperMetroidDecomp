@@ -23,7 +23,7 @@ internal static class Program
 {
     /// <summary>Requires an explicit solution path and at most one mode flag.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> " +
-        "[--write | --findings | --prune-stale-reviews | --test-only-members | --fix-test-only-members]";
+        "[--write | --findings | --prune-stale-reviews | --test-only-members]";
 
     /// <summary>Stable camel-case JSON settings shared by the inventory documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
@@ -46,7 +46,6 @@ internal static class Program
                 ["--solution", var path, "--findings"] => new AuditArguments(path, AuditMode.Findings),
                 ["--solution", var path, "--prune-stale-reviews"] => new AuditArguments(path, AuditMode.PruneStaleReviews),
                 ["--solution", var path, "--test-only-members"] => new AuditArguments(path, AuditMode.TestOnlyMembers),
-                ["--solution", var path, "--fix-test-only-members"] => new AuditArguments(path, AuditMode.FixTestOnlyMembers),
                 _ => throw new ArgumentException(Usage),
             };
             using var workspace = await SolutionLoader.OpenAsync(Path.GetFullPath(solutionPath));
@@ -65,9 +64,7 @@ internal static class Program
     /// steps, hands over the solution as its steps left it.
     /// </summary>
     internal static async Task<int> RunAsync(Solution solution, string repositoryRoot, AuditMode mode) =>
-        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot,
-            // The fix regenerates the private access checks name, so it binds checks that lack it; shipped code compiles.
-            mode == AuditMode.FixTestOnlyMembers ? project => ProjectScope.IsCheck(project.AssemblyName) : null), mode);
+        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot, null), mode);
 
     /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
     private static int Run(LoadedSolution solution, AuditMode mode)
@@ -79,8 +76,7 @@ internal static class Program
             AuditMode.Check => CheckInventories(solution, TypeInventory.Collect(solution), write: false),
             AuditMode.Write => CheckInventories(solution, TypeInventory.Collect(solution), write: true),
             AuditMode.TestOnlyMembers => Report(TestOnlyMembers.Census(solution),
-                "Test-only member census: no product member is wider than its production use for checks."),
-            AuditMode.FixTestOnlyMembers => TestOnlyMemberFixer.Fix(solution),
+                "Test-only member census: production uses every way checks reach its members."),
             _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
         };
     }

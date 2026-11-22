@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// head at its current pose above it, or the head his body rises with before his head shows a pose.
 /// </summary>
 [RoomLifetime]
-internal sealed class KraidBodyLayer : IBossBodyDisplay
+internal sealed partial class KraidBodyLayer : IBossBodyDisplay
 {
     /// <inheritdoc />
     BossBodyShowing? IBossBodyDisplay.Showing => CaptureBodyLayer() is { } layer ? new BossBodyShowing(layer, Placement) : null;
@@ -37,7 +37,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// The encounter whose body the layer shows (#2194): the one his body last began as it set up, kept for the room so
     /// the layer keeps showing after his body is deleted; none before his body sets up.
     /// </summary>
-    private KraidEnemyState? Kraid { get; set; }
+    internal KraidEnemyState? Kraid { get; set; }
 
     /// <summary>His body sets up: the layer shows <paramref name="kraid"/>'s body from now on.</summary>
     internal void Show(KraidEnemyState kraid) => Kraid = Ensure.NotNull(kraid);
@@ -48,7 +48,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// </summary>
     /// <exception cref="InvalidOperationException">No boss body sheets are installed.</exception>
     /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
-    private BossBodyLayer? CaptureBodyLayer()
+    internal BossBodyLayer? CaptureBodyLayer()
     {
         if (Kraid is not { ShowsBodyLayer: true } state)
             return null;

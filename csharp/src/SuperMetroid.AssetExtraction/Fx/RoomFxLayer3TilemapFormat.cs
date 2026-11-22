@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>The room effects' 32x33 layer-three page geometry and the import-data file holding the pages.</summary>
-public static class RoomFxLayer3TilemapFormat
+public static partial class RoomFxLayer3TilemapFormat
 {
     /// <summary>Shared editable JSON filename containing all six room-FX BG3 page definitions.</summary>
     public const string FileName = "room-fx-layer3-tilemaps.json";

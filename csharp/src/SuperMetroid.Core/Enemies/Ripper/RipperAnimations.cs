@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// The grapple Ripper, jet Ripper and Ripper flying loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class RipperAnimations
+internal static partial class RipperAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<RipperSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -21,7 +21,7 @@ internal static class RipperAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
+    internal static Dictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
     {
         [P.GrappleRipperMovingLeft] = Animation<RipperSegment>.Looping([Segments.Whole(P.GrappleRipperMovingLeft)]),
         [P.GrappleRipperMovingRight] = Animation<RipperSegment>.Looping([Segments.Whole(P.GrappleRipperMovingRight)]),

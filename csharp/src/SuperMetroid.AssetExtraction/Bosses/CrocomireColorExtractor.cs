@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Crocomire's five native RGB5 transfer images, including boundary words.</summary>
-public static class CrocomireColorExtractor
+public static partial class CrocomireColorExtractor
 {
     /// <summary>Exports Crocomire's fight-body restoration, initial wall/projectile transfers, skeleton-arm palette, and wall-spike palette with their exact native extents.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$A4 color bands at $B89D, $B8BD, $B8DD, $B8FD, and $B91D respectively.</param>

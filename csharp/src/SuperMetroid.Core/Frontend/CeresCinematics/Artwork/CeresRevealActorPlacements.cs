@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// subtitle, as the player left them, keyed by role (#1768); the installation is their only source (#1596, #1733). Their
 /// animations, slide acceleration, deletion, and phase handoffs are the game's own.
 /// </summary>
-public sealed class CeresRevealActorPlacements
+public sealed partial class CeresRevealActorPlacements
 {
     /// <summary>The installed placements, by role.</summary>
     internal readonly Dictionary<ZebesRevealActorRole, CeresRevealActorPlacement> placements;

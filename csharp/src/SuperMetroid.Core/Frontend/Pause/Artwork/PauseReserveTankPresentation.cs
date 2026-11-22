@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// source (#1596). The strip is drawn from the installed pause sheet, whose reserve compositions belong to the import
 /// pipeline that reads the installed presentation and never reach the game (#1463, #1616).
 /// </summary>
-public sealed class PauseReserveTankPresentation
+public sealed partial class PauseReserveTankPresentation
 {
     /// <summary>
     /// The installed anchor of each place of the strip, in strip order. A place has no role of its own: Samus's reserve tanks
@@ -30,7 +30,7 @@ public sealed class PauseReserveTankPresentation
     /// <param name="index">The place's place in the strip, from 0 through 5.</param>
     /// <returns>The installed screen-pixel anchor for that strip position.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The position is not one of the strip's six.</exception>
-    private Offset16<ScreenPixels> Anchor(int index) =>
+    internal Offset16<ScreenPixels> Anchor(int index) =>
         (uint)index < (uint)anchors.Length ? anchors[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>

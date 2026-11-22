@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Assets;
 /// Samus's shades the fade keeps lit (#2093): their colours stay lit on her draws over the fade, in order, as a door's
 /// fade in keeps her beams and visor lit; empty for none.
 /// </param>
-public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, ImmutableArray<PictureShade> LitOnSamus = default)
+public sealed partial record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, ImmutableArray<PictureShade> LitOnSamus = default)
 {
     /// <summary>Samus's shades the fade keeps lit on her draws, in order.</summary>
     public ImmutableArray<PictureShade> LitOnSamus { get; } = LitOnSamus.IsDefault ? [] : LitOnSamus;

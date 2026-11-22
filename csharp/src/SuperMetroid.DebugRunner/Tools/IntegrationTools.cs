@@ -24,8 +24,6 @@ internal static class IntegrationTools
                 GameAssetInstallerTooling.ValidateExtractedContent(installed.Root);
                 Console.WriteLine($"PASS fresh extracted installation: {installed.Root}; source ROM was imported, not mapped into gameplay.");
                 return 0;
-            case ["--compare-assembly-metadata", var originalAssembly, var linkedAssembly]:
-                return AssemblyMetadataVerification.Run(originalAssembly, linkedAssembly);
             case ["--compare-file-select-capture", var journalPath, var wavePath]:
                 return FileSelectCaptureComparison.Run(journalPath, wavePath);
             case ["--replay-android-bundle", var bundle, var recordingName]:

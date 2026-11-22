@@ -11,5 +11,5 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="HeadState">The head's state.</param>
 /// <param name="BodyState">The body's state, which the head begins and the body sets up as it is built.</param>
 /// <param name="OverlayState">The overlay's state, which the head begins and the overlay sets up as it is built.</param>
-internal sealed record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyOccupant Head, MagdolliteHeadSpawnSettings HeadRise,
+internal sealed partial record MagdollitePartners(MagdolliteComposite Composite, RoomEnemyOccupant Head, MagdolliteHeadSpawnSettings HeadRise,
     MagdolliteHeadState HeadState, MagdolliteBodyState BodyState, MagdolliteOverlayState OverlayState);

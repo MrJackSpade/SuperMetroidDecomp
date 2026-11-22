@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="SoundQueuePasses">Times this update processes the sound queues, including the extra time when the box returns to gameplay.</param>
 [IndependentFlag("whether this message-box update advances the liquid wave and statue descent, a fact of the update")]
 [CompatibilityService("an open message box's update runs the music and sound queues a set number of times and may advance the liquid wave and statues' descent")]
-public readonly record struct MessageBoxFrameAudio(bool AdvancesLiquidWaveAndStatueDescent, int MusicQueuePasses, int SoundQueuePasses)
+public readonly partial record struct MessageBoxFrameAudio(bool AdvancesLiquidWaveAndStatueDescent, int MusicQueuePasses, int SoundQueuePasses)
 {
     /// <summary>Ordinary message update: music and sound processed once each, and no liquid wave or statue advance; describes the processing for the host rather than performing it.</summary>
     public static MessageBoxFrameAudio MusicAndSounds { get; } = new(false, 1, 1);

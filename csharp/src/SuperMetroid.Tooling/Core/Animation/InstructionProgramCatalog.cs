@@ -1,57 +1,57 @@
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.OldTourianWall;
+using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Tooling;
-using System.Reflection;
 
 namespace SuperMetroid.Core.Animation;
 
 /// <summary>
-/// Development-tool view of one instruction-program catalog: whichever of the catalog contracts
-/// the type implements, read through typed generic helpers. Gameplay reads its own catalogs
-/// directly; resource audits, the selector generator and layout dumps enumerate them here.
-/// A shipped catalog type implements the contracts through its <see cref="ToolingForAttribute"/>
-/// adapter; <see cref="Type"/> is always the shipped type.
+/// Development-tool view of one instruction-program catalog: whichever of the catalog contracts its development adapter
+/// implements, read through typed generic helpers. Gameplay reads its own catalogs directly; resource audits and layout
+/// dumps enumerate them here. A shipped catalog type implements the contracts through its <see cref="ToolingForAttribute"/>
+/// adapter, and <see cref="Registered"/> names each pairing (#2602); the program audit fails on an adapter missing from it,
+/// since its owner then has no recognized shape. <see cref="Name"/> and <see cref="FullName"/> are the shipped type's.
 /// </summary>
 internal sealed record InstructionProgramCatalog(
-    Type Type,
+    string Name,
+    string FullName,
     IReadOnlyList<InstructionMechanicsWord>? MechanicsWords,
     IReadOnlyList<ushort>? PresentationOperands,
     ushort? SinglePresentationOperand,
     int? DeclaredBank)
 {
-    /// <summary>The contracts recognized when discovering development-tool adapters.</summary>
-    private static readonly Type[] Contracts =
+    /// <summary>Every shipped program with a development adapter, each read through the adapter that implements its contracts.</summary>
+    private static readonly InstructionProgramCatalog[] Registered =
     [
-        typeof(IInstructionProgramCatalog), typeof(IPresentationOperandCatalog), typeof(ISinglePresentationOperand),
-        typeof(IDeclaredProgramBank),
+        Indexed<FakeKraidProjectileInstructionProgramDefinitionsTooling>(typeof(FakeKraidProjectileAnimation)),
+        Indexed<MotherBrainTopTubeInstructionProgramDefinitionsTooling>(typeof(MotherBrainTopTubeInstructionProgramDefinitions)),
+        Indexed<OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling>(typeof(OldTourianEscapeShaftWallExplosionAnimationDefinitions)),
+        Indexed<SpacePirateProjectileInstructionProgramDefinitionsTooling>(typeof(SpacePirateProjectileInstructionProgramDefinitions)),
+        Indexed<TourianStatueProjectileInstructionProgramDefinitionsTooling>(typeof(TourianStatueProjectileInstructionProgramDefinitions)),
     ];
 
-    /// <summary>Shipped catalog type to the development type implementing its contracts.</summary>
-    private static readonly Dictionary<Type, Type> Implementations = typeof(InstructionProgramCatalog).Assembly.GetTypes()
-        .Where(type => Contracts.Any(contract => contract.IsAssignableFrom(type) && type != contract))
-        .ToDictionary(type => type.GetCustomAttribute<ToolingForAttribute>()?.Owner ?? type);
-
-    /// <summary>Every catalog implementing a contract, in ordinal name order of the shipped type.</summary>
+    /// <summary>Every registered catalog, in ordinal name order of the shipped type.</summary>
     internal static IReadOnlyList<InstructionProgramCatalog> All() =>
-        [.. Implementations.Keys.OrderBy(type => type.Name, StringComparer.Ordinal).Select(Of)];
+        [.. Registered.OrderBy(catalog => catalog.Name, StringComparer.Ordinal)];
 
-    /// <summary>The catalog view of a type, with null for each contract it does not implement.</summary>
-    internal static InstructionProgramCatalog Of(Type type)
-    {
-        Type implementation = Implementations.GetValueOrDefault(type, type);
-        return new(type,
-            Bind<IReadOnlyList<InstructionMechanicsWord>>(nameof(MechanicsWordsOf), typeof(IInstructionProgramCatalog), implementation),
-            Bind<IReadOnlyList<ushort>>(nameof(PresentationOperandsOf), typeof(IPresentationOperandCatalog), implementation),
-            Bind<ushort?>(nameof(SinglePresentationOperandOf), typeof(ISinglePresentationOperand), implementation),
-            Bind<int?>(nameof(DeclaredBankOf), typeof(IDeclaredProgramBank), implementation));
-    }
+    /// <summary>
+    /// The catalog view of the shipped type named <paramref name="fullName"/>, with null for every contract when no adapter
+    /// is registered for it.
+    /// </summary>
+    internal static InstructionProgramCatalog Of(string fullName) =>
+        Registered.SingleOrDefault(catalog => catalog.FullName == fullName) ??
+        new(fullName[(fullName.LastIndexOf('.') + 1)..], fullName, null, null, null, null);
 
-    /// <summary>Invokes a typed enumerator only when the implementation supports its contract.</summary>
-    [ReflectionAudit("catalog discovery: static abstract contract members are reached for types found by assembly scan")]
-    private static T? Bind<T>(string helper, Type contract, Type type) =>
-        contract.IsAssignableFrom(type)
-            ? (T?)(typeof(InstructionProgramCatalog).GetMethod(helper, BindingFlags.NonPublic | BindingFlags.Static) ??
-                throw new MissingMethodException(nameof(InstructionProgramCatalog), helper))
-                .MakeGenericMethod(type).Invoke(null, null)
-            : default;
+    /// <summary>
+    /// The view of <paramref name="owner"/> through its adapter <typeparamref name="TAdapter"/>, which enumerates the
+    /// program's mechanics words and presentation operands and declares its bank.
+    /// </summary>
+    private static InstructionProgramCatalog Indexed<TAdapter>(Type owner)
+        where TAdapter : IInstructionProgramCatalog, IPresentationOperandCatalog, IDeclaredProgramBank =>
+        new(owner.Name, owner.FullName ?? throw new InvalidOperationException($"{owner.Name} has no full name."),
+            MechanicsWordsOf<TAdapter>(), PresentationOperandsOf<TAdapter>(), null, TAdapter.Bank);
 
     /// <summary>Copies a catalog's compiled mechanics words into an audit-friendly list.</summary>
     private static IReadOnlyList<InstructionMechanicsWord> MechanicsWordsOf<TCatalog>()
@@ -62,12 +62,4 @@ internal sealed record InstructionProgramCatalog(
     private static IReadOnlyList<ushort> PresentationOperandsOf<TCatalog>()
         where TCatalog : IPresentationOperandCatalog =>
         [.. Enumerable.Range(0, TCatalog.PresentationWordCount).Select(index => TCatalog.PresentationWordAddress(index))];
-
-    /// <summary>Boxes a catalog's sole sprite-pointer operand for the optional view.</summary>
-    private static ushort? SinglePresentationOperandOf<TCatalog>()
-        where TCatalog : ISinglePresentationOperand => TCatalog.PresentationWord;
-
-    /// <summary>Boxes the native program bank for the optional development-tool view.</summary>
-    private static int? DeclaredBankOf<TCatalog>()
-        where TCatalog : IDeclaredProgramBank => TCatalog.Bank;
 }

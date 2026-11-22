@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a knockback, a health loss and a moving shinespark share the hurt flash's count, so a spark suppresses the flash and its sounds")]
-public sealed class SharedHurtFlashCount
+public sealed partial class SharedHurtFlashCount
 {
     /// <summary>The count the hurt flash shows next, zero while it is idle.</summary>
     public int Count { get; private set => field = Ensure.AtLeastZero(value); }

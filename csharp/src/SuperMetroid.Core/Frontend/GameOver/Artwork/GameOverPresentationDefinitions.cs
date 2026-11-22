@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>The names the game-over screen's pieces are pictured under.</summary>
-public static class GameOverPresentationDefinitions
+public static partial class GameOverPresentationDefinitions
 {
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";

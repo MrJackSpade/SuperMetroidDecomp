@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The random roll that starts a Cacatac's spike attack.</summary>
-internal static class CacatacAttackDefinitions
+internal static partial class CacatacAttackDefinitions
 {
     /// <summary>
     /// The random field a patrolling Cacatac's attack roll starts from. The roll adds the enemy's update count, so the

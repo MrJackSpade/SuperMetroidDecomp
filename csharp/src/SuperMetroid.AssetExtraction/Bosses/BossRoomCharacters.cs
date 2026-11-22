@@ -10,5 +10,5 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Loaded">The artwork the room's load and library background bind, with its bytes.</param>
 /// <param name="Rebound">What the room binds over its tile characters after loading.</param>
 /// <param name="Animated">The frames the room's animations paint over its tile characters.</param>
-internal sealed record BossRoomCharacters(TilesetDefinition Tileset, BgArtworkBindings Content, IReadOnlyList<BgCharacterUpload> Loaded,
+internal sealed partial record BossRoomCharacters(TilesetDefinition Tileset, BgArtworkBindings Content, IReadOnlyList<BgCharacterUpload> Loaded,
     IReadOnlyList<BgCharacterUpload> Rebound, IReadOnlyList<AnimatedCharacterPlacement> Animated);

@@ -18,7 +18,7 @@
 /// counter on every update of a door transition.
 /// </remarks>
 [CompatibilityService("the two frame counters, which return to zero at the ends of their periods, count the frames a door's music load takes and are restarted by a door's scroll")]
-internal sealed class FrameClock
+internal sealed partial class FrameClock
 {
     /// <summary>How many frames <see cref="Counter"/> counts before it returns to zero.</summary>
     internal const int CounterPeriod = 65536;
@@ -67,7 +67,7 @@ internal sealed class FrameClock
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or an
     /// imported snapshot. The game has one pair of counters; creating a runtime never resets them.
     /// </summary>
-    private void Import(int shortCounter, int counter)
+    internal void Import(int shortCounter, int counter)
     {
         ShortCounter = new ShortFrameCount(shortCounter);
         Counter = Ensure.BetweenInclusive(0, CounterPeriod - 1, counter);

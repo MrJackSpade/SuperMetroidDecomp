@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge keeps the grapple's endpoint and rope characters (#1411).</summary>
 [EncodingOwner("cartridge addresses and strides of the grapple characters")]
-internal static class GrappleTileSourceDefinitions
+internal static partial class GrappleTileSourceDefinitions
 {
     /// <summary>$9A:8200, Tiles_GrappleBeam_Horizontal_Beam, the first endpoint character.</summary>
     internal static readonly SnesAddress FirstPointSource = new(0x9a, 0x8200);

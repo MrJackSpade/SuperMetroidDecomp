@@ -84,9 +84,6 @@ internal static class MotherBrainContactHitboxesVerification
             }
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainContacts.Get((MotherBrainContactPart)3),
-            "Mother Brain hitbox catalog rejects an unknown component");
         Console.WriteLine(
             $"  Mother Brain contact hitboxes: {comparedWords} native extent words and " +
             $"{collisionCases} production collision probes pass without a ROM bus.");

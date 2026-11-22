@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// way at its own speed and hands it one fewer, and one with none left spawns none.
 /// </summary>
 /// <param name="remaining">The afterburns the chain spawns after this one, zero or more.</param>
-internal sealed class RidleyAfterburnChainState(int remaining) : EnemyProjectileState
+internal sealed partial class RidleyAfterburnChainState(int remaining) : EnemyProjectileState
 {
     /// <summary>The afterburns the chain spawns after this one, zero or more.</summary>
     internal int Remaining

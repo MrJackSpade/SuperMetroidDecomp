@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable mapping from timed projectile records to presentation-only compositions, leaving animation mechanics unchanged.</summary>
-public sealed record ProjectileFrameBindingDocument
+public sealed partial record ProjectileFrameBindingDocument
 {
     /// <summary>Schema revision; loading requires <see cref="ProjectileFrameBindingFormat.Version"/>.</summary>
     public required int Version { get; init; }

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">The piece of the tube it is.</param>
 /// <param name="encounter">The encounter the tube joins.</param>
-internal sealed class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     MotherBrainTubeSpawnSettings settings, MotherBrainEnemyState encounter)
     : MotherBrainEntity(species, occupant, place, common)
 {

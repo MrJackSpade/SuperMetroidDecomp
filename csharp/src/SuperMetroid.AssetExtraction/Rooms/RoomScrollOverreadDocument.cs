@@ -8,6 +8,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Version">The schema revision, <see cref="RoomScrollOverreadFormat.Version"/>.</param>
 /// <param name="CellsPastScreens">Each explicit layout's cells past the room's screens, in order, by the layout's name.</param>
-internal sealed record RoomScrollOverreadDocument(
+internal sealed partial record RoomScrollOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, IReadOnlyList<RoomScrollState>> CellsPastScreens);

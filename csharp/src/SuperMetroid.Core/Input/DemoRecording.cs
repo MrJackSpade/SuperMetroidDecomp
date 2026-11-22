@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>A demo's recorded input (#1300, #1600): its inputs in the order they play, and how it ends.</summary>
-public sealed record DemoRecording
+public sealed partial record DemoRecording
 {
     /// <summary>Creates a recording; every input lasts at least one update, and a loop must name one of its inputs.</summary>
     /// <exception cref="ArgumentException">An input lasts no update, or the loop names no input of the recording.</exception>

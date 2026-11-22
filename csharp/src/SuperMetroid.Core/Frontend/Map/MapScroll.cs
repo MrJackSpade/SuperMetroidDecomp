@@ -13,13 +13,13 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// within a few hundred pixels of the area map (the framing starts there and a step is taken only while an arrow
 /// allows it), so the offset never wraps and the arrows' tests compare plain differences.
 /// </remarks>
-public sealed class MapScroll
+public sealed partial class MapScroll
 {
     /// <summary>The scroll at <paramref name="scroll"/> on a screen framed by <paramref name="framing"/>.</summary>
     /// <param name="framing">How the screen frames the map.</param>
     /// <param name="limits">How far the map's revealed cells reach.</param>
     /// <param name="scroll">The screen's top-left corner as an offset from the map's corner.</param>
-    private MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
+    internal MapScroll(MapFraming framing, MapScrollLimits limits, Offset16<MapPixels> scroll)
     {
         Framing = Ensure.NotNull(framing);
         Limits = limits;
@@ -36,7 +36,7 @@ public sealed class MapScroll
     public Offset16<MapPixels> Scroll { get; internal set; }
 
     /// <summary>The accepted scroll step under way, or null while none is.</summary>
-    private MapScrollStep? StepUnderWay { get; set; }
+    internal MapScrollStep? StepUnderWay { get; set; }
 
     /// <summary>
     /// The scroll a screen opens on: the revealed reach centred on the screen, the centring offset rounded down to whole
@@ -67,6 +67,7 @@ public sealed class MapScroll
     }
 
     /// <summary>Whether the map can scroll one step toward each direction.</summary>
+    [field: NonSerialized]
     private IdentityTable<MapScrollDirection, Func<bool>> ScrollsToward => field ??= new(new Dictionary<MapScrollDirection, Func<bool>>
     {
         [MapScrollDirection.Left] = () => Limits.Left - Scroll.X < Framing.LeftEdge,

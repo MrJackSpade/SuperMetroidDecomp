@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain finishing Samus off: standing up, admiring, and charging and firing the final beam until the Baby Metroid arrives.</summary>
-internal sealed class MotherBrainFinishSamusOffPhases
+internal sealed partial class MotherBrainFinishSamusOffPhases
 {
     /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
@@ -23,7 +23,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// <see cref="MotherBrainFinishOffDefinitions.StandUpOnionRingHits"/> onion ring hits as Samus's suits divide them,
     /// plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
     /// </summary>
-    private static int StandUpToFinishOffEnergy(SamusEquipmentFlags equippedItems) =>
+    internal static int StandUpToFinishOffEnergy(SamusEquipmentFlags equippedItems) =>
         SamusSuitDamage.Reduce(MotherBrainAttackDamage.OnionRing, equippedItems) * MotherBrainFinishOffDefinitions.StandUpOnionRingHits
         + MotherBrainFinishOffDefinitions.EnergyMargin;
 
@@ -31,7 +31,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// The energy at or below which Mother Brain keeps to onion rings rather than choosing her bomb: one bomb hit as
     /// Samus's suits divide it, plus <see cref="MotherBrainFinishOffDefinitions.EnergyMargin"/>.
     /// </summary>
-    private static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
+    internal static int OnionRingsOnlyEnergy(SamusEquipmentFlags equippedItems) =>
         SamusSuitDamage.Reduce(MotherBrainAttackDamage.Bomb, equippedItems) + MotherBrainFinishOffDefinitions.EnergyMargin;
 
     /// <summary>

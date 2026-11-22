@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>
-internal static class TitlePaletteExtractor
+internal static partial class TitlePaletteExtractor
 {
     /// <summary>Exports the full title CGRAM image, both ambient palette-FX timelines, and copyright skip colors to the versioned presentation catalog.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)

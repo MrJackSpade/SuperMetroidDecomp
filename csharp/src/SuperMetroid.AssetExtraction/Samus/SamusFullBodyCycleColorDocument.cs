@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The import's Samus full-body cycle colour rows (#1637), import data only the import pre-colours her shades from.</summary>
-public sealed record SamusFullBodyCycleColorDocument
+public sealed partial record SamusFullBodyCycleColorDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

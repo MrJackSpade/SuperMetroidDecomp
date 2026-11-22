@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Per-part initialization policy for Kraid's post-growth lint attacks.</summary>
-internal static class KraidLintInitializationDefinitions
+internal static partial class KraidLintInitializationDefinitions
 {
     /// <summary>
     /// The updates of the lints' first phase waits once Kraid grows, the top's, the middle's and the bottom's: each lint is

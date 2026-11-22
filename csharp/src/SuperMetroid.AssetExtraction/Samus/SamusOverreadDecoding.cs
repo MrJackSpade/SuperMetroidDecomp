@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// original game does, over the cartridge, for every game situation that can reach it, and keeps only the result, keyed
 /// by that situation.
 /// </summary>
-internal static class SamusOverreadDecoding
+internal static partial class SamusOverreadDecoding
 {
     /// <summary>
     /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
@@ -74,7 +74,7 @@ internal static class SamusOverreadDecoding
     /// Every segment a SpaceTime shot can animate by: the segments its header selects in every aim direction, and every
     /// segment their animations play.
     /// </summary>
-    private static SamusProjectileSegment[] SpaceTimeShotPrograms()
+    internal static SamusProjectileSegment[] SpaceTimeShotPrograms()
     {
         var programs = new HashSet<SamusProjectileSegment>();
         var pending = new Queue<SamusProjectileSegment>();

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>What each of Samus's weapon families sets off at the blocks only some weapons break (#1554, #1742, #2559).</summary>
-internal static class WeaponBlockReactionDefinitions
+internal static partial class WeaponBlockReactionDefinitions
 {
     /// <summary>
     /// The bomb-block breaks each bomb family sets off, by the block's reaction: a normal bomb sets off the break directly,

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="X">The encoded X offset and size selector.</param>
 /// <param name="Y">The encoded signed Y offset.</param>
 /// <param name="Attributes">The tile number and sprite attributes.</param>
-public readonly record struct SpritemapPart(SnesSpritemapXWord X, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
+public readonly partial record struct SpritemapPart(SnesSpritemapXWord X, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
 {
     /// <summary>The piece the record describes: its signed offsets, size, character, palette row, depth and mirroring.</summary>
     public SpritePart ToPart() =>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// shows nothing. A dissolve that erases an illustration step by step hides its pixels here, so the illustration is stored
 /// once and shown at every step.
 /// </summary>
-public sealed class HiddenPicturePixels
+public sealed partial class HiddenPicturePixels
 {
     /// <summary>Whether each pixel shows nothing, in reading order.</summary>
     private readonly ImmutableArray<bool> hidden;

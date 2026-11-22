@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Draws both Ridleys' tail and wings before the common enemy drawing draws his body (#2229).</summary>
 [RoomLifetime]
-internal sealed class RidleyDrawing
+internal sealed partial class RidleyDrawing
 {
     /// <summary>Publishes his drawn parts' frames.</summary>
     private readonly EnemyPresentation _presentation;
@@ -40,7 +40,7 @@ internal sealed class RidleyDrawing
     /// <param name="sprites">The frame's sprites.</param>
     /// <param name="ridley">Ridley's encounter.</param>
     /// <param name="camera">The camera.</param>
-    private void DrawTail(SpriteFrameBuffer sprites, RidleyEncounterState ridley, Position16<RoomPixels> camera)
+    internal void DrawTail(SpriteFrameBuffer sprites, RidleyEncounterState ridley, Position16<RoomPixels> camera)
     {
         RidleyTailLink tip = ridley.Tail.Tip;
         // The tip's pose follows the direction it points in, turned by the link before it.
@@ -58,7 +58,7 @@ internal sealed class RidleyDrawing
     /// <param name="place">Ridley's body.</param>
     /// <param name="ridley">Ridley's encounter.</param>
     /// <param name="camera">The camera.</param>
-    private void DrawWings(SpriteFrameBuffer sprites, RoomEnemyPlace place, RidleyEncounterState ridley, Position16<RoomPixels> camera)
+    internal void DrawWings(SpriteFrameBuffer sprites, RoomEnemyPlace place, RidleyEncounterState ridley, Position16<RoomPixels> camera)
     {
         RidleyFacing facing = ridley.Flight.FacingDirection;
         if (facing == RidleyFacing.Turning)

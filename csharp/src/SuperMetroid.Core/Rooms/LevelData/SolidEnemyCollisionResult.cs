@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The outcome of one solid-enemy collision probe (#2560): a closed choice of a collision with the enemy met and the
 /// whole-pixel gap to it, or no collision with the requested whole distance. No fraction of a pixel is returned.
 /// </summary>
-public abstract record SolidEnemyCollisionResult
+public abstract partial record SolidEnemyCollisionResult
 {
     /// <summary>Closes the hierarchy to the outcomes declared here.</summary>
     private SolidEnemyCollisionResult()
@@ -30,7 +30,7 @@ public abstract record SolidEnemyCollisionResult
     /// </summary>
     /// <param name="Met">The enemy met.</param>
     /// <param name="Gap">The whole-pixel gap, zero or more, between Samus's edge and the body's.</param>
-    public sealed record Collision(ISolidEnemy Met, int Gap) : SolidEnemyCollisionResult
+    public sealed partial record Collision(ISolidEnemy Met, int Gap) : SolidEnemyCollisionResult
     {
         /// <inheritdoc/>
         public override int Distance => Gap;
@@ -44,7 +44,7 @@ public abstract record SolidEnemyCollisionResult
 
     /// <summary>No qualifying body stops the move.</summary>
     /// <param name="RequestedDistance">The requested distance's whole pixels.</param>
-    public sealed record NoCollision(int RequestedDistance) : SolidEnemyCollisionResult
+    public sealed partial record NoCollision(int RequestedDistance) : SolidEnemyCollisionResult
     {
         /// <inheritdoc/>
         public override int Distance => RequestedDistance;

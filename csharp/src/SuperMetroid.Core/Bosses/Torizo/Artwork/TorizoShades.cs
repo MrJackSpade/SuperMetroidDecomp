@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// load, each settled colouring of a Torizo's body and belly, and the glowing belly colours in each colouring a fade runs
 /// toward; a fade between them is a typed fade.
 /// </summary>
-public static class TorizoShades
+public static partial class TorizoShades
 {
     /// <summary>The orb, flame and statue-shading colours both Torizos load.</summary>
     public static PictureShade Shared { get; } = new("torizo-shared", 0);

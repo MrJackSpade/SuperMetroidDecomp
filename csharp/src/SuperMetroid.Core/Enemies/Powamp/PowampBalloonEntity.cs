@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the balloon occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloonSpawnSettings settings)
+internal sealed partial class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBalloonSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
@@ -19,11 +19,23 @@ internal sealed class PowampBalloonEntity(PowampBehavior species, RoomEnemyOccup
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal PowampBalloonState State { get; } = PowampBehavior.InitializePowampBalloon(place, settings);
 
-    /// <summary>The balloon's own shot reaction, built for this occupant with its state.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.PowampBalloonShotReaction(State);
+    /// <summary>The balloon's own shot reaction, built once for this balloon.</summary>
+    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBalloonShotReaction(this);
 
-    /// <summary>The balloon's own bomb reaction, built for this occupant with its state.</summary>
-    private EnemyBombReaction OwnBomb => field ??= species.PowampBalloonBombReaction(State);
+    /// <summary>The balloon's own bomb reaction, built once for this balloon.</summary>
+    private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBalloonBombReaction(this);
+
+    /// <summary>Whether the balloon refuses shots: it refuses contact (#2474), as a grappled balloon does.</summary>
+    /// <param name="balloon">The place the balloon occupies.</param>
+    internal bool RefusesContact(RoomEnemyPlace balloon) => State.Contact == PowampContact.Refuses;
+
+    /// <summary>Carries a shot on from the balloon to the enemy the room lists before it, after the common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void CarryShotOnBefore(EnemyShotHitContext context) => species.ResolvePowampBalloonShotAfterCommon(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Carries a bomb on from the balloon to the enemy the room lists before it, after the common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void CarryShotOnBefore(EnemyBombHitContext context) => species.ResolvePowampBalloonShotAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBalloonTypedAnimation(Place, State);

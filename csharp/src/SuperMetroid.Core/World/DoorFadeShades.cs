@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 /// highlighted item's colours lit as the room fades, and between two common rooms the HUD's item and minimap backgrounds
 /// too; which colours those are is the import's.
 /// </summary>
-public static class DoorFadeShades
+public static partial class DoorFadeShades
 {
     /// <summary>The HUD once a door's room has faded out: every colour the door fades black.</summary>
     public static PictureShade HudDark { get; } = new("door-hud-dark", 0);

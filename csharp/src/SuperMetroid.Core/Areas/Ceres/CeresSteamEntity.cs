@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="common">The shared participation.</param>
 /// <param name="motions">The motions the room gives its vents, which give this vent the one its variant names.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
+internal sealed partial class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

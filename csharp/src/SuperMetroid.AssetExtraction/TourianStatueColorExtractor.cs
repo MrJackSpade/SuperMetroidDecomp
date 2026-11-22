@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts only the authored palette images, not statue unlock conditions or animation programs.</summary>
-public static class TourianStatueColorExtractor
+public static partial class TourianStatueColorExtractor
 {
     /// <summary>Exports Tourian entrance base/statue palettes, the four boss-specific eye-glow rows, and the grey-transition target band.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for base $AA:D785, statue $AA:D765, eyes $86:B91E, and grey colors $87:839C.</param>

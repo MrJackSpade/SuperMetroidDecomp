@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Names and versions the editable map-station layout asset.</summary>
-public static class MapStationLayoutFormat
+public static partial class MapStationLayoutFormat
 {
     /// <summary>The supported map-station layout schema version.</summary>
     public const int Version = 1;

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The room characters, block table and palette a tileset's pictures are composed from (#1466, #1616), which only the
 /// import knows.
 /// </summary>
-internal static class RoomTilesetSets
+internal static partial class RoomTilesetSets
 {
     /// <summary>A tileset's character sheet, block table and palette.</summary>
     extension(TilesetDefinition tileset)

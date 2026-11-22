@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>One bounded authored channel/subroutine program.</summary>
-public sealed record AudioMusicProgramMetadata(
+public sealed partial record AudioMusicProgramMetadata(
     string Id,
     int Address,
     int ByteCapacity,

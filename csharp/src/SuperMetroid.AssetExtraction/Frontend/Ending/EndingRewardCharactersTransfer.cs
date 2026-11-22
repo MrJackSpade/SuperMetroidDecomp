@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// three hours, else the waiting scene's own characters (function 126).
 /// </summary>
 /// <param name="Reward">The reward shown.</param>
-internal sealed record EndingRewardCharactersTransfer(EndingReward Reward) : EndingTransfer;
+internal sealed partial record EndingRewardCharactersTransfer(EndingReward Reward) : EndingTransfer;

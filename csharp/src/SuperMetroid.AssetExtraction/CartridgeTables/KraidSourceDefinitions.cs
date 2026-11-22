@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed colour documents and background artwork.
 /// </summary>
 [EncodingOwner("cartridge addresses of Kraid's colour and background tables")]
-internal static class KraidSourceDefinitions
+internal static partial class KraidSourceDefinitions
 {
     /// <summary>$A7:AAA6, Kraid initialization's sprite palette three: the sixteen initial rock target colours.</summary>
     internal const int InitialTargetColors = 0xa7aaa6;

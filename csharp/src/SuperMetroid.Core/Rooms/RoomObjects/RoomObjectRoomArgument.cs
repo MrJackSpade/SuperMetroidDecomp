@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// or a door, a grey door's unlock condition, a station, a Metroid room's entry or a gate trigger. A room object placed without an
 /// argument, or with a scroll change or cannon control its placement carries instead, holds none.
 /// </summary>
-public abstract record RoomObjectRoomArgument;
+public abstract partial record RoomObjectRoomArgument;

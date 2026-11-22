@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// </summary>
 /// <param name="SizeInBytes">The bytes the row uploads.</param>
 /// <param name="DestinationWord">The descriptor's destination word.</param>
-internal readonly record struct CorpseRowUpload(int SizeInBytes, int DestinationWord)
+internal readonly partial record struct CorpseRowUpload(int SizeInBytes, int DestinationWord)
 {
     /// <summary>The OBJ character table byte the row lands at.</summary>
     internal int FirstTableByte => (DestinationWord - CorpseSheetDefinitions.ObjCharacterTableWord) * sizeof(ushort);

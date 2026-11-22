@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// movies replay those passes and exits on every update.
 /// </remarks>
 [CompatibilityService("an actor placed or moved above or left of the room stands at a place counted back from the far end of the room's coordinates, which its off-room tests read as lying before the room")]
-public static class OffRoomPlaces
+public static partial class OffRoomPlaces
 {
     /// <summary>
     /// The place an actor stands at when it is placed at <paramref name="coordinate"/>, which may lie above or left of the

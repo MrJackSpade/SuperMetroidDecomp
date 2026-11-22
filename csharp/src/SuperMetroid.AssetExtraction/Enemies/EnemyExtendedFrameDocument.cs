@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The extended enemy frames' compositions as the cartridge packs them, import data only the import composes the enemy
 /// sheets' pictures from (#1638).
 /// </summary>
-public sealed record EnemyExtendedFrameDocument
+public sealed partial record EnemyExtendedFrameDocument
 {
     /// <summary>Gets the extended-frame schema revision.</summary>
     public required int Version { get; init; }

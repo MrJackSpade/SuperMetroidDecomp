@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Kraid colour document.</summary>
-public static class KraidColorFile
+public static partial class KraidColorFile
 {
     /// <summary>Validates all five Kraid RGB5 sources and keeps them as installed, leaving health-band selection and fade timing to the boss mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open; property names are matched case-insensitively.</param>
@@ -37,7 +37,7 @@ public static class KraidColorFile
     /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
     /// <returns>JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
     public static byte[] Write(KraidColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.KraidColorDocument>(JsonOptions));
 
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)

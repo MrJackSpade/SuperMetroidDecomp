@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// The state of one Dragon body. The body's motion timer and its shot counter are separate countdowns here, since
 /// every phase starts its own before reading it.
 /// </summary>
-public sealed class DragonEnemyState : DragonPartState
+public sealed partial class DragonEnemyState : DragonPartState
 {
     /// <summary>Starts the body in <paramref name="action"/>.</summary>
     internal DragonEnemyState(DragonAction action, RoomEnemyPlace wing, DragonWingState wingState)

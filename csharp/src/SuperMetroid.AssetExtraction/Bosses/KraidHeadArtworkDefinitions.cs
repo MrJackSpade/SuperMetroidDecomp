@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// never reads.
 /// </summary>
 [EncodingOwner("cartridge addresses of Kraid's head tilemaps")]
-internal static class KraidHeadArtworkDefinitions
+internal static partial class KraidHeadArtworkDefinitions
 {
     /// <summary>Where each head tilemap is stored, by the head pose it shows.</summary>
     private static readonly Dictionary<KraidHeadFrame, SnesAddress> ByHead = new()

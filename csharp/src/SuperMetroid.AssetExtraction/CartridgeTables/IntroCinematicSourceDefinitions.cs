@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed opening documents.
 /// </summary>
 [EncodingOwner("cartridge addresses of the opening cinematic's artwork")]
-internal static class IntroCinematicSourceDefinitions
+internal static partial class IntroCinematicSourceDefinitions
 {
     /// <summary>Bank $8C, which holds the cinematic spritemaps their bank-relative pointers name.</summary>
     internal const byte SpritemapBank = 0x8c;

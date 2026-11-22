@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The forms room objects' block shapes share (#1862): one block at the object's block, a line of blocks along its row or
 /// down its column, a filled rectangle, and a parent block with the blocks linked to it.
 /// </summary>
-internal static class RoomBlockShapes
+internal static partial class RoomBlockShapes
 {
     /// <summary>The one-block shape of each collision kind, made once.</summary>
     private static readonly Dictionary<RoomCollisionType, RoomBlockShape> Blocks = Enum.GetValues<RoomCollisionType>()

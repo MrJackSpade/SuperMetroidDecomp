@@ -8,23 +8,57 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RinkaSpawnSettings settings)
+internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RinkaSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal RinkaSpawnSettings Settings { get; } = settings;
 
     /// <summary>Rinka's own shot reaction, built for this occupant.</summary>
+<<<<<<< HEAD
     private EnemyShotReaction OwnShot => field ??= species.RinkaShotReaction(Occupant, Settings, state);
+||||||| 418ca79935
+    private readonly EnemyShotReaction ownShot = species.RinkaShotReaction(occupant);
+=======
+    private EnemyShotReaction OwnShot => field ??= RinkaBehavior.RinkaShotReaction(this);
+>>>>>>> origin/main
 
     /// <summary>Rinka's own stages around common bomb damage, built for this occupant.</summary>
+<<<<<<< HEAD
     private EnemyBombReaction OwnBomb => field ??= species.RinkaBombReaction(Occupant, Settings, state);
+||||||| 418ca79935
+    private readonly EnemyBombReaction ownBomb = species.RinkaBombReaction(occupant);
+=======
+    private EnemyBombReaction OwnBomb => field ??= RinkaBehavior.RinkaBombReaction(this);
+>>>>>>> origin/main
 
     /// <summary>Rinka's own Power Bomb reaction, built for this occupant.</summary>
+<<<<<<< HEAD
     private EnemyPowerBombReaction OwnPowerBomb => field ??= species.RinkaPowerBombReaction(Occupant, Settings, state);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly RinkaEnemyState state = species.InitializeRinka(settings, place);
+||||||| 418ca79935
+    private readonly EnemyPowerBombReaction ownPowerBomb = species.RinkaPowerBombReaction(occupant);
+=======
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= RinkaBehavior.RinkaPowerBombReaction(this);
+
+    /// <summary>Runs Rinka's own death after a bomb's common damage leaves this Rinka without health.</summary>
+    internal void ResolveCombatAfterCommon(EnemyBombHitContext context) => species.ResolveRinkaCombatAfterCommon(Occupant, Ensure.NotNull(context).Enemy);
+
+    /// <summary>Runs Rinka's own death after a Power Bomb's common damage leaves this Rinka without health.</summary>
+    internal void ResolveCombatAfterCommon(EnemyPowerBombContext context) => species.ResolveRinkaCombatAfterCommon(Occupant, context.Enemy);
+
+    /// <summary>
+    /// Runs Rinka's own death after a shot's common damage leaves this Rinka without health; a shot that froze it at once
+    /// skips it.
+    /// </summary>
+    internal void ResolveCombatAfterCommon(EnemyShotHitContext context)
+    {
+        if (!Ensure.NotNull(context).Froze)
+            species.ResolveRinkaCombatAfterCommon(Occupant, context.Enemy);
+    }
+>>>>>>> origin/main
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Settings, Place, state, frame);

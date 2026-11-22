@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// The state of one Choot. Every value it reads it has set itself: setup sets the spawn and falling positions and the
 /// ascent's starting place, activation the jump delay and the apex the falling origin.
 /// </summary>
-public sealed class ChootEnemyState
+public sealed partial class ChootEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal ChootEnemyState(ChootAction action) => Action = action;

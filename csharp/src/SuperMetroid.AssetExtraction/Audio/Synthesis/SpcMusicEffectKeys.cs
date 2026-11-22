@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The installed key of each <see cref="SpcMusicEffect"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SpcMusicEffectKeys
+internal static partial class SpcMusicEffectKeys
 {
     /// <summary>Each SpcMusicEffect member's installed key.</summary>
     internal static InstalledKeys<SpcMusicEffect> Installed { get; } = new(new Dictionary<SpcMusicEffect, string>

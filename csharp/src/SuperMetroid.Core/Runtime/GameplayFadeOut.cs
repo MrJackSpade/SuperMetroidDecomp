@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// which every picture, the HUD's among them, and every shaded sprite draw shows after its own shading. Beginning a fade
 /// hands back the running fade (#2554), which the step that runs it holds and steps; the display shows it until it ends.
 /// </summary>
-internal sealed class GameplayFadeOut : IGameplayShadingSource
+internal sealed partial class GameplayFadeOut : IGameplayShadingSource
 {
     /// <summary>The runtime's shared fade step count, which every fade this owner runs reads and advances.</summary>
     private readonly SharedFadeStepCount counter;

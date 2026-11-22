@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Crateria room state, named for their rooms.</summary>
-public static class CrateriaRoomStateDefinitions
+public static partial class CrateriaRoomStateDefinitions
 {
     /// <summary>The Landing Site room's default state.</summary>
     public static RoomStateSettings LandingSiteDefault { get; } =

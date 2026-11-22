@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// scene shows one of the cast's phases (#2571), and each cast phase the ending enters shows a scene of its own.
 /// </summary>
 /// <param name="phase">The cast's phase the scene shows.</param>
-internal sealed class EndingCastScene(EndingCastPhase phase) : EndingActorScene
+internal sealed partial class EndingCastScene(EndingCastPhase phase) : EndingActorScene
 {
     /// <summary>The cast's phase the scene shows.</summary>
     internal EndingCastPhase CastPhase { get; } = Ensure.NotNull(phase);

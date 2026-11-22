@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<see cref="StraddledTerrain{TTerrain}.Straddling"/>); otherwise it reads the block itself.
 /// </param>
 [CompatibilityService("where a Wave shot's scan past the room's ceiling reads: a block, or the terrain straddling it and the next")]
-public readonly record struct WaveScanRead(int Block, bool StraddlesNext)
+public readonly partial record struct WaveScanRead(int Block, bool StraddlesNext)
 {
     /// <summary>The halves of a block the scan counts its place in.</summary>
     private const int HalvesPerBlock = 2;

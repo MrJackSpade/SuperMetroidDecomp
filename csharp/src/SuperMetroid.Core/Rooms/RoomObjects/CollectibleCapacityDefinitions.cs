@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>How much each ammunition tank Samus collects adds to her capacity and to what she carries; an energy or reserve tank adds <see cref="Progression.SamusEnergyDefinitions.EnergyPerTank"/>.</summary>
-internal static class CollectibleCapacityDefinitions
+internal static partial class CollectibleCapacityDefinitions
 {
     /// <summary>The missiles a missile tank adds to Samus's maximum and to the missiles she carries.</summary>
     internal const int MissileTankMissiles = 5;

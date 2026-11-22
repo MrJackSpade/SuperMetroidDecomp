@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The sounds Phantoon's animation cues play.</summary>
-internal static class PhantoonSoundDefinitions
+internal static partial class PhantoonSoundDefinitions
 {
     /// <summary>Fight-intro starting-flame spawn: room-library blue-flame sound.</summary>
     internal static SoundEffectId StartingFlame => RoomSound.PhantoonFlame;

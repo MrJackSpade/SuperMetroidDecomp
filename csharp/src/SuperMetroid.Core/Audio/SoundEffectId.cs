@@ -62,7 +62,7 @@ public abstract record SoundEffectId
 
     /// <summary>A sound of the enemies' library.</summary>
     /// <param name="Sound">The enemies' sound.</param>
-    public sealed record OfEnemies(EnemySound Sound) : SoundEffectId
+    public sealed partial record OfEnemies(EnemySound Sound) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
@@ -74,7 +74,7 @@ public abstract record SoundEffectId
 
     /// <summary>A sound of the room's library.</summary>
     /// <param name="Sound">The room's sound.</param>
-    public sealed record OfRoom(RoomSound Sound) : SoundEffectId
+    public sealed partial record OfRoom(RoomSound Sound) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Room;
@@ -86,7 +86,7 @@ public abstract record SoundEffectId
 
     /// <summary>A stop of Samus's library.</summary>
     /// <param name="Stop">Samus's stop.</param>
-    public sealed record OfSamusStop(SamusSoundStop Stop) : SoundEffectId
+    public sealed partial record OfSamusStop(SamusSoundStop Stop) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
@@ -98,7 +98,7 @@ public abstract record SoundEffectId
 
     /// <summary>A stop of the enemies' library.</summary>
     /// <param name="Stop">The enemies' stop.</param>
-    public sealed record OfEnemiesStop(EnemySoundStop Stop) : SoundEffectId
+    public sealed partial record OfEnemiesStop(EnemySoundStop Stop) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
@@ -110,7 +110,7 @@ public abstract record SoundEffectId
 
     /// <summary>A stop of the room's library.</summary>
     /// <param name="Stop">The room's stop.</param>
-    public sealed record OfRoomStop(RoomSoundStop Stop) : SoundEffectId
+    public sealed partial record OfRoomStop(RoomSoundStop Stop) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Room;

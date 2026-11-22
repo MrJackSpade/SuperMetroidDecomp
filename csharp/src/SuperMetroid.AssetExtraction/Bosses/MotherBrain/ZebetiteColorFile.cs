@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Zebetite colour document.</summary>
-public static class ZebetiteColorFile
+public static partial class ZebetiteColorFile
 {
     /// <summary>Asset filename for the editable Zebetite barrier pulse colors.</summary>
     public const string FileName = "zebetite-colors.json";
@@ -37,7 +37,7 @@ public static class ZebetiteColorFile
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ZebetiteColorDocument>(Options)
+            document = parsed.RootElement.Deserialize<ZebetiteColorDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorDocument>(Options))
                 ?? throw new InvalidDataException("Zebetite colors are null.");
         }
         catch (JsonException error)
@@ -70,7 +70,7 @@ public static class ZebetiteColorFile
     /// <param name="document">Document containing the supported version and all eight two-color RGB5 rows.</param>
     /// <returns>JSON bytes suitable for the barrier-color asset file.</returns>
     public static byte[] Write(ZebetiteColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.ZebetiteColorDocument>(Options));
 
     /// <summary>Rejects repeated property names before deserialization can overwrite an earlier value.</summary>
     private static void RejectDuplicates(JsonElement value) =>

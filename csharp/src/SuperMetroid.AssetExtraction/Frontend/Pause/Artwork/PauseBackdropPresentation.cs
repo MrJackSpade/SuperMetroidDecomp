@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Complete authored pause backdrops, including area lettering, kept as installed (#1615): every area's 1024 cells and
 /// the button page's 512 cells.
 /// </summary>
-public sealed class PauseBackdropPresentation
+public sealed partial class PauseBackdropPresentation
 {
     /// <summary>Every area's installed backdrop.</summary>
     private readonly IReadOnlyDictionary<AreaId, BackgroundTile[]> areas;
@@ -62,7 +62,7 @@ public sealed class PauseBackdropPresentation
     /// Builds the presentation from compiled tilemaps (one 1024-cell page per area, plus the 512-cell button page), keeping
     /// every tile.
     /// </summary>
-    private static PauseBackdropPresentation FromTilemaps(Dictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
+    internal static PauseBackdropPresentation FromTilemaps(Dictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
     {
         Ensure.NotNull(areaTilemaps);
         Ensure.NotNull(buttonTilemap);
@@ -86,7 +86,7 @@ public sealed class PauseBackdropPresentation
     /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseBackdropDocument>(ArtworkJson.Options));
         output.Write(json);
     }
 }

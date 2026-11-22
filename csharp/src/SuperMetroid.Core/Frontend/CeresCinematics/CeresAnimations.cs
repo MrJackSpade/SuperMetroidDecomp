@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Zebes reveal, whose only cues are the PLANET ZEBES title's; and the invisible explosion spawner's, whose cues spawn the
 /// station's blasts (#2489).
 /// </summary>
-internal static class CeresAnimations
+internal static partial class CeresAnimations
 {
     /// <summary>The flight's, the destruction's and the Zebes reveal's actors.</summary>
     internal static CinematicAnimations<CeresAnimation, CinematicSpritePose, CeresCue> Scenes { get; } = new(

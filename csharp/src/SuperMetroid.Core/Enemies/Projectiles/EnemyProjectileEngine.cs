@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </para>
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyProjectileEngine
+internal sealed partial class EnemyProjectileEngine
 {
     /// <summary>What <see cref="ApplyCommonCue"/> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<EnemyProjectileCommonCueKind, Action<EnemyProjectile>> ApplyCommonCueForEnemyProjectileCommonCueKind => field ??= new(new Dictionary<EnemyProjectileCommonCueKind, Action<EnemyProjectile>>
@@ -50,7 +50,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The projectile the cases read.</param>
     /// <param name="Owner">The <see cref="EnemyProjectileEngine"/> reacting.</param>
-    private readonly record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
+    private readonly partial record struct ApplyCommonCueContext(EnemyProjectile Projectile, EnemyProjectileEngine Owner);
 
     /// <summary>Supplies room RNG and artwork for projectile effects.</summary>
     private readonly EnemyRoomBinding _room;
@@ -82,10 +82,10 @@ internal sealed class EnemyProjectileEngine
     /// Each place's latest projectile of this room, live or gone, or null while the room has spawned none into it: the place
     /// is free while it holds none, or its projectile is gone or has freed it.
     /// </summary>
-    private readonly EnemyProjectile?[] _places = new EnemyProjectile?[EnemyProjectilePlaces.Capacity];
+    internal EnemyProjectile?[] ProjectilesInPlaces { get; } = new EnemyProjectile?[EnemyProjectilePlaces.Capacity];
 
     /// <summary>What each new projectile starts from: what its place's previous projectile left there, in this room or the room before.</summary>
-    private readonly EnemyProjectilePlaceLeftovers _leftovers = new(EnemyProjectilePlaces.Capacity);
+    internal EnemyProjectilePlaceLeftovers Leftovers { get; } = new(EnemyProjectilePlaces.Capacity);
 
     /// <summary>
     /// The place the pre-Phantoon room's setup holds, while it holds it (#1851, #2556); none while the room holds no place.
@@ -97,13 +97,13 @@ internal sealed class EnemyProjectileEngine
     /// <summary>A place the room holds and the hold that counts it.</summary>
     /// <param name="Place">The zero-based enemy-projectile place.</param>
     /// <param name="Hold">The hold, which frees the place on the update after it runs out.</param>
-    private sealed record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
+    private sealed partial record HeldPlace(int Place, PrePhantoonRoomHeldProjectilePlace Hold);
 
     /// <summary>Whether <paramref name="place"/> is free for a spawn: no live projectile and no hold of the room's holds it.</summary>
-    private bool IsFree(int place) => _places[place] is not { IsActive: true } && _heldPlace?.Place != place;
+    internal bool IsFree(int place) => ProjectilesInPlaces[place] is not { IsActive: true } && _heldPlace?.Place != place;
 
     /// <summary>The projectiles holding their places, in place order: the pool's occupants (#2558).</summary>
-    public IEnumerable<EnemyProjectile> EnemyProjectiles => _places.OfType<EnemyProjectile>().Where(projectile => projectile.IsActive);
+    public IEnumerable<EnemyProjectile> EnemyProjectiles => ProjectilesInPlaces.OfType<EnemyProjectile>().Where(projectile => projectile.IsActive);
 
     /// <summary>How many places neither a live projectile nor the room's hold holds: the free places a spawn can take.</summary>
     public int FreePlaceCount => Enumerable.Range(0, EnemyProjectilePlaces.Capacity).Count(IsFree);
@@ -112,7 +112,7 @@ internal sealed class EnemyProjectileEngine
     /// The latest projectile of the place spawns search last, live or gone, or null while the room has spawned none into it:
     /// the one a falling statue piece's acceleration reads (<see cref="FirstPlaceFallAcceleration"/>, #2556).
     /// </summary>
-    internal EnemyProjectile? LatestInFirstPlace => _places[0];
+    internal EnemyProjectile? LatestInFirstPlace => ProjectilesInPlaces[0];
 
     /// <summary>
     /// Starts each place from what the room this one replaces left in it (<see cref="EnemyProjectilePlaceLeftovers"/>), which
@@ -120,14 +120,14 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void TakeOverFrom(RoomHandOver handOver)
     {
-        Array.Clear(_places);
+        Array.Clear(ProjectilesInPlaces);
         _heldPlace = null;
-        _leftovers.TakeOverFrom(handOver);
+        Leftovers.TakeOverFrom(handOver);
     }
 
     /// <summary>Leaves what each place's latest projectile left there for the room that replaces this one (<see cref="EnemyProjectilePlaceLeftovers"/>).</summary>
     internal void HandOverTo(RoomHandOver handOver) =>
-        _leftovers.HandOverTo(handOver, [.. _places.Select(projectile => projectile?.LeftInPlace)]);
+        Leftovers.HandOverTo(handOver, [.. ProjectilesInPlaces.Select(projectile => projectile?.LeftInPlace)]);
 
     /// <summary>
     /// Queues the dud sound a rejected Samus shot makes, at <paramref name="priority"/>: a protected body part's dud competes at
@@ -150,7 +150,7 @@ internal sealed class EnemyProjectileEngine
 
         foreach (int enemyProjectileIndex in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
+            if (ProjectilesInPlaces[enemyProjectileIndex] is not { IsActive: true } enemyProjectile ||
                 !enemyProjectile.BlocksSamusProjectiles ||
                 enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
@@ -224,7 +224,7 @@ internal sealed class EnemyProjectileEngine
                     _heldPlace = null;
                 continue;
             }
-            if (_places[place] is not { IsActive: true } projectile)
+            if (ProjectilesInPlaces[place] is not { IsActive: true } projectile)
                 continue;
 
             projectile.Behavior.RunMotion(
@@ -234,7 +234,7 @@ internal sealed class EnemyProjectileEngine
             // to the replacement, whose animation starts in this pass. One that freed its place without ending finishes
             // its update with its animation (a power-bombed Draygon goop that reaches Samus sticks to her through its
             // touch animation, EnemyProjectile.FreePlace). One that ended plays no animation, so nothing runs.
-            if (_places[place] is { } occupant)
+            if (ProjectilesInPlaces[place] is { } occupant)
                 AdvanceEnemyProjectileAnimations(occupant, samus, camera, shortCounter, samusBombs);
         }
     }
@@ -254,7 +254,7 @@ internal sealed class EnemyProjectileEngine
         KnockbackHorizontalDirection? finalKnockbackXDirection = null;
         foreach (int index in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[index] is { IsActive: true } projectile)
+            if (ProjectilesInPlaces[index] is { IsActive: true } projectile)
             {
                 finalKnockbackXDirection =
                     ResolveEnemyProjectileSamusCollision(projectile, samus) ??
@@ -318,7 +318,7 @@ internal sealed class EnemyProjectileEngine
     /// Draws the projectiles at <paramref name="depth"/>, the last place first: among projectiles at one depth, one in a
     /// later place is drawn over one in an earlier place.
     /// </summary>
-    private void DrawEnemyProjectilesAt(
+    internal void DrawEnemyProjectilesAt(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         EnemyProjectileDepth depth,
@@ -327,7 +327,7 @@ internal sealed class EnemyProjectileEngine
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            if (_places[place] is not { IsActive: true } projectile ||
+            if (ProjectilesInPlaces[place] is not { IsActive: true } projectile ||
                 projectile.Behavior.IsHidden(projectile) ||
                 projectile.Depth != depth ||
                 projectile.Frame is not { } frame)
@@ -401,8 +401,8 @@ internal sealed class EnemyProjectileEngine
     internal EnemyProjectile Occupy(int place, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior, SpriteGraphics graphics,
         EnemyProjectileAnimation animation)
     {
-        var projectile = new EnemyProjectile(place, _leftovers.StartOf(place, _places[place]?.LeftInPlace), kind, behavior, animation);
-        _places[place] = projectile;
+        var projectile = new EnemyProjectile(place, Leftovers.StartOf(place, ProjectilesInPlaces[place]?.LeftInPlace), kind, behavior, animation);
+        ProjectilesInPlaces[place] = projectile;
         InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         return projectile;
     }
@@ -437,7 +437,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is, which names its definition.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    private static void InitializeEnemyProjectileFromDefinition(
+    internal static void InitializeEnemyProjectileFromDefinition(
         EnemyProjectile projectile,
         RoomEnemyProjectileKind kind,
         SpriteGraphics graphics)
@@ -577,7 +577,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(pixel.ToRoomBlock()).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-animation or damage behavior for a projectile that reaches Samus.</summary>
-    private static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
+    internal static KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         EnemyProjectile projectile,
         SamusState samus)
     {
@@ -631,7 +631,7 @@ internal sealed class EnemyProjectileEngine
     /// <param name="camera">The camera of the pass, for cues that test the screen.</param>
     /// <param name="shortCounter">The enemies' short update count for the pass, which cue cadences sample.</param>
     /// <param name="samusBombs">Samus's bombs, whose power bomb explosion a cue may test.</param>
-    private void AdvanceEnemyProjectileAnimations(
+    internal void AdvanceEnemyProjectileAnimations(
         EnemyProjectile projectile,
         SamusState samus,
         Position16<RoomPixels> camera,

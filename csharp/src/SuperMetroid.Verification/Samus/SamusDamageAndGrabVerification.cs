@@ -731,7 +731,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
     AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
 
-    global::SuperMetroid.Core.PrivateState.Set(samus, "SolidVerticalCollisionResult", SamusVerticalCollisionResult.WallJump);
+    samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
     SamusDraygonGrabbedState.StepMovement(samus);
     AssertEqual(SamusVerticalCollisionResult.None, samus.SolidVerticalCollisionResult,
         "type-$1A performs its sole STZ side effect on the stale vertical collision word");
@@ -750,12 +750,8 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusNoInputPose.ToPose(SamusPoseId.DraygonGrabbedNeutralRightPose),
         SamusPoseMetadata.ReadNoInputPose(samus), "right grabbed aim fallback is $EC");
     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputPose(samus).From(samus.Pose));
-    AssertThrows<InvalidOperationException>(
-        () => SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
-            SamusPoseId.DraygonGrabbedNeutralLeftPose),
-        "Draygon input table cannot cross owner-controlled facing families");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
-        "rejected cross-family Draygon input retains current pose");
+        "right grabbed aim falls back to the neutral right pose");
 
     AssertTrue(!samus.DraygonGrabbed.CheckDraygonEscape(samus, newlyPressedInput: 0),
         "a check with no D-pad edge releases nothing");

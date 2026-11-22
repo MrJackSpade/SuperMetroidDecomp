@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// game's shot reaction occupies in the collision sequence; a reaction sets only the stages it has. The species' entity
 /// decides when it applies (<see cref="IEnemyShotReaction.ShotReaction"/>).
 /// </summary>
-internal sealed class EnemyShotReaction
+internal sealed partial class EnemyShotReaction
 {
     /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (the ordinary shot reaction never sees them).</summary>
     internal bool AdmitsBombFamilies { get; init; }
@@ -14,7 +14,10 @@ internal sealed class EnemyShotReaction
     internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
 
     /// <summary>The reaction of an enemy shots pass: it skips every enemy, so a shot meets none of its stages (#2558).</summary>
-    internal static EnemyShotReaction ShotsPass { get; } = new() { SkipsEnemy = static _ => true };
+    internal static EnemyShotReaction ShotsPass { get; } = new() { SkipsEnemy = SkipsEveryEnemy };
+
+    /// <summary>The <see cref="SkipsEnemy"/> of an enemy shots pass: it skips every enemy.</summary>
+    private static bool SkipsEveryEnemy(RoomEnemyPlace enemy) => true;
 
     /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }
@@ -42,10 +45,10 @@ internal sealed class EnemyShotReaction
     internal Func<EnemyShotHitContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting hit shows the burst.</summary>
-    internal static Func<EnemyShotHitContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+    internal static bool AlwaysShowsHitBurst(EnemyShotHitContext context) => true;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
-    internal static Func<EnemyShotHitContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+    internal static bool NeverShowsHitBurst(EnemyShotHitContext context) => false;
 
     /// <summary>What a lethal hit does: the generic death, after a stage, replaced, or the species' own (#2560).</summary>
     internal EnemyShotLethal Lethal { get; init; } = EnemyShotLethal.Generic;

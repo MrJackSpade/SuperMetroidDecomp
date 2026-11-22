@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// then ignites: its velocity is rebuilt from its ignition speed and Samus's inherited motion, and only then do the
 /// missile accelerations and a Super Missile's collision link begin. The ignited missile keeps the speed it ignited at.
 /// </summary>
-public abstract record SamusMissileIgnition
+public abstract partial record SamusMissileIgnition
 {
     /// <summary>Closes the hierarchy to the stages declared here.</summary>
     private SamusMissileIgnition()
@@ -26,7 +26,7 @@ public abstract record SamusMissileIgnition
     /// A stage before the missile's ignition, which a missile starts in when it is fired or reflected (#2554): it ignites
     /// on its update, never before.
     /// </summary>
-    public abstract record Unignited : SamusMissileIgnition
+    public abstract partial record Unignited : SamusMissileIgnition
     {
         /// <summary>Only the two stages before ignition derive from it.</summary>
         private protected Unignited()
@@ -35,7 +35,7 @@ public abstract record SamusMissileIgnition
     }
 
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>
-    public sealed record Pending : Unignited
+    public sealed partial record Pending : Unignited
     {
         /// <inheritdoc/>
         internal override bool AwaitsIgnitionAsFired => true;
@@ -46,7 +46,7 @@ public abstract record SamusMissileIgnition
     }
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
-    public sealed record PendingAfterReflection : Unignited
+    public sealed partial record PendingAfterReflection : Unignited
     {
         /// <summary>
         /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
@@ -65,7 +65,7 @@ public abstract record SamusMissileIgnition
 
     /// <summary>Ignited at <paramref name="Speed"/>.</summary>
     /// <param name="Speed">The base speed it ignited at: <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>, or <see cref="SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed"/> after a reflection's head start.</param>
-    public sealed record Ignited(SignedEightEight Speed) : SamusMissileIgnition
+    public sealed partial record Ignited(SignedEightEight Speed) : SamusMissileIgnition
     {
         /// <inheritdoc/>
         internal override bool AwaitsIgnitionAsFired => false;

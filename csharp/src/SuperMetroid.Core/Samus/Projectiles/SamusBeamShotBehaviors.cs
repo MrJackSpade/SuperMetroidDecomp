@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which behaviour each beam shot runs.</summary>
-internal static class SamusBeamShotBehaviors
+internal static partial class SamusBeamShotBehaviors
 {
     /// <summary>
     /// What firing a shot of <paramref name="combination"/> does, charged when <paramref name="charged"/>: the behaviour it

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Other projectiles' strikes stay unread until a missile's replaces them.
 /// </summary>
 [RoomLifetime]
-internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
+internal sealed partial class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>Sets up a cannon facing <paramref name="orientation"/> that controls <paramref name="cannon"/>.</summary>
     /// <param name="cannons">The room's cannons, through which a destroyed cannon stops Draygon's firing of its wall cannon.</param>
@@ -35,19 +35,19 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     private readonly DraygonCannonObjects _cannons;
 
     /// <summary>The firing cannon Draygon stops when this one is destroyed.</summary>
-    private DraygonWallCannon Cannon { get; }
+    internal DraygonWallCannon Cannon { get; }
 
     /// <summary>What the cannon shows, by its facing.</summary>
     private readonly DraygonCannonLook _look;
 
     /// <summary>Where the cannon is in its course.</summary>
-    private DraygonCannonPhase Phase { get; set; }
+    internal DraygonCannonPhase Phase { get; set; }
 
     /// <summary>
     /// The hits the cannon has survived, 0 to 2; a cannon set up destroyed is never hit. The hit that destroys a cannon, a
     /// third missile or any Super Missile, is not added.
     /// </summary>
-    private int Hits { get; set; }
+    internal int Hits { get; set; }
 
     /// <summary>Whether a missile strike wakes the cannon: while it shows its shield or its hit flash, from its first update until a hit destroys it (#2560).</summary>
     internal bool WakeArmed => Phase is DraygonCannonPhase.Shielded or DraygonCannonPhase.Flashing;
@@ -65,6 +65,7 @@ internal sealed class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomO
     public void Strike(ResidentObjectProjectileHit hit) => _strike.Land(hit);
 
     /// <summary>What <c>Update</c> does for each <see cref="DraygonCannonPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForDraygonCannonPhase => field ??= new(new Dictionary<DraygonCannonPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [DraygonCannonPhase.StartingWhole] = (place, context) => Show(place, context, _look.Shield, DraygonCannonPhase.Shielded),

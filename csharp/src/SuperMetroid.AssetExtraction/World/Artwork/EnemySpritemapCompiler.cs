@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// are composed from (#1463, #1638), checking them against the composition sheet's bounds. Only the import reads them; the
 /// installation holds the composed pictures, and gameplay draws them and never reads parts.
 /// </summary>
-internal static class EnemySpritemapCompiler
+internal static partial class EnemySpritemapCompiler
 {
     /// <summary>Upper bound on sprite pieces accepted from one editable enemy composition.</summary>
     internal const int MaximumParts = 128;

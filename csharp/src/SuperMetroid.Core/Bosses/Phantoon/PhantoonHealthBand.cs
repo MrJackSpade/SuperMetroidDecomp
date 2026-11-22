@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// below an eighth of it. He is in the highest band whose <see cref="MinimumHealth"/> his health reaches, and in
 /// the reddest of <see cref="PhantoonHealthBandDefinitions"/> below them all.
 /// </summary>
-public sealed class PhantoonHealthBand
+public sealed partial class PhantoonHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The state of the Kago.</summary>
-public sealed class KagoEnemyState
+public sealed partial class KagoEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KagoSegment> Playback { get; set; }

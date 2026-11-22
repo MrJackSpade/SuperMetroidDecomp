@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Finding how one label shows on an equipment page the import lays out (#1467, #1515).</summary>
-internal static class ShownEquipmentPageLabels
+internal static partial class ShownEquipmentPageLabels
 {
     /// <summary>Reading one ordinary item label.</summary>
     extension(ShownEquipmentPage page)

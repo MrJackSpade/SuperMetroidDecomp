@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>What each <see cref="MagdolliteRiseStage"/> shows and which stages it steps to (#2343).</summary>
-public static class MagdolliteRiseStages
+public static partial class MagdolliteRiseStages
 {
     /// <summary>The rise's stages from its setup to its top, in the order an arm rises through them.</summary>
     private static readonly MagdolliteRiseStage[] RiseOrder =

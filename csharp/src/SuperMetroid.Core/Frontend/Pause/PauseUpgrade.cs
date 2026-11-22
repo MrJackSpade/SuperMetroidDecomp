@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The upgrade one pause-menu equipment control stands for (#1323): a beam of the beam column
 /// (<see cref="BeamPauseUpgrade"/>) or an item of the suit and boot columns (<see cref="ItemPauseUpgrade"/>).
 /// </summary>
-public abstract record PauseUpgrade
+public abstract partial record PauseUpgrade
 {
     /// <summary>Only the beam and item upgrades derive from it.</summary>
     private protected PauseUpgrade()

@@ -7,6 +7,6 @@ internal static class InstalledRoomLevelStreamsAccess
     extension(InstalledRoomLevelStreams self)
     {
         /// <summary>Number of distinct installed levels.</summary>
-        public int Count => PrivateState.Field<InstalledRoomLevelStreams, Dictionary<RoomLevelId, InstalledRoomLevel>>(self, "levels").Count;
+        public int Count => self.levels.Count;
     }
 }

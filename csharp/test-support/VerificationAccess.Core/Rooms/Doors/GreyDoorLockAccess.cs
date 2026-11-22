@@ -31,12 +31,12 @@ internal static class GreyDoorLockAccess
         internal GreyDoorCondition PlacedCondition => doorLock switch
         {
             GreyDoorLock.BossDefeated boss => Ensure.Listed(BossConditions,
-                PrivateState.Field<GreyDoorLock.BossDefeated, DefeatedBosses>(boss, "_bosses")),
+                boss.Bosses),
             GreyDoorLock.EnemyDeathQuota => GreyDoorCondition.EnemyDeathQuota,
             GreyDoorLock.Never => GreyDoorCondition.Never,
             GreyDoorLock.TourianStatueFinished => GreyDoorCondition.TourianStatueFinished,
             GreyDoorLock.EventSet storyEvent => Ensure.Listed(EventConditions,
-                PrivateState.Field<GreyDoorLock.EventSet, StoryEvent>(storyEvent, "_storyEvent")),
+                storyEvent.StoryEvent),
             _ => throw new InvalidOperationException($"{doorLock.GetType().Name} stands for no placed grey door condition."),
         };
     }

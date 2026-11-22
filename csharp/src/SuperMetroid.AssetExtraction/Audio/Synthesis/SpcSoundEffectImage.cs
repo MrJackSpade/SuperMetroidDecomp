@@ -8,18 +8,18 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Every bank load installs the same bytes and checks the same routes, so the catalog compiles them
 /// when it loads and every player shares them read-only.
 /// </summary>
-internal sealed class SpcSoundEffectImage
+internal sealed partial class SpcSoundEffectImage
 {
     /// <summary>One program and the bytes written at its fixed slot.</summary>
     /// <param name="Program">The authored program.</param>
     /// <param name="Bytes">Its encoding, exactly its slot's capacity.</param>
-    internal sealed record EncodedProgram(AudioSoundProgramMetadata Program, ReadOnlyMemory<byte> Bytes);
+    internal sealed partial record EncodedProgram(AudioSoundProgramMetadata Program, ReadOnlyMemory<byte> Bytes);
 
     /// <summary>One effect channel and the program its uploaded routing pointer must name.</summary>
     /// <param name="Effect">The effect whose routing table holds the pointer.</param>
     /// <param name="Channel">The channel's index in the effect's routing table.</param>
     /// <param name="Program">The program the channel plays.</param>
-    internal sealed record Route(AudioSoundEffectMetadata Effect, int Channel, AudioSoundProgramMetadata Program);
+    internal sealed partial record Route(AudioSoundEffectMetadata Effect, int Channel, AudioSoundProgramMetadata Program);
 
     /// <summary>Encodes every program in order and resolves every effect channel's program.</summary>
     /// <exception cref="InvalidDataException">Programs repeat a stable ID, a program does not encode into its fixed slot, or an effect names an unknown program.</exception>

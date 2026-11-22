@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// Fixed launch magnitudes for the three Rio families, each with its own behaviour, how near Samus brings each to dive
 /// and how its dive slows (#2156).
 /// </summary>
-internal static class RioLaunchDefinitions
+internal static partial class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
     internal static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromPixelFraction(11, 2);

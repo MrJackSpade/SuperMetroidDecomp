@@ -160,13 +160,13 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea, new Position16<RoomPixels>(0, 0));
         FirefleaFxState fireflea = runtime.RoomFxOverlay.Fireflea
             ?? throw new InvalidOperationException("The Lower Norfair Fireflea room's load starts its Fireflea darkness.");
-        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 3 }));
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(3));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(18, ((FirefleaDarknessBlend)darkness.Blend).Shade.FadeLevels.Red, "Fireflea's shade publishes with its blend");
-        fireflea.Step(frozen: false, global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { 1 }));
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(1));
         AssertEqual(18, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);

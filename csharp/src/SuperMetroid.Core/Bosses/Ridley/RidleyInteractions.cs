@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health colours.</summary>
-internal static class RidleyInteractions
+internal static partial class RidleyInteractions
 {
 
     /// <summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Where a room's tileset, common-room-element and collectible graphics live in gameplay VRAM and CGRAM (#630).</summary>
 [EncodingOwner("room graphics VRAM and colour allocations")]
-internal static class RoomGraphicsLayout
+internal static partial class RoomGraphicsLayout
 {
     /// <summary>
     /// VMADD $0000-$3FFF: the area tileset's BG characters uploaded first by <c>$82:E783</c>; ordinary

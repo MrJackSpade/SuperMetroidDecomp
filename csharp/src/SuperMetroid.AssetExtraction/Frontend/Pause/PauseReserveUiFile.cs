@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Reads and writes the import's pause reserve-tank interface document.</summary>
-public static class PauseReserveUiFile
+public static partial class PauseReserveUiFile
 {
     /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
@@ -76,7 +76,7 @@ public static class PauseReserveUiFile
     /// <param name="document">Selected editable visuals satisfying the same schema and field limits as <see cref="Read"/>.</param>
     public static void Write(Stream output, PauseReserveUiDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.PauseReserveUiDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

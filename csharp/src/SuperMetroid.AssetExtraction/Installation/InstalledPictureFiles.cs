@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// page, an ink map, anything) is not an installed picture, and the installation holding it is rejected when its artwork
 /// is loaded, naming every such file, so no page of the import's intermediate data passes for one.
 /// </summary>
-internal static class InstalledPictureFiles
+internal static partial class InstalledPictureFiles
 {
     /// <summary>The extension of a picture file.</summary>
     private const string PictureExtension = ".png";

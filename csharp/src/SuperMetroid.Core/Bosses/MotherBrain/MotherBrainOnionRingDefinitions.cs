@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's onion rings (#2171): how long one waits at her mouth, how fast it flies and the arc it is aimed within.</summary>
-internal static class MotherBrainOnionRingDefinitions
+internal static partial class MotherBrainOnionRingDefinitions
 {
     /// <summary>
     /// The updates from an onion ring's first to its flight, the ring staying at Mother Brain's mouth on the eight before.

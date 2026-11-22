@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>Fixed initialization definitions for the three escape Etecoon actors.</summary>
-internal static class EscapeEtecoonDefinitions
+internal static partial class EscapeEtecoonDefinitions
 {
 
     /// <summary>

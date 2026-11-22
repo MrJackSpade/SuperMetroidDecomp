@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The terrain an item lying in the room shows its looks in (#2558): a tank's own blocks, which its kind pictures, or the
 /// block pair an item that shows its own picture took (<see cref="CollectibleBlockPairs"/>), over which its picture shows.
 /// </summary>
-internal abstract record CollectibleTerrain
+internal abstract partial record CollectibleTerrain
 {
     /// <summary>Only the two terrains below exist.</summary>
     private CollectibleTerrain()
@@ -29,7 +29,7 @@ internal abstract record CollectibleTerrain
     internal abstract RoomObjectFrameDraw<CollectibleDraw> VisibleFrame(InWorldCollectibleKind kind, CollectibleLook look);
 
     /// <summary>A tank's own blocks.</summary>
-    private sealed record TankTerrain : CollectibleTerrain
+    private sealed partial record TankTerrain : CollectibleTerrain
     {
         /// <inheritdoc/>
         internal override bool ShowsOwnPicture => false;
@@ -41,7 +41,7 @@ internal abstract record CollectibleTerrain
 
     /// <summary>The block pair an item that shows its own picture took.</summary>
     /// <param name="Pair">The pair the item took.</param>
-    private sealed record OwnPictureTerrain(CollectibleBlockPairs.Pair Pair) : CollectibleTerrain
+    private sealed partial record OwnPictureTerrain(CollectibleBlockPairs.Pair Pair) : CollectibleTerrain
     {
         /// <inheritdoc/>
         internal override bool ShowsOwnPicture => true;

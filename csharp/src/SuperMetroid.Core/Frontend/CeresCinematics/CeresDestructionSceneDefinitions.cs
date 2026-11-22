@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>The Ceres station's destruction and the approach to Zebes: their timing, motion, floor views and actor places.</summary>
-internal static class CeresDestructionSceneDefinitions
+internal static partial class CeresDestructionSceneDefinitions
 {
     /// <summary>Updates the scene waits before it sets up the station.</summary>
     internal const int InitialFrameWaits = 9;
@@ -58,7 +58,7 @@ internal static class CeresDestructionSceneDefinitions
     internal const int DriftLoopWidth = 512;
 
     /// <summary>The tracks the scene plays.</summary>
-    internal static class Music
+    internal static partial class Music
     {
         /// <summary>The station's destruction track when Samus has escaped.</summary>
         internal const MusicTrack CeresTrack = MusicTrack.CeresExplosion;
@@ -69,7 +69,7 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>Authored holds, in updates.</summary>
-    internal static class Timing
+    internal static partial class Timing
     {
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
         internal const int ExplosionHoldFrames = 192;
@@ -88,7 +88,7 @@ internal static class CeresDestructionSceneDefinitions
     /// The square blocks the Zebes reveal draws its planet picture in (#1774), in screen pixels, which also count the reveal
     /// down: each of its steps narrows them by one pixel.
     /// </summary>
-    internal static class RevealPixelation
+    internal static partial class RevealPixelation
     {
         /// <summary>The blocks the planet picture shows in as the reveal is set up.</summary>
         internal const int StartingBlockWidth = 9;
@@ -100,7 +100,7 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>The floor's zoom thresholds and the scenes' velocities.</summary>
-    internal static class Motion
+    internal static partial class Motion
     {
         /// <summary>The zoom that ends the initial Ceres zoom: two and a half floor pixels per screen pixel.</summary>
         internal static FloorZoom CeresZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(5, 2);
@@ -149,7 +149,7 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>The floor's scroll over the station and on the approach to Zebes, and where the reveal's actors leave.</summary>
-    internal static class Places
+    internal static partial class Places
     {
         /// <summary>The floor's starting horizontal scroll over Ceres, in pixels.</summary>
         internal const int CeresInitialFloorScrollX = -44;

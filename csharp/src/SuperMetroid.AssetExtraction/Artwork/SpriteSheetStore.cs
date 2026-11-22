@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// holds each frame's picture, and a sheet read from the family is assembled from the store. No provenance manifest lists the
 /// family's sheets (#1693): the family's own catalog or manifest names them. A player edits the installed files in place.
 /// </summary>
-internal sealed class SpriteSheetStore
+internal sealed partial class SpriteSheetStore
 {
     /// <summary>The directory of the family's sheet manifests.</summary>
     private readonly string directory;

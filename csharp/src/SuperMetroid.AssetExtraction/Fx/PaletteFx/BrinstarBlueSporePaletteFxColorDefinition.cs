@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One room-specific entry into the fourteen-frame blue-spore palette loop.</summary>
-public sealed class BrinstarBlueSporePaletteFxColorDefinition
+public sealed partial class BrinstarBlueSporePaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
     /// <param name="effect">The colour effect whose records the program holds.</param>

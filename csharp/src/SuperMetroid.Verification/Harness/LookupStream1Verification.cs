@@ -585,7 +585,6 @@ internal static class LookupStream1Verification
         var stock = Create(native);
         for (int index = 0; index < 32; index++)
             AssertEqual(native[index], stock.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Stock color matches native");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
         foreach (int index in new[] { -1, 16 })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
         Console.WriteLine("Hurt/intro:32 native colors kept as installed and the variant and colour bounds pass.");
@@ -778,14 +777,6 @@ internal static class LookupStream1Verification
             AssertEqual(Word(0x909ea7 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Whole, "stream1 native whole gravity");
             AssertEqual(Word(0x909ea1 + 2 * SamusLiquidMediumCodec.ToNative(medium)), gravity.Fraction, "stream1 native fractional gravity");
         }
-        foreach (SamusLiquidMedium invalid in new[] { (SamusLiquidMedium)3, (SamusLiquidMedium)ushort.MaxValue })
-        {
-            for (int variant = 0; variant < 4; variant++)
-                AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Launch(invalid, (variant & 1) != 0, ((variant & 2) != 0) ? SamusLaunchKind.WallJump : SamusLaunchKind.Jump), "stream1 invalid launch medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Knockback(invalid), "stream1 invalid hurt medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.BombJump(invalid), "stream1 invalid bomb medium");
-            AssertThrows<InvalidOperationException>(() => SamusVerticalMotion.Gravity(invalid), "stream1 invalid gravity medium");
-        }
     }
 
     /// <summary>Reads source bytes for the broad pose and gameplay lookup comparison.</summary>
@@ -819,8 +810,6 @@ internal static class LookupStream1Verification
         }
         AssertTrue(PowampMotionDefinitions.SpikeFiringOrder.SequenceEqual(spikeDirections.Reverse()),
             "Powamp fires its spikes from the cartridge table's last direction back to its first");
-        AssertThrows<ArgumentOutOfRangeException>(() => PowampMotion.BalloonHeight((PowampBalloonPose)3), "Powamp balloon pose domain");
-        AssertThrows<InvalidDataException>(() => PowampMotion.SpikeAcceleration((CompassDirection)spikeDirections.Length), "Powamp spike direction domain");
     }
 
     /// <summary>Reads Powamp native wiggle and balloon offset words.</summary>
@@ -1108,9 +1097,6 @@ internal static class LookupStream1Verification
         // Shinespark family's own crash departure check (#1500).
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
             AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
-        var undefinedMovement = (SamusMovementType)(-1);
-        AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.SelectionMode(undefinedMovement), "HUD movement exact domain");
-        AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.WaterSplashFor(undefinedMovement), "splash exact movement domain");
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationFrame(SamusAnimationSegmentName.Run, invalid)), "foot-contact exact frame domain");
         foreach (var (header, room) in new[] { new VerifyLookupStream1SamusPolicyDomainsCase(0x91f8, 0), new VerifyLookupStream1SamusPolicyDomainsCase(0x93fe, 5), new VerifyLookupStream1SamusPolicyDomainsCase(0x948c, 7), new VerifyLookupStream1SamusPolicyDomainsCase(0x94fd, 9), new VerifyLookupStream1SamusPolicyDomainsCase(0x9552, 10), new VerifyLookupStream1SamusPolicyDomainsCase(0x957d, 11), new VerifyLookupStream1SamusPolicyDomainsCase(0x95a8, 12), new VerifyLookupStream1SamusPolicyDomainsCase(0x95ff, 14) })

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<MagdolliteSpawnSettings>, IRoomGlow
+internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<MagdolliteSpawnSettings>, IRoomGlow
 {
 
     /// <inheritdoc/>
@@ -103,7 +103,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     internal bool GlowRuns { get; private set; }
 
     /// <summary>The lava glow every Magdollite in the room, and the lava they throw, shows now (#1512).</summary>
-    private PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(_glow.Showing));
+    internal PictureShading Glow => PictureShading.Shaded(MagdolliteShades.Glow(_glow.Showing));
 
     /// <summary>
     /// The two enemies, at most, the part in <paramref name="place"/>'s follow-up to a hit reaches
@@ -200,6 +200,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>What <see cref="RunMagdolliteHead"/> does for each <see cref="MagdolliteHeadAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private static IdentityTable<MagdolliteHeadAction, Action<MagdolliteHeadSpawnSettings, RoomEnemyPlace, MagdolliteHeadState, MagdollitePartners, SamusState>> RunMagdolliteHeadForMagdolliteHeadAction => field ??= new(new Dictionary<MagdolliteHeadAction, Action<MagdolliteHeadSpawnSettings, RoomEnemyPlace, MagdolliteHeadState, MagdollitePartners, SamusState>>
     {
         [MagdolliteHeadAction.Waiting] = (settings, place, state, partners, samus) => RunMagdolliteHeadWaiting(settings, place, state, partners, samus),
@@ -218,6 +219,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>What <see cref="RunMagdolliteBody"/> does for each <see cref="MagdolliteBodyAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, MagdollitePartners, SamusState>> RunMagdolliteBodyForMagdolliteBodyAction => field ??= new(new Dictionary<MagdolliteBodyAction, Action<RoomEnemyPlace, MagdolliteBodyState, MagdollitePartners, SamusState>>
     {
         [MagdolliteBodyAction.Dormant] = (_, _, _, _) => { },
@@ -234,6 +236,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>What <see cref="RunMagdolliteOverlay"/> does for each <see cref="MagdolliteOverlayAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private static IdentityTable<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, MagdollitePartners, SamusState>> RunMagdolliteOverlayForMagdolliteOverlayAction => field ??= new(new Dictionary<MagdolliteOverlayAction, Action<RoomEnemyPlace, MagdolliteOverlayState, MagdollitePartners, SamusState>>
     {
         [MagdolliteOverlayAction.WaitingForAttack] = (_, state, partners, _) => RunMagdolliteOverlayWaiting(state, partners),
@@ -316,7 +319,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>Rises using the preceding head's velocity, advances growth phases at their thresholds, and stops at the apex or above Samus.</summary>
-    private void RunMagdolliteBodyRising(
+    internal void RunMagdolliteBodyRising(
         RoomEnemyPlace body,
         MagdolliteBodyState state,
         MagdollitePartners partners,
@@ -352,7 +355,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>Retraces the body's growth phases and, landing at its origin, lets the head emerge.</summary>
-    private static void RunMagdolliteBodyFalling(
+    internal static void RunMagdolliteBodyFalling(
         RoomEnemyPlace body,
         MagdolliteBodyState state,
         MagdollitePartners partners)
@@ -404,7 +407,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>Positions the overlay over each rising body phase, then starts its Samus-facing throw at the apex.</summary>
-    private static void RunMagdolliteOverlayTrackingRise(
+    internal static void RunMagdolliteOverlayTrackingRise(
         RoomEnemyPlace overlay,
         MagdolliteOverlayState state,
         MagdollitePartners partners,
@@ -620,7 +623,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     /// Passes a struck part's fate to the two enemies listed after it, once any hit's ordinary damage is done: a part
     /// killed deletes them, and a frozen part freezes them for as long.
     /// </summary>
-    private static void ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace current, IReadOnlyList<RoomEnemyPlace> recipients)
+    internal static void ResolveMagdolliteCombatAfterCommon(RoomEnemyPlace current, IReadOnlyList<RoomEnemyPlace> recipients)
     {
         // The follow-up reaches the two enemies listed after the part that was hit (FollowUpAfterStruckPart): a power
         // bomb also kills the rising body and the tracking overlay, whose follow-ups reach the enemies listed after the
@@ -642,27 +645,31 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
     }
 
     /// <summary>Magdollite's reaction to a bomb: after its ordinary damage, the struck part's fate passes to the enemies listed after it.</summary>
-    /// <param name="recipients">The enemies the struck part's follow-up reaches.</param>
-    internal static EnemyBombReaction MagdolliteBombReaction(IReadOnlyList<RoomEnemyPlace> recipients) => new()
+    /// <param name="part">The part the reaction is built for, whose own method passes its fate on.</param>
+    internal static EnemyBombReaction MagdolliteBombReaction(MagdollitePartEntity part) => new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy, recipients),
+        AfterCommon = Ensure.NotNull(part).PassFateOn,
     };
 
     /// <summary>Magdollite's thrown lava (#1760).</summary>
-    private LavaBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
+    internal LavaBehavior Lava => field ??= new LavaBehavior(_deathsAndDrops);
 
     /// <summary>
     /// Thrown lava: it flies sideways until it leaves the view, handles its animations' cues, and a shot ball runs its
     /// typed shot animation, the animation its definition names.
     /// </summary>
     /// <param name="deathsAndDrops">The drops a shot ball leaves.</param>
-    internal sealed class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(
-        context => FlyMagdolliteLava(context.Projectile, context.Camera)), IEnemyProjectileCues<MagdolliteLavaCue>
+    internal sealed partial class LavaBehavior(EnemyDeathsAndDrops deathsAndDrops) : SingleMotionProjectileBehavior(FlyLava),
+        IEnemyProjectileCues<MagdolliteLavaCue>
     {
+        /// <summary>Flies thrown lava sideways until it leaves the view.</summary>
+        private static void FlyLava(EnemyProjectileMotionContext context) => FlyMagdolliteLava(context.Projectile, context.Camera);
+
         /// <inheritdoc/>
         internal override EnemyProjectileAnimation ShotAnimation() => new MagdolliteLavaAnimation(this, MagdolliteLavaSegment.Shot);
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="MagdolliteLavaCueKind"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForMagdolliteLavaCueKind => field ??= new(new Dictionary<MagdolliteLavaCueKind, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [MagdolliteLavaCueKind.Delete] = (context, projectile) => projectile.Delete(),
@@ -706,17 +713,17 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
             (state, cue) => ApplyMagdolliteOverlayCue(occupant, place, state, cue, context.Camera));
 
     /// <summary>Propagates common power-bomb death and freezing effects to the composite's following parts.</summary>
-    /// <param name="recipients">The enemies the struck part's follow-up reaches.</param>
-    internal static EnemyPowerBombReaction MagdollitePowerBombReaction(IReadOnlyList<RoomEnemyPlace> recipients) => new()
+    /// <param name="part">The part the reaction is built for, whose own method passes its fate on.</param>
+    internal static EnemyPowerBombReaction MagdollitePowerBombReaction(MagdollitePartEntity part) => new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy, recipients),
+        AfterCommon = Ensure.NotNull(part).PassFateOn,
     };
 
     /// <summary>Propagates common shot death and freezing effects to the composite's following parts.</summary>
-    /// <param name="recipients">The enemies the struck part's follow-up reaches.</param>
-    internal static EnemyShotReaction MagdolliteShotReaction(IReadOnlyList<RoomEnemyPlace> recipients) => new()
+    /// <param name="part">The part the reaction is built for, whose own method passes its fate on.</param>
+    internal static EnemyShotReaction MagdolliteShotReaction(MagdollitePartEntity part) => new()
     {
-        AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy, recipients),
+        AfterCommon = Ensure.NotNull(part).PassFateOn,
     };
 
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
@@ -733,7 +740,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<Ma
         samus.Position.X.Whole < part.Position.X.Whole ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>Spawns and initializes a Magdollite lava ball thrown <paramref name="thrown"/>.</summary>
-    private void SpawnMagdolliteLava(RoomEnemyOccupant occupant, RoomEnemyPlace source, HorizontalDirection thrown)
+    internal void SpawnMagdolliteLava(RoomEnemyOccupant occupant, RoomEnemyPlace source, HorizontalDirection thrown)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.LavaThrownByMagdollite, Lava, SpriteGraphics.SpawnedBy(occupant, source.Shading), new MagdolliteLavaAnimation(Lava, thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
         if (projectile is null)

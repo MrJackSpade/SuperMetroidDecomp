@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
-public sealed class EndingTextPresentation
+public sealed partial class EndingTextPresentation
 {
     /// <summary>The installed result panel's tiles, with the installed producer label written in.</summary>
     private readonly BackgroundTile[] resultPanel;
@@ -39,7 +39,7 @@ public sealed class EndingTextPresentation
     public SubtitleSequence JapaneseSubtitle => new(this);
 
     /// <summary>The installed subtitle cells.</summary>
-    public readonly struct SubtitleSequence : IReadOnlyList<BackgroundTile>
+    public readonly partial struct SubtitleSequence : IReadOnlyList<BackgroundTile>
     {
         /// <summary>Presentation whose installed subtitle supplies this view.</summary>
         private readonly EndingTextPresentation owner;
@@ -72,7 +72,7 @@ public sealed class EndingTextPresentation
         {
             Version = TypewriterVersion, PercentageHeading = document.PercentageHeading, PercentageDetail = document.PercentageDetail,
             FinalMessage = document.FinalMessage,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTypewriterDocument>(ArtworkJson.Options));
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public sealed class EndingTextPresentation
     /// <param name="document">Versioned tilemap templates and bounded labels to serialize.</param>
     public static void Write(Stream output, EndingTextDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 

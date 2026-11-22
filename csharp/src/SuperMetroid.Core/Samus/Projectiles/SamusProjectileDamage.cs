@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The damage each projectile kind starts its projectile with (<see cref="SamusProjectileDamageDefinitions"/>).</summary>
-internal static class SamusProjectileDamage
+internal static partial class SamusProjectileDamage
 {
     /// <summary>
     /// The damage a projectile of <paramref name="kind"/> starts with: a beam shot's beams' damage, tripled when it is

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Launches Kraid's second fingernail opposite its sibling's vertical travel.</summary>
-public static class KraidNailLaunch
+public static partial class KraidNailLaunch
 {
     /// <summary>The launch velocity for a sibling moving <paramref name="siblingY"/> a frame vertically.</summary>
     /// <remarks>

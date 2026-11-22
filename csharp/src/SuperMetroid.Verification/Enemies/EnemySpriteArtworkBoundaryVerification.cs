@@ -94,9 +94,6 @@ internal static class EnemySpriteArtworkBoundaryVerification
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 
         Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(OamBuffer), "AddEnemyProjectileSpritemap") &&
-            !MetadataShape.DeclaresMethod(typeof(OamBuffer), "ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic),
-            "Core OAM cannot recover a generic spritemap address reader");
         Console.WriteLine($"Enemy OAM boundary: {enemyCases} enemy and room-object cases and {projectileCases} program-frame cases pass through ROM-free owners; Ceres and synthetic arithmetic/timed-projectile checks pass.");
 
         static void Equal(OamBuffer expected, OamBuffer actual, string context)

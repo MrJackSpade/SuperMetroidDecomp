@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>The game-over menu's fade, music, sound and Baby timing.</summary>
-public static class GameOverMenuDefinitions
+public static partial class GameOverMenuDefinitions
 {
     /// <summary>
     /// How crowded the sound queue may be for the menu's sounds to join it: the silence it opens with, the selection

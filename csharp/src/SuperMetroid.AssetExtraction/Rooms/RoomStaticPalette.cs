@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The base background colours one room graphics-set palette source gives a room load (#1464, #1512), in the
 /// cartridge's order, which the installed palette keeps. Only the import pipeline reads them, to pre-colour room sheets.
 /// </summary>
-public sealed class RoomStaticPalette
+public sealed partial class RoomStaticPalette
 {
     /// <summary>The background colours, in the cartridge's order.</summary>
     private readonly RgbColor[] colours;

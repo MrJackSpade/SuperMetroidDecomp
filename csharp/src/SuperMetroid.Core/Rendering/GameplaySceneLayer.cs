@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// a scene's first layer; the HUD, the effect overlay and the glows are the scene's later layers. The background's scroll
 /// may change line by line on either axis, as a described shape (#1468); its scrolls are scrolls, not rows already offset.
 /// </summary>
-public sealed record GameplaySceneLayer : DisplayLayer
+public sealed partial record GameplaySceneLayer : DisplayLayer
 {
     /// <summary>
     /// The gameplay scene's layers from back to front (#1514, #2573): the actors behind the room, the background's back
@@ -46,7 +46,7 @@ public sealed record GameplaySceneLayer : DisplayLayer
     /// The bands of the gameplay screen that show their own choice of layers (#1514), top to bottom; the lines no band
     /// covers show <see cref="GameplaySceneView.ShownLayers"/>.
     /// </summary>
-    private ImmutableArray<ShownBand> Bands { get; }
+    internal ImmutableArray<ShownBand> Bands { get; }
 
     /// <summary>Captures the frame's view, its background's line scrolls and its bands; this layer is drawn before any blend or overlay.</summary>
     /// <param name="view">How the frame views the gameplay scene.</param>

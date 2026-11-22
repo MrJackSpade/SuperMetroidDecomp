@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// in each level its states use lead (#2090). The catalog is stock-only: replaceable initial appearances are selected
 /// separately by <see cref="RoomLevelArtworks"/> and never change it.
 /// </summary>
-public sealed class InstalledRoomLevelStreams
+public sealed partial class InstalledRoomLevelStreams
 {
     /// <summary>Installed levels keyed by their room level.</summary>
-    private readonly Dictionary<RoomLevelId, InstalledRoomLevel> levels;
+    internal readonly Dictionary<RoomLevelId, InstalledRoomLevel> levels;
 
     /// <summary>Each room's door blocks in each level its states use.</summary>
     private readonly Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks;

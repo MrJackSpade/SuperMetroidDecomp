@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// A room plane's blocks as a frame shows them (#1403): each block's definition and mirroring, row by row, which the
 /// room's block pictures draw. Outside the room the plane shows nothing.
 /// </summary>
-public sealed class RoomBlockCells
+public sealed partial class RoomBlockCells
 {
     /// <summary>Holds a plane's blocks.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The plane has no blocks along an axis.</exception>

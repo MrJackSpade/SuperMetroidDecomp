@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Artwork;
 /// Reads the turning floors the frontend's shots show (#1467): each floor is a whole-floor picture the import composed
 /// once, installed as a frame of its scene's floor sheet under the name of the shot that shows it.
 /// </summary>
-public static class FloorShots
+public static partial class FloorShots
 {
     /// <summary>Each installed floor picture's floor, once read, so a shot keeps one floor while its sheet stands.</summary>
     private static readonly ConditionalWeakTable<SpriteSheetFrame, AffineFloor> floors = new();

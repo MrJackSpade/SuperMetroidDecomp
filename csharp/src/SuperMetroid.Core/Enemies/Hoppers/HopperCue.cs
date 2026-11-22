@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>One cue of the Sidehoppers' and Dessgeegas' animations: what it does, with the values it acts on.</summary>
-internal abstract record HopperCue
+internal abstract partial record HopperCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private HopperCue()
@@ -17,7 +17,7 @@ internal abstract record HopperCue
 
     /// <summary>Queues an enemy-library sound.</summary>
     /// <param name="Sound">The sound the cue queues.</param>
-    internal sealed record PlaySound(SoundEffectId Sound) : HopperCue
+    internal sealed partial record PlaySound(SoundEffectId Sound) : HopperCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(HopperCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).PlaySound(this, context);
@@ -25,7 +25,7 @@ internal abstract record HopperCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(HopperCueKind Kind) : HopperCue
+    internal sealed partial record Signal(HopperCueKind Kind) : HopperCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(HopperCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -36,4 +36,4 @@ internal abstract record HopperCue
 /// <param name="PlaySound">Reacts to a <see cref="HopperCue.PlaySound"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="HopperCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record HopperCueReactions<TContext>(Action<HopperCue.PlaySound, TContext> PlaySound, Action<HopperCue.Signal, TContext> Signal);
+internal sealed partial record HopperCueReactions<TContext>(Action<HopperCue.PlaySound, TContext> PlaySound, Action<HopperCue.Signal, TContext> Signal);

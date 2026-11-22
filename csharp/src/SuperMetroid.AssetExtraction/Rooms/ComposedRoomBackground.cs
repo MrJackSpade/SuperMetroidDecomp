@@ -11,4 +11,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Sheet">The image's sheet, one frame of what it shows.</param>
 /// <param name="Size">The image's width and height, which a part of its picture that shows nothing does not record (#1634).</param>
 /// <param name="Cells">The cells the block sheet pictures for their inputs' values.</param>
-internal sealed record ComposedRoomBackground(ComposedSpriteSheet Sheet, Extent16<ImagePixels> Size, IReadOnlyList<RoomBackgroundCell> Cells);
+internal sealed partial record ComposedRoomBackground(ComposedSpriteSheet Sheet, Extent16<ImagePixels> Size, IReadOnlyList<RoomBackgroundCell> Cells);

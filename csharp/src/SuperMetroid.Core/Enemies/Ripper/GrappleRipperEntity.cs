@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="place">The place the grapple Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the Ripper's population entry tells its species.</param>
-internal sealed class GrappleRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, GrappleRipperSpawnSettings settings)
+internal sealed partial class GrappleRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, GrappleRipperSpawnSettings settings)
     : RipperEntity(species, occupant, place, common, RipperBehavior.InitializeGrappleRipper(settings, place))
 {
     /// <summary>What the Ripper's population entry tells its species, which its factory checked as it built the enemy.</summary>

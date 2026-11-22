@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Saves;
 /// renaming a member never changes a save or stops one loading.
 /// </summary>
 /// <typeparam name="TIdentity">The identity the converter reads and writes.</typeparam>
-internal class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
+internal partial class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>Each member's name in a save.</summary>

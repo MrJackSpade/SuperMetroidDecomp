@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// their native ordering, lengths and sources.
 /// </summary>
 [EncodingOwner("ending post-shot transfer schedule: sources, lengths and order")]
-internal static class EndingPostShotUploadDefinitions
+internal static partial class EndingPostShotUploadDefinitions
 {
 
     /// <summary>The bytes into the ending font's characters the subtitle's characters start at.</summary>

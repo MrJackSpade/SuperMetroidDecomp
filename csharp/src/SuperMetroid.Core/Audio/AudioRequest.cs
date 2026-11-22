@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// track, change the music data set, or set what a sound library is asked to play. The session applies an update's
 /// requests in order to its <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> and publishes them as <see cref="AudioEvent"/>s.
 /// </summary>
-internal abstract record AudioRequest
+internal abstract partial record AudioRequest
 {
     /// <summary>Closes the hierarchy to the requests declared here.</summary>
     private AudioRequest()
@@ -20,7 +20,7 @@ internal abstract record AudioRequest
 
     /// <summary>Plays <paramref name="Track"/> of the loaded music data set from the music's next beat.</summary>
     /// <param name="Track">The track to play.</param>
-    internal sealed record PlayMusicTrack(MusicTrack Track) : AudioRequest
+    internal sealed partial record PlayMusicTrack(MusicTrack Track) : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
@@ -28,7 +28,7 @@ internal abstract record AudioRequest
     }
 
     /// <summary>Stops the music on its next beat.</summary>
-    internal sealed record StopMusic : AudioRequest
+    internal sealed partial record StopMusic : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
@@ -40,7 +40,7 @@ internal abstract record AudioRequest
     /// drops every sound request not yet accepted (<see cref="SoundAcceptanceClock{TLibrary, TSound}.PauseForMusicLoad"/>).
     /// </summary>
     /// <param name="DataSet">The music data set switched to.</param>
-    internal sealed record ChangeMusicDataSet(MusicDataSet DataSet) : AudioRequest
+    internal sealed partial record ChangeMusicDataSet(MusicDataSet DataSet) : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
@@ -60,7 +60,7 @@ internal abstract record AudioRequest
 
     /// <summary>Asks <paramref name="Sound"/>'s library to play it; the library keeps the request until it is changed.</summary>
     /// <param name="Sound">The sound requested.</param>
-    internal sealed record RequestSound(SoundEffectId Sound) : AudioRequest
+    internal sealed partial record RequestSound(SoundEffectId Sound) : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>
@@ -69,7 +69,7 @@ internal abstract record AudioRequest
 
     /// <summary>Withdraws whatever <paramref name="Library"/> is asked to play.</summary>
     /// <param name="Library">The library whose request is withdrawn.</param>
-    internal sealed record ClearSoundRequest(SoundEffectLibrary Library) : AudioRequest
+    internal sealed partial record ClearSoundRequest(SoundEffectLibrary Library) : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The installed key of each <see cref="SamusProjectileSegment"/> (#2520), written out so renaming a member never
 /// changes a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusProjectileSegmentKeys
+internal static partial class SamusProjectileSegmentKeys
 {
     /// <summary>Each SamusProjectileSegment member's installed key.</summary>
     internal static InstalledKeys<SamusProjectileSegment> Installed { get; } = new(new Dictionary<SamusProjectileSegment, string>

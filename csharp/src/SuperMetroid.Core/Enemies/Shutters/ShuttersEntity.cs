@@ -10,20 +10,17 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract partial class ShuttersEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-
     /// <summary>The Shutters species owner.</summary>
     protected ShuttersBehavior Species => species;
-
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
     public abstract void AdvanceTypedAnimation(EnemyAnimationCueContext context);
-
 
     /// <summary>
     /// The shootable and destroyable vertical shutters' shot reactions, which a normal bomb triggers as it does the common one.

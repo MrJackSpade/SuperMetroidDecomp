@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <param name="Left">Inclusive left screen column of the column or center line, across the screen's width. For the closing shape, the final curved column's left edge.</param>
 /// <param name="Right">Inclusive right screen column, across the screen's width. A left greater than right lights nothing.</param>
 /// <param name="Progress">Screen rows grown from each edge while growing, or wiped from the top while closing; unused by the other shapes.</param>
-public readonly record struct SamusSuitPickupBeam(
+public readonly partial record struct SamusSuitPickupBeam(
     SamusSuitPickupBeamShape Shape,
     int Left,
     int Right,

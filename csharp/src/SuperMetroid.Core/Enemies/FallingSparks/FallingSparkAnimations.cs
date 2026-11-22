@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// The falling spark's animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class FallingSparkAnimations
+internal static partial class FallingSparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static HidingUnpausedAnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

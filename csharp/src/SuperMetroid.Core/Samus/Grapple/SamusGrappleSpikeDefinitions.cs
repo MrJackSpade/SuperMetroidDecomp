@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>What the spike reactions do to the grapple beam and to a swinging Samus.</summary>
-internal static class SamusGrappleSpikeDefinitions
+internal static partial class SamusGrappleSpikeDefinitions
 {
     /// <summary>
     /// The spike reactions that latch the grapple beam, with the periodic damage each adds: the turret spike, which uses

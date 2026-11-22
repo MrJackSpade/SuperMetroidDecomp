@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// applying it each update would reset its delay and keep the acid from moving.
 /// </summary>
 /// <param name="Change">The acid's change.</param>
-public sealed record MotherBrainAcidChange(RoomEffectDefinition Change) : EnemyPassEvent;
+public sealed partial record MotherBrainAcidChange(RoomEffectDefinition Change) : EnemyPassEvent;

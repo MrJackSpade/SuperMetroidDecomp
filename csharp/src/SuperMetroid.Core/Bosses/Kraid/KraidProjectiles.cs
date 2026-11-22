@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's lints, nails and spat rocks.</summary>
 [RoomLifetime]
-internal sealed class KraidProjectiles
+internal sealed partial class KraidProjectiles
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -90,7 +90,7 @@ internal sealed class KraidProjectiles
     /// animations' cues.
     /// </summary>
     /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class RockBehavior(KraidRockSegment? shot = null)
+    internal sealed partial class RockBehavior(KraidRockSegment? shot = null)
         : EnemyProjectileMotionBehavior<KraidRockMotion>(StartingMotions), IEnemyProjectileCues<KraidRockCue>
     {
         /// <inheritdoc/>
@@ -156,6 +156,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>What <see cref="RunKraidNailMain"/> does for each <see cref="KraidNailPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>> RunKraidNailMainForKraidNailPhase => field ??= new(new Dictionary<KraidNailPhase, Action<RoomEnemyPlace, KraidNailState, RoomLevelData>>
     {
         [KraidNailPhase.WaitBeforeLaunch] = (nail, part, level) =>
@@ -189,7 +190,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Seeds a released nail's velocity, animation, and collision state.</summary>
-    private void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
+    internal void InitializeKraidNailFlight(RoomEnemyPlace nail, KraidNailState part)
     {
         // The pair coordinates its next launch through the other actor's previous
         // velocity and spawn flag. Read that actor before overwriting this one's state.
@@ -222,7 +223,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
-    private void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
+    internal void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
@@ -234,7 +235,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
-    private bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
+    internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
         RoomEnemyPlace body = part.Kraid.Parts.Body;
         int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
@@ -254,6 +255,7 @@ internal sealed class KraidProjectiles
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>What <see cref="RunKraidLintMain"/> does for each <see cref="KraidLintPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>> RunKraidLintMainForKraidLintPhase => field ??= new(new Dictionary<KraidLintPhase, Action<RoomEnemyPlace, KraidLintState, SamusState>>
     {
         [KraidLintPhase.Inactive] = (lint, part, samus) => { },
@@ -272,7 +274,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Places a lint at its body-relative offset while its phase wait runs, and produces it on the wait's last update.</summary>
-    private static void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
+    internal static void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Position = lint.Position.WithWholeX(part.Kraid.Parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.PhaseWait.StepRunsOut())

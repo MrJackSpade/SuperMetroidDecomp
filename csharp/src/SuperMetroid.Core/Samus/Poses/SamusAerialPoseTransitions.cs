@@ -10,7 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's airborne pose transitions: jumps, spin and wall jumps, grapple wall jumps and drops, Shinespark wind-up, aerial turns and aim.</summary>
-internal static class SamusAerialPoseTransitions
+internal static partial class SamusAerialPoseTransitions
 {
     /// <summary>
     /// Shared momentum initialization of the normal-jump and falling pose

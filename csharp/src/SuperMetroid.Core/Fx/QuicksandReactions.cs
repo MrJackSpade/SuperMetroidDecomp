@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// Maridia quicksand's reactions (<see cref="QuicksandDefinitions"/>): which special-air reactions place a sand reaction
 /// object, and the surface physics Gravity equipment selects.
 /// </summary>
-public static class QuicksandReactions
+public static partial class QuicksandReactions
 {
     /// <summary>
     /// The surface's sinking while Samus moves and while she stands still, and the upward speed limit, by suit: the

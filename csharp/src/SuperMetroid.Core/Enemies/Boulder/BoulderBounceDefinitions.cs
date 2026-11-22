@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>Where each of a Boulder's ground impacts restarts its bounce on the speed curve.</summary>
-public static class BoulderBounceDefinitions
+public static partial class BoulderBounceDefinitions
 {
     /// <summary>
     /// The bounce clock's place each impact restarts it from, in the order the impacts happen: the earlier ones bounce it

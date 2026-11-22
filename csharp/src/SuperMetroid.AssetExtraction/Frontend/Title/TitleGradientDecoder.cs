@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// and colour-write bytes, which it decodes at their own widths and turns into the gradient's stops once (#1468).
 /// </summary>
 [EncodingOwner("title gradient direct-mode HDMA tables")]
-public static class TitleGradientDecoder
+public static partial class TitleGradientDecoder
 {
     /// <summary>
     /// Decodes the selected title gradient's fixed-color and control HDMA tables into its stops: one wherever a line's

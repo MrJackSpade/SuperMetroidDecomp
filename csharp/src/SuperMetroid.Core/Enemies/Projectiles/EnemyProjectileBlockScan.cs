@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// (<see cref="EnemyProjectileEngine"/>); each tested block is then judged by the move's
 /// <see cref="EnemyProjectileBlockCollision"/>.
 /// </remarks>
-internal readonly record struct EnemyProjectileBlockScan
+internal readonly partial record struct EnemyProjectileBlockScan
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="first">The first block tested, its row as the edge or span names it; <see cref="Block"/> takes it within the cycle.</param>
     /// <param name="edge">The edge scanned: horizontal for a horizontal move, stepping down the column; vertical for a vertical one, stepping along the row.</param>
     /// <param name="extraBlocks">How many blocks the scan tests after the first.</param>
-    private EnemyProjectileBlockScan(Position16<RoomBlocks> first, Axis edge, int extraBlocks)
+    internal EnemyProjectileBlockScan(Position16<RoomBlocks> first, Axis edge, int extraBlocks)
     {
         First = first;
         Edge = edge;

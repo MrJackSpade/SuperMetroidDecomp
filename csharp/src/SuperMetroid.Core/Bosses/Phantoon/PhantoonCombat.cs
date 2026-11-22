@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
 [RoomLifetime]
-internal sealed class PhantoonCombat
+internal sealed partial class PhantoonCombat
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -44,26 +44,36 @@ internal sealed class PhantoonCombat
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         // A bomb meets the same common damage as a beam or a missile, and the damage it does feeds the round's
         // damage; a lethal hit begins his death.
-        AfterCommon = c =>
-        {
-            int appliedDamage = c.HealthBefore - c.Enemy.Health;
-            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.PlacedBomb.Type, appliedDamage);
-        },
+        AfterCommon = ResolvePhantoonBombReaction,
     };
+
+    /// <summary>Feeds a bomb's common damage to the round's damage; a lethal hit begins his death.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private void ResolvePhantoonBombReaction(EnemyBombHitContext c)
+    {
+        int appliedDamage = c.HealthBefore - c.Enemy.Health;
+        ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.PlacedBomb.Type, appliedDamage);
+    }
 
     /// <summary>
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one dies, leaves its drop and is
     /// deleted, the animation its definition names.
     /// </summary>
     internal PhantoonFlameBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        flames => flames.CasualFalling, PhantoonFlameSegment.Dying);
+        StartsCasualFalling, PhantoonFlameSegment.Dying);
+
+    /// <summary>A destroyable flame starts falling to the floor.</summary>
+    private static EnemyProjectileOwnedMotion StartsCasualFalling(PhantoonFlameBehavior flames) => flames.CasualFalling;
+
+    /// <summary>An intro flame starts waiting at its place around Phantoon.</summary>
+    private static EnemyProjectileOwnedMotion StartsIntroWaiting(PhantoonFlameBehavior flames) => flames.IntroWaiting;
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
     /// flame idles, the animation its definition names.
     /// </summary>
     internal PhantoonFlameBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        flames => flames.IntroWaiting, PhantoonFlameSegment.Burning);
+        StartsIntroWaiting, PhantoonFlameSegment.Burning);
 
     /// <summary>
     /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
@@ -73,7 +83,7 @@ internal sealed class PhantoonCombat
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
     /// <param name="initial">Picks the behaviour's motion the flame starts with.</param>
     /// <param name="shot">Where the animation a destroying shot starts begins.</param>
-    internal sealed class PhantoonFlameBehavior(
+    internal sealed partial class PhantoonFlameBehavior(
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
         Func<PhantoonFlameBehavior, EnemyProjectileOwnedMotion> initial,
@@ -96,38 +106,59 @@ internal sealed class PhantoonCombat
         internal override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => initial(this);
 
         /// <summary>An intro flame waiting at its place around Phantoon until the intro flames begin to orbit.</summary>
-        internal EnemyProjectileOwnedMotion IntroWaiting => field ??= new(nameof(IntroWaiting),
-            context => RunPhantoonStartingFlameWaiting(context.Projectile));
+        internal EnemyProjectileOwnedMotion IntroWaiting => field ??= new(nameof(IntroWaiting), MoveIntroWaiting);
 
         /// <summary>An intro flame orbiting Phantoon's body as its orbit closes.</summary>
-        private EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting),
-            context => RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter));
+        internal EnemyProjectileOwnedMotion IntroOrbiting => field ??= new(nameof(IntroOrbiting), MoveIntroOrbiting);
 
         /// <summary>A casual flame falling to the floor.</summary>
-        internal EnemyProjectileOwnedMotion CasualFalling => field ??= new(nameof(CasualFalling),
-            context => RunPhantoonCasualFlameFalling(this, context.Projectile, context.Level));
+        internal EnemyProjectileOwnedMotion CasualFalling => field ??= new(nameof(CasualFalling), MoveCasualFalling);
 
         /// <summary>A casual flame pausing on the floor where it landed.</summary>
-        internal EnemyProjectileOwnedMotion CasualLanding => field ??= new(nameof(CasualLanding),
-            context => RunPhantoonCasualFlameLandingPause(this, context.Projectile, context.FrameCounter));
+        internal EnemyProjectileOwnedMotion CasualLanding => field ??= new(nameof(CasualLanding), MoveCasualLanding);
 
         /// <summary>A casual flame bouncing across the floor after its pause.</summary>
-        internal EnemyProjectileOwnedMotion CasualBouncing => field ??= new(nameof(CasualBouncing),
-            context => RunPhantoonCasualFlameBouncing(this, context.Projectile, context.Level));
+        internal EnemyProjectileOwnedMotion CasualBouncing => field ??= new(nameof(CasualBouncing), MoveCasualBouncing);
 
         /// <summary>A rage flame spiralling out from Phantoon's body.</summary>
-        internal EnemyProjectileOwnedMotion RageOrbiting => field ??= new(nameof(RageOrbiting),
-            context => RunPhantoonEnragedFlame(context.Projectile));
+        internal EnemyProjectileOwnedMotion RageOrbiting => field ??= new(nameof(RageOrbiting), MoveRageOrbiting);
 
         /// <summary>A rain flame hanging, then falling to the floor.</summary>
-        internal EnemyProjectileOwnedMotion RainFalling => field ??= new(nameof(RainFalling),
-            context => RunPhantoonRainFlame(context.Projectile, context.Level));
+        internal EnemyProjectileOwnedMotion RainFalling => field ??= new(nameof(RainFalling), MoveRainFalling);
 
         /// <summary>A spiral flame turning out from Phantoon's body.</summary>
-        internal EnemyProjectileOwnedMotion SpiralOrbiting => field ??= new(nameof(SpiralOrbiting),
-            context => RunPhantoonSpiralFlame(context.Projectile));
+        internal EnemyProjectileOwnedMotion SpiralOrbiting => field ??= new(nameof(SpiralOrbiting), MoveSpiralOrbiting);
+
+        /// <summary>Moves an intro flame waiting (<see cref="IntroWaiting"/>).</summary>
+        private void MoveIntroWaiting(EnemyProjectileMotionContext context) => RunPhantoonStartingFlameWaiting(context.Projectile);
+
+        /// <summary>Moves an intro flame orbiting (<see cref="IntroOrbiting"/>).</summary>
+        private void MoveIntroOrbiting(EnemyProjectileMotionContext context) =>
+            RunPhantoonStartingFlameOrbit(context.Projectile, context.FrameCounter);
+
+        /// <summary>Moves a casual flame falling (<see cref="CasualFalling"/>).</summary>
+        private void MoveCasualFalling(EnemyProjectileMotionContext context) =>
+            RunPhantoonCasualFlameFalling(this, context.Projectile, context.Level);
+
+        /// <summary>Moves a casual flame pausing where it landed (<see cref="CasualLanding"/>).</summary>
+        private void MoveCasualLanding(EnemyProjectileMotionContext context) =>
+            RunPhantoonCasualFlameLandingPause(this, context.Projectile, context.FrameCounter);
+
+        /// <summary>Moves a casual flame bouncing (<see cref="CasualBouncing"/>).</summary>
+        private void MoveCasualBouncing(EnemyProjectileMotionContext context) =>
+            RunPhantoonCasualFlameBouncing(this, context.Projectile, context.Level);
+
+        /// <summary>Moves a rage flame spiralling out (<see cref="RageOrbiting"/>).</summary>
+        private void MoveRageOrbiting(EnemyProjectileMotionContext context) => RunPhantoonEnragedFlame(context.Projectile);
+
+        /// <summary>Moves a rain flame (<see cref="RainFalling"/>).</summary>
+        private void MoveRainFalling(EnemyProjectileMotionContext context) => RunPhantoonRainFlame(context.Projectile, context.Level);
+
+        /// <summary>Moves a spiral flame (<see cref="SpiralOrbiting"/>).</summary>
+        private void MoveSpiralOrbiting(EnemyProjectileMotionContext context) => RunPhantoonSpiralFlame(context.Projectile);
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="PhantoonFlameCue"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForPhantoonFlameCue => field ??= new(new Dictionary<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [PhantoonFlameCue.SpawnDrop] = (context, projectile) => RequestPhantoonFlameDrop(projectile, context.Samus),
@@ -321,7 +352,7 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>Phantoon's own reaction to a damaging shot, after the common damage.</summary>
-    private void ResolvePhantoonShotReaction(
+    internal void ResolvePhantoonShotReaction(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         SamusProjectileType projectileType,
@@ -516,7 +547,7 @@ internal sealed class PhantoonCombat
     /// </summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
-    private static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
+    internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius) =>
         UnitComponent.SineOf(angle).ReachOf(ShortCircleProduct.RadiusInUse(radius));
 
     /// <summary>

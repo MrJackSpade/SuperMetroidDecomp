@@ -113,7 +113,7 @@ internal static class EnemyContentIdentityFixtureVerification
 
         /// <summary>Serializes fixture documents through the same camel-case JSON shape as installed artwork.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
 
         /// <summary>Writes indexed tile pixels with an optional first-pixel edit or cosmetic palette change.</summary>
         private MemoryStream Png(string name, int bytes, int seed = 0)

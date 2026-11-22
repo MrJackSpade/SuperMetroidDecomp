@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomWarning warning, RoomEnemyOccupant occupant,
+internal sealed partial class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomWarning warning, RoomEnemyOccupant occupant,
     RoomEnemyPlace place, EnemyCommonParticipation common)
     : RidleyEntity(ceres.Body, occupant, place, common), IEnemyShotAdmission
 {

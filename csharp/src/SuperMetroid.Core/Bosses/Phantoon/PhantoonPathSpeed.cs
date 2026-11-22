@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// between updates, zero or more forward and zero or less backward. Each update he takes the speed's whole places along
 /// the path; the fraction only decides on which update a speed change reaches the next whole place.
 /// </summary>
-public readonly record struct PhantoonPathSpeed
+public readonly partial record struct PhantoonPathSpeed
 {
     /// <summary>Keeps the speed in places an update, fraction included, at the precision the game steps it in.</summary>
-    private PhantoonPathSpeed(SignedSixteenSixteen places) => _places = places;
+    internal PhantoonPathSpeed(SignedSixteenSixteen places) => Places = places;
 
     /// <summary>The speed in places an update, fraction included.</summary>
-    private readonly SignedSixteenSixteen _places;
+    internal SignedSixteenSixteen Places { get; }
 
     /// <summary>No movement along the path.</summary>
     public static PhantoonPathSpeed Zero => default;
@@ -29,7 +29,7 @@ public readonly record struct PhantoonPathSpeed
 
     /// <summary>The whole places the speed takes each update, its fraction dropped toward fewer places.</summary>
     [IntegerQuantity("whole places of Phantoon's figure-eight path taken each update")]
-    public int WholePlaces => _places.WholePixels;
+    public int WholePlaces => Places.WholePixels;
 
     /// <summary>
     /// The whole places the speed takes each update the way he runs the path (#2569): its whole places forward running
@@ -44,8 +44,8 @@ public readonly record struct PhantoonPathSpeed
     };
 
     /// <summary>The speed raised by <paramref name="change"/>, its fraction carrying into the whole places.</summary>
-    public static PhantoonPathSpeed operator +(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed._places + change._places);
+    public static PhantoonPathSpeed operator +(PhantoonPathSpeed speed, PhantoonPathSpeed change) => new(speed.Places + change.Places);
 
     /// <summary>The same speed the other way along the path (#2569): a change that slows the speed by as much as this one raises it.</summary>
-    public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed) => new(-speed._places);
+    public static PhantoonPathSpeed operator -(PhantoonPathSpeed speed) => new(-speed.Places);
 }

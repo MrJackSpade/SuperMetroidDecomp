@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the rest of its room, as the game keeps a place's spawn entry until the place is populated again, so a death
 /// explosion's respawn cue rebuilds whatever entry the place keeps when the cue runs (#1542), double deaths included.
 /// </summary>
-public sealed class PopulatedEnemyPlace : EnemyPlaceHistory
+public sealed partial class PopulatedEnemyPlace : EnemyPlaceHistory
 {
     /// <summary>Starts the history of <paramref name="place"/> with the first occupant it creates there.</summary>
     /// <param name="place">The place the history belongs to.</param>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="SpikeReaction"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SpikeReactionKeys
+internal static partial class SpikeReactionKeys
 {
     /// <summary>Each SpikeReaction member's installed key.</summary>
     internal static InstalledKeys<SpikeReaction> Installed { get; } = new(new Dictionary<SpikeReaction, string>

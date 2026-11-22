@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// with poisoned upper bits against the game's sines and requires both behaviours.
 /// </remarks>
 [CompatibilityService("an enemy's short circle product: a radius of 256 or more continues from zero, and a point in the turn's second half reverses its whole pixels and its fraction each on their own")]
-public static class ShortCircleProduct
+public static partial class ShortCircleProduct
 {
     /// <summary>The span of radii the product tells apart: a radius past it continues from zero.</summary>
-    private const int RadiusSpan = 256;
+    internal const int RadiusSpan = 256;
 
     /// <summary>
     /// The radius, 0 through 255, the product uses for <paramref name="radius"/> pixels, zero or more: its place within

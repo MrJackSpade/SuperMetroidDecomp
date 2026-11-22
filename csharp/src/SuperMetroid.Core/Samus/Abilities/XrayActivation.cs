@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The pose its activation installs, which the frame's pose update commits unless a higher-priority pose supersedes it; null
 /// when the setup ended a stranded beam at once.
 /// </param>
-internal readonly record struct XrayActivation(SamusPoseId? Pose);
+internal readonly partial record struct XrayActivation(SamusPoseId? Pose);

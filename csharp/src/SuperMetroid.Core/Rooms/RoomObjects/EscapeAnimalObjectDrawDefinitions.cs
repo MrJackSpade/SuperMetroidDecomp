@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The rescue walls' block shapes (#1862): solid columns the wall's height down from its top block. What each frame shows
 /// is its installed picture (#1557).
 /// </summary>
-internal static class EscapeAnimalObjectDrawDefinitions
+internal static partial class EscapeAnimalObjectDrawDefinitions
 {
     /// <summary>A solid wall the wall's height (<see cref="EscapeAnimalWallDefinitions.HeightInBlocks"/>) down from its top block.</summary>
     private static readonly RoomBlockShape SolidWall = new(

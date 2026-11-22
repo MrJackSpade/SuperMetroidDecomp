@@ -10,7 +10,7 @@ namespace SuperMetroid.Core;
 /// With C# 14's first-class span conversions, arrays bind to these queries too, in preference to their
 /// <see cref="Enumerable"/> counterparts; the results are identical.
 /// </remarks>
-public static class ReadOnlySpanQueries
+public static partial class ReadOnlySpanQueries
 {
     /// <summary>Queries over one span of <typeparamref name="T"/>.</summary>
     extension<T>(ReadOnlySpan<T> span)

@@ -3,7 +3,7 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The animation each projectile kind's shots start: one for each direction a shot is fired in, or one whatever its direction.</summary>
-internal static class SamusProjectileKindDefinitions
+internal static partial class SamusProjectileKindDefinitions
 {
     /// <summary>The animation a shot of each directional kind starts in each direction it is fired in.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusProjectileDirectionMap<P>> DirectionalAnimations =

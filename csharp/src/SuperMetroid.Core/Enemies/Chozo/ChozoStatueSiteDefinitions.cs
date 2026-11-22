@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The two shipped Chozo statues' sites.</summary>
-internal static class ChozoStatueSiteDefinitions
+internal static partial class ChozoStatueSiteDefinitions
 {
     /// <summary>
     /// Each site: the Wrecked Ship's statue, whose placement puts its hand and the closing slope access and whose hand

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="ClipAudioBackend"/> with each update's events, whose PCM the host copies out (#1305); a muted session's
 /// PCM is silence. The backend is never read back by gameplay.
 /// </remarks>
-public sealed class AudioSession
+public sealed partial class AudioSession
 {
     /// <summary>
     /// The PCM output rate, in stereo frames per second: the installed clips' own rate, 32,040, at which the session mixes

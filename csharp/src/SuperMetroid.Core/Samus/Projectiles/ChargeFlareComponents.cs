@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The charge-flare components a frame shows, in the order the flare draw advances and draws them (#1859). Each set
 /// names its parts and their order outright.
 /// </summary>
-public sealed class ChargeFlareComponents
+public sealed partial class ChargeFlareComponents
 {
     /// <summary>A set that shows <paramref name="drawOrder"/>, in that order.</summary>
     /// <param name="drawOrder">The shown components in drawing order.</param>

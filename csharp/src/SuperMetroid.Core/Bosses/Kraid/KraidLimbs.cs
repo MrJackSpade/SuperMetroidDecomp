@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
 [RoomLifetime]
-internal sealed class KraidLimbs
+internal sealed partial class KraidLimbs
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -75,6 +75,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>What <see cref="ApplyKraidPartCue"/> comes to for each <see cref="KraidPartCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>> ApplyKraidPartCueForKraidPartCue => field ??= new(new Dictionary<KraidPartCue, Func<KraidEnemyState, RoomEnemyPlace, KraidPartSegment?>>
     {
         [KraidPartCue.RaiseBody] = (state, body) =>
@@ -192,6 +193,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>What <see cref="RunKraidFootMain"/> does for each <see cref="KraidFootPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>> RunKraidFootMainForKraidFootPhase => field ??= new(new Dictionary<KraidFootPhase, Action<RoomEnemyPlace, KraidFootState, KraidEnemyState, RoomEnemyPlace>>
     {
         [KraidFootPhase.Resting] = (foot, part, state, body) => { },
@@ -331,7 +333,7 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction on the last update of its thinking.</summary>
-    private void RunKraidSecondPhaseThinking(
+    internal void RunKraidSecondPhaseThinking(
         RoomEnemyPlace body,
         KraidFootState part)
     {

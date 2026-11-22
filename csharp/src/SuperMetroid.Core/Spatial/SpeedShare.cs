@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// a slope, how much of a crawler's speed carries along one, or one substep's part of a grapple extension. A share is
 /// authored as a fraction of the whole.
 /// </summary>
-public readonly record struct SpeedShare
+public readonly partial record struct SpeedShare
 {
     /// <summary>The 256ths in the whole of a move or a speed.</summary>
     private const int WholeParts = 256;

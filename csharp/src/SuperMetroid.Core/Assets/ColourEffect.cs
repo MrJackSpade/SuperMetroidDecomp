@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// one: it is a <see cref="PictureShade"/> the import pre-colours. A fade names how far it has come (<see cref="FadeLevel"/>)
 /// and the backend blends it (<see cref="IColourBlend"/>, #2563).
 /// </summary>
-public abstract record ColourEffect
+public abstract partial record ColourEffect
 {
     /// <summary>Only the effects below are colour effects.</summary>
     private protected ColourEffect()

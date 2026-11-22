@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>). No projectile stands in the place: it shows and touches nothing.
 /// </summary>
 [RoomLifetime]
-internal sealed class PrePhantoonRoomBehavior
+internal sealed partial class PrePhantoonRoomBehavior
 {
     /// <summary>Shared pool in which the setup holds its place.</summary>
     private readonly EnemyProjectileEngine _projectiles;

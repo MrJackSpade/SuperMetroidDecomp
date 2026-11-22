@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports the live Baby Metroid's normal cycle and three initialization targets.</summary>
-public static class BabyMetroidColorExtractor
+public static partial class BabyMetroidColorExtractor
 {
     /// <summary>Exports the live Baby Metroid encounter's eight four-color innard-pulse images and three complete initialization/transition target palettes.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the normal cycle at $A9:F6D1 and dead-sidehopper, sidehopper, and Baby Metroid targets at $A9:F8A6/F8C6/F8E6.</param>

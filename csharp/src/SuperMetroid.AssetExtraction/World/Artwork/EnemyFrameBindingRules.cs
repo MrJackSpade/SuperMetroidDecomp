@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// game reads, or in the compositions only the import composes the enemy sheets from. A binding names, for each named frame,
 /// the frame displayed for it.
 /// </summary>
-internal static class EnemyFrameBindingRules
+internal static partial class EnemyFrameBindingRules
 {
     /// <summary>The enemies showing each frame.</summary>
     private static readonly Lazy<ILookup<EnemyFrameId, EnemyDefinitionId>> Showing = new(() =>

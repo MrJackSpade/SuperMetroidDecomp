@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Saves;
 /// The numeric fields are JSON numbers, each accepted only inside the range its quantity can take; the reserve mode and
 /// HUD item are written by name.
 /// </remarks>
-public sealed record GameSaveSlotJsonDocument
+public sealed partial record GameSaveSlotJsonDocument
 {
 
     /// <summary>The load station the save resumes at, by its <see cref="LoadStation.Name"/> (schema nine, #1723).</summary>

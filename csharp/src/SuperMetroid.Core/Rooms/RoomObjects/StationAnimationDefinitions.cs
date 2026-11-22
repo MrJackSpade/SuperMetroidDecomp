@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// held, again and again; the save station's idle image shows again and again, and the accepted save flashes its pod's lights on
 /// and off for its authored loops.
 /// </summary>
-internal static class StationAnimationDefinitions
+internal static partial class StationAnimationDefinitions
 {
     /// <summary>Each animation's images and how long each shows.</summary>
     internal static AnimationSegments<StationAnimation, StationDraw, NoAnimationCue> Segments { get; } = new(

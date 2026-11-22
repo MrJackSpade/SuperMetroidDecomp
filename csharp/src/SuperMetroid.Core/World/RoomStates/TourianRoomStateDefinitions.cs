@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Tourian room state, named for their rooms.</summary>
 [NumberedIdentities("Each numbered state is a state of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes them.")]
-public static class TourianRoomStateDefinitions
+public static partial class TourianRoomStateDefinitions
 {
 
     /// <summary>The Tourian First room's state.</summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The pictures each Zebetite form shows by its health (#2250), most health first: a barrier drains a step for each
 /// band of health it loses below <see cref="ZebetiteDefinitions.MaximumHealth"/>, the last picture showing everything in its lowest band.
 /// </summary>
-internal static class ZebetiteHealthPictureDefinitions
+internal static partial class ZebetiteHealthPictureDefinitions
 {
     /// <summary>The least health a barrier shows its intact picture at.</summary>
     private const int IntactMinimum = 800;

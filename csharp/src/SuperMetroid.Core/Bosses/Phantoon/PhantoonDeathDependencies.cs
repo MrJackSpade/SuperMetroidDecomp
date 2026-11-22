@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The collaborators a <see cref="PhantoonDeath"/> is constructed with, built once by its owner.</summary>
 [RoomLifetime]
-internal sealed record PhantoonDeathDependencies
+internal sealed partial record PhantoonDeathDependencies
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }

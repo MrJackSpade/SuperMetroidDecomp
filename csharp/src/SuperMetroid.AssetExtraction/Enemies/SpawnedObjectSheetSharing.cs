@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// none. A holder may have composed a picture's colours from other rows or palette bits than those it is painted as, since
 /// one look says only what a draw shows; the draw shows the same picture either way.
 /// </summary>
-internal static class SpawnedObjectSheetSharing
+internal static partial class SpawnedObjectSheetSharing
 {
     /// <summary>The installed sheets <paramref name="layouts"/>, each a distinct laid-out spawned-object sheet, share out to.</summary>
     /// <exception cref="InvalidDataException">A sheet's pictures cannot be cut out, or a sheet does not fit on one image.</exception>
@@ -95,7 +95,7 @@ internal static class SpawnedObjectSheetSharing
     }
 
     /// <summary>One distinct picture the spawned-object sheets hold, and which of them hold it under which frame names.</summary>
-    private sealed class HeldPicture
+    private sealed partial class HeldPicture
     {
         /// <summary>The sheets holding the picture, by their place among the layouts.</summary>
         private readonly HashSet<int> holders = [];
@@ -148,7 +148,7 @@ internal static class SpawnedObjectSheetSharing
     }
 
     /// <summary>The pictures one installed sheet will hold, in order, and the colouring they agree on.</summary>
-    private sealed class PictureSheetPlan
+    private sealed partial class PictureSheetPlan
     {
         /// <summary>The pictures, in order.</summary>
         private readonly List<HeldPicture> pictures = [];

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <see cref="KraidRoomObjectDrawDefinitions"/>, and the installed picture (#1557) each shows. A crumbling block shows the
 /// stages of its breakup (#2127), then the picture its draw leaves.
 /// </summary>
-internal static class KraidRoomObjectDraws
+internal static partial class KraidRoomObjectDraws
 {
     /// <summary>The room's backgrounds and clears, pictured by the installed Kraid room frames.</summary>
     internal static RoomObjectDrawFamily<KraidRoomDraw> Family { get; } =
@@ -25,5 +25,5 @@ internal static class KraidRoomObjectDraws
     /// The breakup's last stage is not drawn: the block shows the background or spike picture its draw leaves instead.
     /// </summary>
     /// <param name="Stage">What the crumbling block shows.</param>
-    internal readonly record struct CrumbleDraw(BlockBreakupStage Stage);
+    internal readonly partial record struct CrumbleDraw(BlockBreakupStage Stage);
 }

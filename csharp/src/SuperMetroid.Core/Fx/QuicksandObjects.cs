@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>Quicksand reaction room objects, each taking one of the room's room-object places.</summary>
 [RoomLifetime]
-internal sealed class QuicksandObjects
+internal sealed partial class QuicksandObjects
 {
     /// <summary>The room's room-object places; a full room keeps a quicksand reaction from spawning.</summary>
     private readonly RoomObjectPlaceList _places;

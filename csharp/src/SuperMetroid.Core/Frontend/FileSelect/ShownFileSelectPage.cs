@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <param name="Selected">The page and the slots its prompt names.</param>
 /// <param name="Slots">Each slot's field, or none where the slot holds no save.</param>
-internal sealed record ShownFileSelectPage(SelectedFileSelectPage Selected, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots)
+internal sealed partial record ShownFileSelectPage(SelectedFileSelectPage Selected, ImmutableDictionary<SaveSlot, ShownFileSelectSave?> Slots)
 {
     /// <summary>The page.</summary>
     private FileSelectPage Page => Selected.Page;

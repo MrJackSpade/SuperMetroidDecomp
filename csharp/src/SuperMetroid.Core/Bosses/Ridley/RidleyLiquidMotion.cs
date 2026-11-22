@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's liquid motions (#1395).</summary>
-internal static class RidleyLiquidMotion
+internal static partial class RidleyLiquidMotion
 {
     /// <summary>Applies Ridley's liquid target and delay, with the velocity, to the room's liquid.</summary>
     /// <param name="roomFx">The room's liquid.</param>

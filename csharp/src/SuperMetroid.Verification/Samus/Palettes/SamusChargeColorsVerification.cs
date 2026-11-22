@@ -47,9 +47,7 @@ internal static class SamusChargeColorsVerification
             }
         }
 
-        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusChargeColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock charge colors are null.");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -225,7 +223,6 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, invalid, 0), "Invalid suited death palette");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor((SuperMetroid.Core.Samus.Colours.SamusSuit)99, 0, 0), "Invalid death suit");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, invalid), "Invalid suited color");

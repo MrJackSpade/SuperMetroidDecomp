@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (#1557), except a block pair's frame, which writes its pair's block under the item's picture
 /// (<see cref="Rooms.LevelData.CollectiblePairBlock"/>, #2354).
 /// </summary>
-internal static class RoomObjectCollectibleDrawDefinitions
+internal static partial class RoomObjectCollectibleDrawDefinitions
 {
     /// <summary>The six kinds of collectible draw; each kind's blocks collide alike.</summary>
     internal enum DrawGroup

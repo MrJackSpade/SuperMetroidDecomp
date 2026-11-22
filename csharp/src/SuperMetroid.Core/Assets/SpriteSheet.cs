@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// draws that show nothing (#1513). The import pipeline decides a frame shows nothing when its composition inks no pixel,
 /// so the sheet holds no picture for it and the draw that chooses it draws nothing.
 /// </summary>
-public sealed class SpriteSheet
+public sealed partial class SpriteSheet
 {
     /// <summary>The frames by name.</summary>
     internal readonly Dictionary<string, SpriteSheetFrame> frames;

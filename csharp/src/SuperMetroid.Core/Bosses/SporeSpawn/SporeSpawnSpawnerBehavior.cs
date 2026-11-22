@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="room">The loaded room, whose random numbers time the releases.</param>
 /// <param name="projectiles">The enemy projectiles, which hold the spores the spawner releases.</param>
 /// <param name="spores">The behaviour every spore the spawner releases runs.</param>
-internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
+internal sealed partial class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, SporeSpawnSporeBehavior spores)
     : EnemyProjectileMotionBehavior<SporeSpawnSpawnerMotion>(SporeSpawnSpawnerMotion.Releasing), IEnemyProjectileCues<SporeSpawnCeilingCue>
 {
     /// <summary>The Spore Spawn that set each spawner up and the way its spores drift, given as it opens.</summary>
@@ -21,6 +21,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
         new SporeSpawnCeilingAnimation(this, SporeSpawnCeilingSegment.SpawnerClosed);
 
     /// <summary>What <c>Move</c> does for each <see cref="SporeSpawnSpawnerMotion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>> MoveForSporeSpawnSpawnerMotion => field ??= new(new Dictionary<SporeSpawnSpawnerMotion, Action<EnemyProjectileMotionContext>>
     {
         [SporeSpawnSpawnerMotion.Releasing] = context => ReleaseSpores(context.Projectile),
@@ -35,6 +36,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     }
 
     /// <summary>What <see cref="RunCue"/> does for each cue the ceiling's animations publish, each cue's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SporeSpawnCeilingCue, Action<EnemyProjectileCueContext>> RunCueForCeilingCue => field ??= new(new Dictionary<SporeSpawnCeilingCue, Action<EnemyProjectileCueContext>>
     {
         [SporeSpawnCeilingCue.SpawnSpore] = context =>
@@ -56,7 +58,7 @@ internal sealed class SporeSpawnSpawnerBehavior(EnemyRoomBinding room, EnemyProj
     /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's colours as
     /// they show now (#1512).
     /// </summary>
-    private void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
+    internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
     {
         EnemyProjectile? spore = projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnSpore, spores, SpriteGraphics.SharedIn(Ensure.NotNull(sporeSpawn).Colours.Sprites), new SporeSpawnSporeAnimation(spores, SporeSpawnSporeSegment.Spore));
         if (spore is null)

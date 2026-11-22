@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Immutable indexed enemy sprite composition; parts may calculate instead of occupying a complete stored array.</summary>
-public abstract class EnemySpritemapParts : IReadOnlyList<SpritePart>
+public abstract partial class EnemySpritemapParts : IReadOnlyList<SpritePart>
 {
     /// <summary>Restricts construction to immutable composition implementations.</summary>
     private protected EnemySpritemapParts() { }
@@ -30,7 +30,7 @@ public abstract class EnemySpritemapParts : IReadOnlyList<SpritePart>
     /// <remarks>The loader transfers its newly compiled, unexposed array to this immutable view.</remarks>
     internal static EnemySpritemapParts FromOwnedArray(SpritePart[] parts) => new StoredParts(parts);
     /// <summary>Immutable view over an array whose ownership the loader has transferred.</summary>
-    private sealed class StoredParts(SpritePart[] parts) : EnemySpritemapParts
+    private sealed partial class StoredParts(SpritePart[] parts) : EnemySpritemapParts
     {
         /// <summary>Uses the owned array's exact part count.</summary>
         public override int Count => parts.Length;

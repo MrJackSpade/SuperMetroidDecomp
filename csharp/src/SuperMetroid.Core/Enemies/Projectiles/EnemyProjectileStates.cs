@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// lasts as long as the projectile in its place: the next projectile the behaviour is bound to there is given its own.
 /// </summary>
 /// <typeparam name="TState">What the behaviour keeps on each of its projectiles.</typeparam>
-internal sealed class EnemyProjectileStates<TState> where TState : EnemyProjectileState
+internal sealed partial class EnemyProjectileStates<TState> where TState : EnemyProjectileState
 {
     /// <summary>The entry of the projectile in each place, given when the behaviour's spawner set that projectile up.</summary>
     private readonly TState[] _places = new TState[EnemyProjectilePlaces.Capacity];

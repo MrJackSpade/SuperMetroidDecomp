@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
-public sealed class WorldMapLabelPositions
+public sealed partial class WorldMapLabelPositions
 {
     /// <summary>Drawing anchor for Crateria's world-map name.</summary>
     private readonly Offset16<ScreenPixels> crateria;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="SamusShotBehavior"/>), or, for a Spazer and Plasma shot whose effect lies outside the emulation scope limit,
 /// refuses the shot (<see cref="ShotRefusedWhenFired"/>, #1500).
 /// </summary>
-internal abstract class SamusShotFiring
+internal abstract partial class SamusShotFiring
 {
     /// <summary>Fires the shot <paramref name="held"/> holds.</summary>
     /// <param name="held">The fired shot.</param>

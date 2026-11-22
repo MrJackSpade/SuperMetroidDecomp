@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collaborators a <see cref="KraidDeath"/> is constructed with, built once by its owner.</summary>
 [RoomLifetime]
-internal sealed record KraidDeathDependencies
+internal sealed partial record KraidDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }

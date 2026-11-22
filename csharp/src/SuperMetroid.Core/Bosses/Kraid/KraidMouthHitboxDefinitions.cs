@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's mouth collision geometry, independent of his editable head artwork.</summary>
-internal static class KraidMouthHitboxDefinitions
+internal static partial class KraidMouthHitboxDefinitions
 {
     /// <summary>The rectangle of each mouth shape, relative to Kraid's body position.</summary>
     internal static readonly IdentityTable<KraidMouthHitbox, EnemyHitboxRectangle> Rectangles = new(new Dictionary<KraidMouthHitbox, EnemyHitboxRectangle>

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Input;
 /// <param name="Held">The actions held.</param>
 /// <param name="NewlyPressed">The actions published as newly pressed, independent of <paramref name="Held"/>.</param>
 /// <param name="Duration">The updates the input lasts, at least one; a recording refuses any shorter input.</param>
-public readonly record struct DemoInput(GameplayAction Held, GameplayAction NewlyPressed, int Duration);
+public readonly partial record struct DemoInput(GameplayAction Held, GameplayAction NewlyPressed, int Duration);

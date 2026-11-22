@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// reads and leaves.
 /// </remarks>
 [CompatibilityService("the room mains' hand-overs to the next room's main: the shaft's turn to the hall's debris wait, the escape's diagonal quake and the elevatube's fraction, all carried in one shared value")]
-public sealed class RoomMainHandOvers
+public sealed partial class RoomMainHandOvers
 {
     /// <summary>Starts the session's hand-overs over a shared value no main has left yet.</summary>
     public RoomMainHandOvers()

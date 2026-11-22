@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
-public sealed class InstalledProjectileTrails
+public sealed partial class InstalledProjectileTrails
 {
     /// <summary>The installed appearance of every trail frame (#1596).</summary>
     private readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes;
@@ -43,7 +43,7 @@ public sealed class InstalledProjectileTrails
         {
             using var parsed = JsonDocument.Parse(json);
             ValidateUnique(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ProjectileTrailDocument>(Options)
+            document = parsed.RootElement.Deserialize<ProjectileTrailDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileTrailDocument>(Options))
                 ?? throw new InvalidDataException("Trail document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid trail JSON.", error); }
@@ -69,7 +69,7 @@ public sealed class InstalledProjectileTrails
     /// <param name="document">Authored frame dictionary read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(ProjectileTrailDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileTrailDocument>(Options));
     /// <summary>Rejects repeated object keys before deserialization could replace a trail frame.</summary>
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,

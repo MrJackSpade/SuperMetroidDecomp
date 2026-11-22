@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Outer">The outer mouth read, tested by body hits.</param>
 /// <param name="Inner">The inner mouth read, tested by mouth hits.</param>
 /// <param name="Growth">Where growth restarts the head from this place.</param>
-internal readonly record struct KraidHeadAnimationReads(KraidMouthShapeRead Outer, KraidMouthShapeRead Inner, KraidHeadGrowthResume Growth);
+internal readonly partial record struct KraidHeadAnimationReads(KraidMouthShapeRead Outer, KraidMouthShapeRead Inner, KraidHeadGrowthResume Growth);

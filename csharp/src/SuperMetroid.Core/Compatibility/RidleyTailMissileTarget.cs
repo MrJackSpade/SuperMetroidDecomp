@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// first up and takes the first missile or Super Missile within reach.
 /// </remarks>
 [CompatibilityService("Ridley's tail swings at the missile in Samus's lowest shot place within reach, searched only while her shot count is nonzero")]
-public static class RidleyTailMissileTarget
+public static partial class RidleyTailMissileTarget
 {
     /// <summary>The missile the tail swings at, or null when it swings at Samus.</summary>
     /// <typeparam name="TShot">One of Samus's shot places' projectiles.</typeparam>

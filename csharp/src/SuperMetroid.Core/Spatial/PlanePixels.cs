@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Spatial;
 /// plane's top-left corner, as the plane pixel shown at the screen's top-left selects. Gameplay state keeps its own
 /// spaces (room, background, effect overlay) and converts by name when it publishes a plane.
 /// </summary>
-public sealed class PlanePixels : ISpatialSpace;
+public sealed partial class PlanePixels : ISpatialSpace;

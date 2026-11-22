@@ -26,7 +26,13 @@ internal static class SaveStationSoundVerification
     internal static void VerifySaveStationSound()
     {
         var random = new SharedRandom();
+<<<<<<< HEAD
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), random: random);
+||||||| 418ca79935
+        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), random });
+=======
+        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), random);
+>>>>>>> origin/main
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>How far each loop of a Choot's falling path carries it down.</summary>
-internal static class ChootFalls
+internal static partial class ChootFalls
 {
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
     internal static int LoopYDistance(ChootFallingPath fallingPath) => Path(fallingPath).LoopYDistance;

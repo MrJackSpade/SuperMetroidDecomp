@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="family">The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</param>
-internal sealed class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BabyTurtleSpawnSettings settings,
+internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BabyTurtleSpawnSettings settings,
     MamaTurtleFamily family)
     : TurtleEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {

@@ -1,4 +1,4 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Room-relative pixels: Samus, enemies, room-object blocks and the camera's top-left corner (foreground scroll).</summary>
-public sealed class RoomPixels : ISpatialSpace;
+public sealed partial class RoomPixels : ISpatialSpace;

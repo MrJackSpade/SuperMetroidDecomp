@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// compositions, page layout and colourings belong to the import pipeline that reads the installed presentation
 /// (#1463). Menu control, answer semantics, music and the Baby sequence are the game's own.
 /// </summary>
-public sealed class GameOverPresentation
+public sealed partial class GameOverPresentation
 {
     /// <summary>Retains the screen anchors and cursor duration; the page's composition is the import's, which pictures the page (#1467).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>

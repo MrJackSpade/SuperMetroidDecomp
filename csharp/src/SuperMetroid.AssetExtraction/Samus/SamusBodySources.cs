@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// composes the whole picture of each pose frame from them (#1585), and decides once which frames the body sheet pictures,
 /// which the installation holds with where each places the body (<see cref="InstalledBody"/>); gameplay receives only that.
 /// </summary>
-public sealed class SamusBodySources
+public sealed partial class SamusBodySources
 {
     /// <summary>Each pose's art origin.</summary>
     private readonly Dictionary<SamusPoseId, int> artOrigins;
@@ -69,7 +69,7 @@ public sealed class SamusBodySources
     /// The fatal-damage suit, suitless and whiteout colours her death shades are pre-coloured from (#1512); gameplay
     /// reads only the order of those steps, through <see cref="InstalledSamusBodyArtwork.DeathSteps"/>.
     /// </summary>
-    private SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
+    internal SuperMetroid.Core.Samus.Death.SamusDeathSteps DeathSteps { get; }
 
     /// <summary>Each pose's decoded picture frames, by their place in the game's layout of the pose's animation.</summary>
     internal IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>> Frames => frames;
@@ -78,7 +78,7 @@ public sealed class SamusBodySources
     /// The half pictures <paramref name="pose"/>'s <paramref name="animationFrame"/> selects, when the pose has a record and
     /// the frame is decoded; false for any other pair.
     /// </summary>
-    private bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
+    internal bool TryPictures(SamusPoseId pose, int animationFrame, out SamusBodyFramePictures pictures)
     {
         pictures = default;
         if (!frames.TryGetValue(pose, out IReadOnlyDictionary<int, SamusBodyDecodedFrame>? decoded) ||

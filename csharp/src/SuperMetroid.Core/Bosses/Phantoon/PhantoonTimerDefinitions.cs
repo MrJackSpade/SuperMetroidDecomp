@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's phase durations: his first flame's delay, and each eight-way random phase timer's short, medium and long
 /// durations with the length each of its eight picks takes (#2262).
 /// </summary>
-public static class PhantoonTimerDefinitions
+public static partial class PhantoonTimerDefinitions
 {
     /// <summary>The updates before his first flame.</summary>
     public const int InitialFlameDelayFrames = 120;

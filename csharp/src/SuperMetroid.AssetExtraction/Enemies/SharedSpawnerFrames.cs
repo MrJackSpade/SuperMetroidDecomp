@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// (#1513), by the frame's sheet name: each such frame is coloured in the colouring its spawners first show, over the rows
 /// its parts ink, rather than the whole sheet in one merged colouring.
 /// </summary>
-internal sealed class SharedSpawnerFrames
+internal sealed partial class SharedSpawnerFrames
 {
     /// <summary>The spawners of each frame, in the order the plan lists them.</summary>
     private readonly Dictionary<string, List<EnemyDefinitionId>> spawnersOf;

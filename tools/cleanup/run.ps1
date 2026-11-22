@@ -14,9 +14,10 @@
 # The owner's rules (2026-11-15, #2599): a fix is always applied, and when it cannot be applied without breaking the
 # code it breaks the code; nothing is left unfixed. A fix that leaves the code not compiling, a failed prune or
 # inventory step, steps that do not settle or undo each other, and a failed build are each recorded as a problem; the
-# run goes on and commits and pushes what it has, naming every problem in the commit body and the result. A fixer that
-# offers no fix or throws is a defect of that fixer and fails the run, as a clone, restore, tool build, workspace load
-# or push failure, where there is nothing to commit or no way to deliver it, does.
+# run goes on and commits and pushes what it has, naming every problem in the commit body and the result. A finding
+# whose fixer offers no fix gets the runner's own fix, which breaks the build at that site when nothing better applies
+# (#2611). A fixer that throws is a defect of that fixer and fails the run, as a clone, restore, tool build, workspace
+# load or push failure, where there is nothing to commit or no way to deliver it, does.
 #
 # Writes the outcome to -Result as JSON: result nothing or pushed (exit 0), or failed (nonzero exit).
 param(

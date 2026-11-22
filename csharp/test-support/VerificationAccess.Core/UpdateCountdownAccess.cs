@@ -25,7 +25,7 @@ internal static class UpdateCountdownAccess
     /// </summary>
     internal static void PlaceAt(this UpdateCountdown wait, UpdateCountdown placed)
     {
-        PrivateState.Set(wait, nameof(UpdateCountdown.Length), placed.Length);
-        PrivateState.Set(wait, nameof(UpdateCountdown.UpdatesLeft), placed.UpdatesLeft);
+        wait.Length = placed.Length;
+        wait.UpdatesLeft = placed.UpdatesLeft;
     }
 }

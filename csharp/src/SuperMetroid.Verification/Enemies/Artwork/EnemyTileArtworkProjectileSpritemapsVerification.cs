@@ -317,26 +317,24 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         var incompleteCurrent = document.Frames
             .Where(entry => entry.Key != "skree_debris")
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        byte[] invalidCurrentJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
+        byte[] invalidCurrentJson = JsonSerializer.SerializeToUtf8Bytes(new EnemyProjectileSpritemapDocument
             {
                 Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = incompleteCurrent,
                 ProgramFrames = document.ProgramFrames,
-            }, CamelCaseJson);
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidCurrentJson)),
             "current projectile compositions cannot silently omit Skree debris");
         var incompleteProgramFrames = (document.ProgramFrames ?? throw new InvalidOperationException("Verification requires document.ProgramFrames."))
             .Where(entry => entry.Key != omittedProgramFrame.Name)
             .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        byte[] invalidProgramJson = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyProjectileSpritemapDocument
+        byte[] invalidProgramJson = JsonSerializer.SerializeToUtf8Bytes(new EnemyProjectileSpritemapDocument
             {
                 Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = document.Frames,
                 ProgramFrames = incompleteProgramFrames,
-            }, CamelCaseJson);
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(invalidProgramJson)),
             "current projectile compositions cannot silently omit a shared program frame");

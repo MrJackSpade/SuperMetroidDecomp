@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Exports bounded Ceres Ridley color tables without exposing AI or fade timing.</summary>
-public static class CeresRidleyColorExtractor
+public static partial class CeresRidleyColorExtractor
 {
     /// <summary>Reads the bounded Ceres Ridley start, eye/body fade, health, alarm, retreat, and Baby color tables and serializes them as RGB5 rows.</summary>
     /// <param name="bus">Supported-cartridge address space containing the compiled Ceres Ridley palette tables.</param>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// finishes it. A knockback that moves her always has a direction: the game's knockback movement has no movement for
 /// the direction a hit never sets.
 /// </summary>
-public abstract record SamusKnockback
+public abstract partial record SamusKnockback
 {
     /// <summary>Closes the hierarchy to the cases declared here.</summary>
     private SamusKnockback()
@@ -23,11 +23,11 @@ public abstract record SamusKnockback
     internal virtual SamusKnockback HandBack() => this;
 
     /// <summary>No knockback is pending or moving her.</summary>
-    public sealed record NoKnockback : SamusKnockback;
+    public sealed partial record NoKnockback : SamusKnockback;
 
     /// <summary>A knockback that moves Samus (<see cref="SamusMovementOwner.Knockback"/>).</summary>
     /// <param name="Direction">Which way it moves her.</param>
-    public sealed record Moving(SamusKnockbackDirection Direction) : SamusKnockback
+    public sealed partial record Moving(SamusKnockbackDirection Direction) : SamusKnockback
     {
         /// <inheritdoc/>
         internal override SamusKnockback HandBack() => new HandedBack(Direction);
@@ -35,5 +35,5 @@ public abstract record SamusKnockback
 
     /// <summary>A knockback whose movement went back to her pose before her knockback hold ran out.</summary>
     /// <param name="Direction">Which way it moved her.</param>
-    public sealed record HandedBack(SamusKnockbackDirection Direction) : SamusKnockback;
+    public sealed partial record HandedBack(SamusKnockbackDirection Direction) : SamusKnockback;
 }

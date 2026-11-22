@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// The standard palettes frontend screens' pictures are composed under (#1392, #1467): the title's, an ending scene's and
 /// the Ceres flight's, in the cartridge's colour order.
 /// </summary>
-internal static class ScreenPaletteColours
+internal static partial class ScreenPaletteColours
 {
 
     /// <summary>The title's palette.</summary>

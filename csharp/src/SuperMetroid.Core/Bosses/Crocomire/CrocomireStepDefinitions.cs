@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// The steps Crocomire's walk cues take (#2163): his advance toward the spike wall, his step back from Samus, and his
 /// back-off from the wall, each with and without the random foot dust his heavier steps raise.
 /// </summary>
-internal static class CrocomireStepDefinitions
+internal static partial class CrocomireStepDefinitions
 {
     /// <summary>The pixels one step moves him.</summary>
     private const int StepPixels = 4;

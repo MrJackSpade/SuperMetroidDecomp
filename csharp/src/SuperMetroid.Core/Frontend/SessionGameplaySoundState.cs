@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// while no runtime is loaded.
 /// </summary>
 /// <param name="session">The session whose live runtime is read.</param>
-internal sealed class SessionGameplaySoundState(FrontendSession session) : IGameplaySoundState
+internal sealed partial class SessionGameplaySoundState(FrontendSession session) : IGameplaySoundState
 {
     /// <summary>The session whose live runtime is read.</summary>
     private readonly FrontendSession session = Ensure.NotNull(session);

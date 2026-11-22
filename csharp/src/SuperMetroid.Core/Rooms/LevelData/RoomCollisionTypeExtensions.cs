@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>The families of collision kinds the game's collision tests ask about (#1452, #1469).</summary>
-public static class RoomCollisionTypeExtensions
+public static partial class RoomCollisionTypeExtensions
 {
     /// <summary>
     /// Whether the kind is one of the eight solid kinds (solid, door, spike, special, shootable, vertical extension,

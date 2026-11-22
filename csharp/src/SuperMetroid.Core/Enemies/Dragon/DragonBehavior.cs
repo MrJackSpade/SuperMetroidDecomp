@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>The Dragon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonSpawnSettings>
+internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -105,6 +105,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     internal RoomEnemyPlace FollowUpRecipientOf(RoomEnemyPlace place) => FollowUpAfterStruckPart.Recipient(_places.PlacesAfter(place));
 
     /// <summary>What <see cref="RunDragonMain"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, DragonWingState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, DragonWingState, SamusState>>
     {
         [DragonAction.WaitToRise] = (_, place, state, wing, samus) => RunDragonWaitToRise(place, state, wing, samus),
@@ -123,7 +124,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     }
 
     /// <summary>Waits for Samus before rising.</summary>
-    private static void RunDragonWaitToRise(
+    internal static void RunDragonWaitToRise(
         RoomEnemyPlace body,
         DragonEnemyState bodyState, DragonWingState wingState,
         SamusState samus)
@@ -144,7 +145,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     }
 
     /// <summary>Rises out of the lava.</summary>
-    private static void RunDragonRising(RoomEnemyPlace body, DragonEnemyState bodyState)
+    internal static void RunDragonRising(RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         if (bodyState.ActionTimer.Step())
         {
@@ -225,8 +226,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     }
 
 
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyBombHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyPowerBombContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveDragonCombatAfterCommon(EnemyShotHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
+
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>
-    private static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
+    internal static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, DragonAnimations.StartingWith(segment));
 
     /// <summary>
@@ -235,11 +245,17 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// </summary>
     internal static EnemyBombReaction DragonBombReaction(RoomEnemyPlace following) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
+||||||| 418ca79935
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveDragonCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
-    private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyDragonFireball(context.Projectile, context.Camera.Y));
 
     /// <summary>Advances a Dragon body's typed animation, whose attack raises its finishing cue.</summary>
@@ -261,7 +277,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// <summary>Carries a Dragon part's power-bomb hit to <paramref name="following"/>, the enemy its follow-up reaches.</summary>
     internal static EnemyPowerBombReaction DragonPowerBombReaction(RoomEnemyPlace following) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
+||||||| 418ca79935
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveDragonCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>
@@ -270,7 +292,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     /// </summary>
     internal static EnemyShotReaction DragonShotReaction(RoomEnemyPlace following) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
+||||||| 418ca79935
+        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveDragonCombatAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>
@@ -284,7 +312,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     }
 
     /// <summary>Spawns and initializes a Dragon fireball.</summary>
-    private void SpawnDragonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
+    internal void SpawnDragonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace body, DragonEnemyState bodyState)
     {
         bool left = bodyState.Facing == HorizontalDirection.Left;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DragonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, body.Shading),
@@ -299,7 +327,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemySpawnFactory<DragonS
     }
 
     /// <summary>Flies the fireball for one update.</summary>
-    private static void FlyDragonFireball(
+    internal static void FlyDragonFireball(
         EnemyProjectile projectile,
         int cameraY)
     {

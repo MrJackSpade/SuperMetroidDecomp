@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <summary>
 /// The gunship liftoff dust clouds' typed animations (#641): each cloud shows its poses once and deletes itself.
 /// </summary>
-internal static class GunshipDustAnimations
+internal static partial class GunshipDustAnimations
 {
     /// <summary>Every dust animation.</summary>
     internal static UnpausedAnimationSegments<GunshipDustSegment, EnemyProjectileFrameId, GunshipDustCue> Segments { get; } = new(

@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// player: its pictures in turn, each for the menu's installed hold (#1596), over and over. The roll starts on its first
 /// picture, one update from its second.
 /// </summary>
-internal sealed class MenuMissileAnimation
+internal sealed partial class MenuMissileAnimation
 {
     /// <summary>The roll as it plays.</summary>
-    private readonly ShowingAnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
+    internal readonly ShowingAnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
 
     /// <summary>Starts the roll on its first picture, each later picture held for <paramref name="frameDuration"/> updates.</summary>
     internal MenuMissileAnimation(int frameDuration)

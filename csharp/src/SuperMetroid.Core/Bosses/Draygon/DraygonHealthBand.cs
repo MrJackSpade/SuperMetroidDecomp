@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// band whose <see cref="MinimumHealth"/> his health reaches, and in <see cref="DraygonHealthBandDefinitions.BelowEighth"/>
 /// below them all; health exactly on a band's minimum is in that band.
 /// </summary>
-public sealed class DraygonHealthBand
+public sealed partial class DraygonHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
@@ -17,7 +17,7 @@ public sealed class DraygonHealthBand
     }
 
     /// <summary>The least health in the band: zero for the lowest band, which holds all the health below the others.</summary>
-    private int MinimumHealth { get; }
+    internal int MinimumHealth { get; }
 
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }

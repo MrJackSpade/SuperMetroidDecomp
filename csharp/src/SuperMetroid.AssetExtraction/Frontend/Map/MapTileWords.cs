@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// the empty map cell instead (#1513), which the import decodes from the maps themselves.
 /// </summary>
 [EncodingOwner("area map cell word of the HUD minimap's hidden cell")]
-public static class MapTileWords
+public static partial class MapTileWords
 {
     /// <summary>The empty cell using the HUD minimap's unvisited priority/palette.</summary>
     public static readonly MapTileWord HudBlank = new(0x2c1f);

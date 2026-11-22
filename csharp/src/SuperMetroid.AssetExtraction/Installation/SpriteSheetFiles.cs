@@ -30,7 +30,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// (#1693), its pictures held in the installation's picture store (<see cref="PictureStoreFiles"/>). A player edits the
 /// installed files in place.
 /// </summary>
-public static class SpriteSheetFiles
+public static partial class SpriteSheetFiles
 {
     /// <summary>The Ceres floor's shots in the order the floor sheet holds them (#2567).</summary>
     private static readonly IReadOnlyList<CeresFloorShot> CeresFloorShotOrder = Ensure.EveryMemberOnce<CeresFloorShot>(

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// background colours, then its sprite colours: the floors' inks, and the background pictures' inks below the sprite colours;
 /// a sprite colour less the background colours is the sprite sheets' ink for an own-palette part.
 /// </summary>
-internal static class EndingScreenInks
+internal static partial class EndingScreenInks
 {
     /// <summary>The colours of one colour group.</summary>
     internal const int GroupColours = 16;
@@ -19,7 +19,7 @@ internal static class EndingScreenInks
     internal const int SpriteFirst = 8 * GroupColours;
 
     /// <summary>The screen's colours.</summary>
-    private const int ScreenColourCount = 2 * SpriteFirst;
+    internal const int ScreenColourCount = 2 * SpriteFirst;
 
     /// <summary>
     /// The screen colours each load writes. A scene's own colours are its whole screen (#1544): nothing an earlier scene

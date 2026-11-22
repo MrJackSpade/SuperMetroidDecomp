@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place she occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : TurtleEntity(species, occupant, place, common)
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>

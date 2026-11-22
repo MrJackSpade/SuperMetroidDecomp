@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// of one frame holds the same appearance (#2348), so the import's document holds one appearance per trail frame, keyed
 /// by the frame's installed key (#2556).
 /// </summary>
-public static class ProjectileTrailVisualDefinitions
+public static partial class ProjectileTrailVisualDefinitions
 {
     /// <summary>Asset filename for editable OBJ appearances of the authored projectile trail records.</summary>
     public const string FileName = "projectile-trails.json";

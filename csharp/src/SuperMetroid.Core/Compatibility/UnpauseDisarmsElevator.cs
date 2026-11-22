@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("resuming gameplay from the pause disarms the elevator's pseudo-door, so a ride unpaused on starts its door without the down-elevator wait")]
-public static class UnpauseDisarmsElevator
+public static partial class UnpauseDisarmsElevator
 {
     /// <summary>The pseudo-door's arming once gameplay resumes from the pause: <paramref name="unarmed"/>, whatever armed it.</summary>
     /// <typeparam name="TArming">What arms the pseudo-door.</typeparam>

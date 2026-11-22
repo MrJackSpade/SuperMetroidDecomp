@@ -24,7 +24,7 @@ internal static class SimulationProfile
             Measure(RoomDefinitions.AlphaPowerBomb, paused: false),
             Measure(RoomDefinitions.GlassTunnel, paused: true),
         };
-        Console.WriteLine("Simulation timing baseline: " + JsonSerializer.Serialize(new
+        Console.WriteLine("Simulation timing baseline: " + JsonSerializer.Serialize(new ProfileReport
         {
             Scope = "Unpaced captured simulation + real managed desktop audio adapter; no GPU, waveOut or presentation",
             TimestampUtc = DateTimeOffset.UtcNow,
@@ -32,16 +32,16 @@ internal static class SimulationProfile
             Runtime = RuntimeInformation.FrameworkDescription,
             Cpu = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
             ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-            CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
-            DiagnosticBuild = typeof(SimulationProfile).Module.ModuleVersionId,
+            CoreBuild = global::SuperMetroid.Core.BuildIdentity.Version,
+            DiagnosticBuild = global::SuperMetroid.RenderVerification.BuildIdentity.Version,
             WarmupFrames = 120,
             MeasuredFrames = 600,
             Results = results,
-        }, IndentedJson));
+        }, global::SuperMetroid.RenderVerification.RenderVerificationJson.Info<ProfileReport>(IndentedJson)));
     }
 
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
-    private static object Measure(RoomDefinition room, bool paused)
+    private static ProfileResult Measure(RoomDefinition room, bool paused)
     {
         var game = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
             SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
@@ -87,7 +87,7 @@ internal static class SimulationProfile
         var combined = Distribution(total);
         if (nonzeroPcmSamples == 0) throw new InvalidOperationException("Audio timing baseline contained only silence.");
         Console.WriteLine($"Room {room.Name}, paused={paused}: simulation+audio p50/p95/p99 {combined.P50:F3}/{combined.P95:F3}/{combined.P99:F3}ms; allocation p50 {Distribution(allocated).P50:F0} bytes/frame.");
-        return new { Room = room.Name, Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
+        return new ProfileResult { Room = room.Name, Paused = paused, CaptureMs = Distribution(capture), AudioMs = Distribution(mixing),
             TotalMs = combined, AllocationBytes = Distribution(allocated), PcmSamples = 600 * AudioSession.PcmSamplesPerFrame,
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
@@ -102,5 +102,53 @@ internal static class SimulationProfile
             values[(int)Math.Ceiling(values.Length * .99) - 1], values[^1]);
     }
     /// <summary>Nearest-rank latency or allocation values at the reported percentiles and maximum.</summary>
-    private readonly record struct Timing(double P50, double P95, double P99, double Maximum);
+    internal readonly record struct Timing(double P50, double P95, double P99, double Maximum);
+
+    /// <summary>The timing baseline's report: what was measured, on which machine and builds, and each fixture's result.</summary>
+    internal sealed record ProfileReport
+    {
+        /// <summary>What the baseline measures.</summary>
+        public required string Scope { get; init; }
+        /// <summary>When the baseline ran.</summary>
+        public required DateTimeOffset TimestampUtc { get; init; }
+        /// <summary>The operating system.</summary>
+        public required string OS { get; init; }
+        /// <summary>The .NET runtime.</summary>
+        public required string Runtime { get; init; }
+        /// <summary>The processor, when the environment names it.</summary>
+        public required string? Cpu { get; init; }
+        /// <summary>The process architecture.</summary>
+        public required string ProcessArchitecture { get; init; }
+        /// <summary>The simulation's build.</summary>
+        public required Guid CoreBuild { get; init; }
+        /// <summary>The render checks' build.</summary>
+        public required Guid DiagnosticBuild { get; init; }
+        /// <summary>The frames run before measuring.</summary>
+        public required int WarmupFrames { get; init; }
+        /// <summary>The frames measured.</summary>
+        public required int MeasuredFrames { get; init; }
+        /// <summary>Each fixture's result.</summary>
+        public required ProfileResult[] Results { get; init; }
+    }
+
+    /// <summary>One fixture's measured distributions.</summary>
+    internal sealed record ProfileResult
+    {
+        /// <summary>The room measured.</summary>
+        public required string Room { get; init; }
+        /// <summary>Whether the game was paused.</summary>
+        public required bool Paused { get; init; }
+        /// <summary>Capture time per frame, in milliseconds.</summary>
+        public required Timing CaptureMs { get; init; }
+        /// <summary>Audio mixing time per frame, in milliseconds.</summary>
+        public required Timing AudioMs { get; init; }
+        /// <summary>Capture and mixing together per frame, in milliseconds.</summary>
+        public required Timing TotalMs { get; init; }
+        /// <summary>Bytes allocated per frame.</summary>
+        public required Timing AllocationBytes { get; init; }
+        /// <summary>The PCM samples the measured frames produced.</summary>
+        public required int PcmSamples { get; init; }
+        /// <summary>The PCM samples that were not silent.</summary>
+        public required long NonzeroPcmSamples { get; init; }
+    }
 }

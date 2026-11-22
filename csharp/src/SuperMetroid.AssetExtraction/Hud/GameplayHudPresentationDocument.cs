@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable versioned document describing the editable gameplay HUD.</summary>
-public sealed record GameplayHudPresentationDocument
+public sealed partial record GameplayHudPresentationDocument
 {
     /// <summary>Gets the gameplay-HUD document schema version.</summary>
     public required int Version { get; init; }

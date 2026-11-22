@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Encounter">The encounter whose look it is.</param>
 /// <param name="Name">The look's name.</param>
-public readonly record struct EncounterLook(EncounterArtwork Encounter, [InstalledKey] string Name)
+public readonly partial record struct EncounterLook(EncounterArtwork Encounter, [InstalledKey] string Name)
 {
     /// <summary>The name of the look every encounter shows as its room loads.</summary>
     public const string LoadedName = "Loaded";

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>Post-draw spin/charge sound handoff from the shoot check.</summary>
-public static class SamusPostDrawAudio
+public static partial class SamusPostDrawAudio
 {
     /// <summary>
     /// Uses the completed previous frame's movement-type snapshot, not the last pose

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Three visual frames selected by the intro Mother Brain's compiled lists.</summary>
-internal static class IntroMotherBrainSpriteDefinitions
+internal static partial class IntroMotherBrainSpriteDefinitions
 {
     /// <summary>The intro's three Mother Brain frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

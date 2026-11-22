@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Every sequence owns its own steps, logic and display, and a transition always names the sequence and step it enters,
 /// so an undefined step stops the game with its name instead of continuing somewhere arbitrary.
 /// </remarks>
-public sealed class SuperMetroidGame
+public sealed partial class SuperMetroidGame
 {
     /// <summary>The state and owners every phase runs against (<see cref="FrontendSession"/>).</summary>
     internal FrontendSession Session { get; }
@@ -145,7 +145,7 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>Runs one update and returns its status.</summary>
-    private FrontendFrame Step(ControllerButton controllerInput)
+    internal FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
@@ -313,14 +313,14 @@ public sealed class SuperMetroidGame
     /// True when the current phase's step is waiting out a frame of the display, so the next update finishes it instead
     /// of starting a new update of the phase (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    private bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
+    internal bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    private void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
+    internal void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
     {
         Ensure.NotNull(phase);
         switch (phase.RandomStep)

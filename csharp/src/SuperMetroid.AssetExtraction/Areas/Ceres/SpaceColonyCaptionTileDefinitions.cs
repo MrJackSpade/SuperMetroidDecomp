@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// katakana caption from them. Glyph identities come from the one-cell drawing operations 8C:D7C1..D7F6; every tile
 /// selects the high-priority plane in colour variant 0.
 /// </summary>
-internal static class SpaceColonyCaptionTileDefinitions
+internal static partial class SpaceColonyCaptionTileDefinitions
 {
     /// <summary>$8C:D7FB: the Japanese caption's two rows of tiles, each a high-priority character in colour variant 0.</summary>
     internal static ReadOnlySpan<BackgroundTile> JapaneseTiles => japaneseTiles;

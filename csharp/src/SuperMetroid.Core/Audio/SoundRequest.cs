@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="SoundEffect">The library-qualified sound identity the request names.</param>
 /// <param name="Priority">How full the sound's queue may be for the request to join it, as the requesting system chose.</param>
-public readonly record struct SoundRequest(SoundEffectId SoundEffect, SoundRequestPriority Priority);
+public readonly partial record struct SoundRequest(SoundEffectId SoundEffect, SoundRequestPriority Priority);

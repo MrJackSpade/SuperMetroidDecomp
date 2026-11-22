@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The state of an Evir's reusable spit: held at the body's mouth, aimed at Samus, or growing back.</summary>
-public sealed class EvirSpitState : EvirPartState
+public sealed partial class EvirSpitState : EvirPartState
 {
     /// <summary>Starts the state of a spit in <paramref name="action"/> whose body, two places before it, is <paramref name="body"/>.</summary>
     /// <param name="action">What the spit starts doing.</param>

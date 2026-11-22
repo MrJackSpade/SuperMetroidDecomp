@@ -28,7 +28,9 @@ internal static class AnimatedTileInstructionCodesVerification
         AssertAnimatedTileCatalog(nameof(BlockAnimation),
             Enum.GetValues<BlockAnimation>()
                 .Select(FxNativeWords.AnimatedTileObjects.Word).ToArray(), 13);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileAnimationScriptPointers), 4);
+        AssertAnimatedTileCatalog(nameof(AnimatedTileAnimationScriptPointers),
+            [AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsWait, AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsWait,
+             AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsLoop, AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsLoop], 4);
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -63,9 +65,6 @@ internal static class AnimatedTileInstructionCodesVerification
         Console.WriteLine(
             "  Animated tiles: 37 named bank-$87 pointers and both retail treadmill streams agree.");
     }
-
-    /// <summary>Values naming no <see cref="BlockAnimation"/> member (its values are arbitrary, #1415), including a constructed bank-$87 header word.</summary>
-    internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0100, 0x8f00, 0xffff];
 
     /// <summary>Checks boss wait, four directional DMA sources, loop restart, and forbidden source reads.</summary>
     internal static void VerifyRetailTreadmillStream(
@@ -120,11 +119,6 @@ internal static class AnimatedTileInstructionCodesVerification
         Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
         Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
-    /// <summary>Collects a catalog's ushort constants and checks its count and mapped pointer uniqueness.</summary>
-    private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount) =>
-        AssertAnimatedTileCatalog(catalog.Name, GetUshortConstants(catalog)
-            .Select(field => field.RequiredConstant<ushort>()).ToArray(), expectedCount);
-
     /// <summary>Checks that an animated-tile pointer set is complete, unique, and in the mapped bank half.</summary>
     private static void AssertAnimatedTileCatalog(string name, ushort[] pointers, int expectedCount)
     {

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// last image. Each image it shows tells the room's block reactions whether its block now stands broken open. The
 /// reaction plays on the shared animation player (#2480).
 /// </summary>
-internal class BlockReactionObject : RoomObjectBehaviour
+internal partial class BlockReactionObject : RoomObjectBehaviour
 {
     /// <summary>
     /// A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, which its images
@@ -31,7 +31,7 @@ internal class BlockReactionObject : RoomObjectBehaviour
     /// The terrain the reaction's setup saved at its block, which it restores as the block grows back. Grapple setup saves
     /// the earlier block; collision-bomb setup saves the bomb block's parent instead.
     /// </summary>
-    private RoomTerrainBlock SavedTerrain { get; }
+    internal RoomTerrainBlock SavedTerrain { get; }
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out

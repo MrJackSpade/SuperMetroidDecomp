@@ -54,14 +54,12 @@ internal static class InstalledPictureRulesVerification
         byte[] page = ClearPage();
         string pageFile = PictureStoreFiles.PageFile(0);
         File.WriteAllBytes(Path.Combine(store, pageFile), page);
-        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
+        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
                 },
-                RecolourRegionMaps: null, BlendMaps: null),
-            PictureStoreIndex.JsonOptions));
+                RecolourRegionMaps: null, BlendMaps: null), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.PictureStoreIndex>(PictureStoreIndex.JsonOptions)));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         var document = new InstalledSheetDocument
         {
@@ -101,14 +99,12 @@ internal static class InstalledPictureRulesVerification
         byte[] page = ClearPage();
         string pageFile = PictureStoreFiles.PageFile(0);
         File.WriteAllBytes(Path.Combine(store, pageFile), page);
-        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
+        File.WriteAllBytes(Path.Combine(store, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(new PictureStoreIndex(PictureStoreIndex.FormatVersion, PageCount: 1,
                 new Dictionary<string, StoredPictureDocument>(StringComparer.Ordinal)
                 {
                     [EmptyTag] = new StoredPictureDocument { Page = 0, Corner = default, Size = PageSize },
                 },
-                RecolourRegionMaps: null, BlendMaps: null),
-            PictureStoreIndex.JsonOptions));
+                RecolourRegionMaps: null, BlendMaps: null), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.PictureStoreIndex>(PictureStoreIndex.JsonOptions)));
         InstalledPictureStore pictures = InstalledPictureStore.Open(store);
         const string unlisted = "P0-0001";
         var document = new InstalledSheetDocument

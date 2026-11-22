@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Presentation geometry of Zebetite palette records.</summary>
-public static class ZebetiteColorFormat
+public static partial class ZebetiteColorFormat
 {
     /// <summary>Eight pulse frames selected by the shared counter's low three bits; these are palette steps rather than independent video-refresh timing data.</summary>
     public const int FrameCount = 8;

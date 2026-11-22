@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 [ArchitectureReview("large", "One data entry for each of the two thousand installed enemy frames; it holds no logic, and splitting it by family would only scatter one table the extractor reads as a whole.")]
 [EncodingOwner("cartridge addresses of the installed enemy frame records")]
-internal static class EnemyFrameCartridgeLocationDefinitions
+internal static partial class EnemyFrameCartridgeLocationDefinitions
 {
     /// <summary>The bank and bank-local word of each installed frame's record.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, SnesAddress> Locations { get; } = new Dictionary<EnemyFrameId, SnesAddress>

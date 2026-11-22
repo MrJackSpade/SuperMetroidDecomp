@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports Samus's death-explosion characters into one indexed PNG.</summary>
-public static class SamusDeathTileArtworkFiles
+public static partial class SamusDeathTileArtworkFiles
 {
     /// <summary>Exports the five 32-character death-explosion pages as a 64-by-160 indexed PNG, with no manifest (#1693).</summary>
     /// <param name="bus">Cartridge source for the bank-$9B explosion characters, written in the atlas's page order.</param>

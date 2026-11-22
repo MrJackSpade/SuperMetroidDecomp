@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="Period">Whether the track loops, with its loop, ends, with its end, or showed no repeat within the search bound.</param>
 /// <param name="StartSample">The driver tick that started the track (the music port took the track number).</param>
 /// <param name="TempoChanges">The tempo's whole byte after the start tick and after every tick that changed it, by tick sample.</param>
-internal sealed record MusicTrackAnalysis(
+internal sealed partial record MusicTrackAnalysis(
     AudioBank Bank,
     int Track,
     MusicTrackPeriod Period,
@@ -81,7 +81,7 @@ internal sealed record MusicTrackAnalysis(
 
     /// <summary>Records phrase-start states, the track's start and end, and its tempo timeline.</summary>
     /// <param name="renderer">The renderer whose frame count positions each tick.</param>
-    private sealed class LoopObserver(SpcAudioClipRenderer renderer) : ISpcDriverObserver
+    private sealed partial class LoopObserver(SpcAudioClipRenderer renderer) : ISpcDriverObserver
     {
         /// <summary>First arrival of each phrase state (tempo phase excluded), by state key.</summary>
         private readonly Dictionary<string, long> arrivals = [];

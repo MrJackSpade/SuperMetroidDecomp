@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Starts Kraid's post-growth lint attacks: the delay before each part first produces lint.</summary>
-internal static class KraidLints
+internal static partial class KraidLints
 {
     /// <summary>The initial delay of lint part <paramref name="part"/>.</summary>
     internal static int InitialDelay(KraidLintPart part) =>

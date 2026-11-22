@@ -19,10 +19,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </remarks>
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
 [EncodingOwner("area map cell word")]
-public readonly record struct MapTileWord(ushort Raw)
+public readonly partial record struct MapTileWord(ushort Raw)
 {
     /// <summary>Ten low bits selecting the BG map character independently of its attributes.</summary>
-    private const ushort CharacterMask = 0x03ff;
+    internal const ushort CharacterMask = 0x03ff;
 
     /// <summary>Three BG palette bits, including the explored-cell bit.</summary>
     internal const ushort PaletteMask = 0x1c00;
@@ -40,7 +40,7 @@ public readonly record struct MapTileWord(ushort Raw)
     internal const ushort VerticalFlipMask = 0x8000;
 
     /// <summary>Horizontal and vertical BG flip bits preserved by HUD projection.</summary>
-    private const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
+    internal const ushort FlipMask = HorizontalFlipMask | VerticalFlipMask;
 
     /// <summary>Downloaded-map palette bit cleared when a cell has been explored.</summary>
     internal const ushort ExploredPaletteBit = 0x0400;

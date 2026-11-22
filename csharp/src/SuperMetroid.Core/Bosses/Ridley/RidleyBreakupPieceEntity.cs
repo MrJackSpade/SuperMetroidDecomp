@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">The part of Ridley the piece is.</param>
 /// <param name="breakup">The breakup the piece joins.</param>
-internal sealed class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// enemy made with the encounter by his body's setup and keeping its own animation (#2298); the eye's tracking lives in
 /// <see cref="EyeTracking"/>.
 /// </summary>
-public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;
@@ -123,7 +123,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// How far the tail whip shifts the body's picture against the body, in room pixels, without moving the body or its
     /// parts (#1940): his body is placed this far from his position (#2031).
     /// </summary>
-    internal Offset16<RoomPixels> BodyPictureShift { private get; set; }
+    internal Offset16<RoomPixels> BodyPictureShift { get; set; }
 
     /// <summary>Where his body is placed (#2031): his position, shifted by <see cref="BodyPictureShift"/>.</summary>
     public Position16<RoomPixels> BodyPlacement => Body.Position.Whole + BodyPictureShift;

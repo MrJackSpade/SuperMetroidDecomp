@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// The state of a Fireflea's flight (#2063): a <see cref="CirclingFirefleaState"/> or a
 /// <see cref="BobbingFirefleaState"/>, the two flights its spawn settings choose between.
 /// </summary>
-public abstract class FirefleaFlightState
+public abstract partial class FirefleaFlightState
 {
     /// <summary>Closes the hierarchy to the flights declared here.</summary>
     private protected FirefleaFlightState()
@@ -22,4 +22,4 @@ public abstract class FirefleaFlightState
 /// <param name="BobbingFirefleaState">Reacts to a <see cref="BobbingFirefleaState"/>.</param>
 /// <param name="CirclingFirefleaState">Reacts to a <see cref="CirclingFirefleaState"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record FirefleaFlightStateReactions<TContext>(Action<BobbingFirefleaState, TContext> BobbingFirefleaState, Action<CirclingFirefleaState, TContext> CirclingFirefleaState);
+public sealed partial record FirefleaFlightStateReactions<TContext>(Action<BobbingFirefleaState, TContext> BobbingFirefleaState, Action<CirclingFirefleaState, TContext> CirclingFirefleaState);

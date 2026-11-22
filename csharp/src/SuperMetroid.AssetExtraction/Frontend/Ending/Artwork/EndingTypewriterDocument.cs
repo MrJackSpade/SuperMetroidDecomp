@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// panels' tiles and the Japanese subtitle, whose entries are the original's packed tile placements, are import data
 /// (<see cref="EndingTextDefinitions.ArtworkFileName"/>).
 /// </summary>
-public sealed record EndingTypewriterDocument
+public sealed partial record EndingTypewriterDocument
 {
     /// <summary>Revision; loading requires <see cref="EndingTextPresentation.TypewriterVersion"/>.</summary>
     public required int Version { get; init; }

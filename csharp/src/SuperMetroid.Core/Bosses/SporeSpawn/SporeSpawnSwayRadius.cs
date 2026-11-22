@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// the widest his fight's start sets.
 /// </summary>
 /// <param name="Pixels">How far either side of his sway's centre he swings across, in room pixels.</param>
-internal readonly record struct SporeSpawnSwayRadius(int Pixels)
+internal readonly partial record struct SporeSpawnSwayRadius(int Pixels)
 {
     /// <summary>How far either side of his sway's centre he swings on each axis: across, and less up and down.</summary>
     internal Extent16<RoomPixels> Reach => new(Pixels, Pixels - SporeSpawnArenaDefinitions.VerticalSwayNarrowing);

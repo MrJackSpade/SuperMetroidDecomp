@@ -105,9 +105,7 @@ internal static class SamusBodySheetFixtures
         SamusBodyCharacterArtwork stock = inputs.Value.SamusBody;
         return characters.GetValue(body, key =>
         {
-            var bound = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork>(
-                [typeof(global::SuperMetroid.AssetExtraction.Samus.SamusBodySources), typeof(IReadOnlyDictionary<global::SuperMetroid.AssetExtraction.Samus.SamusBodyPicture, global::SuperMetroid.AssetExtraction.Samus.SamusBodyTileTransfer>)],
-                new object?[] { key, stock.pictures });
+            var bound = new global::SuperMetroid.AssetExtraction.Samus.SamusBodyCharacterArtwork(key, stock.pictures);
             // The stock pictures are bound whole, so the characters' identity is the stock's, already hashed (#1680).
             characterIdentities.AddOrUpdate(bound, CharactersIdentityOf(stock));
             return bound;

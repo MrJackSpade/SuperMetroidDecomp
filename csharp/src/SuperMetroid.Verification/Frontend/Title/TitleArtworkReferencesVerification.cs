@@ -81,8 +81,7 @@ internal static class TitleArtworkReferencesVerification
         TitleGraphicsCharacters Load(TitleFloorMapDocument value)
         {
             using var mode7Stream = new MemoryStream(mode7, writable: false);
-            using var mapStream = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
-                ArtworkJson.Options), writable: false);
+            using var mapStream = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options)), writable: false);
             using var objectStream = new MemoryStream(objects, writable: false);
             using var babyStream = new MemoryStream(baby, writable: false);
             return TitleGraphicsCharacters.Read(mode7Stream, mapStream, objectStream, babyStream);

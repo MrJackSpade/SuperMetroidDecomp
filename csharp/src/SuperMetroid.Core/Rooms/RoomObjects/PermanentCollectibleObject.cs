@@ -3,4 +3,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>The item a permanent-item room object holds and how it is presented.</summary>
 /// <param name="Kind">The item.</param>
 /// <param name="Presentation">Whether the item is exposed, in a Chozo orb or in a concealed shot block.</param>
-internal readonly record struct PermanentCollectibleObject(InWorldCollectibleKind Kind, CollectiblePresentation Presentation);
+internal readonly partial record struct PermanentCollectibleObject(InWorldCollectibleKind Kind, CollectiblePresentation Presentation);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The pose families gameplay tests, each listed by name (#1517); <see cref="SamusPoseMetadata"/> answers whether a pose
 /// belongs to one.
 /// </summary>
-internal static class SamusPoseFamilyDefinitions
+internal static partial class SamusPoseFamilyDefinitions
 {
     /// <summary>
     /// The X-ray scope's two crouching poses, which have the <see cref="Movement.SamusMovementType.Crouching"/> movement

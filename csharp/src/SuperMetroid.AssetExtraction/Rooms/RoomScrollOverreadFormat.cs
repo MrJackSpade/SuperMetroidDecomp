@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Defines the installed file of what each explicit scroll layout's load writes past the room's screens.</summary>
-internal static class RoomScrollOverreadFormat
+internal static partial class RoomScrollOverreadFormat
 {
     /// <summary>Supported schema revision. Revision one holds the cells past the screens of every explicit layout (#2356).</summary>
     internal const int Version = 1;

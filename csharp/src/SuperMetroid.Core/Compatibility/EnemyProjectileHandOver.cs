@@ -18,4 +18,4 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Position">The previous projectile's whole position; its sub-pixel part does not survive.</param>
 /// <param name="Velocity">The previous projectile's velocity.</param>
 [CompatibilityService("an enemy projectile that does not set its position or velocity starts from the whole position and velocity its place's previous projectile left, in this room or the room before")]
-public readonly record struct EnemyProjectileHandOver(Position16<RoomPixels> Position, PixelVelocity<RoomPixels> Velocity);
+public readonly partial record struct EnemyProjectileHandOver(Position16<RoomPixels> Position, PixelVelocity<RoomPixels> Velocity);

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Reading a shade back from the key the sheet manifest stores it under (#1512).</summary>
-internal static class PictureShadeKeys
+internal static partial class PictureShadeKeys
 {
     /// <summary>The shade an installed key names.</summary>
     extension(PictureShade)

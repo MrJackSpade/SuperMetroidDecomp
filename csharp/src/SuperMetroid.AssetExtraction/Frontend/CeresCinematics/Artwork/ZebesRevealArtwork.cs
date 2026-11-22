@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// The Zebes reveal's tilemap and characters (#1467), which the import pictures the planet from; the game draws that
 /// installed picture and reads neither. The characters are import data the installation never holds (#1636).
 /// </summary>
-public sealed class ZebesRevealArtwork
+public sealed partial class ZebesRevealArtwork
 {
     /// <summary>Retains the validated tilemap and characters.</summary>
     private ZebesRevealArtwork(RoomBackgroundTilemapAtlas map, RoomCharacterAtlas characters)

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="kind">The kind of hopper the occupant's definition is.</param>
-internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HopperSpawnSettings settings, HopperKind kind)
+internal sealed partial class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HopperSpawnSettings settings, HopperKind kind)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

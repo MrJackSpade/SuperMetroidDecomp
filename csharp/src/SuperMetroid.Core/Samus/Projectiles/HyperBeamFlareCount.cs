@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <typeparam name="TSegment">The component's runs of pictures.</typeparam>
 /// <typeparam name="TPicture">The component's pictures.</typeparam>
-internal sealed class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareCount
+internal sealed partial class HyperBeamFlareCount<TSegment, TPicture> : IHyperBeamFlareCount
     where TSegment : struct
     where TPicture : struct
 {

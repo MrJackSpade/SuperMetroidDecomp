@@ -71,7 +71,7 @@ internal static class ResumeChargingSoundCancelVerification
     {
         var fired = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         fired.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        fired.Samus.TransitionShot.Hand(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Left }));
+        fired.Samus.TransitionShot.Hand(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Left));
         fired.Samus.ChargingSound.Arm();
         fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fired.AssertShotCancelled("charged release");
@@ -80,7 +80,7 @@ internal static class ResumeChargingSoundCancelVerification
         // the request and then silences the charge.
         var rejected = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         rejected.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        rejected.Samus.TransitionShot.Hand(global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.SamusTransitionShot>([typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)], new object?[] { SamusProjectileDirection.Left }));
+        rejected.Samus.TransitionShot.Hand(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Left));
         rejected.Bombs.SetSharedCooldown(5);
         rejected.Samus.ChargingSound.Arm();
         rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });

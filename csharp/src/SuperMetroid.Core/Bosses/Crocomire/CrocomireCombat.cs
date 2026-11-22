@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's hitboxes, touch, projectiles and hurt flash, and what Samus's weapons do to it.</summary>
 [RoomLifetime]
-internal sealed class CrocomireCombat
+internal sealed partial class CrocomireCombat
 {
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -68,7 +68,7 @@ internal sealed class CrocomireCombat
     /// <param name="deathsAndDrops">The drops a shot mouth shot leaves.</param>
     /// <param name="access">Crocomire's last shot's gradient and his sounds.</param>
     /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class CrocomireProjectileBehavior(
+    internal sealed partial class CrocomireProjectileBehavior(
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
         CrocomireEncounterAccess access,
@@ -94,6 +94,7 @@ internal sealed class CrocomireCombat
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="CrocomireProjectileMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForCrocomireProjectileMotion => field ??= new(new Dictionary<CrocomireProjectileMotion, Action<EnemyProjectileMotionContext>>
         {
             [CrocomireProjectileMotion.ShotAiming] = context => StartCrocomireProjectileFlight(context.Projectile, context.Level),
@@ -109,6 +110,7 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="CrocomireProjectileCue"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForCrocomireProjectileCue => field ??= new(new Dictionary<CrocomireProjectileCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [CrocomireProjectileCue.SpawnDrops] = (context, projectile) => deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus),
@@ -176,35 +178,31 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Routes power-bomb hits on <paramref name="body"/> to his encounter's authored reaction.</summary>
-    /// <param name="body">His body, whose encounter the reaction acts on.</param>
-    internal static EnemyPowerBombReaction CrocomirePowerBombReactionOf(CrocomireBodyEntity body)
-    {
-        Ensure.NotNull(body);
-        return new()
-        {
-            ReplacesCommon = c => ResolveCrocomirePowerBombReaction(c.Enemy, body.Encounter),
-        };
-    }
+    /// <summary>
+    /// Routes a power-bomb hit on his body to <paramref name="encounter"/>'s authored reaction, in place of the common
+    /// damage.
+    /// </summary>
+    /// <param name="context">The Power Bomb's hit on his body.</param>
+    /// <param name="encounter">The encounter his body set up, which the reaction acts on.</param>
+    internal static void ReactToCrocomirePowerBomb(EnemyPowerBombContext context, CrocomireEnemyState encounter) =>
+        ResolveCrocomirePowerBombReaction(context.Enemy, encounter);
 
-    /// <summary>Routes <paramref name="part"/>'s body, mouth, and auxiliary hitboxes to their distinct shot reactions on its encounter.</summary>
-    /// <param name="part">His body or tongue, whose encounter the reactions act on.</param>
-    internal EnemyShotReaction CrocomireShotReactionOf(CrocomireEntity part)
+    /// <summary>
+    /// Routes a shot meeting one of his parts' body, mouth or auxiliary hitboxes to its distinct reaction on
+    /// <paramref name="encounter"/>, after the Super Missile quake: an ordinary hitbox goes on to the normal shot reaction.
+    /// </summary>
+    /// <param name="c">The shot meeting the part.</param>
+    /// <param name="encounter">The encounter the part is part of, which the reactions act on.</param>
+    /// <returns>Whether the part's own reaction took the shot.</returns>
+    internal bool ReactToCrocomirePartShot(in EnemyShotContext c, CrocomireEnemyState encounter)
     {
-        Ensure.NotNull(part);
-        return new()
-        {
-            AfterSuperMissileQuake = (in EnemyShotContext c) =>
-            {
-                // His parts' shots always meet their frames' hitboxes (their capabilities say so); an ordinary hitbox
-                // takes the common damage, and every other names one of his own shots.
-                if (c.HitboxShot.IsOrdinary)
-                    return false;
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                ResolveCrocomireHitboxShot(part.Encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
-                return true;
-            },
-        };
+        // His parts' shots always meet their frames' hitboxes (their capabilities say so); an ordinary hitbox takes the
+        // common damage, and every other names one of his own shots.
+        if (c.HitboxShot.IsOrdinary)
+            return false;
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        ResolveCrocomireHitboxShot(encounter, c.Shot.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
+        return true;
     }
 
     /// <summary>The touch reactions that push Samus back as well as hurting her, with the push: his claws'.</summary>
@@ -249,32 +247,21 @@ internal sealed class CrocomireCombat
         EnemyReaction reaction,
         Position16<RoomPixels> camera)
     {
-        HitboxShotResponses[reaction](state, projectileType, projectile, camera);
+        // A shot on his raised or high mouth or his lower body is absorbed, neither hurting him nor raising dust; a dust
+        // hitbox raises dust; every other is his mouth's, which runs its reaction.
+        if (reaction == CrocomireReactions.AbsorbedShot)
+            return;
+        if (reaction == CrocomireReactions.DustShot)
+            SpawnCrocomireShotDust(projectileType, projectile);
+        else
+            ResolveCrocomireMouthShot(state, state.Body, projectileType, projectile, camera);
     }
-
-    /// <summary>What a shot meeting one of his hitboxes' own reactions does to him.</summary>
-    private delegate void CrocomireHitboxShotResponse(CrocomireEnemyState state, SamusProjectileType projectileType,
-        Position16<RoomPixels> projectile, Position16<RoomPixels> camera);
-
-    /// <summary>
-    /// Each of his hitboxes' own shot reactions with what a shot meeting it does: a shot on his raised or high mouth or
-    /// his lower body is absorbed, neither hurting him nor raising dust; a dust hitbox raises dust; his mouth runs its
-    /// reaction.
-    /// </summary>
-    private IReadOnlyDictionary<EnemyReaction, CrocomireHitboxShotResponse> HitboxShotResponses => field ??=
-        new Dictionary<EnemyReaction, CrocomireHitboxShotResponse>
-        {
-            [CrocomireReactions.AbsorbedShot] = (_, _, _, _) => { },
-            [CrocomireReactions.DustShot] = (_, projectileType, projectile, _) => SpawnCrocomireShotDust(projectileType, projectile),
-            [CrocomireReactions.MouthShot] = (state, projectileType, projectile, camera) =>
-                ResolveCrocomireMouthShot(state, state.Body, projectileType, projectile, camera),
-        };
 
     /// <summary>
     /// Resolves Crocomire's mouth reaction. Whether his body's left edge is on screen reads <paramref name="camera"/>, the
     /// camera as the shot or bomb pass runs, as the game reads the live camera there (#1875).
     /// </summary>
-    private void ResolveCrocomireMouthShot(
+    internal void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemyPlace body,
         SamusProjectileType projectileType,
@@ -362,7 +349,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>Projects a projectile's direction into its sideways and vertical speeds: its cosine and negative sine at the volley's speed.</summary>
-    private static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
+    internal static PixelVelocity<RoomPixels> CalculateCrocomireProjectileVelocity(TrigonometryAngle aim) => new(
         EnemyMath.SineVelocity(aim + TrigonometryAngle.QuarterTurn, CrocomireProjectileDefinitions.VolleySpeed),
         EnemyMath.SineVelocity(aim + TrigonometryAngle.HalfTurn, CrocomireProjectileDefinitions.VolleySpeed));
 

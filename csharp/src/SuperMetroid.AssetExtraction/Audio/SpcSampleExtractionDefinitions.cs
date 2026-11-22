@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>SPC table layouts and BRR bounds used only while extracting sample assets.</summary>
 [EncodingOwner("audio RAM sample directory and track pointer table layout")]
-internal static class SpcSampleExtractionDefinitions
+internal static partial class SpcSampleExtractionDefinitions
 {
     /// <summary>Maximum entries inspected in the music track-pointer table at SPC $581E.</summary>
     internal const int MaximumTrackPointerCount = 32;

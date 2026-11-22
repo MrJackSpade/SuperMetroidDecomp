@@ -89,6 +89,24 @@ internal static class CoreAccess
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
+<<<<<<< HEAD
+||||||| 418ca79935
+        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
+        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
+        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
+        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
+        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
+        internal int MotherBrainHitCount =>
+            intro.CurrentFlashbackMotherBrain is { } motherBrain ? PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount") : 0;
+=======
+        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
+        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
+        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
+        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
+        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
+        internal int MotherBrainHitCount =>
+            intro.CurrentFlashbackMotherBrain is { } motherBrain ? motherBrain.HitCount : 0;
+>>>>>>> origin/main
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
@@ -96,8 +114,6 @@ internal static class CoreAccess
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
         internal int Brightness => ending.Stage.Brightness.StepsAboveBlack;
-        /// <summary>Cinematic calls the ending has made so far.</summary>
-        internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
         /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>
         internal int CreditsVerticalScroll => ending.Scene is EndingCreditsRollScene { Scroll: var scroll } ? scroll.ScrolledPixels : 0;
     }
@@ -119,7 +135,7 @@ internal static class CoreAccess
     extension(EndingShootingStars shootingStars)
     {
         /// <summary>Current private star array in its native update order, which a check may place a star in.</summary>
-        internal Span<EndingShootingStar> Stars => PrivateState.Field<EndingShootingStars, EndingShootingStar[]>(shootingStars, "stars");
+        internal Span<EndingShootingStar> Stars => shootingStars.stars;
     }
 
     /// <summary>Observes canonical sample totals and source mappings after audio extraction.</summary>
@@ -187,10 +203,10 @@ internal static class CoreAccess
     {
         /// <summary>The moving pad's actor, which lowers Samus.</summary>
         internal CeresElevatorArrivalState.CeresElevatorArrivalActor Pad =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorPad>(arrival, "pad").Actor;
+            arrival.pad.Actor;
         /// <summary>The stationary platform behind the pad.</summary>
         internal CeresElevatorArrivalState.CeresElevatorArrivalActor Platform =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorArrivalActor>(arrival, "platform");
+            arrival.platform;
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
         internal Position16<RoomPixels> PadPosition => arrival.Pad.Position;
         /// <summary>Whole room position of the Ceres elevator's level-data platform.</summary>

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid's own state: its animation, motion, colours and what it does next.</summary>
-public sealed class BabyMetroidEnemyState
+public sealed partial class BabyMetroidEnemyState
 {
     /// <summary>The Baby Metroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<BabyMetroidSegment> Playback { get; set; }
@@ -31,7 +31,7 @@ public sealed class BabyMetroidEnemyState
     /// (<see cref="BabyMetroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; private set; } =
+    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; } =
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>

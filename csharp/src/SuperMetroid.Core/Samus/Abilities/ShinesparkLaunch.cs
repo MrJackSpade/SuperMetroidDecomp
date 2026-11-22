@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// A shinespark's launch (#2553): the directional shinespark pose it starts Samus in and the spark that pose launches. Only
 /// the six launches the game has exist, so every launch has its spark.
 /// </summary>
-public sealed class ShinesparkLaunch
+public sealed partial class ShinesparkLaunch
 {
     /// <summary>Only the launches declared here exist.</summary>
     /// <param name="pose">The directional shinespark pose the launch starts Samus in.</param>

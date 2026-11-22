@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// through each place's entity, spawns into the first free place, and the places Samus can touch this frame.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyLifecycle : IEnemyLifecycle
+internal sealed partial class EnemyLifecycle : IEnemyLifecycle
 {
     /// <summary>The room whose definitions spawns read.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,7 +60,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// Runs the setup of the enemy the room's population load has just placed: its own, or the one it runs from the load's
     /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
     /// </summary>
-    private static void SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings)
+    internal static void SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
         EnemyOccupant built = Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(spawn).Loaded(surroundings));
@@ -73,7 +73,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// for an enemy that has none. Such a spawn has no population load's surroundings, so a setup that reads them is the
     /// population load's alone.
     /// </summary>
-    private static void SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) =>
+    internal static void SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) =>
         Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(build)).Initialization?.Initialize();
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>

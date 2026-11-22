@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Android.Diagnostics;
@@ -11,9 +12,6 @@ namespace SuperMetroid.Android.Diagnostics;
 /// </summary>
 internal static class AndroidDiagnosticBundle
 {
-    /// <summary>JSON options: Indented output.</summary>
-    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
-
     /// <summary>
     /// Creates a new ZIP from the explicit save, settings, log, selected state, and recording
     /// allowlist, then records included paths and the private-data warning in its manifest.
@@ -37,15 +35,24 @@ internal static class AndroidDiagnosticBundle
         foreach (string name in files)
             zip.CreateEntryFromFile(Path.Combine(root, name), name, CompressionLevel.Fastest);
         using var manifest = zip.CreateEntry("bundle.json").Open();
-        JsonSerializer.Serialize(manifest, new
-        {
-            format = "SuperMetroid.Android.DiagnosticBundle.v1",
-            createdUtc = DateTimeOffset.UtcNow,
-            selectedSlot = slot,
-            selectedStatePresent = files.Contains(state),
-            privateDataWarning = "Debugger states and recording seeds may embed cartridge data. Keep this bundle private.",
-            files,
-        }, IndentedJson);
+        JsonSerializer.Serialize(manifest, new BundleManifest("SuperMetroid.Android.DiagnosticBundle.v1", DateTimeOffset.UtcNow, slot,
+            files.Contains(state), "Debugger states and recording seeds may embed cartridge data. Keep this bundle private.", files),
+            AndroidJsonContext.Default.BundleManifest);
         return destination;
     }
+
+    /// <summary>A bundle's manifest: when it was made, the state it selected, its privacy warning and the files it holds.</summary>
+    /// <param name="Format">The manifest's format name.</param>
+    /// <param name="CreatedUtc">When the bundle was made.</param>
+    /// <param name="SelectedSlot">The debugger state slot the bundle selected.</param>
+    /// <param name="SelectedStatePresent">Whether the selected slot's state was there to include.</param>
+    /// <param name="PrivateDataWarning">The warning that the bundle may embed cartridge data.</param>
+    /// <param name="Files">The bundle's files, by their paths in it.</param>
+    internal sealed record BundleManifest(
+        [property: JsonPropertyName("format")] string Format,
+        [property: JsonPropertyName("createdUtc")] DateTimeOffset CreatedUtc,
+        [property: JsonPropertyName("selectedSlot")] int SelectedSlot,
+        [property: JsonPropertyName("selectedStatePresent")] bool SelectedStatePresent,
+        [property: JsonPropertyName("privateDataWarning")] string PrivateDataWarning,
+        [property: JsonPropertyName("files")] IReadOnlyList<string> Files);
 }

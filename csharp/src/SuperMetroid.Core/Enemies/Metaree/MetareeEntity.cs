@@ -5,14 +5,25 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Metaree's own shot reaction, built for this occupant.</summary>
-    private readonly EnemyShotReaction ownShot = species.MetareeShotReaction(occupant);
+    private EnemyShotReaction OwnShot => field ??= MetareeBehavior.MetareeShotReaction(this);
 
     /// <summary>The Metaree's own stages around common bomb damage, built for this occupant.</summary>
-    private readonly EnemyBombReaction ownBomb = species.MetareeBombReaction(occupant);
+    private EnemyBombReaction OwnBomb => field ??= MetareeBehavior.MetareeBombReaction(this);
+
+    /// <summary>Spawns this Metaree's debris before a lethal shot's common death.</summary>
+    internal void SpawnDebris(EnemyShotHitContext context) => species.SpawnMetareeDebris(Occupant, Ensure.NotNull(context).Enemy);
+
+    /// <summary>Spawns this Metaree's debris after a bomb's common damage kills it.</summary>
+    internal void SpawnDebris(EnemyBombHitContext context)
+    {
+        if (Ensure.NotNull(context).Enemy.Health != 0)
+            return;
+        species.SpawnMetareeDebris(Occupant, context.Enemy);
+    }
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly MetareeEnemyState state = MetareeBehavior.InitializeMetaree();
@@ -24,12 +35,12 @@ internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant o
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, state);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? ownShot : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Metaree's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == MetareeReactions.Shot ? ownBomb : base.CommonBombDamageReaction(context);
+        context.SelectedShot == MetareeReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The Metaree's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

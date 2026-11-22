@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Where Ceres Ridley's fight plays in his chamber (#2232): where he stands and may fly, the lines his lift-off, hover,
 /// fireballs, lunge and swoop turn on, the points he flies to, and where the Baby he carries falls and is caught.
 /// </summary>
-internal static class CeresRidleyArenaDefinitions
+internal static partial class CeresRidleyArenaDefinitions
 {
     /// <summary>Where Ceres Ridley stands as he is placed, on his chamber's floor.</summary>
     internal static readonly Position16<RoomPixels> Spawn = new(186, 169);

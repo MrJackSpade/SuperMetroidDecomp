@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Phantoon's health, fade-out, and ship-power RGB5 targets.</summary>
-public static class PhantoonColorExtractor
+public static partial class PhantoonColorExtractor
 {
     /// <summary>Reads all Phantoon health bands, fade-out colors, and ship-power targets, rejects high-bit colors, and serializes their RGB5 components.</summary>
     /// <param name="bus">Supported-cartridge address space containing the complete Phantoon color tables.</param>

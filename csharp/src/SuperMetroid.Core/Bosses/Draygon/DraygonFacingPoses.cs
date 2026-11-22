@@ -34,7 +34,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="EyeClosing">His eye closing picture.</param>
 /// <param name="EyeBloodshot">His eye bloodshot picture.</param>
 /// <param name="EyeWide">His eye wide picture.</param>
-internal sealed record DraygonFacingPoses(
+internal sealed partial record DraygonFacingPoses(
     HorizontalDirection Facing,
     F ArmsForward,
     F ArmsLowering,

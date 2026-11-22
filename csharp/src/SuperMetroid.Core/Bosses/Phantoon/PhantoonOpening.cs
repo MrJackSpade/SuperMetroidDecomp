@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
 [RoomLifetime]
-internal sealed class PhantoonOpening
+internal sealed partial class PhantoonOpening
 {
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -105,7 +105,7 @@ internal sealed class PhantoonOpening
     /// <summary>Allocates one intro flame at its place on the circle round the body; with no free place, none appears.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    private void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    internal void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading), new PhantoonFlameAnimation(_combat.StartingFlame, PhantoonFlameSegment.StartingFlame));

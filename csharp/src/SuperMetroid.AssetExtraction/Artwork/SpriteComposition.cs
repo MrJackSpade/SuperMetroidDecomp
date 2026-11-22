@@ -3,10 +3,10 @@ using System.Collections.Immutable;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
-public sealed class SpriteComposition
+public sealed partial class SpriteComposition
 {
     /// <summary>Ordered immutable parts, including per-part palette inheritance choices.</summary>
-    private readonly IReadOnlyList<CompiledSpritePart> parts;
+    internal readonly IReadOnlyList<CompiledSpritePart> parts;
     /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
     /// <summary>

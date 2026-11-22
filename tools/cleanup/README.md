@@ -71,8 +71,9 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
    The process prints each step to the log, with how long it took and how many files it changed, and writes what the
    steps did (the counts, paths, summaries, retired fields, removed reviews and problems the commit message is made of)
    to `cleanup-outcome.json`. A fix is always applied (#2599), so there are no unfixed sites to write. A failure to
-   load the solution or the analyzers, a bad command line, or a fixer that offers no fix or throws (a defect of that
-   fixer) fails it, with the full exception on standard error, as each step's own process failed the run before.
+   load the solution or the analyzers, a bad command line, or a fixer that throws (a defect of that fixer) fails it,
+   with the full exception on standard error, as each step's own process failed the run before. A finding its fixer
+   offers no fix for gets the runner's own fix ("The runner's own fixes", below).
 3. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
 4. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. When the loop changed the code, the runner starts
    this build as soon as the loop ends and writes the inventories while it runs, since the inventories write only
@@ -166,9 +167,10 @@ projects' Debug references, which `run.ps1` builds first. A fixer resolves every
 #2599). When a finding's fix needs a choice the fixer cannot make, the fixer applies it all the same and the code it
 leaves does not compile, or fails a build rule, at that site: the build fails there, the cleanup commits and pushes it
 as `Cleanup (does not build)`, and the developer makes the choice. No fixer declines a finding, no site is skipped or
-recorded as unfixed, and the runner catches nothing a fixer throws. A fixer that offers no fix, has no fix-all,
-produces no usable change or throws is a defect of that fixer, not a site to leave: the run fails with the full
-exception, and the fixer is fixed. What each fixer does where a choice was needed:
+recorded as unfixed, and the runner catches nothing a fixer throws. Where a fixer offers no fix for a finding, the
+runner supplies one (below). A fixer that has no fix-all, produces an unusable change or throws is a defect of that
+fixer, not a site to leave: the run fails with the full exception, and the fixer is fixed. What each fixer does where a
+choice was needed:
 
 - SME6400 keeps in the file the type it is named after (its name compared without case) and moves the others, the
   file's first type when the reported one is the file's. A moved type takes the `#define`, `#nullable` and `#pragma
@@ -195,6 +197,25 @@ later run.
   left reading no instance data is reported by CA1822.
 
 A dead store or initializer whose value could have an effect keeps its evaluation as `_ = value;`.
+
+**The runner's own fixes** (`RunnerFixes`, #2611). The owner's rule for the cleanup, verbatim: "when a fix cant be
+applied without breaking the code, the job should BREAK THE FUCKING CODE". Roslyn's code-style fixers are not the
+repository's to change, and some offer no fix for a shape their analyzer reports: the cleanup of 418ca79935 stopped on
+`CSharpRemoveUnusedValuesCodeFixProvider offers no fix for IDE0059` at a foreach variable (`RoomScrollGrid`, where #2553
+had left a loop header without its body). So the runner offers every finding to its fixer, and every finding the fixer
+offers no fix for, or whose fix-all produces none or changes nothing, gets the runner's own fix in that pass; the fixer
+fixes the others in a later pass. Every rule the cleanup handles therefore has a fix the runner applies:
+
+- IDE0059 at a foreach iteration variable (which nothing can write, so nothing reads its value): a loop with a body to
+  run keeps it, once per element as before, and the variable becomes the discard name `_`, which the rule never reports;
+  a `nameof` of the old name fails the build there. A loop with nothing to run (an empty block or `;`) is removed, its
+  collection kept as `_ = collection;` unless reading it has no effect (a local, parameter, field or constant), and a
+  loop that was another statement's body leaves `{ }`.
+- IDE0005 reported without the hidden finding the code-style fixer fixes from: the usings the finding covers are
+  removed, as the fixer removes them.
+- Every other finding: an `#error` line above its line, naming the rule and the finding. The build fails there and the
+  cleanup commits it as `Cleanup (does not build)`; the next pass would add the same line, which the runner records as a
+  fix that stands as applied (above). `IDE0059.foreach` holds the foreach shapes.
 
 A dead-code fix (CS0414, IDE0052, IDE0051, CA1823, CS0169, CS0219) takes out with the code it removes every parameter
 only that code read (`UnreadParameters`), since IDE0060, an unused parameter, is a build error: the cleanup of e4ce9514eb
@@ -339,6 +360,12 @@ needs stays, as no finding; `IDE0005.does-not-compile` a project with a compiler
 the same, its build failing on the error (CS0029). A fixture may hold several projects; every project's `bin/` and
 `obj/` are left out of the comparison.
 
+The fixture of #2611, `IDE0059.foreach`, holds foreach variables nothing reads, which the code-style fixer offers no fix
+for: the loop header #2553 left in `RoomScrollGrid` over the statement after it, and a loop announcing each element,
+each keeping its body under the discard name `_`; loops with nothing to run over a parameter, a field and a local,
+removed with their lines; one over a call's result, kept as `_ = Values();`; and one that is an `if`'s body, leaving
+`{ }`. The unused-value analyzer does not report a foreach variable whose body updates a local (a counting loop).
+
 `tools/cleanup/prune-fixtures/<name>/` confirms the dead-code prune the same way: `input/` is a small repository whose
 `csharp/Fixture.slnx` lists projects named like the shipped, host and verification projects (the reachability audit
 knows them by name), with test-support shared through `.projitems`, and `expected/` is every file of it after the prune.
@@ -438,13 +465,39 @@ stand behind the compared one. Each fixture keeps every file as written, and eac
 `positional-base-argument` holds the shape of the failure at 0ea41f339b (#2599): the prune retired the dead property of
 `KraidColours.BandShade(PictureShade Shade) : BodyShown(Shade)` by deleting its positional parameter, which the base call
 reads as a constructor parameter, and the tree no longer built (CS0103). When every positional property of the record is
-dead and only the base call reads parameters, the record loses its parameter list and gets a constructor taking the
-parameters read, under constructor-parameter names, with their documentation, and passing them to its base: `BandShade`
-becomes `record BandShade : BodyShown` with `BandShade(Tint shade) : base(shade)`. Otherwise the parameter goes anyway
-and the build fails at each read, where moving the code that reads it into a constructor is the developer's choice: the
-fixture's `Glow(Tint Level)`, whose property initializer reads `Level`, loses it, and the build fails there (CS0103). An
-argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
-to compile there instead of the effect silently going with it.
+dead and only the base call and its members' initializers read parameters, the record loses its parameter list and gets
+a constructor taking the parameters read, under constructor-parameter names, with their documentation, passing them to
+its base and giving its members their initial values: `BandShade` becomes `record BandShade : BodyShown` with
+`BandShade(Tint shade) : base(shade)`, and `Glow(Tint Level)`, whose property initializer reads `Level`, becomes `Glow(Tint
+level) : base((Tint?)null)` assigning `Strength = level`. The initializers move into the constructor's body, all of them
+and in order, only where running them after the base constructor changes nothing: a record with no base record, or
+initializers that call no code and write no state. Otherwise a parameter the record reads is never deleted (#2611): its
+dead property stays. `positional-initializer-read` holds the shape of the failure at 418ca79935: the prune deleted
+`TitleFloorSceneDefinition`'s `startingZoom`, whose property was dead but which the initializer of the live `Zoom` read,
+and neither the initializer nor the four constructions compiled (CS0103, CS1729). The fixture's `SceneDefinition` keeps
+its parameter list as written (the prune prints `Kept ... startingZoom`), and `Fade(int start)`, whose only property is
+dead, becomes a record whose constructor sets both its properties.
+
+An argument passed to a removed parameter whose evaluation calls code or writes state stays as written, so the call fails
+to compile there instead of the effect silently going with it. An argument removed with its parameter can leave a
+parameter of its caller unread, and IDE0060 is a build error: at 418ca79935 the dead `Direction` of
+`KiHunterAcidSpitCue.Launch` and `SpacePirateProjectileCue` left the `facing` and `direction` parameters of the
+animations building them unread. Such a parameter goes too, with its `param` documentation (a `paramref` to it becomes
+its name as code text) and the argument every call passes it, up the callers; one whose method something else decides
+the signature of, or a `ref`, `out`, `in`, `params` or primary-constructor parameter, stays and IDE0060 reports it.
+`unread-caller-parameter` holds that shape, and its check reading the removed property fails to build (CS1061).
+
+`constructor-state-writer` holds the shape of the other failure at 418ca79935: `UnsupportedGameStateException`'s only
+constructor was called only by a check, while the game's error reporter matched the type and read its
+`BehaviorIdentity`; the prune removed the constructor, and the property it alone set no longer compiled (CS8618). A type
+is decided consistently (`ConstructorStateWriters` in `csharp/src/SuperMetroid.ReachabilityAudit/Analysis`): an instance
+field or automatic property with no initializer that code reads keeps the constructors that write it while no
+constructor that writes it is reached. The fixture keeps `UnsupportedState` whole, and removes `Note`'s second
+constructor, which only a check calls, since the constructor the game calls also sets its text (CS1729 in the check).
+
+`nameof-of-removed` holds the third: `RidleyPogoTailAction` took its steps' names through `nameof` of
+`RidleyTailAction.Stab` and three more members nothing else read, and the prune removed them (CS0103). A `nameof` of a
+removed declaration becomes the text it produced, which is what it meant at run time.
 
 The enum-default fixtures hold the shape of the failures at f4af8a1aca and 0ea41f339b (#2608): the prune removed
 `SamusPresentationMode.Gameplay` and `LiquidMotionStage.AwaitingFirstPass` as unreferenced enum members, though every new

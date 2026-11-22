@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Where the cartridge's HUD routines write each energy tank, item icon and AUTO cell (#1466): the stock positions the
 /// import writes into the editable HUD document, as cell indices in the HUD's three rows.
 /// </summary>
-internal static class GameplayHudStockCells
+internal static partial class GameplayHudStockCells
 {
     /// <summary><c>HandleHUDTilemap_PausedAndRunning.etankIconOffsets</c> at $80:9CCE: two seven-cell rows, bottom first.</summary>
     /// <param name="tank">Zero-based tank cell 0..13, counting across the lower row before the upper row.</param>

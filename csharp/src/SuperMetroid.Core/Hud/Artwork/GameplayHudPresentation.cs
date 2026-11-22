@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// them from to itself (#1616); <see cref="HudState.Shown"/> places the images the HUD's values select. Placements are screen
 /// pixels across the HUD: the static top row at its top, then the band the values are drawn over.
 /// </summary>
-public sealed class GameplayHudPresentation
+public sealed partial class GameplayHudPresentation
 {
     /// <summary>The decoded layout.</summary>
     private readonly GameplayHudPresentationParts parts;

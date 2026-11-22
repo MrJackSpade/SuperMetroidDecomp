@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// One frame's sprite description: the whole-frame draws of every actor, in emission order, frontmost first. Gameplay
 /// builds one per frame and the frame boundary latches it; backends draw it directly.
 /// </summary>
-public sealed class SpriteFrameBuffer
+public sealed partial class SpriteFrameBuffer
 {
     /// <summary>Draws appended since <see cref="BeginFrame"/>.</summary>
     private readonly List<SpriteDraw> pending = [];
@@ -25,6 +25,7 @@ public sealed class SpriteFrameBuffer
     public void Add(SpriteDraw draw) => pending.Add(Ensure.NotNull(draw));
 
     /// <summary>What <c>Add</c> does for each <see cref="ActorLayering"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ActorLayering, Action<SpriteDraw>> AddForActorLayering => field ??= new(new Dictionary<ActorLayering, Action<SpriteDraw>>
     {
         [ActorLayering.InDrawOrder] = draw => Add(draw),

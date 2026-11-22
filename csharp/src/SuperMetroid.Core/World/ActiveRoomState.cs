@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 /// effects, statues, enemies and bombs, what one room leaves the next, and the layers the door transition shows.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
-internal sealed class ActiveRoomState
+internal sealed partial class ActiveRoomState
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ internal sealed class ActiveRoomState
 
     /// <summary>The load station that established the loading or loaded room; null for a room entered
     /// otherwise.</summary>
-    public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
+    public LoadStation? ActiveLoadStation => Construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
@@ -38,18 +38,26 @@ internal sealed class ActiveRoomState
     internal int RoomsLoaded { get; private set; }
 
     /// <summary>The scope a room load is building; null between loads.</summary>
-    private RoomScopeConstruction? _construction;
+    internal RoomScopeConstruction? Construction { get; private set; }
 
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
         RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles)
     {
-        if (_construction is not null)
+        if (Construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
+<<<<<<< HEAD
         var construction = new RoomScopeConstruction(door, room, assets, entry, camera, bombProjectiles, RoomMainHandOvers);
         _construction = construction;
         return construction;
+||||||| 418ca79935
+        _construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
+        return _construction;
+=======
+        Construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
+        return Construction;
+>>>>>>> origin/main
     }
 
     /// <summary>Makes <paramref name="scope"/> the loaded room's, ending any construction.</summary>
@@ -58,13 +66,13 @@ internal sealed class ActiveRoomState
     {
         Scope = Ensure.NotNull(scope);
         RoomsLoaded++;
-        _construction = null;
+        Construction = null;
         return scope;
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
-        _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
+    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+        Construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);

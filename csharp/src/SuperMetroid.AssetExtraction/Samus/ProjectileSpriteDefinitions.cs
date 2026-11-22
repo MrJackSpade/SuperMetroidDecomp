@@ -4,7 +4,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The Samus projectile compositions timed projectile records draw, by family.</summary>
-public static class ProjectileSpriteDefinitions
+public static partial class ProjectileSpriteDefinitions
 {
     /// <summary>
     /// Supported projectile-composition JSON schema revision, four, naming every composition by family and pose (#1762), each
@@ -306,7 +306,7 @@ public static class ProjectileSpriteDefinitions
     /// groups are listed in their storage order; where each group's records lie is the import's layout of it
     /// (<see cref="ProjectileSpriteLocations"/>).
     /// </summary>
-    private static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
+    internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
     [
         .. PowerShots,
         .. PlasmaShots,

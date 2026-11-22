@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon;
 
 /// <summary>The shapes of Draygon's colour sets: the introduction, the body, the sprite, the white flash and the health bands.</summary>
-public static class DraygonColorDefinitions
+public static partial class DraygonColorDefinitions
 {
     /// <summary>
     /// The colours of the introduction's transfer: all of the first sprite palette and the first nine colours of the

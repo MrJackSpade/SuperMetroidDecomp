@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Copies a supplied ROM and extracts runtime resources into an app-owned installation.</summary>
-public static class GameAssetInstaller
+public static partial class GameAssetInstaller
 {
     /// <summary>Default per-user Desktop installation root beneath Local Application Data.</summary>
     public static string DesktopRoot => Path.Combine(
@@ -29,7 +29,7 @@ public static class GameAssetInstaller
     /// the installer's transaction is the same whatever components it extracts, and the game's installation extracts every
     /// one of <see cref="Components"/>.
     /// </summary>
-    private static GameInstallation Install(string sourcePath, string root, IReadOnlyList<InstallerComponent> components,
+    internal static GameInstallation Install(string sourcePath, string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         byte[] rom;
@@ -53,7 +53,7 @@ public static class GameAssetInstaller
     /// when the installation is not current: the installer's transaction is the same whatever components it extracts, and
     /// the game's installation extracts every one of <see cref="Components"/>.
     /// </summary>
-    private static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
+    internal static GameInstallation? EnsureInstalled(string root, IReadOnlyList<InstallerComponent> components,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         var installation = new GameInstallation(Path.GetFullPath(root));
@@ -155,7 +155,7 @@ public static class GameAssetInstaller
     /// <summary>Why the receipt at <paramref name="receiptPath"/> does not name this importer's format and source, or null when it does.</summary>
     /// <exception cref="JsonException">The receipt is not a receipt document.</exception>
     internal static string? ReceiptMismatchAt(string receiptPath) =>
-        ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath)), receiptPath);
+        ReceiptMismatch(JsonSerializer.Deserialize<InstallationReceipt>(File.ReadAllText(receiptPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallationReceipt>()), receiptPath);
 
     /// <summary>Stages a content directory of <paramref name="components"/> extracted from <paramref name="rom"/> and publishes it atomically.</summary>
     private static GameInstallation ExtractAndPublish(GameInstallation installation, byte[] rom, IReadOnlyList<InstallerComponent> components,
@@ -173,7 +173,7 @@ public static class GameAssetInstaller
             // The receipt names the format and source the content was extracted for, which decides whether later opens
             // reuse it.
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
-                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
+                JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.GameAssetInstaller.InstallationReceipt>()));
             progress?.Report("Finishing setup…");
             cancellationToken.ThrowIfCancellationRequested();
             // These are fixed app-owned content directories. Player saves, recordings,
@@ -251,7 +251,7 @@ public static class GameAssetInstaller
     }
 
     /// <summary>Extracts each step of <paramref name="component"/> into its directory under <paramref name="staging"/>.</summary>
-    private static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
+    internal static void InstallComponent(byte[] rom, string staging, InstallerComponent component, InstalledSheetFamilies families,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
         string directory = Path.Combine(staging, component.DirectoryName);
@@ -280,10 +280,10 @@ public static class GameAssetInstaller
     }
 
     /// <summary>The published content's format and the digest of the source revision it was extracted from.</summary>
-    private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
+    internal sealed partial record InstallationReceipt(int FormatVersion, string RomSha256);
 
     /// <summary>One extraction stage: its progress text and extractor.</summary>
-    internal sealed record InstallerStep(
+    internal sealed partial record InstallerStep(
         string Progress,
         Action<CartridgeImportAddressSpace, string, InstalledSheetFamilies, CancellationToken> Extract);
 
@@ -292,7 +292,7 @@ public static class GameAssetInstaller
     /// deterministic, so its output is checked by verification, not by the installer. Every extraction extracts every
     /// component and publishes them atomically.
     /// </summary>
-    internal sealed record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
+    internal sealed partial record InstallerComponent(string DirectoryName, InstallerComponentKind Kind, params InstallerStep[] Steps)
     {
         /// <summary>An extraction component: it reads only the cartridge and its own directory, and composition reads it.</summary>
         internal InstallerComponent(string directoryName, params InstallerStep[] steps) : this(directoryName, InstallerComponentKind.Extraction, steps)
@@ -302,7 +302,7 @@ public static class GameAssetInstaller
 
     /// <summary>A report listener that receives one report at a time, however many components report at once.</summary>
     /// <param name="Inner">The listener reported to.</param>
-    private sealed record SerializedProgress(IProgress<string> Inner) : IProgress<string>
+    private sealed partial record SerializedProgress(IProgress<string> Inner) : IProgress<string>
     {
         /// <summary>Taken around each report.</summary>
         private readonly Lock gate = new();
@@ -333,7 +333,7 @@ public static class GameAssetInstaller
     /// artwork every earlier component has installed beside them, and the picture store, after them, writes their pictures
     /// and manifests (#1635).
     /// </summary>
-    private static readonly InstallerComponent[] Components =
+    internal static readonly InstallerComponent[] Components =
     [
         new(GameInstallationLayout.AudioDirectoryName, InstallerComponentKind.Standalone,
             Step("Extracting audio…", (bus, d) => SpcAudioAssetExtractor.Extract(bus, ImportDataDirectory.Of(d))),

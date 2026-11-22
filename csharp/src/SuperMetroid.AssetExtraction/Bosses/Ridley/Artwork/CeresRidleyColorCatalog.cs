@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 /// <summary>
 /// The installed Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors, every family kept as installed.
 /// </summary>
-public sealed class CeresRidleyColorCatalog
+public sealed partial class CeresRidleyColorCatalog
 {
     /// <summary>The installed start colours: the door's, the container's and the Baby's.</summary>
     private readonly InstalledColourRows start;

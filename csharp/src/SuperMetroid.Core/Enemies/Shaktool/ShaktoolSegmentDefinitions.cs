@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// recovers from striking a wall, the saws bob as their primary and final pieces, the head bobs, and each arm bobs as the
 /// back or front piece of its side.
 /// </summary>
-internal static class ShaktoolSegmentDefinitions
+internal static partial class ShaktoolSegmentDefinitions
 {
     /// <summary>How every segment is processed: each animates and moves off screen.</summary>
     internal static readonly EnemyProcessing Processing = EnemyProcessing.OffScreen | EnemyProcessing.Animates;

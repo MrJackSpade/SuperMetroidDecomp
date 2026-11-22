@@ -50,6 +50,11 @@ internal static class Program
                 WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer();
                 return 0;
             }
+            if (args is ["--game-reflection"])
+            {
+                GameReflectionAnalyzerTests.VerifyGameReflectionAnalyzer();
+                return 0;
+            }
             // Every suite runs even after one fails, so a single run reports every failure in full.
             AnalyzerSuite[] suites =
             [
@@ -105,7 +110,6 @@ internal static class Program
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
                 new AnalyzerSuite(nameof(RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer), RepeatedDefinitionStructureAnalyzerTests.VerifyRepeatedDefinitionStructureAnalyzer),
                 new AnalyzerSuite(nameof(InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer), InlineDefinitionDataAnalyzerTests.VerifyInlineDefinitionDataAnalyzer),
-                new AnalyzerSuite(nameof(PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer), PrivateStateMemberAnalyzerTests.VerifyPrivateStateMemberAnalyzer),
                 new AnalyzerSuite(nameof(ListPositionAnalyzerTests.VerifyListPositionAnalyzer), ListPositionAnalyzerTests.VerifyListPositionAnalyzer),
                 new AnalyzerSuite(nameof(ParallelListAnalyzerTests.VerifyParallelListAnalyzer), ParallelListAnalyzerTests.VerifyParallelListAnalyzer),
                 new AnalyzerSuite(nameof(ClosedChoiceAsBoolAnalyzerTests.VerifyClosedChoiceAsBoolAnalyzer), ClosedChoiceAsBoolAnalyzerTests.VerifyClosedChoiceAsBoolAnalyzer),
@@ -130,6 +134,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer), RoomLifetimeAnalyzerTests.VerifyRoomLifetimeAnalyzer),
                 new AnalyzerSuite(nameof(RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer), RoomPointerAnalyzerTests.VerifyRoomPointerAnalyzer),
                 new AnalyzerSuite(nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
+                new AnalyzerSuite(nameof(GameReflectionAnalyzerTests.VerifyGameReflectionAnalyzer), GameReflectionAnalyzerTests.VerifyGameReflectionAnalyzer),
                 new AnalyzerSuite(nameof(VerifyParameterContracts), VerifyParameterContracts),
                 new AnalyzerSuite(nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),
                 new AnalyzerSuite(nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),

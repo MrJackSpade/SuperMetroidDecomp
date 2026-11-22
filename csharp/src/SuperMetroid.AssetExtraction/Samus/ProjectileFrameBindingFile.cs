@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed timed-projectile frame-binding document (#1502).</summary>
-public static class ProjectileFrameBindingFile
+public static partial class ProjectileFrameBindingFile
 {
     /// <summary>Loads the frame bindings installed in projectile directory <paramref name="directory"/>, as the player may have edited them.</summary>
     /// <exception cref="InvalidDataException">The document is invalid.</exception>
@@ -54,7 +54,7 @@ public static class ProjectileFrameBindingFile
     /// <param name="document">Complete timed-record assignments to serialize; the dictionary is not retained.</param>
     /// <returns>JSON bytes for <see cref="ProjectileFrameBindingFormat.FileName"/>.</returns>
     public static byte[] Write(ProjectileFrameBindingDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileFrameBindingDocument>(Options));
 
     /// <summary>Strict camel-case schema options used consistently by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()

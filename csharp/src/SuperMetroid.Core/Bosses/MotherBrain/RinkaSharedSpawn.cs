@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How a special Mother Brain Rinka shares the room's spawn points (#2256): the point it appears and respawns at, and the
 /// point it holds against the others.
 /// </summary>
-public sealed class RinkaSharedSpawn
+public sealed partial class RinkaSharedSpawn
 {
     /// <summary>Starts sharing at <paramref name="start"/>, holding no point yet.</summary>
     internal RinkaSharedSpawn(RinkaSpawnPoint start) => SpawnPoint = start;

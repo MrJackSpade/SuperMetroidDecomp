@@ -38,7 +38,15 @@ internal static class ProjectileContactPhaseVerification
         samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
+<<<<<<< HEAD
         var projectile = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.RidleyFireball, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+||||||| 418ca79935
+        var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+        global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
+=======
+        var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+        projectile.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind));
+>>>>>>> origin/main
         projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
         projectile.HoldStill();
         projectile.FrameHold = WrappingCountdown.Start(2);
@@ -86,7 +94,15 @@ internal static class ProjectileContactPhaseVerification
             samus.Health = 99;
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
+<<<<<<< HEAD
             var projectile = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.RidleyFireball, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+||||||| 418ca79935
+            var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+            global::SuperMetroid.Core.PrivateState.Set(projectile, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind)));
+=======
+            var projectile = runtime.Enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.RidleyFireball);
+            projectile.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind));
+>>>>>>> origin/main
             projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
             projectile.HoldStill();
             projectile.FrameHold = WrappingCountdown.Start(2);

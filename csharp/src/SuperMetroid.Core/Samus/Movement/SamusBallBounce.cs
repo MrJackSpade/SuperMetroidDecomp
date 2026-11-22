@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <param name="Ball">The ball that bounced.</param>
 /// <param name="Rebound">The rebound it has reached.</param>
-public readonly record struct SamusBallBounce(SamusBouncingBall Ball, SamusBallRebound Rebound)
+public readonly partial record struct SamusBallBounce(SamusBouncingBall Ball, SamusBallRebound Rebound)
 {
     /// <summary>The Morph Ball on its first rebound.</summary>
     public static SamusBallBounce MorphBallFirst { get; } = new(SamusBouncingBall.MorphBall, SamusBallRebound.First);

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="sky">The land or ocean sky the room main selects.</param>
 /// <param name="hasBands">Whether the sky's effect or setup made the sky's bands drift.</param>
 [RoomLifetime]
-public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
+public sealed partial class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
 {
     /// <summary>Whether the sky's bands drift: only the sky's effect or setup starts them; the room-main behaviour alone does not.</summary>
     public bool HasBands { get; } = hasBands;
@@ -34,12 +34,12 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
     public int CameraRow { get; private set; }
 
     /// <summary>Whether the frame shows the bands drifted: false on a frozen frame, which shows every band unshifted.</summary>
-    private bool ShowsDrift { get; set; } = hasBands;
+    internal bool ShowsDrift { get; set; } = hasBands;
 
     /// <summary>How many whole pixels the bands moving with <paramref name="drift"/> have slid sideways.</summary>
     /// <param name="drift">One of the sky's drifts (<see cref="ScrollingSkyBandDefinitions.Drifts"/>).</param>
     /// <exception cref="KeyNotFoundException"><paramref name="drift"/> is not one of the sky's drifts.</exception>
-    private int OffsetOf(SkyDrift drift) => _phases[Ensure.NotNull(drift)].Whole;
+    internal int OffsetOf(SkyDrift drift) => _phases[Ensure.NotNull(drift)].Whole;
 
     /// <summary>Moves each drift by its speed and the sky's background to <paramref name="camera"/>'s row; a frozen frame moves nothing.</summary>
     /// <param name="camera">The camera, the room pixel at the screen's top-left.</param>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's neck (#2314): three lower joints hanging from her body and two upper joints hanging from the last
 /// lower joint, each at its own distance; her brain sits on the last upper joint. Made with her encounter.
 /// </summary>
-public sealed class MotherBrainNeck
+public sealed partial class MotherBrainNeck
 {
     /// <summary>Makes the neck's joints at their distances.</summary>
     internal MotherBrainNeck()

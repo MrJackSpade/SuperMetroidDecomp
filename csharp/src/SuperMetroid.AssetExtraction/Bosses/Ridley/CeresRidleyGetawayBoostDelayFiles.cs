@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// first word all end before that place, so a capsule-only frame leaves the delays as they were and each wing frame's
 /// delays depend on that frame alone.
 /// </summary>
-public static class CeresRidleyGetawayBoostDelayFiles
+public static partial class CeresRidleyGetawayBoostDelayFiles
 {
     /// <summary>The value a list's control byte holds after its last descriptor.</summary>
     private const int ListEnd = 0;
@@ -102,7 +102,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
     /// <param name="document">The complete delay document.</param>
     /// <returns>JSON bytes, without writing a file.</returns>
     public static byte[] Write(CeresRidleyGetawayBoostDelayDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayDocument>(ArtworkJson.Options));
 
     /// <summary>
     /// Where in the floor update queue the unauthored cadence's first delay lies: its stream word names a bank-$91 place

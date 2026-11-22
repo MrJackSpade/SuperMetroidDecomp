@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts only charge-flare sprite parts, not animation or gameplay data.</summary>
-public static class ChargeFlareSpriteExtractor
+public static partial class ChargeFlareSpriteExtractor
 {
     /// <summary>Installed JSON resource filename for charge/Hyper/grapple flare and spark sprite compositions, separate from ordinary projectile compositions.</summary>
     public const string FileName = "charge-flare-compositions.json";

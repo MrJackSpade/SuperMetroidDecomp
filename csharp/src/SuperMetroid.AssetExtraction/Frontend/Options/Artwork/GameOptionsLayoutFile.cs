@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// labels, highlight regions, compositions and palette selectors, whose entries are the original's packed tile and sprite
 /// placements, are import data (<see cref="GameOptionsPresentationFormat.ArtworkFileName"/>).
 /// </summary>
-public static class GameOptionsLayoutFile
+public static partial class GameOptionsLayoutFile
 {
     /// <summary>
     /// Supported layout revision: 2 holds no hidden cursor anchor, since transitions show no cursor (#1775); 3 keys each
@@ -35,7 +35,7 @@ public static class GameOptionsLayoutFile
         {
             Version = Version, HeadingAnchors = document.HeadingAnchors, CursorAnchors = document.CursorAnchors,
             CursorFrameDuration = document.CursorFrameDuration,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPlacementDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout the game binds.</summary>

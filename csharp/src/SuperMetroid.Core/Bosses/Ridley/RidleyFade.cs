@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// a time, as a fade, a reveal, a zoom's shades or a cycling alarm. Each image is a colouring of its own that the import
 /// supplies, not a blend of the run's ends, so a run is its images rather than a typed blend.
 /// </summary>
-public sealed class RidleyFade
+public sealed partial class RidleyFade
 {
     /// <summary>Defines a run.</summary>
     /// <param name="key">The name of its installed shades.</param>

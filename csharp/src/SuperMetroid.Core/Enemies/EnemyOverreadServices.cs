@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// session with the rest of the installed content; an enemy consults its service only on the path that reads past its
 /// data. Lifetime: the installation's, shared by every room of the session.
 /// </summary>
-public sealed class EnemyOverreadServices
+public sealed partial class EnemyOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
     /// <param name="magdolliteApexGrowth">Whether a Magdollite arm grows a final segment at its full height, by its place.</param>

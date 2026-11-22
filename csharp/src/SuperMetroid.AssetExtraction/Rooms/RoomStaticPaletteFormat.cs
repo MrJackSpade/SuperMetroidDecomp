@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>One editable RGB5 palette file per distinct graphics-set color source.</summary>
-public static class RoomStaticPaletteFormat
+public static partial class RoomStaticPaletteFormat
 {
     /// <summary>The supported room-palette JSON schema version.</summary>
     public const int Version = 1;

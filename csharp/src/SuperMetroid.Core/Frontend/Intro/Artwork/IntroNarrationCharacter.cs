@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <param name="Column">Zero-based text column for the character.</param>
 /// <param name="Row">Zero-based text row for the character.</param>
 /// <param name="Character">The character typed there, one the narration's alphabet supports.</param>
-public readonly record struct IntroNarrationCharacter(
+public readonly partial record struct IntroNarrationCharacter(
     int Column,
     int Row,
     char Character)

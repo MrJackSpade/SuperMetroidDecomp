@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The state of Oum.</summary>
-public sealed class OumEnemyState
+public sealed partial class OumEnemyState
 {
     /// <summary>Starts the snail in <paramref name="action"/>, its bounce in <paramref name="bouncePhase"/>.</summary>
     internal OumEnemyState(OumAction action, OumBouncePhase bouncePhase)

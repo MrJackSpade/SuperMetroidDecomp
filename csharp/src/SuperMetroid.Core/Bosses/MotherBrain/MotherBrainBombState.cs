@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="motherBrain">The encounter that spawned the bomb.</param>
 /// <param name="bounceSpeed">The sideways speed each floor bounce restores, without its direction.</param>
 /// <param name="afterburns">The afterburns the bomb's explosion chains when it expires, as its spawn set them.</param>
-internal sealed class MotherBrainBombState(MotherBrainEnemyState motherBrain, SignedEightEight bounceSpeed, int afterburns)
+internal sealed partial class MotherBrainBombState(MotherBrainEnemyState motherBrain, SignedEightEight bounceSpeed, int afterburns)
     : MotherBrainProjectileState(motherBrain)
 {
     /// <summary>The sideways speed each floor bounce restores, without its direction.</summary>

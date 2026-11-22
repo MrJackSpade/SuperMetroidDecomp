@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text and Fireflea
 /// darkness.
 /// </summary>
-internal sealed class EnemyRoomStatus
+internal sealed partial class EnemyRoomStatus
 {
     /// <summary>Binds the room's status to the session that holds the language flag.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>
@@ -22,7 +22,7 @@ internal sealed class EnemyRoomStatus
     /// quota on every room-object update; once it meets the quota the grey door has opened and the cleared event is set for
     /// good.
     /// </summary>
-    public int EnemiesKilled { get; private set => field = Ensure.AtLeastZero(value); }
+    public int EnemiesKilled { get; internal set => field = Ensure.AtLeastZero(value); }
     /// <summary>
     /// The boss of the loaded encounter, or null: reset on room load and published by a boss definition in the
     /// population or by boss initialization. Not an area boss-defeated flag.

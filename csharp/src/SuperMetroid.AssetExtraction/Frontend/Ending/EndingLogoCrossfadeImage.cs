@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// crossfade resource's colour order is read. The resource holds its steps in order, each step's background colours
 /// before its sprite colours, as the cartridge's sixteen paired transfers lay them out.
 /// </summary>
-internal static class EndingLogoCrossfadeImage
+internal static partial class EndingLogoCrossfadeImage
 {
     /// <summary>The colours of one layer at one step.</summary>
     private const int ColoursPerLayer = EndingLogoCrossfadeColours.ColoursPerLayer;

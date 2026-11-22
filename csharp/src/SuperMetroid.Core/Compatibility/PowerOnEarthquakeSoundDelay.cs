@@ -18,13 +18,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// save, and clear when the save file's history holds neither.
 /// </remarks>
 [CompatibilityService("the save file found at power-on adds one frame to every rising-liquid and Tourian-statue earthquake rumble's delay")]
-public sealed class PowerOnEarthquakeSoundDelay
+public sealed partial class PowerOnEarthquakeSoundDelay
 {
     /// <summary>A session whose power-on check adds no frame.</summary>
     public static PowerOnEarthquakeSoundDelay None { get; } = new(extraFrames: 0);
 
     /// <summary>A session whose power-on check adds one frame.</summary>
-    private static PowerOnEarthquakeSoundDelay OneFrame { get; } = new(extraFrames: 1);
+    internal static PowerOnEarthquakeSoundDelay OneFrame { get; } = new(extraFrames: 1);
 
     /// <summary>The delay a session gets from what its power-on found in the save file.</summary>
     /// <param name="validSaveFound">Whether any slot held a valid save.</param>

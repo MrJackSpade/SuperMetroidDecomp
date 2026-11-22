@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <param name="name">The class's installed name, for diagnostics.</param>
 [CompatibilityService("one class of second blocks a Wave shot's scan past the room's ceiling straddles into")]
-public sealed class StraddledTerrainTail(string name)
+public sealed partial class StraddledTerrainTail(string name)
 {
     /// <summary>The class's installed name.</summary>
     public string Name { get; } = Ensure.NotNull(name);

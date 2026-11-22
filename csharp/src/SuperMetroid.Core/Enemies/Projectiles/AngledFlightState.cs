@@ -5,14 +5,23 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// Botwoon's spit do: the speed is split once into its velocity along the heading (<see cref="EnemyMath.VelocityAlong"/>),
 /// and each update moves the projectile by it.
 /// </summary>
-/// <param name="heading">The direction the projectile flies in.</param>
-/// <param name="velocity">The projectile's velocity along its heading.</param>
-internal sealed class AngledFlightState(TrigonometryAngle heading, FixedVector<RoomPixels> velocity)
+internal sealed partial class AngledFlightState
     : EnemyProjectileState
 {
+    /// <summary>The direction the projectile flies in.</summary>
+    private readonly TrigonometryAngle heading;
+
+    /// <summary>Creates an <see cref="AngledFlightState"/>.</summary>
+    /// <param name="heading">The direction the projectile flies in.</param>
+    /// <param name="velocity">The projectile's velocity along its heading.</param>
+    public AngledFlightState(TrigonometryAngle heading, FixedVector<RoomPixels> velocity)
+    {
+        this.heading = heading;
+        this.Velocity = velocity;
+    }
 
     /// <summary>The projectile's velocity along its heading.</summary>
-    private FixedVector<RoomPixels> Velocity { get; } = velocity;
+    internal FixedVector<RoomPixels> Velocity { get; }
 
     /// <summary>Splits <paramref name="speed"/> along <paramref name="heading"/> by the heading's sine and cosine.</summary>
     /// <param name="heading">The direction the projectile flies in.</param>

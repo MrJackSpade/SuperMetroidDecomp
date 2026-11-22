@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>One vertical block move: the displacement, column scan order, and which collision side effects it publishes (#633).</summary>
-public sealed record VerticalBlockMove
+public sealed partial record VerticalBlockMove
 {
     /// <summary>Signed vertical displacement; negative moves up and nonnegative moves down.</summary>
     public required SignedSixteenSixteen Displacement { get; init; }

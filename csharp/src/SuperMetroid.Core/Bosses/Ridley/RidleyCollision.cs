@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collision of Ridley's body: whether it is inside the interaction window, and the components of the body frame it shows.</summary>
-internal static class RidleyCollision
+internal static partial class RidleyCollision
 {
     /// <summary>
     /// Ridley's off-screen test: he is outside while he lies above or left of the room, or while his place moved by the

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>One logical SFX stream temporarily borrowing a hardware music voice.</summary>
-internal sealed class ManagedSpcSoundChannel
+internal sealed partial class ManagedSpcSoundChannel
 {
     /// <summary>Bit selecting the hardware voice temporarily owned by this SFX stream.</summary>
     internal int VoiceBitset;

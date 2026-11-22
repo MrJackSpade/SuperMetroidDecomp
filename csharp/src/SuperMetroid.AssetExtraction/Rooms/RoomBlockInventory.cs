@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// inventory is the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs
 /// it and nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.
 /// </summary>
-internal sealed class RoomBlockInventory
+internal sealed partial class RoomBlockInventory
 {
     /// <summary>The blocks each inventoried tileset's rooms can show, ascending.</summary>
     private readonly Dictionary<TilesetDefinition, SortedSet<int>> shown;
@@ -55,7 +55,7 @@ internal sealed class RoomBlockInventory
     /// The inventory of <paramref name="states"/>, each showing what its level places and what <paramref name="writers"/> its
     /// installed data starts write; a Ceres state shows only what its level places.
     /// </summary>
-    private static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
+    internal static RoomBlockInventory Of(IEnumerable<InventoriedRoomState> states, IReadOnlyList<RoomBlockWriter> writers)
     {
         Ensure.NotNull(states);
         Ensure.NotNull(writers);

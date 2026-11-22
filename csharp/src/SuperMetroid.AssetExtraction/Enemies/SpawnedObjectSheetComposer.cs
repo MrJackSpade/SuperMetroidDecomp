@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <see cref="SpawnedObjectOwner.Shared"/> sheet; and the pieces of Mother Brain's tank glass at the characters they
 /// draw from, as the <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/> sheet.
 /// </summary>
-internal static class SpawnedObjectSheetComposer
+internal static partial class SpawnedObjectSheetComposer
 {
     /// <summary>The elevator arrival's poses in the order the shared sheet holds them (#2567), each listed once.</summary>
     private static readonly IReadOnlyList<CeresElevatorArrivalPose> ArrivalPoseOrder = Ensure.EveryMemberOnce(CeresElevatorArrivalPoseKeys.ListedOrder);
@@ -39,7 +39,7 @@ internal static class SpawnedObjectSheetComposer
     /// <summary>A spawner's own sheet and the character it begins at.</summary>
     /// <param name="Sheet">The spawned object's own sheet.</param>
     /// <param name="FirstCharacter">The character its pictures begin at.</param>
-    private sealed record OwnCharacterSheet(SpawnedObjectOwner Sheet, int FirstCharacter);
+    private sealed partial record OwnCharacterSheet(SpawnedObjectOwner Sheet, int FirstCharacter);
 
     /// <summary>
     /// The spawners whose objects draw from a sheet of characters of their own, whatever the spawner's, with that sheet and

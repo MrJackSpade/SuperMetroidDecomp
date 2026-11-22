@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening's laboratory scenes: where their pages scroll as the scientists receive and examine the baby.</summary>
-internal static class IntroLaboratoryDefinitions
+internal static partial class IntroLaboratoryDefinitions
 {
     /// <summary>The first laboratory page's scroll as the delivery scene starts; it then pans left.</summary>
     internal static Offset16<PlanePixels> DeliveryPageScroll => new(32, 8);

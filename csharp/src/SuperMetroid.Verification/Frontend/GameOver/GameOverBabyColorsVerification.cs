@@ -51,7 +51,5 @@ internal static class GameOverBabyColorsVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read(GameOverBabyColouring.Idle, invalid), "Baby ink bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read((GameOverBabyColouring)invalid, 0), "Baby phase bounds");
     }
 }

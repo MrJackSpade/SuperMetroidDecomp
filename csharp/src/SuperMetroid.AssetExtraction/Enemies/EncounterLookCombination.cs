@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// combinations showing the same looks of the same encounters leave the same characters, so a set's characters are built
 /// once per combination.
 /// </summary>
-internal sealed class EncounterLookCombination : IEquatable<EncounterLookCombination>
+internal sealed partial class EncounterLookCombination : IEquatable<EncounterLookCombination>
 {
     /// <summary>The look each part shows, in the frame's part order, each naming its encounter.</summary>
     private readonly ImmutableArray<ComposedLook> looks;

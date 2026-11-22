@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// movement is authored directly in its four animations, its laps at either tide and its run for the escape, so its
 /// state is the animation it is running.
 /// </summary>
-public sealed class EscapeDachoraEnemyState
+public sealed partial class EscapeDachoraEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<EscapeDachoraSegment> Playback { get; set; }

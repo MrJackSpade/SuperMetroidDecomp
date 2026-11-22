@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// regular save is loaded: the bosses, minibosses and Torizos of whole areas, story events, and the opened doors that keep
 /// a defeated door guardian away.
 /// </summary>
-public sealed record SavedEncounterReset
+public sealed partial record SavedEncounterReset
 {
     /// <summary>The areas whose every boss, miniboss and Torizo defeat is forgotten.</summary>
     public required IReadOnlyList<AreaId> BossAreas { get; init => field = Ensure.NotNull(value); }

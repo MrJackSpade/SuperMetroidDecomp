@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One frame of the Zebetites' shared two-colour pulse (#2259), which every Zebetite in the room shows and each primary
 /// half steps.
 /// </summary>
-public readonly record struct ZebetitePulse
+public readonly partial record struct ZebetitePulse
 {
     /// <summary>The frame at <paramref name="step"/> of the cycle.</summary>
     private ZebetitePulse(int step) => Step = step;

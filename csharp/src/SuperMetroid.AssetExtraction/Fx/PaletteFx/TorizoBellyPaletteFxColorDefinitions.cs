@@ -6,11 +6,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two bellies show the same records in different colours.
 /// </remarks>
-public static class TorizoBellyPaletteFxColorDefinitions
+public static partial class TorizoBellyPaletteFxColorDefinitions
 {
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
-    private const int ColorsPerFrame = 3;
+    internal const int ColorsPerFrame = 3;
 
     /// <summary>The Bomb Torizo's belly glow.</summary>
     internal static TorizoBellyPaletteFxColorDefinition BombTorizoBelly { get; } = new(ColourEffectId.BombTorizoBelly, ColorsPerFrame);

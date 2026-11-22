@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Shake">The shake to start, or null to keep the room's current shake.</param>
 /// <param name="Length">How long the room shakes.</param>
-public readonly record struct MotherBrainEarthquakeRequest(EarthquakeShake? Shake, MotherBrainEarthquakeLength Length)
+public readonly partial record struct MotherBrainEarthquakeRequest(EarthquakeShake? Shake, MotherBrainEarthquakeLength Length)
 {
     /// <summary>Applies the request to the room's earthquake.</summary>
     internal void ApplyTo(RoomEarthquake earthquake)

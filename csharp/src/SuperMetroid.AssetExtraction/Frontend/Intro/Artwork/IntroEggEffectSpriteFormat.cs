@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Installed file identity for the eleven SR388 egg-effect frames.</summary>
-public static class IntroEggEffectSpriteFormat
+public static partial class IntroEggEffectSpriteFormat
 {
     /// <summary>
     /// Supported JSON schema revision for the eleven named visual compositions, two naming each shell piece for where it

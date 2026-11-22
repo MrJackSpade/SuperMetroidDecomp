@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Resolves native palette-copy programs at import time into named world-selection palettes.</summary>
-internal static class MapStaticPalettesExtractor
+internal static partial class MapStaticPalettesExtractor
 {
     /// <summary>
     /// Imports pause and file-select palettes, executes each selected area's bounded native

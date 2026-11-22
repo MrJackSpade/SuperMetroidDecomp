@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// inherited-fractions check reproduces the start against the retail Mother Brain room.
 /// </remarks>
 [CompatibilityService("the Baby Metroid that rescues Samus starts its entrance from the fractions of a pixel the enemy last in its place left, which decide the update on which it reaches Mother Brain's brain")]
-public static class BabyMetroidArrivalFractions
+public static partial class BabyMetroidArrivalFractions
 {
     /// <summary>
     /// The position the Baby starts its entrance from: <paramref name="arrival"/>'s whole pixels with

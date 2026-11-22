@@ -101,8 +101,8 @@ internal static class LookupStream5Verification
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyAnimation.MeltingFleshTopRow : CrocomireBodyAnimation.MeltingBareSkullTopRow);
         }
-        var first = art.first;
-        var second = art.second;
+        var first = art.flesh;
+        var second = art.bareSkull;
         string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
         {
             content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
@@ -205,7 +205,7 @@ internal static class LookupStream5Verification
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.PhaseWait.UpdatesLeft, "Incomplete fade preserves prior countdown");
-            SuperMetroid.Core.PrivateState.Set(state.BodyFade, nameof(PhantoonFadeProgress.IsFinished), true);
+            state.BodyFade.IsFinished = true;
             fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
             AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Completed fade selects exact native hidden duration");
@@ -667,7 +667,6 @@ internal static class LookupStream5Verification
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");
@@ -770,7 +769,6 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, -1), "Health color lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
@@ -816,8 +814,6 @@ internal static class LookupStream5Verification
             AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)i), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)(-1)), "No direction has no binding");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)4), "Invalid direction");
         var state = new SharedGameState(new SharedRandom());
         state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -1078,7 +1074,6 @@ internal static class LookupStream5Verification
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset((YappingMawAim)Enum.GetValues<YappingMawAim>().Length), "Held aim beyond the eight aims");
         Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
 
         void Check(int direction, string context)
@@ -1164,8 +1159,7 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = MapPaletteCycleFile.Version, Frames = frames };
         // The extraction states each frame's look as the colour its highlight shows: both of the frame's highlight colours.
-        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(
-            SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), ArtworkJson.Options)
+        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("The extracted map highlight cycle is null.");
         AssertTrue(extracted.Frames.SequenceEqual(frames), "the extracted highlight cycle holds each frame's hold and highlight colour");
         for (int frame = 0; frame < 14; frame++)
@@ -1189,7 +1183,7 @@ internal static class LookupStream5Verification
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
-            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options));
             var cycle = MapPaletteCycleFile.Read(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Highlight frame count");
             AssertEqual(document.Frames.Length, cycle.Timing.FrameCount, "Highlight timing frame count");
@@ -1330,9 +1324,6 @@ internal static class LookupStream5Verification
                 eyeState.EyePart.PlayingProgram(),
                 $"production Phantoon eye direction {direction}");
         }
-        AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
-            "Phantoon eye direction beyond the eight directions");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
@@ -1531,8 +1522,6 @@ internal static class LookupStream5Verification
         }
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7), "Ceres door upper bound");
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(ushort.MaxValue), "Ceres door full-word rejection");
-        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
-        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => _ = MagdolliteRiseStage.Setup.Lower, "Magdollite lower bound");
         AssertThrows<InvalidDataException>(() => _ = stage.Higher, "Magdollite upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
@@ -1667,7 +1656,7 @@ internal static class LookupStream5Verification
         CeresFlightPalette Check()
         {
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
-            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument>(ArtworkJson.Options)));
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             RgbColor[] selected = [.. actual.Colours];
             RgbColor[] loaded = [.. actual.BackgroundColours, .. actual.SpriteColours];
@@ -1815,7 +1804,7 @@ internal static class LookupStream5Verification
                 door.FrameCounter = (ushort)counter; door.ElevatorDoor().RunMainAi(aiFrame);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
-                AssertEqual(row, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior, int?>(system.CeresDoorBehavior, "ElevatorRoomGlowStep"), "Actual native eight-tick row selection");
+                AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

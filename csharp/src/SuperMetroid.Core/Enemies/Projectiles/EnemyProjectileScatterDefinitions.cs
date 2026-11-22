@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Which way the random scatter of an enemy projectile turns its offsets.</summary>
-internal static class EnemyProjectileScatterDefinitions
+internal static partial class EnemyProjectileScatterDefinitions
 {
     /// <summary>
     /// Whether the scatter's first sample turns the X offset leftward (#2479): one scatter in two.

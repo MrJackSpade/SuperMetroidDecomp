@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's body: it shows the Torizo's colouring, starts its body animation and drips its low-health drool.</summary>
 [RoomLifetime]
-internal sealed class TorizoBody
+internal sealed partial class TorizoBody
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;

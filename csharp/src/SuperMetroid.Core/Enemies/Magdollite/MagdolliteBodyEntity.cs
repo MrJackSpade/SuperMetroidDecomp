@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="partners">The Magdollite its head began, which the body joins as it is built (#2554).</param>
-internal sealed class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class MagdolliteBodyEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     MagdollitePartners partners)
     : MagdollitePartEntity(species, occupant, place, common)
 {

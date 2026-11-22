@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The block shape of each of the Bomb Torizo statue hand's two frames (#1608), around the hand's block. What each frame
 /// shows is its installed picture (#1557).
 /// </summary>
-internal static class BombTorizoHandObjectDrawDefinitions
+internal static partial class BombTorizoHandObjectDrawDefinitions
 {
     /// <summary>
     /// The intact hand: eight solid blocks, the hand's block and the one right of it, the block left of it, the pair

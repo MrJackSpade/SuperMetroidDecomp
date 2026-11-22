@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// its kind and its explosion, until it ends. Beams, the Hyper Beam and explosions keep nothing beyond the shot's own state, the Power Bomb fuse a beam
 /// carries (<see cref="SamusProjectile.BeamFuse"/>) among it.
 /// </summary>
-internal abstract class SamusShotKindState
+internal abstract partial class SamusShotKindState
 {
     /// <summary>
     /// Whether the shot is a missile waiting to ignite as it was fired, not after a reflection: a fired Super Missile and

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>The counter cadence of the Ceres destruction cinematic's planet reveal (#1606).</summary>
-internal static class CeresCinematicCadenceDefinitions
+internal static partial class CeresCinematicCadenceDefinitions
 {
     /// <summary>
     /// The updates on which the planet reveal's pixelation narrows its blocks one pixel (#1774), counted on the cinematic

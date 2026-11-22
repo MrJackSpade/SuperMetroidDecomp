@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleShellContourDefinit
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>Where a dormant Mama Turtle's shell surface is above an actor beside its origin.</summary>
-internal static class MamaTurtleShell
+internal static partial class MamaTurtleShell
 {
     /// <summary>
     /// The shell's surface above an actor whose X is <paramref name="parentMinusActorX"/> pixels from the Mama Turtle's

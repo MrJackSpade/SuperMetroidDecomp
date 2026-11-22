@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// sections' origins follow, its growth level and its extended movement state. It reads how near Samus must come and how
 /// fast it grows from its spawn settings where it uses them (#2450).
 /// </summary>
-public sealed class GrowingShutterEnemyState
+public sealed partial class GrowingShutterEnemyState
 {
     /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
     private const int SectionOriginSpacing = 8;
@@ -23,7 +23,7 @@ public sealed class GrowingShutterEnemyState
     }
 
     /// <summary>The row the shutter spawned at, the first section's origin (#2183).</summary>
-    public int SpawnY { get; private set; }
+    public int SpawnY { get; internal set; }
 
     /// <summary>The way the shutter grows, from its spawn row.</summary>
     public VerticalDirection Growth { get; }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// projectile somewhere other than against that block's face. Most enemy projectiles collide with the room's terrain
 /// (<see cref="EnemyProjectileTerrainCollision"/>); a kind with a collision of its own passes it to the same move.
 /// </summary>
-internal abstract class EnemyProjectileBlockCollision
+internal abstract partial class EnemyProjectileBlockCollision
 {
     /// <summary>
     /// Whether a block of <paramref name="move"/>'s scan stops the move: the scan's blocks are tested in order, and the first

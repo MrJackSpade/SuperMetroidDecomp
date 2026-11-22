@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts completion and save-confirmation notices as bounded UTF-8 text regions.</summary>
-public static class GameplayMessageNoticeExtractor
+public static partial class GameplayMessageNoticeExtractor
 {
     /// <summary>Imports completion and save-confirmation notice templates, editable text regions, borders, and save-selection rows.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the native message definitions and tilemap words.</param>

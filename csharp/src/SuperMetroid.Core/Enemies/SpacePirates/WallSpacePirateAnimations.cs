@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The wall Space Pirates' climb, jump and laser animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WallSpacePirateCue"/> with the values it acts on.
 /// </summary>
-internal static class WallSpacePirateAnimations
+internal static partial class WallSpacePirateAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<WallSpacePirateSegment, EnemyFrameId, WallSpacePirateCue> Segments { get; } = new(
@@ -58,7 +58,7 @@ internal static class WallSpacePirateAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>> StartingAt { get; } = new Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>>
+    internal static Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>> StartingAt { get; } = new Dictionary<WallSpacePirateSegment, Animation<WallSpacePirateSegment>>
     {
         [P.FireAndJumpLeft] = new([Segments.Whole(P.FireAndJumpLeft)], AnimationEnd.Holds),
         [P.LandedOnLeftWall] = new([Segments.Whole(P.LandedOnLeftWall), .. Climb(P.MovingUpLeftWall, P.ClimbingUpLeftWall, P.ChooseLeftWallClimb)], AnimationEnd.Holds),

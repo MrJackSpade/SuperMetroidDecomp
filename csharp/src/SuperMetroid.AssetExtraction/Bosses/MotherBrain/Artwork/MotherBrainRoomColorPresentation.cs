@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The installed Mother Brain fake-death room flash, steady room, phase-two and room-entry colors, kept as installed.</summary>
-public sealed class MotherBrainRoomColorPresentation
+public sealed partial class MotherBrainRoomColorPresentation
 {
     /// <summary>The installed timed room-color flash.</summary>
     internal readonly InstalledColourRows flash;

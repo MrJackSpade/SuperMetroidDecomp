@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// shows, in two families (#2553): the ceiling's, whose only cue is a spawner's release of a spore, and a spore's, whose
 /// cues are its burst's, so each family's owner answers only the cues its animations publish.
 /// </summary>
-internal static class SporeSpawnProjectileAnimations
+internal static partial class SporeSpawnProjectileAnimations
 {
     /// <summary>
     /// The ceiling's animations: the closed spawner's pose, held (#2235); the spawner's release, which spawns a spore after its

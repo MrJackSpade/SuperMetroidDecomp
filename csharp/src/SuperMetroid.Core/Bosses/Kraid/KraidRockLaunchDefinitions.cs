@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The horizontal launch speeds of rocks spat by Kraid.</summary>
-public static class KraidRockLaunchDefinitions
+public static partial class KraidRockLaunchDefinitions
 {
     /// <summary>Leftward 3.75-pixel/frame launch.</summary>
     private static SignedEightEight SlowLeft { get; } = SignedEightEight.FromPixelFraction(-15, 4);

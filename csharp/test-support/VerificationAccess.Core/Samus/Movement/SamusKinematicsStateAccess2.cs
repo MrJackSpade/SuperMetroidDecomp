@@ -13,7 +13,7 @@ internal static class SamusKinematicsStateAccess2
         /// last cleared them.
         /// </summary>
         public ISolidEnemy? SolidEnemyContact(SamusCollisionDirection direction) =>
-            PrivateState.Field<SamusKinematicsState, Dictionary<SamusCollisionDirection, ISolidEnemy>>(self, "_solidEnemyContacts")
+            self.SolidEnemyContactsByDirection
                 .GetValueOrDefault(direction);
     }
 }

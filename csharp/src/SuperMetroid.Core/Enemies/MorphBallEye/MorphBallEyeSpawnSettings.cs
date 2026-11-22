@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// Which part of a morph-ball eye a placement is (#1472, #1519): the eye's body or its beam mount, each its own settings
 /// (#2474), so the body carries only its facing and the mount only its side.
 /// </summary>
-internal abstract record MorphBallEyeSpawnSettings : EnemySpawnSettings;
+internal abstract partial record MorphBallEyeSpawnSettings : EnemySpawnSettings;

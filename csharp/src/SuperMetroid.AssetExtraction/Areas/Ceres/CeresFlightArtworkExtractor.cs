@@ -14,7 +14,7 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
-internal static class CeresFlightArtworkExtractor
+internal static partial class CeresFlightArtworkExtractor
 {
     /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)

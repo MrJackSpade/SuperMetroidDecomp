@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The beam flare's installed visual offsets (#1596): at each muzzle in both movement modes, and standing at each turning
 /// placement. No pose places a flare while turning running (#1500), so the turning placements are standing ones.
 /// </summary>
-public sealed class BeamFlarePlacements : ChargeFlarePlacements
+public sealed partial class BeamFlarePlacements : ChargeFlarePlacements
 {
     /// <summary>Takes the beam flare's offset at every placement, as the import pipeline validated them.</summary>
     /// <param name="supplied">The offset of each placement; it must hold every placement of the beam flare and nothing else.</param>

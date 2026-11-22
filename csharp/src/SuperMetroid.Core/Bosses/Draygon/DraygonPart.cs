@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// they set up, so each part's entity holds the encounter and its playback from its setup.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Draygon's encounter (#2298): the encounter makes and owns its four parts for the room, and each part's entity reads the encounter it joined at setup through its part, so the two share one lifetime.")]
-public sealed class DraygonPart
+public sealed partial class DraygonPart
 {
     /// <summary>Makes <paramref name="draygon"/>'s part occupying <paramref name="place"/>, playing the animation from <paramref name="starting"/>.</summary>
     /// <param name="draygon">The encounter the part is part of.</param>

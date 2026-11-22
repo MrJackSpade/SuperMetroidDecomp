@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// load each draw that shows another frame's picture (a blue cap drawn solid shows its facing's closed cap, the eye door's
 /// opening clear the shared clear mirrored); the family's terrain, timing and mutations stay the game's.
 /// </summary>
-public sealed class InstalledRoomObjectPictures : IRoomObjectFamilyPictures
+public sealed partial class InstalledRoomObjectPictures : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures of every draw of a family.</summary>
     /// <param name="images">Every draw's picture, keyed by the draw.</param>

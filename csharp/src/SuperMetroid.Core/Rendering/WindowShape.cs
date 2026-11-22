@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// One shape of a <see cref="ScreenWindow"/> (#1468): a rectangle, an oval or a cone in screen pixels, which the backend
 /// tests every pixel against. Shapes are descriptions; nothing in the simulation rasterizes them.
 /// </summary>
-public abstract record WindowShape
+public abstract partial record WindowShape
 {
     /// <summary>Closes the hierarchy to the rectangle, the oval and the cone.</summary>
     private protected WindowShape()

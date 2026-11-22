@@ -10,6 +10,5 @@ internal static class RoomObjectAnimationScriptsTooling
     /// <c>$84:BB34 InstList_PLM_GateThatClosesDuringEscapeAfterMotherBrain_0</c>:
     /// draw the already-closed gate for six frames, then release the resident PLM slot.
     /// </summary>
-    [AccessedByReflection]
     public const ushort MotherBrainEscapeRoomGateClosed = 0xbb34;
 }

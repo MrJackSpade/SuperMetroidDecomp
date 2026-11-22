@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending's assembling logo, followed by its colour loads (<see cref="EndingLogoDefinitions.CrossfadeSteps"/>): its two S halves move into place while its two
 /// circles draw in (#1979).
 /// </summary>
-internal sealed class EndingLogo
+internal sealed partial class EndingLogo
 {
     /// <summary>The upper S half, which signals the scene as it lands.</summary>
     private readonly MovingHalf upperS;
@@ -78,6 +78,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>What <see cref="HandleCue"/> does for each <see cref="EndingLogoCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingLogoCue, Action> HandleCueForEndingLogoCue => field ??= new(new Dictionary<EndingLogoCue, Action>
     {
         [EndingLogoCue.GreyOut] = () =>
@@ -114,7 +115,7 @@ internal sealed class EndingLogo
     /// <param name="Landing">Where the half comes to rest.</param>
     /// <param name="Direction">The way the half moves across: left, which also moves it down, or right, which also moves it up.</param>
     /// <param name="Landed">Called as the half lands, or null for none.</param>
-    private sealed record MovingHalf(CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Actor, Offset16<ScreenPixels> Landing,
+    private sealed partial record MovingHalf(CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Actor, Offset16<ScreenPixels> Landing,
         HorizontalDirection Direction, Action? Landed)
     {
         /// <summary>The half's speed on each axis, in pixels per update.</summary>

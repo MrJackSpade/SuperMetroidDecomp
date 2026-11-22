@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// The reactions of the face block's own (#2558) that its definition names where it shares none of the engine's: the
 /// reaction that runs when Samus or her weapons meet it, which its entity answers.
 /// </summary>
-internal static class FaceBlockReactions
+internal static partial class FaceBlockReactions
 {
     /// <summary>The reaction of the face block's own to her shots and bombs, which its entity answers.</summary>
     internal static EnemyReaction Shot { get; } = EnemyReaction.OfSpecies("FaceBlock.Shot");

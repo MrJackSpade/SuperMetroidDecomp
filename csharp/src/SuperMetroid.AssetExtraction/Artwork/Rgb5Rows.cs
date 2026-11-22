@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Validates and packs rows of editable RGB5 colours, as every colour catalog stores them.</summary>
-internal static class Rgb5Rows
+internal static partial class Rgb5Rows
 {
     /// <summary>Checks a row's length and five-bit channels before packing its SNES colour words.</summary>
     /// <param name="source">The authored row.</param>

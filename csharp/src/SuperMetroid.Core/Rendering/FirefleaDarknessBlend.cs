@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rendering;
 /// the screen; the foreground and Samus keep their colours.
 /// </summary>
 /// <param name="Shade">The shade the darkness takes from the background and the backdrop.</param>
-public sealed record FirefleaDarknessBlend(RgbColor Shade) : GameplayBlend;
+public sealed partial record FirefleaDarknessBlend(RgbColor Shade) : GameplayBlend;

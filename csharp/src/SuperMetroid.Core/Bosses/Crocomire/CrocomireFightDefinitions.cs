@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>How Crocomire wakes, steps, spits and reacts to his hits, and how he holds Samus back (#2182).</summary>
-internal static class CrocomireFightDefinitions
+internal static partial class CrocomireFightDefinitions
 {
     /// <summary>How close Samus comes horizontally, exclusive, before his idle body wakes, in pixels.</summary>
     internal const int WakeDistance = 224;

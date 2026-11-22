@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Where the pause screen's artwork sits among each of its layers' tile numbers (#1404).</summary>
-internal static class PauseTileSetDefinitions
+internal static partial class PauseTileSetDefinitions
 {
     /// <summary>The tile number of the first map character on the map, equipment and frame planes.</summary>
     internal const int MapFirstTile = 0;

@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class IntroCeresFlightState
+internal sealed partial class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
-    private readonly AudioQueues audio;
+    internal readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The front-star or rear-view actors' sprites over the flight sprite page (#1358).</summary>
@@ -28,7 +28,7 @@ internal sealed class IntroCeresFlightState
     /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the gunship
     /// engine's flicker and the station's navigation lights.
     /// </summary>
-    private ColourEffectSystem ColourEffects { get; } = ColourEffectSystem.ForScreen();
+    internal ColourEffectSystem ColourEffects { get; } = ColourEffectSystem.ForScreen();
     /// <summary>The rear view's actors' installed starting places (#1596).</summary>
     private CeresFlightActorPlacements actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
@@ -100,7 +100,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay: the one its stage is.</summary>
-    private IntroCeresFlightPhase Phase => stage.Phase;
+    internal IntroCeresFlightPhase Phase => stage.Phase;
 
     /// <summary>
     /// The flight's stage, holding what it shows: the rear view's flash while the gunship flies toward Ceres, and the SPACE
@@ -168,7 +168,7 @@ internal sealed class IntroCeresFlightState
     /// The shading of the turning floor (#1733): the shade of the frame the gunship engine's flicker shows once the rear
     /// view has started it, or the floor's standard colours before; the floor fades with the display's brightness (#1512).
     /// </summary>
-    private PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
+    internal PictureShading FloorShading => ColourEffects.FrameOf(CeresFlightSceneDefinitions.EngineColours) is { } frame
         ? PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
         : PictureShading.Standard;
 
@@ -199,7 +199,7 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Whether the scene shows its rear view: once the camera has switched to it.</summary>
-    private bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
+    internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
     /// <summary>Switches the floor to the rear view, places five actors, and starts the white flash.</summary>

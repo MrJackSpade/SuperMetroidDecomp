@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// is at least minus the allowance, so is the cross product of the offset and <see cref="SecondEdgeDirection"/>, and the
 /// offset's dot product with the two directions together is not negative.
 /// </remarks>
-public sealed record WindowCone : WindowShape
+public sealed partial record WindowCone : WindowShape
 {
     /// <summary>The pixel the cone's edges leave from.</summary>
     public Offset16<ScreenPixels> Apex { get; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The sounds the Tourian Baby Metroid's animations queue.</summary>
-internal static class BabyMetroidSoundDefinitions
+internal static partial class BabyMetroidSoundDefinitions
 {
     /// <summary>The remorse cry before the Baby Metroid leaves.</summary>
     internal static SoundEffectId RemorseCry { get; } = EnemySound.BabyMetroidRemorse;

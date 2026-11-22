@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// space behind the exploding planet (#1637), as the import supplies them. Every picture the ending draws is
 /// pre-coloured, and only these colours are its own.
 /// </summary>
-public sealed class EndingBackdrops
+public sealed partial class EndingBackdrops
 {
     /// <summary>Keeps each scene's backdrop.</summary>
     /// <param name="escape">The escape scenes' backdrop.</param>

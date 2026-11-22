@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's tail as it is made, and the swings, spacings, reaches and extensions its actions set (#2238).</summary>
-internal static class RidleyTailDefinitions
+internal static partial class RidleyTailDefinitions
 {
     /// <summary>
     /// The spacing the tail's links keep as it is made and through most of the fight: each link starts the next once it

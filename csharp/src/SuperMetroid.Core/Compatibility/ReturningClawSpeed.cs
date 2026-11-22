@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// arithmetic.
 /// </remarks>
 [CompatibilityService("a ninja pirate's returning claw that keeps flying speeds up to 255 pixels an update and then starts again from rest")]
-public readonly record struct ReturningClawSpeed
+public readonly partial record struct ReturningClawSpeed
 {
     /// <summary>How much a claw slows each update flying out, and speeds up each update coming back, in 256ths of a pixel.</summary>
     private const int ChangePerUpdate = 32;

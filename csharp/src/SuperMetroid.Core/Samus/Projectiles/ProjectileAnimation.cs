@@ -10,7 +10,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The projectile animation player and drawing: shot animation and endings, live projectile sprites, and the charge flare's components, advanced and drawn.</summary>
-internal sealed class ProjectileAnimation
+internal sealed partial class ProjectileAnimation
 {
     /// <summary>The charge flare, whose components' pictures and waits the animation steps.</summary>
     private readonly BeamChargeState _charge;
@@ -95,7 +95,7 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres turning-floor center transform, then draws the installed component frame.</summary>
-    private void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> cameraPosition, ChargeFlareComponent component, TurningFloorTransform? turningFloor, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         Offset16<RoomPixels> visualOffset = pose.Aim.PlacedBy(artwork.Placement, pose.Running);
 

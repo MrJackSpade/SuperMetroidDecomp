@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="WalkCredit">The credit remaining after the hit's cost.</param>
 /// <param name="HyperBeamRecoil">Whether a final-phase Hyper Beam hit overdrew the credit and starts the recoil.</param>
 [IndependentFlag("whether this shot reaction starts the hyper-beam recoil")]
-internal readonly record struct MotherBrainShotReactionResult(MotherBrainWalkCredit WalkCredit, bool HyperBeamRecoil);
+internal readonly partial record struct MotherBrainShotReactionResult(MotherBrainWalkCredit WalkCredit, bool HyperBeamRecoil);

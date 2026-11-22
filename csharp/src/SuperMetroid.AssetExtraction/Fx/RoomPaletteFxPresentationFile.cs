@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads and writes the installed room palette-effect colour document.</summary>
-public static class RoomPaletteFxPresentationFile
+public static partial class RoomPaletteFxPresentationFile
 {
     /// <summary>Validates the installed palette-FX frames and keeps every RGB5 colour as installed, by the record colour it is.</summary>
     /// <param name="json">The UTF-8 JSON presentation stream with the required frame counts and RGB components from zero through thirty-one.</param>
@@ -42,9 +42,7 @@ public static class RoomPaletteFxPresentationFile
     /// <param name="document">The complete editable color document; animation timing and destinations remain defined by engine mechanics.</param>
     public static void Write(Stream json, RoomPaletteFxPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How far Mother Brain's neck angles turn each update while her neck moves (#1951): both the lower and the upper angle
 /// turn by the rate her current motion sets.
 /// </summary>
-internal static class MotherBrainNeckTurnDefinitions
+internal static partial class MotherBrainNeckTurnDefinitions
 {
     /// <summary>
     /// A quarter of a step an update: the slow sway of her stretching, her rainbow beam's aim, her lowering after the

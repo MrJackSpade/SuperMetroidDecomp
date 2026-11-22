@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.Ridley.NorfairRidleyPhase;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Which attack Ridley chooses in each situation, by the named chances of the random sample his choice draws.</summary>
-public static class RidleyAttackChoices
+public static partial class RidleyAttackChoices
 {
     /// <summary>
     /// Half his ordinary choices pogo and half swoop; three in four of his choices at a damage-boosting Samus lunge at her

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The Tourian entrance statue's decorations: what the scene's first placement spawns and the room point each stands at,
 /// tied there as the statue descends.
 /// </summary>
-internal static class TourianStatueDecorationDefinitions
+internal static partial class TourianStatueDecorationDefinitions
 {
     /// <summary>
     /// The decorations in the order they spawn, which gives them their authored draw order: the decoration on the statue's

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The two colours the game installs over the HUD's effect colours while a message box is open (#1512), which the import
 /// pre-colours each message box picture in. Gameplay names no colour of the message box: its pictures show their own.
 /// </summary>
-internal static class MessageBoxColourDefinitions
+internal static partial class MessageBoxColourDefinitions
 {
     /// <summary>The ink of a tileset's BG3 picture the light message colour shows in: the HUD effect colours' tenth.</summary>
     internal const int LightInk = 25;

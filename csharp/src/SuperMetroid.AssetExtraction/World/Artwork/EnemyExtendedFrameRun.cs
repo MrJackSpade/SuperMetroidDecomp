@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// <param name="HeaderHighByte">
 /// The byte after the component count in the run's frames' headers, cartridge drawing metadata the walkers keep.
 /// </param>
-internal readonly record struct EnemyExtendedFrameRun(EnemyExtendedFrameFamily Family, ImmutableArray<EnemyFrameId> Frames,
+internal readonly partial record struct EnemyExtendedFrameRun(EnemyExtendedFrameFamily Family, ImmutableArray<EnemyFrameId> Frames,
     EnemyExtendedFrameLayers Layers = EnemyExtendedFrameLayers.Sprites,
     int MaximumComponents = EnemyExtendedFrameDefinitions.MaximumComponents,
     int HeaderHighByte = 0);

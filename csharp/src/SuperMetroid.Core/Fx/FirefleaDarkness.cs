@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Fx;
 /// through five, the deepest, which every later death keeps (<see cref="FirefleaFxDefinitions.DarknessLevels"/>, #2573).
 /// From the fifth death the room stops flashing.
 /// </summary>
-public readonly record struct FirefleaDarkness
+public readonly partial record struct FirefleaDarkness
 {
     /// <summary>The darkness of <paramref name="firefleasKilled"/> Firefleas killed.</summary>
     /// <param name="firefleasKilled">The Firefleas killed in the room, none through five.</param>
     /// <exception cref="ArgumentOutOfRangeException">The darkness has no step for that many deaths.</exception>
-    private FirefleaDarkness(int firefleasKilled) =>
+    internal FirefleaDarkness(int firefleasKilled) =>
         FirefleasKilled = Ensure.BetweenInclusive(0, FirefleaFxDefinitions.DarknessLevels.Length - 1, firefleasKilled);
 
     /// <summary>The Firefleas killed in the room whose darkness shows, none through five.</summary>
-    private int FirefleasKilled { get; }
+    internal int FirefleasKilled { get; }
 
     /// <summary>The fade levels of grey the darkness subtracts from the room.</summary>
     public int Level => FirefleaFxDefinitions.DarknessLevels[FirefleasKilled];

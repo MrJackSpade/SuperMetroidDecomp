@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus visor colour document.</summary>
-public static class SamusVisorColorFile
+public static partial class SamusVisorColorFile
 {
     /// <summary>Supported schema revision, one, requiring exactly the six authored visor words.</summary>
     public const int Version = 1;
@@ -46,5 +46,5 @@ public static class SamusVisorColorFile
     /// <param name="document">All six RGB5 visor colors to serialize; the array is not retained.</param>
     /// <returns>JSON bytes for <see cref="FileName"/>.</returns>
     public static byte[] Write(SamusVisorColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusVisorColorDocument>(ArtworkJson.Options));
 }

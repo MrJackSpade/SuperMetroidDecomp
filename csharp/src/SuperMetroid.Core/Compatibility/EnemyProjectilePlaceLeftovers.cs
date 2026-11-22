@@ -18,23 +18,23 @@ namespace SuperMetroid.Core.Compatibility;
 /// enemy projectiles without the values carried across rooms.
 /// </remarks>
 [CompatibilityService("a new enemy projectile starts from the whole position and velocity its place's previous projectile left, the room before's until this room spawns into the place")]
-public sealed class EnemyProjectilePlaceLeftovers
+public sealed partial class EnemyProjectilePlaceLeftovers
 {
     /// <summary>What the room before left in each place, in place order; rest at the origin before any room has left one.</summary>
-    private readonly EnemyProjectileHandOver[] _fromRoomBefore;
+    internal EnemyProjectileHandOver[] FromRoomBefore { get; }
 
     /// <summary>Starts a room's places with nothing left in them.</summary>
     /// <param name="placeCount">The number of enemy-projectile places, at least one.</param>
     public EnemyProjectilePlaceLeftovers(int placeCount) =>
-        _fromRoomBefore = new EnemyProjectileHandOver[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
+        FromRoomBefore = new EnemyProjectileHandOver[Ensure.BetweenInclusive(1, int.MaxValue, placeCount)];
 
     /// <summary>The places start from what the room before left in each of them.</summary>
     /// <param name="handOver">What the room before left for this one.</param>
     public void TakeOverFrom(RoomHandOver handOver)
     {
         Ensure.NotNull(handOver);
-        for (int place = 0; place < _fromRoomBefore.Length; place++)
-            _fromRoomBefore[place] = handOver.EnemyProjectile(place);
+        for (int place = 0; place < FromRoomBefore.Length; place++)
+            FromRoomBefore[place] = handOver.EnemyProjectile(place);
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public sealed class EnemyProjectilePlaceLeftovers
     /// <param name="place">The zero-based enemy-projectile place the spawn takes.</param>
     /// <param name="leftByLastProjectile">What the place's last projectile of this room leaves as the spawn takes the place; null for none.</param>
     public EnemyProjectileHandOver StartOf(int place, EnemyProjectileHandOver? leftByLastProjectile) =>
-        leftByLastProjectile ?? _fromRoomBefore[place];
+        leftByLastProjectile ?? FromRoomBefore[place];
 
     /// <summary>Leaves what each place holds for the room that replaces this one.</summary>
     /// <param name="handOver">What this room leaves for the next.</param>
@@ -53,8 +53,8 @@ public sealed class EnemyProjectilePlaceLeftovers
     {
         Ensure.NotNull(handOver);
         Ensure.NotNull(leftByLastProjectiles);
-        if (leftByLastProjectiles.Count != _fromRoomBefore.Length)
-            throw new ArgumentException($"The room has {_fromRoomBefore.Length} enemy-projectile places, not {leftByLastProjectiles.Count}.", nameof(leftByLastProjectiles));
-        handOver.LeaveEnemyProjectiles(Enumerable.Range(0, _fromRoomBefore.Length).Select(place => StartOf(place, leftByLastProjectiles[place])));
+        if (leftByLastProjectiles.Count != FromRoomBefore.Length)
+            throw new ArgumentException($"The room has {FromRoomBefore.Length} enemy-projectile places, not {leftByLastProjectiles.Count}.", nameof(leftByLastProjectiles));
+        handOver.LeaveEnemyProjectiles(Enumerable.Range(0, FromRoomBefore.Length).Select(place => StartOf(place, leftByLastProjectiles[place])));
     }
 }

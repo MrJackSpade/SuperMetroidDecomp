@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract partial class MotherBrainEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>The MotherBrain species owner.</summary>
@@ -27,6 +27,14 @@ internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemy
         Ensure.NotNull(part).Entity is MotherBrainEntity entity
             ? entity.Encounter
             : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Mother Brain's.");
+
+    /// <summary>Takes a shot meeting her body, in the encounter the part is part of (<see cref="MotherBrainCombat.ReactToBodyShot"/>).</summary>
+    /// <param name="c">The shot meeting the body.</param>
+    internal bool ReactToBodyShot(in EnemyShotContext c) => Species.Combat.ReactToBodyShot(c, Encounter);
+
+    /// <summary>Takes a shot meeting her head, in the encounter the part is part of (<see cref="MotherBrainCombat.ReactToHeadShot"/>).</summary>
+    /// <param name="c">The shot meeting the head.</param>
+    internal bool ReactToHeadShot(in EnemyShotContext c) => Species.Combat.ReactToHeadShot(c, Encounter);
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);

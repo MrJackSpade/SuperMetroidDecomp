@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps each room level's compressed blocks, block types and background blocks.</summary>
 [EncodingOwner("cartridge addresses of the compressed room levels")]
-internal static class RoomLevelSourceDefinitions
+internal static partial class RoomLevelSourceDefinitions
 {
     /// <summary>Each level's compressed source, by the level the room states name.</summary>
     internal static IReadOnlyDictionary<RoomLevelId, int> Addresses { get; } = new Dictionary<RoomLevelId, int>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="place">The place the jet Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the Ripper's population entry tells its species.</param>
-internal sealed class JetRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RipperSpawnSettings settings)
+internal sealed partial class JetRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RipperSpawnSettings settings)
     : RipperEntity(species, occupant, place, common, RipperBehavior.InitializeJetRipper(settings, place))
 {
     /// <summary>What the Ripper's population entry tells its species, which its factory checked as it built the enemy.</summary>

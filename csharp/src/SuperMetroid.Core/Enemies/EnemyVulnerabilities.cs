@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </param>
 /// <param name="Ordnance">Missiles and bombs.</param>
 /// <param name="Contact">Samus's attacking contact.</param>
-public sealed record EnemyVulnerabilities(
+public sealed partial record EnemyVulnerabilities(
     EnemyBeamFamilyVulnerability Power,
     EnemyBeamFamilyVulnerability Spazer,
     EnemyBeamFamilyVulnerability Plasma,

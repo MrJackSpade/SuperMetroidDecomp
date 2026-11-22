@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
 
 /// <summary>Defines the filename and schema revision for editable Draygon colors.</summary>
-public static class DraygonColorFormat
+public static partial class DraygonColorFormat
 {
     /// <summary>JSON filename containing Draygon's RGB5 color selections.</summary>
     public const string FileName = "draygon-colors.json";

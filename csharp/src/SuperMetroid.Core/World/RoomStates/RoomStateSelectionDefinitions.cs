@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// predicates in order; the first successful condition wins (<see cref="RoomStateSelection"/>). Each conditional choice
 /// lists its branches in authored order after its default state. Unconditional rooms name their single state. Every room
 /// of <see cref="SuperMetroid.Core.Rooms.RoomDefinitions.All"/> is listed.</remarks>
-public static class RoomStateSelectionDefinitions
+public static partial class RoomStateSelectionDefinitions
 {
     /// <summary>Each room's state choice, in authored room order.</summary>
     internal static readonly Dictionary<RoomDefinition, RoomStateChoice> Choices = new()

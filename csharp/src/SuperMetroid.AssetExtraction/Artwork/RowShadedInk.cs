@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Colour">The colour the ink's pixels show under the shade.</param>
 /// <param name="Moves">Whether the shade's draw takes the ink's pixels from another row than their own.</param>
-internal readonly record struct RowShadedInk(RgbColor Colour, bool Moves);
+internal readonly partial record struct RowShadedInk(RgbColor Colour, bool Moves);

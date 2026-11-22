@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// in order, over the characters its room's load leaves: the import composes each frame's finished picture of a look from
 /// them, and gameplay names only the look.
 /// </summary>
-internal static class EncounterLookUploads
+internal static partial class EncounterLookUploads
 {
     /// <summary>The composed encounters in the order a graphics set's looks are listed (#2567).</summary>
     private static readonly IReadOnlyList<ComposedEncounter> EncounterOrder = Ensure.EveryMemberOnce<ComposedEncounter>(
@@ -77,7 +77,7 @@ internal static class EncounterLookUploads
     internal static ComposedLook MotherBrainCorpseLook { get; } = new(ComposedEncounter.MotherBrain, "Corpse");
 
     /// <summary>Mother Brain's look once her death has copied the escape timer.</summary>
-    private static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
+    internal static ComposedLook MotherBrainEscapeTimerLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeTimer");
 
     /// <summary>Mother Brain's look once her death has copied the escape message.</summary>
     internal static ComposedLook MotherBrainEscapeTextLook { get; } = new(ComposedEncounter.MotherBrain, "EscapeText");
@@ -171,7 +171,7 @@ internal static class EncounterLookUploads
 
     /// <summary><paramref name="encounter"/>'s looks in the order it shows them, its room's load first.</summary>
     /// <exception cref="InvalidDataException">The encounter is not one the import composes.</exception>
-    private static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) =>
+    internal static IReadOnlyList<ComposedLook> Looks(ComposedEncounter encounter) =>
         [ComposedLook.Loaded(encounter), .. Authored(encounter).Select(look => look.Look)];
 
     /// <summary>
@@ -294,10 +294,10 @@ internal static class EncounterLookUploads
     /// <summary>One of an encounter's looks after its room's load, with what it copies.</summary>
     /// <param name="Look">The look.</param>
     /// <param name="Copies">What the look copies, in the order its copies land, resolved against the installed artwork.</param>
-    private readonly record struct AuthoredLook(ComposedLook Look, Func<IInstalledEncounterArtwork, IReadOnlyList<EncounterArtworkUpload>> Copies);
+    private readonly partial record struct AuthoredLook(ComposedLook Look, Func<IInstalledEncounterArtwork, IReadOnlyList<EncounterArtworkUpload>> Copies);
 
     /// <summary>One of Mother Brain's looks after her room's load.</summary>
     /// <param name="Look">The look.</param>
     /// <param name="Sheet">The sheet whose pages the look copies.</param>
-    private readonly record struct MotherBrainLook(ComposedLook Look, MotherBrainSpriteSheet Sheet);
+    private readonly partial record struct MotherBrainLook(ComposedLook Look, MotherBrainSpriteSheet Sheet);
 }

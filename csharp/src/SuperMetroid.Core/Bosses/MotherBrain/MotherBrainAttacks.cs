@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainAttacks
+internal sealed partial class MotherBrainAttacks
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -103,6 +103,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>What <see cref="RunMotherBrainSecondPhaseTryAttack"/> does for each <see cref="MotherBrainAttackPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase => field ??= new(new Dictionary<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainAttackPhase.ChooseAttack] = (state, samus) => ChooseMotherBrainSecondPhaseAttack(state, samus),
@@ -131,6 +132,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>What <see cref="ChooseMotherBrainSecondPhaseAttack"/> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>> ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack => field ??= new(new Dictionary<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainSecondPhaseAttack.Neutral] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2),
@@ -426,7 +428,7 @@ internal sealed class MotherBrainAttacks
     /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup in the same update; the
     /// beam's timer first counts down on her next update.
     /// </summary>
-    private static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
+    internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {
         state.BeginLateFight().StartAttackCycle();
         state.NextRainbowImage = MotherBrainRainbowImage.CycleStart;

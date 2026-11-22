@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// circle him, how his casual flames bounce, his intro's waits, his rounds' waits, where he rises for his rage, how his
 /// swoop and gaze measure Samus, his rain's flames, and his death's band, fades, explosions, drops and power delay.
 /// </summary>
-internal static class PhantoonArenaDefinitions
+internal static partial class PhantoonArenaDefinitions
 {
     /// <summary>The width and height of his one-screen room, outside which his enraged flames go.</summary>
     internal const int RoomSize = RoomGridConversions.BlocksPerScreen * RoomGridConversions.BlockPixels;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="SpawnExplosion">Whether the fuse burned out this update, so the explosion starts and spawns.</param>
 /// <param name="DeleteProjectile">Whether the bomb is deleted.</param>
 [IndependentFlag("independent outcomes of one fuse step")]
-public readonly record struct PowerBombFuseStep(
+public readonly partial record struct PowerBombFuseStep(
     int UpdatesLeft, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile)
 {
     /// <summary>

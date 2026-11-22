@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// What the empty frame means for an enemy showing it: it draws nothing, and an enemy that collides by its frames'
 /// hitboxes still collides at the single point at its origin while it shows it.
 /// </summary>
-internal static class CommonEnemyEmptyFrames
+internal static partial class CommonEnemyEmptyFrames
 {
     /// <summary>Whether an actor showing <paramref name="frame"/> draws nothing: no frame yet, or the empty frame.</summary>
     internal static bool DrawsNothing(EnemyFrameId? frame) => frame is not { } shown || IsEmpty(shown);

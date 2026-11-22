@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// white before the room fades; the explosion's whiteout brightens through its shades one update each and rests on its
 /// brightest.
 /// </summary>
-internal static class SamusDeathAnimations
+internal static partial class SamusDeathAnimations
 {
     /// <summary>The flash's shades, each with the updates it shows for.</summary>
     internal static AnimationSegments<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> FlashSegments { get; } = new(
@@ -42,7 +42,7 @@ internal static class SamusDeathAnimations
         Animation<W>.LeadingInto([WhiteoutSegments.Whole(W.Brightening)], [WhiteoutSegments.Whole(W.Brightest)]);
 
     /// <summary>The suit explosion's pictures, each with the updates it shows for.</summary>
-    private static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
+    internal static AnimationSegments<SamusDeathExplosionSegment, E, NoAnimationCue> ExplosionSegments { get; } = new(
         new Dictionary<SamusDeathExplosionSegment, AnimationBeat<E, NoAnimationCue>[]>
         {
             [SamusDeathExplosionSegment.Explosion] =

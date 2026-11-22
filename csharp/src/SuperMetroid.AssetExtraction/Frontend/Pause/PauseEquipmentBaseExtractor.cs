@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Converts the native equipment-page template to semantic atlas references.</summary>
-public static class PauseEquipmentBaseExtractor
+public static partial class PauseEquipmentBaseExtractor
 {
     /// <summary>Converts the fixed native equipment-page tilemap into semantic map/interface atlas cells and serializes the versioned template.</summary>
     /// <param name="bus">Supported-cartridge address space containing the equipment-page base tilemap.</param>

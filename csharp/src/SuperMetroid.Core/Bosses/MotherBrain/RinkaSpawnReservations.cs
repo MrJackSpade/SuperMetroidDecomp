@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// A point stays reserved until the Rinka holding it releases it, so no two Rinkas share a point.
 /// </summary>
 [RoomLifetime]
-internal sealed class RinkaSpawnReservations
+internal sealed partial class RinkaSpawnReservations
 {
     /// <summary>The points reserved and not yet released.</summary>
     private readonly HashSet<RinkaSpawnPoint> _reserved = [];
 
     /// <summary>Whether a Rinka holds <paramref name="point"/>.</summary>
-    private bool IsReserved(RinkaSpawnPoint point) => _reserved.Contains(point);
+    internal bool IsReserved(RinkaSpawnPoint point) => _reserved.Contains(point);
 
     /// <summary>
     /// Reserves a point for a special Rinka whose spawn point is <paramref name="own"/>. It keeps that point when the

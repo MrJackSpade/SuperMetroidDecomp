@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// projectile left there, in this room or the room before (<see cref="EnemyProjectilePlaceLeftovers"/>), which a spawn
 /// that does not set them starts from.
 /// </summary>
-public sealed class EnemyProjectile
+public sealed partial class EnemyProjectile
 {
     /// <summary>
     /// Starts a projectile of <paramref name="kind"/> holding <paramref name="place"/>, from what the place's previous
@@ -47,7 +47,7 @@ public sealed class EnemyProjectile
     /// What the projectile is (#2558): the kind it is created with, or the one a later binding turns it into. A projectile
     /// that has gone or freed its place is still the kind it was.
     /// </summary>
-    public RoomEnemyProjectileKind Kind { get; private set; }
+    public RoomEnemyProjectileKind Kind { get; internal set; }
 
     /// <summary>
     /// Whether the projectile holds its place and takes part in the projectile passes: from its creation until it is
@@ -119,7 +119,13 @@ public sealed class EnemyProjectile
     /// cues and names its shot and touch animations. The projectile is created with it and its kind. A projectile that ends
     /// keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
+<<<<<<< HEAD
     internal EnemyProjectileBehavior Behavior { get; }
+||||||| 418ca79935
+    internal EnemyProjectileBehavior? Behavior { get; private set; }
+=======
+    internal EnemyProjectileBehavior? Behavior { get; set; }
+>>>>>>> origin/main
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 

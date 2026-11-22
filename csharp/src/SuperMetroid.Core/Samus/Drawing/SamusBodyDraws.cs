@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Publishes Samus's whole body pictures as sprite draws.</summary>
-public static class SamusBodyDraws
+public static partial class SamusBodyDraws
 {
     /// <summary>
     /// Draws Samus's whole body as one pre-coloured draw (#1392, #1513, #1585): the picture the body sheet holds for

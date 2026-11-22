@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// with its exploration rules, the highlight cycle, the world-map labels, the station, landmark and save-marker positions
 /// and the scroll arrows. Edits in place never alter exploration rules.
 /// </summary>
-public sealed class AreaMapPresentation : IAreaMapSource
+public sealed partial class AreaMapPresentation : IAreaMapSource
 {
     /// <summary>One validated map view per area.</summary>
     private readonly IReadOnlyDictionary<AreaId, IAreaMapView> areas;

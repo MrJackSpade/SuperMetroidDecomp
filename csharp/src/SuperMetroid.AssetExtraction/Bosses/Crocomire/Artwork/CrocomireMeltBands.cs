@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 /// whose one frame shows its image before the dissolve erases any column. Core shows each step of the dissolve by hiding
 /// columns of the image (#1652), so no other step is pictured.
 /// </summary>
-internal static class CrocomireMeltBands
+internal static partial class CrocomireMeltBands
 {
     /// <summary>
     /// The installed name of each melt image's undissolved frame in a band's animation (#2511), written out so renaming an

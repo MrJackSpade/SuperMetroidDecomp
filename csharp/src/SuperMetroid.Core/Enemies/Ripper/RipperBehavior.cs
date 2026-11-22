@@ -7,10 +7,11 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<GrappleRipperSpawnSettings>([EnemyDefinitionId.GrappleRipper], (occupant, settings, place, common) =>
@@ -128,10 +129,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The horizontal displacement each update of a Ripper-family enemy flying <paramref name="speed"/>, the spawn speed
     /// its own main AI reads from its own settings (#2512), toward <paramref name="heading"/> (#2278, #2450).
     /// </summary>
-    private static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading) => speed.Toward(heading);
+    internal static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading) => speed.Toward(heading);
 
     /// <summary>Turns a Ripper-family enemy round: it flies its spawn speed the other way (#2278).</summary>
-    private static void Reverse(RipperEnemyState state) =>
+    internal static void Reverse(RipperEnemyState state) =>
         state.Heading = state.Heading == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
@@ -147,12 +148,36 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             : EnemyFrameId.RipperFrozenFacingRight;
     }
 
+<<<<<<< HEAD
+||||||| 418ca79935
+    /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
+    private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
+    {
+        var state = new RipperEnemyState();
+        place.SetSpeciesState(state);
+        return state;
+    }
+=======
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyBombHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyShotHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
+    /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
+    private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
+    {
+        var state = new RipperEnemyState();
+        place.SetSpeciesState(state);
+        return state;
+    }
+>>>>>>> origin/main
 
     /// <summary>
     /// Turns a grapple Ripper or jet Ripper round and restarts the grapple Ripper's flying loop facing its new heading,
     /// which both show (#1842).
     /// </summary>
-    private static void ReverseRipperVariant(RoomEnemyPlace place, RipperEnemyState state)
+    internal static void ReverseRipperVariant(RoomEnemyPlace place, RipperEnemyState state)
     {
         Reverse(state);
         SetRipperAnimation(place, state, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
@@ -179,7 +204,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="state">The state of the Ripper the reaction is built for.</param>
     internal static EnemyBombReaction RipperBombReaction(RipperEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
@@ -204,6 +235,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="state">The state of the Ripper the reaction is built for.</param>
     internal static EnemyShotReaction RipperShotReaction(RipperEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+=======
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
+>>>>>>> origin/main
     };
 }

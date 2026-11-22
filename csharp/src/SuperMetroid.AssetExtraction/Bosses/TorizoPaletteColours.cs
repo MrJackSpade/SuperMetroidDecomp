@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// The colours of the Torizos' colourings (#1512), which the import pre-colours their sheets in: the colours both share,
 /// each statue's initial body and belly colours, and the targets their fades reach.
 /// </summary>
-internal static class TorizoPaletteColours
+internal static partial class TorizoPaletteColours
 {
     /// <summary>
     /// The colours shared by both Torizos: orb/flame paint, then statue-shading

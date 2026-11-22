@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Where the Torizos' projectiles are placed and moved, in room pixels (#1945). A placement relative to Torizo is the
 /// right-facing one; a left-facing Torizo places it mirrored.
 /// </summary>
-internal static class TorizoProjectilePlacementDefinitions
+internal static partial class TorizoProjectilePlacementDefinitions
 {
     /// <summary>A caught Super Missile as Golden Torizo's hand takes it.</summary>
     internal static readonly Offset16<RoomPixels> CaughtSuperMissile = new(30, -52);

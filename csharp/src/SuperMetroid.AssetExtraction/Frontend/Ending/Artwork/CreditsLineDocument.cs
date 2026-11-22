@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Defines the text and tilemap placement of one staff-credit line.</summary>
-public sealed record CreditsLineDocument
+public sealed partial record CreditsLineDocument
 {
     /// <summary>Gets the stable line identifier matched against the native cadence definition.</summary>
     public required string Id { get; init; }

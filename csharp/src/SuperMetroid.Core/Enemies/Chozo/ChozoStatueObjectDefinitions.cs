@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The authored draws and timing of the terrain changes the two Chozo statues' room objects make.</summary>
-internal static class ChozoStatueObjectDefinitions
+internal static partial class ChozoStatueObjectDefinitions
 {
     /// <summary>What the Lower Norfair hand draws once the acid is lowered.</summary>
     internal static RoomObjectDraw LoweredHand => ChozoStatueDraws.Family.Of(ChozoStatueDraw.LowerNorfairClearedHand);

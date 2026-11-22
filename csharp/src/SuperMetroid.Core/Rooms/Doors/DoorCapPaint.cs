@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// coloured cap's colour names (<see cref="ColoredDoorDefinitions.Colors"/>). Each paint draws the cap facing a way and
 /// showing a look.
 /// </summary>
-internal abstract class DoorCapPaint
+internal abstract partial class DoorCapPaint
 {
     /// <summary>Only the paints below draw a cap.</summary>
     private DoorCapPaint()
@@ -27,7 +27,7 @@ internal abstract class DoorCapPaint
     internal abstract RoomObjectDraw Of(ColoredDoorOrientation orientation, DoorCapLook look);
 
     /// <summary>The blue cap's paint, pictured by the blue-door frames.</summary>
-    private sealed class BluePaint : DoorCapPaint
+    private sealed partial class BluePaint : DoorCapPaint
     {
         /// <inheritdoc/>
         internal override RoomObjectDraw Of(ColoredDoorOrientation orientation, DoorCapLook look) =>
@@ -35,7 +35,7 @@ internal abstract class DoorCapPaint
     }
 
     /// <summary>The grey cap's paint, pictured by the grey-door frames.</summary>
-    private sealed class GreyPaint : DoorCapPaint
+    private sealed partial class GreyPaint : DoorCapPaint
     {
         /// <inheritdoc/>
         internal override RoomObjectDraw Of(ColoredDoorOrientation orientation, DoorCapLook look) =>
@@ -44,7 +44,7 @@ internal abstract class DoorCapPaint
 
     /// <summary>A coloured cap's paint, pictured by the coloured-door frames of <paramref name="color"/>.</summary>
     /// <param name="color">The cap's colour.</param>
-    private sealed class ColoredPaint(ColoredDoorColor color) : DoorCapPaint
+    private sealed partial class ColoredPaint(ColoredDoorColor color) : DoorCapPaint
     {
         /// <inheritdoc/>
         internal override RoomObjectDraw Of(ColoredDoorOrientation orientation, DoorCapLook look) =>

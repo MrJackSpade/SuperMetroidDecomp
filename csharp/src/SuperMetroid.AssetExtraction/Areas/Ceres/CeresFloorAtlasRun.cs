@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <param name="FirstTile">The character the first cell shows.</param>
 /// <param name="Length">The number of cells.</param>
 /// <param name="Step">The character advance from one cell to the next.</param>
-internal readonly record struct CeresFloorAtlasRun(int FirstTile, int Length, int Step = 1);
+internal readonly partial record struct CeresFloorAtlasRun(int FirstTile, int Length, int Step = 1);

@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// beside that byte arithmetic every update.
 /// </remarks>
 [CompatibilityService("Crocomire's sinking and rising body and spike-wall pieces gain or lose their acceleration's whole 256ths of a pixel each update, and a speed gained past its fastest keeps the fastest's whole pixels with its own fraction")]
-internal static class CrocomireSpeedGain
+internal static partial class CrocomireSpeedGain
 {
     /// <summary>
     /// The speed after one update's gain on <paramref name="speed"/>: its <paramref name="acceleration"/>'s whole 256ths of a

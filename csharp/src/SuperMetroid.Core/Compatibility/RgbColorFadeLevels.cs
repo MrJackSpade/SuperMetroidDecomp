@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// there (<see cref="FadeLevelColour"/>); the Kraid replays confirm the roar those steps time.
 /// </remarks>
 [CompatibilityService("a plain colour read in the colour steps the colours that glow and fade a step an update count in")]
-public static class RgbColorFadeLevels
+public static partial class RgbColorFadeLevels
 {
     /// <summary>A plain colour's steps.</summary>
     extension(RgbColor colour)

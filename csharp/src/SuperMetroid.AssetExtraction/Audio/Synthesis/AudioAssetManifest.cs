@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Serializable root of the inspectable extracted-audio catalog.</summary>
-public sealed record AudioAssetManifest(
+public sealed partial record AudioAssetManifest(
     int FormatVersion,
     IReadOnlyList<AudioUploadManifestEntry> Uploads,
     IReadOnlyList<AudioCanonicalSampleMetadata> CanonicalSamples,

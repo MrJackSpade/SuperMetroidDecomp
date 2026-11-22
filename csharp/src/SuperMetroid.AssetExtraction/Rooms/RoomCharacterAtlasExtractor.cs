@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts the shared CRE and all distinct retail room-character sources as indexed PNGs.</summary>
-public static class RoomCharacterAtlasExtractor
+public static partial class RoomCharacterAtlasExtractor
 {
     /// <summary>Imports shared CRE characters, every distinct room graphics-set character source, and the uncompressed Tourian-statue ghost span.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost artwork.</param>

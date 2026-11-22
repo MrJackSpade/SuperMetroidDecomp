@@ -11,4 +11,4 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <param name="TopEdge">The up arrow scrolls while the revealed map's top row lies above this screen line.</param>
 /// <param name="BottomEdge">The down arrow scrolls while the revealed map's bottom row lies at or below this screen line.</param>
 /// <param name="ArrowDrop">Screen pixels the screen draws its scroll arrows below their installed places.</param>
-public sealed record MapFraming(int CentreLine, int LeftEdge, int RightEdge, int TopEdge, int BottomEdge, int ArrowDrop);
+public sealed partial record MapFraming(int CentreLine, int LeftEdge, int RightEdge, int TopEdge, int BottomEdge, int ArrowDrop);

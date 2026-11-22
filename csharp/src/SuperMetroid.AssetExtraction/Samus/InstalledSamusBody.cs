@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// each frame by its name in the pose's animation (#2048); the tables, compositions and sprite parts the import composed the
 /// body sheet from are import data (<see cref="SamusBodySources"/>), and the body sheet's frames are named from this.
 /// </summary>
-public sealed class InstalledSamusBody
+public sealed partial class InstalledSamusBody
 {
     /// <summary>The animation frames a pose's body pictures are covered for: the animation frame is a byte.</summary>
     internal const int AnimationFrames = SamusBodySheetDefinitions.AnimationFrames;

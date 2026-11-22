@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// One request the game puts on its music queue (#1410): play a song of the loaded data set, stop the music, or change
 /// the music data set. A room's area theme (#1748) is queued as the song it is (<see cref="AudioQueues.ScheduleRoomTrack"/>). The queue holds each with its delay and carries it out when the delay expires.
 /// </summary>
-public abstract record MusicRequest
+public abstract partial record MusicRequest
 {
     /// <summary>Closes the hierarchy to the requests declared here.</summary>
     private MusicRequest()
@@ -16,14 +16,14 @@ public abstract record MusicRequest
 
     /// <summary>Plays <paramref name="Track"/> of the loaded data set.</summary>
     /// <param name="Track">The track to play.</param>
-    public sealed record PlayTrack(MusicTrack Track) : MusicRequest
+    public sealed partial record PlayTrack(MusicTrack Track) : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayed => Track;
     }
 
     /// <summary>Stops the music.</summary>
-    public sealed record StopMusic : MusicRequest
+    public sealed partial record StopMusic : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayed => null;
@@ -31,7 +31,7 @@ public abstract record MusicRequest
 
     /// <summary>Changes the music data set to <paramref name="DataSet"/>, which stops the music.</summary>
     /// <param name="DataSet">The data set to load.</param>
-    public sealed record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
+    public sealed partial record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayed => null;

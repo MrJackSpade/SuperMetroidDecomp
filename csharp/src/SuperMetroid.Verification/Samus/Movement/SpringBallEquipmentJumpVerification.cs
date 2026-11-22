@@ -25,7 +25,13 @@ internal static class SpringBallEquipmentJumpVerification
         var installation = RepositoryInstallation.Installation;
         foreach (bool left in new[] { false, true })
         {
+<<<<<<< HEAD
             var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }), hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), random: new SharedRandom());
+||||||| 418ca79935
+            var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }), global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), new SharedRandom() });
+=======
+            var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), (global::SuperMetroid.Core.Gameplay.GameplayAssists?)(new SuperMetroid.Core.Gameplay.GameplayAssists { SamusCannotDie = true }), global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), new SharedRandom());
+>>>>>>> origin/main
             BindInstalledArtwork(installation)(game, false);
             game.InitializeDirectRoomVerification();
             var runtime = game.GameplayRuntimeForVerification;

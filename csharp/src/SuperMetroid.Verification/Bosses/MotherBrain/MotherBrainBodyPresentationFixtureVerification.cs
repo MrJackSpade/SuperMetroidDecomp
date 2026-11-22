@@ -56,7 +56,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Body.SpritemapPointer = frame;
             Body.CollidesByFrameHitboxes = true;
-            SuperMetroid.Core.PrivateState.Set(Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), fresh);
+            Body.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>

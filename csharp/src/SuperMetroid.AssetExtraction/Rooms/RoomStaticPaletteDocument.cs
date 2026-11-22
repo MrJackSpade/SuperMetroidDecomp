@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable JSON representation of one room graphics-set palette source.</summary>
-public sealed record RoomStaticPaletteDocument
+public sealed partial record RoomStaticPaletteDocument
 {
     /// <summary>Gets the room-palette schema version.</summary>
     public required int Version { get; init; }

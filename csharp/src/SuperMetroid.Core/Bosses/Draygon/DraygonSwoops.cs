@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
 [RoomLifetime]
-internal sealed class DraygonSwoops
+internal sealed partial class DraygonSwoops
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,7 +38,7 @@ internal sealed class DraygonSwoops
 
     /// <summary>Captures Samus's height and computes the vertical waypoints for the next swoop.</summary>
     /// <returns>The swoop's path.</returns>
-    private static DraygonSwoopPath BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
+    internal static DraygonSwoopPath BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
         // The climb ends only because its rising speed grows, under the acceleration his state keeps above zero.
         int yPosition = DraygonArenaDefinitions.SwimLineY;

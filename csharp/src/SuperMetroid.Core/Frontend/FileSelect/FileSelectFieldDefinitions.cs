@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>How a save slot's field spells its numbers (#1467): two decimal digits each, the time as HH:MM.</summary>
-internal static class FileSelectFieldDefinitions
+internal static partial class FileSelectFieldDefinitions
 {
     /// <summary>The base the field's digits count in.</summary>
     internal const int DigitBase = 10;

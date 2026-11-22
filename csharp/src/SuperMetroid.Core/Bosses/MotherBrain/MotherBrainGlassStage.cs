@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One stage of Mother Brain's glass breaking (<see cref="MotherBrainGlassStageDefinitions"/>), each stage leading to the
 /// one it breaks into (#2553): a stage that throws no shards always breaks into another, so the last stage bursts.
 /// </summary>
-internal abstract record MotherBrainGlassStage
+internal abstract partial record MotherBrainGlassStage
 {
     /// <summary>Allows only the stages below.</summary>
     /// <param name="image">The glass the stage shows, redrawn on every update the stage holds.</param>
@@ -22,7 +22,7 @@ internal abstract record MotherBrainGlassStage
     internal int BreaksAtHits { get; }
 
     /// <summary>A stage that throws no shards: it breaks straight into <see cref="Next"/>.</summary>
-    internal sealed record Cracks : MotherBrainGlassStage
+    internal sealed partial record Cracks : MotherBrainGlassStage
     {
         /// <summary>Creates a stage that breaks straight into <paramref name="next"/>.</summary>
         /// <param name="image">The glass the stage shows.</param>
@@ -36,7 +36,7 @@ internal abstract record MotherBrainGlassStage
     }
 
     /// <summary>A stage that throws <see cref="Burst"/> as it breaks, around the image that follows it.</summary>
-    internal abstract record Bursts : MotherBrainGlassStage
+    internal abstract partial record Bursts : MotherBrainGlassStage
     {
         /// <summary>Allows only the bursting stages below.</summary>
         /// <param name="image">The glass the stage shows.</param>
@@ -49,7 +49,7 @@ internal abstract record MotherBrainGlassStage
         internal MotherBrainGlassBurst Burst { get; }
 
         /// <summary>A bursting stage that breaks into <see cref="Next"/>, its shards thrown around the next stage's image.</summary>
-        internal sealed record Into : Bursts
+        internal sealed partial record Into : Bursts
         {
             /// <summary>Creates a bursting stage that breaks into <paramref name="next"/>.</summary>
             /// <param name="image">The glass the stage shows.</param>
@@ -67,7 +67,7 @@ internal abstract record MotherBrainGlassStage
         /// The last stage: its shards are thrown around the shattered glass
         /// (<see cref="MotherBrainGlassStageDefinitions.ShatteredImage"/>), which then shows before the destroyed event.
         /// </summary>
-        internal sealed record Last : Bursts
+        internal sealed partial record Last : Bursts
         {
             /// <summary>Creates the last stage.</summary>
             /// <param name="image">The glass the stage shows.</param>

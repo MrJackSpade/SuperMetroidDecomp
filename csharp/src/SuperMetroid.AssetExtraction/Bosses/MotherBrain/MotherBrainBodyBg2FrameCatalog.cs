@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// references and ordered runs are editable; body position, scroll, instruction
 /// timing, AI and collision geometry remain compiled gameplay state.
 /// </summary>
-public sealed class MotherBrainBodyBg2FrameCatalog
+public sealed partial class MotherBrainBodyBg2FrameCatalog
 {
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>

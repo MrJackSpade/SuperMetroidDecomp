@@ -30,8 +30,8 @@ internal static class BabyMetroidDeathCryVerification
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
         BabyMetroidCutsceneState baby = entity.Baby;
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCharge());
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Health", 79);
+        baby.Phase = new BabyMetroidCutscenePhase.Flying.FinalCharge();
+        baby.Health = 79;
         // The room shows the colours the Baby's arrival laid over it; the fatal blow and the recovery change only the
         // background's.
         ushort[] arrived = Shown();
@@ -59,7 +59,7 @@ internal static class BabyMetroidDeathCryVerification
             entity.Place.RunMainAi(samus);
             AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.FinalCutscene());
+        baby.Phase = new BabyMetroidCutscenePhase.Flying.FinalCutscene();
         for (int frame = 0; frame < 7; frame++)
         {
             // Each update of the final cutscene shows its row of the recovering lights, which the colours below observe.

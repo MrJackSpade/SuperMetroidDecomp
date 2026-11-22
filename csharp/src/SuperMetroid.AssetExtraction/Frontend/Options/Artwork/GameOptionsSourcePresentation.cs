@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// (<see cref="GameOptionsLayoutFile"/>), and the pages, labels, highlight regions and the heading and cursor compositions
 /// the options sheets are composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class GameOptionsSourcePresentation
+public sealed partial class GameOptionsSourcePresentation
 {
     /// <summary>Each menu layout's heading sprite.</summary>
     internal readonly Dictionary<GameOptionsPage, SpriteComposition> headingSprites;
@@ -31,9 +31,9 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The common backdrop page.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>The installed controller-button glyphs, keyed by every assignable button.</summary>
-    private readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
+    internal readonly Dictionary<ControllerButton, BackgroundTile[]> controllerLabels;
     /// <summary>The installed controller-label anchors, one per action.</summary>
-    private readonly Dictionary<ControllerAction, Position16<CharacterCells>> controllerLabelAnchors;
+    internal readonly Dictionary<ControllerAction, Position16<CharacterCells>> controllerLabelAnchors;
     /// <summary>The installed primary-language highlight regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[] languageRegions;
     /// <summary>The installed special-setting choice cells, keyed by toggle.</summary>
@@ -75,10 +75,10 @@ public sealed class GameOptionsSourcePresentation
     public int UnselectedPalette { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground page.</summary>
-    private BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
+    internal BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
-    private void ApplyLanguage(Span<BackgroundTile> primaryPage, TextLanguage language)
+    internal void ApplyLanguage(Span<BackgroundTile> primaryPage, TextLanguage language)
     {
         foreach (GameOptionsLanguageRegionDocument region in languageRegions)
             ApplyPalette(primaryPage, region.Cells, language == region.Language ? SelectedPalette : UnselectedPalette);
@@ -88,7 +88,7 @@ public sealed class GameOptionsSourcePresentation
     private int[] LanguageCells() => [.. languageRegions.SelectMany(region => region.Cells)];
 
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
-    private void ApplyControllerLabel(Span<BackgroundTile> page, ControllerAction action, ControllerButton button)
+    internal void ApplyControllerLabel(Span<BackgroundTile> page, ControllerAction action, ControllerButton button)
     {
         if (!controllerLabelAnchors.ContainsKey(action))
             throw new ArgumentOutOfRangeException(nameof(action), action, "Not an assignable action.");
@@ -108,7 +108,7 @@ public sealed class GameOptionsSourcePresentation
     }
 
     /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
-    private void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
+    internal void ApplySpecialToggle(Span<BackgroundTile> page, GameOptionsToggle name, bool enabled)
     {
         ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Enabled), enabled ? SelectedPalette : UnselectedPalette);
         ApplyPalette(page, ToggleChoiceCells(name, GameOptionsToggleState.Disabled), enabled ? UnselectedPalette : SelectedPalette);
@@ -298,7 +298,7 @@ public sealed class GameOptionsSourcePresentation
     /// <param name="document">Authored artwork and layout, whose collections are not modified by serialization.</param>
     public static void Write(Stream output, GameOptionsPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
@@ -366,11 +366,11 @@ public sealed class GameOptionsSourcePresentation
     /// <param name="Pages">Each named page's tiles.</param>
     /// <param name="Background">The common BG2 background's tiles.</param>
     /// <param name="ControllerLabels">Each assignable button's glyph.</param>
-    private sealed record GameOptionsPages(Dictionary<GameOptionsScreen, BackgroundTile[]> Pages, BackgroundTile[] Background,
+    private sealed partial record GameOptionsPages(Dictionary<GameOptionsScreen, BackgroundTile[]> Pages, BackgroundTile[] Background,
         Dictionary<ControllerButton, BackgroundTile[]> ControllerLabels);
 
     /// <summary>The compiled heading and cursor compositions.</summary>
     /// <param name="Headings">Each menu layout's heading composition.</param>
     /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
-    private sealed record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
+    private sealed partial record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

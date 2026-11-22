@@ -20,6 +20,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// The names of the frames the family draws that show nothing, which the sheet holds without a picture (#1513); none of
 /// them is a frame of <paramref name="Frames"/>.
 /// </param>
-internal sealed record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, RgbColor[] SpriteColours,
+internal sealed partial record SpriteSheetSources(IReadOnlyList<SheetFrameSource> Frames, RgbColor[] SpriteColours,
     ScreenObjectSizes ObjectSizes, int PaletteBits = 0, bool PartsKeepOwnRows = false, IReadOnlyList<SheetShade>? Shades = null,
     IReadOnlyList<SheetRowShade>? RowShades = null, IReadOnlyList<string>? Blank = null);

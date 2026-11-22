@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>Where an Evir's arms and idle spit sit on its body, and when and how fast it spits (#2149, #2279).</summary>
-internal static class EvirMotionDefinitions
+internal static partial class EvirMotionDefinitions
 {
     /// <summary>The horizontal distance, in pixels, Samus must come strictly within for an Evir to spit at her.</summary>
     internal const int SpitActivationDistance = 128;

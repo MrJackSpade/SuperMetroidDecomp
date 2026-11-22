@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>The Skultera species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<SkulteraSpawnSettings>
+internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<SkulteraSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -55,6 +55,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
     }
 
     /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
     {
         [SkulteraAction.Swimming] = (settings, place, state, level) => SwimSkultera(settings, place, state, level, state.Heading),
@@ -108,7 +109,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
     }
 
     /// <summary>Switches swimming AI, swimming toward <paramref name="swimming"/>, to its opposite-facing turn animation after a terrain collision.</summary>
-    private static void BeginSkulteraTurn(
+    internal static void BeginSkulteraTurn(
         RoomEnemyPlace place,
         SkulteraEnemyState state,
         HorizontalDirection swimming)
@@ -124,7 +125,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<Skult
     /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
     /// spawn speed, reversed leftward (#2278).
     /// </summary>
-    private static SignedSixteenSixteen SwimVelocity(SkulteraSpawnSettings skulteraSpawnSettings, HorizontalDirection direction)
+    internal static SignedSixteenSixteen SwimVelocity(SkulteraSpawnSettings skulteraSpawnSettings, HorizontalDirection direction)
     {
         SignedSixteenSixteen speed = skulteraSpawnSettings.Speed;
         return speed.Toward(direction);

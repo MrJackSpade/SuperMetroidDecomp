@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The one shake Mother Brain, the Baby Metroid and the Tourian Baby Metroid share (#1947).</summary>
-internal static class MotherBrainShakeDefinitions
+internal static partial class MotherBrainShakeDefinitions
 {
     /// <summary>
     /// The four offsets Mother Brain, the Baby Metroid and the Tourian Baby Metroid shake through, in order: her brain and neck

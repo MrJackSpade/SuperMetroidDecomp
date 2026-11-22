@@ -19,14 +19,8 @@ internal enum AuditMode
     PruneStaleReviews,
 
     /// <summary>
-    /// Lists every product member wider than its production use only so that checks reach it (#2570), failing when there
-    /// is any; a census, not part of the push gate until the sites it lists are fixed.
+    /// Lists every way of reaching a product member that only checks use (#2570, #2602), failing when there is any; the
+    /// push gate runs the same census.
     /// </summary>
     TestOnlyMembers,
-
-    /// <summary>
-    /// Makes private every member the test-only-member census finds production's own type reaching, generating the
-    /// test-support extension members checks reach it through (#2570), and lists the findings it cannot fix.
-    /// </summary>
-    FixTestOnlyMembers,
 }

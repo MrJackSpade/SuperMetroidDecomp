@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One turret animation: a turret's or a bullet's still pose facing one of the eight directions, or a bullet's impact smoke,
 /// which faces none (#2249).
 /// </summary>
-internal readonly record struct MotherBrainTurretPose
+internal readonly partial record struct MotherBrainTurretPose
 {
     /// <summary>The pose of <paramref name="animation"/> facing <paramref name="direction"/>; the impact smoke faces none.</summary>
     private MotherBrainTurretPose(MotherBrainTurretSegment animation, MotherBrainTurretDirection? direction)

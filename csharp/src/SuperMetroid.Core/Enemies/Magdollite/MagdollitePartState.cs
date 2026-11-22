@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// overlay each keep the rest of their own state (<see cref="MagdolliteHeadState"/>, <see cref="MagdolliteBodyState"/>,
 /// <see cref="MagdolliteOverlayState"/>).
 /// </summary>
-public abstract class MagdollitePartState
+public abstract partial class MagdollitePartState
 {
     /// <summary>Creates the state for one Magdollite part, which its own state type names (#2474).</summary>
     private protected MagdollitePartState()

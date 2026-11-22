@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// rest makes the run's next step a unit larger, and a step taken while already moving toward a target on the far side
 /// of the room's wrap (<see cref="CoordinateAxis"/>) is a unit larger. A reversal starts fresh runs.
 /// </summary>
-internal static class BabyMetroidGradualAcceleration
+internal static partial class BabyMetroidGradualAcceleration
 {
     /// <summary>Extra speed adjustment while reversing direction toward the target: a thirty-second of a pixel an update.</summary>
     private static readonly SignedEightEight ReversalStep = SignedEightEight.FromPixelFraction(1, 32);

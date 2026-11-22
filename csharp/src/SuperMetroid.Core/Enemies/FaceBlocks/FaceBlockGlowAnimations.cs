@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// brightens through each level and dims back through them again. A room starts it on its last step, so its first step shows
 /// once that step's updates have run.
 /// </summary>
-internal static class FaceBlockGlowAnimations
+internal static partial class FaceBlockGlowAnimations
 {
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> Segments { get; } = new(

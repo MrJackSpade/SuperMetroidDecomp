@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The Mama Turtle's dormant, shell and spin animations (#641, #2342). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="MamaTurtleCue"/> naming
 /// what it does.
 /// </summary>
-internal static class MamaTurtleAnimations
+internal static partial class MamaTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MamaTurtleSegment, EnemyFrameId, MamaTurtleCue> Segments { get; } = new(
@@ -35,7 +35,7 @@ internal static class MamaTurtleAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
+    internal static Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
         [P.Spinning] = Animation<MamaTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),
         [P.EnterShellLeft] = new([Segments.Whole(P.EnterShellLeft)], AnimationEnd.Holds),

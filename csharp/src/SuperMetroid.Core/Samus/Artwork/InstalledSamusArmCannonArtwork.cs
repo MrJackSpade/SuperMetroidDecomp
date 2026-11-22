@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// overlay sheet by aim direction and cover frame, at the pose's placement; the descriptors, appearances and source artwork the
 /// placements and the sheet come from are the import pipeline's.
 /// </summary>
-public sealed class InstalledSamusArmCannonArtwork
+public sealed partial class InstalledSamusArmCannonArtwork
 {
     /// <summary>Each pose's placement.</summary>
     private readonly Dictionary<SamusPoseId, SamusArmCannonPlacement> placements;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// leaves its last values there and a killed part is emptied, so a read of a part that has been killed finds what the kill
 /// left (<see cref="RoomEnemyPlace.FoundEntity"/>).
 /// </summary>
-internal sealed class KraidParts
+internal sealed partial class KraidParts
 {
     /// <summary>Finds the parts his room lists with <paramref name="body"/>.</summary>
     /// <param name="places">The room's enemy places.</param>
@@ -55,7 +55,7 @@ internal sealed class KraidParts
     internal RoomEnemyPlace SecondNail { get; }
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    private RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,

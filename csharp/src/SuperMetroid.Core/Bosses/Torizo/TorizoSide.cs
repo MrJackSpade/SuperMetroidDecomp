@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="FarFootForward">Standing with the foot away from the side it faces forward: its right facing left.</param>
 /// <param name="NearLegStep">A step of the leg on the side it faces, standing on the other foot.</param>
 /// <param name="FarLegStep">A step of the leg away from the side it faces, standing on the foot on that side.</param>
-internal sealed record TorizoSide(
+internal sealed partial record TorizoSide(
     HorizontalDirection Facing, F Seated, F RisingFromSeat, F Crouched, F HalfRisen, F NearlyUpright, F UprightStepping, F UprightWideStance,
     F JumpCrouch, F Springing, F Leaping, TorizoStance NearFootForward, TorizoStance FarFootForward, TorizoStride NearLegStep, TorizoStride FarLegStep)
 {

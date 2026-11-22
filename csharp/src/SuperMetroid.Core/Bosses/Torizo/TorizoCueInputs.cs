@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// counter that times the attack choice (<see cref="TorizoChoices.InFirstAttackPhase"/>) (#633).
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct TorizoCueInputs
+internal readonly partial record struct TorizoCueInputs
 {
     /// <summary>The Torizo playing the cues, whose belly the glow its fight's start lights watches (#2420).</summary>
     public required ILitTorizo Torizo { get; init; }

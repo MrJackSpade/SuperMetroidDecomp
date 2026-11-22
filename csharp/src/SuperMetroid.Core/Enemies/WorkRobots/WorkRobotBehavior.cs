@@ -10,13 +10,14 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The work robot species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
+internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
     /// <summary>
     /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
     /// states once Phantoon is defeated, so it always has power (#2455).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.WorkRobot], (occupant, _, place, common) =>
@@ -53,7 +54,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
     /// its last step, stopped.
     /// </summary>
-    private readonly ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+    internal readonly ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
         ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
@@ -63,10 +64,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <summary>
     /// The place of the glow every powered robot shows (#2393); after the last step the cycle starts again at the first.
     /// </summary>
-    private WorkRobotGlowPlace GlowPlace => glow.Showing;
+    internal WorkRobotGlowPlace GlowPlace => glow.Showing;
 
     /// <summary>The glow every powered robot in the room shows now (#1512).</summary>
-    private PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
+    internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
@@ -157,9 +158,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <param name="State">The state the cases read.</param>
     /// <param name="Context">The context the cases read.</param>
     /// <param name="Owner">The <see cref="WorkRobotBehavior"/> reacting.</param>
-    private readonly record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
+    private readonly partial record struct ApplyWorkRobotCueContext(RoomEnemyPlace Place, WorkRobotEnemyState State, EnemyAnimationCueContext Context, WorkRobotBehavior Owner);
 
     /// <summary>What each of the Work Robot's signals does; each runs on.</summary>
+    [field: NonSerialized]
     private IdentityTable<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>> WorkRobotSignals => field ??=
         new(new Dictionary<WorkRobotCueKind, Action<RoomEnemyPlace, WorkRobotEnemyState, Position16<RoomPixels>>>
         {
@@ -313,8 +315,22 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <param name="state">The state of the robot the reaction is built for.</param>
     internal static EnemyBombReaction PoweredWorkRobotBombReaction(WorkRobotEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
+||||||| 418ca79935
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+=======
+        AfterCommon = ResolveWorkRobotShotAfterCommon,
+>>>>>>> origin/main
     };
+
+    /// <summary>Applies a powered robot's recoil after a bomb's common damage.</summary>
+    private static void ResolveWorkRobotShotAfterCommon(EnemyBombHitContext context) =>
+        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
+
+    /// <summary>Applies a powered robot's recoil after a shot's common damage.</summary>
+    private static void ResolveWorkRobotShotAfterCommon(EnemyShotHitContext context) =>
+        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
     internal EnemyBombReaction UnpoweredWorkRobotBombReaction { get; } = new();
@@ -323,7 +339,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
     /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
-    private static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
+    internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
@@ -350,7 +366,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// <param name="state">The state of the robot the reaction is built for.</param>
     internal static EnemyShotReaction WorkRobotShotReaction(WorkRobotEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
+||||||| 418ca79935
+        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+=======
+        AfterCommon = ResolveWorkRobotShotAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Routes robot contact to its external push without Samus damage.</summary>
@@ -361,7 +383,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IR
     /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
     /// <paramref name="laser"/> names, its velocity holding its way (#2278).
     /// </summary>
-    private void SpawnWorkRobotLaser(
+    internal void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
         WorkRobotEnemyState state,
         WorkRobotLaser laser,

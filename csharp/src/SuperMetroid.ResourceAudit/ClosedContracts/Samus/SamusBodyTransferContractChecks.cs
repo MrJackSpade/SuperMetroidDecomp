@@ -37,7 +37,7 @@ internal static class SamusBodyTransferContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("SamusTransferFixture", sources,
-            platforms.Append(typeof(InstalledSamusBodyArtwork).Assembly.Location).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
+            platforms.Append(FixtureAssemblies.Core).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
         {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>Ceres Ridley's arena's main (#2287): his getaway with the Baby, which his encounter runs over the arena's floor.</summary>
 /// <param name="floor">The arena's turning floor, whose capsule and wings the getaway animates (#2382).</param>
-internal sealed class CeresRidleyGetawayMain(RoomFloor floor) : IRoomMain
+internal sealed partial class CeresRidleyGetawayMain(RoomFloor floor) : IRoomMain
 {
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)

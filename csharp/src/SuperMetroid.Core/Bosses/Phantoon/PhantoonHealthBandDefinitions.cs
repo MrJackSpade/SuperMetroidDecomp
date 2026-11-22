@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's eight health bands (#2259), each 312 health wide from his last point of health upward, the highest holding
 /// the rest (#1940); each lower band shows his body redder.
 /// </summary>
-public static class PhantoonHealthBandDefinitions
+public static partial class PhantoonHealthBandDefinitions
 {
     /// <summary>How much health each band spans.</summary>
     private const int BandWidth = 312;

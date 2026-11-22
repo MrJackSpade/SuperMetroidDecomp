@@ -109,18 +109,23 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
     // The item transition's two poses, chosen by equipment (#1473). Only the right-facing instant morph's animation holds
-    // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048), at native
-    // frame 29 its one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
-    // gameplay movement metadata, reaches the transition on its first tick.
+    // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048). The morph
+    // starts no frame there (#2553 starts a pose only on a frame the installation holds a delay for); it lands on the drained
+    // Hyper Beam acquisition's place, the last place landing in its layout, and plays on into native frame 29, the instant
+    // morph's one zero-tick frame, and on to its transition. The death-animation entry point, which shares the interpreter
+    // but needs no gameplay movement metadata, plays it.
     var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MorphingTransitionLeftPose);
-    itemTransitionSamus.ChangePose(itemTransitionSamus.Pose, itemTransitionSamus.PoseFrameNumbered(29));
-    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.CuePose.Named,
+    static SamusPoseId? PlayOnToItemTransition(SamusState samus)
+    {
+        samus.ChangePose(samus.Pose, SuperMetroid.Core.Samus.Abilities.SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame);
+        for (int tick = 0; tick <= byte.MaxValue && samus.CuePose.Named is null; tick++)
+            SamusPresentation.AnimateDeathFrame(samus);
+        return samus.CuePose.Named;
+    }
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, PlayOnToItemTransition(itemTransitionSamus),
         "an item transition without Spring Ball selects its unequipped pose");
     itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
-    itemTransitionSamus.ChangePose(itemTransitionSamus.Pose, itemTransitionSamus.PoseFrameNumbered(29));
-    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.CuePose.Named,
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, PlayOnToItemTransition(itemTransitionSamus),
         "an item transition with Spring Ball selects its equipped pose");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.

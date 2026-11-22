@@ -53,8 +53,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
             BabyMetroidCutsceneColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         BabyMetroidCutsceneColorDocument visual =
-            JsonSerializer.Deserialize<BabyMetroidCutsceneColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<BabyMetroidCutsceneColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock cutscene Baby color JSON is null.");
         BabyMetroidCutsceneColorCatalog colors = native;
 

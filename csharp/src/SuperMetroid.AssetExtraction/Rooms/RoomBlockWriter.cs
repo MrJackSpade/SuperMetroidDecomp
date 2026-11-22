@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Blocks">Every block it can write, by its index among those its room loads.</param>
 /// <param name="RunsIn">Whether it can write its blocks while a room state runs.</param>
-internal sealed record RoomBlockWriter(IReadOnlySet<int> Blocks, Func<InventoriedRoomState, bool> RunsIn);
+internal sealed partial record RoomBlockWriter(IReadOnlySet<int> Blocks, Func<InventoriedRoomState, bool> RunsIn);

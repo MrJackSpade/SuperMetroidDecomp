@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// corpse whole.
 /// </summary>
 [EncodingOwner("bank-$A9 dead-Torizo row upload lists")]
-internal static class DeadTorizoRowUploadDefinitions
+internal static partial class DeadTorizoRowUploadDefinitions
 {
     /// <summary>First destination word for the twelve clipped ten-tile body rows in VRAM.</summary>
     private const ushort BodyDestination = 0x7060;
@@ -23,7 +23,7 @@ internal static class DeadTorizoRowUploadDefinitions
     internal static PhaseRows ForHalf(bool odd) => new(odd);
 
     /// <summary>Six body rows and one sand strip; body bounds clip unused tiles on each scanline.</summary>
-    internal readonly struct PhaseRows(bool odd) : IReadOnlyList<CorpseRowUpload>
+    internal readonly partial struct PhaseRows(bool odd) : IReadOnlyList<CorpseRowUpload>
     {
         /// <summary>Six clipped body-row uploads followed by one sand-strip upload.</summary>
         public int Count => BodyRows + 1;

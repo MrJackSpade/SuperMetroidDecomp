@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// entrance, where it latches and flies, how it locks onto Samus, how it drains her, how a shot pushes it back, and the
 /// pace of its membrane's pulse and cries.
 /// </summary>
-internal static class BabyMetroidFightDefinitions
+internal static partial class BabyMetroidFightDefinitions
 {
     /// <summary>The left edge of the Baby Metroid's arena: the camera is put here as its scene starts, and Samus left of it ends its pursuit.</summary>
     internal const int ArenaLeftX = 512;

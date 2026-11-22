@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// each update; a requested wave starts on the next update, which only sets it up, and ripples from the update after
 /// (gameplay reads it: setup writes the wave's length, which Phantoon's AI reads).
 /// </summary>
-public sealed class PhantoonBodyWaveEffect
+public sealed partial class PhantoonBodyWaveEffect
 {
     /// <summary>
     /// Where the wave stands (#2560): rippling, or ended keeping its length, as the last setup started it; or requested,
@@ -19,7 +19,7 @@ public sealed class PhantoonBodyWaveEffect
     /// </summary>
     private PhantoonWaveShape _built;
     /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
-    private bool Active => SetUpWave is RipplingWave;
+    internal bool Active => SetUpWave is RipplingWave;
 
     /// <summary>The wave the last setup started, which a requested wave leaves standing until its setup runs.</summary>
     private WaveState? SetUpWave => _wave is RequestedWave requested ? requested.Replacing : _wave;
@@ -27,7 +27,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave's phase (#2315): setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/>, then each active update
     /// turns it by the wave's phase step. Its whole steps are the angle the wave ripples from.
     /// </summary>
-    private RotationAngle Phase { get; set; }
+    internal RotationAngle Phase { get; set; }
     /// <summary>The wave the last display latch observed (#1353, #1468); null when it observed no active wave.</summary>
     public PhantoonWave? DisplayedWave { get; private set; }
 
@@ -35,7 +35,7 @@ public sealed class PhantoonBodyWaveEffect
     /// The wave as it now stands (#1468), or null before any setup: his body rippled down the whole screen by its amplitude
     /// at its phase's angle, over its length's period.
     /// </summary>
-    private PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
+    internal PhantoonWave? CurrentWave => SetUpWave is { } wave ? Describe(wave.Length, _built) : null;
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows at <paramref name="length"/> (#1468): his body rippled down the whole screen
@@ -44,7 +44,7 @@ public sealed class PhantoonBodyWaveEffect
     /// </summary>
     /// <param name="length">The wave's length.</param>
     /// <param name="shape">The phase and amplitude the wave was built from.</param>
-    private static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.Amplitude,
+    internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.Amplitude,
         shape.Phase.ToTrigonometryAngle(),
         Period(length));
 
@@ -100,18 +100,18 @@ public sealed class PhantoonBodyWaveEffect
 
     /// <summary>The wave a setup started (#2560), with the length its setup chose.</summary>
     /// <param name="Length">The wave's length.</param>
-    private abstract record WaveState(PhantoonWaveLength Length);
+    private abstract partial record WaveState(PhantoonWaveLength Length);
 
     /// <summary>A wave rippling his body.</summary>
     /// <param name="Length">The wave's length.</param>
-    private sealed record RipplingWave(PhantoonWaveLength Length) : WaveState(Length);
+    private sealed partial record RipplingWave(PhantoonWaveLength Length) : WaveState(Length);
 
     /// <summary>A wave that has ended, keeping its last shape and length.</summary>
     /// <param name="Length">The wave's length.</param>
-    private sealed record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
+    private sealed partial record EndedWave(PhantoonWaveLength Length) : WaveState(Length);
 
     /// <summary>A requested wave, whose next update sets it up and does no more.</summary>
     /// <param name="Length">The length its setup selects.</param>
     /// <param name="Replacing">The wave the last setup started, which stands until this one's setup runs; null before any.</param>
-    private sealed record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
+    private sealed partial record RequestedWave(PhantoonWaveLength Length, WaveState? Replacing) : WaveState(Length);
 }

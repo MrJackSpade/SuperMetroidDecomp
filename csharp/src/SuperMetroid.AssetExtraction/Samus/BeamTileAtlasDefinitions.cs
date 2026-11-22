@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Native $90:AC8D beam-character upload geometry, separate from projectile mechanics.</summary>
-public static class BeamTileAtlasDefinitions
+public static partial class BeamTileAtlasDefinitions
 {
     /// <summary>Indexed PNG width in pixels, arranging eight 8-pixel beam/impact characters left to right in native upload order.</summary>
     public const int Width = 64;

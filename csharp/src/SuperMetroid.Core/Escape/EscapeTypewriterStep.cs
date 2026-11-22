@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Escape;
 /// What one update of the escape typewriter did (#2499): typed nothing, typed a glyph, typed a glyph and asked for the
 /// key click, or found the warning complete. An update types at most one glyph, and only a typed glyph clicks.
 /// </summary>
-public abstract record EscapeTypewriterStep
+public abstract partial record EscapeTypewriterStep
 {
     /// <summary>Only the steps below exist.</summary>
     private EscapeTypewriterStep()
@@ -12,7 +12,7 @@ public abstract record EscapeTypewriterStep
     }
 
     /// <summary>The update typed no glyph: it waited between characters, or it typed a space.</summary>
-    public sealed record NothingTyped : EscapeTypewriterStep
+    public sealed partial record NothingTyped : EscapeTypewriterStep
     {
         /// <summary>The one update that typed nothing; every such update is the same.</summary>
         internal static NothingTyped Instance { get; } = new();
@@ -24,7 +24,7 @@ public abstract record EscapeTypewriterStep
     }
 
     /// <summary>The update found every line typed; every later update finds the same, typing and clicking nothing.</summary>
-    public sealed record Complete : EscapeTypewriterStep
+    public sealed partial record Complete : EscapeTypewriterStep
     {
         /// <summary>The one completed step; every such update is the same.</summary>
         internal static Complete Instance { get; } = new();
@@ -37,12 +37,12 @@ public abstract record EscapeTypewriterStep
 
     /// <summary>The update typed <paramref name="Glyph"/>, for the owner to write over its background.</summary>
     /// <param name="Glyph">The glyph typed.</param>
-    public record Typed(EscapeTypewriterGlyph Glyph) : EscapeTypewriterStep;
+    public partial record Typed(EscapeTypewriterGlyph Glyph) : EscapeTypewriterStep;
 
     /// <summary>
     /// The update typed <paramref name="Glyph"/> and, as every second glyph does, asks for the key click; the Ceres or Zebes
     /// escape picks which click sound plays.
     /// </summary>
     /// <param name="Glyph">The glyph typed.</param>
-    public sealed record TypedWithClick(EscapeTypewriterGlyph Glyph) : Typed(Glyph);
+    public sealed partial record TypedWithClick(EscapeTypewriterGlyph Glyph) : Typed(Glyph);
 }

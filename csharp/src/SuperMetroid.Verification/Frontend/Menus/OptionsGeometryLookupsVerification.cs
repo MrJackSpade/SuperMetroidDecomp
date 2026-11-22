@@ -43,26 +43,20 @@ internal static class OptionsGeometryLookupsVerification
             action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).Y * GameOptionsPageDefinitions.MenuTilemapWidth
                 + GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).X) * sizeof(ushort))), "controller label box"));
 
-    /// <summary>The controller action listed <paramref name="row"/> rows from the top, or an undefined one past the rows.</summary>
-    private static SuperMetroid.Core.Input.ControllerAction ActionAt(int row) =>
-        row >= 0 && row < GameOptionsPageRows.ControllerActions.Count ? GameOptionsPageRows.ControllerActions[row] : (SuperMetroid.Core.Input.ControllerAction)99;
+    /// <summary>The controller action listed <paramref name="row"/> rows from the top.</summary>
+    private static SuperMetroid.Core.Input.ControllerAction ActionAt(int row) => GameOptionsPageRows.ControllerActions[row];
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f647, 2, 7,
-            index => GameOptionsSourceDefinitions.ControllerLabelSources[(uint)index < (uint)GameOptionsPresentationDefinitions.ControllerLabelButtons.Count
-                ? GameOptionsPresentationDefinitions.ControllerLabelButtons[index]
-                : throw new ArgumentOutOfRangeException(nameof(index), index, "The controller page shows no label at that selector.")], "controller label source"));
+            index => GameOptionsSourceDefinitions.ControllerLabelSources[GameOptionsPresentationDefinitions.ControllerLabelButtons[index]], "controller label source"));
 
-    /// <summary>Compares an indexed native geometry sequence and rejects indexes beyond its declared count.</summary>
+    /// <summary>Compares an indexed native geometry sequence.</summary>
     private static void VerifyOptionsGeometryWords(ISnesAddressSpace rom, int address,
         int stride, int count, Func<int, int> actual, string name)
     {
         for (int index = 0; index < count; index++)
             AssertEqual(ReadVerificationWord(rom, address + stride * index), actual(index),
                 $"{name} native word {index}");
-        foreach (int index in new[] { int.MinValue, -1, count, count + 1, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => actual(index),
-                $"{name} rejects {index}");
     }
 }

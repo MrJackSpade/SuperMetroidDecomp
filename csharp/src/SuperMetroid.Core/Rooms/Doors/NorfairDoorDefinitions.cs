@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Norfair rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class NorfairDoorDefinitions
+public static partial class NorfairDoorDefinitions
 {
     /// <summary>The door from the Ice Beam Acid room to the Ice Beam Gate room.</summary>
     public static DoorDefinition IceBeamAcidToIceBeamGate { get; } = new("IceBeamAcidToIceBeamGate", RoomDefinitions.IceBeamGate, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(49, 38), new(3, 2), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

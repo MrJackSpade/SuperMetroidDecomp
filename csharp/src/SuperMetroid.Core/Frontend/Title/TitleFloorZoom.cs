@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// only while the floor is larger than its own size, so it lands on the floor's own size and no title zoom shows the floor
 /// smaller.
 /// </summary>
-public readonly record struct TitleFloorZoom
+public readonly partial record struct TitleFloorZoom
 {
     /// <summary>The title zoom <paramref name="zoom"/>, no larger than the floor's own size.</summary>
     private TitleFloorZoom(FloorZoom zoom) => FloorZoom = zoom;

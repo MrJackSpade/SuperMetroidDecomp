@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// The installed key of each <see cref="PauseWireframe"/> (#2520, #2560): its suit's key and its boots' key, each
 /// written out so renaming a member never changes a name the installation or an installed document spells it by.
 /// </summary>
-internal static class PauseWireframeKeys
+internal static partial class PauseWireframeKeys
 {
     /// <summary>Each wireframe suit's installed key.</summary>
     internal static InstalledKeys<PauseWireframeSuit> Suits { get; } = new(new Dictionary<PauseWireframeSuit, string>

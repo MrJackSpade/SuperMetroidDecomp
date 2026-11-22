@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The state of a Boulder.</summary>
-public sealed class BoulderEnemyState
+public sealed partial class BoulderEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal BoulderEnemyState(BoulderAction action) => Action = action;

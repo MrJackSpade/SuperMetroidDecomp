@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The cue that closes a run of delays in a Samus animation: where the animation goes next, or which
 /// transitional pose it publishes. Each kind is its own record; the animation acts on the kind.
 /// </summary>
-internal abstract record SamusAnimationCue : SamusPoseAnimationStep
+internal abstract partial record SamusAnimationCue : SamusPoseAnimationStep
 {
     /// <summary>Allows only the cues of this namespace's records (#2553).</summary>
     private protected SamusAnimationCue()
@@ -44,4 +44,4 @@ internal abstract record SamusAnimationCue : SamusPoseAnimationStep
 /// <param name="Transition">Makes a <see cref="SamusAnimationTransition"/> into a result.</param>
 /// <param name="Repeat">Makes a <see cref="SamusAnimationRepeat"/> into a result.</param>
 /// <param name="Restart">Makes a <see cref="SamusAnimationRestart"/> into a result.</param>
-internal sealed record SamusAnimationCueCases<TContext, TResult>(Func<SamusAnimationHold, TContext, TResult> Hold, Func<SamusAnimationLoopUnlessLowEnergy, TContext, TResult> LoopUnlessLowEnergy, Func<SamusAnimationInstallDrainedFall, TContext, TResult> InstallDrainedFall, Func<SamusAnimationTurnTransition, TContext, TResult> TurnTransition, Func<SamusAnimationItemAirborneTransition, TContext, TResult> ItemAirborneTransition, Func<SamusAnimationWallJumpSelect, TContext, TResult> WallJumpSelect, Func<SamusAnimationVerticalSpeedTransition, TContext, TResult> VerticalSpeedTransition, Func<SamusAnimationItemTransition, TContext, TResult> ItemTransition, Func<SamusAnimationTransition, TContext, TResult> Transition, Func<SamusAnimationRepeat, TContext, TResult> Repeat, Func<SamusAnimationRestart, TContext, TResult> Restart);
+internal sealed partial record SamusAnimationCueCases<TContext, TResult>(Func<SamusAnimationHold, TContext, TResult> Hold, Func<SamusAnimationLoopUnlessLowEnergy, TContext, TResult> LoopUnlessLowEnergy, Func<SamusAnimationInstallDrainedFall, TContext, TResult> InstallDrainedFall, Func<SamusAnimationTurnTransition, TContext, TResult> TurnTransition, Func<SamusAnimationItemAirborneTransition, TContext, TResult> ItemAirborneTransition, Func<SamusAnimationWallJumpSelect, TContext, TResult> WallJumpSelect, Func<SamusAnimationVerticalSpeedTransition, TContext, TResult> VerticalSpeedTransition, Func<SamusAnimationItemTransition, TContext, TResult> ItemTransition, Func<SamusAnimationTransition, TContext, TResult> Transition, Func<SamusAnimationRepeat, TContext, TResult> Repeat, Func<SamusAnimationRestart, TContext, TResult> Restart);

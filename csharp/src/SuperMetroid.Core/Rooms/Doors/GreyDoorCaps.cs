@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The grey door caps and the four shared cleared openings, and the block shape each draws from
 /// <see cref="GreyDoorObjectDrawDefinitions"/> (#1862, #1994).
 /// </summary>
-internal static class GreyDoorCaps
+internal static partial class GreyDoorCaps
 {
     /// <summary>The block shape of each grey-cap draw: its four blocks down its column or along its row.</summary>
     private static readonly Dictionary<Draw, RoomBlockShape> Shapes = GreyDoorObjectDrawDefinitions.Collisions
@@ -15,7 +15,7 @@ internal static class GreyDoorCaps
     /// <summary>One of the twenty grey door cap pictures: its facing and what it shows.</summary>
     /// <param name="Orientation">The cap's facing.</param>
     /// <param name="Look">The cleared opening every cap leaves (#1627), or the grey cap closed or sliding aside.</param>
-    internal readonly record struct Draw(ColoredDoorOrientation Orientation, DoorCapLook Look)
+    internal readonly partial record struct Draw(ColoredDoorOrientation Orientation, DoorCapLook Look)
     {
         /// <summary>The cleared opening facing <paramref name="orientation"/>, which draws no cap.</summary>
         internal static Draw ClearedOf(ColoredDoorOrientation orientation) => new(orientation, DoorCapLook.Cleared);

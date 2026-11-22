@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Baby Metroid colour document.</summary>
-public static class BabyMetroidColorFile
+public static partial class BabyMetroidColorFile
 {
     /// <summary>Loads <c>Baby Metroid-colors.json</c>, requiring version 1, eight four-color pulse frames, three sixteen-color targets, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -33,7 +33,7 @@ public static class BabyMetroidColorFile
 
     /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(BabyMetroidColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>

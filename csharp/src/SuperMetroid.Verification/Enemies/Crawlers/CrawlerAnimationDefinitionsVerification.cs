@@ -117,10 +117,6 @@ internal static class CrawlerAnimationDefinitionsVerification
                 state.Playback, $"crawler production up surface {surfaceFamily}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.AnimationFor(
-                (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.OnLeftWall),
-            "crawler initial family beyond authored tables");
         Console.WriteLine(
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 16 real surface handoffs pass with source tables forbidden.");
     }

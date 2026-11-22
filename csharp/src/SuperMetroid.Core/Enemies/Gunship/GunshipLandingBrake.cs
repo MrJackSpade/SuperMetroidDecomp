@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// One of the seventeen updates of the gunship's landing brakes after Ceres (#2343), in the order the ship takes them: each
 /// moves the ship and Samus by its offset, and the last opens the entrance pad.
 /// </summary>
-public readonly record struct GunshipLandingBrake
+public readonly partial record struct GunshipLandingBrake
 {
     /// <summary>The brake at <paramref name="place"/> of the brakes' authored schedule.</summary>
     private GunshipLandingBrake(int place) => Place = place;

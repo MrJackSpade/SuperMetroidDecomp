@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// draws it before the body. The game holds the draw order and never sees the byte.
 /// </summary>
 [EncodingOwner("arm-cannon drawing mode")]
-internal static class SamusArmCannonDrawOrderCodec
+internal static partial class SamusArmCannonDrawOrderCodec
 {
     /// <summary>The draw order the drawing-mode byte <paramref name="drawingMode"/> selects.</summary>
     /// <param name="drawingMode">The pose's drawing-mode byte.</param>

@@ -4,7 +4,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>The escape timer's countdown cadence (#2135): the centiseconds each update of its repeating period removes.</summary>
-internal static class EscapeTimerCadenceDefinitions
+internal static partial class EscapeTimerCadenceDefinitions
 {
     /// <summary>
     /// The frame counter's place in the countdown's period, which picks the centiseconds the update removes (#1619): the

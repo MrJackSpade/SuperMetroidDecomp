@@ -1,154 +1,155 @@
-using System.Reflection;
-using SuperMetroid.Core;
-
 namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>
-/// Which definition catalogs may hold an object of a given type where a game can reach it, read from the catalogs'
-/// declarations alone, so finding the catalogs that may hold an object runs no initializer (#1716). A catalog may hold
-/// an object of a type when a location its members reach is declared with a type the object's type is assignable to.
-/// The locations a catalog's members reach are found from declared types, closed over:
-/// <list type="bullet">
-/// <item>a type of the game's assembly, and any value type, holds what each of its instance fields is declared with;</item>
-/// <item>an array holds its element type;</item>
-/// <item>
-/// another assembly's class or interface (a collection, a lazily loaded part) holds what it exposes: its type
-/// arguments, the elements it enumerates, comparers of its type arguments, and arrays of its type arguments where the
-/// interface is one an array implements. Its private storage and helpers (bucket arrays, entry arrays, the lock state of
-/// a part not loaded yet) are no catalog's members: a game never gets them from a catalog. One the runtime shares
-/// between instances, such as the empty array every empty list of an element type starts with, is written by its
-/// contents, as an object no catalog holds is;
-/// </item>
-/// <item>a class that is not sealed, or an interface, holds what each type of the game's assembly that derives from or
-/// implements it holds. A generic type whose declared base or interface leaves some of its type parameters open is
-/// taken in each construction that binds its fields' types to constructions the game's declarations name: a room-object
-/// draw, declared only as a draw, holds its family, so it is taken as a draw of each family the game declares (#2420);</item>
-/// <item>
-/// a location declared as <see cref="object"/>, <see cref="ValueType"/> or a collection that enumerates objects of
-/// no declared type can hold anything, so its catalog may hold an object of every type;
-/// </item>
-/// <item>a delegate, a string and reflection metadata hold nothing a game reaches through them.</item>
-/// </list>
+/// Which definition catalogs may hold an object where a game can reach it (#1716), from what the compiler read of the
+/// catalogs' declarations (#2602): each declared type a catalog's members reach, what a location declared with it holds,
+/// and a test of whether an object is of it. A catalog may hold an object when a declared type its members reach, closed
+/// over what each holds, is one the object is of; a catalog reaching a location that can hold anything may hold every
+/// object. Finding the catalogs that may hold an object runs no initializer.
 /// </summary>
-[ReflectionAudit("debugger states find the catalogs that may hold an object from the declared types their static members reach")]
 internal sealed class DefinitionExposure
 {
     /// <summary>The bits one word of a catalog set holds.</summary>
     private const int WordBits = 64;
 
-    /// <summary>The fields a type's own state is read from: every instance field, of every accessibility.</summary>
-    private const BindingFlags InstanceFields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-
-    /// <summary>The game's assembly, whose types are read field by field.</summary>
-    private readonly Assembly game;
-
     /// <summary>The catalogs, in their prefixes' ordinal order.</summary>
     private readonly IReadOnlyList<DefinitionCatalog> catalogs;
 
     /// <summary>
-    /// The game's concrete types under each type they derive from or implement, a constructed type filed under its generic
-    /// definition: each with the base or interface it derives from or implements as it declares it, in its own type
-    /// parameters for a generic definition.
+    /// The declared types reached that an object of another runtime type can be of (a class others derive from, an interface,
+    /// an array), each with its test and the catalogs reaching it.
     /// </summary>
-    private readonly Dictionary<Type, List<(Type Derived, Type Declared)>> derived = [];
+    private readonly List<(Func<int, object, bool> Probe, int Index, bool Enumerates, ulong[] Reaching)> declared = [];
 
     /// <summary>
-    /// The closed constructions of each generic definition the game's declarations name, by generic definition: the types
-    /// of every field, base type and interface of the game's types, and the element types and type arguments within them.
-    /// A derived generic type whose declared base leaves a type parameter open is constructed with the arguments these bind.
+    /// The catalogs reaching each declared type an object is of only when it has exactly that runtime type (a value type, a
+    /// sealed class), by the type: such an object is matched by its runtime type, never tested.
     /// </summary>
-    private readonly Dictionary<Type, HashSet<Type>> named = [];
-
-    /// <summary>Each declared type reached, by its number.</summary>
-    private readonly Dictionary<Type, int> numbers = [];
-
-    /// <summary>Each declared type reached, in number order.</summary>
-    private readonly List<Type> declared = [];
-
-    /// <summary>The numbers of the types each declared type holds.</summary>
-    private readonly List<int[]?> held = [];
-
-    /// <summary>Whether a location declared with each declared type can hold an object of any type.</summary>
-    private readonly List<bool> anything = [];
-
-    /// <summary>The catalogs whose members reach each declared type, as one bit per catalog in catalog order.</summary>
-    private readonly List<ulong[]?> reaching = [];
-
-    /// <summary>
-    /// The declared generic interfaces and generic delegates, by generic definition: an object can be assigned to one
-    /// through variance or array covariance without implementing or being that very type.
-    /// </summary>
-    private readonly Dictionary<Type, List<int>> variantByDefinition = [];
-
-    /// <summary>The declared array types: an array can be assigned to one of another element type through array covariance.</summary>
-    private readonly List<int> arrays = [];
+    private readonly Dictionary<Type, ulong[]> exactly = [];
 
     /// <summary>The catalogs that may hold an object of every type.</summary>
     private readonly ulong[] universal;
 
-    /// <summary>The catalogs found for each type asked about, in catalog order.</summary>
+    /// <summary>The catalogs found for each runtime type asked about.</summary>
     private readonly Dictionary<Type, DefinitionCatalog[]> found = [];
 
-    /// <summary>Reads which declared types each of <paramref name="catalogs"/> reaches, among <paramref name="types"/> of <paramref name="game"/>.</summary>
-    /// <param name="game">The game's assembly.</param>
-    /// <param name="types">Every type the game's assembly declares.</param>
+    /// <summary>Closes each catalog over what its members' declared types hold.</summary>
+    /// <param name="types">The registry, holding what each declared type holds and the test of each.</param>
     /// <param name="catalogs">The catalogs, in their prefixes' ordinal order.</param>
-    internal DefinitionExposure(Assembly game, IReadOnlyList<Type> types, IReadOnlyList<DefinitionCatalog> catalogs)
+    /// <exception cref="InvalidOperationException">A declared type a catalog reaches has no registration of what it holds.</exception>
+    internal DefinitionExposure(StateGraphTypes types, IReadOnlyList<DefinitionCatalog> catalogs)
     {
-        this.game = Ensure.NotNull(game);
-        this.catalogs = Ensure.NotNull(catalogs);
-        universal = new ulong[(catalogs.Count + WordBits - 1) / WordBits];
-        var namedSeen = new HashSet<Type>();
-        foreach (Type type in Ensure.NotNull(types))
+        this.catalogs = catalogs;
+        int words = (catalogs.Count + WordBits - 1) / WordBits;
+        universal = new ulong[words];
+        // Each declared type is numbered once, with what it holds as numbers, so each catalog's walk compares numbers.
+        var numbers = new Dictionary<string, int>(StringComparer.Ordinal);
+        var keys = new List<string>();
+        int Number(string key)
         {
-            FileDerived(type);
-            FileNamed(type, namedSeen);
+            if (numbers.TryGetValue(key, out int number))
+                return number;
+            numbers.Add(key, keys.Count);
+            keys.Add(key);
+            return keys.Count - 1;
         }
+        var held = new List<int[]?>();
+        var anything = new List<bool>();
+        int[] Held(int number)
+        {
+            while (held.Count <= number)
+            {
+                held.Add(null);
+                anything.Add(false);
+            }
+            if (held[number] is { } known)
+                return known;
+            if (!types.DeclaredHolds.TryGetValue(keys[number], out (bool Anything, IReadOnlyList<string> Held) holds))
+                throw new InvalidOperationException($"The definition catalogs reach the declared type {keys[number]}, but no registration says what it holds.");
+            int[] next = [.. holds.Held.Select(Number)];
+            while (held.Count < keys.Count)
+            {
+                held.Add(null);
+                anything.Add(false);
+            }
+            held[number] = next;
+            anything[number] = holds.Anything;
+            return next;
+        }
+        var reaching = new List<ulong[]?>();
+        var visited = new List<int>();
         var pending = new Stack<int>();
-        int[] visited = [];
         for (int catalog = 0; catalog < catalogs.Count; catalog++)
         {
-            // Types are numbered as they are first reached, so the marks of the types this walk has visited grow with them.
             pending.Clear();
-            foreach (FieldInfo member in catalogs[catalog].Members)
-                pending.Push(Number(member.FieldType));
+            foreach (Core.StateGraphCatalogMember member in catalogs[catalog].Members)
+                pending.Push(Number(member.Declared));
             while (pending.Count > 0)
             {
                 int number = pending.Pop();
-                if (visited.Length <= number)
-                    Array.Resize(ref visited, Math.Max(number + 1, visited.Length * 2));
+                while (visited.Count < keys.Count)
+                {
+                    visited.Add(0);
+                    reaching.Add(null);
+                }
                 if (visited[number] == catalog + 1)
                     continue;
                 visited[number] = catalog + 1;
-                (reaching[number] ??= new ulong[universal.Length])[catalog / WordBits] |= 1UL << (catalog % WordBits);
+                int[] next = Held(number);
+                (reaching[number] ??= new ulong[words])[catalog / WordBits] |= 1UL << (catalog % WordBits);
                 if (anything[number])
                     universal[catalog / WordBits] |= 1UL << (catalog % WordBits);
-                foreach (int next in Held(number))
-                    pending.Push(next);
+                foreach (int further in next)
+                    pending.Push(further);
             }
+        }
+        for (int number = 0; number < reaching.Count; number++)
+        {
+            if (reaching[number] is not { } set ||
+                !types.DeclaredProbes.TryGetValue(keys[number], out (Func<int, object, bool> Probe, int Index, Type? Exact, bool Enumerates) test))
+                continue;
+            if (test.Exact is null)
+            {
+                declared.Add((test.Probe, test.Index, test.Enumerates, set));
+                continue;
+            }
+            // A runtime type two declared types are exactly (a type and its nullable form) is reached by both's catalogs.
+            if (!exactly.TryGetValue(test.Exact, out ulong[]? merged))
+                exactly.Add(test.Exact, merged = new ulong[words]);
+            for (int word = 0; word < words; word++)
+                merged[word] |= set[word];
         }
     }
 
     /// <summary>
-    /// The catalogs that may hold an object of <paramref name="type"/> where a game can reach it, in catalog order: those
-    /// whose members reach a location declared with a type <paramref name="type"/> is assignable to.
+    /// The catalogs that may hold an object of <paramref name="value"/>'s type where a game can reach it, in catalog order:
+    /// those reaching a declared type the object is of, and those reaching a location that can hold anything. A bare
+    /// <see cref="object"/> holds nothing a state could name it by, only its identity as a lock, so no catalog is searched
+    /// for one: a state holds it as a new object.
     /// </summary>
-    internal IReadOnlyList<DefinitionCatalog> Candidates(Type type)
+    internal IReadOnlyList<DefinitionCatalog> Candidates(object value)
     {
-        Ensure.NotNull(type);
+        Type type = value.GetType();
+        if (type == typeof(object))
+            return [];
         if (found.TryGetValue(type, out DefinitionCatalog[]? known))
             return known;
         ulong[] set = [.. universal];
-        // A class, and every interface the type implements, takes it as it is; a generic interface or delegate of the
-        // same definition, or an array of another element type, may take it through variance.
-        for (Type? current = type; current is not null; current = current.BaseType)
-            IncludeAssignable(set, current, type);
-        foreach (Type implemented in type.GetInterfaces())
-            IncludeAssignable(set, implemented, type);
-        if (type.IsArray)
-            foreach (int number in arrays)
-                if (declared[number].IsAssignableFrom(type))
-                    Include(set, number);
+        if (exactly.TryGetValue(type, out ulong[]? exact))
+        {
+            for (int word = 0; word < set.Length; word++)
+                set[word] |= exact[word];
+        }
+        bool enumerates = value is System.Collections.IEnumerable;
+        foreach ((Func<int, object, bool> probe, int index, bool onlyEnumerating, ulong[] reaching) in declared)
+        {
+            // A declared type whose catalogs are all candidates already adds none, and one only an object that enumerates can
+            // be of holds no other, so whether the object is of either is not asked.
+            if ((onlyEnumerating && !enumerates) || Covers(set, reaching) || !probe(index, value))
+                continue;
+            for (int word = 0; word < set.Length; word++)
+                set[word] |= reaching[word];
+        }
         var candidates = new List<DefinitionCatalog>();
         for (int catalog = 0; catalog < catalogs.Count; catalog++)
             if ((set[catalog / WordBits] & (1UL << (catalog % WordBits))) != 0)
@@ -158,372 +159,14 @@ internal sealed class DefinitionExposure
         return result;
     }
 
-    /// <summary>
-    /// Adds to <paramref name="set"/> the catalogs reaching <paramref name="assignable"/>, a class <paramref name="type"/>
-    /// derives from or an interface it implements, and those reaching a declared type of its generic definition that
-    /// <paramref name="type"/> is assignable to.
-    /// </summary>
-    private void IncludeAssignable(ulong[] set, Type assignable, Type type)
+    /// <summary>Whether every catalog in <paramref name="catalogs"/> is in <paramref name="set"/>.</summary>
+    private static bool Covers(ulong[] set, ulong[] catalogs)
     {
-        if (numbers.TryGetValue(assignable, out int number))
-            Include(set, number);
-        if (!assignable.IsGenericType || !variantByDefinition.TryGetValue(assignable.GetGenericTypeDefinition(), out List<int>? related))
-            return;
-        foreach (int candidate in related)
-            if (declared[candidate].IsAssignableFrom(type))
-                Include(set, candidate);
-    }
-
-    /// <summary>Adds the catalogs reaching declared type <paramref name="number"/> to <paramref name="set"/>.</summary>
-    private void Include(ulong[] set, int number)
-    {
-        if (reaching[number] is not { } catalogsReaching)
-            return;
         for (int word = 0; word < set.Length; word++)
-            set[word] |= catalogsReaching[word];
-    }
-
-    /// <summary>Files <paramref name="type"/>, when it is concrete, under every class it derives from and every interface it implements.</summary>
-    private void FileDerived(Type type)
-    {
-        if (type.IsAbstract || type.IsInterface)
-            return;
-        for (Type? baseType = type.BaseType; baseType is not null && baseType != typeof(object); baseType = baseType.BaseType)
-            File(type, baseType);
-        foreach (Type implemented in type.GetInterfaces())
-            File(type, implemented);
-    }
-
-    /// <summary>Files <paramref name="type"/> under <paramref name="declaredBase"/>, a constructed type under its generic definition.</summary>
-    private void File(Type type, Type declaredBase)
-    {
-        Type key = declaredBase.IsGenericType ? declaredBase.GetGenericTypeDefinition() : declaredBase;
-        if (!derived.TryGetValue(key, out List<(Type Derived, Type Declared)>? filed))
-            derived.Add(key, filed = []);
-        filed.Add((type, declaredBase));
-    }
-
-    /// <summary>Files the closed generic constructions the declared types of <paramref name="type"/>'s fields, base type and interfaces name.</summary>
-    /// <param name="type">A type of the game's assembly.</param>
-    /// <param name="seen">The types already filed through, which name nothing more.</param>
-    private void FileNamed(Type type, HashSet<Type> seen)
-    {
-        foreach (FieldInfo field in type.GetFields(InstanceFields | BindingFlags.Static))
-            Name(field.FieldType, seen);
-        if (type.BaseType is { } baseType)
-            Name(baseType, seen);
-        foreach (Type implemented in type.GetInterfaces())
-            Name(implemented, seen);
-    }
-
-    /// <summary>Files <paramref name="type"/> when it is a closed generic construction, and what its element type and type arguments name.</summary>
-    /// <param name="type">A declared type.</param>
-    /// <param name="seen">The types already filed through, which name nothing more.</param>
-    private void Name(Type type, HashSet<Type> seen)
-    {
-        if (!seen.Add(type))
-            return;
-        if (type.HasElementType)
         {
-            Name(Ensure.NotNull(type.GetElementType()), seen);
-            return;
-        }
-        if (!type.IsGenericType)
-            return;
-        if (!type.ContainsGenericParameters)
-        {
-            Type definition = type.GetGenericTypeDefinition();
-            if (!named.TryGetValue(definition, out HashSet<Type>? constructions))
-                named.Add(definition, constructions = []);
-            constructions.Add(type);
-        }
-        foreach (Type argument in type.GetGenericArguments())
-            Name(argument, seen);
-    }
-
-    /// <summary>The number of declared type <paramref name="type"/>, numbering it on first sight.</summary>
-    private int Number(Type type)
-    {
-        if (numbers.TryGetValue(type, out int number))
-            return number;
-        number = declared.Count;
-        numbers.Add(type, number);
-        declared.Add(type);
-        held.Add(null);
-        anything.Add(HoldsAnything(type));
-        reaching.Add(null);
-        if (type.IsArray)
-        {
-            arrays.Add(number);
-        }
-        else if (type.IsGenericType && (type.IsInterface || type.IsSubclassOf(typeof(Delegate))))
-        {
-            Type definition = type.GetGenericTypeDefinition();
-            if (!variantByDefinition.TryGetValue(definition, out List<int>? related))
-                variantByDefinition.Add(definition, related = []);
-            related.Add(number);
-        }
-        return number;
-    }
-
-    /// <summary>The numbers of the declared types a location declared with type <paramref name="number"/> holds, read once.</summary>
-    private int[] Held(int number)
-    {
-        if (held[number] is { } known)
-            return known;
-        var types = new HashSet<Type>();
-        AddHeld(declared[number], types);
-        int[] numbered = [.. types.Select(Number)];
-        held[number] = numbered;
-        return numbered;
-    }
-
-    /// <summary>Whether a location declared as <paramref name="type"/> can hold an object of any type.</summary>
-    private bool HoldsAnything(Type type) =>
-        type == typeof(object) || type == typeof(ValueType) ||
-        (type.Assembly != game && !type.IsValueType && type != typeof(string) &&
-         typeof(System.Collections.IEnumerable).IsAssignableFrom(type) && Enumerated(type).Count == 0);
-
-    /// <summary>Adds to <paramref name="types"/> the declared types a location declared as <paramref name="type"/> holds.</summary>
-    private void AddHeld(Type type, HashSet<Type> types)
-    {
-        if (type.IsPointer || type.IsByRef || type.IsByRefLike || type.ContainsGenericParameters || type.IsPrimitive || type.IsEnum ||
-            type == typeof(string) || HoldsAnything(type) || type.IsSubclassOf(typeof(Delegate)) || typeof(MemberInfo).IsAssignableFrom(type) ||
-            type == typeof(Pointer))
-            return;
-        if (type.IsArray)
-        {
-            types.Add(Ensure.NotNull(type.GetElementType()));
-            return;
-        }
-        if (type.Assembly == game || type.IsValueType)
-        {
-            for (Type? current = type; current is not null; current = current.BaseType)
-                foreach (FieldInfo field in current.GetFields(InstanceFields))
-                    if (!field.FieldType.IsPointer && !field.FieldType.IsByRef)
-                        types.Add(field.FieldType);
-        }
-        else
-        {
-            AddExposed(type, types);
-        }
-        if (!type.IsValueType && !type.IsSealed)
-            AddDerived(type, types);
-    }
-
-    /// <summary>
-    /// Adds what another assembly's class or interface exposes: its type arguments, comparers of them, arrays of them
-    /// where it is an interface an array implements, and the elements it enumerates.
-    /// </summary>
-    private static void AddExposed(Type type, HashSet<Type> types)
-    {
-        if (type.IsGenericType)
-        {
-            foreach (Type argument in type.GetGenericArguments())
-            {
-                types.Add(argument);
-                if (argument.IsPointer || argument.IsByRef || argument.IsByRefLike)
-                    continue;
-                types.Add(typeof(IEqualityComparer<>).MakeGenericType(argument));
-                types.Add(typeof(IComparer<>).MakeGenericType(argument));
-                if (type.IsInterface && type.IsAssignableFrom(argument.MakeArrayType()))
-                    types.Add(argument.MakeArrayType());
-            }
-        }
-        foreach (Type element in Enumerated(type))
-            types.Add(element);
-    }
-
-    /// <summary>The element types <paramref name="type"/> enumerates as <see cref="IEnumerable{T}"/>.</summary>
-    private static List<Type> Enumerated(Type type)
-    {
-        var elements = new List<Type>();
-        foreach (Type implemented in type.IsInterface ? [type, .. type.GetInterfaces()] : type.GetInterfaces())
-            if (implemented.IsGenericType && implemented.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                elements.Add(implemented.GetGenericArguments()[0]);
-        return elements;
-    }
-
-    /// <summary>Adds each of the game's types that derives from or implements <paramref name="type"/>, a generic one constructed to do so.</summary>
-    private void AddDerived(Type type, HashSet<Type> types)
-    {
-        Type key = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-        if (!derived.TryGetValue(key, out List<(Type Derived, Type Declared)>? filed))
-            return;
-        foreach ((Type candidate, Type declaredBase) in filed)
-        {
-            if (!candidate.ContainsGenericParameters)
-            {
-                if (type.IsAssignableFrom(candidate))
-                    types.Add(candidate);
-                continue;
-            }
-            foreach (Type constructed in Constructions(candidate, declaredBase, type))
-                types.Add(constructed);
-        }
-    }
-
-    /// <summary>
-    /// The constructions of <paramref name="definition"/> whose <paramref name="declaredBase"/>, written in its own type
-    /// parameters, is <paramref name="type"/>: the arguments matching the base binds, with each parameter the base leaves
-    /// open bound as <see cref="Bindings"/> binds it. None when no arguments do so or they break its constraints.
-    /// </summary>
-    private List<Type> Constructions(Type definition, Type declaredBase, Type type)
-    {
-        var constructions = new List<Type>();
-        var arguments = new Type?[definition.GetGenericArguments().Length];
-        if (!Unify(declaredBase, type, definition, arguments))
-            return constructions;
-        foreach (Type[] bound in Bindings(definition, arguments, FieldPatterns(definition)))
-            if (Constructed(definition, bound, type) is { } constructed && !constructions.Contains(constructed))
-                constructions.Add(constructed);
-        return constructions;
-    }
-
-    /// <summary>
-    /// Every completion of <paramref name="arguments"/>, the type arguments of <paramref name="definition"/> bound so far:
-    /// each parameter still open is bound by matching one of <paramref name="patterns"/>, the generic types its fields are
-    /// declared with, against a construction the game's declarations name (<see cref="named"/>). A parameter no pattern
-    /// binds leaves no completion.
-    /// </summary>
-    private IEnumerable<Type[]> Bindings(Type definition, Type?[] arguments, List<Type> patterns)
-    {
-        int boundCount = arguments.Count(argument => argument is not null);
-        if (boundCount == arguments.Length)
-        {
-            yield return [.. arguments.Select(argument => Ensure.NotNull(argument))];
-            yield break;
-        }
-        foreach (Type pattern in patterns)
-        {
-            if (!named.TryGetValue(pattern.GetGenericTypeDefinition(), out HashSet<Type>? constructions))
-                continue;
-            foreach (Type construction in constructions)
-            {
-                Type?[] extended = [.. arguments];
-                // A match that binds no further parameter completes nothing the others do not.
-                if (!Unify(pattern, construction, definition, extended) || extended.Count(argument => argument is not null) == boundCount)
-                    continue;
-                foreach (Type[] bound in Bindings(definition, extended, patterns))
-                    yield return bound;
-            }
-        }
-    }
-
-    /// <summary>
-    /// The generic types written in <paramref name="definition"/>'s type parameters that its instance fields, and its
-    /// bases', are declared with, and those within their element types and type arguments.
-    /// </summary>
-    private static List<Type> FieldPatterns(Type definition)
-    {
-        var patterns = new List<Type>();
-        for (Type? current = definition; current is not null; current = current.BaseType)
-            foreach (FieldInfo field in current.GetFields(InstanceFields))
-                AddPatterns(field.FieldType, patterns);
-        return patterns;
-    }
-
-    /// <summary>Adds <paramref name="type"/>, when it is a generic type written in type parameters, and the ones within it to <paramref name="patterns"/>.</summary>
-    private static void AddPatterns(Type type, List<Type> patterns)
-    {
-        if (type.HasElementType)
-        {
-            AddPatterns(Ensure.NotNull(type.GetElementType()), patterns);
-            return;
-        }
-        if (!type.IsGenericType || !type.ContainsGenericParameters)
-            return;
-        if (!patterns.Contains(type))
-            patterns.Add(type);
-        foreach (Type argument in type.GetGenericArguments())
-            AddPatterns(argument, patterns);
-    }
-
-    /// <summary>
-    /// <paramref name="definition"/> constructed with <paramref name="bound"/>, when they meet its constraints and the
-    /// construction is assignable to <paramref name="type"/>; null otherwise.
-    /// </summary>
-    private static Type? Constructed(Type definition, Type[] bound, Type type)
-    {
-        Type[] parameters = definition.GetGenericArguments();
-        for (int index = 0; index < parameters.Length; index++)
-            if (!Satisfies(parameters[index], bound[index], definition, bound))
-                return null;
-        Type constructed = definition.MakeGenericType(bound);
-        return type.IsAssignableFrom(constructed) ? constructed : null;
-    }
-
-    /// <summary>
-    /// Matches <paramref name="pattern"/>, written in <paramref name="definition"/>'s type parameters, against the closed
-    /// <paramref name="type"/>, binding each parameter it meets into <paramref name="arguments"/>.
-    /// </summary>
-    private static bool Unify(Type pattern, Type type, Type definition, Type?[] arguments)
-    {
-        if (pattern.IsGenericParameter)
-        {
-            if (pattern.DeclaringType != definition || pattern.DeclaringMethod is not null)
+            if ((catalogs[word] & ~set[word]) != 0)
                 return false;
-            ref Type? argument = ref arguments[pattern.GenericParameterPosition];
-            if (argument is null)
-                argument = type;
-            return argument == type;
         }
-        if (!pattern.ContainsGenericParameters)
-            return pattern == type;
-        if (pattern.IsArray)
-            return type.IsArray && pattern.GetArrayRank() == type.GetArrayRank() &&
-                Unify(Ensure.NotNull(pattern.GetElementType()), Ensure.NotNull(type.GetElementType()), definition, arguments);
-        if (!pattern.IsGenericType || !type.IsGenericType || pattern.GetGenericTypeDefinition() != type.GetGenericTypeDefinition())
-            return false;
-        Type[] patternArguments = pattern.GetGenericArguments(), typeArguments = type.GetGenericArguments();
-        for (int index = 0; index < patternArguments.Length; index++)
-            if (!Unify(patternArguments[index], typeArguments[index], definition, arguments))
-                return false;
         return true;
     }
-
-    /// <summary>Whether <paramref name="argument"/> meets the constraints of <paramref name="parameter"/> with every parameter of <paramref name="definition"/> bound to <paramref name="bound"/>.</summary>
-    private static bool Satisfies(Type parameter, Type argument, Type definition, Type[] bound)
-    {
-        GenericParameterAttributes special = parameter.GenericParameterAttributes & GenericParameterAttributes.SpecialConstraintMask;
-        if (special.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) && argument.IsValueType)
-            return false;
-        if (special.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint) &&
-            (!argument.IsValueType || Nullable.GetUnderlyingType(argument) is not null))
-            return false;
-        if (special.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint) && !argument.IsValueType &&
-            (argument.IsAbstract || argument.GetConstructor(Type.EmptyTypes) is null))
-            return false;
-        if (argument.IsByRefLike && !special.HasFlag(GenericParameterAttributes.AllowByRefLike))
-            return false;
-        if (parameter.GetCustomAttributesData().Any(attribute => attribute.AttributeType.FullName == "System.Runtime.CompilerServices.IsUnmanagedAttribute") &&
-            ContainsReferences(argument))
-            return false;
-        foreach (Type constraint in parameter.GetGenericParameterConstraints())
-            if (!Substituted(constraint, definition, bound).IsAssignableFrom(argument))
-                return false;
-        return true;
-    }
-
-    /// <summary><paramref name="type"/> with every type parameter of <paramref name="definition"/> replaced by <paramref name="bound"/>.</summary>
-    private static Type Substituted(Type type, Type definition, Type[] bound)
-    {
-        if (type.IsGenericParameter && type.DeclaringType == definition && type.DeclaringMethod is null)
-            return bound[type.GenericParameterPosition];
-        if (!type.ContainsGenericParameters)
-            return type;
-        if (type.IsArray)
-        {
-            Type element = Substituted(Ensure.NotNull(type.GetElementType()), definition, bound);
-            return type.IsSZArray ? element.MakeArrayType() : element.MakeArrayType(type.GetArrayRank());
-        }
-        return type.GetGenericTypeDefinition().MakeGenericType([.. type.GetGenericArguments().Select(argument => Substituted(argument, definition, bound))]);
-    }
-
-    /// <summary>Whether values of <paramref name="type"/> can hold a reference, as an unmanaged constraint forbids.</summary>
-    private static bool ContainsReferences(Type type) =>
-        (typeof(System.Runtime.CompilerServices.RuntimeHelpers)
-            .GetMethod(nameof(System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences))
-            ?? throw new InvalidOperationException("The runtime cannot tell which types hold references."))
-            .MakeGenericMethod(type).Invoke(null, null) is true;
 }

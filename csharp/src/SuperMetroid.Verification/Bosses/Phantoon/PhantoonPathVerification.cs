@@ -30,7 +30,7 @@ internal static class PhantoonPathVerification
         for (int index = 0; index < 534; index++)
         {
             figureEight.PathPlace = PhantoonPath.At(index);
-            figureEight.Speed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed>([typeof(global::SuperMetroid.Core.Spatial.SignedSixteenSixteen)], new object?[] { SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000) });
+            figureEight.Speed = new global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed(SignedSixteenSixteen.FromParts(reverse ? -speed : speed, 0x8000));
             figureEight.Stage = PhantoonFigureEightStage.Surging;
             body.Position = new(new(origin, 0x1234), new(origin, 0x5678));
             figureEight.Direction = reverse ? PhantoonPathDirection.Backwards : PhantoonPathDirection.Forwards;

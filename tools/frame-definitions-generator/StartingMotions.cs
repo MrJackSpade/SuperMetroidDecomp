@@ -37,7 +37,7 @@ internal sealed class StartingMotions
         // A behaviour whose constructors name a table names its kinds' motions outright, whoever constructs it.
         foreach (INamedTypeSymbol type in model.Types.Where(type => type.TypeKind == TypeKind.Class && MotionTypeOf(type) is not null))
         {
-            foreach (IMethodSymbol constructor in type.InstanceConstructors)
+            foreach (IMethodSymbol constructor in GameConstructors.Of(type))
             {
                 if (Resolve(constructor, _ => Argument.Unbound, depth: 0) is { Table: { } table })
                     AddTable(table);
@@ -50,7 +50,7 @@ internal sealed class StartingMotions
             {
                 semantic ??= model.ModelOf(tree);
                 if (semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
-                    || MotionTypeOf(constructor.ContainingType) is null)
+                    || MotionTypeOf(constructor.ContainingType) is null || GameConstructors.IsRestore(constructor))
                     continue;
                 SemanticModel bound = semantic;
                 _constructions.Add(creation, Resolve(constructor, parameter => Argument.Of(creation.ArgumentList, parameter, bound), depth: 0));
@@ -187,7 +187,7 @@ internal sealed class StartingMotions
         // No base call written: the base's constructor taking no arguments.
         INamedTypeSymbol baseType = constructor.ContainingType.BaseType
             ?? throw new InvalidDataException($"{constructor.ContainingType.ToDisplayString()} has no base type.");
-        IMethodSymbol[] parameterless = [.. baseType.InstanceConstructors.Where(candidate => candidate.Parameters.All(parameter => parameter.IsOptional))];
+        IMethodSymbol[] parameterless = [.. GameConstructors.Of(baseType).Where(candidate => candidate.Parameters.All(parameter => parameter.IsOptional))];
         return parameterless is [var implicitBase]
             ? (implicitBase, null, null)
             : throw new InvalidDataException($"{constructor.ToDisplayString()} calls none of {baseType.ToDisplayString()}'s constructors this generator can tell.");

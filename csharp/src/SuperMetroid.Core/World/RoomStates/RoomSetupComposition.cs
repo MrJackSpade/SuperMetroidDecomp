@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// loaded and before the room composes its main.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record RoomSetupComposition
+internal sealed partial record RoomSetupComposition
 {
     /// <summary>The room being loaded, which the setup composes its parts into.</summary>
     public required RoomScopeConstruction Scope { get; init; }

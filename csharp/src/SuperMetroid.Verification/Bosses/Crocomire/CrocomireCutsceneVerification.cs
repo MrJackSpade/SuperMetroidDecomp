@@ -137,7 +137,7 @@ internal static class CrocomireCutsceneVerification
         scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
-        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", CrocomireDeathStages.Only<CrocomireDeathStage.WaitForSamusAtWall>());
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.WaitForSamusAtWall>();
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, new Position16<RoomPixels>(544, 0));
@@ -150,7 +150,7 @@ internal static class CrocomireCutsceneVerification
         // whether that known difference can explain the reported wall overrun.
         foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })
         {
-            var context = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext>([typeof(bool), typeof(global::SuperMetroid.Core.Samus.Movement.SamusMovementType), typeof(bool), typeof(bool), typeof(global::SuperMetroid.Core.Rooms.Scrolling.CameraDistanceMode)], new object?[] { false, SamusMovementType.Standing, false, true, distance });
+            var context = new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, true, distance);
             camera.SetPosition(new Position16<RoomPixels>(544, 0));
             for (int frame = 0; frame < 16; frame++)
                 camera.TrackMovedSamusHorizontally(point, point, context, timeIsFrozen: false);
@@ -162,7 +162,7 @@ internal static class CrocomireCutsceneVerification
             camera.TrackMovedSamusHorizontally(point.WithX(point.X.WithWhole(750)), point.WithX(point.X.WithWhole(751)), context, timeIsFrozen: false);
             AssertEqual((ushort)512, camera.PixelPosition.X, "rightward target near holding wall stays within screen two");
         }
-        global::SuperMetroid.Core.PrivateState.Set(state, "DeathStage", CrocomireDeathStages.Only<CrocomireDeathStage.ClearWallAndOpenScrolls>());
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.ClearWallAndOpenScrolls>();
         run(body, samus, new Position16<RoomPixels>(512, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.PixelPosition.X, "left camera unlocks at the native completion phase");

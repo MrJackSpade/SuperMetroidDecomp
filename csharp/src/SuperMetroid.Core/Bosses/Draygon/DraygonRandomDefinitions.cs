@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The random choices of Draygon's fight and death: its attack, its goop, its turrets and its dying smoke.</summary>
-internal static class DraygonRandomDefinitions
+internal static partial class DraygonRandomDefinitions
 {
     /// <summary>Whether Draygon swoops rather than spits goop when it reaches a side (#2479): one time in two.</summary>
     internal static readonly RandomChance SwoopsRatherThanSpitsGoop = RandomChance.Highest(1, RandomSampleField.OneOf(2));

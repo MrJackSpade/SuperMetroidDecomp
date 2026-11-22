@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// message takes (each button a panel can name, each save choice), named by the frame name of the form it shows and
 /// coloured with the tileset's standard effect overlay colours and the two colours a message box installs.
 /// </summary>
-public sealed class MessageBoxSheet
+public sealed partial class MessageBoxSheet
 {
     /// <summary>Each form's image, by the form.</summary>
     private readonly Dictionary<ShownMessage, SpriteSheetFrame> pictures = [];

@@ -16,7 +16,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres-door actor's direct tile DMA and authored RGB5 rows.</summary>
-public static class CeresDoorVisualFiles
+public static partial class CeresDoorVisualFiles
 {
     /// <summary>Exports the Ceres door tile DMA as indexed PNG and its normal, escape and animated appearances as JSON.</summary>
     /// <param name="bus">Supported-cartridge address space containing the Ceres door tile and palette sources.</param>
@@ -68,14 +68,14 @@ public static class CeresDoorVisualFiles
     /// <param name="tilePng">Caller-owned <c>ceres-door-tiles.png</c> stream compiling to $0400 bytes.</param>
     /// <param name="paletteJson">Caller-owned <c>ceres-door-colors.json</c> stream containing setup colors and animation rows.</param>
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
-    private static CeresDoorSourceArtwork Read(Stream tilePng, Stream paletteJson)
+    internal static CeresDoorSourceArtwork Read(Stream tilePng, Stream paletteJson)
     {
         Ensure.NotNull(tilePng);
         Ensure.NotNull(paletteJson);
         CeresDoorVisualDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(paletteJson, Options)
+            document = JsonSerializer.Deserialize<CeresDoorVisualDocument>(paletteJson, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument>(Options))
                 ?? throw new InvalidDataException("Ceres-door visual palette JSON is null.");
         }
         catch (JsonException error)
@@ -97,9 +97,9 @@ public static class CeresDoorVisualFiles
     }
 
     /// <summary>Serializes visual JSON as indented camel-case UTF-8, validating version, palette dimensions and RGB5 bounds before returning it; PNG admission is a separate boundary.</summary>
-    private static byte[] Write(CeresDoorVisualDocument document)
+    internal static byte[] Write(CeresDoorVisualDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualDocument>(Options));
         // The PNG is validated independently; validate color structure here.
         if (document.Version != 1 || document.Animation is null ||
             document.Animation.Length != CeresDoorVisualDefinitions.AnimationStepCount)

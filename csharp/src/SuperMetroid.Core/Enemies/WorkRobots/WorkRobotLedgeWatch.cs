@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="ProbeSide">The side the probe reaches out to.</param>
 /// <param name="FallAnimation">The animation a ledge turns the walk into.</param>
 /// <param name="FallFacing">The way a ledge turns the robot.</param>
-internal sealed record WorkRobotLedgeWatch(HorizontalDirection ProbeSide, WorkRobotSegment FallAnimation, HorizontalDirection FallFacing);
+internal sealed partial record WorkRobotLedgeWatch(HorizontalDirection ProbeSide, WorkRobotSegment FallAnimation, HorizontalDirection FallFacing);

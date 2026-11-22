@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>File and exact native transfer dimensions of the destruction's Mode 7 maps (#1467).</summary>
-public static class CeresDestructionMapFormat
+public static partial class CeresDestructionMapFormat
 {
     /// <summary>Supported schema revision for the Ceres destruction Mode 7 map document.</summary>
     public const int Version = 1;

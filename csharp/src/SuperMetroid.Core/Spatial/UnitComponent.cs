@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// 256ths of the whole, exactly as <see cref="Trigonometry.SignedSine"/> samples it. A length laid along the direction
 /// reaches this share of itself along the axis; a turn carries a point along the axis at this share of its speed.
 /// </summary>
-public readonly record struct UnitComponent
+public readonly partial record struct UnitComponent
 {
     /// <summary>The 256ths in the whole of a direction, as a power of two.</summary>
     private const int WholeExponent = 8;

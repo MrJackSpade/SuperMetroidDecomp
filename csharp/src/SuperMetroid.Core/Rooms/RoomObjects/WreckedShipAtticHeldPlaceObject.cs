@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// stays in the room for good and does nothing on any update: its only effect on the game is the place it holds, so the
 /// attic fills one spawn sooner (<see cref="RoomObjectPlaces"/>).
 /// </summary>
-internal sealed class WreckedShipAtticHeldPlaceObject : RoomObjectBehaviour
+internal sealed partial class WreckedShipAtticHeldPlaceObject : RoomObjectBehaviour
 {
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context) => Ensure.NotNull(place);

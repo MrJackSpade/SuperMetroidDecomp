@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's encounter state, which all of his parts share, and the room's effects that belong to no one part of him.
 /// </summary>
-public sealed class KraidEnemyState
+public sealed partial class KraidEnemyState
 {
     /// <summary>
     /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
@@ -39,10 +39,10 @@ public sealed class KraidEnemyState
     internal KraidArmState ArmState { get; }
 
     /// <summary>His top lint's own state.</summary>
-    private KraidLintState TopLintState { get; }
+    internal KraidLintState TopLintState { get; }
 
     /// <summary>His middle lint's own state.</summary>
-    private KraidLintState MiddleLintState { get; }
+    internal KraidLintState MiddleLintState { get; }
 
     /// <summary>His bottom lint's own state.</summary>
     internal KraidLintState BottomLintState { get; }
@@ -51,10 +51,10 @@ public sealed class KraidEnemyState
     internal KraidFootState FootState { get; }
 
     /// <summary>His first fingernail's own state.</summary>
-    private KraidNailState FirstNailState { get; }
+    internal KraidNailState FirstNailState { get; }
 
     /// <summary>His second fingernail's own state.</summary>
-    private KraidNailState SecondNailState { get; }
+    internal KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
     internal KraidLintState Lint(KraidLintPart part) => LintStates[part](this);
@@ -112,7 +112,7 @@ public sealed class KraidEnemyState
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
-    private int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+    internal int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
 
     /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
     internal int SevenEighthsHealth => HealthEighths(7);
@@ -137,7 +137,7 @@ public sealed class KraidEnemyState
     internal void SettleHurtFlash() => HurtFlash = KraidHurtFlashAnimations.Resting();
 
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head animation shows its first pose.</summary>
-    internal KraidHeadFrame? DisplayedHeadFrame { get; private set; }
+    internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head
@@ -204,10 +204,10 @@ public sealed class KraidEnemyState
 
     /// <summary>His mouth's reopening (#2560): a closed choice of disarmed, armed and marked, the last two with the reopens left.</summary>
     /// <param name="Left">The mouth reopens still pending.</param>
-    private abstract record MouthReopens(int Left);
+    private abstract partial record MouthReopens(int Left);
 
     /// <summary>No reopen is armed.</summary>
-    private sealed record DisarmedReopens() : MouthReopens(0)
+    private sealed partial record DisarmedReopens() : MouthReopens(0)
     {
         /// <summary>The one disarmed mouth.</summary>
         internal static DisarmedReopens Instance { get; } = new();
@@ -215,11 +215,11 @@ public sealed class KraidEnemyState
 
     /// <summary>A charged body hit armed reopens, and no mouth hit has marked one yet.</summary>
     /// <param name="Left">The reopens left.</param>
-    private sealed record ArmedReopens(int Left) : MouthReopens(Left);
+    private sealed partial record ArmedReopens(int Left) : MouthReopens(Left);
 
     /// <summary>A mouth hit marked his armed mouth: each closing spends one reopen until none is left.</summary>
     /// <param name="Left">The reopens left.</param>
-    private sealed record MarkedReopens(int Left) : MouthReopens(Left);
+    private sealed partial record MarkedReopens(int Left) : MouthReopens(Left);
 
 
     /// <summary>
@@ -227,7 +227,7 @@ public sealed class KraidEnemyState
     /// floor on or from the growth or death that shows it again in a room he was found in later, in front of the sprites once
     /// he has grown, hidden in a defeated room and once his death has sunk him.
     /// </summary>
-    private KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
+    internal KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
 
     /// <summary>What his body layer shows of his body now.</summary>
     internal KraidBodyAppearance BodyAppearance => Body.Appearance;

@@ -5,4 +5,4 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Columns">The picture's width in cells.</param>
 /// <param name="Rows">The picture's height in cells.</param>
 /// <param name="Cells">The cells painted; any other is left clear.</param>
-internal sealed record BossBodyPicture(string Name, int Columns, int Rows, IReadOnlyList<BossBodyPaintedCell> Cells);
+internal sealed partial record BossBodyPicture(string Name, int Columns, int Rows, IReadOnlyList<BossBodyPaintedCell> Cells);

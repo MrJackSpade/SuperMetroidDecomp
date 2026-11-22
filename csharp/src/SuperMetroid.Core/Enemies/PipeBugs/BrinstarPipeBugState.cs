@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// A Brinstar Pipe Bug's state, the ordinary Zeb's or the strong Zebbo's (#1845): it waits in its pipe, rises out of it
 /// toward Samus, flies across the screen and waits hidden to emerge again.
 /// </summary>
-public sealed class BrinstarPipeBugState
+public sealed partial class BrinstarPipeBugState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal BrinstarPipeBugState(BrinstarPipeBugAction action) => Action = action;

@@ -10,6 +10,6 @@ internal static class YappingMawCurlAccess
     extension(YappingMawCurl curl)
     {
         /// <summary>The curl in angle units, fraction included, as its fixed-point form holds it.</summary>
-        internal SignedSixteenSixteen InFixedPoint => PrivateState.ValueField<YappingMawCurl, SignedSixteenSixteen>(curl, "_units");
+        internal SignedSixteenSixteen InFixedPoint => curl.Units;
     }
 }

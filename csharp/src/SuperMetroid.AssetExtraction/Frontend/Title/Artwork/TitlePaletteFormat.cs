@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>File identity and schema revision of the import's title colours document: the title's paint and its selected ambient animation colours.</summary>
-public static class TitlePaletteFormat
+public static partial class TitlePaletteFormat
 {
     /// <summary>JSON filename of the initial, ambient and skip-only colours the import reads to pre-colour the title sheets and record the backdrop.</summary>
     public const string FileName = "title-palette.json";

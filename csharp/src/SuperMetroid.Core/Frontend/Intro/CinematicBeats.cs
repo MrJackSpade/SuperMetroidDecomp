@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>The beats a cinematic family's animations are written in (#1600, #2196): shown frames, held frames and cues.</summary>
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
-internal static class CinematicBeats<TFrame, TCue>
+internal static partial class CinematicBeats<TFrame, TCue>
     where TFrame : struct
     where TCue : notnull
 {

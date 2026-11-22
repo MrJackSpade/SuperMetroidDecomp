@@ -7,10 +7,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed colour documents.
 /// </summary>
 [EncodingOwner("cartridge addresses of Ridley's colour tables")]
-internal static class RidleySourceDefinitions
+internal static partial class RidleySourceDefinitions
 {
     /// <summary>Ceres Ridley's bank-$A6 colour sources.</summary>
-    internal static class Ceres
+    internal static partial class Ceres
     {
         /// <summary>$A6:E16F-$E1AE: the door, Baby container and initial Baby colours Ceres Ridley's initialization loads.</summary>
         internal const int StartColors = 0xa6e16f;

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// colour by these positions.
 /// </summary>
 [EncodingOwner("colour positions of gameplay's 256-colour image")]
-internal static class GameplayColourPositionDefinitions
+internal static partial class GameplayColourPositionDefinitions
 {
 
     /// <summary>

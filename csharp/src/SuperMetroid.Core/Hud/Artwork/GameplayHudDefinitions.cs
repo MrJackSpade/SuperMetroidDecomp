@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>The gameplay HUD's layout: its size, its top row, its digits and minimap squares, and its energy tanks.</summary>
-public static class GameplayHudDefinitions
+public static partial class GameplayHudDefinitions
 {
     /// <summary>The HUD's width in pixels: it spans the screen.</summary>
     public const int WidthPixels = ScreenGeometry.ScreenWidthPixels;

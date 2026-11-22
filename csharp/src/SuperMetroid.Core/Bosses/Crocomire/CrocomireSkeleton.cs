@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
 [RoomLifetime]
-internal sealed class CrocomireSkeleton
+internal sealed partial class CrocomireSkeleton
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -246,7 +246,7 @@ internal sealed class CrocomireSkeleton
     /// <see cref="CrocomireSkeletonLookDefinitions.BaringDuration"/> updates his frames show the skeleton look from this
     /// update's frame on; once bared, a later update bares nothing more.
     /// </summary>
-    private void BareCrocomireSkeleton(CrocomireDeathState death)
+    internal void BareCrocomireSkeleton(CrocomireDeathState death)
     {
         if (death.SkeletonBaring.StepEnds())
             _presentation.ShowLook(CrocomireSkeletonLookDefinitions.SkeletonLook);
@@ -267,7 +267,7 @@ internal sealed class CrocomireSkeleton
     /// its definition, which sets how far below the wall's top it stands. The wall break deletes every enemy projectile
     /// just before, so every piece is spawned.
     /// </summary>
-    private void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
+    internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Body.Shading);
 

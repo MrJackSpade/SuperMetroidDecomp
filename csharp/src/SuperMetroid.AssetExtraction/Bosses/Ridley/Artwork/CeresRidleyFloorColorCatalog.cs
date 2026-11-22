@@ -5,7 +5,7 @@ using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>The installed Ceres Ridley Mode-7 zoom shades, kept as installed, separate from movement and rotation.</summary>
-public sealed class CeresRidleyFloorColorCatalog
+public sealed partial class CeresRidleyFloorColorCatalog
 {
     /// <summary>The installed shades, by getaway zoom step.</summary>
     private readonly InstalledColourRows steps;

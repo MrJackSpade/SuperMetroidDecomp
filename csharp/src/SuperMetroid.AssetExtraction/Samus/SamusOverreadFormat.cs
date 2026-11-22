@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Defines the installed Samus overread file.</summary>
-internal static class SamusOverreadFormat
+internal static partial class SamusOverreadFormat
 {
     /// <summary>
     /// Supported Samus overread schema revision. Revision eight holds each over-read's decoded domain result in place of

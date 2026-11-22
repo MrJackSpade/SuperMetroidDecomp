@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// (<see cref="SpecialAirReactions.InsideOf"/>): each reaction states what it does (#2571), the plant it wakes, the sand
 /// reaction it places, the quicksand surface's hold or the sand's carry, so no switch over reaction identities runs it.
 /// </summary>
-public sealed class SpecialAirInsideReaction
+public sealed partial class SpecialAirInsideReaction
 {
     /// <summary>The reaction's name, for diagnostics.</summary>
     private readonly string _name;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings)
+internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>

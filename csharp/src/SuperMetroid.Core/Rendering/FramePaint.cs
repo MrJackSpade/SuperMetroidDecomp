@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Sprites are whole-frame draws only; a frontend screen's sprites become draws when it is captured,
 /// and are drawn by its scene's sprite layers (#1514).
 /// </remarks>
-public sealed class FramePaint
+public sealed partial class FramePaint
 {
     /// <summary>
     /// Keeps a frontend screen's backdrop (#1514): the screen shows <paramref name="backdrop"/> where nothing is drawn, and

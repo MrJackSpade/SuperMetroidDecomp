@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// that the import supplies, not a blend of the fade's ends, so a fade is its images rather than a typed blend. The fade is
 /// over once its last image has shown its hold out.
 /// </summary>
-public sealed class MotherBrainFade
+public sealed partial class MotherBrainFade
 {
     /// <summary>Defines a fade.</summary>
     /// <param name="key">The name of its installed shades.</param>

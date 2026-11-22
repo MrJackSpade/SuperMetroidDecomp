@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// (#2387): a colouring that shows a shade on every update plays its sequence on from the place it keeps, and one that holds
 /// each shade for its updates keeps a player that counts them.
 /// </summary>
-internal static class SamusGlowPlay
+internal static partial class SamusGlowPlay
 {
     /// <summary>A player of <paramref name="sequence"/> that shows nothing until its first update shows the first shade.</summary>
     internal static AnimationPlayer<G, PictureShade, NoAnimationCue> Starting(G sequence) =>

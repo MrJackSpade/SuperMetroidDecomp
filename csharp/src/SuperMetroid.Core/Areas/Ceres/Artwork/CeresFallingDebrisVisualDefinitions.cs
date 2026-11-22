@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>The Ceres falling tiles' installed frames and their projectile definitions' animation identities.</summary>
-internal static class CeresFallingDebrisVisualDefinitions
+internal static partial class CeresFallingDebrisVisualDefinitions
 {
     /// <summary>
     /// The graphics the falling tiles draw in: the shared sheet in the doors' escaping colours, which the tiles show

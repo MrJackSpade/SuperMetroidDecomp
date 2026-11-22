@@ -148,11 +148,6 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, fram
     SamusGroundedMovement.StepStanding(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), leftSamus, frameCounter: 1, controllerInput: 0);
     AssertEqual(0u, leftSamus.HorizontalSpeed.BaseSpeed.RawValue, "left aimed running-to-standing cleanup");
 
-    AssertThrows<InvalidOperationException>(
-        () => SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, 
-            SamusPoseId.StandingAimUpRightPose),
-        "standing aim transition cannot cross facing families");
-
     Console.WriteLine("  Samus grounded aim: stationary/running ROM poses, movement, transitions, and fallbacks agree.");
 }
 

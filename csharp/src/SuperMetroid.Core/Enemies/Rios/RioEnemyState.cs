@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The state of one Rio.</summary>
-public sealed class RioEnemyState
+public sealed partial class RioEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal RioEnemyState(RioAction action) => Action = action;

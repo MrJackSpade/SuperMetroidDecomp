@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports fixed Ceres warning tile words without exposing DMA control metadata.</summary>
-internal static class CeresEscapeOverlayTilemapFiles
+internal static partial class CeresEscapeOverlayTilemapFiles
 {
     /// <summary>Exports every fixed warning page's tile words.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
@@ -37,7 +37,7 @@ internal static class CeresEscapeOverlayTilemapFiles
     /// after another, each its upper row and then its lower.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="page"/> is not one of the overlays.</exception>
-    private static SnesAddress Source(CeresEscapeWarningPicture page)
+    internal static SnesAddress Source(CeresEscapeWarningPicture page)
     {
         if (page == CeresEscapeWarningPictures.Emergency)
             return CeresSourceDefinitions.EscapeOverlay.Emergency;

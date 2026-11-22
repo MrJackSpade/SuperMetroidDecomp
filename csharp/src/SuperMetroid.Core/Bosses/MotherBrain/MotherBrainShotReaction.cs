@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How a shot that hits Mother Brain's brain in her second or third phase changes her walk credit (#2012), independent of
 /// which object currently owns the credit.
 /// </summary>
-internal static class MotherBrainShotReaction
+internal static partial class MotherBrainShotReaction
 {
     /// <summary>
     /// The walk credit after a shot of <paramref name="family"/> hits her in <paramref name="form"/>, and whether it

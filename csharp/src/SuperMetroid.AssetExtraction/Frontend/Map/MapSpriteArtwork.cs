@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// sheets compose them over. Both are kept as installed (#1615): every named composition holds its installed parts and
 /// the character page holds the installed atlas's pixels whole.
 /// </summary>
-public sealed class MapSpriteArtwork : MapSpriteCompositions
+public sealed partial class MapSpriteArtwork : MapSpriteCompositions
 {
     /// <summary>Every named map marker, elevator, indicator, label and title composition, as installed.</summary>
     private readonly Dictionary<MapSpriteId, SpriteComposition> frames;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Runtime;
 /// the shared game state continues from, the compatibility services whose state outlives each game, and its sound and
 /// music queues.
 /// </summary>
-internal sealed record GameplaySessionCarryover
+internal sealed partial record GameplaySessionCarryover
 {
     /// <summary>The session's frame clock, which counts across runtimes.</summary>
     public required FrameClock Clock { get; init; }

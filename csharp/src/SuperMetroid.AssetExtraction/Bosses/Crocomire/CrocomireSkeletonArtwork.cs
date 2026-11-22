@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 
 /// <summary>Editable 4-bpp characters for Crocomire's six ordered skeleton uploads.</summary>
-public sealed class CrocomireSkeletonArtwork
+public sealed partial class CrocomireSkeletonArtwork
 {
 
     /// <summary>Owned 4-bpp characters from which the six death-sequence uploads are sliced.</summary>
@@ -26,7 +26,7 @@ public sealed class CrocomireSkeletonArtwork
     /// its last chunk, and that end is no chunk.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="index"/> names no chunk of the sequence.</exception>
-    private static int RequireChunk(int index) =>
+    internal static int RequireChunk(int index) =>
         (uint)index < CrocomireSkeletonCharacterDefinitions.ChunkCount ? index
             : throw new InvalidDataException($"Crocomire skeleton upload index {index} names no chunk of its sequence.");
 

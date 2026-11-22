@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Presentation-only enemy-projectile JSON schema: named ordered OAM compositions and program-frame bindings, with no executable instruction or gameplay fields.</summary>
-public sealed record EnemyProjectileSpritemapDocument
+public sealed partial record EnemyProjectileSpritemapDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="EnemyProjectileSpritemapDocuments.Version"/>.</summary>
     public required int Version { get; init; }

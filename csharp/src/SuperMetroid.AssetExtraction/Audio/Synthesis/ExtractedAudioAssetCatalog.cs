@@ -10,14 +10,14 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The audio's import data (#1693): the manifest names each upload by its cartridge address; loading maps it to the
 /// bank identity once. Only the clip export and its checks read it; the installation holds the clips rendered from it.
 /// </summary>
-public sealed class ExtractedAudioAssetCatalog
+public sealed partial class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the audio's import-data root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
     /// <summary>Opaque SPC upload bytes indexed by their original cartridge command address.</summary>
     private readonly IReadOnlyDictionary<AudioBank, byte[]> streams;
     /// <summary>Canonical replaceable PCM samples associated with each upload address.</summary>
-    private readonly IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> sampleBanks;
+    internal readonly IReadOnlyDictionary<AudioBank, ManagedPcmSampleBank> sampleBanks;
     /// <summary>Validated six-byte instrument definitions selected by each music upload.</summary>
     private readonly IReadOnlyDictionary<AudioBank, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
@@ -177,12 +177,12 @@ public sealed class ExtractedAudioAssetCatalog
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var hashing = new HashingWriteStream(hash))
-            JsonSerializer.Serialize(hashing, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(hashing, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
-    private sealed class HashingWriteStream(IncrementalHash hash) : Stream
+    private sealed partial class HashingWriteStream(IncrementalHash hash) : Stream
     {
         /// <summary>Canonical manifest hashing never reads the bytes it receives.</summary>
         public override bool CanRead => false;
@@ -506,7 +506,7 @@ public sealed class ExtractedAudioAssetCatalog
         using var file = File.OpenRead(path);
         try
         {
-            return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
+            return JsonSerializer.Deserialize<AudioAssetManifest>(file, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options))
                 ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
         }
         catch (JsonException error)

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple beam draws: its flare, the connected beam's segments and its endpoint.</summary>
-public static class SamusGrappleBeamDrawing
+public static partial class SamusGrappleBeamDrawing
 {
     /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>
@@ -156,7 +156,7 @@ public static class SamusGrappleBeamDrawing
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of
     /// the turn, and vertically within a quarter turn either side of the angle zero.
     /// </summary>
-    private static SpriteMirror RopeMirror(RotationAngle angle) =>
+    internal static SpriteMirror RopeMirror(RotationAngle angle) =>
         (angle >= RotationAngle.HalfTurn ? SpriteMirror.Horizontal : SpriteMirror.None) |
         (angle < RotationAngle.QuarterTurn || angle >= RotationAngle.ThreeQuarterTurn ? SpriteMirror.Vertical : SpriteMirror.None);
 

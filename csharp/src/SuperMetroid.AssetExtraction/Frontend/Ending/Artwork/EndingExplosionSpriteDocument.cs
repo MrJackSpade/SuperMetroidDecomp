@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>JSON schema for the editable Zebes-explosion compositions.</summary>
-public sealed record EndingExplosionSpriteDocument
+public sealed partial record EndingExplosionSpriteDocument
 {
     /// <summary>Schema revision checked before named explosion frames are compiled.</summary>
     public required int Version { get; init; }

@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// The animation's step the play reaches next, a count of the steps it has passed: a play that has passed every step,
 /// done or holding there, has passed the animation's step count of them.
 /// </param>
-internal readonly record struct KraidHeadPlace(KraidHeadSegment Animation, int Step);
+internal readonly partial record struct KraidHeadPlace(KraidHeadSegment Animation, int Step);

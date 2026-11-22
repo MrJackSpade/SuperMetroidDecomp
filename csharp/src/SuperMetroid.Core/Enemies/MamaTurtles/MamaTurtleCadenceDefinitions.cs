@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The updates on which the Mama Turtle climbs out of her shell (#1606), and the way each step jitters (#1619).</summary>
-internal static class MamaTurtleCadenceDefinitions
+internal static partial class MamaTurtleCadenceDefinitions
 {
     /// <summary>
     /// Whether a Mama Turtle's step out of her shell at room height <paramref name="height"/> sidesteps left (#1619,

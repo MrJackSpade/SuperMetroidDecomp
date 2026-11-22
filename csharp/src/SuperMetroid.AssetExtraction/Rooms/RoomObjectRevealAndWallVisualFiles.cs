@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// passage of Crateria's main street escape, the opened wall of the old Tourian escape shaft and the four rescue-wall
 /// frames of the escape animals, and the identities that name them.
 /// </summary>
-public static class RoomObjectRevealAndWallVisualFiles
+public static partial class RoomObjectRevealAndWallVisualFiles
 {
     /// <summary>The installed JSON filename of the reveal and wall pictures.</summary>
     public const string VisualFileName = "reveals-and-walls.json";
@@ -49,7 +49,7 @@ public static class RoomObjectRevealAndWallVisualFiles
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Every reveal and wall frame's draw list, built from the geometry and collision the game writes.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -80,7 +80,7 @@ public static class RoomObjectRevealAndWallVisualFiles
 
     /// <summary>The installed identity of a reveal or wall frame.</summary>
     /// <exception cref="InvalidDataException">The draw is not a reveal or wall frame.</exception>
-    private static string VisualId(RoomObjectDraw draw) => draw switch
+    internal static string VisualId(RoomObjectDraw draw) => draw switch
     {
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.CrumbleSingle } => "bombed-reveal-crumble-block",
         RoomObjectFrameDraw<RoomObjectBombedRevealDraw> { Frame: RoomObjectBombedRevealDraw.PowerBomb } => "bombed-reveal-power-bomb-block",

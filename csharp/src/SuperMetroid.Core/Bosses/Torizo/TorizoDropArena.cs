@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Corner">The arena's top-left corner, in room pixels.</param>
 /// <param name="HorizontalScatter">The sample's field that scatters each drop rightward across the arena.</param>
 /// <param name="VerticalScatter">The sample's field that scatters each drop downward through the arena.</param>
-internal readonly record struct TorizoDropArena(Position16<RoomPixels> Corner, RandomSampleField HorizontalScatter, RandomSampleField VerticalScatter);
+internal readonly partial record struct TorizoDropArena(Position16<RoomPixels> Corner, RandomSampleField HorizontalScatter, RandomSampleField VerticalScatter);

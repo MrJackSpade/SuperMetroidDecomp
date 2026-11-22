@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's typed body and brain animations (#641, #1600).</summary>
-internal static class MotherBrainAnimations
+internal static partial class MotherBrainAnimations
 {
     /// <summary>Every body segment.</summary>
     internal static AnimationSegments<B, EnemyFrameId, MotherBrainBodyCue> BodySegments { get; } = new(
@@ -96,7 +96,7 @@ internal static class MotherBrainAnimations
     /// then held. The red hand beam raises her arm, charges (<see cref="HandBeamCharges"/>) and fires; the arm drawn
     /// back shows twice running before the beam fires, each a frame of its own on her body (#2318).
     /// </summary>
-    private static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
+    internal static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
         Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])
             .Select(segment => KeyValuePair.Create(segment, new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds))))
     {
@@ -309,7 +309,7 @@ internal static class MotherBrainAnimations
     /// the segments she starts an animation at, or a random hold or drool continues at, start one; the segments an
     /// animation only runs on into are listed in it and start none.
     /// </summary>
-    private static Dictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
+    internal static Dictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
         [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Held),
         [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Held),
@@ -482,7 +482,7 @@ internal static class MotherBrainAnimations
     /// <param name="Open">The open mouth.</param>
     /// <param name="Wide">The wide-open mouth.</param>
     /// <param name="Widest">The widest-open mouth.</param>
-    private sealed record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
+    private sealed partial record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
 
     /// <summary>The whole head of phase two.</summary>
     private static HeadMouth WholeHead => new(EnemyFrameId.MotherBrainHeadEyeShut, EnemyFrameId.MotherBrainHeadEyeOpen, EnemyFrameId.MotherBrainHeadEyeGlaring,

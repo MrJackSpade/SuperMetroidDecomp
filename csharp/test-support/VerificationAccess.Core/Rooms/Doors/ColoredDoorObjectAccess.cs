@@ -12,7 +12,7 @@ internal static class ColoredDoorObjectAccess
         {
             get
             {
-                ColoredDoorColorDefinition rules = PrivateState.Field<ColoredDoorObject, ColoredDoorColorDefinition>(cap, "_rules");
+                ColoredDoorColorDefinition rules = cap.Rules;
                 return ColoredDoorDefinitions.Colors.Single(pair => ReferenceEquals(pair.Value, rules)).Key;
             }
         }

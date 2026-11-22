@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
-public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated fourth-hit compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -55,8 +55,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpri
     public static void Write(Stream json, IntroMotherBrainExplosionSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

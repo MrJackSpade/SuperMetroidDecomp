@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
+internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -58,7 +58,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    private void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, KagoSpawnSettings kagoSpawnSettings, RoomEnemyPlace place, KagoEnemyState state)
+    internal void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, KagoSpawnSettings kagoSpawnSettings, RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -90,13 +90,19 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
     /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
+    internal static EnemyBombReaction KagoBombReaction(KagoEntity kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+=======
+        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    private BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    internal BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
@@ -105,7 +111,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
     /// <param name="room">The loaded room, whose random number a bug reads without advancing it.</param>
     /// <param name="audio">The enemy sound queue a waiting or airborne bug's sound joins.</param>
     /// <param name="deathsAndDrops">The drops a shot bug leaves.</param>
-    internal sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
+    internal sealed partial class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
         : EnemyProjectileMotionBehavior<KagoBugMotion>, IEnemyProjectileCues<KagoBugProjectileCue>
     {
         /// <summary>Each bug's Kago, its ground wait and its sound cadence, given as its Kago releases it.</summary>
@@ -115,6 +121,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
         /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
         {
             [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
@@ -132,6 +139,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
         /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
         {
             [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),
@@ -280,13 +288,19 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawn
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
     /// <param name="kagoSpawnSettings">What the enemy's population entry tells its species.</param>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
+    internal static EnemyShotReaction KagoShotReaction(KagoEntity kago, KagoSpawnSettings kagoSpawnSettings, KagoEnemyState state) => new()
     {
+<<<<<<< HEAD
         AfterCommon = c => ResolveKagoShotAfterCommon(kago, kagoSpawnSettings, c.Enemy, state),
+||||||| 418ca79935
+        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+=======
+        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
+>>>>>>> origin/main
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
-    private void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
+    internal void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)

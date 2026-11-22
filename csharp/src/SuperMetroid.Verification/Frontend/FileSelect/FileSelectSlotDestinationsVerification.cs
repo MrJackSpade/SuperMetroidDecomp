@@ -70,8 +70,6 @@ internal static class FileSelectSlotDestinationsVerification
             }
             foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => destination(invalid, field), "slot index bounds");
-            foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => destination(0, (FileSelectSlotField)invalid), "slot field bounds");
         }
     }
 

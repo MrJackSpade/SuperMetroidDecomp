@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The installed key of each <see cref="EnemyDefinitionId"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class EnemyDefinitionIdKeys
+internal static partial class EnemyDefinitionIdKeys
 {
     /// <summary>Each EnemyDefinitionId member's installed key.</summary>
     internal static InstalledKeys<EnemyDefinitionId> Installed { get; } = new(new Dictionary<EnemyDefinitionId, string>

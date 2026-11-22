@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// Samus's full-body cycle shades. Block collision uses the shared step; solid enemies stop a sideways spark through it,
 /// and an upward spark tests them before its block move.
 /// </remarks>
-public sealed class SamusShinesparkState
+public sealed partial class SamusShinesparkState
 {
     /// <summary>The update's audio requests the spark's sounds join as they are made: Samus's (#2057).</summary>
     internal GameplaySoundRequests AudioRequests { get; }
@@ -67,7 +67,7 @@ public sealed class SamusShinesparkState
     /// update and over again, in the suit Samus shows. Every suit's glow runs its shades alike, so a change of suit goes on
     /// from where the glow stood; each start of the shine or the spark starts it again.
     /// </summary>
-    private AnimationPlayback<SamusGlowSegment> ShineGlow { get; set; } = ShineGlowStart;
+    internal AnimationPlayback<SamusGlowSegment> ShineGlow { get; set; } = ShineGlowStart;
 
     /// <summary>The shine's glow before its first shade.</summary>
     private static AnimationPlayback<SamusGlowSegment> ShineGlowStart => SamusGlowPlay.Before(SamusGlowSegment.In(SamusGlow.StoredShine, SamusSuit.Power));
@@ -76,17 +76,17 @@ public sealed class SamusShinesparkState
     /// The updates the windup still waits for a direction: <see cref="ShinesparkDefinitions.WindupFrames"/> when it
     /// starts, launching her upward on the update it runs out.
     /// </summary>
-    private UpdateCountdown WindupCountdown { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown WindupCountdown { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The updates the crash still holds its echoes on Samus once its orbit has drawn in:
     /// <see cref="ShinesparkDefinitions.CrashHoldFrames"/> when the hold starts, finishing the crash on the update it runs
     /// out.
     /// </summary>
-    private UpdateCountdown CrashHoldCountdown { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown CrashHoldCountdown { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
-    public ShinesparkPhase Phase { get; private set; }
+    public ShinesparkPhase Phase { get; internal set; }
 
     /// <summary>
     /// Ends the spark's hold on Samus's movement, and a stored shine with it, when another owner takes her movement
@@ -120,20 +120,20 @@ public sealed class SamusShinesparkState
     /// The stage of the crash's orbit: expanding at crash entry, orbiting once the radius has passed <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/>,
     /// and contracting once the orbit's travel has run its course (<see cref="Compatibility.CrashOrbitTravelCarryover"/>).
     /// </summary>
-    private ShinesparkCrashOrbitStage CrashOrbitStage { get; set; }
+    internal ShinesparkCrashOrbitStage CrashOrbitStage { get; set; }
 
     /// <summary>
     /// Distance of the two orbiting copies from Samus in pixels: zero at crash entry, raised by <see cref="ShinesparkDefinitions.CrashRadiusStep"/> each
     /// update the orbit expands until it passes <see cref="ShinesparkDefinitions.CrashOrbitStartRadius"/> and lowered as much each update it contracts
     /// until it reaches zero.
     /// </summary>
-    private int CrashRadius { get; set; }
+    internal int CrashRadius { get; set; }
 
     /// <summary>The first orbiting copy's angle around Samus.</summary>
-    private RotationAngle FirstCrashEchoAngle { get; set; }
+    internal RotationAngle FirstCrashEchoAngle { get; set; }
 
     /// <summary>The second orbiting copy's angle, half a turn from the first.</summary>
-    private RotationAngle SecondCrashEchoAngle { get; set; }
+    internal RotationAngle SecondCrashEchoAngle { get; set; }
 
     /// <summary>
     /// The turn both orbiting copies take on each orbiting update: toward increasing angles while Samus faces left and
@@ -496,7 +496,7 @@ public sealed class SamusShinesparkState
     /// and expires the shinesparking shade. A released first echo leaves Samus's height as the next orbit's travel; a
     /// crash that releases no first echo leaves the travel its own orbit ended on.
     /// </summary>
-    private ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)
+    internal ShinesparkMovementResult FinishCrash(SamusState samus, SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
         // Resolve the crash axis before publishing the standing pose.
@@ -576,7 +576,7 @@ public sealed class SamusShinesparkState
     /// The offset <paramref name="radius"/> pixels from Samus along <paramref name="angle"/> at which the crash places its
     /// orbiting copies and echoes: each component the radius scaled by the angle's sine or cosine, truncated toward zero.
     /// </summary>
-    private static Offset16<RoomPixels> OffsetAlong(
+    internal static Offset16<RoomPixels> OffsetAlong(
         RotationAngle angle,
         int radius)
     {
@@ -684,7 +684,7 @@ public sealed class SamusShinesparkState
 
     /// <summary>The spark's hold on Samus's movement (<see cref="Movement"/>): from the windup, through the launch and the crash.</summary>
     /// <param name="spark">The shinespark that holds her movement.</param>
-    internal readonly struct SparkMovement(SamusShinesparkState spark)
+    internal readonly partial struct SparkMovement(SamusShinesparkState spark)
     {
         /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
         /// <param name="terrain">The room terrain Samus's block collision probes: the level data and the room objects that react to touched blocks (#633).</param>

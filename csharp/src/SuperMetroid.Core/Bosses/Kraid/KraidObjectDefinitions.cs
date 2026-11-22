@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// The fixed room-object spawns of Kraid's death, his sinking steps and a defeated room; his growth's ceiling blocks
 /// break with their rocks (<see cref="KraidCeilingRockDefinitions"/>).
 /// </summary>
-public static class KraidObjectDefinitions
+public static partial class KraidObjectDefinitions
 {
     /// <summary>
     /// The final room-object spawn of Kraid's death setup:

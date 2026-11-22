@@ -7,11 +7,11 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed boss, elevator and gunship landmark anchors.</summary>
-public static class MapLandmarkFile
+public static partial class MapLandmarkFile
 {
     /// <summary>Enumerates every published boss, elevator, and gunship landmark identity the document must hold.</summary>
     /// <returns>All landmark IDs in area order, each area's boss markers before its elevator labels.</returns>
-    private static IEnumerable<string> Ids()
+    internal static IEnumerable<string> Ids()
     {
         foreach (AreaId area in AreaIds.All)
         {
@@ -45,7 +45,7 @@ public static class MapLandmarkFile
     /// <param name="document">Landmark layout to serialize.</param>
     public static void Write(Stream json, MapLandmarkDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapLandmarkDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

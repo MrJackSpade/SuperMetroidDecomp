@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Where a room's effect overlay FX comes from: its effect selection and entry door, RNG, room, and an optional supplied definition (#633).</summary>
-internal sealed record RoomFxLoadSource
+internal sealed partial record RoomFxLoadSource
 {
     /// <summary>The room's effect selection, or null for a load without one.</summary>
     public required RoomFxSelection? Fx { get; init; }

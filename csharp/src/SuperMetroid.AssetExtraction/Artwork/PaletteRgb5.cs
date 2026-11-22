@@ -4,7 +4,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Native-precision RGB components, not a packed hardware word.</summary>
-public sealed record PaletteRgb5
+public sealed partial record PaletteRgb5
 {
     /// <summary>Red intensity, zero through 31, encoded in BGR555 bits zero through four by consuming presentation loaders.</summary>
     public required int Red { get; init; }

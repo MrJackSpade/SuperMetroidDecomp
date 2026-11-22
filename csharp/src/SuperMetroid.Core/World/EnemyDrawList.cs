@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World;
 /// depth; the display culls what lies off screen.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyDrawList
+internal sealed partial class EnemyDrawList
 {
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>
     private readonly IReadOnlyList<IEnemyLateDraw> _lateDraws;
@@ -160,7 +160,7 @@ internal sealed class EnemyDrawList
     /// <summary>One live enemy queued to show.</summary>
     /// <param name="Place">The enemy.</param>
     /// <param name="Reached">Whether the draw pass reaches it, running its draw's side effects.</param>
-    private readonly record struct QueuedEnemy(RoomEnemyPlace Place, bool Reached);
+    private readonly partial record struct QueuedEnemy(RoomEnemyPlace Place, bool Reached);
 
     /// <summary>One queued enemy's draw, formed by <see cref="Advance"/>.</summary>
     /// <param name="Place">The enemy.</param>
@@ -171,7 +171,7 @@ internal sealed class EnemyDrawList
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
-    internal readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
+    internal readonly partial record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
         Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>

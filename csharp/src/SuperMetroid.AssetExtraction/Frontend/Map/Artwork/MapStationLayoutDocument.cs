@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Editable JSON schema for all map-station marker drawing positions.</summary>
-public sealed record MapStationLayoutDocument
+public sealed partial record MapStationLayoutDocument
 {
     /// <summary>Gets the map-station layout schema version.</summary>
     public required int Version { get; init; }

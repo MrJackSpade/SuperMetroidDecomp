@@ -7,7 +7,7 @@ using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The intro flashback Mother Brain's animations and their explosions' (#641, #1600, #2197).</summary>
-internal static class IntroMotherBrainAnimations
+internal static partial class IntroMotherBrainAnimations
 {
     /// <summary>Mother Brain's animations: her pulse, and the start of page two, after which she pulses on.</summary>
     internal static CinematicAnimations<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> MotherBrain { get; } = new(

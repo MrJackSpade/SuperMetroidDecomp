@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The poses a Grapple drop leaves Samus in apart from her shot direction and body radius.</summary>
-internal static class SamusGrappleDropDefinitions
+internal static partial class SamusGrappleDropDefinitions
 {
     /// <summary>
     /// The swinging poses, each with the ordinary standing pose it drops to: they ignore the shot direction and always fall

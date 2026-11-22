@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>
 /// Spore Spawn's state beyond what every enemy has: his swing angle, stalk anchor and death velocity.
 /// </summary>
-public sealed class SporeSpawnEnemyState
+public sealed partial class SporeSpawnEnemyState
 {
     /// <summary>A new fight's state, which his initialization installs on his body (#2231).</summary>
     internal SporeSpawnEnemyState()

@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="TipFarthestOut">The idle tail's tip farthest out.</param>
 /// <param name="TipReturning">The idle tail's tip returning.</param>
 /// <param name="TipBack">The idle tail's tip back.</param>
-internal sealed record DraygonTailPoses(
+internal sealed partial record DraygonTailPoses(
     HorizontalDirection Facing, F TipOut, F Cocking, F Raising, F HangingLong, F Swinging, F LashedOut, F Curling, F Recoiling,
     F TipCurledIn, F TipSwingingOut, F TipFurtherOut, F TipFarthestOut, F TipReturning, F TipBack)
 {

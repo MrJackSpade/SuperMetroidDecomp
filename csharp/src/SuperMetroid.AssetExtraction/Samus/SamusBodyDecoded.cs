@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Compositions">Each composition's sprite parts, frontmost first, by the composition's name.</param>
 /// <param name="Explosion">The composition each suit-explosion sheet frame shows, or none for a frame that shows nothing.</param>
 /// <param name="Atmosphere">The composition each diving-splash and bubbles sheet frame shows, or none for a frame that shows nothing.</param>
-internal sealed record SamusBodyDecoded(
+internal sealed partial record SamusBodyDecoded(
     IReadOnlyDictionary<SamusPoseId, int> ArtOrigins,
     IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>> Frames,
     IReadOnlyDictionary<SamusSpritemapId, SpriteVisualPiece[]> Compositions,

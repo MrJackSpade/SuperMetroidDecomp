@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Behind">The part drawn with the layer's back tiles, or null where nothing of the picture lies behind.</param>
 /// <param name="InFront">The part drawn with the layer's front tiles, or null where nothing of the picture lies in front.</param>
-public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? InFront)
+public sealed partial record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? InFront)
 {
     /// <summary>The installed parts, behind first; none for a picture that shows nothing.</summary>
     public IEnumerable<SpriteSheetFrame> Parts

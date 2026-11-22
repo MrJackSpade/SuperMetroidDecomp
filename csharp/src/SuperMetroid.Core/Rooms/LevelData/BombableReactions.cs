@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Reads what the bomb-block responses do with a bombable block's reaction (#1722).</summary>
-public static class BombableReactions
+public static partial class BombableReactions
 {
     /// <summary>
     /// Whether <paramref name="reaction"/> is one of the bomb-block breaks: a reaction whose block Samus's breaking contact

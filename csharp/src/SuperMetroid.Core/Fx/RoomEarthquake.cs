@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Fx;
 /// separate: a later producer may replace either while the other runs on, so a room shaken by a Super Missile between
 /// Kraid's rise setup and his rise shakes with the missile's shake for the length of the rise.
 /// </remarks>
-internal sealed class RoomEarthquake
+internal sealed partial class RoomEarthquake
 {
     /// <summary>
     /// How the earthquake runs (#2560): for a length, whose frames left <see cref="Advance"/> counts down while time is not
@@ -169,14 +169,14 @@ internal sealed class RoomEarthquake
     }
 
     /// <summary>How the earthquake runs (#2560), one value: each case carries only what it counts.</summary>
-    private abstract record Run
+    private abstract partial record Run
     {
         /// <summary>The earthquake shakes for a length.</summary>
         /// <param name="Remaining">The frames it has left.</param>
-        internal sealed record ForLength(WrappingCountdown Remaining) : Run;
+        internal sealed partial record ForLength(WrappingCountdown Remaining) : Run;
 
         /// <summary>The earthquake shakes until a producer gives it a length.</summary>
         /// <param name="Sides">Where it stands in the sides it shows in turn.</param>
-        internal sealed record Continuous(CyclingSequence<EarthquakeSide> Sides) : Run;
+        internal sealed partial record Continuous(CyclingSequence<EarthquakeSide> Sides) : Run;
     }
 }

@@ -12,12 +12,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// (#1638): their entries are packed sprite attributes only the atmosphere sheet is composed from, so the installation
 /// holds the sheet's pictures and none of the lists.
 /// </summary>
-public static class SamusAtmosphericArtworkFiles
+public static partial class SamusAtmosphericArtworkFiles
 {
     /// <summary>Import-data JSON filename for the four-frame footstep list and shared four-frame lava/dust direct-OBJ list.</summary>
-    private const string ArtworkFileName = "samus-atmosphere.json";
+    internal const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Import-data manifest filename recording the format and cartridge provenance of the atmospheric JSON.</summary>
-    private const string ManifestFileName = "samus-atmosphere-manifest.json";
+    internal const string ManifestFileName = "samus-atmosphere-manifest.json";
     /// <summary>
     /// Schema revision shared by the extracted artwork and its provenance manifest; version 2 stores sprite parts, and
     /// version 3 is import data the installation never holds (#1638).
@@ -58,11 +58,11 @@ public static class SamusAtmosphericArtworkFiles
         var document = new ArtworkDocument(FormatVersion,
             ReadList(bus, SamusSourceDefinitions.TypeOneAtmosphericAttributes),
             ReadList(bus, SamusSourceDefinitions.SharedAtmosphericAttributes));
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkFiles.ArtworkDocument>(JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, ArtworkFileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
             JsonSerializer.SerializeToUtf8Bytes(new ArtworkManifest(FormatVersion,
-                sourceCartridgeSha256), JsonOptions));
+                sourceCartridgeSha256), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusAtmosphericArtworkFiles.ArtworkManifest>(JsonOptions)));
     }
 
     /// <summary>Validates the manifest's provenance and loads the atmospheric attributes the import composes the atmosphere sheet from (#1638).</summary>
@@ -123,7 +123,7 @@ public static class SamusAtmosphericArtworkFiles
     }
 
     /// <summary>The extracted single small pieces for footsteps and the shared lava/dust effect.</summary>
-    private sealed record ArtworkDocument(int Version, SpriteVisualPiece[] FootstepSplash, SpriteVisualPiece[] LavaAndDust);
+    internal sealed partial record ArtworkDocument(int Version, SpriteVisualPiece[] FootstepSplash, SpriteVisualPiece[] LavaAndDust);
     /// <summary>The extracted artwork's source revision.</summary>
-    private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256);
+    internal sealed partial record ArtworkManifest(int Version, string SourceCartridgeSha256);
 }

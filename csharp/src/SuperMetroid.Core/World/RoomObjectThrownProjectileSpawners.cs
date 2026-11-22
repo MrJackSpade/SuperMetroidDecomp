@@ -9,6 +9,6 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="GlassShards">The spawner of Mother Brain's glass's shards.</param>
 /// <param name="StatueFragments">The spawner of the Bomb Torizo statue hand's fragments.</param>
-internal sealed record RoomObjectThrownProjectileSpawners(
+internal sealed partial record RoomObjectThrownProjectileSpawners(
     IMotherBrainGlassShardSpawner GlassShards,
     IBombTorizoStatueFragmentSpawner StatueFragments);

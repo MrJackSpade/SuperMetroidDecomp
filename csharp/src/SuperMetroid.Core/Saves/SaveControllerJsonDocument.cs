@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="ItemCancel">Button assigned to returning the HUD selection to the beam.</param>
 /// <param name="AimUp">Button assigned to upward diagonal aiming.</param>
 /// <param name="AimDown">Button assigned to downward diagonal aiming.</param>
-public sealed record SaveControllerJsonDocument(
+public sealed partial record SaveControllerJsonDocument(
     ControllerButton Shoot,
     ControllerButton Jump,
     ControllerButton Dash,

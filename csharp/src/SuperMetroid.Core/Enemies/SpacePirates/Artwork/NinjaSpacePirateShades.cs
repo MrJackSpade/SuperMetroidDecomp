@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 /// own stance colours it flashes back to and lands in. The import colours the gold wall shade from the gold wall Pirate's
 /// installed colours.
 /// </summary>
-internal static class NinjaSpacePirateShades
+internal static partial class NinjaSpacePirateShades
 {
     /// <summary>The gold wall Pirates' colours a divekick flashes in.</summary>
     internal static PictureShade GoldWall { get; } = new("ninja-space-pirate-gold-wall", 0);

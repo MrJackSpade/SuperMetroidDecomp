@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// The installed scene colours (#1544): the solid colour the title and each menu screen shows where nothing is drawn, and
 /// the Ceres haze's two tints, as a player edits them in place, each written as <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record SceneColourDocument
+public sealed partial record SceneColourDocument
 {
     /// <summary>Schema revision; loading requires <see cref="SceneColourFiles.Version"/>.</summary>
     public required int Version { get; init; }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.Doors.LookupColoredCapVerification;

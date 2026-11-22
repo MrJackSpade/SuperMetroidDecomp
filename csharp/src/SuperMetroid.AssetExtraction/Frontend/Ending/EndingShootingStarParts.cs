@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The ending shooting star's single-character appearances, which its sheet frames picture (#1463).</summary>
-internal static class EndingShootingStarParts
+internal static partial class EndingShootingStarParts
 {
     /// <summary>
     /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: the lead-in is the blank piece (character 0, palette 0), the specks and

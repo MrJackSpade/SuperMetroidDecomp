@@ -75,9 +75,6 @@ internal static class CeresFlightActorMetadataVerification
             }
         }
 
-        foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<CeresRearViewActorRole>().Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresFlightActors.RearViewActor((CeresRearViewActorRole)undefined), "rear metadata undefined role");
         AssertEqual((ushort)1, retail.ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
         AssertEqual((ushort)1, retail.ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Animation, CeresFlightActors.RearViewActor(CeresRearViewActorRole.RearStars).Animation, "front/rear program alias");

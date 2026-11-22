@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// holds only the pictures particular to it. Each picture is found on exactly one of those sheets, or is one of the owner's finished
 /// pictures that show nothing, which no sheet holds (#1538).
 /// </summary>
-public sealed class SpawnedObjectSheet
+public sealed partial class SpawnedObjectSheet
 {
     /// <summary>Each picture the owner's objects draw, by name, from the sheet holding it.</summary>
     internal readonly Dictionary<string, SpriteSheetFrame> frames;

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// the piece's own animation, keyed by its fragment.</summary>
 /// <param name="Start">Where the piece appears as the egg hatches.</param>
 /// <param name="LaunchSpeed">How far the piece flies sideways each update.</param>
-internal sealed record IntroEggShellPiece(Offset16<ScreenPixels> Start, SignedSixteenSixteen LaunchSpeed);
+internal sealed partial record IntroEggShellPiece(Offset16<ScreenPixels> Start, SignedSixteenSixteen LaunchSpeed);

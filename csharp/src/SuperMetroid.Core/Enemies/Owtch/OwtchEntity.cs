@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, OwtchSpawnSettings settings)
+internal sealed partial class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, OwtchSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' OwtchShotReaction, built once for this enemy with its state (#2554).</summary>

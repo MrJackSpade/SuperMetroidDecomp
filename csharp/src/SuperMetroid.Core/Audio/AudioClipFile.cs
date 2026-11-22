@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Path">Relative path beneath the audio root.</param>
 /// <param name="Frames">Stereo frames in the clip.</param>
-public sealed record AudioClipFile(string Path, long Frames);
+public sealed partial record AudioClipFile(string Path, long Frames);

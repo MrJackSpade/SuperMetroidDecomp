@@ -180,9 +180,7 @@ internal static class SamusVisorColorsVerification
     /// <summary>Checks that the visor colour codec rejects out-of-range colours.</summary>
     internal static void VerifySamusVisorColorsRejectMalformedDocuments(string stock)
     {
-        SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusVisorColorDocument document = JsonSerializer.Deserialize<SamusVisorColorDocument>(File.ReadAllBytes(Path.Combine(stock, SamusVisorColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusVisorColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus visor color document is null.");
         AssertThrows<InvalidDataException>(() => SamusVisorColorFile.Read(new MemoryStream(SamusVisorColorFile.Write(document with
         {

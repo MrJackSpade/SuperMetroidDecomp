@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
-internal sealed class MotherBrainDrainedByBabyPhases
+internal sealed partial class MotherBrainDrainedByBabyPhases
 {
     /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
@@ -19,21 +19,21 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// The stage of her stagger she walks (#2315): the stages walk forward and back in turn, the first forward, and the last
     /// stays once she has walked it.
     /// </summary>
-    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; private set; } =
+    internal ListStep<MotherBrainStaggerStage> PainfulWalkingStage { get; set; } =
         ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
 
     /// <summary>How fast she staggers in the current stage, slowing as the stages pass.</summary>
-    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; private set; }
+    public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
 
     /// <summary>Her pause at the end of the current stage's walk (#2469), or null while she walks it.</summary>
-    private BossCountdown? PainfulWalkingPause { get; set; }
+    internal BossCountdown? PainfulWalkingPause { get; set; }
 
     /// <summary>
     /// Steps her stagger one update: each stage walks her to one end of her stagger and pauses her there, and the pause's
     /// end turns her round into the next stage, whose first update walks her the other way.
     /// </summary>
     /// <returns>Whether this update ended the pause of her last stage, so that she has walked every stage.</returns>
-    private bool StepPainfulWalking()
+    internal bool StepPainfulWalking()
     {
         if (PainfulWalkingPause is { } pause)
         {

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 [EncodingOwner("update counter cadences")]
 [CompatibilityService("on which updates a counter-paced action happens, exactly as the game paced it")]
-public readonly record struct UpdateCadence
+public readonly partial record struct UpdateCadence
 {
     /// <summary>A cadence that falls due once every <paramref name="period"/> updates, on the given phase.</summary>
     /// <param name="period">How many updates one round of the cadence spans, a power of two from 1 through 32768.</param>

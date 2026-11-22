@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The six ending cloud compositions, in the order of the bank-$8B cloud instruction lists.</summary>
-public static class EndingCloudSpriteDefinitions
+public static partial class EndingCloudSpriteDefinitions
 {
     /// <summary>
     /// The cloud compositions in the order the ending actors use them: the upper pattern and its edge, the lower edge and

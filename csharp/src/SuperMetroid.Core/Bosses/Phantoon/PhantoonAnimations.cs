@@ -7,7 +7,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600), each beat naming the installed frame it shows (#1885).</summary>
-internal static class PhantoonAnimations
+internal static partial class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
     private const int EyelidFrameDuration = 10;
@@ -75,7 +75,7 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    private static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
+    internal static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
         [P.EyeCloseAndPickNewPattern] = HeldAfter(P.EyeCloseAndPickNewPattern, P.EyeClosed),
         [P.EyeClose] = HeldAfter(P.EyeClose, P.EyeClosed),

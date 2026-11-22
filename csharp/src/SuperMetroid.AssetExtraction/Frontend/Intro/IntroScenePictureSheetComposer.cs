@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// for every cross-fade level of each faded colour group (#1512) and for every record the old Mother Brain fight's background
 /// lights show (#1733).
 /// </summary>
-internal static class IntroScenePictureSheetComposer
+internal static partial class IntroScenePictureSheetComposer
 {
     /// <summary>The scene pages in the sheet's order (#2567), top to bottom.</summary>
     private static readonly IReadOnlyList<IntroScenePage> Pages = Ensure.EveryMemberOnce<IntroScenePage>(

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Hud;
 
 /// <summary>What the HUD reads of Samus's movement and posture.</summary>
-internal static class SamusHudObservations
+internal static partial class SamusHudObservations
 {
     /// <summary>The HUD selection mode of <paramref name="movement"/> (<see cref="SamusMovementTypeDefinitions"/>).</summary>
     internal static SamusHudSelectionMode SelectionMode(SamusMovementType movement) =>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// claws and eye, the goop's reach and the slowdown it stacks on Samus, the grapple shock, and his death's drift,
 /// drops and smoke.
 /// </summary>
-internal static class DraygonArenaDefinitions
+internal static partial class DraygonArenaDefinitions
 {
     /// <summary>The height of Draygon's swim line: where his goop pass sways about, his swoop starts and his intro's Evirs enter.</summary>
     internal const int SwimLineY = 384;

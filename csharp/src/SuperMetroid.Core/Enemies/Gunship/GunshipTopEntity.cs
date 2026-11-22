@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="place">The place the top hull occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the ship up in.</param>
-internal sealed class GunshipTopEntity(GunshipBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class GunshipTopEntity(GunshipBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {

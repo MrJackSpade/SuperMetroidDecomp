@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>The scripted attract-demo input the runtime substitutes for the player, while a demo plays.</summary>
-internal sealed class AttractDemoSession : IAttractDemoState
+internal sealed partial class AttractDemoSession : IAttractDemoState
 {
     /// <summary>The demo script replacing player input, or null outside a demo.</summary>
     internal AttractDemoInput? Input { get; set; }

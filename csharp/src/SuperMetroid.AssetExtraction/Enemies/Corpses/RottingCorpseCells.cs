@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// table, the corpse's first row topmost, so the band of eight of the corpse's rows a character holds is its row of the
 /// table less the corpse's first. The extraction reads them only to find where the corpse lies in each of its pictures.
 /// </summary>
-internal sealed class RottingCorpseCells
+internal sealed partial class RottingCorpseCells
 {
     /// <summary>The band of the corpse's rows each of its characters holds, by character.</summary>
     private readonly Dictionary<int, int> bandOf;
@@ -82,7 +82,7 @@ internal sealed class RottingCorpseCells
     /// <summary>The frames an enemy shows a rotting corpse in, and the corpses they rot.</summary>
     /// <param name="ShowsIn">Whether one of the enemy's frames shows the corpse.</param>
     /// <param name="Corpses">The corpses the enemy's frames rot.</param>
-    private sealed record CorpseShowing(Func<EnemyFrameId, bool> ShowsIn, Func<IEnumerable<RottingCorpseCells>> Corpses);
+    private sealed partial record CorpseShowing(Func<EnemyFrameId, bool> ShowsIn, Func<IEnumerable<RottingCorpseCells>> Corpses);
 
     /// <summary>Lists each corpse-showing enemy with its frames and corpses.</summary>
     private static Dictionary<EnemyDefinitionId, CorpseShowing> BuildShowings()
@@ -131,5 +131,5 @@ internal sealed class RottingCorpseCells
     /// <summary>A run of characters in one row of the sprite character table.</summary>
     /// <param name="FirstCharacter">The first.</param>
     /// <param name="Count">How many.</param>
-    private readonly record struct CorpseCharacterRun(int FirstCharacter, int Count);
+    private readonly partial record struct CorpseCharacterRun(int FirstCharacter, int Count);
 }

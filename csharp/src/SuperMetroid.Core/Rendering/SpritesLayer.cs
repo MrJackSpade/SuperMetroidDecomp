@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// each side of the planet. Every draw is drawn whole at the layer's place; no part of a draw is placed among the layers
 /// on its own.
 /// </summary>
-public sealed record SpritesLayer : DisplayLayer
+public sealed partial record SpritesLayer : DisplayLayer
 {
     /// <summary>Keeps the layer's draws, how they show and their tint.</summary>
     /// <param name="draws">The draws, frontmost first, each naming the shading it shows in.</param>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// haze shown as the room appears at once starts holding, at the strength a finished fade-in shows.
 /// </summary>
 [RoomLifetime]
-public sealed class CeresHazeState
+public sealed partial class CeresHazeState
 {
     /// <summary>Mutually exclusive per-frame phases of the room-owned haze.</summary>
     private enum Phase
@@ -84,6 +84,7 @@ public sealed class CeresHazeState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="Phase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<Phase, Action<RoomFade>> StepForPhase => field ??= new(new Dictionary<Phase, Action<RoomFade>>
     {
         [Phase.FadingIn] = roomFade =>

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// ramp's, and each record's first colour is the backdrop it shows. The installed ending backdrops hold them in frame order,
 /// and the game reads these backdrops and no other palette-effect colour.
 /// </summary>
-internal static class EndingSpaceBackdropColours
+internal static partial class EndingSpaceBackdropColours
 {
     /// <summary>The frames of the space's colour effect, each showing one backdrop.</summary>
     internal static int FrameCount => ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorFrames.FrameCount;

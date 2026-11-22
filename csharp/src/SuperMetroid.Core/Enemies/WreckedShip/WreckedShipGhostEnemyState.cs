@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// The state of the Wrecked Ship ghost: its behaviour, a countdown for each of its timed phases (#2512), its flicker and its
 /// bobbing.
 /// </summary>
-public sealed class WreckedShipGhostEnemyState
+public sealed partial class WreckedShipGhostEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal WreckedShipGhostEnemyState(WreckedShipGhostAction action) => Action = action;

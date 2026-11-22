@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual OAM compositions selected by the SR388 egg and confused-baby lists.</summary>
-internal static class IntroDiscoveryActorSpriteDefinitions
+internal static partial class IntroDiscoveryActorSpriteDefinitions
 {
     /// <summary>
     /// Sixteen egg states (intact, seven cracking stages, hatched, seven remnants) and three confused Baby states: every pose

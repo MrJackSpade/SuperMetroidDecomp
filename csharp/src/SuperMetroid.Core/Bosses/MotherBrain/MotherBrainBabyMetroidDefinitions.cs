@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Spawn and music identities for Mother Brain's cutscene Baby Metroid.</summary>
-internal static class MotherBrainBabyMetroidDefinitions
+internal static partial class MotherBrainBabyMetroidDefinitions
 {
     /// <summary>The Samus theme, played once its data set has loaded.</summary>
     internal const MusicTrack SamusThemeMusicTrack = MusicTrack.SamusTheme;

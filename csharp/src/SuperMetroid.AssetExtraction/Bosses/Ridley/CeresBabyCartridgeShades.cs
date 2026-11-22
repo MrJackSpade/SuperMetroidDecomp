@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// squish, the round pose and the vertical squish, each brighter than the one before. Older colour documents stored the
 /// same ordered steps.
 /// </summary>
-public static class CeresBabyCartridgeShades
+public static partial class CeresBabyCartridgeShades
 {
     /// <summary>The Baby's shades: resting, horizontal squish, round and vertical squish, selected by its animation.</summary>
     public const int BabyShadeCount = 4;

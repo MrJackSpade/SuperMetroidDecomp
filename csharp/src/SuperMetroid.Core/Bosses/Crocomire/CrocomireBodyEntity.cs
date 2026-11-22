@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+internal sealed partial class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CrocomireEntity(species, occupant, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
 
@@ -56,7 +56,11 @@ internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOc
         LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The body's own Power Bomb reaction, which acts on the encounter the body set up.</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= CrocomireCombat.CrocomirePowerBombReactionOf(this);
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= new() { ReplacesCommon = ReactToOwnPowerBomb };
+
+    /// <summary>Routes a Power Bomb's hit on the body to its encounter's authored reaction.</summary>
+    /// <param name="context">The Power Bomb's hit.</param>
+    private void ReactToOwnPowerBomb(EnemyPowerBombContext context) => CrocomireCombat.ReactToCrocomirePowerBomb(context, Encounter);
 
     /// <summary>The body takes normal bombs on its frames' hitboxes, which own his shot reaction.</summary>
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => collidesByFrameHitboxes;

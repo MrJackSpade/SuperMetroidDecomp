@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// dropped or displaces another. Each recolours only its own letter, so the order they step in is not observable. Each
 /// glow plays <see cref="IntroTextGlowAnimations.Glowing"/> on the shared animation player (#2488).
 /// </summary>
-internal sealed class CinematicTextGlowSystem
+internal sealed partial class CinematicTextGlowSystem
 {
     /// <summary>The glows still running, oldest first.</summary>
     private readonly List<Glow> glows = [];
@@ -35,5 +35,5 @@ internal sealed class CinematicTextGlowSystem
     /// <param name="Column">The glowing letter's column of the narration's text rows.</param>
     /// <param name="Row">The glowing letter's row, counted from the narration's top.</param>
     /// <param name="Steps">The glow's steps as they play.</param>
-    private sealed record Glow(int Column, int Row, AnimationPlayer<IntroTextGlowSegment, IntroTextGlowStep, NoAnimationCue> Steps);
+    private sealed partial record Glow(int Column, int Row, AnimationPlayer<IntroTextGlowSegment, IntroTextGlowStep, NoAnimationCue> Steps);
 }

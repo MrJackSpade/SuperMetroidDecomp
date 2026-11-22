@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 /// bounds moves right a few pixels each update, frozen time or not; Samus's next tracking starts from where it leaves the
 /// camera. A shaft screen open with the camera aligned to its top does not move it.
 /// </summary>
-internal sealed class DachoraShaftCameraMain : IRoomMain
+internal sealed partial class DachoraShaftCameraMain : IRoomMain
 {
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)

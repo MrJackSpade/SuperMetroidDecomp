@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// Draws the gameplay actors each frame (Samus, arm cannon, projectiles, grapple, enemies) and publishes what
 /// that drawing did.
 /// </summary>
-internal sealed class GameplayActorDrawing
+internal sealed partial class GameplayActorDrawing
 {
     /// <summary>Supplies installed frames, projectile compositions, and suit colours artwork.</summary>
     private readonly RuntimeArtwork _artwork;

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Fx;
 /// idle 1 and on, in the order it shows them. What each frame pictures is installed artwork, which asset extraction
 /// pictures under the frame's name; this catalog owns only each loop's frames, their durations and its start.
 /// </remarks>
-public static class BlockAnimationLoopDefinitions
+public static partial class BlockAnimationLoopDefinitions
 {
     /// <summary>The idle loops, by animation, each the one segment its animation loops through (<see cref="BlockAnimationLoops"/>).</summary>
     internal static readonly FrozenDictionary<BlockAnimation, AnimationBeat<ArtworkFrame, NoAnimationCue>[]> IdleLoops =

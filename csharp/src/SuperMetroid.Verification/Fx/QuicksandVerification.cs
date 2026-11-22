@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -288,10 +288,9 @@ internal static class QuicksandVerification
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : notnull
     {
-        for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
+        for (int rawArea = 0; rawArea < AreaNumberCodec.Count; rawArea++)
         {
-            if (RetailArea(rawArea) is var area && area == UnknownArea)
-                continue;
+            AreaId area = AreaNumberCodec.At(rawArea);
             for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
             {
                 SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(area, value).SpecialAir;

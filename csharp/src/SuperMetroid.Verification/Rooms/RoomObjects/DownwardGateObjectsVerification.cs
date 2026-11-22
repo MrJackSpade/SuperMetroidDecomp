@@ -288,12 +288,12 @@ internal static class DownwardGateObjectsVerification
         ushort argument = unchecked((ushort)((RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(trigger) - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation>([typeof(string), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)], new object?[] { $"$8F:{populationPointer:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
+        var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{populationPointer:X4}", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,
                 new(gateX, gateY), RoomObjectRoomArgumentWords.Decode(RoomObjectKind.DownwardGateShotBlock, argument)),
-        ]) });
+        ]));
         SeedDownwardGateProjectileRom(bus);
 
         RoomLevelData level = CreateRoom(new(roomWidth, 16),

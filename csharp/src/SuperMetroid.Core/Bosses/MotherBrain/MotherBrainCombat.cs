@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainCombat
+internal sealed partial class MotherBrainCombat
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -44,32 +44,47 @@ internal sealed class MotherBrainCombat
     /// (#2220), runs the head's reaction on the body; every body rectangle's is the dud shot.
     /// </summary>
     /// <param name="body">Her body, whose encounter the brain's reaction runs in.</param>
-    internal EnemyShotReaction BodyShotReactionOf(MotherBrainEntity body) => new()
+    internal static EnemyShotReaction BodyShotReactionOf(MotherBrainEntity body) => new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (c.HitboxShot == MotherBrainReactions.HeadShot)
-            {
-                ResolveMotherBrainHeadShot(body.Encounter, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
-                return true;
-            }
-            // A Super Missile still shakes the room first.
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            _projectiles.CreateEnemyProjectileDudShot(c.Shot);
-            return true;
-        },
+        BeforeSuperMissileQuake = body.ReactToBodyShot,
     };
+
+    /// <summary>
+    /// Takes a shot meeting Mother Brain's body in <paramref name="state"/>: her brain's rectangle, which her body shows
+    /// before its first animation (#2220), runs the head's reaction; every body rectangle's is the dud flash, and no damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the body.</param>
+    /// <param name="state">The encounter her body is part of.</param>
+    /// <returns>Always true: the brain's reaction or the dud replaces the rest of the shot reaction.</returns>
+    internal bool ReactToBodyShot(in EnemyShotContext c, MotherBrainEnemyState state)
+    {
+        if (c.HitboxShot == MotherBrainReactions.HeadShot)
+        {
+            ResolveMotherBrainHeadShot(state, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+            return true;
+        }
+        // A Super Missile still shakes the room first.
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        _projectiles.CreateEnemyProjectileDudShot(c.Shot);
+        return true;
+    }
 
     /// <summary>The head's shot response for each combat phase.</summary>
     /// <param name="head">Her head, whose encounter the reaction runs in.</param>
-    internal EnemyShotReaction HeadShotReactionOf(MotherBrainEntity head) => new()
+    internal static EnemyShotReaction HeadShotReactionOf(MotherBrainEntity head) => new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            ResolveMotherBrainHeadShot(head.Encounter, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
-            return true;
-        },
+        BeforeSuperMissileQuake = head.ReactToHeadShot,
     };
+
+    /// <summary>Takes a shot meeting Mother Brain's head in <paramref name="state"/> (<see cref="ResolveMotherBrainHeadShot"/>).</summary>
+    /// <param name="c">The shot meeting the head.</param>
+    /// <param name="state">The encounter her head is part of.</param>
+    /// <returns>Always true: the head's reaction replaces the rest of the shot reaction.</returns>
+    internal bool ReactToHeadShot(in EnemyShotContext c, MotherBrainEnemyState state)
+    {
+        ResolveMotherBrainHeadShot(state, c.Occupant, c.Shot, c.Projectiles, c.ProjectileType, c.ProjectileDamage);
+        return true;
+    }
 
     /// <summary>
     /// Runs her brain's shot reaction for a shot on the brain's rectangle of <paramref name="struck"/>, her head or, before
@@ -123,7 +138,7 @@ internal sealed class MotherBrainCombat
     /// <see cref="MotherBrainForm.FakeDeath"/> the shot still costs walk credit but is a dud; in the later forms it deals
     /// ordinary damage, leaving her parts alive at zero health for her body's phases to end.
     /// </summary>
-    private void ResolveMotherBrainLaterFormHeadShot(
+    internal void ResolveMotherBrainLaterFormHeadShot(
         MotherBrainEnemyState state,
         RoomEnemyOccupant brain,
         SamusProjectileOccupant held,

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// The Yapping Maw's eight attack bites and six cooldown animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YappingMawCue"/> with the values it acts on.
 /// </summary>
-internal static class YappingMawAnimations
+internal static partial class YappingMawAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<YappingMawSegment, EnemyFrameId, YappingMawCue> Segments { get; } = new(
@@ -44,7 +44,7 @@ internal static class YappingMawAnimations
     /// cooldown's hold of Samus and then its aim's chewing, looped; no owner starts the chewing itself (#2276). A cooldown
     /// aimed off to one side holds Samus there and then straight up or down, as the straight cooldown does (#2451).
     /// </summary>
-    private static Dictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
+    internal static Dictionary<YappingMawSegment, Animation<YappingMawSegment>> StartingAt { get; } = new Dictionary<YappingMawSegment, Animation<YappingMawSegment>>
     {
         [P.AttackingUp] = Animation<YappingMawSegment>.Looping([Segments.Whole(P.AttackingUp)]),
         [P.AttackingUpRight] = Animation<YappingMawSegment>.Looping([Segments.Whole(P.AttackingUpRight)]),

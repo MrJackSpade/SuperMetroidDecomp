@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// radii and glow, centred on the station as the screen shows it. Its centre is a screen point, never a room position:
 /// the cinematic has no room, and the blast's oval of added colour covers the whole screen from its top line.
 /// </summary>
-internal sealed class CeresStationBlast
+internal sealed partial class CeresStationBlast
 {
     /// <summary>The blast's stages, radii and glow: the cinematic's own timeline, shared with no Power Bomb of Samus's.</summary>
     private readonly PowerBombBlastTimeline timeline = new();

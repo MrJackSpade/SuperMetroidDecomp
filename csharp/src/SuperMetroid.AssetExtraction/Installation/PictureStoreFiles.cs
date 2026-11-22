@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// the sheet's image from the pages and the maps. A player edits a page in place, which changes the picture for every frame
 /// of every sheet that shows it.
 /// </summary>
-public static class PictureStoreFiles
+public static partial class PictureStoreFiles
 {
     /// <summary>The store's directory under the installation's content directory.</summary>
     public const string DirectoryName = "pictures";

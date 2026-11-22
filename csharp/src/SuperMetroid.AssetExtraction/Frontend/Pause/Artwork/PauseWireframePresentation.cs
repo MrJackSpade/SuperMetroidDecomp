@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Immutable wireframe artwork, which the import reads to picture the equipment page (#1615): every variant's 136 cells.
 /// It cannot change which equipment selects a visual.
 /// </summary>
-public sealed class PauseWireframePresentation
+public sealed partial class PauseWireframePresentation
 {
     /// <summary>Four named equipment wireframe variants' cells as the import reads them, in eight-column row order.</summary>
     private readonly Dictionary<PauseWireframe, BackgroundTile[]> frames;
@@ -54,7 +54,7 @@ public sealed class PauseWireframePresentation
     /// <param name="document">Document containing all four complete wireframe variants.</param>
     public static void Write(Stream output, PauseWireframeDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseWireframeDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

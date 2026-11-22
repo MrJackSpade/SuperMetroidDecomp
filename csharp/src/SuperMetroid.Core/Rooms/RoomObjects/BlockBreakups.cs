@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The block reactions' shared beats, stated once (#2557): a block breaking up into rock, pieces and dust and leaving its
 /// space open, and, for a block that grows back, the same images in reverse and its restored picture.
 /// </summary>
-internal static class BlockBreakups
+internal static partial class BlockBreakups
 {
     /// <summary>A reaction that shows <paramref name="draw"/> for one update, starting on the update after it is set off.</summary>
     /// <param name="draw">What the reveal shows.</param>

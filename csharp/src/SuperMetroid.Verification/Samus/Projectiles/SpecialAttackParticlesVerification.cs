@@ -89,7 +89,7 @@ internal static class SpecialAttackParticlesVerification
     /// <summary>Reads <paramref name="shot"/>'s whole state.</summary>
     private static ShotState StateOf(SamusProjectile shot) => new(shot.IsOccupied, shot.HeldShot().Damage, shot.HeldShot().Type, shot.PicturedBeams,
         shot.Direction, shot.IsSpent, shot.Position, shot.Velocity, shot.Radius, shot.Playback, shot.Animation?.UpdatesLeft, shot.Sprite,
-        global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(shot.HeldShot(), "Trail")?.UpdatesLeft, KindOf(shot), shot.Behavior);
+        shot.HeldShot().Trail?.UpdatesLeft, KindOf(shot), shot.Behavior);
 
     /// <summary>The values <paramref name="shot"/>'s kind keeps, compared by value; null when it keeps none.</summary>
     private static object? KindOf(SamusProjectile shot) => shot.HeldShot().KindState switch
@@ -311,7 +311,7 @@ internal static class SpecialAttackParticlesVerification
                 AssertEqual(place >= 2, spazer.LeavesTrails,
                     $"Spazer particle {place} leaves trails from the start exactly when it is one of the trailing pair");
                 if (place >= 2)
-                    AssertEqual(ProjectileTimingDefinitions.TrailInterval, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.SamusProjectileOccupant, global::SuperMetroid.Core.UpdateCountdown?>(particle.HeldShot(), "Trail")?.UpdatesLeft,
+                    AssertEqual(ProjectileTimingDefinitions.TrailInterval, particle.HeldShot().Trail?.UpdatesLeft,
                         $"trailing Spazer particle {place} starts its trail countdown");
                 AssertTrue(ReferenceEquals(projectiles.Shots[place ^ 2], spazer.Partner),
                     $"Spazer particle {place} is paired with the particle two places from it");

@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// How far, in pixels, the path's loop origin advances per loop. The advance is not always the path's final offset, so it
 /// stays an authored input of the drawn trajectory.
 /// </param>
-internal sealed record ChootFallingPathDefinition(ChootFallSample[] Samples, int LoopYDistance);
+internal sealed partial record ChootFallingPathDefinition(ChootFallSample[] Samples, int LoopYDistance);

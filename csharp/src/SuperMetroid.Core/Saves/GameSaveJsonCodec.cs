@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
-public static class GameSaveJsonCodec
+public static partial class GameSaveJsonCodec
 {
     /// <summary>Known equipment flags accepted by the named save schema.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
@@ -58,7 +58,7 @@ public static class GameSaveJsonCodec
     public static string Serialize(GameSaveJsonDocument document)
     {
         Validate(document);
-        return JsonSerializer.Serialize(document, CreateOptions()) + Environment.NewLine;
+        return JsonSerializer.Serialize(document, SaveJson.Info<global::SuperMetroid.Core.Saves.GameSaveJsonDocument>(CreateOptions())) + Environment.NewLine;
     }
 
     /// <summary>Parses one strict schema and reports malformed properties with JSON paths.</summary>
@@ -68,9 +68,7 @@ public static class GameSaveJsonCodec
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         try
         {
-            GameSaveJsonDocument document = JsonSerializer.Deserialize<GameSaveJsonDocument>(
-                json,
-                CreateOptions()) ?? throw new InvalidDataException(
+            GameSaveJsonDocument document = JsonSerializer.Deserialize<GameSaveJsonDocument>(json, SaveJson.Info<global::SuperMetroid.Core.Saves.GameSaveJsonDocument>(CreateOptions())) ?? throw new InvalidDataException(
                     $"Game save '{sourceName}' contains JSON null instead of an object.");
             Validate(document);
             return document;

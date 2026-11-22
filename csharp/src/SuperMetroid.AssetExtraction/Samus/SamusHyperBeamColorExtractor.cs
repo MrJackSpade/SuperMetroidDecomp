@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the ten authored Hyper Beam palettes without exposing phase logic.</summary>
-public static class SamusHyperBeamColorExtractor
+public static partial class SamusHyperBeamColorExtractor
 {
     /// <summary>Exports the ten full-body Hyper Beam palette images in the compiled frame-selection order.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$9B rows descending from $A360 in $20-byte steps.</param>

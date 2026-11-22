@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// glass read only the family that struck them; the grapple beam's touch arrives as a beam.
 /// </summary>
 /// <param name="Family">The family of the projectile that struck the block.</param>
-public readonly record struct ResidentObjectProjectileHit(SamusProjectileFamily Family);
+public readonly partial record struct ResidentObjectProjectileHit(SamusProjectileFamily Family);

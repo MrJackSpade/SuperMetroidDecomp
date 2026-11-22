@@ -6,16 +6,22 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// motion reads the entry back typed.
 /// </summary>
 /// <typeparam name="TState">What the kind keeps on each of its projectiles.</typeparam>
-/// <param name="move">Moves the projectile one pass by the kind's one motion.</param>
-/// <param name="initial">The kind's one motion when the projectile moves from its spawn, or null when it holds still until started.</param>
-/// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
-internal sealed class StatefulSingleMotionProjectileBehavior<TState>(
-    Action<EnemyProjectileMotionContext> move,
-    SingleMotion? initial = SingleMotion.Moving,
-    Func<EnemyProjectileAnimation>? shot = null)
-    : SingleMotionProjectileBehavior(move, initial, shot)
+internal sealed partial class StatefulSingleMotionProjectileBehavior<TState>
+    : SingleMotionProjectileBehavior
     where TState : EnemyProjectileState
 {
+    /// <summary>Creates a <see cref="StatefulSingleMotionProjectileBehavior{TState}"/>.</summary>
+    /// <param name="move">Moves the projectile one pass by the kind's one motion.</param>
+    /// <param name="initial">The kind's one motion when the projectile moves from its spawn, or null when it holds still until started.</param>
+    /// <param name="shot">The animation a destroying shot starts, or null for the shared delete animation.</param>
+    public StatefulSingleMotionProjectileBehavior(
+        Action<EnemyProjectileMotionContext> move,
+        SingleMotion? initial = SingleMotion.Moving,
+        Func<EnemyProjectileAnimation>? shot = null)
+        : base(move, initial, shot)
+    {
+    }
+
     /// <summary>What the kind keeps on each of its projectiles, given by its spawner.</summary>
     internal EnemyProjectileStates<TState> States { get; } = new();
 }

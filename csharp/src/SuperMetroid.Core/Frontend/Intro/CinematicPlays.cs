@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
 /// <param name="segments">The family's segments, which the plays read their lengths from.</param>
-internal sealed class CinematicPlays<TAnimation, TFrame, TCue>(HidingAnimationSegments<TAnimation, TFrame, TCue> segments)
+internal sealed partial class CinematicPlays<TAnimation, TFrame, TCue>(HidingAnimationSegments<TAnimation, TFrame, TCue> segments)
     where TAnimation : struct
     where TFrame : struct
     where TCue : notnull

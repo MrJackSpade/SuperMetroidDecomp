@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>How a Dachora wakes, runs, crouches to charge its shinespark, launches and falls (#2149, #2279).</summary>
-internal static class DachoraMotionDefinitions
+internal static partial class DachoraMotionDefinitions
 {
     /// <summary>How far a Dachora drops as it crouches to charge, and rises again as it launches, in pixels.</summary>
     internal const int ChargeCrouchDepth = 8;

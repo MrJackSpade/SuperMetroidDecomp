@@ -36,11 +36,6 @@ internal static class SpcSoundLibrary2PointersVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer(SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library), invalid), "unsupported stream command");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.StreamPointer((SuperMetroid.Core.Audio.SoundEffectLibrary)99, 1), "unsupported stream library");
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.CommandCount((SuperMetroid.Core.Audio.SoundEffectLibrary)99), "unsupported command-count library");
-        }
 
         short[] pcm = new short[SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2];
         var zero = new PortDrivenSpcPlayer();

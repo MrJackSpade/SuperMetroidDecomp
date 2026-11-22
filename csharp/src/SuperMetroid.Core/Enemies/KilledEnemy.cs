@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// explosion's respawn cue runs (#1412). The enemy is its place, so the respawn rebuilds whatever the place's snapshot
 /// holds (#1542). A drop spawned directly came from no enemy, and has none.
 /// </summary>
-public sealed record KilledEnemy
+public sealed partial record KilledEnemy
 {
     /// <summary>Keeps the killed enemy's place and whether it respawns.</summary>
     private KilledEnemy(PopulatedEnemyPlace enemy, bool respawns)

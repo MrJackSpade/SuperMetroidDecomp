@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// is placed, and every later segment joins it as it is placed; the chain lasts the room, and its death deletes all its
 /// segments together.
 /// </summary>
-internal sealed class ShaktoolChain
+internal sealed partial class ShaktoolChain
 {
     /// <summary>Starts the chain of <paramref name="segments"/>, its leading saw first, moving as <paramref name="motion"/> says.</summary>
     /// <param name="segments">The chain's seven segments, leading saw first, each in its place with its definition.</param>

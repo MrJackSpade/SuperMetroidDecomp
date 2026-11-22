@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <param name="Animation">The animation the play continues in.</param>
 /// <param name="Place">The place it continues at, with the plays its repeated phase has left there.</param>
-internal readonly record struct AnimationContinuation<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
+internal readonly partial record struct AnimationContinuation<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
     where TSegment : struct
 {
     /// <summary>

@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// </summary>
 /// <param name="Artwork">The artwork bound over the words.</param>
 /// <param name="WordOffset">The words of that artwork before the run's first.</param>
-public readonly record struct BgArtworkShown(BgArtworkIdentity Artwork, int WordOffset);
+public readonly partial record struct BgArtworkShown(BgArtworkIdentity Artwork, int WordOffset);

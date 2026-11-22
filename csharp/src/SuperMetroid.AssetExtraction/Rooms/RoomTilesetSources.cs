@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Where each room character sheet, block table and palette is stored, read from the cartridge's tileset table, and the
 /// content identities the installation records for them, which hash each sheet with its set.
 /// </summary>
-internal static class RoomTilesetSources
+internal static partial class RoomTilesetSources
 {
     /// <summary>
     /// Reads every graphics set's tileset entry. Sets several graphics sets share must name one source; the Tourian

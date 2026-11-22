@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Definitions for the room object the setup of the escape room before the old Tourian escape shaft places: once Samus
 /// passes its trigger point it starts the room's acid rising toward the target the room's effect names (#1800).
 /// </summary>
-internal static class EscapeAcidRiseObjectDefinitions
+internal static partial class EscapeAcidRiseObjectDefinitions
 {
     /// <summary>The column of the block the room object is spawned at.</summary>
     internal const int BlockX = 16;

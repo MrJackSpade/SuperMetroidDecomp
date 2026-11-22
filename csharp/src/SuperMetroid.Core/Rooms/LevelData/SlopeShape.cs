@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// A square shape is made of solid quarters, which Samus, her shots and enemies read through the square slopes; every
 /// other shape is a height profile they read column by column. Both kinds keep a height under each column.
 /// </remarks>
-public sealed class SlopeShape
+public sealed partial class SlopeShape
 {
     /// <summary>The pixel columns of a block, each with its own surface height.</summary>
     public const int Columns = 16;

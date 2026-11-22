@@ -145,8 +145,9 @@ public sealed class InlineDefinitionDataAnalyzer : DiagnosticAnalyzer
     private static string? Named(ArgumentListSyntax arguments, SemanticModel model, CancellationToken cancellationToken)
     {
         string[] named = [.. arguments.Arguments
-            .Where(argument => argument.NameColon is not null && IsNonZeroLiteral(argument.Expression, model, cancellationToken))
-            .Select(argument => $"{argument.Expression} as '{argument.NameColon!.Name.Identifier.Text}'")];
+            .SelectMany(argument => argument.NameColon is { } colon && IsNonZeroLiteral(argument.Expression, model, cancellationToken)
+                ? new[] { $"{argument.Expression} as '{colon.Name.Identifier.Text}'" }
+                : [])];
         return named.Length == 0 ? null : $"passes the literal {string.Join(", ", named)}";
     }
 

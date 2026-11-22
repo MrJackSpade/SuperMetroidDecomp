@@ -13,4 +13,4 @@ namespace SuperMetroid.Core.World;
 /// (<see cref="CameraFractionsKeptAcrossGames"/>).
 /// </param>
 [RoomScopeBoundary("Captures the outgoing room's parts the destination reads.")]
-internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera);
+internal sealed partial record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera);

@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The installed colours of the explosion's glow, as a player edits them in place: the colour the glow shows at each
 /// size, each written as <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record PowerBombGlowColorDocument
+public sealed partial record PowerBombGlowColorDocument
 {
     /// <summary>Schema revision; loading requires <see cref="PowerBombGlowColorFile.Version"/>.</summary>
     public required int Version { get; init; }

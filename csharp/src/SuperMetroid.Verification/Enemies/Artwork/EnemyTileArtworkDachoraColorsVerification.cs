@@ -47,8 +47,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
 
         string file = Path.Combine(stockDirectory, DachoraColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.DachoraColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Dachora color JSON is null.");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(

@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Import-only reader for the stream consumed by native <c>APU_UploadBank</c>.</summary>
-public static class SpcUploadStreamReader
+public static partial class SpcUploadStreamReader
 {
     /// <summary>
     /// The host import's safety bound of 69,632 collected bytes, checked before each upload block; not a native

@@ -102,7 +102,7 @@ internal static class EnemySheetFixtures
         {
             if (!characters.TryGetValue(set, out SetCharacters? composedCharacters))
                 characters.Add(set, composedCharacters = EnemySheetComposer.Load(
-                    global::SuperMetroid.Core.PrivateState.With(inputs.Value with { }, "SetMembers", FixtureGraphicsSetMembers.CatalogueFor(set)), set).Characters);
+                    ((inputs.Value with { }) with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }), set).Characters);
             return composedCharacters;
         }
     }
@@ -192,7 +192,7 @@ internal static class EnemySheetFixtures
         {
             // A fixture's own set is coloured in the rows its records name, which the fixture recorded.
             GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(
-                global::SuperMetroid.Core.PrivateState.With(inputs with { }, "SetMembers", FixtureGraphicsSetMembers.CatalogueFor(set)), set);
+                ((inputs with { }) with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }), set);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, EnemyArtworkVariant<SpriteSheet>>();

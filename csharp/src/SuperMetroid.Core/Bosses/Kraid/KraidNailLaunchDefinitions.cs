@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// against its sibling's vertical travel. The random number its launch draws changes neither. A nail parked at its
 /// alternate start while it waits for the lint holds its own speed until it launches.
 /// </summary>
-public static class KraidNailLaunchDefinitions
+public static partial class KraidNailLaunchDefinitions
 {
     /// <summary>The launch's horizontal speed: one pixel per frame leftward.</summary>
     public static SignedSixteenSixteen Leftward { get; } = SignedSixteenSixteen.FromWholePixels(-1);

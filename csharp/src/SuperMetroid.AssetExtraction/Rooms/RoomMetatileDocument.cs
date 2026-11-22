@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable JSON schema for one common-room-element or tileset-specific table of 16x16 visual blocks; collision and placement are not included.</summary>
-public sealed record RoomMetatileDocument
+public sealed partial record RoomMetatileDocument
 {
     /// <summary>Schema revision, required to equal <see cref="RoomMetatileFormat.Version"/> when compiling the table.</summary>
     public required int Version { get; init; }

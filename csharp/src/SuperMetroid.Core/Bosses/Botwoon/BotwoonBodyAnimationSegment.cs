@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// A body segment's animation (#2400): a body link or the tail cap facing the segment ahead of it, or a segment hidden
 /// inside the wall, which faces no way. Only the animations its factories make exist.
 /// </summary>
-internal readonly record struct BotwoonBodyAnimationSegment
+internal readonly partial record struct BotwoonBodyAnimationSegment
 {
     /// <summary>The animation of <paramref name="kind"/> facing <paramref name="facing"/>, or no way for a hidden segment.</summary>
     private BotwoonBodyAnimationSegment(BotwoonBodyAnimationSegmentKind kind, CompassDirection? facing)

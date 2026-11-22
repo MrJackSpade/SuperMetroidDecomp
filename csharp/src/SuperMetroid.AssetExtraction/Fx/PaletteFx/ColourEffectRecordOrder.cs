@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// an animation whose frames are another's (<see cref="ShowsRecordsOf"/>) shows that animation's records, frame for frame.
 /// The palette-FX program checks compare each record's place with its cartridge address.
 /// </summary>
-internal static class ColourEffectRecordOrder
+internal static partial class ColourEffectRecordOrder
 {
     /// <summary>The runs of records, in the cartridge's order.</summary>
     internal static IReadOnlyList<ColourEffectRecordRun> Runs { get; } =

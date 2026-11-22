@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>How each editable completion and save notice is shaped: its content height and the text regions of its stock picture.</summary>
-public static class GameplayMessageNotices
+public static partial class GameplayMessageNotices
 {
     /// <summary>Determines whether a message is one of the two editable save prompts requiring independent YES/NO selection rows.</summary>
     /// <param name="messageId">Gameplay message identity to classify; other messages return false without being validated as editable notices.</param>

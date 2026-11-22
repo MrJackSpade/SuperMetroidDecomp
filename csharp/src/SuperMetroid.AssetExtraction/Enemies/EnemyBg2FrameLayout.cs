@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Shared dimensions of the enemy BG2 tilemap.</summary>
-internal static class EnemyBg2FrameLayout
+internal static partial class EnemyBg2FrameLayout
 {
     /// <summary>Number of tiles across one enemy BG2 tilemap row.</summary>
     internal const int TilemapWidth = 32;

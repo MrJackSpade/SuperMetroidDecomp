@@ -8,6 +8,6 @@ internal static class TourianStatueSequenceAccess
     {
         /// <summary>The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in.</summary>
         internal IReadOnlyList<TourianStatueSequence.StatueBlockAnimation> Statues =>
-            PrivateState.Field<TourianStatueSequence, List<TourianStatueSequence.StatueBlockAnimation>>(self, "_statues");
+            self.Statues;
     }
 }

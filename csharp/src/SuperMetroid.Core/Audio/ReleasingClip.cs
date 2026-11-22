@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="LoopStart">Its loop start, or null when it does not loop.</param>
 /// <param name="Start">Absolute frame of its frame zero.</param>
 /// <param name="Remaining">Release frames left; the gain is <c>Remaining / ReleaseFrames</c>.</param>
-internal sealed record ReleasingClip(AudioClipFile Clip, long? LoopStart, long Start, int Remaining);
+internal sealed partial record ReleasingClip(AudioClipFile Clip, long? LoopStart, long Start, int Remaining);

@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Ceres rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class CeresDoorDefinitions
+public static partial class CeresDoorDefinitions
 {
     /// <summary>The door from the Ceres Elevator room to the Falling Tile room.</summary>
     public static DoorDefinition CeresElevatorToFallingTile { get; } = new("CeresElevatorToFallingTile", RoomDefinitions.FallingTile, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.FallingTileEndsTurningFloor);

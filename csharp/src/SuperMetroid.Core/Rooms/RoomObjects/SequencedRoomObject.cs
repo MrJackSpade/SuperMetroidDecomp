@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <typeparam name="TSegment">The object's segment identity.</typeparam>
 /// <typeparam name="TFrame">What one of its frames draws.</typeparam>
 /// <typeparam name="TEvent">What the object does as its animation passes an event.</typeparam>
-internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
+internal abstract partial class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -25,7 +25,7 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     private readonly AnimationSegments<TSegment, TFrame, TEvent> _segments;
 
     /// <summary>Where the object's animations stand: placed, it decides on its first update.</summary>
-    private SequencedRoomObjectProgress<TSegment, TFrame, TEvent> _progress = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
+    internal SequencedRoomObjectProgress<TSegment, TFrame, TEvent> Progress { get; private set; } = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
 
     /// <summary>Places the object playing animations of <paramref name="segments"/>, deciding what it plays on its first update.</summary>
     /// <param name="segments">The segments the object's animations play.</param>
@@ -33,14 +33,14 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
         _segments = Ensure.NotNull(segments);
 
     /// <summary>Whether the object rests: its animation has ended with nothing to follow, until what it waits for wakes it.</summary>
-    private protected bool Resting => _progress is SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting
+    private protected bool Resting => Progress is SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting
         or SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        switch (_progress)
+        switch (Progress)
         {
             case SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting or SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown:
                 return;
@@ -52,7 +52,7 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
                     Decide(playing.Player.Shown, place, context);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined room object progress {_progress}.");
+                throw new InvalidOperationException($"Undefined room object progress {Progress}.");
         }
     }
 
@@ -65,7 +65,7 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     /// <param name="context">The update.</param>
     private void Decide(TFrame? lastShown, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        _progress = lastShown is { } shown
+        Progress = lastShown is { } shown
             ? new SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting(shown)
             : SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown.Instance;
         SequenceEnded(place, context);
@@ -102,13 +102,13 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     private protected void PlayFromNextUpdate(Animation<TSegment> animation) => _ = Start(animation);
 
     /// <summary>Ends the object's animation, its next update deciding what follows without showing anything more.</summary>
-    private protected void EndOnNextUpdate() => _progress = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
+    private protected void EndOnNextUpdate() => Progress = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
 
     /// <summary>Starts <paramref name="animation"/> playing from its start, its first frame due on the object's next step.</summary>
     private AnimationPlayer<TSegment, TFrame, TEvent> Start(Animation<TSegment> animation)
     {
         var playing = new SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Playing(AnimationPlayer<TSegment, TFrame, TEvent>.Starting(_segments, animation));
-        _progress = playing;
+        Progress = playing;
         return playing.Player;
     }
 

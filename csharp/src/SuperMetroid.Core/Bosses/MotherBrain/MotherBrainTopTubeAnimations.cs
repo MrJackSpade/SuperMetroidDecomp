@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's falling ceiling-tube animations (#641, #1600): each tube's one pose, held, the beat naming the installed
 /// <see cref="EnemyProjectileFrameId"/> it shows (#2249).
 /// </summary>
-internal static class MotherBrainTopTubeAnimations
+internal static partial class MotherBrainTopTubeAnimations
 {
     /// <summary>Every segment; each holds its own tube's picture.</summary>
     internal static UnpausedAnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments { get; } = new(

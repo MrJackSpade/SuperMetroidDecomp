@@ -70,12 +70,11 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.LoadAt(this, FixtureHeaderPointer(pointer), pointer);
 
     /// <summary>
-    /// The bank-$A0 header pointer a fixture seeds <paramref name="definition"/>'s header at: a member's retail pointer, as
-    /// the import translates it, or for a fixture-only identity (a value no member has) the value itself (#1412).
+    /// The bank-$A0 header pointer a fixture seeds <paramref name="definition"/>'s header at: the species' retail pointer, as
+    /// the import translates it (#1412).
     /// </summary>
-    internal static ushort FixtureHeaderPointer(EnemyDefinitionId definition) => Enum.IsDefined(definition)
-        ? SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(definition)
-        : (ushort)definition;
+    internal static ushort FixtureHeaderPointer(EnemyDefinitionId definition) =>
+        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(definition);
 
     /// <summary>
     /// The bank-$A0 header pointer a fixture seeds graphics-set record <paramref name="record"/> at: its enemy's (see
@@ -90,10 +89,9 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     };
 
     /// <summary>The identity a fixture's seeded header pointer names: the inverse of <see cref="FixtureHeaderPointer(EnemyDefinitionId)"/>.</summary>
+    /// <exception cref="InvalidDataException">The pointer is no species' header.</exception>
     internal static EnemyDefinitionId FixtureDefinitionId(ushort pointer) =>
-        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants2.TryFromHeaderPointer(pointer, out EnemyDefinitionId id)
-            ? id
-            : (EnemyDefinitionId)pointer;
+        SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIdsConstants.FromHeaderPointer(pointer);
 
     /// <summary>
     /// The actor a fixture's seeded placement of the header at <paramref name="pointer"/> places: the header's identity

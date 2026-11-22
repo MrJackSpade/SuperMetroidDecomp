@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
-public static class PhantoonMotionDefinitions
+public static partial class PhantoonMotionDefinitions
 {
     /// <summary>The horizontal swoop velocity, about eight pixels an update leftward, below which the leftward pull stops.</summary>
     public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromPixelFraction(-2047, 256);

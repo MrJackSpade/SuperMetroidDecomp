@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The Skree's and Metaree's death-particle animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class SkreeMetareeParticleAnimations
+internal static partial class SkreeMetareeParticleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

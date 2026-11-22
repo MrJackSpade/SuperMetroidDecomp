@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms.Xray;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Runs uncollected-item and room-special reveal writes after the terrain pass.</summary>
-public static class XrayRevealOverlays
+public static partial class XrayRevealOverlays
 {
     /// <summary>
     /// Applies the items last to first in the room's item list, then the room's overlay blocks in their listed order. A

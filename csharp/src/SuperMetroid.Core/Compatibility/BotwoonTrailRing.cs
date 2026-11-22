@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// recurs with the ring's period.
 /// </remarks>
 [CompatibilityService("Botwoon's body trails his head through a ring of 256 moving positions, so a remembered hole crossing recurs at the same place every 256 moving updates")]
-public static class BotwoonTrailRing
+public static partial class BotwoonTrailRing
 {
     /// <summary>The ring's places: the head's last 256 moving positions.</summary>
     public const int Places = 256;

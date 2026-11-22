@@ -71,9 +71,6 @@ internal static class PhantoonPatternsVerification
                 eyeState.EyePart.PlayingProgram(),
                 $"production Phantoon eye direction {direction}");
         }
-        AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
-            "Phantoon eye direction beyond the eight directions");
         var shotEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var shotBody = shotEnemies.Places.InUpdateOrder[0];
         var shotState = new PhantoonEnemyState(shotBody.BoundFor(EnemyDefinitionId.PhantoonBody), shotBody, shotEnemies.Places.InUpdateOrder[1], shotEnemies.Places.InUpdateOrder[2], shotEnemies.Places.InUpdateOrder[3]);

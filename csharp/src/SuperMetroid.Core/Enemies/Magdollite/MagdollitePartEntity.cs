@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Magdollite species owner.</summary>
@@ -18,13 +18,28 @@ internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEne
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
 
     /// <summary>The part's own shot reaction, which passes its fate to the enemies its follow-up reaches.</summary>
-    private EnemyShotReaction OwnShot => field ??= MagdolliteBehavior.MagdolliteShotReaction(FollowUpRecipients);
+    private EnemyShotReaction OwnShot => field ??= MagdolliteBehavior.MagdolliteShotReaction(this);
 
     /// <summary>The part's own bomb stages, which pass its fate to the enemies its follow-up reaches.</summary>
-    private EnemyBombReaction OwnBomb => field ??= MagdolliteBehavior.MagdolliteBombReaction(FollowUpRecipients);
+    private EnemyBombReaction OwnBomb => field ??= MagdolliteBehavior.MagdolliteBombReaction(this);
 
     /// <summary>The part's own Power Bomb reaction, which passes its fate to the enemies its follow-up reaches.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= MagdolliteBehavior.MagdollitePowerBombReaction(FollowUpRecipients);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= MagdolliteBehavior.MagdollitePowerBombReaction(this);
+
+    /// <summary>Passes the part's fate on to the enemies its follow-up reaches, after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void PassFateOn(EnemyShotHitContext context) =>
+        MagdolliteBehavior.ResolveMagdolliteCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+
+    /// <summary>Passes the part's fate on to the enemies its follow-up reaches, after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void PassFateOn(EnemyBombHitContext context) =>
+        MagdolliteBehavior.ResolveMagdolliteCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+
+    /// <summary>Passes the part's fate on to the enemies its follow-up reaches, after a Power Bomb's common damage.</summary>
+    /// <param name="context">The blast meeting the part.</param>
+    internal void PassFateOn(EnemyPowerBombContext context) =>
+        MagdolliteBehavior.ResolveMagdolliteCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
 
     /// <summary>The Magdollite the part belongs to, which it holds from its setup.</summary>
     internal abstract MagdollitePartners Partners { get; }

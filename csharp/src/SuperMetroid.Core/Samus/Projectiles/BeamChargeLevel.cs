@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// charge, none included, or the Hyper Beam's flare, which stands in for a charge past every threshold, so the Hyper Beam
 /// always reads as fully charged.
 /// </summary>
-public abstract record BeamChargeLevel
+public abstract partial record BeamChargeLevel
 {
     /// <summary>Only the two cases below are charge levels.</summary>
     private BeamChargeLevel()
@@ -39,7 +39,7 @@ public abstract record BeamChargeLevel
 
     /// <summary>A charge held for <paramref name="Updates"/> updates.</summary>
     /// <param name="Updates">The updates the charge has been held.</param>
-    internal sealed record CountedCharge(
+    internal sealed partial record CountedCharge(
         [property: IntegerQuantity("updates the charge flare has shown")] int Updates) : BeamChargeLevel
     {
         /// <inheritdoc/>
@@ -53,7 +53,7 @@ public abstract record BeamChargeLevel
     }
 
     /// <summary>The Hyper Beam's flare, which reads as past every charge threshold.</summary>
-    internal sealed record HyperBeamFlareLevel : BeamChargeLevel
+    internal sealed partial record HyperBeamFlareLevel : BeamChargeLevel
     {
         /// <inheritdoc/>
         public override int UpdatesHeld => 0;

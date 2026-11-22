@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// Drives the attract demo: sets up its room and Samus, then substitutes the scripted input each frame and
 /// restores the player's controller afterwards.
 /// </summary>
-internal sealed class AttractDemoDriver : IAttractSamusInput
+internal sealed partial class AttractDemoDriver : IAttractSamusInput
 {
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
@@ -132,6 +132,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// Applies scene-specific scroll, Kraid timer, or defeated-boss setup to <paramref name="room"/>, the demo room the
     /// load just built, which the setup receives rather than a table that outlives the room holds.
     /// </summary>
+    [field: NonSerialized]
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomScope room)
     {
         switch (roomSetup)

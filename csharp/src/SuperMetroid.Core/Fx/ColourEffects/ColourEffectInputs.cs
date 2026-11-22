@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// The Samus, equipment and mini-boss conditions the colour effects watch each update (#633, #1554); a Torizo's belly glow
 /// watches its own Torizo instead (#1700).
 /// </summary>
-public sealed record ColourEffectInputs
+public sealed partial record ColourEffectInputs
 {
     /// <summary>
     /// Samus's whole-pixel room height this update, which the lightning compares with

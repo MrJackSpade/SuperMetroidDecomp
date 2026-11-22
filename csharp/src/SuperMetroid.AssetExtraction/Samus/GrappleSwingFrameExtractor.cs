@@ -6,7 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts displayed orientation, never the physical body placement associated with it.</summary>
-public static class GrappleSwingFrameExtractor
+public static partial class GrappleSwingFrameExtractor
 {
     /// <summary>Asset filename for the editable swing-direction-to-displayed-orientation mapping.</summary>
     public const string FileName = "grapple-swing-frames.json";

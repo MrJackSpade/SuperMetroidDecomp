@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// sprite set of the colouring the title draws it in (#1513), coloured as the title loads its palette, with a shade for each colouring the compositions draw in, for
 /// the copyright's colours as the skip restores them (#1512) and for each record the logo's and copyright's fades show (#1714).
 /// </summary>
-internal static class TitleSheetComposer
+internal static partial class TitleSheetComposer
 {
     /// <summary>The sprite colourings in the order the title sheet lists their drawn shades (#2567): text, logo, copyright.</summary>
     private static readonly IReadOnlyList<TitleSpriteColouring> Colourings = Ensure.EveryMemberOnce<TitleSpriteColouring>(
@@ -39,7 +39,7 @@ internal static class TitleSheetComposer
     /// records coloured from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">A fade's record has no colour in the import's palette-effect colours, or writes past its colours.</exception>
-    private static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
+    internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
     {
         TitleGraphicsCharacters characters = Ensure.NotNull(graphics);
         Ensure.NotNull(palette);

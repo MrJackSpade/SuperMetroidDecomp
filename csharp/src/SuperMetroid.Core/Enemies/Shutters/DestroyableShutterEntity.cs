@@ -11,15 +11,15 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the shutter's population entry tells its species.</param>
-internal sealed class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class DestroyableShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     ShutterSpawnSettings settings)
     : VerticalShutterEntity(species, occupant, place, common, settings, ShutterSegment.FullyGrown), IEnemyInitialization
 {
     /// <summary>The shutter's own shot reaction, built once for this shutter.</summary>
-    private EnemyShotReaction OwnShot => field ??= Species.DestroyableShutterShotReaction(Settings, State);
+    private EnemyShotReaction OwnShot => field ??= ShuttersBehavior.DestroyableShutterShotReaction(this);
 
     /// <summary>The shutter's own stages around common bomb damage, built once for this shutter.</summary>
-    private EnemyBombReaction OwnBomb => field ??= Species.DestroyableShutterBombReaction(Settings, State);
+    private EnemyBombReaction OwnBomb => field ??= ShuttersBehavior.DestroyableShutterBombReaction(this);
 
     /// <summary>Keeps the shutter, set up as vertical shutters are as it was built, among the shutters the escape's flash shows on (#2380).</summary>
     public void Initialize() => Species.KeepDestroyableShutter(this);

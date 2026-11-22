@@ -40,7 +40,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// that recolour fixed rows or select another row (the statue scenes, the Ninja Pirates' gold wall, the Ceres doors, the
 /// drained corpses and the n00b tube's cracks).
 /// </summary>
-internal sealed class EnemySheetShades
+internal sealed partial class EnemySheetShades
 {
     /// <summary>
     /// The palette row an enemy sheet draws a part in when neither the part nor its frame's draw chooses one: every
@@ -623,7 +623,7 @@ internal sealed class EnemySheetShades
     /// darkened, brightened, materialized, vanished and materialized again from white, as its AI drives it.
     /// </summary>
     /// <exception cref="InvalidDataException">A step's shade names two different colourings.</exception>
-    private static IReadOnlyList<ShadeColours> GhostFadeSteps()
+    internal static IReadOnlyList<ShadeColours> GhostFadeSteps()
     {
         var steps = new Dictionary<PictureShade, RgbColor[]>();
         WreckedShipGhostFade fade = WreckedShipGhostFade.Dark;

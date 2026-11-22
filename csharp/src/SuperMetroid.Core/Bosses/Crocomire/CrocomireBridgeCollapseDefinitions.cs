@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's fall through his bridge (#2171): where it breaks, how he sinks and rises, and where his sinking body disappears.</summary>
-internal static class CrocomireBridgeCollapseDefinitions
+internal static partial class CrocomireBridgeCollapseDefinitions
 {
     /// <summary>The body X from which Crocomire's weight breaks the bridge and he falls through it.</summary>
     internal const int CollapseStartX = 1600;

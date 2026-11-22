@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the encounter's selected pulse and target colors.</summary>
-public static class BabyMetroidColorFormat
+public static partial class BabyMetroidColorFormat
 {
     /// <summary>Installed editable JSON filename for the eight-frame pulse and three initialization target images.</summary>
     public const string FileName = "shitroid-colors.json";

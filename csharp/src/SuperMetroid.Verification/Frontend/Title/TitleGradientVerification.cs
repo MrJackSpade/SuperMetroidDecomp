@@ -109,8 +109,7 @@ internal static class TitleGradientVerification
             TitleFloorTileDefinitions.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
-        TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(
-            files[TitleGraphicsFormat.FloorMapFile], ArtworkJson.Options)
+        TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(files[TitleGraphicsFormat.FloorMapFile], global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
@@ -163,7 +162,7 @@ internal static class TitleGradientVerification
         TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleCard.Year, 1));
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
-        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
+        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(malformedMap),
@@ -268,9 +267,9 @@ internal static class TitleGradientVerification
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {
@@ -301,11 +300,9 @@ internal static class TitleGradientVerification
     /// <summary>Mutates title-palette JSON to check version, shape, color bounds, and native-address rejection.</summary>
     private static void VerifyTitlePaletteValidation(byte[] extracted)
     {
-        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
-            extracted,
-            ArtworkJson.Options)
+        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title palette document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitlePaletteFile.Read(new MemoryStream(Json(), writable: false)),
             description);
@@ -441,11 +438,9 @@ internal static class TitleGradientVerification
     /// <summary>Mutates extracted gradient JSON to check schema, stop structure, blend fields, and native-address rejection.</summary>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
-        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
-            extracted,
-            ArtworkJson.Options)
+        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitleGradientFile.Read(new MemoryStream(Json(), writable: false)),
             description);

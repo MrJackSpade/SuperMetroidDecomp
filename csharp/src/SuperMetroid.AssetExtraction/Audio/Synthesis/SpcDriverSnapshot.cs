@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// rather than producing a different snapshot.
 /// </summary>
 [EncodingOwner("sound driver state snapshot bytes")]
-internal static class SpcDriverSnapshot
+internal static partial class SpcDriverSnapshot
 {
     /// <summary>Appends each driver byte in <paramref name="values"/>, in order.</summary>
     public static void AddBytes(List<byte> state, ReadOnlySpan<int> values)

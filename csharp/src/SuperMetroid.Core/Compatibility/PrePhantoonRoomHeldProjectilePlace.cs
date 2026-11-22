@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (#1851).
 /// </remarks>
 [CompatibilityService("the pre-Phantoon room's setup holds an enemy-projectile place for its first 32 projectile updates, so projectiles spawned meanwhile take the place below it")]
-public sealed class PrePhantoonRoomHeldProjectilePlace
+public sealed partial class PrePhantoonRoomHeldProjectilePlace
 {
     /// <summary>The projectile updates the place is held before the update that frees it.</summary>
     public const int HeldUpdates = 32;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Runtime;
 /// door's transition under way: up to its destination's load (<see cref="OrdinaryDoorTransition"/>), then through its
 /// opening scroll and fade in (<see cref="OpeningDoorTransition"/>), each carrying everything that part of it holds.
 /// </summary>
-internal abstract class DoorTransitionStage
+internal abstract partial class DoorTransitionStage
 {
     /// <summary>No door transition has begun.</summary>
     internal static DoorTransitionStage Inactive { get; } = new Resting(new DoorTransitionPhase.Inactive());
@@ -38,7 +38,7 @@ internal abstract class DoorTransitionStage
 
     /// <summary>A stage with no transition under way.</summary>
     /// <param name="phase"><see cref="DoorTransitionPhase.Inactive"/> or <see cref="DoorTransitionPhase.Complete"/>.</param>
-    private sealed class Resting(DoorTransitionPhase phase) : DoorTransitionStage
+    private sealed partial class Resting(DoorTransitionPhase phase) : DoorTransitionStage
     {
         /// <inheritdoc/>
         internal override DoorTransitionPhase Phase { get; } = phase;

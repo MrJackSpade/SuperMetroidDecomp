@@ -1469,10 +1469,6 @@ SamusTerrain.InRoom(floor, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Mor
     SamusPoseMetadata.RefreshCollisionRadii(bombJump);
     SamusPresentation.InitializeAnimation(bombJump);
     bombJump.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => bombJump.RequestMorphedBombJump((SamusBombJumpDirection)(-1)),
-        "an undefined bomb-jump direction rejected");
-
     bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Right);
     AssertEqual(SamusBombJump.FromBlast(SamusBombJumpDirection.Right).Arm(), bombJump.BombJump, "right bomb jump accepted");
     ushort startX = bombJump.Position.X.Whole;

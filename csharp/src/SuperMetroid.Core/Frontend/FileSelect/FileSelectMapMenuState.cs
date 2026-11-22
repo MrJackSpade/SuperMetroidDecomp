@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Entry, area/room confirmation, scrolling, return and load handoff each retain their
 /// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
-public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+public sealed partial class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     public void BindSpriteSheets(InstalledSpriteSheets sheets)
@@ -35,9 +35,9 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
-    private readonly FileSelectRoomMapGraphics roomGraphics;
+    internal readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    private MapScroll Scroll { get; set; }
+    internal MapScroll Scroll { get; set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>The saved station, which restores the marker and scroll anchor.</summary>
@@ -137,6 +137,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen, IComposedFront
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapNavigationPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FileSelectMapNavigationPhase, Action> StepForFileSelectMapNavigationPhase => field ??= new(new Dictionary<FileSelectMapNavigationPhase, Action>
     {
         [FileSelectMapNavigationPhase.AreaReturnRequested] = () =>

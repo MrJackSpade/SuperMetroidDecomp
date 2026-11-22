@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Extracts pause inventory label artwork and its visual destinations.</summary>
-public static class PauseEquipmentLabelExtractor
+public static partial class PauseEquipmentLabelExtractor
 {
     /// <summary>Resolves native equipment-label destinations and tilemap pointers, verifies the Hyper Beam pointer layout, and serializes editable label cells.</summary>
     /// <param name="bus">Supported-cartridge address space containing equipment label offsets, pointer tables, and tilemap words.</param>

@@ -127,31 +127,9 @@ internal static class EnemyAnimationIsolationFixtureVerification
     }
 
     /// <summary>
-    /// Compares public scalar state, including instruction identities, timers, positions, and health.
-    /// Reference owners and editable catalogs differ by design; collections are compared separately.
+    /// Compares two fixtures' states through their whole debugger-state graphs (#2602): instruction identities, timers,
+    /// positions, health and every other value the compiler writes for the state, both naming the installed content by path.
     /// </summary>
-    internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
-    {
-        foreach (PropertyInfo property in AnimationValueProperties<T>.All)
-            AssertEqual(property.GetValue(baseline), property.GetValue(edited), context + " " + typeof(T).Name + "." + property.Name);
-    }
-
-    /// <summary>Selects scalar properties that can be compared without traversing fixture-owned references.</summary>
-    internal static class AnimationValueProperties<T> where T : class
-    {
-        /// <summary>
-        /// Public non-indexer value and string properties of the state type. A value that holds a collection through a
-        /// collection interface, as an enemy pass's events (#2562), is a collection, which two fixtures never share, so its
-        /// equality would compare the two collections' identities; it is compared separately with the collections.
-        /// </summary>
-        internal static readonly PropertyInfo[] All = MetadataShape.Properties(typeof(T), BindingFlags.Instance | BindingFlags.Public)
-            .Where(property => property.GetIndexParameters().Length == 0 &&
-                (property.PropertyType.IsValueType && !property.PropertyType.IsByRefLike && !HoldsCollection(property.PropertyType)
-                    || property.PropertyType == typeof(string))).ToArray();
-
-        /// <summary>Whether a value of <paramref name="type"/> holds a collection through a collection interface.</summary>
-        private static bool HoldsCollection(Type type) =>
-            MetadataShape.Fields(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Any(field => field.FieldType.IsInterface && typeof(System.Collections.IEnumerable).IsAssignableFrom(field.FieldType));
-    }
+    internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class =>
+        AssertTrue(GraphDigestVerification.SameGraph(baseline, edited), context + " " + typeof(T).Name + " state");
 }

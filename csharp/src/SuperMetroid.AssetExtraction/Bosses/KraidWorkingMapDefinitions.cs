@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// working map of two 32-by-32 pages the cartridge builds from them, and the head images drawn over its upper page.
 /// Where each source sits in the cartridge is <c>CartridgeTables/KraidSourceDefinitions</c>.
 /// </summary>
-internal static class KraidWorkingMapDefinitions
+internal static partial class KraidWorkingMapDefinitions
 {
     /// <summary>The installed length of either body tilemap (upper or lower): 2048 two-byte cells.</summary>
     internal const int SourceTilemapBytes = 4096;

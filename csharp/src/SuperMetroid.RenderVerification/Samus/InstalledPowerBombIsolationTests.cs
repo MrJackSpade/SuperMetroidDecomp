@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
-using System.Reflection;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -13,7 +12,7 @@ namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -82,26 +81,24 @@ internal static class InstalledPowerBombIsolationTests
         return state;
     }
 
-    /// <summary>Compares all serialized explosion fields except the editable colour output.</summary>
+    /// <summary>
+    /// Compares the two explosions' whole debugger-state graphs (#2000, #2602): every field the state holds, its private
+    /// phase timers, its blast's and its animation players', as the generated serializer writes them, byte for byte. Both
+    /// sides step with the same installed colours, so the colour the blast adds is compared too (#2397).
+    /// </summary>
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
-        // Include private phase timers and every future serialized field, the explosion's own and its blast's (#2000). Only
-        // the colour the blast adds may differ: the installed colours are its owner's, never the blast's (#2397).
-        RequireSameFields(typeof(SamusPowerBombExplosionState), first, second, "<Blast>k__BackingField", context);
-        RequireSameFields(typeof(PowerBombBlastTimeline), first.Blast, second.Blast, null, context);
+        byte[] expected = Graph(first), actual = Graph(second);
+        Require(expected.AsSpan().SequenceEqual(actual), $"{context}: the explosion graphs differ ({expected.Length} and {actual.Length} bytes)");
     }
 
-    /// <summary>Compares every serialized field of <paramref name="type"/> except the glow colour and the named nested owner.</summary>
-    private static void RequireSameFields(Type type, object first, object second, string? nestedField, string context)
+    /// <summary>The explosion's debugger-state graph, which holds no installed content.</summary>
+    private static byte[] Graph(SamusPowerBombExplosionState state)
     {
-        foreach (FieldInfo field in MetadataShape.Fields(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-        {
-            if (field.IsDefined(typeof(NonSerializedAttribute)) || field.Name == nestedField || field.Name is
-                "<GlowColor>k__BackingField") continue;
-            Require(Equals(field.GetValue(first), field.GetValue(second)),
-                $"{context}: {field.Name} differs: first={field.GetValue(first)}, second={field.GetValue(second)}");
-        }
+        using var data = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(data, state, new BoundObjectGraph(Array.Empty<object>()));
+        return data.ToArray();
     }
 
     /// <summary>Captures the three live glow colour outputs without including simulation state.</summary>

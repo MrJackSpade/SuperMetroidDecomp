@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// player after any hidden wait. A particle stands in one of two stages (#2554): waiting hidden, which shows nothing, or
 /// showing its animation, which always shows a picture.
 /// </summary>
-public sealed class SamusParticle
+public sealed partial class SamusParticle
 {
     /// <summary>Starts a particle at <paramref name="from"/> in its animation.</summary>
     /// <param name="kind">What it shows.</param>
@@ -55,7 +55,7 @@ public sealed class SamusParticle
     public SamusParticleKind Kind { get; }
 
     /// <summary>Where the particle stands: waiting hidden, or showing its animation's pictures.</summary>
-    internal SamusParticleStage Stage { get; private set; }
+    internal SamusParticleStage Stage { get; internal set; }
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// Torizo's state beyond what every enemy has. The Torizo's entity owns it as its species state (#2030).
 /// </summary>
-public sealed class TorizoEnemyState
+public sealed partial class TorizoEnemyState
 {
     /// <summary>Creates the state of a Torizo of <paramref name="variant"/>, Bomb or Golden Torizo.</summary>
     internal TorizoEnemyState(TorizoVariant variant)

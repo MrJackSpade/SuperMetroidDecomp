@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>One slot-field patch's installed cells.</summary>
-internal sealed class FileSelectCompiledPatch
+internal sealed partial class FileSelectCompiledPatch
 {
     /// <summary>The installed cells in placement order.</summary>
     private readonly FileSelectCompiledPatchCell[] cells;

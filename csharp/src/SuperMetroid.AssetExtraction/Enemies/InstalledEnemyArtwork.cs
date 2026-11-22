@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The enemies', bosses' and areas' characters and colour documents are import data the installation never holds
 /// (<see cref="ImportEnemyArtwork"/>, #1637); the game draws the sheets composed from them.
 /// </summary>
-public sealed class InstalledEnemyArtwork
+public sealed partial class InstalledEnemyArtwork
 {
     /// <summary>Binds the frames' displays and Kraid's eye colours, with the identity of the documents installed beside them.</summary>
     /// <param name="frameDisplays">Every installed enemy frame as gameplay draws it.</param>

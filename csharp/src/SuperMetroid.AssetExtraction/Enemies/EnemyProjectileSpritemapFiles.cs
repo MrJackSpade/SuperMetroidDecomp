@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Exports authored bank-$8D projectile OAM parts, not animation control flow.</summary>
-public static class EnemyProjectileSpritemapFiles
+public static partial class EnemyProjectileSpritemapFiles
 {
     /// <summary>Imports named enemy-projectile OAM compositions, including program frames read through the bank-$86 operands they are stored at.</summary>
     /// <param name="bus">Non-null cartridge address space supplying bank $8D spritemaps and their bank $86 instruction operands.</param>

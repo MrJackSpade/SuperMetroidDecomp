@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Speed Booster blocks' draws (#1994, #2034): the bombed reveal's family and the crumbling draws.</summary>
-internal static class SpeedBoosterBlockObjectDraws
+internal static partial class SpeedBoosterBlockObjectDraws
 {
     /// <summary>The bombed Speed Booster block's reveal, pictured by its installed frame.</summary>
     internal static RoomObjectDrawFamily<SpeedBoosterBlockObjectDrawDefinitions.Draw> BombRevealFamily { get; } =

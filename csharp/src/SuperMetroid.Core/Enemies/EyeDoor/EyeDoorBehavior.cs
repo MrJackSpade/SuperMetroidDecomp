@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye doors' projectiles: the shots the eye fires, the sweat it drips and the smoke it leaves.</summary>
 [RoomLifetime]
-internal sealed class EyeDoorBehavior
+internal sealed partial class EyeDoorBehavior
 {
     /// <summary>Provides the loaded room and random seed for smoke placement.</summary>
     private readonly EnemyRoomBinding _room;
@@ -23,6 +23,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>What <see cref="SpawnEyeDoorProjectile"/> does for each <see cref="EyeDoorProjectileDefinition"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>> SpawnEyeDoorProjectileForEyeDoorProjectileDefinition => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Action<EyeDoorProjectileRequest, RoomEnemyProjectileKind, EnemyProjectile, Position16<RoomBlocks>>>
     {
         [EyeDoorProjectileDefinition.Sweat] = (request, kind, projectile, block) =>
@@ -34,6 +35,7 @@ internal sealed class EyeDoorBehavior
     });
 
     /// <summary>The animation each <see cref="EyeDoorProjectileDefinition"/>'s projectile spawns playing (#2553).</summary>
+    [field: NonSerialized]
     private IdentityTable<EyeDoorProjectileDefinition, Func<EnemyProjectileAnimation>> EyeDoorProjectileAnimations => field ??= new(new Dictionary<EyeDoorProjectileDefinition, Func<EnemyProjectileAnimation>>
     {
         [EyeDoorProjectileDefinition.Sweat] = () => new EyeDoorSweatAnimation(Sweat, EyeDoorSweatSegment.Falling),
@@ -87,21 +89,31 @@ internal sealed class EyeDoorBehavior
     /// The eye's shot (#1760): it flies until it strikes the room or its door opens; a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    private EyeDoorProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
+    internal EyeDoorProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
         initial: null, shot: EyeDoorProjectileSegment.Shot);
 
     /// <summary>A sweat drop (#1760): it falls from its spawn and splashes on the floor.</summary>
-    private EyeDoorProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
+    internal EyeDoorProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
 
     /// <summary>
     /// An eye door's shot or sweat: the shot's flight, which its animation starts, the sweat's fall, which its spawn starts,
     /// and their animations' cues.
     /// </summary>
-    /// <param name="initial">The motion the projectile starts with: the sweat's fall, or none for the shot.</param>
-    /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, EyeDoorProjectileSegment? shot = null)
-        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>(initial), IEnemyProjectileCues<EyeDoorProjectileCue>
+    internal sealed partial class EyeDoorProjectileBehavior
+        : EnemyProjectileMotionBehavior<EyeDoorProjectileMotion>, IEnemyProjectileCues<EyeDoorProjectileCue>
     {
+        /// <summary>Where the animation a destroying shot starts begins, or null for the shared delete animation.</summary>
+        private readonly EyeDoorProjectileSegment? shot;
+
+        /// <summary>Creates an <see cref="EyeDoorProjectileBehavior"/>.</summary>
+        /// <param name="initial">The motion the projectile starts with: the sweat's fall, or none for the shot.</param>
+        /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
+        public EyeDoorProjectileBehavior(EyeDoorProjectileMotion? initial, EyeDoorProjectileSegment? shot = null)
+            : base(initial)
+        {
+            this.shot = shot;
+        }
+
         /// <summary>Each shot's door, the game state that records its opening and its heading, given as its eye fires it.</summary>
         internal EnemyProjectileStates<EyeDoorShotState> Shots { get; } = new();
 
@@ -110,6 +122,7 @@ internal sealed class EyeDoorBehavior
             shot is { } segment ? new EyeDoorProjectileAnimation(this, segment) : base.ShotAnimation();
 
         /// <summary>What <c>Move</c> does for each <see cref="EyeDoorProjectileMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<EyeDoorProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForEyeDoorProjectileMotion => field ??= new(new Dictionary<EyeDoorProjectileMotion, Action<EnemyProjectileMotionContext>>
         {
             [EyeDoorProjectileMotion.ShotFlying] = context => FlyEyeDoorProjectile(this, context.Projectile, context.Level),
@@ -204,7 +217,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Applies sweat gravity and starts the impact animation on a downward vertical collision.</summary>
-    private static void DripEyeDoorSweat(
+    internal static void DripEyeDoorSweat(
         EyeDoorProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -227,7 +240,7 @@ internal sealed class EyeDoorBehavior
     /// The eye shot's per-update acceleration along <paramref name="angle"/>'s sine: a sixteenth of the one-pixel sine
     /// velocity, rounded toward decreasing coordinates, so a small negative sine still accelerates the shot back.
     /// </summary>
-    private static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
+    internal static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>

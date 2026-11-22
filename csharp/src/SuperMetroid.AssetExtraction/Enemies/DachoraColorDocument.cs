@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The import's Dachora colours (#1637), import data only the import pre-colours his sheet's shades from; frame timing,
 /// speed thresholds, and shine-state transitions are not schema fields.
 /// </summary>
-public sealed record DachoraColorDocument
+public sealed partial record DachoraColorDocument
 {
     /// <summary>Schema revision required to equal <see cref="DachoraColorFormat.Version"/> during loading.</summary>
     public required int Version { get; init; }

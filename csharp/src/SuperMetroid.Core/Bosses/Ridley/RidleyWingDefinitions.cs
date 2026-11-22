@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Ridley.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>How fast Ridley's wings beat for the speed he flies at, and the pose each Ridley's wing beat starts in (#2232, #2329).</summary>
-internal static class RidleyWingDefinitions
+internal static partial class RidleyWingDefinitions
 {
     /// <summary>
     /// The countdown each update takes off the wing beat for Ridley's speed, by the whole quarter pixels of his faster axis,

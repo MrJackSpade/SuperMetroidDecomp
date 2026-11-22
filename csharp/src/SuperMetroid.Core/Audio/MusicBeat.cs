@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="ClipAudioLibrary.InitialBeat"/> and is then each song's last. A song change waits for the beat to complete,
 /// so songs change in time with the music. Presentation only: no gameplay update reads it.
 /// </summary>
-internal sealed class MusicBeat
+internal sealed partial class MusicBeat
 {
     /// <summary>The played part of the beat over <see cref="whole"/>: zero or more, and less than it.</summary>
     private long played;

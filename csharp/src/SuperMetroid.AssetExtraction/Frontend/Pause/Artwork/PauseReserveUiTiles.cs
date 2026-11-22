@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// The pause screen's reserve-tank labels' widths and the digit tiles the import extracts
 /// (<see cref="PauseReserveUiDefinitions"/>); <see cref="PauseReserveLabelKeys"/> keys the labels.
 /// </summary>
-public static class PauseReserveUiTiles
+public static partial class PauseReserveUiTiles
 {
     /// <summary>MODE and RESERVE TANK occupy seven cells; MANUAL and AUTO occupy four replacement cells.</summary>
     internal static int LabelCellCount(PauseReserveLabel label) => label switch

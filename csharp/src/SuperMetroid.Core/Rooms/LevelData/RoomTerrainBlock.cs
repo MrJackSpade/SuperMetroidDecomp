@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <param name="Appearance">What the block shows.</param>
 /// <param name="Collision">How the block collides.</param>
-public readonly record struct RoomTerrainBlock(RoomBlockAppearance Appearance, RoomCollisionType Collision)
+public readonly partial record struct RoomTerrainBlock(RoomBlockAppearance Appearance, RoomCollisionType Collision)
 {
     /// <summary>The block showing <paramref name="block"/> mirrored by <paramref name="mirroring"/> and colliding as <paramref name="collision"/>.</summary>
     /// <param name="block">The block's number in the tileset's block set, zero or more; the tileset's sheet bounds it.</param>

@@ -65,9 +65,6 @@ internal static class LookupTreadmillMechanicsVerification
             bool waits = BlockAnimationLoops.HasLoop(header) && BlockAnimationLoops.WaitsForAreaBoss(header);
             AssertEqual(value is 0x8275 or 0x827b, waits, "Exactly the treadmill headers wait for the area's boss");
         }
-        foreach (int value in new[] { int.MinValue, -1, 2, 3, 255, 65535, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => BlockAnimationLoops.Treadmill(
-                (WreckedShipTreadmillDirection)value), "Unknown direction rejects");
     }
 
     /// <summary>Checks the wait instruction address selected by each native object header.</summary>

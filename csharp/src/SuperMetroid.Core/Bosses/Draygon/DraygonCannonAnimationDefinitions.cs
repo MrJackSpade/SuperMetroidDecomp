@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// and rests on it; a hit that does not destroy it flashes the shield white (<see cref="Flashes"/>); a destroyed cannon sparks for
 /// good.
 /// </summary>
-internal static class DraygonCannonAnimationDefinitions
+internal static partial class DraygonCannonAnimationDefinitions
 {
     /// <summary>How long the shield shows before the cannon rests on it.</summary>
     internal const int ShieldDuration = 8;

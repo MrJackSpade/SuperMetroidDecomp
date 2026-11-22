@@ -13,7 +13,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the remaining Ceres map slices and Zebes reveal transfers.</summary>
-internal static class CeresDestructionArtworkExtractor
+internal static partial class CeresDestructionArtworkExtractor
 {
     /// <summary>Exports the three Ceres destruction map slices, Zebes reveal
     /// artwork, sprite frames, and actor placements, checking the cartridge's reveal

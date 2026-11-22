@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 /// <param name="PathPlace">The place on his figure-eight path his body resumes from (<c>Places</c>).</param>
 /// <param name="BodyPosition">His body's whole-pixel room position.</param>
-public sealed record PhantoonRainPattern(int PathPlace, Position16<RoomPixels> BodyPosition)
+public sealed partial record PhantoonRainPattern(int PathPlace, Position16<RoomPixels> BodyPosition)
 {
     /// <summary>
     /// The rain column of its first flame (#2471, #2556, <see cref="PhantoonFlameSpawnDefinitions.RainXs"/>): the column

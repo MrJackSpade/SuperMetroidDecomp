@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The escape animals species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     /// <summary>An escaping Etecoon, from its settings, or the escaping Dachora (#2146).</summary>
@@ -82,6 +82,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunEscapeEtecoonMain"/> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
     {
         [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },
@@ -193,10 +194,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="State">The state the cases read.</param>
-    private readonly record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
+    private readonly partial record struct ApplyEscapeEtecoonCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeEtecoonEnemyState State);
 
     /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
-    private static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
+    internal static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
         running == HorizontalDirection.Left ? EscapeEtecoonSegment.RunningLeftHighTide : EscapeEtecoonSegment.RunningRightHighTide;
 
     /// <summary>
@@ -222,20 +223,20 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="EscapeAnimalsBehavior"/> reacting.</param>
-    private readonly record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
+    private readonly partial record struct ApplyEscapeDachoraCueContext(SamusState Samus, RoomEnemyPlace Place, EscapeAnimalsBehavior Owner);
 
     /// <summary>
     /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran
     /// (#2167): the end of the high-tide lap that way, counting on the laps the low-tide run had left.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.HighTideLapsAfterLeftLap : EscapeDachoraAnimations.HighTideLapsAfterRightLap;
 
     /// <summary>
     /// Where the critters' escape takes the escaping Dachora at the end of a lap the way <paramref name="lap"/> ran (#2167):
     /// the run for the escape, from its pause after a lap to the left and from its acceleration after one to the right.
     /// </summary>
-    private static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
+    internal static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
         lap == HorizontalDirection.Left ? EscapeDachoraAnimations.EscapeAfterLeftLap : EscapeDachoraAnimations.EscapeAfterRightLap;
 
     /// <summary>Whether the critters have escaped, which both escaping animals read.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Each collision kind of a room's blocks.</summary>
-internal static class RoomCollisionTypeDefinitions
+internal static partial class RoomCollisionTypeDefinitions
 {
     /// <summary>
     /// Each kind: what its blocks' behaviour describes and the reaction family they name, whether a bomb's spread passes

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>The update counts of the game's music queue and its three sound queues.</summary>
-public static class AudioQueueDefinitions
+public static partial class AudioQueueDefinitions
 {
     /// <summary>
     /// The data set the game's songs are asked of from power-on until it loads its first set: the title sequence's, which

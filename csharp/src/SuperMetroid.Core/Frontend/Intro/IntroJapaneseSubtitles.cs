@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// the frame after it begins. Each of a subtitle's steps takes one update (#2488), so a step is taken on every update
 /// the subtitle shows.
 /// </remarks>
-internal sealed class IntroJapaneseSubtitles
+internal sealed partial class IntroJapaneseSubtitles
 {
     /// <summary>Frames the second subtitle holds a page's input wait.</summary>
     public const int SecondSubtitleHoldFrames = 60;
@@ -81,6 +81,7 @@ internal sealed class IntroJapaneseSubtitles
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="SubtitleStage"/> member, each member's own arm, given its page.</summary>
+    [field: NonSerialized]
     private IdentityTable<SubtitleStage, Action<IntroNarrationPageId, Action<IntroNarrationPageId>>> StepForSubtitleStage => field ??= new(new Dictionary<SubtitleStage, Action<IntroNarrationPageId, Action<IntroNarrationPageId>>>
     {
         [SubtitleStage.ShowFirstSubtitle] = (shownPage, startInputWait) => showing = new(shownPage, SubtitleStage.FinishFirstSubtitle),
@@ -117,7 +118,7 @@ internal sealed class IntroJapaneseSubtitles
     /// <summary>A subtitle showing: the page it belongs to and what it does on its next update.</summary>
     /// <param name="Page">The page whose subtitle is showing.</param>
     /// <param name="Stage">What the subtitle does on its next update.</param>
-    private readonly record struct ShowingSubtitle(IntroNarrationPageId Page, SubtitleStage Stage);
+    private readonly partial record struct ShowingSubtitle(IntroNarrationPageId Page, SubtitleStage Stage);
 
     /// <summary>The steps of a page's subtitles.</summary>
     private enum SubtitleStage

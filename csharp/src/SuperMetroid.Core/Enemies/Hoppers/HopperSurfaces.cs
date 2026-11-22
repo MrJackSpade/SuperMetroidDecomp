@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>Which way a hopper's surface sends its hops (#2473).</summary>
-internal static class HopperSurfaces
+internal static partial class HopperSurfaces
 {
     /// <summary>The away from of each surface.</summary>
     private static IdentityTable<HopperSurface, VerticalDirection> AwayFromBySurface => field ??= new(new Dictionary<HopperSurface, VerticalDirection>

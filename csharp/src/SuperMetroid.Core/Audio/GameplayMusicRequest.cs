@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>One music request gameplay makes for the music queue through <see cref="GameplayAudioRequests"/>.</summary>
-public abstract record GameplayMusicRequest
+public abstract partial record GameplayMusicRequest
 {
     /// <summary>Closes the hierarchy to the requests declared here.</summary>
     private GameplayMusicRequest()
@@ -17,14 +17,14 @@ public abstract record GameplayMusicRequest
 
     /// <summary>Schedules <paramref name="Request"/>'s music to play after its delay (<see cref="AudioQueues.ScheduleMusic"/>).</summary>
     /// <param name="Request">The music and how long it waits on the queue.</param>
-    public sealed record Scheduled(DelayedMusicRequest Request) : GameplayMusicRequest
+    public sealed partial record Scheduled(DelayedMusicRequest Request) : GameplayMusicRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(GameplayMusicRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Scheduled(this, context);
     }
 
     /// <summary>Runs the permanent-item fanfare's music sequence (<see cref="AudioQueues.QueuePermanentItemFanfare"/>).</summary>
-    public sealed record PermanentItemFanfare : GameplayMusicRequest
+    public sealed partial record PermanentItemFanfare : GameplayMusicRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(GameplayMusicRequestReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).PermanentItemFanfare(this, context);
@@ -35,4 +35,4 @@ public abstract record GameplayMusicRequest
 /// <param name="Scheduled">Reacts to a <see cref="GameplayMusicRequest.Scheduled"/>.</param>
 /// <param name="PermanentItemFanfare">Reacts to a <see cref="GameplayMusicRequest.PermanentItemFanfare"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record GameplayMusicRequestReactions<TContext>(Action<GameplayMusicRequest.Scheduled, TContext> Scheduled, Action<GameplayMusicRequest.PermanentItemFanfare, TContext> PermanentItemFanfare);
+public sealed partial record GameplayMusicRequestReactions<TContext>(Action<GameplayMusicRequest.Scheduled, TContext> Scheduled, Action<GameplayMusicRequest.PermanentItemFanfare, TContext> PermanentItemFanfare);

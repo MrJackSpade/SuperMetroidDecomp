@@ -15,14 +15,14 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the sprite rows as that context leaves them: a room load and the combination's beam palette in gameplay, the intro's
 /// own palette in its flashbacks.
 /// </summary>
-internal static class ProjectileSheetComposer
+internal static partial class ProjectileSheetComposer
 {
     /// <summary>
     /// The combinations with a sheet: every one with beam artwork of its own. Spazer with Plasma, with or without Ice
     /// and Wave, has none; its projectiles show the sheet of the shot its uncharged beam fires
     /// (<see cref="ProjectileSheetDefinitions.Sheets"/>, #1586).
     /// </summary>
-    private static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
+    internal static IReadOnlyList<SamusBeamCombination> Combinations { get; } =
     [
         SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
         SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce, SamusBeamCombination.SpazerIceWave,
@@ -121,7 +121,7 @@ internal static class ProjectileSheetComposer
 
     /// <summary>The context a projectile sheet composes in: the beams its projectiles show, its OBJ page and its colours.</summary>
     /// <param name="Beams">The beam combination whose projectiles the sheet shows.</param>
-    private abstract record ProjectileSheetContext(SamusBeamCombination Beams)
+    private abstract partial record ProjectileSheetContext(SamusBeamCombination Beams)
     {
         /// <summary>The sheet composed in this context.</summary>
         internal abstract SpriteSheetId Sheet { get; }
@@ -137,7 +137,7 @@ internal static class ProjectileSheetComposer
     }
 
     /// <summary>A combination's gameplay sheet: the standard OBJ page, coloured by a room load and the combination's beam palette.</summary>
-    private sealed record GameplaySheet(SamusBeamCombination Beams) : ProjectileSheetContext(Beams)
+    private sealed partial record GameplaySheet(SamusBeamCombination Beams) : ProjectileSheetContext(Beams)
     {
         /// <inheritdoc/>
         internal override SpriteSheetId Sheet => ProjectileSheetFrames.For(Beams);
@@ -153,7 +153,7 @@ internal static class ProjectileSheetComposer
     }
 
     /// <summary>The intro's flashbacks: the power beam over the intro's OBJ page, in the intro's own palette.</summary>
-    private sealed record IntroFlashbackSheet() : ProjectileSheetContext(SamusBeamCombination.Power)
+    private sealed partial record IntroFlashbackSheet() : ProjectileSheetContext(SamusBeamCombination.Power)
     {
         /// <inheritdoc/>
         internal override SpriteSheetId Sheet => SpriteSheetId.IntroProjectiles;

@@ -12,13 +12,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Torizo species owner, Bomb and Golden Torizo alike: their per-room state, behaviour and the interactions they register.</summary>
 [RoomLifetime]
-internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>
     /// The Bomb Torizo and the Golden Torizo, which only their rooms' population loads place: each reads the load's
     /// surroundings as it is set up.
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.BombTorizo], (occupant, _, place, common, surroundings) =>
@@ -49,7 +50,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal TorizoAttacks Attacks { get; }
 
     /// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
-    private TorizoChoices Choices { get; }
+    internal TorizoChoices Choices { get; }
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
@@ -88,6 +89,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.FadeToward(new TorizoLook(look));
 
     /// <summary>What <see cref="RunTorizoMain"/> does for each <see cref="TorizoPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>> RunTorizoMainForTorizoPhase => field ??= new(new Dictionary<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>>
     {
         [TorizoPhase.Idle] = (_, torizo, state, samus, level) => { },
@@ -223,6 +225,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation.ShowLook(look.Of(state.Variant.Artwork));
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoCueKind => field ??= new(new Dictionary<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoCueKind.StartWalking] = (_, torizo, state, inputs) =>
@@ -467,6 +470,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoInterruptKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoInterruptKind => field ??= new(new Dictionary<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoInterruptKind.BombSwipeAtSamusBehind] = (torizo, interrupt, state, inputs, continuation) => TorizoChoices.SelectBombTorizoCloseBehindBranch(
@@ -500,6 +504,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     });
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoBranchKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoBranchKind => field ??= new(new Dictionary<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoBranchKind.BombJumpBackFromSamusInFront] = (torizo, branch, state, inputs) => TorizoChoices.SelectBombTorizoCloseFrontJump(
@@ -531,7 +536,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// cue: the place in the walk an interruption keeps (#2028). The attack choice alternates with the time
     /// (<see cref="TorizoCueInputs.FrameCounter"/>), as the attack phase's definition states.
     /// </summary>
-    private AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
+    internal AnimationContinuation<TorizoBodySegment>? ApplyTorizoCue(
         RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         TorizoCueInputs inputs,
@@ -609,10 +614,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Inputs">The inputs the cases read.</param>
     /// <param name="Continuation">The continuation the cases read.</param>
     /// <param name="Owner">The <see cref="TorizoBehavior"/> reacting.</param>
-    private readonly record struct ApplyTorizoCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
+    private readonly partial record struct ApplyTorizoCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Torizo, TorizoEnemyState State, TorizoCueInputs Inputs, AnimationPlayback<TorizoBodySegment> Continuation, TorizoBehavior Owner);
 
     /// <summary>Moves a Torizo by a posture change's displacement standing up, or back by it sitting down.</summary>
-    private static void ApplyTorizoPosture(
+    internal static void ApplyTorizoPosture(
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
         TorizoPostureKind kind) =>

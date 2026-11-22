@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// when that projectile lies outside the flinch box.
 /// </remarks>
 [CompatibilityService("a Space Pirate flinches only from the shot in Samus's highest occupied shot place, even when a lower shot is closer")]
-public static class PirateFlinchFromHighestShot
+public static partial class PirateFlinchFromHighestShot
 {
     /// <summary>The one shot a pirate's flinch check tests, or null when no place holds a shot it reacts to.</summary>
     /// <typeparam name="TShot">One of Samus's shot places' projectiles.</typeparam>

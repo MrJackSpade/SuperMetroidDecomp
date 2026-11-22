@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Finds the collision components of the Spore Spawn frame shown.</summary>
-internal static class SporeSpawnCollision
+internal static partial class SporeSpawnCollision
 {
     /// <summary>Whether <paramref name="frame"/> is one of Spore Spawn's collision frames.</summary>
     internal static bool IsFrame(EnemyFrameId? frame) => frame is { } shown && FrameComponents.ContainsKey(shown);

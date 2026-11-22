@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The shades the import pre-colours a tileset's room pictures in (#1512): every colouring a colour effect of its rooms
 /// shows besides the tileset's standard colours, which gameplay names by the effect's typed state.
 /// </summary>
-internal static class RoomSheetShades
+internal static partial class RoomSheetShades
 {
     /// <summary>
     /// The shades of <paramref name="tileset"/>'s room pictures, its blocks, backgrounds, written pictures and floor: the
@@ -40,7 +40,7 @@ internal static class RoomSheetShades
     /// <summary>The shades a room of the listed enemies' rooms adds, from the room's sheet inputs.</summary>
     /// <param name="Enemies">The enemies whose rooms add the shades.</param>
     /// <param name="Shades">The shades the rooms add.</param>
-    private sealed record EnemyRoomShade(EnemyDefinitionId[] Enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> Shades);
+    private sealed partial record EnemyRoomShade(EnemyDefinitionId[] Enemies, Func<RoomBlockSheetInputs, IEnumerable<SheetShade>> Shades);
 
     /// <summary>
     /// The enemies whose colours recolour the rooms that place them, each with the shades they bring, in the order a

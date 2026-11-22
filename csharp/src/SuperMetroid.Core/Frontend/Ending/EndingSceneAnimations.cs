@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The animations of the ending scenes' picture actors (#641, #1600, #2196, #2197): a still picture holds, listed once with
 /// its picture (#2557), the planet's layers and the explosion's stars play their scene and publish its cues.
 /// </summary>
-internal static class EndingSceneAnimations
+internal static partial class EndingSceneAnimations
 {
     /// <summary>The ending scenes' picture actors' animations.</summary>
     internal static CinematicAnimations<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue> Pictures { get; } = new(

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// One frame of the map highlight cycle (#2361): the highlighted sprites show each frame's colours in turn, the first
 /// following the last. How many frames the cycle holds is installed (<see cref="MapHighlightCycle"/>).
 /// </summary>
-public readonly record struct MapHighlightFrame
+public readonly partial record struct MapHighlightFrame
 {
     /// <summary>The frame at <paramref name="frame"/> of the cycle.</summary>
-    private MapHighlightFrame(int frame) => Frame = frame;
+    internal MapHighlightFrame(int frame) => Frame = frame;
 
     /// <summary>The frame's place in the cycle, from zero: the step of its installed shade.</summary>
     public int Frame { get; }

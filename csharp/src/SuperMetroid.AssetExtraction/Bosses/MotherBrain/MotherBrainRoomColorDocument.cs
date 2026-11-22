@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable Mother Brain room-color schema; every supplied entry is a nonnull RGB5 color with channels 0..31, and nested arrays remain caller-mutable until compilation.</summary>
-public sealed record MotherBrainRoomColorDocument
+public sealed partial record MotherBrainRoomColorDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

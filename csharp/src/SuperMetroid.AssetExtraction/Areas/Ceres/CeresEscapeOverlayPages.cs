@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// width, the rows of words it spans, and the three pages in the order the import exports them. The game only writes each
 /// page's picture at its room pixel.
 /// </summary>
-internal static class CeresEscapeOverlayPages
+internal static partial class CeresEscapeOverlayPages
 {
     /// <summary>English warning title rendered from the Latin tile alphabet.</summary>
     /// <remarks>Authored warning wording and font ordering are categorical typography content. The selected two-half
@@ -48,7 +48,7 @@ internal static class CeresEscapeOverlayPages
     /// <summary>An overlay's wording and the eight-pixel rows its glyphs stand.</summary>
     /// <param name="Text">The wording the overlay spells.</param>
     /// <param name="GlyphRows">The eight-pixel rows its glyphs stand.</param>
-    private sealed record OverlayWording(string Text, int GlyphRows);
+    private sealed partial record OverlayWording(string Text, int GlyphRows);
 
     /// <summary>The authored wording one page spells: the title, or a subtitle line.</summary>
     /// <exception cref="KeyNotFoundException"><paramref name="page"/> is not one of the overlays.</exception>

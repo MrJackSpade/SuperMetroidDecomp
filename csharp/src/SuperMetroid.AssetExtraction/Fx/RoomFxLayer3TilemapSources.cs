@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Where the cartridge stores each room effect's layer-three page and palette blend (#1415).</summary>
-internal static class RoomFxLayer3TilemapSources
+internal static partial class RoomFxLayer3TilemapSources
 {
     /// <summary>
     /// The page <paramref name="type"/> shows: the six pages are consecutive in <see cref="RoomFxLayer3TilemapFormat.Types"/>

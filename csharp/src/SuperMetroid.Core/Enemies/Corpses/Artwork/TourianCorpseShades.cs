@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses.Artwork;
 /// already-dead Sidehopper, Zoomers, Rippers and Skrees lie in, and each step of the Baby Metroid victim's drain into a
 /// corpse. The import colours them from the installed Baby Metroid target colours and dead-Sidehopper drain colours.
 /// </summary>
-internal static class TourianCorpseShades
+internal static partial class TourianCorpseShades
 {
     /// <summary>
     /// The colours the Baby Metroid's room entry loads for its victim Sidehopper, which the Baby Metroid also draws in: the victim

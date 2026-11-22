@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Norfair room-header region, in table order.</summary>
-internal static class NorfairRoomEnemyGraphicsSetDefinitions
+internal static partial class NorfairRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetMembers[] Build() =>

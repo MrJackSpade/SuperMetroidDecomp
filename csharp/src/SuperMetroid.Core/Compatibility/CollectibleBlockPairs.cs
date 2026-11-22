@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// decodes how each one straddles.
 /// </remarks>
 [CompatibilityService("a room's collectibles that show their own picture write their frames into four pairs of terrain blocks taken in turn, which a Wave shot's straddled read sees")]
-public sealed class CollectibleBlockPairs
+public sealed partial class CollectibleBlockPairs
 {
     /// <summary>
     /// One of the four pairs of terrain blocks, named for what a straddled read ending in its blocks acts as (a solid block

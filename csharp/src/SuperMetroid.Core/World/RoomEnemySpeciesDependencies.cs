@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.World;
 [ArchitectureReview("wide-dependencies", "The composition seam for every species of the room: each owner is built from a " +
     "different subset of the room's shared enemy services, and the composition is the one place that names the species.")]
 [RoomLifetime]
-internal sealed record RoomEnemySpeciesDependencies
+internal sealed partial record RoomEnemySpeciesDependencies
 {
     /// <summary>The enemy state and installed artwork that outlive each room.</summary>
     public required EnemySession Session { get; init; }

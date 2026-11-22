@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Where the bank-$90 trail programs store each sparkle animation's beats (#2348): a frame's timed record takes four bytes,
 /// a move instruction two, and each program ends with a two-byte end word after its last beat.
 /// </summary>
-internal static class ProjectileTrailSources
+internal static partial class ProjectileTrailSources
 {
     /// <summary>The trail segments in the order their sources are read (#2567).</summary>
     private static readonly IReadOnlyList<ProjectileTrailSegment> TrailSegmentOrder = Ensure.EveryMemberOnce<ProjectileTrailSegment>(
@@ -21,7 +21,7 @@ internal static class ProjectileTrailSources
     ]);
 
     /// <summary>The bank-$90 address of <paramref name="program"/>'s first beat.</summary>
-    private static ushort Start(ProjectileTrailSegment program) =>
+    internal static ushort Start(ProjectileTrailSegment program) =>
         ProjectileTrailSourceDefinitions.Starts.ContainsKey(program)
             ? ProjectileTrailSourceDefinitions.Starts[program]
             : throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program.");
@@ -30,7 +30,7 @@ internal static class ProjectileTrailSources
     /// The bank-$90 address of beat <paramref name="beat"/> of <paramref name="program"/>; at the beat count, the program's
     /// end word.
     /// </summary>
-    private static ushort Address(ProjectileTrailSegment program, int beat)
+    internal static ushort Address(ProjectileTrailSegment program, int beat)
     {
         IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.PlayedBeats(program);
         if (beat < 0 || beat > beats.Count)

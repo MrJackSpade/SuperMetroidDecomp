@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// and each variant has its own configuration and row upload list. The variant numbers are the import's knowledge; the
 /// game knows each corpse by how it lies, and variants that show the same picture are one corpse.
 /// </summary>
-internal static class DeadTourianCorpses
+internal static partial class DeadTourianCorpses
 {
     /// <summary>The corpse each of a species' variants lies as, by variant number.</summary>
     private static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> CorpseByVariant = new()
@@ -49,7 +49,7 @@ internal static class DeadTourianCorpses
 
     /// <summary>The variants of <paramref name="species"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
-    private static DeadTourianCorpseDefinition[] Variants(DeadTourianCorpseSpecies species) =>
+    internal static DeadTourianCorpseDefinition[] Variants(DeadTourianCorpseSpecies species) =>
         CorpseByVariant.TryGetValue(species, out DeadTourianCorpseDefinition[]? variants)
             ? variants
             : throw new ArgumentOutOfRangeException(nameof(species), species, null);

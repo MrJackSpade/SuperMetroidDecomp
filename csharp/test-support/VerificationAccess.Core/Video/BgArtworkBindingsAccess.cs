@@ -9,7 +9,7 @@ internal static class BgArtworkBindingsAccess
     extension(BgArtworkBindings self)
     {
         /// <summary>The live bindings, oldest first, for verification's composition of what they show.</summary>
-        internal IReadOnlyList<BgArtworkBinding> Bound => PrivateState.Field<BgArtworkBindings, List<BgArtworkBinding>>(self, "bindings");
+        internal IReadOnlyList<BgArtworkBinding> Bound => self.bindings;
 
         /// <summary>
         /// What shows over <paramref name="characterCount"/> of <paramref name="set"/>'s characters from

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's enemy-library sound effects, queued at normal priority.</summary>
-internal static class BotwoonSoundDefinitions
+internal static partial class BotwoonSoundDefinitions
 {
     /// <summary>The spit sound, queued as the mouth opens.</summary>
     internal static readonly SoundEffectId Spit = EnemySound.BotwoonSpit;

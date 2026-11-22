@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// stages around common damage receive, which read how much the hit took.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record EnemyBombHitContext : EnemyBombContext
+internal sealed partial record EnemyBombHitContext : EnemyBombContext
 {
     /// <summary>Takes <paramref name="bomb"/> once its enemy's health before common bomb damage is <paramref name="healthBefore"/>.</summary>
     [SetsRequiredMembers]

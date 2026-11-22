@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// its edges repeats with that period. Each picture drawn over it is placed by its frame's origin: drawn at the floor's
 /// top-left corner, so its own top-left lands at the floor point the origin names, within the floor.
 /// </summary>
-public sealed class AffineFloor : IEquatable<AffineFloor>
+public sealed partial class AffineFloor : IEquatable<AffineFloor>
 {
     /// <summary>Holds a floor's image and the pictures drawn over it.</summary>
     /// <param name="image">The whole floor, placed at the floor's top-left corner.</param>

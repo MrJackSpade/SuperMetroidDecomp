@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// layout holds for the game (<see cref="PauseSelectorLayoutFile"/>), and each named frame's composition the pause sheet is
 /// composed from, which the game never receives (#1616).
 /// </summary>
-public sealed class PauseSelectorSourcePresentation
+public sealed partial class PauseSelectorSourcePresentation
 {
     /// <summary>Each named frame's composition, as the import reads it.</summary>
     private readonly Dictionary<string, SpriteComposition> visuals;
@@ -26,7 +26,7 @@ public sealed class PauseSelectorSourcePresentation
     }
 
     /// <summary>The anchors, frame sequences and timing the game binds.</summary>
-    private PauseSelectorPresentation Presentation { get; }
+    internal PauseSelectorPresentation Presentation { get; }
 
     /// <summary>The sprite set the pause sheet composes every selector frame in.</summary>
     internal int SpriteSet { get; }
@@ -73,7 +73,7 @@ public sealed class PauseSelectorSourcePresentation
     /// <summary>Writes a pause-selector document as JSON.</summary>
     public static void Write(Stream output, PauseSelectorDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseSelectorDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

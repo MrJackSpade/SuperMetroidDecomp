@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// Spore Spawn's colours (#1512): the health band his body shows and the step his death fade has reached over his body
 /// and his room. A defeated room loads the fade's last step as he initializes; the door's fade brings it in.
 /// </summary>
-internal sealed class SporeSpawnColours : IGameplayShadingSource
+internal sealed partial class SporeSpawnColours : IGameplayShadingSource
 {
     /// <summary>The health band his body shows, or null before any.</summary>
     private SporeSpawnHealthBand? health;

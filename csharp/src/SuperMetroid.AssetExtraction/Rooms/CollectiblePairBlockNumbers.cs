@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// allocation's as the next two; the collectible import compares every pair's blocks with the original draw lists' level
 /// words.
 /// </remarks>
-internal static class CollectiblePairBlockNumbers
+internal static partial class CollectiblePairBlockNumbers
 {
     /// <summary>The number of the block the first pair's collectible writes under its picture's primary look.</summary>
     private const int FirstPairPrimaryLookBlock = 142;

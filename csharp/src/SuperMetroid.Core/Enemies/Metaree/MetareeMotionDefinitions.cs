@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>When a Metaree dives, how it steers and how long it burrows (#2156).</summary>
-internal static class MetareeMotionDefinitions
+internal static partial class MetareeMotionDefinitions
 {
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, for a Metaree to dive, whichever side she is on vertically.</summary>
     internal const int ActivationDistance = 72;

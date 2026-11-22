@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Runtime;
 /// sends Samus to the reserves' refill or her death.
 /// </param>
 /// <param name="OutOfHealth">Where the update's out-of-health check sends Samus.</param>
-public readonly record struct RuntimeFrameOutcome(GameplayUpdateTransition Transition, SamusOutOfHealthRoute OutOfHealth)
+public readonly partial record struct RuntimeFrameOutcome(GameplayUpdateTransition Transition, SamusOutOfHealthRoute OutOfHealth)
 {
     /// <summary>
     /// Whether the update started the time-up: the escape countdown ran out during it, whitening the target colours and

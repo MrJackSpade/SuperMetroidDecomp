@@ -15,6 +15,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="TrailTiles">The ice/wave and missile trail characters the trail appearances name.</param>
 /// <param name="GrappleTiles">Grapple characters.</param>
 /// <param name="Compositions">The projectile, flare, trail and grapple compositions the sheets' pictures are composed from.</param>
-public sealed record ImportProjectileArtwork(InstalledProjectilePresentation Presentation, BeamTileCatalog BeamTiles, InstalledBeamPalettes BeamPalettes,
+public sealed partial record ImportProjectileArtwork(InstalledProjectilePresentation Presentation, BeamTileCatalog BeamTiles, InstalledBeamPalettes BeamPalettes,
     HyperBeamFxColours HyperBeamFxColors, ProjectileTrailAtlas TrailTiles,
     GrappleTileAtlas GrappleTiles, ProjectileCompositions Compositions);

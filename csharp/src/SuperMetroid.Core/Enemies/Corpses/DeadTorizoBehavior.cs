@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Torizo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -63,6 +63,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     }
 
     /// <summary>What <see cref="RunDeadTorizoMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>> RunDeadTorizoMainForDeadTorizoPhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTorizoEnemyState>>
     {
         [CorpsePhase.Waiting] = WaitToRot,
@@ -85,7 +86,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     }
 
     /// <summary>Runs the dead Torizo's main AI.</summary>
-    private void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState state, SamusState samus)
+    internal void RunDeadTorizoMain(RoomEnemyPlace place, DeadTorizoEnemyState state, SamusState samus)
     {
 
         // The custom detector remains enabled while the intact corpse is solid. Rotting
@@ -111,14 +112,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     }
 
     /// <summary>The rest of the corpse's shot and touch reactions.</summary>
-    private static void TriggerDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
+    internal static void TriggerDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         state.Phase = CorpsePhase.Rotting;
     }
 
     /// <summary>The corpse's power bomb reaction.</summary>
-    private static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState)
+    internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place, DeadTorizoEnemyState deadTorizoEnemyState)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTorizoRotting(place, deadTorizoEnemyState);
@@ -170,7 +171,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     /// own rot forms it. Each run of rot updates one more line of sand falls, from the heap's last row up, until all the
     /// heap's lines have fallen; the intact corpse has none.
     /// </summary>
-    private static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
+    internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
         int lines = state.SandForming.Age / DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine;
         return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);
@@ -219,21 +220,51 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<Ene
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyPowerBombReaction DeadTorizoPowerBombReaction(DeadTorizoEnemyState state) => new()
     {
+<<<<<<< HEAD
         ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
+||||||| 418ca79935
+        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy),
+=======
+        ReplacesCommon = TriggerDeadTorizoPowerBomb,
+>>>>>>> origin/main
     };
+
+    /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
+    private static void TriggerDeadTorizoPowerBomb(EnemyPowerBombContext context) => TriggerDeadTorizoPowerBomb(context.Enemy);
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction DeadTorizoShotReaction(DeadTorizoEnemyState state) => new()
     {
         // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
+<<<<<<< HEAD
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTorizoRotting(c.Enemy, state);
             return true;
         },
+||||||| 418ca79935
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
+        {
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            TriggerDeadTorizoRotting(c.Enemy);
+            return true;
+        },
+=======
+        BeforeSuperMissileQuake = MarkShotAndRot,
+>>>>>>> origin/main
     };
+
+    /// <summary>Marks a shot's hit on the corpse and starts it rotting, with no damage or explosion.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    private static bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        TriggerDeadTorizoRotting(c.Enemy);
+        return true;
+    }
 
     /// <summary>Starts the corpse rotting when Samus touches it.</summary>
     internal static void ReactToDeadTorizoTouch(EnemyTouchContext context, DeadTorizoEnemyState deadTorizoEnemyState) =>

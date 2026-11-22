@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// under which its statue starts another animation. Each cue is its own behaviour, so the statue sequence runs the cue it
 /// meets rather than looking up what a kind does; the values a cue acts on come from the statue's definition.
 /// </summary>
-internal sealed class TourianStatueBlockCue
+internal sealed partial class TourianStatueBlockCue
 {
     /// <summary>What the cue does to its statue, returning the animation the statue starts, or null to run on.</summary>
     private readonly Func<ITourianStatueCueTarget, AnimationContinuation<TourianStatueBlockSegment>?> _run;

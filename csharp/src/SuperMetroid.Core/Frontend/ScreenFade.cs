@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// the level by its step, stopping at black and at full. A step delay and first wait of <c>n</c> therefore step on the
 /// update <c>n + 1</c> updates from the start and every <c>n + 1</c> updates after it (<see cref="StepEvery"/>).
 /// </remarks>
-public sealed class ScreenFade
+public sealed partial class ScreenFade
 {
     /// <summary>A fade at <paramref name="level"/> that steps on every update.</summary>
     /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
@@ -43,7 +43,7 @@ public sealed class ScreenFade
     public bool IsBlack => Level.IsBlack;
 
     /// <summary>Whether the screen is fully lit.</summary>
-    private bool IsFullyLit => Level.IsFull;
+    internal bool IsFullyLit => Level.IsFull;
 
     /// <summary>Shows the screen at <paramref name="level"/>, leaving the cadence as it is.</summary>
     /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>

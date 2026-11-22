@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// foreground and background atlases' pixels compiled whole to the planar characters the world-map tile sheets compose
 /// from.
 /// </summary>
-public sealed class WorldMapCharacters
+public sealed partial class WorldMapCharacters
 {
     /// <summary>The installed foreground atlas as 4-bpp planar characters.</summary>
     private readonly byte[] foreground;

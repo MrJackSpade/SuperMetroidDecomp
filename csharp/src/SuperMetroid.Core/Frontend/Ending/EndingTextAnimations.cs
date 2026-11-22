@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The animations of the ending's typed texts (#1513, #2195, #2197): each types its text one letter a step, as a title
 /// card does, its frames the text typed so far, then publishes the cues that follow it and rests on the whole text.
 /// </summary>
-internal static class EndingTextAnimations
+internal static partial class EndingTextAnimations
 {
     /// <summary>The sprite family whose sheet pictures the typed texts' letters: the result text's.</summary>
     internal const EndingSpriteFamily Family = EndingSpriteFamily.EndingCompletionText;
@@ -21,7 +21,7 @@ internal static class EndingTextAnimations
     internal static CinematicAnimations<EndingTypedText, EndingTextTyping, EndingSceneCue> Texts { get; } = Create();
 
     /// <summary>How many letters <paramref name="text"/> types: its spelling's letters, without its spaces.</summary>
-    private static int Letters(EndingTypedText text) => D.Spellings[text].Count(letter => letter != ' ');
+    internal static int Letters(EndingTypedText text) => D.Spellings[text].Count(letter => letter != ' ');
 
     /// <summary>What <paramref name="text"/> shows as it types, in typing order: its text typed as far as each letter.</summary>
     internal static IReadOnlyList<EndingTextTyping> Typings(EndingTypedText text) =>

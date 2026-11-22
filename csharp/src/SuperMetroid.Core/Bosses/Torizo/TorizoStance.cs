@@ -14,6 +14,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="ArmDrawnBack">Its arm drawn back, held while its orbs fly.</param>
 /// <param name="NearArm">The arm on the viewer's side.</param>
 /// <param name="FarArm">The arm away from the viewer.</param>
-internal sealed record TorizoStance(
+internal sealed partial record TorizoStance(
     EnemyFrameId HeadLowered, EnemyFrameId HeadRaised, EnemyFrameId MouthOpening, EnemyFrameId ArmThrust, EnemyFrameId ArmRaised,
     EnemyFrameId ArmDrawnBack, TorizoArmPoses NearArm, TorizoArmPoses FarArm);

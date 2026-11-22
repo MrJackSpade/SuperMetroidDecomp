@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// A falling piece does not add its own acceleration; it adds the first projectile place's piece's
 /// (<see cref="FirstPlaceFallAcceleration"/>), so this value matters only to a piece in that place.
 /// </remarks>
-internal sealed class BombTorizoStatueFragmentState(SignedEightEight acceleration) : EnemyProjectileState
+internal sealed partial class BombTorizoStatueFragmentState(SignedEightEight acceleration) : EnemyProjectileState
 {
     /// <summary>The piece's acceleration, the speed it gains each update.</summary>
     internal SignedEightEight Acceleration { get; } = acceleration;

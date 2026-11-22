@@ -4,7 +4,7 @@ using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Kraid's typed rock animations (#641, #1600, #1817).</summary>
-internal static class KraidRockAnimations
+internal static partial class KraidRockAnimations
 {
     /// <summary>The spat rock's flare burst pictures (#2557).</summary>
     private static FlareBurst Burst { get; } = new(EnemyProjectileFrameId.KraidRockSpark, EnemyProjectileFrameId.KraidRockFlareBall, EnemyProjectileFrameId.KraidRockFlareRingCored,

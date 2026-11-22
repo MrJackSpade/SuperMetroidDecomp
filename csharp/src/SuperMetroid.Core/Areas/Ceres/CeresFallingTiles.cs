@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// and their fall under gravity until each strikes the room, where it raises dust and sounds its fall.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresFallingTiles
+internal sealed partial class CeresFallingTiles
 {
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -28,8 +28,10 @@ internal sealed class CeresFallingTiles
     /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
     /// raises dust and sounds its fall.
     /// </summary>
-    private SingleMotionProjectileBehavior Behavior => field ??= new(
-        context => Drop(context.Projectile, context.Level));
+    internal SingleMotionProjectileBehavior Behavior => field ??= new(Drop);
+
+    /// <summary>Moves a falling tile (<see cref="Behavior"/>).</summary>
+    private void Drop(EnemyProjectileMotionContext context) => Drop(context.Projectile, context.Level);
 
     /// <summary>
     /// Spawns the falling tile the falling-debris room main requests: the tile starts falling at

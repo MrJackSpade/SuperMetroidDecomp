@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// slides sideways with. Most bands alternate between the slow and the fast drift; two bands share the fastest drift,
 /// one has the slowest, and the sky's bottom rows stand still.
 /// </summary>
-public static class ScrollingSkyBandDefinitions
+public static partial class ScrollingSkyBandDefinitions
 {
     /// <summary>The drift of the sky's bottom rows, which never move.</summary>
     public static SkyDrift Still { get; } = new(SignedSixteenSixteen.Zero);
@@ -22,7 +22,7 @@ public static class ScrollingSkyBandDefinitions
     public static SkyDrift Fast { get; } = new(SignedSixteenSixteen.FromPixelFraction(3, 4));
 
     /// <summary>The fastest drift, a pixel and a quarter a frame, which two bands share.</summary>
-    private static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromPixelFraction(5, 4));
+    internal static SkyDrift Fastest { get; } = new(SignedSixteenSixteen.FromPixelFraction(5, 4));
 
     /// <summary>Every drift the sky's bands move with.</summary>
     public static ImmutableArray<SkyDrift> Drifts { get; } = [Still, Slowest, Slow, Fast, Fastest];

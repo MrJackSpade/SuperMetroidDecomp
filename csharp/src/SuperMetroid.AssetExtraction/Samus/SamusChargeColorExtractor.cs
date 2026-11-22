@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports charge-body and Hyper-shot colors in native playback order.</summary>
-public static class SamusChargeColorExtractor
+public static partial class SamusChargeColorExtractor
 {
     /// <summary>Exports charged-beam and pseudo-Screw body palettes by suit, plus Hyper-shot flash palettes in native playback order.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$91 suit/phase pointer lists and their bank-$9B sixteen-color payloads.</param>

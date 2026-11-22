@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The state of a Geruta's flame follower, the half its room lists right after the parent (#2063): only its
 /// animation. It reads its placement, visibility and flames from its parent.
 /// </summary>
-public sealed class GerutaFollowerState
+public sealed partial class GerutaFollowerState
 {
     /// <summary>Creates the follower's state, following the parent it found as it was placed.</summary>
     /// <param name="parent">The parent's state.</param>

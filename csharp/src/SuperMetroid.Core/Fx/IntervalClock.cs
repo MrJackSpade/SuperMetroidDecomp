@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 /// <param name="Interval">The updates between the clock's falls, at least one.</param>
 /// <param name="UpdatesLeft">The updates the clock runs before it next falls due, the falling one included.</param>
-internal readonly record struct IntervalClock(int Interval, int UpdatesLeft)
+internal readonly partial record struct IntervalClock(int Interval, int UpdatesLeft)
 {
     /// <summary>A clock that falls due on the <paramref name="interval"/>th update it runs, and every interval after.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The interval is not one update or more.</exception>

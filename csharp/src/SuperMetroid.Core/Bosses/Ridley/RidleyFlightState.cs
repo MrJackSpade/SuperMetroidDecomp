@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's body in flight as both encounters fly it (#2228): which way he faces, how he moves within his arena, his wing
 /// beat and swoop, and the body animation he plays with its claws, roar and aimed fireball.
 /// </summary>
-public sealed class RidleyFlightState
+public sealed partial class RidleyFlightState
 {
     /// <summary>Makes his body facing <paramref name="facing"/>, kept within <paramref name="minimum"/> and <paramref name="maximum"/>.</summary>
     /// <param name="facing">The way he faces as he is placed.</param>

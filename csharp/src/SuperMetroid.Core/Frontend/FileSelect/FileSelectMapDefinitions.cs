@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// A reveal opens the window from the area's label towards the screen's edges: each edge has its own authored speed, the
 /// edge farthest from the label moving fastest, and the edges stop on the reveal's last moving update.
 /// </remarks>
-public static class FileSelectMapDefinitions
+public static partial class FileSelectMapDefinitions
 {
     /// <summary>Where the area map's title is drawn, centred above the areas' labels.</summary>
     internal static Offset16<ScreenPixels> WorldTitlePosition => new(128, 16);

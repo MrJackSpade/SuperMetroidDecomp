@@ -22,6 +22,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Screens">The map screens' pages, pictured for the world map and the room maps.</param>
 /// <param name="Menus">The pause selectors, the reserve strip, the game-over and options screens and the ending text, as extracted.</param>
 /// <param name="StaffCredits">The staff credits, which the import pictures into the ending's credits rows (#1693).</param>
-internal sealed record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages,
+internal sealed partial record ImportPresentationDocuments(FileSelectSourcePresentation FileSelect, PauseScreenArtwork Pause, RoomFxLayer3Pages RoomFxPages,
     GameplayMessageArtwork Messages, GameplayHudArtwork GameplayHud, MapScreenPresentation Screens, ImportMenuDocuments Menus,
     CreditsPresentation StaffCredits);

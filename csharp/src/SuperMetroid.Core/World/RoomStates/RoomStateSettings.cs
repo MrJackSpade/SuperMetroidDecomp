@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// overlay, room behaviours, room objects and background, as loading the state copies them.
 /// </summary>
 [ArchitectureReview("context-bag", "A room state's authored definition data; its setup and main members are immutable behaviour definitions the room load composes (#2287), not services carried through.")]
-public sealed record RoomStateSettings(
+public sealed partial record RoomStateSettings(
     string Name,
     RoomLevelId Level,
     RoomGraphicsSet GraphicsSet,

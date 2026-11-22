@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The collaborators a <see cref="MotherBrainBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [ArchitectureReview("wide-dependencies", "The composition seam for Mother Brain's parts (body, head, tubes, projectiles, fake death, ascent, rainbow and death, attacks, combat), each built from a different subset of these collaborators; #2218 added the room's places, among which her head finds her body.")]
 [RoomLifetime]
-internal sealed record MotherBrainBehaviorDependencies
+internal sealed partial record MotherBrainBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }

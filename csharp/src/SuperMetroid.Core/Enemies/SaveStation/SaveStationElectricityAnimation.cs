@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SaveStation;
 /// The save-station electricity's typed animation: its discharge (#2061), each frame the place its one band picture is drawn at
 /// (#2557).
 /// </summary>
-internal sealed class SaveStationElectricityAnimation()
+internal sealed partial class SaveStationElectricityAnimation()
     : EnemyProjectileTypedAnimation<SaveStationElectricitySegment, Offset16<RoomPixels>, EnemyProjectileCommonCue>(SaveStationElectricityAnimations.Discharge.Phases[0].Segment, SaveStationElectricityAnimations.Discharge, EnemyProjectileCueRunners.Common<SaveStationElectricitySegment>())
 {
     /// <summary>The electricity shows its band wherever its sweep places it.</summary>

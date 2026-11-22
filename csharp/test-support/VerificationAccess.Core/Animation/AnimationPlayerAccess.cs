@@ -9,10 +9,50 @@ internal static class AnimationPlayerAccess
         where TFrame : struct
         where TEvent : notnull
     {
+<<<<<<< HEAD
+||||||| 418ca79935
+        /// <summary>
+        /// Puts the player on beat <paramref name="beat"/> of its animation's first phase, the frame that beat shows, with
+        /// <paramref name="updatesLeft"/> updates of it left: where a native list stands once it has shown that beat's frame
+        /// and counts its hold down.
+        /// </summary>
+        /// <exception cref="ArgumentException">The beat shows no frame.</exception>
+        internal void ResumeOn(int beat, int updatesLeft)
+        {
+            AnimationSegments<TSegment, TFrame, TEvent> segments =
+                PrivateState.Field<AnimationPlayer<TSegment, TFrame, TEvent>, AnimationSegments<TSegment, TFrame, TEvent>>(self, "segments");
+            AnimationPhase<TSegment> phase = self.Playback.Animation.Phases[0];
+            TFrame shown = segments.Beats(phase.Segment)[phase.FirstBeat + beat].ShownFrame
+                ?? throw new ArgumentException($"Beat {beat} of {phase.Segment} shows no frame.", nameof(beat));
+            PrivateState.Set(self, nameof(self.Playback), self.Playback with { Place = new AnimationPlace(0, beat + 1) });
+            PrivateState.Set(self, nameof(self.Shown), (TFrame?)shown);
+            PrivateState.Set(self, nameof(self.UpdatesLeft), updatesLeft);
+        }
+
+=======
+        /// <summary>
+        /// Puts the player on beat <paramref name="beat"/> of its animation's first phase, the frame that beat shows, with
+        /// <paramref name="updatesLeft"/> updates of it left: where a native list stands once it has shown that beat's frame
+        /// and counts its hold down.
+        /// </summary>
+        /// <exception cref="ArgumentException">The beat shows no frame.</exception>
+        internal void ResumeOn(int beat, int updatesLeft)
+        {
+            AnimationSegments<TSegment, TFrame, TEvent> segments =
+                self.Segments;
+            AnimationPhase<TSegment> phase = self.Playback.Animation.Phases[0];
+            TFrame shown = segments.Beats(phase.Segment)[phase.FirstBeat + beat].ShownFrame
+                ?? throw new ArgumentException($"Beat {beat} of {phase.Segment} shows no frame.", nameof(beat));
+            self.Playback = self.Playback with { Place = new AnimationPlace(0, beat + 1) };
+            self.Shown = (TFrame?)shown;
+            self.UpdatesLeft = updatesLeft;
+        }
+
+>>>>>>> origin/main
         /// <summary>The frames one play of the player's animation shows, in the order it shows them, from its start.</summary>
         internal IReadOnlyList<TFrame> PlayedFrames =>
         [
-            .. PrivateState.Field<AnimationPlayer<TSegment, TFrame, TEvent>, AnimationSegments<TSegment, TFrame, TEvent>>(self, "segments")
+            .. self.Segments
                 .PlayedBeats(self.Playback.Animation).Select(beat => beat.ShownFrame).OfType<TFrame>(),
         ];
     }

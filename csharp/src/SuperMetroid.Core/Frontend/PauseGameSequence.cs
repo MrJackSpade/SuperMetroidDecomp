@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the brightening at the pause's end.</param>
 /// <param name="stage">The step the pause enters at.</param>
-internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay, PauseGameSequence.Stage stage) : IGameplayPhase
+internal sealed partial class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay, PauseGameSequence.Stage stage) : IGameplayPhase
 {
     /// <summary>The step that runs, with the pause screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);

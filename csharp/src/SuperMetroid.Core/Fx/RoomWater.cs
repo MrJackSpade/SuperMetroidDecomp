@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx;
 /// room were dry.
 /// </param>
 [IndependentFlag("independent options a room's effect gives its water: surface drift, background wave and whether Samus ignores the surface; effects combine them freely")]
-public sealed record RoomWater(LiquidTide Tide, bool SurfaceDrift, bool BackgroundWave, bool IgnoresSurfaceUntilEnabled)
+public sealed partial record RoomWater(LiquidTide Tide, bool SurfaceDrift, bool BackgroundWave, bool IgnoresSurfaceUntilEnabled)
     : RoomLiquid(Tide)
 {
     /// <summary>This water with its surface affecting Samus, as the room object that enables water physics leaves it.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// the body and the head. Each body frame lists its hit areas, each placed against her body with the hitbox list holding
 /// its rectangles.
 /// </summary>
-internal static class MotherBrainCollisionDefinitions
+internal static partial class MotherBrainCollisionDefinitions
 {
     /// <summary>The brain's rectangle, which Samus touches and shoots as the head.</summary>
     internal static readonly EnemyCollisionHitbox[] BrainHitboxes =

@@ -46,8 +46,7 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
 
         string file = Path.Combine(stockDirectory, BabyMetroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        BabyMetroidColorDocument visual = JsonSerializer.Deserialize<BabyMetroidColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        BabyMetroidColorDocument visual = JsonSerializer.Deserialize<BabyMetroidColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Shitroid color JSON is null.");
         BabyMetroidColorCatalog colors = native;
 
@@ -71,9 +70,11 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
         IReadOnlyList<SheetShade> shades = MotherBrainSheetShades.BabyMetroid(stock.Bosses);
         CheckLiveTarget(BabyMetroidColorTarget.Sidehopper, 0x90);
         CheckLiveTarget(BabyMetroidColorTarget.BabyMetroid, 0xa0);
-        for (int frame = 0; frame < BabyMetroidColorDefinitions.NormalFrameCount; frame++)
+        // The live pulse, driven from the membrane the Baby starts with: its first phase with one update left, so its first
+        // step shows the second phase, and each phase after it follows in turn, the first coming round last.
+        for (int step = 1; step <= BabyMetroidColorDefinitions.NormalFrameCount; step++)
         {
-            state.ResumeMembrane(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.All[(frame + 7) % 8], 1);
+            int frame = step % BabyMetroidColorDefinitions.NormalFrameCount;
             enemies.BabyMetroidBehavior.StepBabyMetroidMembranePulse(place, state);
             AssertEqual<BabyMetroidMembranePulse?>(BabyMetroidMembranePulse.All[frame], state.Membrane.Shown, $"Shitroid normal frame {frame} advances to the next palette phase");
             // The calm pulse holds each phase as the native colour timer reloaded with ten lasts, and one update more (#2404).
@@ -84,6 +85,10 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
             for (int color = 0; color < BabyMetroidColorDefinitions.NormalColorsPerFrame; color++)
                 AssertEqual(colors.NormalColor(frame, color).ToWord(), cgram[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");
+            // The phase holds through the rest of its updates; the next step then shows the following phase.
+            for (int hold = 1; hold < 10 + 1; hold++)
+                enemies.BabyMetroidBehavior.StepBabyMetroidMembranePulse(place, state);
+            AssertEqual<BabyMetroidMembranePulse?>(BabyMetroidMembranePulse.All[frame], state.Membrane.Shown, $"Shitroid normal frame {frame} holds its phase");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Shitroid palette consumers avoid migrated RGB5 ROM reads");

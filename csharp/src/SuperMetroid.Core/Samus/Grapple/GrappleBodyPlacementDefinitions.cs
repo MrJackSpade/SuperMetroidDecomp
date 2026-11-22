@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Swing collision-body placement, independent of the displayed animation frame.</summary>
-internal static class GrappleBodyPlacementDefinitions
+internal static partial class GrappleBodyPlacementDefinitions
 {
     /// <summary>Samus's left-facing swing X/Y offsets relative to physical rope Start, one for each <see cref="GrappleSwingDirection"/> in order.</summary>
     internal static readonly Offset16<RoomPixels>[] LeftOffsets =

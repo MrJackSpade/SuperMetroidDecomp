@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// that set its delay, start a line or end it. This is the only place the typewriter's commands meet their cartridge words.
 /// </summary>
 [EncodingOwner("escape typewriter program control words")]
-internal static class EscapeTypewriterControlWords
+internal static partial class EscapeTypewriterControlWords
 {
     /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>
     internal const int Delay = 1;
@@ -20,7 +20,7 @@ internal static class EscapeTypewriterControlWords
     private const int LineStart = 13;
 
     /// <summary>Each command's control word.</summary>
-    private static readonly FrozenDictionary<EscapeTypewriterCommand, int> Words = new Dictionary<EscapeTypewriterCommand, int>
+    internal static readonly FrozenDictionary<EscapeTypewriterCommand, int> Words = new Dictionary<EscapeTypewriterCommand, int>
     {
         [EscapeTypewriterCommand.End] = End,
         [EscapeTypewriterCommand.LineStart] = LineStart,

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// How each downward gate draw is described (#1862, #1994): the column open, lowering a row at a time and closed, five
 /// blocks tall, and four trigger colours on either side. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class DownwardGateObjectDraws
+internal static partial class DownwardGateObjectDraws
 {
     /// <summary>The part and shape of one of the column's draws or one of the eight trigger draws.</summary>
     internal static Draw Describe(DownwardGateDraw gate) => Draws[gate];
@@ -64,7 +64,7 @@ internal static class DownwardGateObjectDraws
     /// The blocks the draw changes and how each collides: the column's shootable top and filled rows, or the trigger's
     /// solid block and its shootable trigger beside it.
     /// </param>
-    internal readonly record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate, RoomBlockShape Blocks)
+    internal readonly partial record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate, RoomBlockShape Blocks)
     {
     }
 }

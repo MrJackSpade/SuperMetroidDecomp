@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Composes the native frame and area lettering once, at import, into editable tile grids.</summary>
-public static class PauseBackdropExtractor
+public static partial class PauseBackdropExtractor
 {
     /// <summary>Combines the native pause frame with each area label, converts every tile word to semantic atlas coordinates, and serializes the shared button strip.</summary>
     /// <param name="bus">Supported-cartridge address space containing the pause frame, area-label pointers, and button tilemap.</param>

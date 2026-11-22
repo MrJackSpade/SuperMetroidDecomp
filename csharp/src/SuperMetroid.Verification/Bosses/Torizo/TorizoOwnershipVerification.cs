@@ -42,7 +42,7 @@ internal static class TorizoOwnershipVerification
         RoomEnemySystem enemies = NewEnemies();
         var frame = new ColourEffectFrame(ColourEffectId.BombTorizoBelly, 0);
         AssertThrows<InvalidOperationException>(
-            () => global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() }).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
+            () => new global::SuperMetroid.Core.Fx.ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
             "the belly glow never starts without the Torizo that shows it");
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus;
 /// unchecked decrement that runs a count below zero and how the HUD shows a count below zero are the compatibility
 /// layer's (<see cref="Compatibility.CountsRunBelowZero"/>).
 /// </summary>
-internal static class SamusQuantity
+internal static partial class SamusQuantity
 {
     /// <summary>
     /// Takes one from a count already established as positive. The game decrements without a check, so a

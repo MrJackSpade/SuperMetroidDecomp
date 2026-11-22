@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// in authored order: the object's identity, block X and Y, and its family's setup with the room argument decoded into what it reads; regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-internal static class RoomObjectPopulationDefinitions
+internal static partial class RoomObjectPopulationDefinitions
 {
     /// <summary>The room objects the Landing Site room places in its default state, its state once Samus has Power Bombs and its state once Zebes is awake.</summary>
     public static RoomObjectPopulation LandingSiteBeforeTimebomb { get; } = RoomObjectPopulation.FromPlacements(nameof(LandingSiteBeforeTimebomb),

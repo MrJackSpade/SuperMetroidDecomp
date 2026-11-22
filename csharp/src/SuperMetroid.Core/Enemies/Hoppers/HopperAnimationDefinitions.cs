@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The animations Sidehoppers and Dessgeegas share.</summary>
-internal static class HopperAnimationDefinitions
+internal static partial class HopperAnimationDefinitions
 {
     /// <summary>Each kind of hopper's animation for each orientation and movement phase.</summary>
     internal static readonly Dictionary<HopperAnimationKey, HopperSegment> Animations = new()

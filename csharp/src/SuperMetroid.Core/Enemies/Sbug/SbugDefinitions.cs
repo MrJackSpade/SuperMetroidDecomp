@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>Sbug's zigzag cadence.</summary>
-internal static class SbugDefinitions
+internal static partial class SbugDefinitions
 {
     /// <summary>
     /// The phase of the enemy's own update count that picks its zigzag leg: the first sixteen updates, on the leg that

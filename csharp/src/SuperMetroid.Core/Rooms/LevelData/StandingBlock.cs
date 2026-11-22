@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <param name="Block">The block.</param>
 /// <param name="CollisionType">How it collides.</param>
-internal readonly record struct StandingBlock(RoomCollisionBlock Block, StandingCollisionType CollisionType)
+internal readonly partial record struct StandingBlock(RoomCollisionBlock Block, StandingCollisionType CollisionType)
 {
     /// <summary>Where the block lies (<see cref="RoomCollisionBlock.Position"/>).</summary>
     internal Position16<RoomBlocks>? Position => Block.Position;

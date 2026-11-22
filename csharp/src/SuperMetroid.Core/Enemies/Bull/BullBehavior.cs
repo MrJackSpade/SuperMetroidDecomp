@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawnSettings>
+internal sealed partial class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -131,7 +131,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     }
 
     /// <summary>Moves the Bull along both axes by its speed in the direction of its committed angle.</summary>
-    private static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
+    internal static void MoveBull(RoomEnemyPlace place, BullEnemyState state)
     {
         place.Position = place.Position.WithX(AddBullComponent(
             place.Position.X,
@@ -160,7 +160,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     /// <param name="share">The axis's share of the Bull's heading.</param>
     /// <param name="speed">The Bull's speed, never below zero (<see cref="BullEnemyState.Speed"/>).</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="speed"/> is negative.</exception>
-    private static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
+    internal static SignedSixteenSixteen BullStep(UnitComponent share, SignedEightEight speed)
     {
         // The share is under one and the speed at most eleven and a quarter pixels, so the step is under six pixels. The
         // step's size is halved before its direction is restored, and a step up or left reverses as BullBackwardStep does.
@@ -173,7 +173,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     /// <summary>
     /// Finishes the Bull's shot and bomb reactions when they deal no damage: the hit kicks it away at <paramref name="kickAngle"/>.
     /// </summary>
-    private static void ResolveBullImmuneShot(
+    internal static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,
         BullEnemyState state,
         TrigonometryAngle kickAngle)
@@ -202,12 +202,38 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     internal static EnemyBombReaction BombReaction(BullEnemyState state) =>
         new()
         {
+<<<<<<< HEAD
             AfterCommon = c =>
             {
                 if (c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, state, BullMovementDefinitions.BombKickAngle);
             },
+||||||| 418ca79935
+            AfterCommon = c =>
+            {
+                if (c.Enemy.Health == c.HealthBefore)
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
+            },
+=======
+            AfterCommon = KickFromUndamagingBomb,
+>>>>>>> origin/main
         };
+
+    /// <summary>Kicks a Bull straight up from a bomb that left its health alone.</summary>
+    /// <param name="c">The bomb's hit.</param>
+    private static void KickFromUndamagingBomb(EnemyBombHitContext c)
+    {
+        if (c.Enemy.Health == c.HealthBefore)
+            ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
+    }
+
+    /// <summary>Kicks a Bull along a shot that froze it or left its health alone.</summary>
+    /// <param name="c">The shot's hit.</param>
+    private static void KickFromUndamagingShot(EnemyShotHitContext c)
+    {
+        if (c.Froze || c.Enemy.Health == c.HealthBefore)
+            ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
+    }
 
     /// <summary>
     /// Applies recoil after a frozen or undamaging accepted projectile hit. Only such a hit kicks the Bull, so a killed
@@ -217,10 +243,20 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawn
     internal static EnemyShotReaction ShotReaction(BullEnemyState state) =>
         new()
         {
+<<<<<<< HEAD
             AfterCommon = c =>
             {
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, state, BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
             },
+||||||| 418ca79935
+            AfterCommon = c =>
+            {
+                if (c.Froze || c.Enemy.Health == c.HealthBefore)
+                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.ShotAngles.For(c.ProjectileDirection));
+            },
+=======
+            AfterCommon = KickFromUndamagingShot,
+>>>>>>> origin/main
         };
 }

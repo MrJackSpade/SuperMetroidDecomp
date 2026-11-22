@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The Pirate-specific shot reactions of Pirate hitboxes.</summary>
-internal static class PirateHitboxShotActions
+internal static partial class PirateHitboxShotActions
 {
     /// <summary>
     /// Runs the gold Ninja's hitbox shot reactions: its two body reactions reflect or ignore what does it no damage, and
@@ -52,6 +52,12 @@ internal static class PirateHitboxShotActions
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Pirate collides by its radius.</param>
     internal static bool ShowsHitBurst(EnemyReaction reaction) => SpacePirateReactions.ShowingHitBurst.Contains(reaction);
 
+    /// <summary>Whether a bomb's hurting hit shows the hit burst on an ordinary Pirate: where the reaction it selects shows it.</summary>
+    internal static bool ShowsHitBurst(EnemyBombHitContext context) => ShowsHitBurst(Ensure.NotNull(context).SelectedShot);
+
+    /// <summary>Whether a shot's hurting hit shows the hit burst on an ordinary Pirate: where its hitbox's reaction shows it.</summary>
+    internal static bool ShowsHitBurst(EnemyShotHitContext context) => ShowsHitBurst(Ensure.NotNull(context).HitboxShot);
+
     /// <summary>
     /// Whether a shot or bomb whose hit runs through <paramref name="reaction"/> and hurts the gold Ninja while it is not
     /// frozen shows the enemy-hit burst: only the common reaction (its empty frame) shows it, since its own reaction, like
@@ -59,6 +65,12 @@ internal static class PirateHitboxShotActions
     /// </summary>
     /// <param name="reaction">The reaction the hit runs: its hitbox's, or the definition's when the Ninja collides by its radius.</param>
     internal static bool GoldNinjaShowsHitBurst(EnemyReaction reaction) => Ensure.NotNull(reaction).IsOrdinary;
+
+    /// <summary>Whether a bomb's hurting hit shows the hit burst on the gold Ninja: where the reaction it selects shows it.</summary>
+    internal static bool GoldNinjaShowsHitBurst(EnemyBombHitContext context) => GoldNinjaShowsHitBurst(Ensure.NotNull(context).SelectedShot);
+
+    /// <summary>Whether a shot's hurting hit shows the hit burst on the gold Ninja: where its hitbox's reaction shows it.</summary>
+    internal static bool GoldNinjaShowsHitBurst(EnemyShotHitContext context) => GoldNinjaShowsHitBurst(Ensure.NotNull(context).HitboxShot);
 
     /// <summary>
     /// The families the gold ninja reflects or is hurt by, a beam, missile or Super Missile: each as the family a reflection
@@ -75,13 +87,13 @@ internal static class PirateHitboxShotActions
     /// <summary>A family the gold ninja reflects, and the vulnerability it reads for it.</summary>
     /// <param name="Family">The family a reflection of the shot carries.</param>
     /// <param name="VulnerabilityOf">The ninja's vulnerability to the shot.</param>
-    private sealed record ReflectableShot(ReflectableShotFamily Family, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability> VulnerabilityOf);
+    private sealed partial record ReflectableShot(ReflectableShotFamily Family, Func<EnemyVulnerabilities, SamusProjectileOccupant, EnemyWeaponVulnerability> VulnerabilityOf);
 
     /// <summary>
     /// Outcome chosen from a Pirate component's shot reaction before ordinary damage processing (#2553): the Pirate's
     /// normal shot reaction, the hit consumed with no damage, or the shot reflected, carrying its reflectable family.
     /// </summary>
-    internal sealed record PirateHitboxShotAction
+    internal sealed partial record PirateHitboxShotAction
     {
         /// <summary>Only the outcomes below exist.</summary>
         private PirateHitboxShotAction()

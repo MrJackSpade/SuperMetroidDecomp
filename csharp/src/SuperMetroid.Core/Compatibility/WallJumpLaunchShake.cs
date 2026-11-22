@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TEnemy">The solid enemy launched from.</typeparam>
 [CompatibilityService("the enemy a wall jump launched from shakes at the next update's enemies")]
-public sealed class WallJumpLaunchShake<TEnemy>
+public sealed partial class WallJumpLaunchShake<TEnemy>
     where TEnemy : class
 {
     /// <summary>The enemy launched from, or null when no launch from an enemy waits.</summary>

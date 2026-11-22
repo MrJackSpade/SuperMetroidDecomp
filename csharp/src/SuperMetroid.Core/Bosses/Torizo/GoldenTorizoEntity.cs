@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="place">The place Golden Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
-internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     EnemyPopulationSurroundings surroundings)
     : TorizoEntity(species, occupant, place, common, surroundings, TorizoVariant.Golden)
 {

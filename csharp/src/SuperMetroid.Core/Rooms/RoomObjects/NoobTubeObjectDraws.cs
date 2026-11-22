@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// around air, the floor with a second solid edge block, and the panel rows between air. What each frame shows is its
 /// installed picture (#1557).
 /// </summary>
-internal static class NoobTubeObjectDraws
+internal static partial class NoobTubeObjectDraws
 {
     /// <summary>The blocks across a tube row.</summary>
     private const int RowWidth = 12;

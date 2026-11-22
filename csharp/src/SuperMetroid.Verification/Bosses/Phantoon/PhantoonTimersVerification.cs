@@ -44,7 +44,7 @@ internal static class PhantoonTimersVerification
             AssertEqual(PhantoonPhase.EyeTracksSamus, state.Phase, "Open-window phase handoff");
             second(state);
             AssertEqual(rom.ReadCartridgeWord((0xa7cd53 + (raw & 7) * 2)), state.Round.EyeClosedWait.UpdatesLeft, "Real second-round timer masks full RNG word");
-            SuperMetroid.Core.PrivateState.Set(state.BodyFade, nameof(PhantoonFadeProgress.IsFinished), true); // Completed fade; retain the actual fade-to-rain transition.
+            state.BodyFade.IsFinished = true; // Completed fade; retain the actual fade-to-rain transition.
             rain(state);
             AssertEqual(rom.ReadCartridgeWord((0xa7cd63 + (raw & 7) * 2)), state.PhaseWait.UpdatesLeft, "Real rain hiding timer masks full RNG word");
             AssertEqual(PhantoonPhase.SpawnFlameRain, state.Phase, "Rain timer phase handoff");

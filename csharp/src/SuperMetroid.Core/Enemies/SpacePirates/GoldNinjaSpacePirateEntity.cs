@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     NinjaSpacePirateSpawnSettings settings)
     : NinjaSpacePirateEntity(species, occupant, place, common, settings)
 {

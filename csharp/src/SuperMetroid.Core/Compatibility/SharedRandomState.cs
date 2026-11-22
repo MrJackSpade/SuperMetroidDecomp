@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 [EncodingOwner("shared random state and its two halves")]
 [CompatibilityService("the shared random sequence's value: how each value follows the last, and the swap of its two halves, exactly as the game made them")]
-public readonly record struct SharedRandomState
+public readonly partial record struct SharedRandomState
 {
     /// <summary>The binary places of the lower random half, below the upper one.</summary>
     private const int HalfBits = 8;

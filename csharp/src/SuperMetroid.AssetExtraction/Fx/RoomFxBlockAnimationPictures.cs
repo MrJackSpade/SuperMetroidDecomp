@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// the Tourian statues' OBJ pictures from them. Pictures are found by their place in the atlas's segment order, and the
 /// statues' pictures as windows of the shared statue strip (<see cref="TourianStatueTileStripDefinitions"/>).
 /// </summary>
-internal static class RoomFxBlockAnimationPictures
+internal static partial class RoomFxBlockAnimationPictures
 {
     /// <summary>The Tourian statues' pictures in the order the strip holds their windows (#2567).</summary>
     private static readonly IReadOnlyList<TourianStatueBlockPicture> StatuePictureOrder = Ensure.EveryMemberOnce<TourianStatueBlockPicture>(
@@ -31,7 +31,7 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The strip character <paramref name="picture"/> of <paramref name="statue"/> starts at.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not a statue, or the picture is undefined.</exception>
-    private static int TourianStatueFirstTile(TourianStatue statue, TourianStatueBlockPicture picture)
+    internal static int TourianStatueFirstTile(TourianStatue statue, TourianStatueBlockPicture picture)
     {
         TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
@@ -46,7 +46,7 @@ internal static class RoomFxBlockAnimationPictures
 
     /// <summary>The bytes of characters one picture of <paramref name="statue"/> holds.</summary>
     /// <exception cref="InvalidDataException"><paramref name="statue"/> is not one statue.</exception>
-    private static int TourianStatuePictureByteCount(TourianStatue statue) =>
+    internal static int TourianStatuePictureByteCount(TourianStatue statue) =>
         TourianStatueWindow(statue).Tiles * TourianStatueTileStripDefinitions.CharacterByteCount;
 
     /// <summary>The pictures of one import's room-FX atlas.</summary>

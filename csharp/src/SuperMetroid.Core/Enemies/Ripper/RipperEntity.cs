@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="place">The place the Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="state">The Ripper's state, which its variant's setup built as the entity was built (#2554).</param>
-internal abstract class RipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RipperEnemyState state)
+internal abstract partial class RipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RipperEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Ripper's state, which it holds from its setup.</summary>

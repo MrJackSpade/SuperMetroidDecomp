@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Hud;
 /// </remarks>
 /// <param name="saveChoiceInput">When an open save confirmation reads the controller; the session creates it.</param>
 /// <param name="pauses">The updates gameplay stays paused before the window opens and after it closes; the session creates it.</param>
-public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInput, MessageBoxPauses pauses)
+public sealed partial class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInput, MessageBoxPauses pauses)
 {
     /// <summary>When an open save confirmation reads the controller.</summary>
     private readonly SaveChoiceInputCadence _saveChoiceInput = Ensure.NotNull(saveChoiceInput);
@@ -55,22 +55,22 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public GameplayMessageId? MessageId => _begun?.Id;
 
     /// <summary>The message box's current step.</summary>
-    private GameplayMessageBoxPhase Phase { get; set; }
+    internal GameplayMessageBoxPhase Phase { get; set; }
 
     /// <summary>
     /// Half-height of the row window visible in the most recently completed frame.
     /// The radius grows and shrinks by exactly its radius step each update.
     /// </summary>
-    private int RadiusPixels { get; set; }
+    internal int RadiusPixels { get; set; }
 
     /// <summary>The mandatory display before controller input is inspected.</summary>
-    private UpdateCountdown MinimumDisplay { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown MinimumDisplay { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
     /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
     /// </summary>
-    private ShownMessage? Shown => _begun is not { } begun ? null
+    internal ShownMessage? Shown => _begun is not { } begun ? null
         : new ShownMessage(begun.Id, PanelButton(begun),
             ConfirmationOf(begun.Id) != GameplayMessageConfirmation.None ? ConfirmationSelection : null);
 
@@ -82,7 +82,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
     public ExposedMessage? Exposed => RadiusPixels > 0 && Shown is { } shown ? new ExposedMessage(shown, RadiusPixels) : null;
 
     /// <summary>The answer a save confirmation highlights.</summary>
-    private SaveChoice ConfirmationSelection { get; set; } = SaveChoice.Yes;
+    internal SaveChoice ConfirmationSelection { get; set; } = SaveChoice.Yes;
 
     /// <summary>
     /// Starts one ordinary gameplay message with its authored layout.

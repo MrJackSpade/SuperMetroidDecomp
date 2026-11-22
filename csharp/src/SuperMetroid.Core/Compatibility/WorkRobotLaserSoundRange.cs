@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// screen.
 /// </remarks>
 [CompatibilityService("a Work Robot's laser requests its sound only while the robot reaches into the camera's columns, reaches down to the camera's top and has its top edge less than a screen's height below the room's top, so a robot lower in its room fires silently")]
-internal static class WorkRobotLaserSoundRange
+internal static partial class WorkRobotLaserSoundRange
 {
     /// <summary>
     /// Whether a laser fired by a robot at <paramref name="robot"/>, reaching <paramref name="radius"/> from it on each

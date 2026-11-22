@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>One cue of the Yapping Maw's animations: what it does, with the values it acts on.</summary>
-internal abstract record YappingMawCue
+internal abstract partial record YappingMawCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private YappingMawCue()
@@ -17,7 +17,7 @@ internal abstract record YappingMawCue
 
     /// <summary>Holds a grabbed Samus at the mouth offset of the cue's aim (#2071).</summary>
     /// <param name="Aim">The aim whose mouth offset Samus is held at.</param>
-    internal sealed record HoldSamus(YappingMawAim Aim) : YappingMawCue
+    internal sealed partial record HoldSamus(YappingMawAim Aim) : YappingMawCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(YappingMawCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).HoldSamus(this, context);
@@ -25,7 +25,7 @@ internal abstract record YappingMawCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(YappingMawCueKind Kind) : YappingMawCue
+    internal sealed partial record Signal(YappingMawCueKind Kind) : YappingMawCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(YappingMawCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -36,4 +36,4 @@ internal abstract record YappingMawCue
 /// <param name="HoldSamus">Reacts to a <see cref="YappingMawCue.HoldSamus"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="YappingMawCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record YappingMawCueReactions<TContext>(Action<YappingMawCue.HoldSamus, TContext> HoldSamus, Action<YappingMawCue.Signal, TContext> Signal);
+internal sealed partial record YappingMawCueReactions<TContext>(Action<YappingMawCue.HoldSamus, TContext> HoldSamus, Action<YappingMawCue.Signal, TContext> Signal);

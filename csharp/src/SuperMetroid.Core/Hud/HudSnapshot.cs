@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>Explicit inputs consumed while constructing one HUD state.</summary>
-public readonly record struct HudSnapshot(
+public readonly partial record struct HudSnapshot(
     int Health,
     int MaxHealth,
     int Missiles,

@@ -3,7 +3,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable eight-bit Mode-7 tilemap schema shared by 128x64 ending backdrops and the full 128x128 post-credits beam/icon map.</summary>
 [SpatialComponents("External format: the ending Mode 7 map JSON stores its declared grid dimensions as width/height integers.")]
-public sealed record EndingFloorMapDocument
+public sealed partial record EndingFloorMapDocument
 {
     /// <summary>Schema revision, currently 1 for both ending backdrop and reward-icon maps.</summary>
     public required int Version { get; init; }

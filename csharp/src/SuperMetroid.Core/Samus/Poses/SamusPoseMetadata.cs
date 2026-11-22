@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Reads of Samus's pose definitions (<see cref="SamusPoseDefinitions"/>): collision radii, facing and movement, and the per-pose facts her movement consults, including the bomb-jump direction publication.</summary>
-internal static class SamusPoseMetadata
+internal static partial class SamusPoseMetadata
 {
     /// <summary>The X-ray scope's crouching poses, from <see cref="SamusPoseFamilyDefinitions.XrayCrouchingPoses"/>.</summary>
     private static readonly FrozenSet<SamusPoseId> XrayCrouchingPoses = SamusPoseFamilyDefinitions.XrayCrouchingPoses.ToFrozenSet();
@@ -606,7 +606,7 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>Arms the published bomb jump.</summary>
-    private static void ArmPublishedBombJump(SamusState samus, SamusBombJump published)
+    internal static void ArmPublishedBombJump(SamusState samus, SamusBombJump published)
     {
         // Arming the bomb jump takes, rather than suspends, Samus's movement.
         // A suit-interrupted spark may still hold it despite the ordinary body pose.

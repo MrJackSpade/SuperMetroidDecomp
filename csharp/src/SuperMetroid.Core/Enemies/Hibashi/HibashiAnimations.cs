@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// The Hibashi fire pillar's erupting flame and its collision part as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="HibashiCue"/> with the values it acts on.
 /// </summary>
-internal static class HibashiAnimations
+internal static partial class HibashiAnimations
 {
     /// <summary>How far the flame's top rises with each step of its eruption, in pixels.</summary>
     private const int EruptionRise = 5;
@@ -63,7 +63,7 @@ internal static class HibashiAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
+    internal static Dictionary<HibashiSegment, Animation<HibashiSegment>> StartingAt { get; } = new Dictionary<HibashiSegment, Animation<HibashiSegment>>
     {
         [P.Flame] = new([Segments.Whole(P.Flame)], AnimationEnd.Holds),
         [P.Hitbox] = new([Segments.Whole(P.Hitbox)], AnimationEnd.Holds),

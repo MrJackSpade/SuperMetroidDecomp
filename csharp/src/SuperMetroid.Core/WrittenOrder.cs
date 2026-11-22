@@ -8,7 +8,7 @@ namespace SuperMetroid.Core;
 /// sort by place follows the data and reordering a declaration changes nothing.
 /// </summary>
 /// <typeparam name="T">The identities ordered.</typeparam>
-public sealed class WrittenOrder<T> : IReadOnlyList<T> where T : notnull
+public sealed partial class WrittenOrder<T> : IReadOnlyList<T> where T : notnull
 {
     /// <summary>The identities in order.</summary>
     private readonly T[] members;

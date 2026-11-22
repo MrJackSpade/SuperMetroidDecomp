@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// across the whole picture, or none where the rot has cleared it. The corpse's sheet holds each of its frames once, and the
 /// frame is drawn through these rows, so the rot moves the picture's rows as it is drawn.
 /// </summary>
-public sealed class CorpseRotPicture
+public sealed partial class CorpseRotPicture
 {
     /// <summary>The picture row each pixel row shows, or none.</summary>
     private readonly int?[] rows;

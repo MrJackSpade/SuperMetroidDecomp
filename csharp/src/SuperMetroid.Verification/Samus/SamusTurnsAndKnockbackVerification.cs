@@ -263,8 +263,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), ineligibleHisto
     AssertEqual(0, ineligibleHistory.AnimationNumber, "rejected history cannot rewind wall animation");
     AssertEqual(0x4321, ineligibleHistory.Kinematics.Position.X.Fraction,
         "rejected rightward wall probe cannot set real X fraction to FFFF");
-    global::SuperMetroid.Core.PrivateState.Set(earlyContact, "SolidVerticalCollisionResult", SamusVerticalCollisionResult.HitCeiling);
-    AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
+    earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
+    AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping,
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationNumber, "early wall contact rewinds to frame A");

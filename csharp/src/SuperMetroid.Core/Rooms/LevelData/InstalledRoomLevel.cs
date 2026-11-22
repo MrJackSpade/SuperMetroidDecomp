@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// One room level as the installation holds it (#1469): the grid's terrain, behaviours and background appearances, and
 /// the terrain past the grid, decoded once by the import.
 /// </summary>
-public sealed class InstalledRoomLevel
+public sealed partial class InstalledRoomLevel
 {
     /// <summary>Validates and keeps one installed level.</summary>
     /// <param name="size">The grid's size in blocks: the room's width, and the rows its level holds.</param>

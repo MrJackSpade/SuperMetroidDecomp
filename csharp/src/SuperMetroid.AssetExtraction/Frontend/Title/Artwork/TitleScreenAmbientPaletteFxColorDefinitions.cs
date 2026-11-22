@@ -23,7 +23,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// edit preserves every other colour the import reads. Missing inputs report an error
 /// rather than falling back to reading the original game data.
 /// </remarks>
-public static class TitleScreenAmbientPaletteFxColorDefinitions
+public static partial class TitleScreenAmbientPaletteFxColorDefinitions
 {
     /// <summary>Four dimming steps and their reflected return form the tube pulse. This selected pulse depth is authored title choreography.</summary>
     internal const int TubeDimmingSteps = 4;

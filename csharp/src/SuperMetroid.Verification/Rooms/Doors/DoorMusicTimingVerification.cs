@@ -52,7 +52,7 @@ internal static class DoorMusicTimingVerification
         SamusPresentation.InitializeAnimation(samus);
         runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.GetCollisionBlock(new(doorX, doorY)), samus.Pose.ForRoomCollision());
         game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(DoorTransitionStep.EnteringDoor);
         var audio = game.Session.audio;
         audio.AdvanceFrame(default);

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The warning Ceres's self-destruct shows and types once the getaway ends (#2228): its phase, its phase's wait, its
 /// typewriter and its alarm's step. What it writes goes to the room's foreground warning (#2554), which Ceres Ridley holds.
 /// </summary>
-public sealed class CeresSelfDestructWarning
+public sealed partial class CeresSelfDestructWarning
 {
     /// <summary>Which step of the warning runs next; the getaway's end starts it.</summary>
     internal CeresSelfDestructPhase Phase { get; set; } = CeresSelfDestructPhase.Start;

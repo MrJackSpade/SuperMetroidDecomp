@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// its blocks' mirroring as one character per block (<see cref="MirroringCodes"/>: unmirrored, horizontal, vertical,
 /// both).
 /// </remarks>
-public static class RoomVisualLayoutFiles
+public static partial class RoomVisualLayoutFiles
 {
     /// <summary>
     /// Schema revision of the per-level layout documents; version 3 holds block numbers and mirroring instead of level words,
@@ -70,12 +70,12 @@ public static class RoomVisualLayoutFiles
     /// <summary>A retail room state's level and its room's area.</summary>
     /// <param name="Level">The level the state uses.</param>
     /// <param name="Area">The area of the state's room.</param>
-    private sealed record LevelUse(RoomLevelId Level, AreaId Area);
+    private sealed partial record LevelUse(RoomLevelId Level, AreaId Area);
 
     /// <summary>Formats the stable per-level installed JSON filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it; membership validation occurs during loading.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.json</c>.</returns>
-    private static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.json";
+    internal static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.json";
 
     /// <summary>Decompresses every distinct retail room level and exports what its foreground and background blocks show, without terrain or behaviours.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the compressed level streams identified by <see cref="RetailLevels"/>.</param>
@@ -92,7 +92,7 @@ public static class RoomVisualLayoutFiles
         Directory.CreateDirectory(directory);
         foreach ((RoomLevelId level, int widthInBlocks) in RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(Decode(bus, level, widthInBlocks), JsonOptions);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(Decode(bus, level, widthInBlocks), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomVisualLayoutFiles.RoomVisualLayoutDocument>(JsonOptions));
             using var file = new FileStream(Path.Combine(directory, LevelFileName(level)), FileMode.CreateNew, FileAccess.Write);
             file.Write(json);
         }
@@ -193,7 +193,7 @@ public static class RoomVisualLayoutFiles
 
     /// <summary>Editable initial foreground and background appearances with fixed level identity and block dimensions.</summary>
     [SpatialComponents("External format: per-level room-layout JSON stores widthInBlocks/heightInBlocks.")]
-    private sealed record RoomVisualLayoutDocument(int FormatVersion, string Level,
+    internal sealed partial record RoomVisualLayoutDocument(int FormatVersion, string Level,
         int WidthInBlocks, int HeightInBlocks, RoomLayoutPlaneDocument Foreground,
         RoomLayoutPlaneDocument Background)
     {
@@ -202,5 +202,5 @@ public static class RoomVisualLayoutFiles
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
     /// <summary>One plane of a layout document: each block's number, row by row, and one mirroring code per block.</summary>
-    private sealed record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
+    internal sealed partial record RoomLayoutPlaneDocument(int?[] Blocks, string Mirroring);
 }

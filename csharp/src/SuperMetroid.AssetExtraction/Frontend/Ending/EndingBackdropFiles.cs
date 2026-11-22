@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// and the backdrops of the space behind the exploding planet from the first colour of each frame of the space's colour
 /// effect (#1637); the game loads no other ending colour, as every picture it draws is pre-coloured.
 /// </summary>
-public static class EndingBackdropFiles
+public static partial class EndingBackdropFiles
 {
     /// <summary>The installed document's file name.</summary>
-    private const string FileName = "ending-backdrops.json";
+    internal const string FileName = "ending-backdrops.json";
 
     /// <summary>
     /// Revision 4 of the backdrop document, the only revision the reader accepts: 2 holds the space's backdrops (#1637), 3
@@ -46,7 +46,7 @@ public static class EndingBackdropFiles
             Credits = InstalledColourText.Format(colours[EndingPaletteId.Credits].Backdrop),
             PostCredits = InstalledColourText.Format(colours[EndingPaletteId.PostCredits].Backdrop),
             SpaceBehindExplodingPlanet = [.. EndingSpaceBackdropColours.InFrameOrder(space).Select(InstalledColourText.Format)],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingBackdropDocument>(ArtworkJson.Options));
         using var output = new FileStream(Path.Combine(directory, FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }

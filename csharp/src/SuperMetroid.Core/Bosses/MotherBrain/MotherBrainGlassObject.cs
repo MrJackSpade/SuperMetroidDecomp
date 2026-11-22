@@ -15,22 +15,22 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="owner">The room's glass owner, which throws the shards and holds the boss and event state.</param>
 [RoomLifetime]
-internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : RoomObjectBehaviour, IShootableRoomObject
+internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects owner) : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>The room's glass owner.</summary>
     private readonly MotherBrainGlassObjects _owner = Ensure.NotNull(owner);
 
     /// <summary>Where the glass is in its course.</summary>
-    private MotherBrainGlassPhase Phase { get; set; } = new MotherBrainGlassPhase.Starting();
+    internal MotherBrainGlassPhase Phase { get; set; } = new MotherBrainGlassPhase.Starting();
 
     /// <summary>The stage the glass is at (#2315): its first until it shows it, which its first update does.</summary>
-    private MotherBrainGlassStage Stage { get; set; } = MotherBrainGlassStageDefinitions.First;
+    internal MotherBrainGlassStage Stage { get; set; } = MotherBrainGlassStageDefinitions.First;
 
     /// <summary>The hits the glass has taken, from missiles on its block and Mother Brain's head shots.</summary>
-    private int Hits { get; set; }
+    internal int Hits { get; set; }
 
     /// <summary>Whether strikes on the glass's block count hits: from its first update, once it shows its first stage.</summary>
-    private bool HitCountArmed { get; set; }
+    internal bool HitCountArmed { get; set; }
 
     /// <summary>How long the glass holds before its next step: its first update, then each image's own updates.</summary>
     private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Expands title graphics and OBJ compositions into indexed PNG/JSON assets.</summary>
-internal static class TitleGraphicsExtractor
+internal static partial class TitleGraphicsExtractor
 {
     /// <summary>Decompresses title character streams and map data into indexed PNGs and a validated map document.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)

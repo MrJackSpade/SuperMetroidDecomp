@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Fatal-damage pose entry and state boundaries.</summary>
-public static class SamusDeathSequenceDefinitions
+public static partial class SamusDeathSequenceDefinitions
 {
     /// <summary>The updates the ordinary death pose displays before flashing.</summary>
     public const int PreFlashFrameCount = 16;

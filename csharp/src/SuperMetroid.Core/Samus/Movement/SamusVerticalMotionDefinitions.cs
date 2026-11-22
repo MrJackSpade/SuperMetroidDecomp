@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Samus's vertical motion: the speeds she rebounds, launches and jumps at, the falls Space Jump restarts from, and the gravity in each medium.</summary>
-internal static class SamusVerticalMotionDefinitions
+internal static partial class SamusVerticalMotionDefinitions
 {
     /// <summary>
     /// The upward speed of the Morph Ball's first rebound, a pixel an update; the second rebound does not rise.

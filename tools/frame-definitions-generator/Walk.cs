@@ -291,7 +291,7 @@ internal sealed class Walk
             IParameterSymbol[] programParameters = [.. scan.FamilyProgramArguments.Values.SelectMany(arguments => arguments)
                 .Select(argument => ProgramTracer.ConstructorParameterOf(argument.Program, argument.Semantic)).OfType<IParameterSymbol>()
                 .Distinct<IParameterSymbol>(SymbolEqualityComparer.Default)];
-            foreach (IMethodSymbol constructor in unit.Type.InstanceConstructors)
+            foreach (IMethodSymbol constructor in GameConstructors.Of(unit.Type))
             {
                 foreach (CallSite site in _model.CallSites(constructor))
                 {

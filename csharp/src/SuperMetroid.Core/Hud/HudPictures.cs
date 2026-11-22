@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud;
 /// HUD's images in, looked up by each image's name once.
 /// </summary>
 /// <param name="sheet">The sheet picturing the HUD's images.</param>
-public sealed class HudPictures(SpriteSheet sheet)
+public sealed partial class HudPictures(SpriteSheet sheet)
 {
     /// <summary>Each image's picture, once looked up.</summary>
     private readonly Dictionary<HudImage, SpriteSheetFrame> pictures = [];

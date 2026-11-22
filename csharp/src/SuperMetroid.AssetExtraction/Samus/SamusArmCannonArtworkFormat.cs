@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed arm-cannon artwork files and their fixed table dimensions, separate from open/close mechanics.</summary>
-public static class SamusArmCannonArtworkFormat
+public static partial class SamusArmCannonArtworkFormat
 {
     /// <summary>
     /// Supported placement JSON schema revision, checked with the fixed pose, descriptor, direction, and frame table

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// each of their words, which the import requires to agree. Core identifies the blocks only semantically.
 /// </summary>
 [EncodingOwner("bank-$84 addresses of the room-object setup blocks")]
-internal static class RoomObjectSetupBlockSourceDefinitions
+internal static partial class RoomObjectSetupBlockSourceDefinitions
 {
     /// <summary>Bank $84, where every room-object setup is stored.</summary>
     private const byte Bank = 0x84;

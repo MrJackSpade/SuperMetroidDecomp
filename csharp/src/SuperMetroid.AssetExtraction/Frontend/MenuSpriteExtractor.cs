@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Decodes ordered bank-$82 menu parts, preserving native caller-palette inheritance.</summary>
-internal static class MenuSpriteExtractor
+internal static partial class MenuSpriteExtractor
 {
     /// <summary>Decodes an indexed bank-$82 spritemap into bounded OAM parts, leaving palette choice to the caller as native menu rendering does.</summary>
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, int id)

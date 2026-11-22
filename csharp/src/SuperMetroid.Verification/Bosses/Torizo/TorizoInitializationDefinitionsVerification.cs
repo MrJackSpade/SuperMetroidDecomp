@@ -43,7 +43,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Processing = population.Processing;
                 actor.Presence = population.Presence;
                 actor.CollidesByFrameHitboxes = populationCollidesByFrameHitboxes;
-                SuperMetroid.Core.PrivateState.Set(actor.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), populationNewInstructionFrame);
+                actor.AnimationClock.ShowsNewFrame = populationNewInstructionFrame;
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;

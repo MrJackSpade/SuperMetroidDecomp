@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// fraction, a borrowing one, and a fatal borrow and fatal whole damage that empty it.
 /// </remarks>
 [CompatibilityService("periodic damage takes Samus's energy a fraction at a time, borrowing a whole energy when the fraction exceeds the one she holds and keeping the rest of that energy as her new fraction")]
-public readonly record struct PeriodicDamageEnergyFraction
+public readonly partial record struct PeriodicDamageEnergyFraction
 {
 
     /// <summary>The held fraction, kept as the drain the shared arithmetic runs on.</summary>
@@ -28,7 +28,7 @@ public readonly record struct PeriodicDamageEnergyFraction
     private PeriodicDamageEnergyFraction(FractionalEnergyDrain held) => _held = held;
 
     /// <summary>The fraction held, 0 through one part short of an energy, in <c>PartsPerEnergy</c>ths.</summary>
-    private int Parts => _held.HeldOver;
+    internal int Parts => _held.HeldOver;
 
     /// <summary>No fraction held: a new Samus's, and the one a fatal periodic damage leaves.</summary>
     public static PeriodicDamageEnergyFraction None => default;

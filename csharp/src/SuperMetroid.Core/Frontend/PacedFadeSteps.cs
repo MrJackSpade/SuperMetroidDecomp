@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// it, and the scene that runs the fade owns it. The fade takes its first step on the update its start names and one
 /// every so many updates after, until it has taken them all.
 /// </summary>
-internal sealed class PacedFadeSteps
+internal sealed partial class PacedFadeSteps
 {
     /// <summary>A fade of <paramref name="steps"/> steps that has taken none yet, paced as <see cref="PacedFadeSteps"/> says.</summary>
     /// <param name="steps">The fade's steps from its start to its goal, one or more.</param>

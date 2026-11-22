@@ -13,8 +13,6 @@ internal static class RenderingAccess
         internal bool IsSurfaceSuspended => worker.surfaceSuspended;
         /// <summary>Most recent render packet sequence consumed by the worker.</summary>
         internal long LastConsumedSequence => worker.lastConsumedSequence;
-        /// <summary>Last classified device-loss result retained for failure reporting.</summary>
-        internal D3D11DeviceLossDiagnostic? LastDeviceLoss => worker.lastDeviceLoss;
         /// <summary>Number of frames skipped while the presentation surface was occluded.</summary>
         internal long OccludedFrames => worker.occluded;
         /// <summary>Number of redraws made from a retained packet without consuming new game state.</summary>

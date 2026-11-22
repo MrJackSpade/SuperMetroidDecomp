@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Shared normal-suit colour restore; every owner shows the same selected suit colours.</summary>
-public static class SamusSuitShade
+public static partial class SamusSuitShade
 {
     /// <summary>
     /// Shows the normal colours of the suit Samus's equipment shows (#1512), without changing equipment or animation

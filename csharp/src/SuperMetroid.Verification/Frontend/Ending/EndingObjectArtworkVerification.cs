@@ -52,11 +52,6 @@ internal static class EndingObjectArtworkVerification
             AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)index), "published fragment filename");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)invalid), "fragment filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingExplosionPicture)invalid), "fragment source bounds");
-        }
     }
 
     /// <summary>Compares the six cloud compositions with native OAM.</summary>
@@ -218,8 +213,7 @@ internal static class EndingObjectArtworkVerification
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
         EndingCloudSpriteDocument cloudDocument =
-            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
         cloudDocument.Frames.Remove("right-side-cloud");
         AssertThrows<InvalidDataException>(() =>

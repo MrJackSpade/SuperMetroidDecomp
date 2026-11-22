@@ -23,7 +23,7 @@ internal static class MapMaskValidationVerification
             {
                 var masks = RequiredJson.Deserialize<Dictionary<string, int[]?>>(originalMask);
                 change(masks);
-                byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(masks);
+                byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(masks, global::SuperMetroid.Verification.VerificationJson.Info<global::System.Collections.Generic.Dictionary<string, int[]?>>());
                 File.WriteAllBytes(maskPath, bytes);
                 AssertThrows<InvalidDataException>(() => MapPresentationFiles.Load(directory), context);
             }

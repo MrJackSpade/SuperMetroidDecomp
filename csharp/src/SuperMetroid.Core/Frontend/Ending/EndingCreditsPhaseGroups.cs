@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The stretches of the ending the presentation tests (#1452): each names the phases it covers instead of ordering the
 /// phase identities.
 /// </summary>
-internal static class EndingCreditsPhaseGroups
+internal static partial class EndingCreditsPhaseGroups
 {
     /// <summary>The escape from Zebes, before the planet's explosion fades in.</summary>
     internal static readonly FrozenSet<EndingCreditsPhase> BeforeZebesExplosion = new EndingCreditsPhase[]

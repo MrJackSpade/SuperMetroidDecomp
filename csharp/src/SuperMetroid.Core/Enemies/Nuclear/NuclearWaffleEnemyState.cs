@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// The state of the Nuclear Waffle, with its projectile and effect-actor links. The articulated body links
 /// alternate between enemy projectiles and effect actors; the waffle spawns them all at its room load and keeps them.
 /// </summary>
-public sealed class NuclearWaffleEnemyState
+public sealed partial class NuclearWaffleEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal NuclearWaffleEnemyState(NuclearWaffleAction action) => Action = action;

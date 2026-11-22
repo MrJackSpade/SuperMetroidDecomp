@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's projectiles: drool, swipes, sonic booms, Chozo orbs, eggs, super missiles, eye beams and explosions.</summary>
 [RoomLifetime]
-internal sealed class TorizoAttacks
+internal sealed partial class TorizoAttacks
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
@@ -33,16 +33,16 @@ internal sealed class TorizoAttacks
     /// Torizo's drool, swipes, explosions, sonic booms, eye beam, landing dust and statue fragments (#1760): their
     /// spawners start their animations, and a shot one runs the shared delete animation.
     /// </summary>
-    private TorizoProjectileBehavior TorizoProjectiles => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops);
+    internal TorizoProjectileBehavior TorizoProjectiles => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops);
 
     /// <summary>A Chozo orb, Bomb or Golden Torizo's (#1760): a shot one runs its typed shot animation.</summary>
-    private TorizoProjectileBehavior ChozoOrb => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbShot);
+    internal TorizoProjectileBehavior ChozoOrb => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbShot);
 
     /// <summary>A Golden Torizo egg (#1760): its definition names the Chozo orb's wall-impact animation as its shot animation.</summary>
-    private TorizoProjectileBehavior Egg => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbWallImpact);
+    internal TorizoProjectileBehavior Egg => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.ChozoOrbWallImpact);
 
     /// <summary>A super missile Golden Torizo catches and throws (#1760): a shot one runs its typed impact.</summary>
-    private TorizoProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.SuperMissileImpact);
+    internal TorizoProjectileBehavior SuperMissile => field ??= new TorizoProjectileBehavior(_room, _projectiles, _audio, _deathsAndDrops, TorizoProjectileSegment.SuperMissileImpact);
 
     /// <summary>
     /// One of the Torizos' projectiles: every motion of the statue fragments, orbs, sonic booms, drool, eggs,
@@ -53,7 +53,7 @@ internal sealed class TorizoAttacks
     /// <param name="audio">The enemy sound queue the projectiles' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot Chozo orb leaves.</param>
     /// <param name="shot">Where the animation a destroying shot starts begins, or null for the shared delete animation.</param>
-    internal sealed class TorizoProjectileBehavior(
+    internal sealed partial class TorizoProjectileBehavior(
         EnemyRoomBinding room,
         EnemyProjectileEngine projectiles,
         EnemyAudioQueue audio,
@@ -97,6 +97,7 @@ internal sealed class TorizoAttacks
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="TorizoProjectileMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForTorizoProjectileMotion => field ??= new(new Dictionary<TorizoProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [TorizoProjectileMotion.StatueFragmentFalling] = (context, projectile) => DropStatueFragment(projectile, context.Level),
@@ -279,7 +280,7 @@ internal sealed class TorizoAttacks
         /// <param name="Projectile">The projectile the cases read.</param>
         /// <param name="Samus">The samus the cases read.</param>
         /// <param name="Owner">The <see cref="TorizoProjectileBehavior"/> reacting.</param>
-        private readonly record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
+        private readonly partial record struct ApplyTorizoProjectileCueContext(EnemyAudioQueue Audio, EnemyProjectileEngine Projectiles, EnemyProjectile Projectile, SamusState Samus, TorizoProjectileBehavior Owner);
 
         /// <summary>Keeps the held super missile beside the hand of the Golden Torizo that caught it.</summary>
         private void HoldSuperMissile(EnemyProjectile projectile)
@@ -383,7 +384,7 @@ internal sealed class TorizoAttacks
     /// A facing Torizo's drool heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre, which keeps either facing's heading on the turn.
     /// </summary>
-    private static TrigonometryAngle DroolHeading(HorizontalDirection facing, int spread) =>
+    internal static TrigonometryAngle DroolHeading(HorizontalDirection facing, int spread) =>
         (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.DroolHeadingFacingRight : TorizoMotionDefinitions.DroolHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.DroolSpreadCentre);
 
@@ -391,7 +392,7 @@ internal sealed class TorizoAttacks
     /// Golden Torizo's eye-beam heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre; the sum never leaves the turn.
     /// </summary>
-    private static TrigonometryAngle EyeBeamHeading(HorizontalDirection facing, int spread) =>
+    internal static TrigonometryAngle EyeBeamHeading(HorizontalDirection facing, int spread) =>
         (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.EyeBeamHeadingFacingRight : TorizoMotionDefinitions.EyeBeamHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.EyeBeamSpreadCentre);
 
@@ -399,7 +400,7 @@ internal sealed class TorizoAttacks
     /// The velocity of <paramref name="speed"/> along <paramref name="heading"/>, which points up at zero: the speed
     /// split between the horizontal and the vertical, never exceeding it.
     /// </summary>
-    private static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
+    internal static PixelVelocity<RoomPixels> VelocityAlong(SignedEightEight speed, TrigonometryAngle heading) =>
         new(SpeedAlongAngle.Along(speed, heading),
             SpeedAlongAngle.Along(speed, heading - TrigonometryAngle.QuarterTurn));
 
@@ -556,7 +557,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Applies the projectile definition and draws horizontal jitter before vertical jitter.</summary>
-    private void InitializeTorizoRandomizedProjectile(
+    internal void InitializeTorizoRandomizedProjectile(
         EnemyProjectile projectile,
         RoomEnemyPlace torizo,
         TorizoRandomizedProjectileDefinition definition)
@@ -706,7 +707,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Steps the egg's hatch timer while bouncing it off terrain with horizontal drag and gravity; it hatches as the timer runs out.</summary>
-    private static void BounceEgg(
+    internal static void BounceEgg(
         TorizoProjectileBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)

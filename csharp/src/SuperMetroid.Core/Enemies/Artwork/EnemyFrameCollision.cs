@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// A family's installed frames mapped to their ordered collision elements (components or hitboxes); a frame outside the
 /// table has no collision.
 /// </summary>
-internal sealed class EnemyFrameCollision<TElement> : IEnumerable<KeyValuePair<EnemyFrameId, TElement[]>>
+internal sealed partial class EnemyFrameCollision<TElement> : IEnumerable<KeyValuePair<EnemyFrameId, TElement[]>>
 {
     /// <summary>Each frame's collision elements, in order.</summary>
     private readonly Dictionary<EnemyFrameId, TElement[]> _elements = [];

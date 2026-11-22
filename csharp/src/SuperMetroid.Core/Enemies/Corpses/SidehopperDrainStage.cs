@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// the victim shows, the last of which leaves it a corpse. Gameplay reads it: it decides whether the victim hops or
 /// drains after a landing and whether a shot, touch or Power Bomb starts it rotting.
 /// </summary>
-public readonly record struct SidehopperDrainStage
+public readonly partial record struct SidehopperDrainStage
 {
     /// <summary>The stage <paramref name="stage"/> steps into the drain.</summary>
     private SidehopperDrainStage(int stage) => Stage = stage;

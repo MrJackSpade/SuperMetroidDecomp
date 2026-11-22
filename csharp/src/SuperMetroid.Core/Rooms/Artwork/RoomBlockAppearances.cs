@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// take, so this is all about a block the room needs to choose its picture. A block no room of the tileset shows has no
 /// picture and depends on nothing.
 /// </summary>
-public sealed class RoomBlockAppearances
+public sealed partial class RoomBlockAppearances
 {
     /// <summary>The inputs each block depends on, by block, none for a block no room shows.</summary>
     internal readonly ImmutableArray<AppearanceInput>[] blocks;

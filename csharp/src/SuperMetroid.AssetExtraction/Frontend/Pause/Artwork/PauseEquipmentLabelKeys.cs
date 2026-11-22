@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// name, the Hyper label by <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>, and each category's strip
 /// width. Only the import reads and writes the document.
 /// </summary>
-public static class PauseEquipmentLabelKeys
+public static partial class PauseEquipmentLabelKeys
 {
     /// <summary>The JSON key of a label: its selector control's anchor name, or <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>.</summary>
     public static string Name(PauseEquipmentLabelId label) => KeysApartFromControls.TryGetValue(label, out string? key) ? key

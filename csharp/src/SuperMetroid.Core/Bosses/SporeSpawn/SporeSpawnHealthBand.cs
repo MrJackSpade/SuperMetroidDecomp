@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// phase on. He is in the highest band whose <see cref="MinimumHealth"/> his health reaches, and in
 /// the last of <see cref="SporeSpawnHealthBandDefinitions.HighestFirst"/> below them all.
 /// </summary>
-public sealed class SporeSpawnHealthBand
+public sealed partial class SporeSpawnHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>

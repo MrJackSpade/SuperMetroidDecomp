@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The map's scroll arrows, each shown while the map can scroll its way, and the highlight cycle, advanced by menu updates
 /// only.
 /// </summary>
-public sealed class FileSelectMapAnimations
+public sealed partial class FileSelectMapAnimations
 {
     /// <summary>Each map-scroll arrow's anchor, picture and visibility, by the direction it scrolls.</summary>
     internal readonly Dictionary<MapScrollDirection, Arrow> arrows = [];
@@ -75,7 +75,7 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>One map-scroll arrow: its installed anchor, its picture and whether it shows.</summary>
-    internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId picture)
+    internal sealed partial class Arrow(Offset16<ScreenPixels> position, MapSpriteId picture)
     {
         /// <summary>Installed screen anchor.</summary>
         public readonly Offset16<ScreenPixels> Position = position;

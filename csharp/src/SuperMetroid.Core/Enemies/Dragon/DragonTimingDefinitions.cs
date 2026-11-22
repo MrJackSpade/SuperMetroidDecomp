@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>How long a Dragon rises, sinks and waits, and how many fireballs one attack spits (#2279).</summary>
-internal static class DragonTimingDefinitions
+internal static partial class DragonTimingDefinitions
 {
     /// <summary>How long a Dragon rises or sinks, in updates, a pixel each, the last the one its rise or sink ends on.</summary>
     internal const int RiseOrSinkDuration = 49;

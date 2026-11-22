@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// written picture sheet for the values the appearance inputs it depends on take now, where it was written (#1514). The
 /// effect overlay's page is resolved from the same kind of sheet.
 /// </summary>
-public sealed class WrittenPictureResolver(WrittenPictureSheet sheet)
+public sealed partial class WrittenPictureResolver(WrittenPictureSheet sheet)
 {
     /// <summary>The overlay last resolved.</summary>
     private RoomWarningText? source;

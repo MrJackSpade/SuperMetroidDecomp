@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon's three authored fireball launches.</summary>
-internal static class AlcoonFireballLaunchDefinitions
+internal static partial class AlcoonFireballLaunchDefinitions
 {
     /// <summary>The upward spit: the fireball rises one pixel per frame.</summary>
     internal static AlcoonFireballLaunch Upward { get; } = new(-SignedEightEight.FromPixels(1));

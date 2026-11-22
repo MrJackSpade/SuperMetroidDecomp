@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Every definition a room places or the game spawns (each Ceres door its own, #1989): how each enemy behaves, never its
 /// artwork.
 /// </remarks>
-public static class RoomEnemyDefinitionCatalog
+public static partial class RoomEnemyDefinitionCatalog
 {
     /// <summary>
     /// The health of an enemy no fight kills by damage, the largest the game's health holds: Crocomire and his tongue, whom

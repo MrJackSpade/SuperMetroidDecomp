@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// its start and its last frame, and
 /// each walk its last frame and the backward walk each lap's start (#2301): the moments Kraid's lunges and walks wait on.
 /// </summary>
-internal static class KraidAnimations
+internal static partial class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail segment's beats.</summary>
     internal static AnimationSegments<KraidPartSegment, KraidPartPose, KraidPartCue> Segments { get; } = new(
@@ -159,7 +159,7 @@ internal static class KraidAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
+    internal static Dictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
     {
         [P.FootInitial] = new([Segments.Whole(P.FootInitial)], AnimationEnd.Holds),
         [P.FootNeutral] = new([Segments.Whole(P.FootNeutral)], AnimationEnd.Holds),

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// native fixed slots so edits cannot silently relocate into adjacent music or sample data.
 /// </summary>
 [EncodingOwner("sound driver music track, phrase and channel program bytecode")]
-internal static class SpcMusicDefinitionCodec
+internal static partial class SpcMusicDefinitionCodec
 {
     /// <summary>
     /// The effects in opcode order: the driver's effect opcodes are consecutive bytes from
@@ -399,14 +399,14 @@ internal static class SpcMusicDefinitionCodec
     /// <param name="Value">The word.</param>
     /// <param name="Phrase">The slot of the phrase a play word plays; null for any other word.</param>
     /// <param name="RepeatTarget">The slot a repeat word repeats from; null for any other word.</param>
-    private readonly record struct TrackWord(int Offset, ushort Value, ushort? Phrase = null, ushort? RepeatTarget = null);
+    private readonly partial record struct TrackWord(int Offset, ushort Value, ushort? Phrase = null, ushort? RepeatTarget = null);
 
     /// <summary>A track's control stream as the codec read it, named once the bank's phrases are.</summary>
     /// <param name="Song">The song the track plays.</param>
     /// <param name="Address">The track's slot.</param>
     /// <param name="ByteCapacity">The bytes its slot holds.</param>
     /// <param name="Words">Its words in stream order, its end last.</param>
-    private sealed record DecodedTrack(MusicTrack Song, ushort Address, int ByteCapacity, IReadOnlyList<TrackWord> Words)
+    private sealed partial record DecodedTrack(MusicTrack Song, ushort Address, int ByteCapacity, IReadOnlyList<TrackWord> Words)
     {
         /// <summary>The track's metadata: each phrase it plays named by <paramref name="phraseIds"/>, each repeat by the place of the word it repeats from.</summary>
         /// <exception cref="InvalidDataException">A repeat's slot begins none of the track's words.</exception>
@@ -443,7 +443,7 @@ internal static class SpcMusicDefinitionCodec
     /// <summary>A channel program as the codec read it, named once the bank's programs are.</summary>
     /// <param name="ByteCapacity">The bytes its slot holds.</param>
     /// <param name="Instructions">Its commands, its end last.</param>
-    private sealed record DecodedProgram(int ByteCapacity, IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
+    private sealed partial record DecodedProgram(int ByteCapacity, IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
 
     /// <summary>The two note-range bytes that are not pitches: tie and rest. Pitches and percussion stay numeric.</summary>
 

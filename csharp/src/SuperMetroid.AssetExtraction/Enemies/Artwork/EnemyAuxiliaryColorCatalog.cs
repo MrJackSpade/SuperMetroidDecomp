@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>The installed RGB5 animation frames of the auxiliary enemy palettes, kept as installed, independent of enemy mechanics.</summary>
-public sealed class EnemyAuxiliaryColorCatalog
+public sealed partial class EnemyAuxiliaryColorCatalog
 {
     /// <summary>
     /// Each family's installed colour frames: the mirrored eight-frame face-block glow sequence, the Sidehopper drain
@@ -25,7 +25,7 @@ public sealed class EnemyAuxiliaryColorCatalog
 
     /// <summary>The installed frames of <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The palette is not one of the four installed families.</exception>
-    private InstalledColourRows Family(EnemyAuxiliaryPalette palette) => families.TryGetValue(palette, out InstalledColourRows? family)
+    internal InstalledColourRows Family(EnemyAuxiliaryPalette palette) => families.TryGetValue(palette, out InstalledColourRows? family)
         ? family
         : throw new ArgumentOutOfRangeException(nameof(palette));
 }

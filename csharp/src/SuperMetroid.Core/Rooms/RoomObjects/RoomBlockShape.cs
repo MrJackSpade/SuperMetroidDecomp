@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// a place's block, each cell reached through the room's reading order (<see cref="RoomReadingOrder"/>), which owns where
 /// a cell past a row's end lands.
 /// </remarks>
-internal sealed class RoomBlockShape
+internal sealed partial class RoomBlockShape
 {
     /// <summary>The shape's cells, by place from the origin.</summary>
     private readonly Dictionary<Offset16<RoomBlocks>, RoomCollisionType> _collisions = [];

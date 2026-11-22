@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// explosion update.Sequence. It is apart from knockback, though the death-sequence poses have the knockback movement type:
 /// the death stops Samus's normal input and movement and runs this sequence instead.
 /// </summary>
-public sealed class SamusDeathSequenceState : IGameplayShadingSource
+public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
 {
     /// <summary>The game-state-owned phase corresponding to the pre-flash, flashing and suit-explosion states.</summary>
     public SamusDeathSequencePhase Phase => stage.Phase;
@@ -42,11 +42,11 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// The flash's shades (#2387): after an opening wait it shows her second death shade and then her first, each for its
     /// own hold, over and over, until the suit explodes. The death pose starts it again.
     /// </summary>
-    private AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; set; } =
+    internal AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; set; } =
         SamusDeathAnimations.FlashStarting();
 
     /// <summary>The flashing, lasting <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>: the suit explodes on its last update.</summary>
-    private UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The whiteout's shades (#2387): one update each from the update after the explosion's second picture first shows,
@@ -62,14 +62,14 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public RgbColor? Whiteout { get; private set; }
 
     /// <summary>The signed screen place captured at death-pose setup: left of or above the screen is negative.</summary>
-    private Offset16<ScreenPixels> ScreenPosition { get; set; }
+    internal Offset16<ScreenPixels> ScreenPosition { get; set; }
 
 /// <summary>The suit-explosion picture shown, or null outside the explosion.</summary>
-    private SamusDeathExplosionFrame? ExplosionFrame =>
+    internal SamusDeathExplosionFrame? ExplosionFrame =>
         stage is ExplosionStage { Explosion.HasStopped: false } exploding ? exploding.Explosion.Shown : null;
 
     /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose: left, or right otherwise.</summary>
-    private HorizontalDirection Facing { get; set; }
+    internal HorizontalDirection Facing { get; set; }
 
     /// <summary>
     /// Sets Samus's death-sequence pose. It runs once
@@ -153,6 +153,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>What <c>Draw</c> does for each <see cref="SamusDeathDraw"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>> DrawForSamusDeathDraw => field ??= new(new Dictionary<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>>
     {
         [SamusDeathDraw.Pose] = (samus, sprites, cameraPosition, turningFloor) => samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor),
@@ -175,7 +176,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>Publishes the one right/left explosion frame at the captured screen position, from <paramref name="sheets"/>.</summary>
-    private void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
+    internal void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheets);

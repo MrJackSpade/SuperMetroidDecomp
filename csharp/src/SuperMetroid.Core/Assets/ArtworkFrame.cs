@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Animation">The animation the frame belongs to.</param>
 /// <param name="Name">The frame's name within its animation.</param>
-public readonly record struct ArtworkFrame(ArtworkAnimation Animation, [InstalledKey] string Name)
+public readonly partial record struct ArtworkFrame(ArtworkAnimation Animation, [InstalledKey] string Name)
 {
     /// <summary>The frame's full name: its animation's, then its own.</summary>
     public override string ToString() => $"{Animation.Name} {Name}";

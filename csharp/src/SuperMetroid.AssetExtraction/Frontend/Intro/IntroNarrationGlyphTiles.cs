@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// The tiles the cartridge types the opening narration's characters with (#1467): the import decodes the cartridge's
 /// glyph records through them and paints each letter's pictures from them.
 /// </summary>
-public static class IntroNarrationGlyphTiles
+public static partial class IntroNarrationGlyphTiles
 {
     /// <summary>Compiles one supported narration character into the exact tile that shows it, in the glyphs' priority tier.</summary>
     /// <param name="character">Space, uppercase A-Z, digit 0-9, period, comma, straight apostrophe, or exclamation mark; no case or punctuation normalization is performed.</param>

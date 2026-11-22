@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="FrameName">The installed name of the head image the pose shows in his body sheet (<see cref="KraidBodyFrameNames"/>).</param>
 /// <param name="VulnerableShape">The shape a shot hurts Kraid through while this pose is shown.</param>
 /// <param name="InvulnerableShape">The inner shape that deflects shots, or null for the closed mouth, which has none.</param>
-internal readonly record struct KraidHeadFrame(string FrameName, KraidMouthHitbox VulnerableShape, KraidMouthHitbox? InvulnerableShape)
+internal readonly partial record struct KraidHeadFrame(string FrameName, KraidMouthHitbox VulnerableShape, KraidMouthHitbox? InvulnerableShape)
 {
     /// <summary>The closed mouth.</summary>
     internal static KraidHeadFrame Closed { get; } = new(KraidBodyFrameNames.HeadMouthClosed, KraidMouthHitbox.ClosedVulnerable, null);

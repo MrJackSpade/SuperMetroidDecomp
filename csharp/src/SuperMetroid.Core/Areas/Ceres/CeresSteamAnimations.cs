@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// hidden is a pause of its length, naming no picture. Every way a vent blows plays these over its own puff
 /// (<see cref="CeresSteamWay"/>).
 /// </summary>
-internal static class CeresSteamAnimations
+internal static partial class CeresSteamAnimations
 {
     /// <summary>How long a vent stays hidden between puffs.</summary>
-    private const int RestUpdates = 64;
+    internal const int RestUpdates = 64;
 
     /// <summary>How long each picture of a puff shows.</summary>
-    private const int PuffPictureUpdates = 3;
+    internal const int PuffPictureUpdates = 3;
 
     /// <summary>
     /// The segments of a vent whose puff shows <paramref name="puff"/>: its dormant wait hides the vent, its rest hides it

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <summary>
 /// The global gameplay freeze and the effective freeze including X-ray's.
 /// </summary>
-internal sealed class GameplayTimeFreeze
+internal sealed partial class GameplayTimeFreeze
 {
     /// <summary>Player-frame owner whose X-ray state contributes to the effective freeze without changing the shared gameplay freeze.</summary>
     private readonly SamusFrameState _player;

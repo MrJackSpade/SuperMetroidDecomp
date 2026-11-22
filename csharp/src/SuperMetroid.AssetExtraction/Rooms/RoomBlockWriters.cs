@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// into its room closes it behind Samus; nothing follows what a writer goes on to trigger. A block a room shows that no
 /// writer counted for its tileset fails as the room resolves its pictures, naming the sheet and the block.
 /// </summary>
-internal static class RoomBlockWriters
+internal static partial class RoomBlockWriters
 {
     /// <summary>The writers the installed <paramref name="catalogs"/> and <paramref name="xray"/> reveal hold the blocks of.</summary>
     /// <exception cref="InvalidDataException">An installed frame or X-ray reveal has no rule that draws it.</exception>

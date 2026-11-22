@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed beam characters by combination, with the beam palettes; the projectile sheets are composed from them.</summary>
-public sealed class BeamTileCatalog
+public sealed partial class BeamTileCatalog
 {
     /// <summary>Every pictured combination's installed 256-byte beam atlas.</summary>
     private readonly IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets;
@@ -16,7 +16,7 @@ public sealed class BeamTileCatalog
     /// <summary>Gets the optional installed fixed-color cycle used by the Hyper Beam visual effect.</summary>
     public HyperBeamFxColours? HyperBeamFxColors { get; }
     /// <summary>Keeps every combination's installed atlas, each read as installed.</summary>
-    private BeamTileCatalog(IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets, InstalledBeamPalettes? palettes,
+    internal BeamTileCatalog(IReadOnlyDictionary<SamusBeamCombination, BeamTileAtlas> sheets, InstalledBeamPalettes? palettes,
         HyperBeamFxColours? hyperBeamFxColors)
     {
         this.sheets = sheets;

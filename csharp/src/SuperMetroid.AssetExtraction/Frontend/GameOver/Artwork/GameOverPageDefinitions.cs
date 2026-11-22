@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// The game-over page as the cartridge lays it out (#1467): its size and the menu atlas cells its text shows. Only the
 /// import reads them; it pictures the page once into the menus' picture sheet, and the game places that picture.
 /// </summary>
-public static class GameOverPageDefinitions
+public static partial class GameOverPageDefinitions
 {
     /// <summary>Width of the game-over page in tile cells.</summary>
     public const int TilemapWidth = 32;

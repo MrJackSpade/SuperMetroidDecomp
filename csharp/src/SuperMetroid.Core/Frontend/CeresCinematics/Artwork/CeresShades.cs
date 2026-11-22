@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// in. The gunship engine's flicker is a colour-effect shade (<see cref="Fx.ColourEffects.ColourEffectShades"/>). Which inks each
 /// recolours, and to what, is the import's.
 /// </summary>
-public static class CeresShades
+public static partial class CeresShades
 {
     /// <summary>
     /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="Place">The enemy place the segment occupies.</param>
 /// <param name="Definition">The segment's definition: the saw, arm or head it is.</param>
 /// <param name="State">The segment's state.</param>
-internal readonly record struct ShaktoolChainSegment(RoomEnemyPlace Place, ShaktoolSegmentDefinition Definition, ShaktoolSegmentState State)
+internal readonly partial record struct ShaktoolChainSegment(RoomEnemyPlace Place, ShaktoolSegmentDefinition Definition, ShaktoolSegmentState State)
 {
     /// <summary>
     /// The state the rest of the chain reaches at the segment: its own, or, once a hit killed it this update, the emptied

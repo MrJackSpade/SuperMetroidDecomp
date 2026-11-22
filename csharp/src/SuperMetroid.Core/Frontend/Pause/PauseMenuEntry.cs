@@ -8,7 +8,7 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>The gameplay state and presentation a pause menu opens over (#633).</summary>
-internal sealed record PauseMenuEntry
+internal sealed partial record PauseMenuEntry
 {
     /// <summary>Samus, whose equipment and reserves the pause screens show and change.</summary>
     public required SamusState Samus { get; init; }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <typeparam name="TSegment">The segments its animations play.</typeparam>
 /// <typeparam name="TFrame">The frames its animations show.</typeparam>
-internal abstract class SilentSequencedRoomObject<TSegment, TFrame> : SequencedRoomObject<TSegment, TFrame, NoAnimationCue>
+internal abstract partial class SilentSequencedRoomObject<TSegment, TFrame> : SequencedRoomObject<TSegment, TFrame, NoAnimationCue>
     where TSegment : struct
     where TFrame : struct
 {

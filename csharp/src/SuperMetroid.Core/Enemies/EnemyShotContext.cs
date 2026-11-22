@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>The stages from vulnerability on receive it as an <see cref="EnemyShotHitContext"/>, which adds the sampled health.</remarks>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 [ArchitectureReview("context-bag", "One shot's hit on one enemy (#2558): every member is a fact of that hit (the struck occupant, the shot holding its place, its sampled type, damage and direction, the reaction it selects, the pass's camera) that the hit's reaction stages read while the hit runs.")]
-internal record EnemyShotContext(
+internal partial record EnemyShotContext(
     RoomEnemyOccupant Occupant,
     SamusProjectileOccupant Shot,
     SamusProjectileSystem Projectiles,

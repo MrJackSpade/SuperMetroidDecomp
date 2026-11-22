@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// result and copyright panels, the typed glyphs, the wavy Samus and the explosion's maps, each pre-coloured under the
 /// palette its scene loads and each installed whole (#1634).
 /// </summary>
-internal static class EndingPictureSheetComposer
+internal static partial class EndingPictureSheetComposer
 {
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -274,7 +274,7 @@ internal static class EndingPictureSheetComposer
     /// load placed one, which a map word then shows nothing of.
     /// </summary>
     /// <param name="bytes">The bytes of one character.</param>
-    private sealed class Characters(int bytes)
+    private sealed partial class Characters(int bytes)
     {
         /// <summary>Each character number's bytes.</summary>
         private readonly byte[] data = new byte[CharacterNumbers * bytes];
@@ -319,11 +319,11 @@ internal static class EndingPictureSheetComposer
     /// <param name="Compose">Composes the sheet.</param>
     /// <param name="Frames">The sheet's frame names.</param>
     /// <param name="Scenery">The scenery its pictures are.</param>
-    private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
+    private sealed partial record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
         EndingScenery[] Scenery);
 
     /// <summary>A typed glyph's picture.</summary>
     /// <param name="Name">The glyph's picture name.</param>
     /// <param name="Words">Its one or two map words, top first.</param>
-    private sealed record Glyph(string Name, BackgroundTile[] Words);
+    private sealed partial record Glyph(string Name, BackgroundTile[] Words);
 }

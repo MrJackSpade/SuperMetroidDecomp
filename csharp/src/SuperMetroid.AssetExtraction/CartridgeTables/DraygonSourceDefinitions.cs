@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge, decoded once into the installed Draygon colour document.
 /// </summary>
 [EncodingOwner("cartridge addresses of Draygon's colour tables")]
-internal static class DraygonSourceDefinitions
+internal static partial class DraygonSourceDefinitions
 {
     /// <summary>
     /// $A5:A217, the body initializer $A5:8687's 25 colours: <c>Palette_Draygon_Sprite1</c> continuing into

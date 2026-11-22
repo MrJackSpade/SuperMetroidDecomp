@@ -5,7 +5,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Reads and writes the installed layout of the Zebes reveal's actors.</summary>
-public static class CeresRevealActorLayoutFile
+public static partial class CeresRevealActorLayoutFile
 {
     /// <summary>Validates that each reveal role is placed once and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
@@ -18,8 +18,7 @@ public static class CeresRevealActorLayoutFile
         CeresRevealActorLayoutDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresRevealActorLayoutDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres reveal actor layout is null.");
         }
         catch (JsonException error)
@@ -47,8 +46,7 @@ public static class CeresRevealActorLayoutFile
     public static void Write(Stream json, CeresRevealActorLayoutDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresRevealActorLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

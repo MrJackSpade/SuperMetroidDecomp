@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// The Fune's and Namihe's idle and spitting animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FuneNamiheCue"/> naming what it does.
 /// </summary>
-internal static class FuneNamiheAnimations
+internal static partial class FuneNamiheAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FuneNamiheSegment, EnemyFrameId, FuneNamiheCue> Segments { get; } = new(
@@ -26,7 +26,7 @@ internal static class FuneNamiheAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
+    internal static Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
     {
         [P.FuneIdleLeft] = new([Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
         [P.FuneActiveLeft] = new([Segments.Whole(P.FuneActiveLeft), Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),

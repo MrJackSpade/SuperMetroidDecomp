@@ -145,7 +145,7 @@ internal static class TitleSkipWindowVerification
         {
             AssertEqual(TitleSkipStage.FadingOut, title.SkipStage, $"{place} skips");
             AssertEqual(expected.Phase, title.Phase, $"{place} keeps running its step alongside the skip's fade-out");
-            AssertEqual(expected.Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep, title.Brightness,
+            AssertEqual(expected.Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep, title.Brightness.StepsAboveBlack,
                 $"{place} takes the skip's first fade step on its own update");
             bool fadedIn = false;
             for (int route = 0; title.Phase != TitleSequencePhase.TitleScreen; route++)
@@ -155,7 +155,7 @@ internal static class TitleSkipWindowVerification
                 fadedIn |= title.Phase == TitleSequencePhase.TitleScreenFadeIn;
             }
             AssertTrue(fadedIn, $"{place} rebuilds the title objects and fades back in");
-            AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full.StepsAboveBlack, title.Brightness, $"{place} returns at full brightness");
+            AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full.StepsAboveBlack, title.Brightness.StepsAboveBlack, $"{place} returns at full brightness");
             return;
         }
         if (expected.Phase == TitleSequencePhase.TitleScreen && update > titleScreen)
@@ -197,7 +197,7 @@ internal static class TitleSkipWindowVerification
         Trace(input, _ => false, update + 1)[update];
 
     /// <summary>What the skip check's outcome changes in one update: the title's step, the skip's stage, brightness and floor zoom.</summary>
-    private static TitleUpdate Capture(TitleSequenceState title) => new(title.Phase, title.SkipStage, title.Brightness, title.FloorZoom);
+    private static TitleUpdate Capture(TitleSequenceState title) => new(title.Phase, title.SkipStage, title.Brightness.StepsAboveBlack, title.FloorZoom);
 
     /// <summary>The title's step, the skip's stage, brightness and floor zoom after one update.</summary>
     /// <param name="Phase">The step the update ends in.</param>

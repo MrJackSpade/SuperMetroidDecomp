@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <see cref="SuperMetroidGame.BindArtwork"/>. Every catalog is installed (#2224): a screen's art is never absent, so a
 /// rebinding replaces each catalog with another installed one and never with nothing.
 /// </summary>
-public sealed record GameArtwork
+public sealed partial record GameArtwork
 {
     /// <summary>The installed content of the screens, scenes and HUD (#2203): the area maps, the menus, the title, the opening and ending text and the scenes' colours.</summary>
     public required InstalledScreenContent ScreenContent { get; init; }
@@ -181,13 +181,13 @@ public sealed record GameArtwork
     public required EnemyOverreadServices EnemyOverreads { get; init; }
 
     /// <summary>Charge-flare placement.</summary>
-    public required BeamFlarePlacements ChargeFlarePlacement { private get; init; }
+    public required BeamFlarePlacements ChargeFlarePlacement { internal get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
-    public required ChargeFlarePlacements GrappleFlarePlacement { private get; init; }
+    public required ChargeFlarePlacements GrappleFlarePlacement { internal get; init; }
 
     /// <summary>The frame Samus's swing pose shows at each grapple angle.</summary>
-    public required InstalledGrappleSwingFrames GrappleSwingFrames { private get; init; }
+    public required InstalledGrappleSwingFrames GrappleSwingFrames { internal get; init; }
 
     /// <summary>
     /// The catalogs a gameplay runtime is built over (#2049).

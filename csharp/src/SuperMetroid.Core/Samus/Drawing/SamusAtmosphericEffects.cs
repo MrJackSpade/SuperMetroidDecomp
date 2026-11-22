@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Which splash or footstep effect Samus's movement and room produce.</summary>
-internal static class SamusAtmosphericEffects
+internal static partial class SamusAtmosphericEffects
 {
     /// <summary>
     /// The splash <paramref name="movementType"/> raises entering water (<see cref="SamusMovementTypeDefinitions"/>):

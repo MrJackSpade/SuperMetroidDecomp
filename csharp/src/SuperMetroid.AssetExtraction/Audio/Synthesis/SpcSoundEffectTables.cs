@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Sound-effect stream pointers and voice-allocation classes from the resident SPC driver, looked up in
 /// <see cref="SpcSoundEffectDefinitions"/> by library and one-based CPU command.
 /// </summary>
-internal static class SpcSoundEffectTables
+internal static partial class SpcSoundEffectTables
 {
     /// <summary>Number of defined one-based commands in <paramref name="library"/>.</summary>
     internal static int CommandCount(SoundEffectLibrary library) => library switch

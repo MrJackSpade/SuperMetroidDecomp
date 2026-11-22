@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="ForegroundScroll">The source room's foreground view, a signed position (#2384).</param>
 /// <param name="SourceForeground">The source room's foreground layer.</param>
-internal readonly record struct DoorOpeningSourceView(
+internal readonly partial record struct DoorOpeningSourceView(
     Offset16<RoomPixels> ForegroundScroll, RoomBackgroundLayer SourceForeground);

@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Hardware;
 /// original call sites advance that tail by seven. Seeing <see cref="TailInBytes"/> in the
 /// debugger therefore remains directly comparable to WRAM <c>$0330</c>.
 /// </remarks>
-public sealed class VramWriteQueue
+public sealed partial class VramWriteQueue
 {
     /// <summary>Bytes reserved by the original WRAM layout before the Mode 7 table.</summary>
     public const int StorageByteCount = 512;

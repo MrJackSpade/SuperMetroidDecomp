@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// past it is not cleared between rooms.
 /// </remarks>
 [CompatibilityService("an enemy's terrain move whose scan runs past the room's last row meets the terrain beyond the room instead of stopping at its edge")]
-public static class EnemyMovePastRoom
+public static partial class EnemyMovePastRoom
 {
     /// <summary>The block an enemy's terrain move meets at <paramref name="block"/>, past the room's grid.</summary>
     /// <typeparam name="TBlock">The room's terrain block with its behaviour.</typeparam>

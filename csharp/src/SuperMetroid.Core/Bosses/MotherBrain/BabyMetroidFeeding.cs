@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="enemies">The room's enemies, in placement order.</param>
 [RoomLifetime]
-internal sealed class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeeding
+internal sealed partial class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeeding
 {
     /// <inheritdoc/>
     public bool HasAlreadyFedOn(RoomEnemyPlace victim) =>

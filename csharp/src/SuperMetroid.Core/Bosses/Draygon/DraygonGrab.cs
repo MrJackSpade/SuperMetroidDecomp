@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
 [RoomLifetime]
-internal sealed class DraygonGrab
+internal sealed partial class DraygonGrab
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -248,7 +248,7 @@ internal sealed class DraygonGrab
     /// update after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
-    private void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
+    internal void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)
     {
         bool escaped = samus.DraygonGrabbed.CarryTo(
             samus,

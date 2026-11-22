@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>One cue of the wall Space Pirates' animations: what it does, with the values it acts on.</summary>
-internal abstract record WallSpacePirateCue
+internal abstract partial record WallSpacePirateCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private WallSpacePirateCue()
@@ -18,7 +18,7 @@ internal abstract record WallSpacePirateCue
     /// <summary>Climbs the cue's pixels on the cue's wall, continuing at the opposite climb after terrain contact (#2151).</summary>
     /// <param name="Wall">The wall the Pirate climbs.</param>
     /// <param name="ClimbPixels">The whole pixels the Pirate moves down the wall; negative climbs up.</param>
-    internal sealed record Climb(HorizontalDirection Wall, int ClimbPixels) : WallSpacePirateCue
+    internal sealed partial record Climb(HorizontalDirection Wall, int ClimbPixels) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Climb(this, context);
@@ -26,7 +26,7 @@ internal abstract record WallSpacePirateCue
 
     /// <summary>Picks a random climb direction and continues at that climb on the cue's wall (#2151).</summary>
     /// <param name="Wall">The wall the Pirate climbs.</param>
-    internal sealed record ChooseClimb(HorizontalDirection Wall) : WallSpacePirateCue
+    internal sealed partial record ChooseClimb(HorizontalDirection Wall) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ChooseClimb(this, context);
@@ -34,7 +34,7 @@ internal abstract record WallSpacePirateCue
 
     /// <summary>Fires a laser the cue's way (#2151).</summary>
     /// <param name="Direction">The way the laser flies.</param>
-    internal sealed record FireLaser(HorizontalDirection Direction) : WallSpacePirateCue
+    internal sealed partial record FireLaser(HorizontalDirection Direction) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).FireLaser(this, context);
@@ -42,7 +42,7 @@ internal abstract record WallSpacePirateCue
 
     /// <summary>Prepares the jump to the wall the cue's way (#2151).</summary>
     /// <param name="Direction">The way the Pirate jumps.</param>
-    internal sealed record PrepareJump(HorizontalDirection Direction) : WallSpacePirateCue
+    internal sealed partial record PrepareJump(HorizontalDirection Direction) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).PrepareJump(this, context);
@@ -53,7 +53,7 @@ internal abstract record WallSpacePirateCue
     /// wall and watching Samus as it climbs, holding on while its attack fires, or jumping across to the other wall.
     /// </summary>
     /// <param name="Action">The action main AI then runs.</param>
-    internal sealed record Begin(WallSpacePirateAction Action) : WallSpacePirateCue
+    internal sealed partial record Begin(WallSpacePirateAction Action) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Begin(this, context);
@@ -65,7 +65,7 @@ internal abstract record WallSpacePirateCue
     /// </summary>
     /// <param name="Action">The action main AI then runs.</param>
     /// <param name="Wall">The wall the Pirate clings to, or jumps to.</param>
-    internal sealed record BeginOnWall(WallSpacePirateAction Action, HorizontalDirection Wall) : WallSpacePirateCue
+    internal sealed partial record BeginOnWall(WallSpacePirateAction Action, HorizontalDirection Wall) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginOnWall(this, context);
@@ -73,7 +73,7 @@ internal abstract record WallSpacePirateCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue
+    internal sealed partial record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
@@ -90,4 +90,4 @@ internal abstract record WallSpacePirateCue
 /// <param name="BeginOnWall">Makes a <see cref="WallSpacePirateCue.BeginOnWall"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="WallSpacePirateCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record WallSpacePirateCueCases<TContext, TResult>(Func<WallSpacePirateCue.Climb, TContext, TResult> Climb, Func<WallSpacePirateCue.ChooseClimb, TContext, TResult> ChooseClimb, Func<WallSpacePirateCue.FireLaser, TContext, TResult> FireLaser, Func<WallSpacePirateCue.PrepareJump, TContext, TResult> PrepareJump, Func<WallSpacePirateCue.Begin, TContext, TResult> Begin, Func<WallSpacePirateCue.BeginOnWall, TContext, TResult> BeginOnWall, Func<WallSpacePirateCue.Signal, TContext, TResult> Signal);
+internal sealed partial record WallSpacePirateCueCases<TContext, TResult>(Func<WallSpacePirateCue.Climb, TContext, TResult> Climb, Func<WallSpacePirateCue.ChooseClimb, TContext, TResult> ChooseClimb, Func<WallSpacePirateCue.FireLaser, TContext, TResult> FireLaser, Func<WallSpacePirateCue.PrepareJump, TContext, TResult> PrepareJump, Func<WallSpacePirateCue.Begin, TContext, TResult> Begin, Func<WallSpacePirateCue.BeginOnWall, TContext, TResult> BeginOnWall, Func<WallSpacePirateCue.Signal, TContext, TResult> Signal);

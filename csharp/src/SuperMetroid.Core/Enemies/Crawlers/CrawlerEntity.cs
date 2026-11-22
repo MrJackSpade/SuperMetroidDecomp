@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="state">The crawler's state, which its variant's setup built as the entity was built (#2554).</param>
-internal abstract class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerEnemyState state)
+internal abstract partial class CrawlerEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The crawler's state, which it holds from its setup.</summary>

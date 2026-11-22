@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// The six Evirs that close in on Draygon as he is buried: each starts on an arc above him and drifts back toward its
 /// centre, under one pixel per update on each axis, every one of them downward.
 /// </summary>
-internal static class DraygonBurialEvirDefinitions
+internal static partial class DraygonBurialEvirDefinitions
 {
     /// <summary>
     /// The burial Evirs in the order Draygon's death spawns them: three on the right of the arc, drawn as the intro Evir

@@ -9,9 +9,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid];
 
     /// <summary>
@@ -64,23 +65,23 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         EnemyOccupant.Running(new KraidBodyEntity(this, occupant, place, common));
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
-    private KraidBodyLayer BodyLayer { get; }
+    internal KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
-    private KraidEncounterAccess Access { get; }
+    internal KraidEncounterAccess Access { get; }
 
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-    private KraidBackground Background { get; }
+    internal KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
-    private KraidHead Head { get; }
+    internal KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-    private KraidDeath Death { get; }
+    internal KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
     internal KraidLimbs Limbs { get; }
@@ -115,7 +116,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     /// killing mouth hit therefore reaches colour handling, which settles his hurt flash on his health band's colours,
     /// before the death setup runs in this same update.
     /// </summary>
-    private void RunKraidBodyMain(
+    internal void RunKraidBodyMain(
         RoomEnemyOccupant kraid,
         KraidEnemyState state,
         SamusState samus,
@@ -147,7 +148,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     /// </summary>
     /// <param name="projectiles">Samus's shots.</param>
     /// <param name="bombs">Samus's bombs.</param>
-    private static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem bombs)
     {
@@ -160,7 +161,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     }
 
     /// <summary>One projectile one of Kraid's shot passes tests (#2400): a shot of Samus's, or her first bomb.</summary>
-    internal abstract record KraidPassProjectile
+    internal abstract partial record KraidPassProjectile
     {
         /// <summary>Closes the hierarchy to the shot and the bomb.</summary>
         private KraidPassProjectile()
@@ -179,7 +180,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         public abstract KraidHeldPassProjectile? Held { get; }
 
         /// <summary>A shot the passes test, in one of Samus's shot places.</summary>
-        internal sealed record Shot : KraidPassProjectile
+        internal sealed partial record Shot : KraidPassProjectile
         {
             /// <summary>The shot the passes test.</summary>
             private readonly SamusProjectile _shot;
@@ -195,7 +196,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
         }
 
         /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
-        internal sealed record Bomb : KraidPassProjectile
+        internal sealed partial record Bomb : KraidPassProjectile
         {
             /// <summary>The bomb the passes test.</summary>
             private readonly SamusBomb _bomb;
@@ -217,16 +218,16 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpa
     /// <param name="Type">The projectile's type: its family, beams and charge.</param>
     /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the place's non-negative damage.</param>
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
-    internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
+    internal readonly partial record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
     /// <summary>The projectile holding a place one of Kraid's passes tests, and the marking of its collision with him.</summary>
     /// <param name="Shot">Its position, radius, type and damage.</param>
     /// <param name="MarkCollision">Marks the projectile holding the place as having collided with Kraid.</param>
-    internal readonly record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
+    internal readonly partial record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
-    private void RunKraidBodyStage(
+    internal void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,

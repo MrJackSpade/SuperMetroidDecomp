@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Bottom">Bottom edge relative to the component origin, in room pixels.</param>
 /// <param name="Touch">The reaction when Samus touches the rectangle.</param>
 /// <param name="Shot">The reaction when a Samus projectile or bomb hits the rectangle.</param>
-internal readonly record struct EnemyCollisionHitbox(
+internal readonly partial record struct EnemyCollisionHitbox(
     int Left, int Top, int Right, int Bottom, EnemyReaction Touch, EnemyReaction Shot);

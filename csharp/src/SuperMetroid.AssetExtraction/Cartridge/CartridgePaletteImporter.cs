@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// Resolves cartridge-backed palette DMA while importing assets. ROM colors become installed asset bytes; the import
 /// maps no work RAM, so a palette transfer whose source reaches work RAM is rejected (#1688).
 /// </summary>
-public static class CartridgePaletteImporter
+public static partial class CartridgePaletteImporter
 {
     /// <summary>Copies native little-endian color words from a cartridge DMA source into a bounded CGRAM range during asset import.</summary>
     /// <param name="destination">Mutable CGRAM receiving decoded BGR555 words.</param>

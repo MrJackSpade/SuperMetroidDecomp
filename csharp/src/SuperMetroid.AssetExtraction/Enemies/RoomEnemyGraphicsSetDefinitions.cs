@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// pictures as the cartridge loads them, and names the variant each population's enemies draw in. The game knows no set.
 /// </remarks>
 [NumberedIdentities("Each numbered member is the enemy graphics set of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes the sets by number.")]
-internal static class RoomEnemyGraphicsSetDefinitions
+internal static partial class RoomEnemyGraphicsSetDefinitions
 {
     /// <summary>
     /// The enemy graphics a room draws under when it loads no set (#1392, #1476): no set's pictures or colours loaded over

@@ -9,32 +9,32 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// lights' recovery. The phase that runs a fade waits on its end: the update after its last image's hold, which shows no
 /// new colours.
 /// </summary>
-public sealed class MotherBrainFadeProgress
+public sealed partial class MotherBrainFadeProgress
 {
     /// <summary>The player showing the fade's images.</summary>
-    private AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue> player;
+    internal AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue> Player { get; private set; }
 
     /// <summary>Readies <paramref name="fade"/> before its start: its first update shows its first image.</summary>
     internal MotherBrainFadeProgress(MotherBrainFade fade)
     {
         Fade = Ensure.NotNull(fade);
-        player = AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue>.Starting(fade.Segments, fade.Animation);
+        Player = AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue>.Starting(fade.Segments, fade.Animation);
     }
 
     /// <summary>The fade playing.</summary>
-    private MotherBrainFade Fade { get; }
+    internal MotherBrainFade Fade { get; }
 
     /// <summary>Whether the fade is over: its last image has shown its hold out.</summary>
-    public bool IsOver => player.HasStopped;
+    public bool IsOver => Player.HasStopped;
 
     /// <summary>Starts the fade over, showing its first image on the <paramref name="updates"/>th update from now.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below one.</exception>
     internal void StartAfter(int updates) =>
-        player = AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue>.StartingAfter(Fade.Segments, Fade.Animation, updates);
+        Player = AnimationPlayer<MotherBrainFadeSegment, MotherBrainFadeImage, NoAnimationCue>.StartingAfter(Fade.Segments, Fade.Animation, updates);
 
     /// <summary>
     /// Runs one update of the fade: the image it shows anew on this update, or null while an image holds, before the first
     /// and once the fade is over.
     /// </summary>
-    internal MotherBrainFadeImage? Step() => player.StepToNewFrame();
+    internal MotherBrainFadeImage? Step() => Player.StepToNewFrame();
 }

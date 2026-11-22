@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// colours; the game binds none of the document.
 /// Energy and mode behavior stay compiled.
 /// </summary>
-public sealed class PauseReserveUiPresentation
+public sealed partial class PauseReserveUiPresentation
 {
     /// <summary>The Mode, Reserve Tank, Manual, and Auto strips as installed.</summary>
     private readonly Dictionary<PauseReserveLabel, ReserveLabel> labels;
@@ -104,10 +104,10 @@ public sealed class PauseReserveUiPresentation
     /// <summary>One reserve label's installed placement and tiles.</summary>
     /// <param name="Cell">The equipment-page cell the label's first tile shows in.</param>
     /// <param name="Tiles">The label's installed tiles, first to last.</param>
-    private sealed record ReserveLabel(int Cell, BackgroundTile[] Tiles);
+    private sealed partial record ReserveLabel(int Cell, BackgroundTile[] Tiles);
 
     /// <summary>The pause screen's reserve-tank labels, digits and arrow colours (#633).</summary>
-    private sealed record PauseReserveUiParts
+    private sealed partial record PauseReserveUiParts
     {
         /// <summary>The four installed strips.</summary>
         public required Dictionary<PauseReserveLabel, ReserveLabel> Labels { get; init; }

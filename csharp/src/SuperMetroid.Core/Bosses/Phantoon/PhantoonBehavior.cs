@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The Phantoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
+internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PhantoonBody];
 
     /// <summary>
@@ -50,7 +51,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     internal PhantoonCombat Combat { get; }
 
     /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
-    private PhantoonPresentation Presentation { get; }
+    internal PhantoonPresentation Presentation { get; }
 
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     internal PhantoonPatterns Patterns { get; }
@@ -196,7 +197,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     }
 
     /// <summary>Shows his body in the colours of his health band.</summary>
-    private static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
+    internal static void ShowPhantoonHealthColours(PhantoonEnemyState state) =>
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonPresentation.HealthBand(state.Body)));
 
     /// <summary>
@@ -223,6 +224,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     }
 
     /// <summary>What <see cref="ApplyPhantoonPartCue"/> does for each <see cref="PhantoonPartCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PhantoonPartCue, Action<PhantoonEnemyState>> ApplyPhantoonPartCueForPhantoonPartCue => field ??= new(new Dictionary<PhantoonPartCue, Action<PhantoonEnemyState>>
     {
         [PhantoonPartCue.PlayMaterializationSound] = state =>
@@ -244,7 +246,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     });
 
     /// <summary>Carries out one cue of a Phantoon part animation.</summary>
-    private void ApplyPhantoonPartCue(
+    internal void ApplyPhantoonPartCue(
         PhantoonEnemyState state,
         PhantoonPartCue cue)
     {
@@ -252,7 +254,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemySpawnFactory<Enemy
     }
 
     /// <summary>Starts the eye's Samus-tracking animation for the current attack phase.</summary>
-    private void BeginPhantoonEyeTracking(PhantoonEnemyState state)
+    internal void BeginPhantoonEyeTracking(PhantoonEnemyState state)
     {
         state.WindowEnd = PhantoonWindowEnd.EyeCloses;
         RoomEnemyPlace body = state.Body;

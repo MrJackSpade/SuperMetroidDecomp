@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// over the colour rows its frames ink, so their pictures show the colours the game draws them in. Her draws still lay
 /// the effect's shades over that base at runtime, so what she shows is unchanged.
 /// </summary>
-internal static class SamusBodyColouringDefinitions
+internal static partial class SamusBodyColouringDefinitions
 {
     /// <summary>
     /// The Crystal Flash's first colouring: the first step of its body pulse and of its bubble's rotation, which activation

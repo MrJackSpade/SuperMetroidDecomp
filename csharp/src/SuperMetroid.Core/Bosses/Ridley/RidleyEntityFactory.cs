@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
 [RoomLifetime]
-internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair) : IEnemyEntityFactory
+internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair) : IEnemyEntityFactory
 {
     /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
-    private NorfairRidleyBehavior Norfair { get; } = norfair;
+    internal NorfairRidleyBehavior Norfair { get; } = norfair;
 
     /// <summary>
     /// Lower Norfair Ridley, built the same way wherever he is set up; the pieces of the breakup explosion are only spawned

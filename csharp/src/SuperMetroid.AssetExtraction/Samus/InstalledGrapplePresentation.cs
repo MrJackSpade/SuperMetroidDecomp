@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 /// <param name="FlarePlacement">The standing and running grapple flare offsets, which gameplay binds.</param>
 /// <param name="SwingFrames">The swing-direction-to-displayed-frame mapping of Samus's swing pose, which gameplay binds.</param>
-public sealed record InstalledGrapplePresentation(ChargeFlarePlacements FlarePlacement, InstalledGrappleSwingFrames SwingFrames);
+public sealed partial record InstalledGrapplePresentation(ChargeFlarePlacements FlarePlacement, InstalledGrappleSwingFrames SwingFrames);

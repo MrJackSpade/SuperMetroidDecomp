@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Brinstar room-header region, in table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
-internal static class BrinstarRoomEnemyGraphicsSetDefinitions
+internal static partial class BrinstarRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The members of every set here that loads a morph ball eye and a face block, in record order.</summary>
     private static readonly RoomEnemyGraphicsSetMember[] MorphBallEyeAndFaceBlock =

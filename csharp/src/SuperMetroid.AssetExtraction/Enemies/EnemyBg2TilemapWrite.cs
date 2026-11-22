@@ -8,5 +8,5 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// (<see cref="EnemyBg2FrameLayout.TilemapWidth"/> entries per row); the writer rejects a run that leaves the buffer.
 /// </param>
 /// <param name="Tiles">The tiles placed from that cell onward, in order.</param>
-internal readonly record struct EnemyBg2TilemapWrite(
+internal readonly partial record struct EnemyBg2TilemapWrite(
     int FirstCell, ReadOnlyMemory<BackgroundTile> Tiles);

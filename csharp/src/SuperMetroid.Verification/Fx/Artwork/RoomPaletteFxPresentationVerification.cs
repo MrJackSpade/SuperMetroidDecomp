@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
 using System.Text;
 using System.Text.Json;
@@ -66,9 +67,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (NorfairEnvironmentalPaletteFxColorDefinition definition in
                  NorfairEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -239,9 +240,9 @@ internal static class RoomPaletteFxPresentationVerification
 
             var guard = NewTitlePresentationReadBus(bus, forbidden, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var installedSession = new ColourEffectSessionState();
-            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             ushort equipment = definition.Suit switch
             {
                 ColourEffectHeatSuit.Power => 0,
@@ -301,10 +302,10 @@ internal static class RoomPaletteFxPresentationVerification
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
             var nativeSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
-            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, nativeSounds });
+            var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, nativeSounds);
             var installedSession = new ColourEffectSessionState();
             var installedSounds = SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone();
-            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, installedSounds });
+            var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, installedSounds);
             StartFamily(native, shape, definition);
             StartFamily(installed, shape, definition);
             var nativeCgram = new SnesCgram();
@@ -365,9 +366,9 @@ internal static class RoomPaletteFxPresentationVerification
         {
             var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
             var nativeSession = new ColourEffectSessionState();
-            var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var installedSession = new ColourEffectSessionState();
-            var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             native.Start(definition, equippedItems: 0);
             installed.Start(definition, equippedItems: 0);
             var nativeCgram = new SnesCgram();
@@ -418,9 +419,9 @@ internal static class RoomPaletteFxPresentationVerification
 
         var guarded = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (MaridiaEnvironmentalPaletteFxColorDefinition definition in
                  MaridiaEnvironmentalPaletteFxColorDefinitions.All)
         {
@@ -449,13 +450,9 @@ internal static class RoomPaletteFxPresentationVerification
         byte[] extracted)
     {
         RoomPaletteFxPresentationDocument document =
-            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(
-                extracted,
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted room palette-FX document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(
-            document,
-            ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => RoomPaletteFxPresentationFile.Read(new MemoryStream(Json(), writable: false)),
             description);

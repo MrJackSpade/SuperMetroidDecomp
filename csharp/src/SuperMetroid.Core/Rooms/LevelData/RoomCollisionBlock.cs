@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>One block of a room's terrain grid as collision reads it: where it is, its terrain and its behaviour.</summary>
-public readonly record struct RoomCollisionBlock
+public readonly partial record struct RoomCollisionBlock
 {
     /// <summary>A block the read found in the room, at <paramref name="position"/>.</summary>
     /// <param name="position">

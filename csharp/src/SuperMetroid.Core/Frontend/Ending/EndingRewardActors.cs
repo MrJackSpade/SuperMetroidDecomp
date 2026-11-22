@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// Selects the ending reward actors' definitions.
 /// </summary>
-internal static class EndingRewardActors
+internal static partial class EndingRewardActors
 {
     /// <summary>The get of each definition.</summary>
     private static IdentityTable<EndingRewardActor, EndingRewardActorDefinition> GetByDefinition => field ??= new(new Dictionary<EndingRewardActor, EndingRewardActorDefinition>

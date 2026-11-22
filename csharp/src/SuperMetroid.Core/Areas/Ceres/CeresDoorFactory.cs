@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 [RoomLifetime]
-internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFactory
+internal sealed partial class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFactory
 {
     /// <summary>The room's owner of the Ceres doors and walls.</summary>
     private readonly CeresDoorBehavior _doors = Ensure.NotNull(doors);
@@ -21,6 +21,7 @@ internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFa
     /// (<see cref="CreateGetawayChamberWall"/>).
     /// </summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<CeresDoorSpawnSettings>([EnemyDefinitionId.CeresDoor], CreateDoor);

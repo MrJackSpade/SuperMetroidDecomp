@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// never leaving less than none, as the colour fades in or out. A line's colour is each channel scaled by its strength
 /// in steps, rounded and held at the channel's maximum.
 /// </summary>
-public sealed record LineColourSteps
+public sealed partial record LineColourSteps
 {
     /// <summary>The first screen line with any colour.</summary>
     public int FirstLine { get; }

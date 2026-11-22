@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Animation;
 /// <param name="FirstBeat">The segment's first beat the phase plays.</param>
 /// <param name="BeatCount">How many of the segment's beats it plays, from <paramref name="FirstBeat"/>.</param>
 /// <param name="Plays">How many times the run plays, at least once.</param>
-internal readonly record struct AnimationPhase<TSegment>(TSegment Segment, int FirstBeat, int BeatCount, int Plays)
+internal readonly partial record struct AnimationPhase<TSegment>(TSegment Segment, int FirstBeat, int BeatCount, int Plays)
     where TSegment : struct
 {
     /// <summary>Whether the phase plays its run more than once, counting its plays as it goes.</summary>

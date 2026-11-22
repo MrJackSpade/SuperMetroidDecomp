@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 /// <summary>Stable host filenames for Ceres-door graphics and palettes, and the size of the door's installed character sheet.</summary>
-public static class CeresDoorVisualFormat
+public static partial class CeresDoorVisualFormat
 {
     /// <summary>Installed indexed PNG filename for the 32 4bpp door characters used by variant two's OBJ tile upload.</summary>
     public const string TilesFileName = "ceres-door-tiles.png";

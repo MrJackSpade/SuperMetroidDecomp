@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>The collaborators a <see cref="BotwoonBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]
-internal sealed record BotwoonBehaviorDependencies
+internal sealed partial record BotwoonBehaviorDependencies
 {
     /// <summary>The room Botwoon fights in: its random numbers and whether Botwoon is already defeated.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The ordinary and Mother Brain Rinkas' hide, fire and spin animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="RinkaCue"/> naming what it does.
 /// </summary>
-internal static class RinkaAnimations
+internal static partial class RinkaAnimations
 {
     /// <summary>How long a Rinka waits hidden, white hot, before it fires.</summary>
     private const int HiddenWait = 64;
@@ -47,7 +47,7 @@ internal static class RinkaAnimations
     /// The animation that starts at each segment an owner can start or restart at: each Rinka hides, fires and then spins
     /// for good (#2250).
     /// </summary>
-    private static Dictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
+    internal static Dictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
         [P.Ordinary] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.Ordinary)], [Segments.Whole(P.Spin)]),
         [P.KeptRunningOffScreen] = Animation<RinkaSegment>.LeadingInto([Segments.Whole(P.KeptRunningOffScreen)], [Segments.Whole(P.Spin)]),

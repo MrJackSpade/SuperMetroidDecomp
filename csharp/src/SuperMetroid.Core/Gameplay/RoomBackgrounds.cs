@@ -15,5 +15,5 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="DoorSource">The source room's foreground screen during a door's opening scroll, or null.</param>
 /// <param name="Warning">The warning an escape shows in the room, its own layer (Ceres's or Zebes's, #1348, #1555, #2573), or null.</param>
 /// <param name="Floor">The turning floor the room shows, or null when it shows none (#1349, #1467, #1649).</param>
-public sealed record RoomBackgrounds(RoomBackgroundLayer Foreground, ShownRoomBackground Background,
+public sealed partial record RoomBackgrounds(RoomBackgroundLayer Foreground, ShownRoomBackground Background,
     RoomDoorBackground? DoorSource = null, ShownRoomWarning? Warning = null, AffineFloor? Floor = null);

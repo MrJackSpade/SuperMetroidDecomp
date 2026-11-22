@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with this service and follows every fragment to the floor.
 /// </remarks>
 [CompatibilityService("the two highest egg-shell fragments fall by the steps read past the gravity curve before they land")]
-public sealed class ShellFragmentFallPastCurve
+public sealed partial class ShellFragmentFallPastCurve
 {
     /// <summary>The steps, in the order the updates past the curve read them.</summary>
     private readonly IReadOnlyList<SignedSixteenSixteen> _steps;

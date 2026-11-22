@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// holds it (#1637). Only the import reads them, to pre-colour her pictures (#1512); the game works with her beam backdrop's
 /// colours alone, which are installed by purpose (<see cref="MotherBrainBeamColourFile"/>).
 /// </summary>
-public sealed class InstalledMotherBrainRainbowPalette
+public sealed partial class InstalledMotherBrainRainbowPalette
 {
     /// <summary>Ten color phases read by the rainbow list.</summary>
     internal readonly PaletteFrame[] rainbow;
@@ -37,7 +37,7 @@ public sealed class InstalledMotherBrainRainbowPalette
     }
 
     /// <summary>One installed body and rear-leg phase.</summary>
-    internal sealed class PaletteFrame
+    internal sealed partial class PaletteFrame
     {
         /// <summary>The installed rear-leg inks.</summary>
         private readonly RgbColor[] legs;
@@ -60,7 +60,7 @@ public sealed class InstalledMotherBrainRainbowPalette
     }
 
     /// <summary>An installed fade: every phase of it, kept as installed.</summary>
-    internal sealed class PaletteFade
+    internal sealed partial class PaletteFade
     {
         /// <summary>The installed phases, first to last.</summary>
         private readonly PaletteFrame[] frames;

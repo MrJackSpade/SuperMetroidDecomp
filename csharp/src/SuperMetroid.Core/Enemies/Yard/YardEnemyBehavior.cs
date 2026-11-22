@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<YardSpawnSettings>
+internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<YardSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -98,9 +98,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     /// <param name="State">The Yard's state.</param>
     /// <param name="Playing">Where the play stands just past the cue.</param>
     /// <param name="Owner">The <see cref="YardEnemyBehavior"/> reacting.</param>
-    private readonly record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
+    private readonly partial record struct ApplyYardCueContext(RoomEnemyPlace Place, YardEnemyState State, AnimationPlayback<YardSegment> Playing, YardEnemyBehavior Owner);
 
     /// <summary>What each of the Yard's signals does, and the animation it continues at, or null to run on.</summary>
+    [field: NonSerialized]
     private IdentityTable<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>> YardSignals => field ??=
         new(new Dictionary<YardCueKind, Func<YardEnemyState, AnimationPlayback<YardSegment>, AnimationContinuation<YardSegment>?>>
         {
@@ -157,7 +158,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     /// Sets the Yard's crawl velocity for <paramref name="direction"/>: each axis takes its current crawl speed, or that
     /// speed reversed.
     /// </summary>
-    private static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
+    internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
     /// <summary>Runs the Yard's main AI.</summary>
@@ -277,7 +278,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     }
 
     /// <summary>Moves Yard along its wall or floor, probes the turn lookahead, and detaches if the supporting surface ends.</summary>
-    private void RunYardCrawlingMovement(
+    internal void RunYardCrawlingMovement(
         RoomEnemyPlace place,
         YardEnemyState state,
         RoomLevelData level)
@@ -381,7 +382,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     }
 
     /// <summary>Runs the common detach path.</summary>
-    private static void DropYard(RoomEnemyPlace place, YardEnemyState state)
+    internal static void DropYard(RoomEnemyPlace place, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Dropped)
             return;
@@ -501,7 +502,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, properties, and velocities unless it is hidden or holding still.</summary>
-    private static void TurnYardAround(YardEnemyState state)
+    internal static void TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
             state.Movement == YardMovement.HoldingStill)
@@ -525,7 +526,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     /// Runs the running/airborne kick setup: the shell flies sideways at the camera's last measure of Samus's movement,
     /// reversed when she faces left, and upward at the speed that measure's whole pixels select.
     /// </summary>
-    private static void KickYardIntoAir(
+    internal static void KickYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
@@ -545,7 +546,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
     }
 
     /// <summary>Runs ordinary-beam launch setup.</summary>
-    private static void ShootYardIntoAir(
+    internal static void ShootYardIntoAir(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)
@@ -646,6 +647,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
         // the shell into the air, after the shot's impact.
+<<<<<<< HEAD
         BeforeVulnerability = (in EnemyShotContext c) =>
         {
             if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
@@ -653,7 +655,32 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<Yard
             ResolveYardBeamLaunch(c.Enemy, state, c.Samus);
             return true;
         },
+||||||| 418ca79935
+        BeforeVulnerability = (in EnemyShotContext c) =>
+        {
+            if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
+                return false;
+            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+            return true;
+        },
+=======
+        BeforeVulnerability = KickShellIntoAir,
+>>>>>>> origin/main
     };
+
+    /// <summary>
+    /// Kicks the struck Yard's shell into the air before vulnerability, after the shot's impact: a bomb or a power bomb goes
+    /// on to its vulnerability damage instead.
+    /// </summary>
+    /// <param name="c">The shot meeting the Yard.</param>
+    /// <returns>Whether the kick replaced the vulnerability damage.</returns>
+    private bool KickShellIntoAir(in EnemyShotContext c)
+    {
+        if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
+            return false;
+        ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
+        return true;
+    }
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
     internal void ReactToYardTouch(RoomEnemyOccupant occupant, YardSpawnSettings yardSpawnSettings, EnemyTouchContext context, YardEnemyState yardEnemyState) =>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Exact discrete Phantoon figure-eight movement, not a sampled analytic curve.</summary>
-public static class PhantoonPathDefinitions
+public static partial class PhantoonPathDefinitions
 {
     /// <summary>The number of the path's signed X/Y unit steps.</summary>
     public const int Length = 534;

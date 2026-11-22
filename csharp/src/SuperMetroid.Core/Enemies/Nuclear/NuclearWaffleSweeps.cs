@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>Chooses a Nuclear Waffle's sweep.</summary>
-internal static class NuclearWaffleSweeps
+internal static partial class NuclearWaffleSweeps
 {
     /// <summary>The sweep of each direction.</summary>
     private static IdentityTable<NuclearWaffleSweepDirection, NuclearWaffleSweepDefinition> SweepByDirection => field ??= new(new Dictionary<NuclearWaffleSweepDirection, NuclearWaffleSweepDefinition>

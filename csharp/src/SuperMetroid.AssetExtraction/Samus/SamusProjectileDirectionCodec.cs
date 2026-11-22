@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// its direction.
 /// </summary>
 [EncodingOwner("projectile aim index")]
-internal static class SamusProjectileDirectionCodec
+internal static partial class SamusProjectileDirectionCodec
 {
     /// <summary>The number of directions the aim index names.</summary>
     internal const int Count = 10;
@@ -28,7 +28,7 @@ internal static class SamusProjectileDirectionCodec
     ];
 
     /// <summary>The turning placements in the order the flare origin tables keep them after the ten directions.</summary>
-    private static IReadOnlyList<SamusTurningAim> TurningPlacementOrder { get; } =
+    internal static IReadOnlyList<SamusTurningAim> TurningPlacementOrder { get; } =
         [SamusTurningAim.Up, SamusTurningAim.Neutral, SamusTurningAim.Down];
 
     /// <summary>The direction's aim index.</summary>

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Grapple connection, cancellation and dropped-pose mechanics, not visual assets.</summary>
-internal static class GrappleConnectionDefinitions
+internal static partial class GrappleConnectionDefinitions
 {
     /// <summary>
     /// The connection each policy makes for each of the ten firing directions, and the pose it puts Samus in (#2286).
@@ -82,5 +82,5 @@ internal static class GrappleConnectionDefinitions
     /// <param name="Pose">Samus's pose at the stop.</param>
     /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
     /// <param name="Phase">The phase the stop holds the grapple in: locked in place, or grabbing the wall (#2553).</param>
-    internal readonly record struct SpecialConnection(RotationAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrapplePhase Phase);
+    internal readonly partial record struct SpecialConnection(RotationAngle Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrapplePhase Phase);
 }

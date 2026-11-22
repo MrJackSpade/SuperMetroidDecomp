@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres escape shaft's rotation: the point it turns about, how far each step tilts the shaft and how long the shaft
 /// holds it.
 /// </summary>
-public static class CeresShaftRotationDefinitions
+public static partial class CeresShaftRotationDefinitions
 {
     /// <summary>
     /// The room point the shaft's turning floor always rotates about, set both by the elevator door's setup, which shows

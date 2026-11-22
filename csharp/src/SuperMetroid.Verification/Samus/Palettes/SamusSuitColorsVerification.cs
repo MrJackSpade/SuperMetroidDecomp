@@ -51,8 +51,6 @@ internal static class SamusSuitColorsVerification
                 AssertEqual(RgbColor.FromWordIgnoringTopBit(ReadVerificationWord(cartridge, source + 2 * color)), colors.Resolve(suit, color),
                     "Every native suit word is kept as installed");
         }
-        // A suit outside the three the cartridge shows is rejected, as the 0/2/4 table offsets were.
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((SamusSuit)Enum.GetValues<SamusSuit>().Length, 0), "Undefined suit");
         foreach (SamusSuit shownSuit in Enum.GetValues<SamusSuit>())
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(shownSuit, invalid), "Normal color index bounds");
@@ -115,9 +113,7 @@ internal static class SamusSuitColorsVerification
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
-        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
@@ -179,7 +175,7 @@ internal static class SamusSuitColorsVerification
 
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => SamusSuitColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");

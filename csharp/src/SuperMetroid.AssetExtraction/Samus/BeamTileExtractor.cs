@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts native beam sheets per legal selection; shared stock sheets may be edited independently.</summary>
-public static class BeamTileExtractor
+public static partial class BeamTileExtractor
 {
     /// <summary>Decodes each legal native beam tile sheet to indexed PNG.</summary>
     /// <param name="bus">Supported-cartridge address space containing the beam tile pointer table and four-bit planar graphics.</param>

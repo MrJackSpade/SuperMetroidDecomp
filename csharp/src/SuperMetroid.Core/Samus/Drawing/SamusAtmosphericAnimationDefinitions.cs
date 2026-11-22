@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// How the dust and lava spray Samus raises drift, and how large the small particles are; how long each of their pictures
 /// shows is their animation's (<see cref="SamusParticleAnimations"/>).
 /// </summary>
-internal static class SamusAtmosphericAnimationDefinitions
+internal static partial class SamusAtmosphericAnimationDefinitions
 {
     /// <summary>Dust rises one pixel on each update it is shown.</summary>
     internal static readonly Offset16<RoomPixels> DustDrift = new(0, -1);

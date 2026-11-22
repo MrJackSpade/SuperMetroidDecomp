@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// shot first moves.
 /// </summary>
 /// <param name="release">Which of the crash's two echoes this is.</param>
-public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
+public sealed partial class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
 {
     /// <summary>Which of the crash's two echoes this is.</summary>
     internal ShinesparkCrashEchoRelease Release { get; } = release;
@@ -21,7 +21,7 @@ public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
     /// The shot that carries the echo with the flight it departed on, or none before the echo first departs and after
     /// Samus's shots are cleared.
     /// </summary>
-    private Carrier? _carrier;
+    internal Carrier? _carrier;
 
     /// <summary>
     /// Where the echo is shown, or none once no shot carries it: once its shot's place no longer holds the flight it

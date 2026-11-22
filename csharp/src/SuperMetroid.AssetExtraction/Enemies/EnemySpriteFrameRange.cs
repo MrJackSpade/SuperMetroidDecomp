@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="Base">The packed tile base added to every part's attribute word.</param>
 /// <param name="Palette">The palette row ORed into every part's attribute word.</param>
 [EncodingOwner("enemy sprite frame tile base and palette row")]
-internal readonly record struct EnemySpriteFrameRange(int Start, int Count, int Base, int Palette);
+internal readonly partial record struct EnemySpriteFrameRange(int Start, int Count, int Base, int Palette);

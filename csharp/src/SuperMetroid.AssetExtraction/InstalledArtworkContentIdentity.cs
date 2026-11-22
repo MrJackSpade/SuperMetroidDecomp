@@ -22,7 +22,7 @@ using SuperMetroid.Core.Samus.Colours;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The installed content identities of the sprite, enemy, boss-body and room sheets, the X-ray, Samus death and cinematic catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
-internal static class InstalledArtworkContentIdentity
+internal static partial class InstalledArtworkContentIdentity
 {
     /// <summary>The destruction's actor roles in the order the content identity hashes them (#2567).</summary>
     private static readonly CeresDestructionActorRole[] DestructionRoleOrder = [.. Ensure.EveryMemberOnce<CeresDestructionActorRole>(

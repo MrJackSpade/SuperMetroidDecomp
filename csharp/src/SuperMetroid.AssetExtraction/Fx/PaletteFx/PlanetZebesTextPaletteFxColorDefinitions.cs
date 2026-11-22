@@ -6,11 +6,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The fade-out shows the fade-in's colours in reverse order.
 /// </remarks>
-public static class PlanetZebesTextPaletteFxColorDefinitions
+public static partial class PlanetZebesTextPaletteFxColorDefinitions
 {
 
     /// <summary>Three text colors per record.</summary>
-    private const int ColorsPerFrame = 3;
+    internal const int ColorsPerFrame = 3;
 
     /// <summary>The text's fade-in.</summary>
     internal static PlanetZebesTextPaletteFxColorDefinition FadeInPlanetZebesText { get; } = new(ColourEffectId.FadeInPlanetZebesText, ColorsPerFrame);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Where a falling spark appears, how it falls and how it bounces off the floor (#2149).</summary>
-internal static class FallingSparkMotionDefinitions
+internal static partial class FallingSparkMotionDefinitions
 {
     /// <summary>How far below its source a spark appears, in pixels.</summary>
     internal const int SpawnBelowSource = 8;

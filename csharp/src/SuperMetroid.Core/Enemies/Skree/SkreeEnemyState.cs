@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The state of a Skree.</summary>
-public sealed class SkreeEnemyState
+public sealed partial class SkreeEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal SkreeEnemyState(SkreeAction action) => Action = action;

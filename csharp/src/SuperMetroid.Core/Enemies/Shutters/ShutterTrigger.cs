@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// starting at once, and a shot's reaction once or every time. Each carries only what it reads.
 /// </summary>
 /// <param name="Mode">The kind of trigger.</param>
-public abstract record ShutterTrigger(ShutterTriggerMode Mode)
+public abstract partial record ShutterTrigger(ShutterTriggerMode Mode)
 {
     /// <summary>The shutter starts at once.</summary>
     public static ShutterTrigger Immediate { get; } = new Plain(ShutterTriggerMode.Immediate);
@@ -25,7 +25,7 @@ public abstract record ShutterTrigger(ShutterTriggerMode Mode)
 
     /// <summary>A timer starts the shutter.</summary>
     /// <param name="Wait">The updates it waits.</param>
-    public sealed record Timer(int Wait) : ShutterTrigger(ShutterTriggerMode.Timer)
+    public sealed partial record Timer(int Wait) : ShutterTrigger(ShutterTriggerMode.Timer)
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(ShutterTriggerCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Timer(this, context);
@@ -33,7 +33,7 @@ public abstract record ShutterTrigger(ShutterTriggerMode Mode)
 
     /// <summary>Samus coming near starts the shutter.</summary>
     /// <param name="Distance">The horizontal distance in pixels Samus must come within.</param>
-    public sealed record HorizontalProximity(int Distance) : ShutterTrigger(ShutterTriggerMode.HorizontalProximity)
+    public sealed partial record HorizontalProximity(int Distance) : ShutterTrigger(ShutterTriggerMode.HorizontalProximity)
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(ShutterTriggerCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).HorizontalProximity(this, context);
@@ -41,7 +41,7 @@ public abstract record ShutterTrigger(ShutterTriggerMode Mode)
 
     /// <summary>A trigger that reads no wait or distance.</summary>
     /// <param name="Mode">The kind of trigger.</param>
-    private sealed record Plain(ShutterTriggerMode Mode) : ShutterTrigger(Mode)
+    private sealed partial record Plain(ShutterTriggerMode Mode) : ShutterTrigger(Mode)
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(ShutterTriggerCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Plain(this, context);
@@ -54,7 +54,7 @@ public abstract record ShutterTrigger(ShutterTriggerMode Mode)
 /// <param name="Plain">Makes a trigger that reads no wait or distance (starting at once, or a shot's reaction) into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
 /// <typeparam name="TResult">What the trigger is made into.</typeparam>
-internal sealed record ShutterTriggerCases<TContext, TResult>(
+internal sealed partial record ShutterTriggerCases<TContext, TResult>(
     Func<ShutterTrigger.Timer, TContext, TResult> Timer,
     Func<ShutterTrigger.HorizontalProximity, TContext, TResult> HorizontalProximity,
     Func<ShutterTrigger, TContext, TResult> Plain);

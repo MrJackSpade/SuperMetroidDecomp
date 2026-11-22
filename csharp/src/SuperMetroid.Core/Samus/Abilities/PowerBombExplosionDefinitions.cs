@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Power Bomb/Crystal Flash blast radii, the ovals its last stages show, and phase boundaries and durations.</summary>
-public static class PowerBombExplosionDefinitions
+public static partial class PowerBombExplosionDefinitions
 {
     /// <summary>The explosion's initial radius.</summary>
     public static readonly PowerBombRadius InitialRadius = PowerBombRadius.FromWholePixels(4);

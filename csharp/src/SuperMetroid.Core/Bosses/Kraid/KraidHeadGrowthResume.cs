@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 /// <param name="Segment">The roar's part growth resumes.</param>
 /// <param name="Frame">The pose of that part the head enters.</param>
-internal readonly record struct KraidHeadGrowthResume(KraidHeadSegment Segment, KraidHeadFrame Frame);
+internal readonly partial record struct KraidHeadGrowthResume(KraidHeadSegment Segment, KraidHeadFrame Frame);

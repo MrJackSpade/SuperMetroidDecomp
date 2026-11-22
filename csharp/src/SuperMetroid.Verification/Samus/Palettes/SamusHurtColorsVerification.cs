@@ -102,9 +102,7 @@ internal static class SamusHurtColorsVerification
     /// <summary>Checks that the hurt colour codec rejects out-of-range colours.</summary>
     internal static void VerifySamusHurtColorsRejectMalformedDocuments(string stock)
     {
-        SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHurtColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus hurt color document is null.");
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(document with
         {

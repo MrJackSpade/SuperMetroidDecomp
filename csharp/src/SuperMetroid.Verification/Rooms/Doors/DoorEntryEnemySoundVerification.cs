@@ -29,6 +29,7 @@ internal static class DoorEntryEnemySoundVerification
     /// </summary>
     internal static void VerifyDoorEntryEnemySound()
     {
+<<<<<<< HEAD
         // The Attic after Phantoon runs to the update before its Ki-Hunter's own spit, which a replica run of the same room
         // counts; the spit's cue (library two $4C) then runs during the entry frame's enemy pass.
         int updatesBeforeTheSpit = KiHunterSpitStaging.UpdatesBeforeTheSpit(() =>
@@ -40,6 +41,57 @@ internal static class DoorEntryEnemySoundVerification
         for (int update = 0; update < updatesBeforeTheSpit; update++)
             game.StepCaptured(0);
         var samus = runtime.Player.Samus;
+||||||| 418ca79935
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var random = new SharedRandom();
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
+        var samus = runtime.Player.IntroducedSamus;
+        samus.PoseId = SamusPoseId.FacingRightNormalPose;
+        samus.Position = samus.Position.WithWhole(new(64, 128));
+        samus.Control.LockOutPlayer();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
+        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
+        body.Position = body.Position.WithWhole(new(128, 128));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
+        // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
+        // The spit cue, four poses into the right spit animation.
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
+        body.AnimationClock.StepOnNextUpdate();
+        game.AdoptRuntime(runtime);
+        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+=======
+        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var random = new SharedRandom();
+        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
+        var samus = runtime.Player.IntroducedSamus;
+        samus.PoseId = SamusPoseId.FacingRightNormalPose;
+        samus.Position = samus.Position.WithWhole(new(64, 128));
+        samus.Control.LockOutPlayer();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
+        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
+        body.Position = body.Position.WithWhole(new(128, 128));
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
+        // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
+        // The spit cue, four poses into the right spit animation.
+        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
+        body.AnimationClock.StepOnNextUpdate();
+        game.AdoptRuntime(runtime);
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
+>>>>>>> origin/main
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)

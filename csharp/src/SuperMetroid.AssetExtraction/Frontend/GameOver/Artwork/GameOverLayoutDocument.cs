@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// each member keeps its place in the document.
 /// </summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries; the stream loader parses its own independent document.</remarks>
-public record GameOverLayoutDocument
+public partial record GameOverLayoutDocument
 {
     /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]

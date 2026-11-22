@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compiles an indexed tile atlas into Mode 7's chunky eight-bit character order.</summary>
-public static class SnesMode7TileEncoder
+public static partial class SnesMode7TileEncoder
 {
     /// <summary>Reorders an indexed image into consecutive 8-by-8 Mode-7 characters, traversing characters and their internal pixels left to right then top to bottom without changing any eight-bit pen value.</summary>
     /// <param name="pixels">Row-major image indices, exactly <paramref name="size"/>'s area in bytes; all values 0..255 are retained without palette lookup.</param>

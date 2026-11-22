@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Fx;
 /// the first still image look plausible while discarding the game's cadence and preventing replacement graphics from
 /// following the same frames.
 /// </remarks>
-public static class BlockAnimationLoops
+public static partial class BlockAnimationLoops
 {
     /// <summary>The idle segments of every animation with a loop.</summary>
     internal static AnimationSegments<BlockAnimation, ArtworkFrame, NoAnimationCue> Segments { get; } =
@@ -107,7 +107,6 @@ public static class BlockAnimationLoops
         BlockAnimationLoopDefinitions.EffectOverlayAnimations.ToDictionary(entry => entry.Key, entry => Require(entry.Value));
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is undefined.</exception>
     public static BlockAnimation Treadmill(WreckedShipTreadmillDirection direction) =>
         BlockAnimationLoopDefinitions.TreadmillAnimations[direction];
 

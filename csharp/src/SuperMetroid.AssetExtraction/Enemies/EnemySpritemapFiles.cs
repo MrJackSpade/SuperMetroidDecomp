@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Exports the named enemy frames' packed sprite parts to the import data (#1638), which only the import reads to compose
 /// the enemy sheets' pictures, leaving instruction control in code.
 /// </summary>
-internal static class EnemySpritemapFiles
+internal static partial class EnemySpritemapFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -35,7 +35,7 @@ internal static class EnemySpritemapFiles
             Version = EnemySpritemapSchema.Revision,
             Frames = frames,
             DisplayFrames = EnemyFrameBindingRules.Identity(EnemySpritemapDefinitions.Frames),
-        }, CamelCaseIndentedJson);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(CamelCaseIndentedJson));
         return json;
     }
 

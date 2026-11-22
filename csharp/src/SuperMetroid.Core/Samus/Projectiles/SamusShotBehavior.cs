@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="SamusShotBehaviors"/>): what changes from update to update is the shot's, and what only its kind keeps
 /// is the kind's own record (<see cref="SamusShotKindState"/>).
 /// </summary>
-internal abstract class SamusShotBehavior : SamusShotFiring
+internal abstract partial class SamusShotBehavior : SamusShotFiring
 {
     /// <summary>Runs the shot's update.</summary>
     /// <param name="update">What the shot update hands every behaviour.</param>

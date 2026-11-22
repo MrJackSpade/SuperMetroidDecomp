@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// body's area, where each boss's area lay against the boss, and the frames the cartridge writes only in part over the
 /// frame its part showed before.
 /// </summary>
-internal static class BossBodySourceDefinitions
+internal static partial class BossBodySourceDefinitions
 {
     /// <summary>
     /// Where the top-left corner of each boss's body area lay against the boss as the cartridge scrolled its layer (#1617,

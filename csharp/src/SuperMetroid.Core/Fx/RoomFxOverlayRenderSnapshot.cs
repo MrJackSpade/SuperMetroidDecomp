@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx;
 /// wave's phase, or null while the effect runs no background wave: no water, water without it, or the Tourian entrance
 /// statue's water (#2560).
 /// </summary>
-public readonly record struct RoomFxOverlayRenderSnapshot(
+public readonly partial record struct RoomFxOverlayRenderSnapshot(
     RoomFxType Type,
     RoomEffectOverlayLook Look,
     Position16<OverlayPixels> Scroll,

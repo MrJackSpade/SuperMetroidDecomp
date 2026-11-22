@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// (<see cref="KraidLintState"/>), his foot (<see cref="KraidFootState"/>) and each fingernail
 /// (<see cref="KraidNailState"/>).
 /// </summary>
-public abstract class KraidPartState
+public abstract partial class KraidPartState
 {
     /// <summary>Makes a part of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the part is part of.</param>

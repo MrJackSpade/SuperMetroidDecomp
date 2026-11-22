@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The random selections that scatter a multi-drop's positions.</summary>
-internal static class EnemyDropScatterDefinitions
+internal static partial class EnemyDropScatterDefinitions
 {
     /// <summary>The random selection that scatters each drop horizontally before its centring (<see cref="ScatterCentring"/>).</summary>
     internal static readonly RandomSampleField HorizontalScatter = RandomSampleField.OneOf(32);

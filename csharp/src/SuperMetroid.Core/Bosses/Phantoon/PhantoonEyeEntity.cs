@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 /// <param name="encounter">The encounter his body began, which the eye joins as it is built.</param>
-internal sealed class PhantoonEyeEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
+internal sealed partial class PhantoonEyeEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
     PhantoonEnemyState encounter)
     : PhantoonEntity(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonEye(encounter))
 {

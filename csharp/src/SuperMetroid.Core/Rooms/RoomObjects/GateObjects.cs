@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The downward gates and their shot-block triggers: their setup, the shots that set them off, and their sounds and projectile requests.</summary>
 [RoomLifetime]
-internal sealed class GateObjects
+internal sealed partial class GateObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;

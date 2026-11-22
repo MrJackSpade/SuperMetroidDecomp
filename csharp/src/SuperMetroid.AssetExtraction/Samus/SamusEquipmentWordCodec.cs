@@ -9,17 +9,17 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// and beam's bit in its word, for the save import and export and for checks that compare with native state.
 /// </summary>
 [EncodingOwner("save slot equipment words")]
-public static class SamusEquipmentWordCodec
+public static partial class SamusEquipmentWordCodec
 {
     /// <summary>An item and the word bit that records it.</summary>
     /// <param name="Item">The item.</param>
     /// <param name="Bit">Its bit in the equipment word.</param>
-    private readonly record struct ItemBit(SamusEquipmentFlags Item, ushort Bit);
+    private readonly partial record struct ItemBit(SamusEquipmentFlags Item, ushort Bit);
 
     /// <summary>A beam and the word bit that records it.</summary>
     /// <param name="Beam">The beam component or upgrade.</param>
     /// <param name="Bit">Its bit in the beam word.</param>
-    private readonly record struct BeamBit(SamusBeamFlags Beam, ushort Bit);
+    private readonly partial record struct BeamBit(SamusBeamFlags Beam, ushort Bit);
 
     /// <summary>Each item and the word bit that records it.</summary>
     private static readonly ItemBit[] ItemBits =
@@ -71,7 +71,7 @@ public static class SamusEquipmentWordCodec
     /// <param name="word">A sixteen-bit equipment word.</param>
     /// <returns>The items whose bits are set.</returns>
     /// <exception cref="InvalidDataException">The word sets a bit that records no item and is not the unused item bit.</exception>
-    private static SamusEquipmentFlags FromEquipmentWord(ushort word)
+    internal static SamusEquipmentFlags FromEquipmentWord(ushort word)
     {
         SamusEquipmentFlags items = SamusEquipmentFlags.None;
         ushort recorded = UnusedItemBit;
@@ -113,7 +113,7 @@ public static class SamusEquipmentWordCodec
     /// <param name="word">A sixteen-bit beam word.</param>
     /// <returns>The beams whose bits are set.</returns>
     /// <exception cref="InvalidDataException">The word sets a bit that records no beam.</exception>
-    private static SamusBeamFlags FromBeamWord(ushort word)
+    internal static SamusBeamFlags FromBeamWord(ushort word)
     {
         SamusBeamFlags beams = SamusBeamFlags.None;
         foreach (BeamBit entry in BeamBits)

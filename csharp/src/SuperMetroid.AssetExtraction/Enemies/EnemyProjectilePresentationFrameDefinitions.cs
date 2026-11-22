@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Where each frame is stored in the cartridge is the import's knowledge (AssetExtraction's
 /// <c>EnemyProjectileProgramFrameDefinitions</c>).
 /// </summary>
-internal static class EnemyProjectilePresentationFrameDefinitions
+internal static partial class EnemyProjectilePresentationFrameDefinitions
 {
 
     /// <summary>

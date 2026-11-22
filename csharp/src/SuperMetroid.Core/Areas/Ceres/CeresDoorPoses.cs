@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="HalfOpen">Half open.</param>
 /// <param name="QuarterOpen">A quarter open.</param>
 /// <param name="Closed">Closed.</param>
-internal sealed record CeresDoorPoses(F Open, F ThreeQuartersOpen, F HalfOpen, F QuarterOpen, F Closed);
+internal sealed partial record CeresDoorPoses(F Open, F ThreeQuartersOpen, F HalfOpen, F QuarterOpen, F Closed);

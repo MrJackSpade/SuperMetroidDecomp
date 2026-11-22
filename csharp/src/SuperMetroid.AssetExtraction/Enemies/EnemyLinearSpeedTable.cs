@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Reviewed for #1165 against the Japanese and North American v1.0 release; the European release authors a different
 /// table.
 /// </remarks>
-internal static class EnemyLinearSpeedTable
+internal static partial class EnemyLinearSpeedTable
 {
     /// <summary>The number of rows, zero through 64: from standing still to four pixels per frame.</summary>
     public const int RowCount = 65;

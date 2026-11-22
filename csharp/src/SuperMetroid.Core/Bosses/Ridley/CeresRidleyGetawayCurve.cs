@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// the getaway's duration. The getaway ends on the update after its last, once both curves are exhausted. The curves are
 /// laid out once into one step per update (#2553), so the flight walks them and no update outside them exists.
 /// </summary>
-public static class CeresRidleyGetawayCurve
+public static partial class CeresRidleyGetawayCurve
 {
     /// <summary>Each update of the getaway in turn: the floor's zoom and drift on it.</summary>
     /// <exception cref="InvalidDataException">The zoom and drift curves last different numbers of updates.</exception>
@@ -44,4 +44,4 @@ public static class CeresRidleyGetawayCurve
 /// The floor's drift on the update: its X is subtracted from the floor's horizontal offset, so the image moves right, and
 /// its Y added to the vertical offset.
 /// </param>
-public readonly record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);
+public readonly partial record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);

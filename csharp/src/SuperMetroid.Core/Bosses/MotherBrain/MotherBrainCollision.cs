@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Bosses.MotherBrain.MotherBrainCollisionDefinition
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Finds the collision components of the Mother Brain frame shown.</summary>
-internal static class MotherBrainCollision
+internal static partial class MotherBrainCollision
 {
     /// <summary>
     /// Each body frame's components, checked once (#2553) to name only the body's ignoring touch and dud shot or, on the

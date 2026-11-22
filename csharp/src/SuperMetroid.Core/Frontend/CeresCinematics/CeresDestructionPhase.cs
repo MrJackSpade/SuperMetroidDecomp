@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// The destruction cinematic's phases from station destruction through Zebes arrival.
 /// Each phase runs itself on the cinematic and enters its successor (#2571), so no switch over phase identities runs them.
 /// </summary>
-internal sealed class CeresDestructionPhase
+internal sealed partial class CeresDestructionPhase
 {
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;

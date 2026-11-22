@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoadedFactory<FaceBlockSpawnSettings>, IRoomGlow
+internal sealed partial class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoadedFactory<FaceBlockSpawnSettings>, IRoomGlow
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -71,7 +71,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
     }
 
     /// <summary>Runs the Blue Brinstar face block's main AI.</summary>
-    private void RunBlueBrinstarFaceBlockMain(
+    internal void RunBlueBrinstarFaceBlockMain(
         FaceBlockSpawnSettings faceBlockSpawnSettings, RoomEnemyPlace place,
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
@@ -109,7 +109,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyLoade
     private void RestartGlowStep() => _glow.HoldShownFrameFor(FaceBlockGlowDefinitions.FrameDuration);
 
     /// <summary>The turn a face block wakes into for Samus on <paramref name="side"/>, the side it faces.</summary>
-    private static BlueBrinstarFaceBlockSegment Wake(HorizontalDirection side) =>
+    internal static BlueBrinstarFaceBlockSegment Wake(HorizontalDirection side) =>
         side == HorizontalDirection.Left ? BlueBrinstarFaceBlockSegment.SamusLeft : BlueBrinstarFaceBlockSegment.SamusRight;
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>

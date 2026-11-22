@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// frame's tile definitions make visible, named on the sheet by its pose and picture frame. A spritemap reads the top
 /// half's characters (0-7 and 16-23), the bottom half's (8-15 and 24-31), or neither.
 /// </summary>
-internal static class SamusBodySheetDefinitions
+internal static partial class SamusBodySheetDefinitions
 {
     /// <summary>The body's characters; any beyond them come from the standard OBJ sheet.</summary>
     internal const int BodyCharacterCount = 32;

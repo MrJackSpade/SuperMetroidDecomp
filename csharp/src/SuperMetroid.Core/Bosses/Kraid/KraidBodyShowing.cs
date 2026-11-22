@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// How Kraid's body shows on his body layer (#1352, #1515, #2560): a closed choice of a body readied at a depth that has yet
 /// to show, a body shown at its depth with his head over it, and a hidden body, as a defeated room and his sunk body show.
 /// </summary>
-internal abstract record KraidBodyShowing
+internal abstract partial record KraidBodyShowing
 {
     /// <summary>A body that shows nothing, before his body layer is readied and once his body is hidden.</summary>
     internal static KraidBodyShowing Hidden { get; } = new HiddenBody();
@@ -31,7 +31,7 @@ internal abstract record KraidBodyShowing
 
     /// <summary>A body readied at <paramref name="Depth"/> that has yet to show: his layer shows none of it.</summary>
     /// <param name="Depth">The depth it shows at once it shows.</param>
-    internal sealed record Readied(BossBodyDepth Depth) : KraidBodyShowing
+    internal sealed partial record Readied(BossBodyDepth Depth) : KraidBodyShowing
     {
         /// <inheritdoc/>
         internal override KraidBodyAppearance Appearance => KraidBodyAppearance.Hidden;
@@ -47,7 +47,7 @@ internal abstract record KraidBodyShowing
 
     /// <summary>A body shown at <paramref name="Depth"/>, his whole body at once with his head at its current pose over it.</summary>
     /// <param name="Depth">The depth it shows at.</param>
-    internal sealed record ShownBody(BossBodyDepth Depth) : KraidBodyShowing
+    internal sealed partial record ShownBody(BossBodyDepth Depth) : KraidBodyShowing
     {
         /// <inheritdoc/>
         internal override KraidBodyAppearance Appearance => AppearanceAt(Depth);
@@ -62,7 +62,7 @@ internal abstract record KraidBodyShowing
     }
 
     /// <summary>A hidden body, which shows nothing whatever shows it.</summary>
-    private sealed record HiddenBody : KraidBodyShowing
+    private sealed partial record HiddenBody : KraidBodyShowing
     {
         /// <inheritdoc/>
         internal override KraidBodyAppearance Appearance => KraidBodyAppearance.Hidden;

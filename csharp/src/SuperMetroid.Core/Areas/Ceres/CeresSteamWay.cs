@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// (<see cref="CeresSteamSegment"/>, <see cref="CeresSteamAnimations"/>), so only these differ, and the way's segments and
 /// animations are that animation over them.
 /// </summary>
-internal sealed class CeresSteamWay
+internal sealed partial class CeresSteamWay
 {
     /// <summary>A vent blowing up.</summary>
     internal static CeresSteamWay Up { get; } = new(

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="Moving">Whether an elevator carries her this update.</param>
 /// <param name="DoorBlocks">What the door blocks the elevator carries her through do to her (#2545).</param>
-internal readonly record struct SamusElevatorFooting(bool Moving, DoorBlockMeeting DoorBlocks)
+internal readonly partial record struct SamusElevatorFooting(bool Moving, DoorBlockMeeting DoorBlocks)
 {
     /// <summary>The footing an elevator of <paramref name="status"/> gives her.</summary>
     internal static SamusElevatorFooting Of(ElevatorActorStatus status) =>

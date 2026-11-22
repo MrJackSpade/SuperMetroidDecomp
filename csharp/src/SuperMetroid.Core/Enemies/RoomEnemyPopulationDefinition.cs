@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="name">The list's name.</param>
 /// <param name="placements">The list's placements in order.</param>
-public abstract class RoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements)
+public abstract partial class RoomEnemyPopulationDefinition([InstalledKey] string name, RoomEnemyPlacement[] placements)
 {
     /// <summary>The placements in order.</summary>
     private readonly RoomEnemyPlacement[] placements = Ensure.NotNull(placements);

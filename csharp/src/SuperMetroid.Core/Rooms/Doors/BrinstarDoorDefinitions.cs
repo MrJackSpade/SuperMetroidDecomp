@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Brinstar rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class BrinstarDoorDefinitions
+public static partial class BrinstarDoorDefinitions
 {
     /// <summary>The door from the Green Brinstar Main Shaft room to the Green Brinstar Elevator room.</summary>
     public static DoorDefinition GreenBrinstarMainShaftToGreenBrinstarElevator { get; } = new("GreenBrinstarMainShaftToGreenBrinstarElevator", RoomDefinitions.GreenBrinstarElevator, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.None, DoorSetupDefinitions.GreenBrinstarElevatorOpensScreen0x2BelowTheRoom) { ExchangesExploredMaps = true };

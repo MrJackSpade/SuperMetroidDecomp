@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="PlatformCue"/> naming what it does.
 /// </summary>
-internal static class PlatformAnimations
+internal static partial class PlatformAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PlatformSegment, EnemyFrameId, PlatformCue> Segments { get; } = new(
@@ -76,7 +76,7 @@ internal static class PlatformAnimations
     /// thrust it loops, which only run on from the animations that start them (#2061, #2276). A hover flickers its jet
     /// <see cref="HoverFlickers"/> times a loop (#2439).
     /// </summary>
-    private static Dictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
+    internal static Dictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
         [P.SuspensorPlatformHeadingLeft] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingLeft)], [Segments.Whole(P.SuspensorPlatformLights)]),
         [P.SuspensorPlatformHeadingRight] = Animation<PlatformSegment>.LeadingInto([Segments.Whole(P.SuspensorPlatformHeadingRight)], [Segments.Whole(P.SuspensorPlatformLights)]),

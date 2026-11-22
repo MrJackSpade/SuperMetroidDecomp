@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Chooses how a crawling Yard's step goes on at the end of its surface or against another.</summary>
-internal static class YardTurns
+internal static partial class YardTurns
 {
     /// <summary>
     /// The step of a crawl <paramref name="crawl"/>: its turn, or, while the Yard's turns are suppressed

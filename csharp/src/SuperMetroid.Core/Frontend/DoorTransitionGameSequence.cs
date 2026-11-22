@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Going through a door: reaching it, beginning the transition, then loading and showing the next room.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGameplayPhase
+internal sealed partial class DoorTransitionGameSequence(FrontendSession session) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DoorTransition;
@@ -39,6 +39,7 @@ internal sealed class DoorTransitionGameSequence(FrontendSession session) : IGam
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="DoorTransitionStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>> StepForDoorTransitionStep => field ??= new(new Dictionary<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>>
     {
         [DoorTransitionStep.EnteringDoor] = (controllerInput, live) =>

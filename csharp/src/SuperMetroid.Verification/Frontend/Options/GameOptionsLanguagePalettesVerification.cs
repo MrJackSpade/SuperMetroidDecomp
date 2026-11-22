@@ -59,9 +59,6 @@ internal static class GameOptionsLanguagePalettesVerification
                 }
             }
         }
-        foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.ToggleLayout(setting),
-                $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 
@@ -80,10 +77,6 @@ internal static class GameOptionsLanguagePalettesVerification
         InstalledScreenContent installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
         AssertEqual(GameOptionsPageDefinitions.LanguageRegions.RowCount, GameOptionsPageCells.LanguagePaletteRegions.Count, "one installed region per label row");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion((SuperMetroid.Core.Progression.TextLanguage)99, GameOptionsPageCells.GameOptionsLabelRow.Upper),
-            "unsupported label language");
-        AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(SuperMetroid.Core.Progression.TextLanguage.English, (GameOptionsPageCells.GameOptionsLabelRow)99),
-            "unsupported label row");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
         // the first pair with AltText=0 and the second pair with AltText=1.

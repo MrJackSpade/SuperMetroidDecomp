@@ -3,6 +3,6 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <summary>The animation and AI action a Spark starts with, as its placement names them.</summary>
 /// <param name="Animation">The animation the Spark starts.</param>
 /// <param name="Action">The AI action the Spark starts in.</param>
-internal readonly record struct SparkMovementDefinition(
+internal readonly partial record struct SparkMovementDefinition(
     SparkSegment Animation,
     SparkAction Action);

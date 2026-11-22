@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The import's body colour rows for charge, pseudo-Screw, and Hyper-shot playback (#1637), import data only the import
 /// pre-colours Samus's shades from; each row contains sixteen native OBJ slots, including the nonvisible transparent slot.
 /// </summary>
-public sealed record SamusChargeColorDocument
+public sealed partial record SamusChargeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }

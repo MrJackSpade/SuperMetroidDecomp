@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// What a station's activation gives Samus: a refill, which the station turns her away for when already full and
 /// releases her right after, or the area's map, which leaves her locked for leaving the map screen to release.
 /// </summary>
-internal abstract record StationReward
+internal abstract partial record StationReward
 {
     /// <summary>Only the nested cases derive.</summary>
     private StationReward()
@@ -19,8 +19,8 @@ internal abstract record StationReward
 
     /// <summary>A refill station's reward.</summary>
     /// <param name="Refill">What the station refills.</param>
-    internal sealed record Refills(StationRefill Refill) : StationReward;
+    internal sealed partial record Refills(StationRefill Refill) : StationReward;
 
     /// <summary>The area's map.</summary>
-    private sealed record AreaMapReward : StationReward;
+    private sealed partial record AreaMapReward : StationReward;
 }

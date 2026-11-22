@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// The editable equipment label document's schema and the cartridge's layout of the label strips on the equipment page
 /// (#1467, #1515). The game places each label's picture whole and knows none of this.
 /// </summary>
-public static class PauseEquipmentLabelArtworkDefinitions
+public static partial class PauseEquipmentLabelArtworkDefinitions
 {
     /// <summary>Equipment-page tilemap width in eight-pixel tile cells; each row contains 32 little-endian sixteen-bit tile words.</summary>
     public const int TilemapColumns = 32;

@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// sets each on its own (for example, a right wall puts Samus at the largest fraction of her pixel).
 /// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
-public sealed class SamusKinematicsState
+public sealed partial class SamusKinematicsState
 {
     /// <summary>
     /// The solid enemy Samus met moving in each direction, holding no entry for a direction where she met none, kept until
     /// the end of the enemy pass clears them; the corpses' and idle shutters' contact tests observe this delayed result.
     /// They name enemies of the room they were made in, which forgets them when it unloads (#1702).
     /// </summary>
-    private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
+    internal Dictionary<SamusCollisionDirection, ISolidEnemy> SolidEnemyContactsByDirection { get; } = [];
 
     /// <summary>
     /// The solid enemy Samus's latest wall jump launched from, which the next enemy pass shakes. Each wall-jump check
@@ -64,7 +64,7 @@ public sealed class SamusKinematicsState
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>The solid enemies Samus met moving in any direction since the enemy pass last cleared them.</summary>
-    public IEnumerable<ISolidEnemy> SolidEnemyContacts => _solidEnemyContacts.Values;
+    public IEnumerable<ISolidEnemy> SolidEnemyContacts => SolidEnemyContactsByDirection.Values;
 
     /// <summary>
     /// Room position, to a fraction of a pixel.
@@ -112,7 +112,7 @@ public sealed class SamusKinematicsState
     /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
     /// some distance ends.
     /// </summary>
-    public bool PositionAdjustedBySlope { get; private set; }
+    public bool PositionAdjustedBySlope { get; internal set; }
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
@@ -139,20 +139,20 @@ public sealed class SamusKinematicsState
         ISolidEnemy? solidEnemy)
     {
         if (solidEnemy is null)
-            _solidEnemyContacts.Remove(direction);
+            SolidEnemyContactsByDirection.Remove(direction);
         else
-            _solidEnemyContacts[direction] = solidEnemy;
+            SolidEnemyContactsByDirection[direction] = solidEnemy;
     }
 
     /// <summary>Whether Samus met <paramref name="enemy"/> in any direction, as the corpses' wait for her contact tests.</summary>
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        return _solidEnemyContacts.Values.Any(contact => ReferenceEquals(contact, enemy));
+        return SolidEnemyContactsByDirection.Values.Any(contact => ReferenceEquals(contact, enemy));
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
-    internal void ClearSolidEnemyCollisions() => _solidEnemyContacts.Clear();
+    internal void ClearSolidEnemyCollisions() => SolidEnemyContactsByDirection.Clear();
 
     /// <summary>
     /// Forgets the enemies of a room that unloads (#1697, #1702): a waiting launch shake and every direction's contact

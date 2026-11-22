@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// The map screens' frame (#1514): the pause map's and the file-select room map's frames share one shape, a border around
 /// an opening through which their map scrolls.
 /// </summary>
-internal static class MapFrameDefinitions
+internal static partial class MapFrameDefinitions
 {
     /// <summary>The frame plane's pixel at the opening's upper-left corner, just inside the frame's border.</summary>
     internal static readonly Position16<PlanePixels> OpeningCorner = new(8, 48);

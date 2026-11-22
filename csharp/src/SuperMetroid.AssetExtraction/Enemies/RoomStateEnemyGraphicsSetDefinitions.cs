@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// decoded once, of which tiles and colours each room loads for its enemies. The game knows none of it; it draws each
 /// enemy its population places in the variant the import names for that population.
 /// </summary>
-internal static class RoomStateEnemyGraphicsSetDefinitions
+internal static partial class RoomStateEnemyGraphicsSetDefinitions
 {
     /// <summary>Each retail room state's enemy graphics set, by the state, in authored order.</summary>
     internal static IReadOnlyDictionary<RoomStateSettings, RoomEnemyGraphicsSetDefinition> ByState { get; } = new Dictionary<RoomStateSettings, RoomEnemyGraphicsSetDefinition>(ReferenceEqualityComparer.Instance)

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One immutable eight-tile beam sheet, its pixels as installed (#1596).</summary>
-public sealed class BeamTileAtlas
+public sealed partial class BeamTileAtlas
 {
     /// <summary>The sheet's installed four-bit pen indices, row-major across its eight characters.</summary>
     private readonly byte[] pixels;

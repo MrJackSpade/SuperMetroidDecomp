@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Read one native on-screen OAM frame into visual-only editable fields.</summary>
-internal static class IntroCinematicSpriteFrameExtractor
+internal static partial class IntroCinematicSpriteFrameExtractor
 {
     /// <summary>Decodes a bank-$8C opening spritemap and checks its authored OAM part count before importing editable visual attributes.</summary>
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,

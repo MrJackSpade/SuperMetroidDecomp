@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// One step of Ridley's pogo tail (#2553): its setup's swing down, pointing down, the bouncing pogo, the readied stab and
 /// the stab. Each step says whether it points the tail and how fast, whether it readies a stab, and the step that follows.
 /// </summary>
-public sealed class RidleyPogoTailAction : RidleySteeredTailAction
+public sealed partial class RidleyPogoTailAction : RidleySteeredTailAction
 {
     /// <summary>The step after this one, from this step and how the tail has settled.</summary>
     private readonly Func<RidleyPogoTailAction, RidleyPogoTailSettling, RidleyPogoTailAction> _after;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// or atmosphere), the sheets of the HUD's pictures (#1731), each tileset's message boxes, and the turning floor of each
 /// tileset whose rooms show one (#1467, #1649).
 /// </summary>
-public sealed class InstalledRoomArtwork
+public sealed partial class InstalledRoomArtwork
 {
     /// <summary>
     /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the written

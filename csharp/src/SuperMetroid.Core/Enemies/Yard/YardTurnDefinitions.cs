@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Maridia Yard's turn geometry and behaviour.</summary>
-internal static class YardTurnDefinitions
+internal static partial class YardTurnDefinitions
 {
     /// <summary>
     /// The corner lookahead and turn animations for each way the Yard crawls. Ordinary turns look seven pixels along

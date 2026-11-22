@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// cartridge plays them: the shared sounds leave those instruments empty, and a render from them alone is silent where
 /// they play. Every other sound renders from the shared sounds alone (#2057).
 /// </summary>
-internal static class SoundEffectRoomStateDefinitions
+internal static partial class SoundEffectRoomStateDefinitions
 {
     /// <summary>
     /// Each such sound's room state: Phantoon appears only in his room before he is defeated, and Crocomire cries and melts

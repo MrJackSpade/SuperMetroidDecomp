@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="HyperBeamCycle">The Hyper Beam's own beam colour cycle.</param>
 /// <param name="Death">The death sequence's suited, suitless and whiteout colours.</param>
 /// <param name="PaletteFx">The palette-FX records' colours, whose heat glow and loading suit recolour her suit (#1512).</param>
-internal sealed record SamusShadeSources(GameplayStartingColours Starting, RgbColor[] IntroSuit, RgbColor[] IntroBeams,
+internal sealed partial record SamusShadeSources(GameplayStartingColours Starting, RgbColor[] IntroSuit, RgbColor[] IntroBeams,
     InstalledSamusSuitColors Suits, SamusChargeColours Charge, SamusHyperBeamColours HyperBeamSuit,
     SamusFullBodyCycleColours FullBodyCycles,
     InstalledSamusHurtColors Hurt, InstalledSamusVisorColors Visor, InstalledBeamPalettes BeamPalettes,

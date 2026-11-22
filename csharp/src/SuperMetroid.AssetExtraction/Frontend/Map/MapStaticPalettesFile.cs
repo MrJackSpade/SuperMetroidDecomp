@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map palette document.</summary>
-public static class MapStaticPalettesFile
+public static partial class MapStaticPalettesFile
 {
     /// <summary>Loads and validates the pause, file-select, and six world-map palettes from JSON.</summary>
     /// <param name="json">Stream containing the map-palette document.</param>
@@ -50,7 +50,7 @@ public static class MapStaticPalettesFile
     /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, MapStaticPalettesDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapStaticPalettesDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

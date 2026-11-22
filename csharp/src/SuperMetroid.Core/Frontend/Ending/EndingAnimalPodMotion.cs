@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The rescued animals' escape pod's motion (#2489): to the right and very slowly down each update, until it
 /// leaves at the right of the screen.
 /// </summary>
-internal sealed class EndingAnimalPodMotion : EndingActorMotion
+internal sealed partial class EndingAnimalPodMotion : EndingActorMotion
 {
     /// <summary>Moves the pod and deletes it once its centre reaches <see cref="EndingAnimalEscapeDefinitions.DeleteX"/>.</summary>
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)

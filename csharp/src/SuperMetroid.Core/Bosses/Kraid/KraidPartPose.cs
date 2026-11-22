@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// the floor sit behind the room's front tiles.
 /// </summary>
 /// <param name="Picture">The installed picture the part shows.</param>
-internal readonly record struct KraidPartPose(EnemyFrameId Picture)
+internal readonly partial record struct KraidPartPose(EnemyFrameId Picture)
 {
     /// <summary>
     /// Where the picture sits from where the part's animations first show it: the foot's step along its walk; none for

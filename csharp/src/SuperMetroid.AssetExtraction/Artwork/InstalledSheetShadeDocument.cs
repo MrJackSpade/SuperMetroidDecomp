@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// One shade in an installed sheet manifest (#1633): the colours it shows in place of the image's own, each named by the
 /// colour key of the pixels it recolours, and whether a draw in it blends.
 /// </summary>
-public sealed record InstalledSheetShadeDocument
+public sealed partial record InstalledSheetShadeDocument
 {
     /// <summary>The colours the shade shows, one for each colour key it recolours.</summary>
     public required InstalledColourSubstitutionDocument[] Substitutions { get; init; }

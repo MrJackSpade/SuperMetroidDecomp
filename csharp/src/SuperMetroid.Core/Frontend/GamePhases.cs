@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
     "runs the session it was made for, so the two share one lifetime; the set keeps no reference to the session itself.")]
 [ArchitectureReview("context-bag", "The game's phases, one typed member per sequence, not services handed around: a " +
     "sequence that hands over names the phase it enters here, so no update looks a phase up by the game-state word.")]
-internal sealed class GamePhases
+internal sealed partial class GamePhases
 {
     /// <summary>Builds every sequence's phase for <paramref name="session"/>.</summary>
     /// <param name="session">The session the phases run.</param>
@@ -21,17 +21,43 @@ internal sealed class GamePhases
         LoadingGame = new LoadingGameSequence(session);
         GameplayFadeIn = new GamePhase(SuperMetroidGameState.GameplayFadeIn,
             PhaseRandomStep.RuntimeOwned,
+<<<<<<< HEAD
             step: (controllerInput, live) => Gameplay.RunGameplayFadeIn(controllerInput, live),
             name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
+||||||| 418ca79935
+            step: controllerInput => Gameplay.RunGameplayFadeIn(controllerInput),
+            name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
+=======
+            step: Gameplay.RunGameplayFadeIn,
+            name: Gameplay.GameplayFadeInName);
+>>>>>>> origin/main
         MainGameplay = new GamePhase(SuperMetroidGameState.MainGameplay,
             PhaseRandomStep.RuntimeOwned,
+<<<<<<< HEAD
             step: (controllerInput, live) => Gameplay.RunMainGameplay(controllerInput, live),
             name: () => "Gameplay");
+||||||| 418ca79935
+            step: controllerInput => Gameplay.RunMainGameplay(controllerInput),
+            name: () => "Gameplay");
+=======
+            step: Gameplay.RunMainGameplay,
+            name: GameplayGamePhases.MainGameplayName);
+>>>>>>> origin/main
         DoorTransition = new DoorTransitionGameSequence(session);
         ReserveTankRefill = new GamePhase(SuperMetroidGameState.ReserveTankRefill,
             PhaseRandomStep.RuntimeOwned,
+<<<<<<< HEAD
             step: (controllerInput, live) => Gameplay.RunReserveTankRefill(controllerInput, live),
             name: () => "Reserve tank refill");
+||||||| 418ca79935
+            step: controllerInput => Gameplay.RunReserveTankRefill(controllerInput),
+            name: () => "Reserve tank refill");
+        DeathSequence = new DeathGameSequence(session);
+=======
+            step: Gameplay.RunReserveTankRefill,
+            name: GameplayGamePhases.ReserveTankRefillName);
+        DeathSequence = new DeathGameSequence(session);
+>>>>>>> origin/main
         GameOverMenu = new GameOverMenuGamePhase(session);
         CeresDeparture = new CeresDepartureGameSequence(session);
         Ending = new EndingGameSequence(session);

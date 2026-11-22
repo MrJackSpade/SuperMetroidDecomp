@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// A tail action that steers Ridley's tail each update (#2553): the free whip in flight and the pogo's steps. Only the
 /// resting tail is steered by nothing.
 /// </summary>
-public abstract class RidleySteeredTailAction : RidleyTailAction
+public abstract partial class RidleySteeredTailAction : RidleyTailAction
 {
     /// <summary>An action named <paramref name="name"/>.</summary>
     private protected RidleySteeredTailAction(string name)

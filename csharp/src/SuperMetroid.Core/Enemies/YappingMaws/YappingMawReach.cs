@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// <param name="RightCooldown">Its cooldown after biting to the right.</param>
 /// <param name="LeftCooldown">Its cooldown after biting to the left.</param>
 /// <param name="StraightCooldown">Its cooldown after a bite at any other aim, which every other sector shares.</param>
-internal sealed record YappingMawReach(YappingMawBodyProjectileSegment Body, RoomEffectActorKind Root, YappingMawSegment Bite,
+internal sealed partial record YappingMawReach(YappingMawBodyProjectileSegment Body, RoomEffectActorKind Root, YappingMawSegment Bite,
     YappingMawSegment RightCooldown, YappingMawSegment LeftCooldown, YappingMawSegment StraightCooldown)
 {
     /// <summary>A Maw reaching up.</summary>

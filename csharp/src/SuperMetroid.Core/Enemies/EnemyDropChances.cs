@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// An enemy's item-drop probabilities, each out of the full weight budget (<see cref="EnemyDropSelectionDefinitions.FullWeightBudget"/>);
 /// an authored table's chances sum to it, and no table's sum past it, which the table requires as it is built.
 /// </summary>
-public readonly record struct EnemyDropChances
+public readonly partial record struct EnemyDropChances
 {
     /// <summary>Builds a table of chances that sum to no more than the full weight budget.</summary>
     /// <param name="smallEnergy">The chance of a small energy drop.</param>

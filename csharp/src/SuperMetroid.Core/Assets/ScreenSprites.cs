@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// (#1587). A frame is always drawn whole, as its one pre-assembled image; a crowded screen never cuts a frame short (#1513).
 /// The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
-public sealed class ScreenSprites
+public sealed partial class ScreenSprites
 {
     /// <summary>The frames placed since <see cref="BeginFrame"/>, in emission order.</summary>
     private readonly List<PlacedPicture> placed = [];
@@ -71,5 +71,5 @@ public sealed class ScreenSprites
             { Shading = placed.Shading };
 
     /// <summary>One placed frame at its place, with the shading the screen shows it in (#1512).</summary>
-    private readonly record struct PlacedPicture(Offset16<ScreenPixels> Place, SpriteSheetFrame Image, PictureShading Shading);
+    private readonly partial record struct PlacedPicture(Offset16<ScreenPixels> Place, SpriteSheetFrame Image, PictureShading Shading);
 }

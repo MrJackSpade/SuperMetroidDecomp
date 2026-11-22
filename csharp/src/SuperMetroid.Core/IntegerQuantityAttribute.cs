@@ -5,7 +5,7 @@ namespace SuperMetroid.Core;
 /// coded category, though it is compared to literals (SME6421, SME6422). The reason names what it counts.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, Inherited = false)]
-public sealed class IntegerQuantityAttribute : Attribute
+public sealed partial class IntegerQuantityAttribute : Attribute
 {
     /// <summary>Marks a quantity; SME6421 and SME6422 read the reason from the attribute argument.</summary>
     /// <param name="reason">What the member counts or measures.</param>

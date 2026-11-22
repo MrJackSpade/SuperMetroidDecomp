@@ -112,8 +112,7 @@ internal static class CeresDestructionArtworkVerification
         string actorsName = CeresRevealActorLayoutFormat.FileName;
         string actorsPath = Path.Combine(installation.IntroCinematicDirectory, actorsName);
         CeresRevealActorLayoutDocument actorsDocument =
-            JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(
-                File.ReadAllBytes(actorsPath), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<CeresRevealActorLayoutDocument>(File.ReadAllBytes(actorsPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresRevealActorLayoutDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Zebes reveal actor layout is empty.");
         for (int index = 0; index < actorsDocument.Actors.Length; index++)
         {
@@ -141,8 +140,7 @@ internal static class CeresDestructionArtworkVerification
         string destructionActorsPath = Path.Combine(installation.IntroCinematicDirectory,
             destructionActorsName);
         CeresDestructionActorLayoutDocument destructionActorsDocument =
-            JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(
-                File.ReadAllBytes(destructionActorsPath), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(File.ReadAllBytes(destructionActorsPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionActorLayoutDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Ceres destruction actor layout is empty.");
         for (int index = 0; index < destructionActorsDocument.Actors.Length; index++)
         {
@@ -168,8 +166,7 @@ internal static class CeresDestructionArtworkVerification
         string spritesName = CeresDestructionSpriteFormat.FileName;
         string spritesPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), spritesName);
         CeresDestructionSpriteDocument spriteDocument =
-            JsonSerializer.Deserialize<CeresDestructionSpriteDocument>(
-                File.ReadAllBytes(spritesPath), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<CeresDestructionSpriteDocument>(File.ReadAllBytes(spritesPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Ceres destruction sprites are empty.");
         string removedFrame = "station-under-attack-large-asteroid";
         spriteDocument.Frames.Remove(removedFrame);

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Saves;
 /// Gameplay, menus, checkpoints and JSON read and write it directly by <see cref="SaveSlot"/>; a slot's number and the
 /// raw save image are only the save files' formats (#2083, #2140).
 /// </summary>
-public sealed class SaveSlotStore
+public sealed partial class SaveSlotStore
 {
     /// <summary>Each saved slot's decoded record; a slot with no entry is empty or invalid.</summary>
     private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
@@ -106,7 +106,7 @@ public sealed class SaveSlotStore
     public SaveSlot ReadSelectedSlot() => selectedSlot;
 
     /// <summary>Whether the save file's history holds a completed game, which unlocks the completion demo set.</summary>
-    private bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
+    internal bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
 
     /// <summary>The ending completes the game; the save file's history keeps it until a power-on finds no valid save.</summary>
     public void CompleteGame() => History = SaveFileHistory.GameCompleted;

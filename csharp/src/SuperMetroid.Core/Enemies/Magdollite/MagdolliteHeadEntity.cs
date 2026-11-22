@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="common">The shared participation.</param>
 /// <param name="surroundings">The room, Samus, controller and camera the population load sets the head up in.</param>
 /// <param name="settings">What the head's population entry tells it: its speed and range.</param>
-internal sealed class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class MagdolliteHeadEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     EnemyPopulationSurroundings surroundings, MagdolliteHeadSpawnSettings settings)
     : MagdollitePartEntity(species, occupant, place, common)
 {

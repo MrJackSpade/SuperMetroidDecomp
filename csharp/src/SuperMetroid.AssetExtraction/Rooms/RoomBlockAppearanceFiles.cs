@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// not picture (#1636). It holds no characters,
 /// tile positions or colours; those are drawn into the block sheet, which a player edits in place.
 /// </summary>
-public static class RoomBlockAppearanceFiles
+public static partial class RoomBlockAppearanceFiles
 {
     /// <summary>
     /// The schema revision: revision 2 records a collectible slot only on the blocks a collectible writes where it lies,
@@ -34,7 +34,7 @@ public static class RoomBlockAppearanceFiles
     private const int Version = 11;
 
     /// <summary>The installed file name of <paramref name="tileset"/>'s record.</summary>
-    private static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
+    internal static string FileNameOf(TilesetDefinition tileset) => $"{RoomBlockSheet.NameOf(tileset)}.block-appearances.json";
 
     /// <summary>Writes <paramref name="tileset"/>'s record of <paramref name="appearances"/> into <paramref name="directory"/>.</summary>
     /// <exception cref="IOException">The file already exists or cannot be written.</exception>
@@ -44,7 +44,7 @@ public static class RoomBlockAppearanceFiles
         Ensure.NotNull(appearances);
         var document = new BlockAppearancesDocument(Version, RoomBlockSheet.NameOf(tileset), appearances.Count, Tokens(appearances));
         using var output = new FileStream(Path.Combine(directory, FileNameOf(tileset)), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(output, document, JsonOptions);
+        JsonSerializer.Serialize(output, document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBlockAppearanceFiles.BlockAppearancesDocument>(JsonOptions));
     }
 
     /// <summary>Reads <paramref name="tileset"/>'s record from <paramref name="directory"/>.</summary>
@@ -55,7 +55,7 @@ public static class RoomBlockAppearanceFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string path = Path.Combine(directory, FileNameOf(tileset));
-        BlockAppearancesDocument document = JsonSerializer.Deserialize<BlockAppearancesDocument>(File.ReadAllBytes(path), JsonOptions)
+        BlockAppearancesDocument document = JsonSerializer.Deserialize<BlockAppearancesDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBlockAppearanceFiles.BlockAppearancesDocument>(JsonOptions))
             ?? throw new InvalidDataException($"Block appearance record {path} is empty.");
         if (document.Version != Version)
             throw new InvalidDataException($"Block appearance record {path} is not revision {Version}.");
@@ -98,7 +98,7 @@ public static class RoomBlockAppearanceFiles
     /// <param name="Blocks">
     /// The inputs of each block a room shows, by the name the block's pictures begin with; a block no room shows has no entry.
     /// </param>
-    internal sealed record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<string, string[]> Blocks);
+    internal sealed partial record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<string, string[]> Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

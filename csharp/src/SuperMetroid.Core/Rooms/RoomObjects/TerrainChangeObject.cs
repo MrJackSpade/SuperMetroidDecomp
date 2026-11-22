@@ -10,18 +10,28 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// frame starts, and the object leaves on the update after the last. The change plays on the shared animation player
 /// (#2480).
 /// </summary>
-/// <param name="change">The change's authored timing.</param>
-internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
+internal partial class TerrainChangeObject : RoomObjectBehaviour
 {
+    /// <summary>The change's authored timing.</summary>
+    private readonly TerrainChange change;
+
+    /// <summary>Creates a <see cref="TerrainChangeObject"/>.</summary>
+    /// <param name="change">The change's authored timing.</param>
+    public TerrainChangeObject(TerrainChange change)
+    {
+        this.change = change;
+        this.Frames = Playing(change);
+    }
+
     /// <summary>The change's frames playing, from its first delay; none shown before its first frame draws.</summary>
-    private AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue> _frames = Playing(change);
+    internal AnimationPlayer<RoomObjectFrameRun, TerrainChangeFrame, NoAnimationCue> Frames { get; private set; }
 
     /// <inheritdoc/>
     internal sealed override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        bool beforeFirstFrame = _frames.Shown is null;
-        if (_frames.StepToNewFrame() is { } frame)
+        bool beforeFirstFrame = Frames.Shown is null;
+        if (Frames.StepToNewFrame() is { } frame)
         {
             if (beforeFirstFrame)
                 Begin(context);
@@ -32,7 +42,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
             context.Draw(place, frame.Draw);
             return;
         }
-        if (!_frames.HasStopped)
+        if (!Frames.HasStopped)
             return;
         End(context);
         context.RoomObjects.DeleteObject(place);
@@ -42,7 +52,7 @@ internal class TerrainChangeObject(TerrainChange change) : RoomObjectBehaviour
     /// Makes <paramref name="change"/> the change the object makes, from its first delay: an object that turns into
     /// another change, such as a gate that closes again.
     /// </summary>
-    private protected void Restart(TerrainChange change) => _frames = Playing(change);
+    private protected void Restart(TerrainChange change) => Frames = Playing(change);
 
     /// <summary>Runs as the change draws its first frame, before that frame's move, sound and draw; nothing by default.</summary>
     /// <param name="context">The update.</param>

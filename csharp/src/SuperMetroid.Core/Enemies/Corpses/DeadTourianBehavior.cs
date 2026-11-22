@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Tourian corpse species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<CorpseSpawnSettings>
+internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<CorpseSpawnSettings>
 {
 
     /// <inheritdoc/>
@@ -38,7 +38,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
 
     /// <summary>The species whose corpse <paramref name="definitionId"/> places.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not a Tourian corpse.</exception>
-    private static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
+    internal static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
         DeadTourianCorpseSpeciesDefinitions.Species.TryGetValue(definitionId, out DeadTourianCorpseSpecies species)
             ? species
             : throw new ArgumentOutOfRangeException(nameof(definitionId));
@@ -62,6 +62,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
     }
 
     /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
     {
         [CorpsePhase.Waiting] = WaitToRot,
@@ -141,8 +142,17 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyPowerBombReaction DeadTourianPowerBombReaction(DeadTourianCorpseEnemyState state) => new()
     {
+<<<<<<< HEAD
         ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
+||||||| 418ca79935
+        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
+=======
+        ReplacesCommon = ResolveDeadTourianCorpsePowerBomb,
+>>>>>>> origin/main
     };
+
+    /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
+    private static void ResolveDeadTourianCorpsePowerBomb(EnemyPowerBombContext context) => ResolveDeadTourianCorpsePowerBomb(context.Enemy);
 
     /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
     /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
@@ -150,13 +160,34 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFactory<Co
     /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
     internal static EnemyShotReaction DeadTourianShotReaction(DeadTourianCorpseEnemyState state) => new()
     {
+<<<<<<< HEAD
         BeforeSuperMissileQuake = (in EnemyShotContext c) =>
         {
             c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
             TriggerDeadTourianCorpseRotting(c.Enemy, state);
             return true;
         },
+||||||| 418ca79935
+        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
+        {
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            TriggerDeadTourianCorpseRotting(c.Enemy);
+            return true;
+        },
+=======
+        BeforeSuperMissileQuake = MarkShotAndRot,
+>>>>>>> origin/main
     };
+
+    /// <summary>Marks a shot's hit on the corpse and starts its rot, with no damage or impact.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    private static bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        TriggerDeadTourianCorpseRotting(c.Enemy);
+        return true;
+    }
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
     internal static void ReactToDeadTourianTouch(EnemyTouchContext context, DeadTourianCorpseEnemyState deadTourianCorpseEnemyState) =>

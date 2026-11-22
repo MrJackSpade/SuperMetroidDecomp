@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// language-label rows and toggle choice boxes the cartridge recolours, and the palettes it recolours them with. Only the import reads them; it pictures each page, label, language highlight and toggle choice once, and the
 /// game places those pictures.
 /// </summary>
-public static class GameOptionsPageDefinitions
+public static partial class GameOptionsPageDefinitions
 {
     /// <summary>Cells in each options-page row.</summary>
     public const int MenuTilemapWidth = 32;
@@ -28,7 +28,7 @@ public static class GameOptionsPageDefinitions
     public static Extent16<CharacterCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
     /// <summary>The controller page's button-label boxes.</summary>
-    public static class ControllerLabels
+    public static partial class ControllerLabels
     {
         /// <summary>Columns of one button label.</summary>
         public const int WidthInTiles = 3;
@@ -43,7 +43,7 @@ public static class GameOptionsPageDefinitions
     }
 
     /// <summary>The primary page's language-label rows, whose palette shows the active language.</summary>
-    public static class LanguageRegions
+    public static partial class LanguageRegions
     {
         /// <summary>The rows the cartridge recolours: the English label's two, then the Japanese label's two.</summary>
         public const int RowCount = 4;
@@ -58,7 +58,7 @@ public static class GameOptionsPageDefinitions
     }
 
     /// <summary>The Icon Cancel and Moonwalk toggles' choice boxes.</summary>
-    public static class SpecialToggles
+    public static partial class SpecialToggles
     {
         /// <summary>Bytes recoloured in each choice row: six cells, palette bits only.</summary>
         public const int PaletteRegionByteCount = 12;
@@ -71,7 +71,7 @@ public static class GameOptionsPageDefinitions
     }
 
     /// <summary>The background palettes that select and dim menu text.</summary>
-    public static class TilePalettes
+    public static partial class TilePalettes
     {
         /// <summary>The palette of the active language or the selected on/off choice.</summary>
         public const int Selected = 0;

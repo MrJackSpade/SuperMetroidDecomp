@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Mother Brain's death colors.</summary>
-public static class MotherBrainDeathColorFormat
+public static partial class MotherBrainDeathColorFormat
 {
     /// <summary>JSON resource filename used to install the death-fade color catalog.</summary>
     public const string FileName = "mother-brain-death-colors.json";

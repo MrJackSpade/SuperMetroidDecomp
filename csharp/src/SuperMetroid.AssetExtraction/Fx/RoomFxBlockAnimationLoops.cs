@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// order, each loop's frames, its distinct pictures and their sizes, and the byte lengths of the treadmill frames and the
 /// Tourian statue strip. The game plays one loop at a time and draws the installed pictures.
 /// </summary>
-public static class RoomFxBlockAnimationLoops
+public static partial class RoomFxBlockAnimationLoops
 {
     /// <summary>The bytes of characters every Wrecked Ship treadmill frame shows: two characters.</summary>
     public const int TreadmillFrameByteCount = 32;

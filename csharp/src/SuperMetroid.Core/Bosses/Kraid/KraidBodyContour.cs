@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The staircase outline of Kraid's body that his body and projectile collision test against.</summary>
-public static class KraidBodyContour
+public static partial class KraidBodyContour
 {
     /// <summary>
     /// The left edge of Kraid's body at <paramref name="relativeY"/>: each ledge of the staircase holds its edge from

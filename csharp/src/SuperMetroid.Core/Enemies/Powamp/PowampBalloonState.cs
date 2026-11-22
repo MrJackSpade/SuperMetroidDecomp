@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// The state of a Powamp's balloon (#1845), the half its body moves: where it spawned and its inflate or sink animation
 /// with the pose it stands at. How far a grapple lifts the pair is its spawn settings', read as the body rises (#2439).
 /// </summary>
-public sealed class PowampBalloonState
+public sealed partial class PowampBalloonState
 {
     /// <summary>The balloon's inflate or sink animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PowampBalloonSegment> Playback { get; set; }

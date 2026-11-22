@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>The title sequence: power-on or a soft reset starts it, then the title runs until a file select or an idle demo.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="stage">The step the title enters at.</param>
-internal sealed class TitleGameSequence(FrontendSession session, TitleGameSequence.Stage stage) : IFrontendPhase
+internal sealed partial class TitleGameSequence(FrontendSession session, TitleGameSequence.Stage stage) : IFrontendPhase
 {
     /// <summary>The step that runs, with the screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How Mother Brain's rainbow beam pushes Samus around the arena (#2171): toward the wall, toward the middle of the wall,
 /// and her fall once the beam lets her go, inside the arena's ceiling, floor and wall.
 /// </summary>
-internal static class MotherBrainRainbowBeamPushDefinitions
+internal static partial class MotherBrainRainbowBeamPushDefinitions
 {
     /// <summary>
     /// The speed the beam pushes Samus at: sixteen pixels an update right toward the wall, and the same speed along the

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// A Dachora and the speed-boost echoes that trail it (#2283): a room places one Dachora, and the Dachora brings its
 /// <see cref="EchoCount"/> echoes, listed right after it where its behaviour finds them.
 /// </summary>
-internal static class DachoraTrail
+internal static partial class DachoraTrail
 {
     /// <summary>The speed-boost echoes that trail a Dachora, listed right after it (#2557).</summary>
     internal const int EchoCount = 4;

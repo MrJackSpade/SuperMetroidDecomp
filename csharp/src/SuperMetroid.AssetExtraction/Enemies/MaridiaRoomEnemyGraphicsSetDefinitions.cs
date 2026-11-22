@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The graphics sets of the Maridia room-header region, in table order.</summary>
-internal static class MaridiaRoomEnemyGraphicsSetDefinitions
+internal static partial class MaridiaRoomEnemyGraphicsSetDefinitions
 {
     /// <summary>The members of every set here that loads Owtches, Choots and Skulteras, in record order.</summary>
     private static readonly RoomEnemyGraphicsSetMember[] OwtchChootAndSkultera =

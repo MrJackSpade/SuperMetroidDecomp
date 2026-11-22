@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports full-body hurt/intro RGB5 artwork, not hurt-counter logic.</summary>
-public static class SamusHurtColorExtractor
+public static partial class SamusHurtColorExtractor
 {
     /// <summary>Exports Samus's full sixteen-color hurt-flash and cinematic-intro palette images from $9B:A380 and $9B:A3A0.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the two complete OBJ palette rows.</param>

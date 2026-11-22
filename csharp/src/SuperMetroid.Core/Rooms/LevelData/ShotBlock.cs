@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <see cref="ShotBlockReactions.ShotBlocks"/> holds one, one for each handled reaction, so the response never meets a
 /// reaction it does not handle.
 /// </summary>
-public sealed class ShotBlock
+public sealed partial class ShotBlock
 {
     /// <summary>Pairs a handled reaction with what the response does with it.</summary>
     internal ShotBlock(ShootableReaction reaction, ShotBlockReaction response)

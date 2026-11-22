@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The installed key of each <see cref="AreaId"/> (#2520), written out so renaming a member never changes a name the
 /// installation, an installed document or a save spells it by.
 /// </summary>
-internal static class AreaIdKeys
+internal static partial class AreaIdKeys
 {
     /// <summary>Each AreaId member's installed key.</summary>
     internal static InstalledKeys<AreaId> Installed { get; } = new(new Dictionary<AreaId, string>

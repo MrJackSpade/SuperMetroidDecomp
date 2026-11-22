@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// these documents, to picture each page once (#1467); this is the only place a placed tile meets the cell that stores it.
 /// </summary>
 [EncodingOwner("import-data menu and map page cell")]
-public sealed record MapPresentationCell
+public sealed partial record MapPresentationCell
 {
     /// <summary>The cell that stores <paramref name="tile"/>, placed from a character sheet <paramref name="columns"/> characters wide.</summary>
     internal static MapPresentationCell Of(BackgroundTile tile, int columns) => new()

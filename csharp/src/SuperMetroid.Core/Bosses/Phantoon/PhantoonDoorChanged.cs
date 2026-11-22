@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// door once the Wrecked Ship's power is back.
 /// </summary>
 /// <param name="Change">The door's change.</param>
-public sealed record PhantoonDoorChanged(PhantoonDoorChange Change) : EnemyPassEvent;
+public sealed partial record PhantoonDoorChanged(PhantoonDoorChange Change) : EnemyPassEvent;

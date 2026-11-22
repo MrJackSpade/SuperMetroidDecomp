@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 /// fades that materialize and vanish it. Each step's shade is the effect and the steps it has taken
 /// (WreckedShipGhostFadeShade); the import pre-colours every one the ghost passes through.
 /// </summary>
-public static class WreckedShipGhostShades
+public static partial class WreckedShipGhostShades
 {
     /// <summary>The ghost's colours darkened to black.</summary>
     public const string DarkEffect = "wrecked-ship-ghost-dark";

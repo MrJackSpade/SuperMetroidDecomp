@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts the four RGB5 words preceding each compiled Work Robot timer.</summary>
-public static class WorkRobotPaletteCycleExtractor
+public static partial class WorkRobotPaletteCycleExtractor
 {
     /// <summary>The bytes of one of the cartridge's cycle records: four colour words, then the record's timer word.</summary>
     private const int CycleRecordBytes = 10;

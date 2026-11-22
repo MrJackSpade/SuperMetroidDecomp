@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// step placed them; a glyph is drawn moved by the scroll once for each step typed after it. A step that adds nothing types
 /// a space.
 /// </summary>
-internal static class TypedTextGlyphs
+internal static partial class TypedTextGlyphs
 {
     /// <summary>The parts each of <paramref name="steps"/> adds to the step before it, in typing order.</summary>
     /// <param name="text">The text's name, which a failure names.</param>

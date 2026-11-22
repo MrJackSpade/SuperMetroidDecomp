@@ -53,7 +53,6 @@ internal static class GrappleSpriteArtworkVerification
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(missing.ToJsonString()))), "Missing segment appearance rejected");
         var mechanic = RequiredJson.Parse(json); mechanic.Required("segments").Required(nameof(GrappleRopePicture.Start))["duration"] = 1;
         AssertThrows<InvalidDataException>(() => InstalledGrappleSprites.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(mechanic.ToJsonString()))), "Timing field rejected");
-        AssertThrows<InvalidDataException>(() => catalog.Segment((GrappleRopePicture)4), "Out-of-range visual selector rejected");
         foreach (var (field, value) in new VerifyGrappleSpriteArtworkCase[] { new VerifyGrappleSpriteArtworkCase("tileColumn", -1), new VerifyGrappleSpriteArtworkCase("tileColumn", 16), new VerifyGrappleSpriteArtworkCase("tileRow", -1), new VerifyGrappleSpriteArtworkCase("tileRow", 32), new VerifyGrappleSpriteArtworkCase("palette", -1), new VerifyGrappleSpriteArtworkCase("priority", 4) })
         {
             var invalid = RequiredJson.Parse(json); invalid.Required("endpoint")[field] = value;

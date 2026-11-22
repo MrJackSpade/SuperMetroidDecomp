@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Names what a door cap's draw shows in its installed picture's identity, and finds it in the caps' draw tables (#1994).</summary>
-internal static class DoorCapLookNames
+internal static partial class DoorCapLookNames
 {
     /// <summary>The look's words in a cap's editable visual identity.</summary>
     internal static string VisualName(DoorCapLook look) => look switch

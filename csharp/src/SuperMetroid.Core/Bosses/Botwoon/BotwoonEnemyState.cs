@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// ordinary enemies and so are kept here rather than spawned as enemies.
 /// </summary>
 [ArchitectureReview("context-bag", "Botwoon's fight state: every member is a wait, stage, band, path or segment of his own fight that he owns for the room (his spit cooldown, pre-fall and explosion waits, speed stage and health band, #2266, #2267), not a service carried through.")]
-public sealed class BotwoonEnemyState
+public sealed partial class BotwoonEnemyState
 {
     /// <summary>
     /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression; the fight

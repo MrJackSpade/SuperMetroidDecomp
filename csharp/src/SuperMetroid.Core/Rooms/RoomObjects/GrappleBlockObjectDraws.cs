@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectGrappleBlockDrawDefin
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Grapple-block draws (#2034): each one block at the object's block, colliding as its draw installs it.</summary>
-internal static class GrappleBlockObjectDraws
+internal static partial class GrappleBlockObjectDraws
 {
     /// <summary>
     /// The five Grapple-block frames, pictured by the installed Grapple-block frames: the terrain keeps Grapple or air

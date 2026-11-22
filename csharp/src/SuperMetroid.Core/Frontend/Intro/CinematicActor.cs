@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <typeparam name="TAnimation">The family's animation identity.</typeparam>
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
-internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
+internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
     where TAnimation : struct, Enum
     where TFrame : struct
     where TCue : notnull
@@ -70,7 +70,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
-    private PictureShade Colouring { get; set; }
+    internal PictureShade Colouring { get; set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
@@ -79,7 +79,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    private AnimationPlayback<TAnimation> Playback { get; set; }
+    internal AnimationPlayback<TAnimation> Playback { get; set; }
 
     /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
@@ -165,7 +165,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
-    private readonly record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
+    private readonly partial record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's

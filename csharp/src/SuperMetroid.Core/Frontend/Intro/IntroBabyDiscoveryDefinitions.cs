@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening's discovery of the Metroid egg on SR388: where Samus runs, when the egg hatches and how the baby moves.</summary>
-internal static class IntroBabyDiscoveryDefinitions
+internal static partial class IntroBabyDiscoveryDefinitions
 {
     /// <summary>Where Samus stands, facing left, as the scene starts.</summary>
     internal static Position16<RoomPixels> SamusStart => new(376, 147);

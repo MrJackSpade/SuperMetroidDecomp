@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// pre-rot delay counts (<see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/>), and when the delay runs out the
 /// corpse ignores Samus from then on and starts rotting.
 /// </summary>
-internal static class CorpseRotWait
+internal static partial class CorpseRotWait
 {
     /// <summary>
     /// One update of the wait of the corpse at <paramref name="place"/> in <paramref name="phase"/>, its delay

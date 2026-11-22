@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The state of one Mellow, Mella or Memu.</summary>
-public sealed class FlyEnemyState
+public sealed partial class FlyEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal FlyEnemyState(FlyAction action) => Action = action;

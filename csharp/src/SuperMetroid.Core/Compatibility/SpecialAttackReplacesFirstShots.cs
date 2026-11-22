@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// of her, when the attack starts.
 /// </remarks>
 [CompatibilityService("a special attack's particles replace whatever shots hold Samus's first shot places")]
-internal static class SpecialAttackReplacesFirstShots
+internal static partial class SpecialAttackReplacesFirstShots
 {
     /// <summary>
     /// Takes the shot place each of a starting attack's <paramref name="parts"/> names, the last place first, each ending
@@ -54,5 +54,5 @@ internal static class SpecialAttackReplacesFirstShots
     /// <typeparam name="TShot">The shot type.</typeparam>
     /// <param name="Part">The particle's part.</param>
     /// <param name="Shot">The shot that plays it.</param>
-    internal readonly record struct ParticleShot<TPart, TShot>(TPart Part, TShot Shot);
+    internal readonly partial record struct ParticleShot<TPart, TShot>(TPart Part, TShot Shot);
 }

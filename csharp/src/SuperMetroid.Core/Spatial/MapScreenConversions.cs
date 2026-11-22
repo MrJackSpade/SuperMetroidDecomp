@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Named conversions between the area-map grids and the screen showing them.</summary>
-public static class MapScreenConversions
+public static partial class MapScreenConversions
 {
     /// <summary>Map-plane pixels per map tile on each axis.</summary>
     public const int PixelsPerMapTile = 8;

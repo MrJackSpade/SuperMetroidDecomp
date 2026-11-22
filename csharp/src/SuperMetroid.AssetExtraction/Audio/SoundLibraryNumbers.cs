@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// game's sound libraries meet their cartridge numbering.
 /// </summary>
 [EncodingOwner("library numbers of the sound driver's three sound libraries")]
-internal static class SoundLibraryNumbers
+internal static partial class SoundLibraryNumbers
 {
     /// <summary>Each library's number.</summary>
     private static readonly FrozenDictionary<SoundEffectLibrary, int> Numbers = new Dictionary<SoundEffectLibrary, int>

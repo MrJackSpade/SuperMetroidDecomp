@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Encounter">The encounter whose looks change the frame.</param>
 /// <param name="Looks">The names of the encounter's looks the frame is drawn in, in the order the encounter shows them.</param>
-internal sealed record FrameLookChange(EncounterArtwork Encounter, IReadOnlyList<string> Looks);
+internal sealed partial record FrameLookChange(EncounterArtwork Encounter, IReadOnlyList<string> Looks);

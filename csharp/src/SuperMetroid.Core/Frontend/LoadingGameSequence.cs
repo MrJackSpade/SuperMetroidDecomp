@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// screen holds for the load's waits.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
+internal sealed partial class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.LoadingGame;
@@ -35,6 +35,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     public bool IsWaitingOutDisplayFrame => session.ResumesGameLoadingWait;
 
     /// <summary>What <c>Step</c> does for each <see cref="GameDataLoadRoute"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameDataLoadRoute, Action<ControllerButton>> StepForGameDataLoadRoute => field ??= new(new Dictionary<GameDataLoadRoute, Action<ControllerButton>>
     {
         [GameDataLoadRoute.SelectedGame] = controllerInput =>
@@ -99,6 +100,7 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IFrontendPh
     }
 
     /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameLoadingCompletion, Action<LoadedGameplay>> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action<LoadedGameplay>>
     {
         [GameLoadingCompletion.CeresArrivalFadeIn] = live =>

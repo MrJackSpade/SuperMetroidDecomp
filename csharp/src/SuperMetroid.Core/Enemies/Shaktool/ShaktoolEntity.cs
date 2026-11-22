@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="chain">The chain the segment is in, which its leading saw started (#2452, #2554).</param>
 [RoomLifetime]
-internal sealed class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ShaktoolSpawnSettings settings,
+internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, ShaktoolSpawnSettings settings,
     ShaktoolChain chain)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {

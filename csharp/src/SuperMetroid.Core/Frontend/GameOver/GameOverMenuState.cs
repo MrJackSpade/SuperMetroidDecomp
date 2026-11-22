@@ -10,7 +10,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>The game-over prompt.</summary>
-public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+public sealed partial class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -26,13 +26,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly AudioQueues audio;
     /// <summary>The menu screen game over draws: its artwork, pictures, colours and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
-    private readonly MenuMissileAnimation missile;
+    internal readonly MenuMissileAnimation missile;
     /// <summary>
     /// The Baby Metroid's animation (#2488), played by the shared player: it shows nothing of its own before the menu's
     /// set-up starts it, and holds its look once an answer is accepted.
@@ -40,7 +40,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     private readonly AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound> baby =
         AnimationPlayer<GameOverBabySegment, GameOverBabyLook, GameOverBabySound>.Starting(GameOverBabyAnimation.Segments, GameOverBabyAnimation.Playing);
     /// <summary>The pose and colours the Baby shows: its animation's look, or its resting look before the animation starts.</summary>
-    private GameOverBabyLook BabyLook => baby.Shown ?? GameOverBabyAnimation.Resting;
+    internal GameOverBabyLook BabyLook => baby.Shown ?? GameOverBabyAnimation.Resting;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
@@ -72,19 +72,19 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     }
 
     /// <summary>The selected answer, Yes or No.</summary>
-    private YesNoChoice SelectedItem { get; set; }
+    internal YesNoChoice SelectedItem { get; set; }
 
     /// <summary>Current menu step.</summary>
-    private GameOverMenuPhase Phase { get; set; }
+    internal GameOverMenuPhase Phase { get; set; }
 
     /// <summary>
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame => phaseAfterDisplayFrame is not null;
+    public bool IsWaitingOutDisplayFrame => PhaseAfterDisplayFrame is not null;
 
     /// <summary>The step a display-frame wait leads to once it is waited out (<see cref="IsWaitingOutDisplayFrame"/>); none while no wait runs.</summary>
-    private GameOverMenuPhase? phaseAfterDisplayFrame;
+    internal GameOverMenuPhase? PhaseAfterDisplayFrame { get; set; }
 
     /// <summary>
     /// How the menu hands off to the outer game-state loop (#2562), kept once it reaches one; absent while the menu runs,
@@ -107,6 +107,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="GameOverMenuPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameOverMenuPhase, Action<ControllerButton>> StepForGameOverMenuPhase => field ??= new(new Dictionary<GameOverMenuPhase, Action<ControllerButton>>
     {
         [GameOverMenuPhase.BlackHold] = pressed =>
@@ -115,7 +116,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
             // silences the room's sounds and holds the black screen while it waits out one update. The menu opens in this
             // phase with its fade made black, and nothing steps the fade before it.
             audio.QueueSound(RoomSoundStop.Any, priority: GameOverMenuDefinitions.SoundPriority);
-            phaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
+            PhaseAfterDisplayFrame = GameOverMenuPhase.Initialize;
         },
         [GameOverMenuPhase.Initialize] = pressed =>
         {
@@ -127,7 +128,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
             SelectedItem = YesNoChoice.Yes;
             fade.Show(DisplayBrightness.Black);
             // Unblank, then wait out one update before advancing the step.
-            phaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
+            PhaseAfterDisplayFrame = GameOverMenuPhase.WaitForInitialMusic;
         },
         [GameOverMenuPhase.WaitForInitialMusic] = pressed =>
         {
@@ -188,11 +189,11 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
     public void Step(ControllerButton controllerInput)
     {
         controller.Latch(controllerInput);
-        if (phaseAfterDisplayFrame is { } next)
+        if (PhaseAfterDisplayFrame is { } next)
         {
             // Each wait ends its step: what follows it only finishes setting up the screen and
             // moves the menu on to the step the wait leads to.
-            phaseAfterDisplayFrame = null;
+            PhaseAfterDisplayFrame = null;
             Phase = next;
             return;
         }
@@ -239,7 +240,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen, IComposedFrontendSc
         audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.SoundPriority);
 
     /// <summary>The sound of one of the Baby's cries.</summary>
-    private static SoundEffectId CrySound(GameOverBabySound sound) => CrySounds[sound];
+    internal static SoundEffectId CrySound(GameOverBabySound sound) => CrySounds[sound];
 
     /// <summary>The sound of each of the Baby's cries.</summary>
     private static IdentityTable<GameOverBabySound, SoundEffectId> CrySounds { get; } = new(new Dictionary<GameOverBabySound, SoundEffectId>

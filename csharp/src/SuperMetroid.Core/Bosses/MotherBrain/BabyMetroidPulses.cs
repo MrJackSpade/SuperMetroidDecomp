@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The Baby Metroid's pulses (#2405), which the Tourian Baby Metroid and the cutscene Baby, one creature, both play: it shows
 /// its closed, half-open, wide-open and half-open poses again, each for its own updates.
 /// </summary>
-internal static class BabyMetroidPulses
+internal static partial class BabyMetroidPulses
 {
     /// <summary>The calm pulse: each pose sixteen updates.</summary>
     internal static AnimationBeat<BabyMetroidFrame, TEvent>[] Calm<TEvent>()

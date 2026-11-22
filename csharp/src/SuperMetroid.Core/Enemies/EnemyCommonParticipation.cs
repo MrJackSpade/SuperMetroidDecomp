@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// shared response for; a species' own reactions are its entity's, which it checks before these.
 /// </summary>
 /// <param name="collision">The enemy system's collision, resolved at use because the system builds it after its species.</param>
-internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
+internal sealed partial class EnemyCommonParticipation(Func<EnemyCollision> collision)
 {
     /// <summary>
     /// The shot reaction of the ordinary and the ignoring shot: the common shot reaction. An ignoring hitbox or
@@ -15,7 +15,12 @@ internal sealed class EnemyCommonParticipation(Func<EnemyCollision> collision)
     internal static EnemyShotReaction CommonShot { get; } = new();
 
     /// <summary>The Power Bomb reaction that ignores the blast: it replaces common damage with nothing.</summary>
-    internal static EnemyPowerBombReaction IgnoringPowerBomb { get; } = new() { ReplacesCommon = static _ => { } };
+    internal static EnemyPowerBombReaction IgnoringPowerBomb { get; } = new() { ReplacesCommon = IgnorePowerBomb };
+
+    /// <summary>Does nothing in place of a Power Bomb's common damage: the enemy ignores the blast.</summary>
+    private static void IgnorePowerBomb(EnemyPowerBombContext context)
+    {
+    }
 
     /// <summary>The common Power Bomb reaction: the blast's common damage, with no stage of a species' own.</summary>
     internal static EnemyPowerBombReaction CommonPowerBomb { get; } = new();

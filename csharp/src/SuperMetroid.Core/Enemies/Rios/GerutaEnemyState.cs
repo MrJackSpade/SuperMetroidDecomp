@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The state of a Geruta parent; its flame follower keeps a <see cref="GerutaFollowerState"/>.</summary>
-public sealed class GerutaEnemyState
+public sealed partial class GerutaEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal GerutaEnemyState(GerutaAction action) => Action = action;

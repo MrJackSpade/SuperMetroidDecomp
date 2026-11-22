@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="Striding">The leg striding forward.</param>
 /// <param name="Planting">The leg planting.</param>
 /// <param name="Planted">The leg planted.</param>
-internal sealed record ChozoStatueLeg(F Lifting, F Striding, F Planting, F Planted)
+internal sealed partial record ChozoStatueLeg(F Lifting, F Striding, F Planting, F Planted)
 {
     /// <summary>The Wrecked Ship statue's near leg.</summary>
     internal static ChozoStatueLeg WreckedShipNear { get; } = new(

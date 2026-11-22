@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The opening's narration pages (#2489): how each starts, what it does once typed and the illustration it turns to. Each
 /// illustration leads into the next page, whose crossfade brings the narration back.
 /// </summary>
-internal static class IntroNarrationPageDefinitions
+internal static partial class IntroNarrationPageDefinitions
 {
     /// <summary>The page the narration opens with, once the first card has faded out.</summary>
     internal const IntroNarrationPageId FirstPage = P.ZebesBattle;

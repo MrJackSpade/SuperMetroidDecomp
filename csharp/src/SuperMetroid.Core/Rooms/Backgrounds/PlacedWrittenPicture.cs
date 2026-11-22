@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// A picture written over a room's layer as a frame shows it (#1466, #1514): its pre-coloured picture, as its part behind and
 /// its part in front (#1634), and the layer pixel its top-left corner lies on. It covers the layer over its whole size.
 /// </summary>
-public readonly record struct PlacedWrittenPicture
+public readonly partial record struct PlacedWrittenPicture
 {
     /// <summary>Places <paramref name="picture"/> with its corner on <paramref name="corner"/>.</summary>
     /// <param name="picture">The picture for the values the room's appearance inputs take now.</param>

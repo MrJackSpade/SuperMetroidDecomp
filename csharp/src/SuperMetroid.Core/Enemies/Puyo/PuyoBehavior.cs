@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The Puyo species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawnSettings>
+internal sealed partial class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawnSettings>
 {
     /// <summary>Whether a hop is one of the three ordinary hops that proximity and chance choose between.</summary>
     private static bool IsNormalHop(PuyoHopType type) => PuyoHopDefinitions.NormalHops.Contains(type);
@@ -55,6 +55,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
     }
 
     /// <summary>What <see cref="RunPuyoMain"/> does for each <see cref="PuyoAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PuyoAction, Action<PuyoSpawnSettings, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>> RunPuyoMainForPuyoAction => field ??= new(new Dictionary<PuyoAction, Action<PuyoSpawnSettings, RoomEnemyPlace, PuyoEnemyState, SamusState, RoomLevelData>>
     {
         [PuyoAction.Grounded] = (settings, place, state, samus, level) => RunGroundedPuyo(settings, place, state, samus),
@@ -131,7 +132,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
     /// launches rises, and its search steps past the curve's start; one that runs off the curve fails when its speed is read.
     /// </summary>
     /// <exception cref="InvalidDataException">The hop's search runs off the curve.</exception>
-    private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
+    internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         PuyoHopDefinition hop = Hop(state);
         SignedSixteenSixteen height = SignedSixteenSixteen.FromWholePixels(hop.JumpHeight);
@@ -153,6 +154,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemySpawnFactory<PuyoSpawn
     private static PuyoHopDefinition Hop(PuyoEnemyState state) => PuyoHopDefinitions.Hops[state.CurrentHop];
 
     /// <summary>What <see cref="RunAirbornePuyo"/> does for each <see cref="PuyoAirborneMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>> RunAirbornePuyoForPuyoAirborneMovement => field ??= new(new Dictionary<PuyoAirborneMovement, Action<RoomEnemyPlace, PuyoEnemyState, RoomLevelData, VerticalDirection>>
     {
         [PuyoAirborneMovement.NormalShortHop] = (place, state, level, heading) =>

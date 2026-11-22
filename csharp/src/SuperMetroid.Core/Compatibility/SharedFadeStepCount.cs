@@ -29,7 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("every gradual fade counts its steps on one shared count, starting where the last fade left it, so a fade left part-way shortens the next: the Torizos' death fades and Samus's death fade among them")]
-public sealed class SharedFadeStepCount
+public sealed partial class SharedFadeStepCount
 {
     /// <summary>
     /// The current step: zero once a fade completes, then one more per step taken. Every fade resets it once it passes the

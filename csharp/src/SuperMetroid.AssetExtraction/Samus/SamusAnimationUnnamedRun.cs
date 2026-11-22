@@ -10,4 +10,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="After">The named segment the run is laid out after.</param>
 /// <param name="Delays">How many delays the run holds before its cue.</param>
 /// <param name="End">The cue that closes the run.</param>
-internal sealed record SamusAnimationUnnamedRun(SamusAnimationName Animation, SamusAnimationSegmentName After, int Delays, SamusAnimationCue End);
+internal sealed partial record SamusAnimationUnnamedRun(SamusAnimationName Animation, SamusAnimationSegmentName After, int Delays, SamusAnimationCue End);

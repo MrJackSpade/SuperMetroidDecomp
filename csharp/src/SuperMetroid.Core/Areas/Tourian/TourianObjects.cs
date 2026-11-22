@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// the acid trigger of the escape room before it.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianObjects
+internal sealed partial class TourianObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;

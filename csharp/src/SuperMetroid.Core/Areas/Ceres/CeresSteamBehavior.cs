@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="room">The room's services, whose random numbers stagger the vents.</param>
 /// <param name="collision">The common contact resolution.</param>
 [RoomLifetime]
-internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
+internal sealed partial class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
 {
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room = room;

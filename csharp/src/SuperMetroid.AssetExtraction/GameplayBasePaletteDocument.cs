@@ -6,5 +6,5 @@ namespace SuperMetroid.AssetExtraction;
 /// <param name="Version">Document schema revision.</param>
 /// <param name="Initial">Complete 256-color initial CGRAM image.</param>
 /// <param name="CommonSprites">Sixteen shared gameplay OBJ colors.</param>
-public sealed record GameplayBasePaletteDocument(int Version, PaletteRgb5[] Initial,
+public sealed partial record GameplayBasePaletteDocument(int Version, PaletteRgb5[] Initial,
     PaletteRgb5[] CommonSprites);

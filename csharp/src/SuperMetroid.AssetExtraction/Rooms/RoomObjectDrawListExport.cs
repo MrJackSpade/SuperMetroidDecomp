@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the game draws by. The game draws from the shapes directly and never builds these lists; what each cell shows is
 /// pictured from the cartridge.
 /// </summary>
-internal static class RoomObjectDrawListExport
+internal static partial class RoomObjectDrawListExport
 {
     /// <summary>
     /// Builds the draw list of a draw written as <paramref name="runs"/> (#1546), each run one description of where it

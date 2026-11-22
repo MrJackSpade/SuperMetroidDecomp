@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// The growing and vertical shutters' poses and Kamer's platform loop as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class ShutterAnimations
+internal static partial class ShutterAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ShutterSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -40,7 +40,7 @@ internal static class ShutterAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
+    internal static Dictionary<ShutterSegment, Animation<ShutterSegment>> StartingAt { get; } = new Dictionary<ShutterSegment, Animation<ShutterSegment>>
     {
         [P.QuarterGrown] = new([Segments.Whole(P.QuarterGrown)], AnimationEnd.Holds),
         [P.HalfGrown] = new([Segments.Whole(P.HalfGrown)], AnimationEnd.Holds),

@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// traversable, and those open with the camera aligned to the screen's top align the camera vertically differently. Scroll
 /// triggers, doors, enemies and scripted events change cells during play.
 /// </remarks>
-public sealed class RoomScrollGrid
+public sealed partial class RoomScrollGrid
 {
     /// <summary>How many scroll cells the game keeps: no room has more screens.</summary>
     public const int KeptCellCount = 50;
 
     /// <summary>The session's kept scroll cells, of which this room's are the first.</summary>
-    private ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeptCells { get; }
+    internal ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeptCells { get; }
 
     /// <summary>Validates the room's screen dimensions within the kept cells.</summary>
     private RoomScrollGrid(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, Extent16<RoomScreens> size)
@@ -34,7 +34,7 @@ public sealed class RoomScrollGrid
     public Extent16<RoomScreens> Size { get; }
 
     /// <summary>Gets the number of the room's screens.</summary>
-    private int ScreenCount => Size.Area;
+    internal int ScreenCount => Size.Area;
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
@@ -83,7 +83,6 @@ public sealed class RoomScrollGrid
             throw new ArgumentException(
                 $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.ScreenCount}.", nameof(scroll));
         RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
-        foreach (RoomScrollState state in loaded)
         cells.LoadAll(loaded);
         return grid;
     }
@@ -96,7 +95,7 @@ public sealed class RoomScrollGrid
     /// Only the room's width x height cells are written; every kept cell past them keeps what the previous room left
     /// there, and the camera reads them at the room's edges.
     /// </remarks>
-    private static RoomScrollGrid CreateImplicit(
+    internal static RoomScrollGrid CreateImplicit(
         ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)

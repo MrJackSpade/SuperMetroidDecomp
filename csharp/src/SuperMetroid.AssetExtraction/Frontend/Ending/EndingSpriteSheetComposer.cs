@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// its colours over the sets its frames are pictured in. The shooting scene's sheet holds the logo the scene ends on,
 /// composed from the logo's own characters: no sheet shows a page partly overwritten by the next scene's transfers.
 /// </summary>
-internal static class EndingSpriteSheetComposer
+internal static partial class EndingSpriteSheetComposer
 {
     /// <summary>The visible shooting-star pictures, each with a sheet frame of its own: the growing star's steps and the full star.</summary>
     private static IEnumerable<EndingShootingStarLook> StarSheetFrames => EndingShootingStarFrames.Visible;
@@ -272,7 +272,7 @@ internal static class EndingSpriteSheetComposer
     /// A scene of the ending: its transfers in order, a reward page's loading its reward's characters, the families it shows
     /// over them, whether it also holds the logo over the logo's own characters, and the sprite colours its scene loads.
     /// </summary>
-    private sealed record EndingPage(IReadOnlyList<EndingTransfer> Transfers,
+    private sealed partial record EndingPage(IReadOnlyList<EndingTransfer> Transfers,
         IReadOnlyList<CinematicSpriteFamily> Families, bool Logo,
         Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

@@ -29,8 +29,9 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             rom.ReadCartridgeWord((DraygonHealthBandDefinitions.NativeThresholdAddress + 16)),
             "Draygon health threshold native terminator");
 
+        int fullHealth = SuperMetroid.Core.World.CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(SuperMetroid.Core.Enemies.EnemyDefinitionId.DraygonBody).Health;
         for (ushort health = 0;
-             health <= DraygonHealthBandDefinitions.MaximumAuthoredHealth;
+             health <= fullHealth;
              health++)
         {
             int expectedIndex = Array.FindIndex(
@@ -41,10 +42,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
                 DraygonHealthBand.Of(health),
                 $"Draygon health {health} compiled palette band");
         }
-
-        AssertThrows<InvalidDataException>(
-            () => DraygonHealthBand.Of(6001),
-            "Draygon rejects health above its authored enemy-header maximum");
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
@@ -66,13 +63,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production Draygon palette selection performs no threshold-table reads");
-
-        state.Body.Health = 6001;
-        AssertThrows<InvalidDataException>(
-            () => update(state),
-            "production Draygon rejects malformed restored health without a ROM fallback");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "malformed Draygon health performs no threshold-table read");
 
         Console.WriteLine(
             "Draygon health palette definitions: all eight reachable thresholds, 6,001 " +

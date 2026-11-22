@@ -7,6 +7,6 @@ internal static class MotherBrainFadeProgressAccess
     extension(MotherBrainFadeProgress self)
     {
         /// <summary>The image the fade shows, or null before its first.</summary>
-        public MotherBrainFadeImage? Shown => self.player.Shown;
+        public MotherBrainFadeImage? Shown => self.Player.Shown;
     }
 }

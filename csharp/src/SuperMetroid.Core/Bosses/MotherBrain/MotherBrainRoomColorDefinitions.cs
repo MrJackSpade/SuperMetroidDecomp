@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The shape of Mother Brain's room colours the game plays: the phase-three room lights. Their colour structure is the
 /// import's, which pre-colours her room's pictures in them (#1527).
 /// </summary>
-public static class MotherBrainRoomColorDefinitions
+public static partial class MotherBrainRoomColorDefinitions
 {
     /// <summary>The phase-three room-light images (<see cref="MotherBrainFadeDefinitions.RecoveryLights"/>), shown after the Baby Metroid cutscene.</summary>
     public const int RecoveryLightsFrames = 7;

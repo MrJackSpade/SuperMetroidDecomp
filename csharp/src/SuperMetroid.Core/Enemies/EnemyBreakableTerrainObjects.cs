@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Terrain room objects that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
-internal sealed class EnemyBreakableTerrainObjects
+internal sealed partial class EnemyBreakableTerrainObjects
 {
     /// <summary>The room's room objects, which an enemy's break joins.</summary>
     private readonly RoomObjectPlaceList _places;

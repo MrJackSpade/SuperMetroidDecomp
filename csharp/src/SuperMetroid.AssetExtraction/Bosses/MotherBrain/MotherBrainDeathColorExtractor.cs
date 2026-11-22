@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports complete Mother Brain death-fade RGB5 images.</summary>
-public static class MotherBrainDeathColorExtractor
+public static partial class MotherBrainDeathColorExtractor
 {
     /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row, rejects high-bit colors, and serializes RGB5 data.</summary>
     /// <param name="bus">Supported-cartridge address space containing the death-fade tables.</param>

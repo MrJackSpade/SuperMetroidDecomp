@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Escape;
 /// <param name="Horizontal">The shake the room returns to.</param>
 /// <param name="Diagonal">The shake the room turns to.</param>
 /// <param name="TurnsDiagonal">The chance an update of horizontal shaking turns diagonal.</param>
-public sealed record EscapeDiagonalShaking(EarthquakeShake Horizontal, EarthquakeShake Diagonal, RandomChance TurnsDiagonal);
+public sealed partial record EscapeDiagonalShaking(EarthquakeShake Horizontal, EarthquakeShake Diagonal, RandomChance TurnsDiagonal);

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// </summary>
 /// <param name="ShelfRows">Each shelf's height in cell rows, top shelf first.</param>
 /// <param name="Placements">Each image's place.</param>
-internal sealed record HudSheetLayout(ImmutableArray<int> ShelfRows, ImmutableArray<HudSheetPlacement> Placements)
+internal sealed partial record HudSheetLayout(ImmutableArray<int> ShelfRows, ImmutableArray<HudSheetPlacement> Placements)
 {
     /// <summary>The cell rows every shelf takes.</summary>
     internal int Rows => ShelfRows.Sum();

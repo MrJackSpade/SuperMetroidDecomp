@@ -12,12 +12,12 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// it, which hides the landing recess until she lands and both leave.
 /// </summary>
 [RoomLifetime]
-public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
+public sealed partial class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
-    private readonly CeresElevatorPad pad;
+    internal readonly CeresElevatorPad pad;
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
-    private readonly CeresElevatorArrivalActor platform;
+    internal readonly CeresElevatorArrivalActor platform;
 
     /// <summary>
     /// Starts the pad under Samus's starting place, <paramref name="samusStart"/>, waiting before it moves, and the platform at
@@ -138,7 +138,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     /// The moving pad: its actor and the wait before it first moves Samus, which only the pad has (#2426).
     /// </summary>
     /// <param name="actor">The pad's actor.</param>
-    internal sealed class CeresElevatorPad(CeresElevatorArrivalActor actor)
+    internal sealed partial class CeresElevatorPad(CeresElevatorArrivalActor actor)
     {
         /// <summary>The pad's actor: its animation and place.</summary>
         public CeresElevatorArrivalActor Actor { get; } = Ensure.NotNull(actor);
@@ -154,7 +154,7 @@ public sealed class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActor
     }
 
     /// <summary>One of the two arrival actors, the pad or the platform: its animation and place.</summary>
-    internal sealed class CeresElevatorArrivalActor
+    internal sealed partial class CeresElevatorArrivalActor
     {
         /// <summary>Starts an actor's animation at its position, showing its graphics: its first update shows its first pose.</summary>
         public CeresElevatorArrivalActor(

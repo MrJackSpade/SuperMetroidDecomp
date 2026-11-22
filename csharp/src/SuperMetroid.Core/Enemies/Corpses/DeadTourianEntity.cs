@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CorpseSpawnSettings settings)
+internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CorpseSpawnSettings settings)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>The species' DeadTourianShotReaction, built once for this enemy with its state (#2554).</summary>

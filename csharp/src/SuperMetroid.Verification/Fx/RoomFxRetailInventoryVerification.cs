@@ -812,11 +812,13 @@ internal static class RoomFxRetailInventoryVerification
                 expectedRequests = 1;
                 referenceSoundCount++;
             }
+            // The runtime steps without the game's audio dispatch, so the session's queues would fill and turn the quake
+            // away; empty them as a dispatch that played every sound leaves them, so each frame's admission is the quake's own.
+            runtime.AudioRequests.QueuesReached.Reset();
             runtime.StepFrame(0);
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.
-            AssertEqual(expectedRequests, runtime.AudioRequests.SoundRequests.Count(request =>
-                    request.SoundEffect == EnemySound.Lavaquake),
+            AssertEqual(expectedRequests, runtime.AudioRequests.SoundsQueued.Count(sound => sound == EnemySound.Lavaquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
 
@@ -827,9 +829,9 @@ internal static class RoomFxRetailInventoryVerification
         // accepted frame of this effect publishes a non-default delta.
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
         // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
-        IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.AudioRequests.SoundRequests.Where(request =>
-            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubblingBurst ||
-            request.SoundEffect == EnemySound.LavaBubblingFalling || request.SoundEffect == EnemySound.LavaBubblingRising)];
+        IReadOnlyList<SoundEffectId> EffectSounds() => [.. runtime.AudioRequests.SoundsQueued.Where(sound =>
+            sound == EnemySound.Lavaquake || sound == EnemySound.LavaBubblingBurst ||
+            sound == EnemySound.LavaBubblingFalling || sound == EnemySound.LavaBubblingRising)];
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
@@ -846,11 +848,8 @@ internal static class RoomFxRetailInventoryVerification
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertEqual(1, EffectSounds().Count,
             "room $02/$28 first wait frame emits one earthquake sound");
-        SoundRequest sound = EffectSounds()[0];
-        AssertEqual(EnemySound.Lavaquake, sound.SoundEffect,
+        AssertEqual(EnemySound.Lavaquake, EffectSounds()[0],
             "room $02/$28 earthquake sound identity");
-        AssertEqual(SoundRequestPriority.Normal, sound.Priority,
-            "room $02/$28 earthquake sound priority");
         AssertEqual<EarthquakeShake?>(RoomEarthquakeDefinitions.RisingLiquidShake, runtime.Enemies.Earthquake.Shake,
             "room $02/$28 earthquake type");
         AssertTrue(Shook(firstActiveShake) &&
@@ -881,8 +880,7 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
-        int EarthquakeSounds() => runtime.AudioRequests.SoundRequests.Count(request =>
-            request.SoundEffect == EnemySound.Lavaquake);
+        int EarthquakeSounds() => runtime.AudioRequests.SoundsQueued.Count(sound => sound == EnemySound.Lavaquake);
         int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
         int targetFrame = -1;

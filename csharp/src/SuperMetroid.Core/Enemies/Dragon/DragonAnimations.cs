@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// Dragon's idle, wing and attack animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="DragonCue"/> naming what it does.
 /// </summary>
-internal static class DragonAnimations
+internal static partial class DragonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DragonSegment, EnemyFrameId, DragonCue> Segments { get; } = new(
@@ -48,7 +48,7 @@ internal static class DragonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
+    internal static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
         P.IdleFacingLeft, P.IdleFacingRight, P.AttackingFacingLeft, P.AttackingFacingRight),
         P.WingsFacingLeft, P.WingsFacingRight);
 

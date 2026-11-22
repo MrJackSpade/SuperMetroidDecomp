@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Fixed Bomb Spread mechanics, not editable explosion artwork or animation.</summary>
-internal static class SamusBombSpreadLaunchDefinitions
+internal static partial class SamusBombSpreadLaunchDefinitions
 {
     /// <summary>The leftmost bomb: the longest fuse, 120 frames, one pixel per frame to the left and no rise.</summary>
     internal static BombSpreadLaunchDefinition FarLeft { get; } = new(120,

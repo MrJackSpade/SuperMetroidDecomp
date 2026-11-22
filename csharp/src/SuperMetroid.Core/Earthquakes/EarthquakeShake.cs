@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Earthquakes;
 /// <param name="Strength">How far the shake throws what it shakes.</param>
 /// <param name="Direction">Which way the shake throws what it shakes.</param>
 /// <param name="Reach">What the shake shakes.</param>
-public readonly record struct EarthquakeShake(EarthquakeStrength Strength, EarthquakeDirection Direction, EarthquakeReach Reach)
+public readonly partial record struct EarthquakeShake(EarthquakeStrength Strength, EarthquakeDirection Direction, EarthquakeReach Reach)
 {
     /// <summary>Whether the shake also shakes the enemies and draws their projectiles displaced.</summary>
     public bool ShakesEnemies => EarthquakeShakeDefinitions.EnemyReaches.Contains(Reach);

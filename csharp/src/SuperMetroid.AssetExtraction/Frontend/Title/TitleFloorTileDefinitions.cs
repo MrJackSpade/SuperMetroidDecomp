@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// The title floor's extents and where its artwork sits among its tile numbers (#1404, #1467): the import composes the
 /// floor's pictures from them.
 /// </summary>
-internal static class TitleFloorTileDefinitions
+internal static partial class TitleFloorTileDefinitions
 {
     /// <summary>The tile number of the first floor character.</summary>
     internal const int FloorFirstTile = 0;

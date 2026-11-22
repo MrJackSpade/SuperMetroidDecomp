@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's three health colourings (#2242), each lower one showing him more hurt.</summary>
-public static class RidleyHealthShadeDefinitions
+public static partial class RidleyHealthShadeDefinitions
 {
     /// <summary>Ridley wounded: Norfair Ridley and Ceres Ridley in their wounded health bands.</summary>
     public static RidleyHealthShade Wounded { get; } = new("wounded");

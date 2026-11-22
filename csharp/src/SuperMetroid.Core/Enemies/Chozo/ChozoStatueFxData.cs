@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The acid-motion values used by the Lower Norfair statue.</summary>
-internal static class ChozoStatueFxData
+internal static partial class ChozoStatueFxData
 {
     /// <summary>The updates the acid waits, once the statue's cue starts it, before it lowers.</summary>
     public const int LoweringDelay = 32;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// rests; closing shows the open gate, then lowers it image by image while its projectile carries the collision down;
 /// reopening raises it image by image. The image a movement starts with names that movement (<see cref="DownwardGateImage.Starts"/>).
 /// </summary>
-internal static class DownwardGateMovementDefinitions
+internal static partial class DownwardGateMovementDefinitions
 {
     /// <summary>How long the open gate shows before it starts lowering.</summary>
     internal const int CloseDelay = 16;

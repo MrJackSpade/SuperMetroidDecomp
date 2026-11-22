@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>What the room objects' step reads from the rest of the frame: scroll zones, enemy deaths and quota, newly pressed input, collected items and whether a Power Bomb explosion is running (#633).</summary>
-public readonly record struct RoomObjectFrameInputs
+public readonly partial record struct RoomObjectFrameInputs
 {
     /// <summary>The room's scroll grid, whose screens scroll triggers and the objects that open or close screens set.</summary>
     public required RoomScrollGrid Scrolls { get; init; }

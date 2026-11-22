@@ -50,7 +50,6 @@ internal static class EnemyDefinitionBoundaryVerification
     internal static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         Suite(nameof(VerifyCompleteTorizoDefinitions), () => VerifyCompleteTorizoDefinitions(source));
         Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
         Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));

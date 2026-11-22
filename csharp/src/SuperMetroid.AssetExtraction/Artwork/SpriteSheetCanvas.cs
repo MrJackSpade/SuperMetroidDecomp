@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// the largest sheet painted so far, so a sheet that is converted and dropped costs no planes of its own. Not shared
 /// between threads.
 /// </summary>
-internal sealed class SpriteSheetCanvas
+internal sealed partial class SpriteSheetCanvas
 {
     /// <summary>Each pixel's colour.</summary>
     private RgbaPixel[] pixels = [];

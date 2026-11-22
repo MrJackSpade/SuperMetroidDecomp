@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>One of the motions <typeparamref name="TMotion"/> names, held through the behaviour that owns it (#2571).</summary>
 /// <typeparam name="TMotion">The owning behaviour's motions.</typeparam>
-internal sealed class EnemyProjectileFamilyMotion<TMotion> : EnemyProjectileMotion
+internal sealed partial class EnemyProjectileFamilyMotion<TMotion> : EnemyProjectileMotion
     where TMotion : struct, Enum
 {
     /// <summary>The behaviour that owns the motion and moves the projectile by it.</summary>

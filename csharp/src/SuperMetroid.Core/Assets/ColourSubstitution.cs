@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// eyes as they glow, keyed by the colours the picture's inks show under its shades. The colours it replaces must each
 /// appear on the picture only where they are meant to be replaced; the import establishes that for the pictures it shades.
 /// </summary>
-public sealed record ColourSubstitution : ColourEffect
+public sealed partial record ColourSubstitution : ColourEffect
 {
     /// <summary>Keeps the colour shown in place of each colour replaced.</summary>
     /// <param name="shownInPlaceOf">The colour shown in place of each colour replaced, by the colour it replaces.</param>

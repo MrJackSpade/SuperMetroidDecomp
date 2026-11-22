@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>One of the Alcoon's three fireball launches: the vertical speed its spit gives the fireball.</summary>
-internal sealed class AlcoonFireballLaunch
+internal sealed partial class AlcoonFireballLaunch
 {
     /// <summary>Creates the launch that sends the fireball off at <paramref name="yVelocity"/>.</summary>
     /// <param name="yVelocity">The fireball's vertical velocity at launch.</param>

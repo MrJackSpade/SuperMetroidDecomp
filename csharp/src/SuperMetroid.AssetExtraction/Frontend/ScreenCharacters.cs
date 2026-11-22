@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// placed at consecutive tile numbers, a later run showing over an earlier one. A tile number no run places shows nothing,
 /// as on the screen it was cut from.
 /// </summary>
-internal sealed class ScreenCharacters
+internal sealed partial class ScreenCharacters
 {
     /// <summary>Each placed run, earliest first.</summary>
     private readonly List<ScreenCharacterRun> runs = [];
@@ -22,7 +22,7 @@ internal sealed class ScreenCharacters
     internal TileInkDepth Depth { get; }
 
     /// <summary>The bytes of one character.</summary>
-    private int CharacterBytes => Depth == TileInkDepth.SixteenColours ? RoomTileCanvas.CharacterBytes : RoomTileCanvas.TwoBppCharacterBytes;
+    internal int CharacterBytes => Depth == TileInkDepth.SixteenColours ? RoomTileCanvas.CharacterBytes : RoomTileCanvas.TwoBppCharacterBytes;
 
     /// <summary>How a sheet of pictures painted from these characters is coloured.</summary>
     internal SpriteImageColours Colours => Depth == TileInkDepth.SixteenColours ? SpriteImageColours.Background : SpriteImageColours.TwoBppBackground;

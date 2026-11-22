@@ -28,13 +28,10 @@ internal static class LookupFxTilemapDispatchVerification
             document.Pages.Add(type.ToString(), Enumerable.Repeat(TilemapContractCell((ushort)(index + 1)), 32 * 33).ToArray());
         }
         RoomFxLayer3Pages Load() => RoomFxLayer3Pages.Load(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document)));
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapDocument>())));
         native.Add(RoomFxType.TourianEntranceStatue, native[RoomFxType.Water]);
-        // A page's resolution is a pure function of the immutable stock pages and its identity, so the identity domain is
-        // swept across the cores (#1532).
-        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
         {
-            var type = (RoomFxType)value;
             if (native.TryGetValue(type, out byte[]? expected))
             {
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
@@ -56,7 +53,7 @@ internal static class LookupFxTilemapDispatchVerification
                 }
             }
             else AssertThrows<InvalidDataException>(() => stock.Resolve(type), "Unsupported stock type rejects");
-        });
+        }
         foreach (RoomFxType type in OriginalFxTilemapTypes)
         {
             var cells = document.Pages[type.ToString()];

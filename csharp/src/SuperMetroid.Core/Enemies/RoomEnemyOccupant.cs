@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// an empty place. Only an occupant is killed, so a kill always names the enemy it acts on.
 /// </summary>
 [ArchitectureReview("back-reference", "An enemy and the history of the place it holds (#2558): the history creates the occupant and keeps it as its latest, and the occupant reads that history to kill itself and await its respawn, so the two share the place's lifetime.")]
-public sealed class RoomEnemyOccupant
+public sealed partial class RoomEnemyOccupant
 {
     /// <summary>Creates the occupant <paramref name="history"/>'s place is populated with from <paramref name="spawn"/>.</summary>
     /// <param name="history">The history of the place the occupant is spawned in.</param>

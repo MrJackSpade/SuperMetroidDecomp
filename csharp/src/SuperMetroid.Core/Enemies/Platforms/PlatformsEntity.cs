@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PlatformSpawnSettings settings)
+internal sealed partial class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PlatformSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' TripperShotReaction, built once for this enemy with its state (#2554).</summary>

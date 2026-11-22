@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <remarks>Firing, damage and animation, and terrain movement each keep their own seam.</remarks>
 [RoomLifetime]
-public sealed class SamusProjectileSystem
+public sealed partial class SamusProjectileSystem
 {
     /// <summary>Tracks held charge, flare components, and charge glow state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
@@ -49,7 +49,7 @@ public sealed class SamusProjectileSystem
     internal BeamCombos Combos { get; }
 
     /// <summary>Plays the shots' animations and draws their pictures.</summary>
-    private ProjectileAnimation Animation { get; }
+    internal ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
     internal BeamFiring Firing { get; }
@@ -58,13 +58,13 @@ public sealed class SamusProjectileSystem
     internal ProjectileMotion Motion { get; }
 
     /// <summary>Resolves projectile impact with blocks and breakable terrain.</summary>
-    private ProjectileTerrainCollision TerrainCollision { get; }
+    internal ProjectileTerrainCollision TerrainCollision { get; }
 
     /// <summary>Routes ordinary shots into enemy collision and damage reactions.</summary>
     internal ProjectileEnemyImpacts EnemyImpacts { get; }
 
     /// <summary>The trails moving projectiles leave, which run and show until both their sparkles end.</summary>
-    private ProjectileTrails Trails { get; }
+    internal ProjectileTrails Trails { get; }
 
     /// <summary>
     /// Whether the posture-transition admission admits weapons for a pose outside its table, which the beam producer and
@@ -139,7 +139,7 @@ public sealed class SamusProjectileSystem
     /// Shows a beam combination's shade as the beams' colours: every combination the pause screen can equip, the glitched
     /// Spazer-with-Plasma ones among them, shows one (<see cref="SamusShades.Beam"/>).
     /// </summary>
-    private static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection) =>
+    internal static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection) =>
         Ensure.NotNull(colours).ShowBeams(SamusShades.Beam(selection));
 
     /// <summary>

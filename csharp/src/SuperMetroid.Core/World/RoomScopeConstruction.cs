@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.World;
 /// observes a partial construction.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
+internal sealed partial class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
     RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
     RoomMainHandOvers handOvers) : IDoorEventLoad
 {
@@ -78,7 +78,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
 
 
     /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
-    private ScrollingSkyState? ScrollingSky { get; set; }
+    internal ScrollingSkyState? ScrollingSky { get; set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }

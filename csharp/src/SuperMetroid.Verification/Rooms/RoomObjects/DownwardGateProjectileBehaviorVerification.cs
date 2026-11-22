@@ -53,7 +53,9 @@ internal static class DownwardGateProjectileBehaviorVerification
             current = resumed;
             resumes++;
         }
-        AssertEqual(DownwardGateProjectileAnimations.NextStage.Count, resumes, "the gate passes every stage of its travel once before it deletes itself");
+        // The vanishing stage goes on to no other (it stays vanishing), so the travel passes every other stage once.
+        AssertEqual(DownwardGateProjectileAnimations.NextStage.Count(step => step.Key != step.Value), resumes,
+            "the gate passes every stage of its travel once before it deletes itself");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the gate's native list bytes");
         Console.WriteLine($"  Downward gate behavior: {resumes} resumed sleeps carry the moving and closed programs to deletion as the native list does.");
     }

@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Reads and writes the installed Ceres Ridley Mode 7 colour document.</summary>
-public static class CeresRidleyMode7ColorFile
+public static partial class CeresRidleyMode7ColorFile
 {
     /// <summary>Loads all nine zoom shades, each containing fifteen RGB5 colors, rejecting duplicate/unknown JSON properties, unsupported versions, and channel values outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the editable Ceres getaway color document.</param>
@@ -48,5 +48,5 @@ public static class CeresRidleyMode7ColorFile
     /// <param name="document">Complete nine-row color document to serialize.</param>
     /// <returns>JSON bytes, without writing an external resource.</returns>
     public static byte[] Write(CeresRidleyMode7ColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorDocument>(ArtworkJson.Options));
 }

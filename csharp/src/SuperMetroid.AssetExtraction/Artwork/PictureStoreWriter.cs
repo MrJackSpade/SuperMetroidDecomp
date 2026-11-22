@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// its own file, and the map files, the provenance manifest and each family's sheet manifests are written after them, so the
 /// bytes are the same whatever the thread timing.
 /// </summary>
-internal static class PictureStoreWriter
+internal static partial class PictureStoreWriter
 {
     /// <summary>The first letter of every recolour-region map's tag.</summary>
     private const string RecolourRegionMapTag = "R";
@@ -172,8 +172,7 @@ internal static class PictureStoreWriter
                 Page = placements[picture].Page, Corner = placements[picture].Corner, Size = picture.Content.Rectangle.Size,
             },
             StringComparer.Ordinal);
-        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new PictureStoreIndex(PictureStoreIndex.FormatVersion, pages.Count, tagged, regions, blending), PictureStoreIndex.JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, PictureStoreFiles.IndexFileName), JsonSerializer.SerializeToUtf8Bytes(new PictureStoreIndex(PictureStoreIndex.FormatVersion, pages.Count, tagged, regions, blending), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.PictureStoreIndex>(PictureStoreIndex.JsonOptions)));
     }
 
     /// <summary>
@@ -230,7 +229,7 @@ internal static class PictureStoreWriter
     }
 
     /// <summary>What the store holds once every sheet is walked: its pictures and the maps they are shown with.</summary>
-    private sealed class StoreContents
+    private sealed partial class StoreContents
     {
         /// <summary>Every stored picture, in write order.</summary>
         internal List<StoredPicture> Pictures { get; } = [];
@@ -252,7 +251,7 @@ internal static class PictureStoreWriter
     /// <param name="prefix">The kind's letter, the start of every tag.</param>
     /// <param name="kind">Names the kind in a failure.</param>
     /// <typeparam name="T">The value each pixel of a map holds.</typeparam>
-    private sealed class StoredMaps<T>(string prefix, string kind)
+    private sealed partial class StoredMaps<T>(string prefix, string kind)
         where T : unmanaged, IEquatable<T>
     {
         /// <summary>Every map's tag, by its values.</summary>
@@ -303,7 +302,7 @@ internal static class PictureStoreWriter
     /// <param name="content">The picture.</param>
     /// <param name="sheet">The sheet first showing it, with its family.</param>
     /// <param name="frames">The frames first showing it there.</param>
-    private sealed class StoredPicture(InstalledPictureContent content, string sheet, string frames)
+    private sealed partial class StoredPicture(InstalledPictureContent content, string sheet, string frames)
     {
         /// <summary>The picture, read from the sheet first showing it.</summary>
         internal InstalledPictureContent Content { get; } = content;
@@ -319,7 +318,7 @@ internal static class PictureStoreWriter
     /// <param name="Page">The page holding it.</param>
     /// <param name="Corner">Its top-left pixel on its page.</param>
     /// <param name="Tag">Its tag (#1639).</param>
-    private sealed record PicturePlacement(int Page, Position16<ImagePixels> Corner, string Tag);
+    private sealed partial record PicturePlacement(int Page, Position16<ImagePixels> Corner, string Tag);
 
     /// <summary>What one frame rectangle shows: a stored picture, where it lies in the rectangle, and the maps the rectangle shows it with.</summary>
     /// <param name="Picture">The stored picture.</param>
@@ -327,7 +326,7 @@ internal static class PictureStoreWriter
     /// <param name="RecolourRegionMap">The tag of its recolour-region map, or null for none.</param>
     /// <param name="BlendMap">The tag of its blend map, or null for none.</param>
     /// <param name="Repeats">Whether the picture is one period the rectangle repeats over its whole area (#1651).</param>
-    private sealed record ShownPicture(StoredPicture Picture, Offset16<ImagePixels> Offset, string? RecolourRegionMap, string? BlendMap,
+    private sealed partial record ShownPicture(StoredPicture Picture, Offset16<ImagePixels> Offset, string? RecolourRegionMap, string? BlendMap,
         bool Repeats)
     {
         /// <summary>The reference the rectangle's frames name, with the picture packed at <paramref name="placement"/>.</summary>
@@ -348,5 +347,5 @@ internal static class PictureStoreWriter
     /// <param name="Family">The sheet's family.</param>
     /// <param name="Sheet">The sheet.</param>
     /// <param name="ShownAt">Each frame rectangle showing a picture, with the stored copy and the maps it names.</param>
-    private sealed record SheetPictures(InstalledSheetFamily Family, NamedInstalledSheet Sheet, Dictionary<FrameRectangle, ShownPicture> ShownAt);
+    private sealed partial record SheetPictures(InstalledSheetFamily Family, NamedInstalledSheet Sheet, Dictionary<FrameRectangle, ShownPicture> ShownAt);
 }

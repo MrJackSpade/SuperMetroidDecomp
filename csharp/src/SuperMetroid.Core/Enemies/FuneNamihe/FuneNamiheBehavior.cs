@@ -9,10 +9,11 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// interactions they register. A Fune spits on its cooldown, a Namihe when Samus comes level with it (#2063).
 /// </summary>
 [RoomLifetime]
-internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>A Fune or a Namihe, each from its own settings.</summary>
     /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<NamiheSpawnSettings>([EnemyDefinitionId.Namihe], (occupant, settings, place, common) =>
@@ -35,6 +36,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyFuneNamiheCue"/> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
     {
         [FuneNamiheCueKind.SpitSound] = state =>
@@ -83,7 +85,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Fune's wait between spits, as its spawn settings give it: the cooldown time's updates, the last the one it spits
     /// on; a cooldown of nothing spits on the first waiting update, as a cooldown of one does.
     /// </summary>
-    private static UpdateCountdown CooldownOf(FuneSpawnSettings funeSpawnSettings) =>
+    internal static UpdateCountdown CooldownOf(FuneSpawnSettings funeSpawnSettings) =>
         UpdateCountdown.Lasting(Math.Max(1, funeSpawnSettings.CooldownTime));
 
     /// <summary>What <see cref="RunFuneMain"/> does for each <see cref="FuneAction"/> member, each member's own arm.</summary>
@@ -157,7 +159,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
     /// <summary>A Fune or Namihe fireball (#1760): it flies horizontally at its speed until it leaves the camera.</summary>
-    private static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
+    internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
@@ -170,7 +172,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the shared projectile setup. The fireball flies at the spitter's spawn settings' launch speed in its direction,
     /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
-    private void SpawnFuneNamiheFireball(
+    internal void SpawnFuneNamiheFireball(
         RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace source,
         FuneNamiheEnemyState state,
         HorizontalDirection direction,

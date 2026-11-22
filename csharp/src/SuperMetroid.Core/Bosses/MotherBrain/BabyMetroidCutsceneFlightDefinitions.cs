@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How the Baby Metroid flies through Mother Brain's last fight (#2171): where it arrives, the curve and rush that carry it
 /// into Mother Brain's head, the speeds of its approaches, where it latches and how it falls when it dies.
 /// </summary>
-internal static class BabyMetroidCutsceneFlightDefinitions
+internal static partial class BabyMetroidCutsceneFlightDefinitions
 {
     /// <summary>The half-extent of the rectangle every route and staging target is tested with: four pixels each way.</summary>
     internal static readonly Extent16<RoomPixels> TargetReach = new(4, 4);

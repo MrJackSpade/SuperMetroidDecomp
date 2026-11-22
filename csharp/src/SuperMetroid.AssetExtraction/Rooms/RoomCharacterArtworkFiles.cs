@@ -12,10 +12,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The pages are import data (#1636), written to the component's import-data directory and never installed, and so is their
 /// manifest (#1693), which records native transfer lengths and does not expose room mechanics.
 /// </summary>
-public static class RoomCharacterArtworkFiles
+public static partial class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, page hashes, and required native planar transfer lengths.</summary>
-    private const string ManifestFileName = "room-characters.json";
+    internal const string ManifestFileName = "room-characters.json";
     /// <summary>Schema revision required by the room character manifest; 4 installs no character page (#1636), and 5 no manifest (#1693).</summary>
     private const int FormatVersion = 5;
 
@@ -51,7 +51,7 @@ public static class RoomCharacterArtworkFiles
             FormatVersion, sourceCartridgeSha256, entries);
         using var stream = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(stream, manifest, JsonOptions);
+        JsonSerializer.Serialize(stream, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions));
     }
 
     /// <summary>
@@ -66,8 +66,7 @@ public static class RoomCharacterArtworkFiles
         RoomCharacterFileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Room character manifest is empty.");
         }
         catch (JsonException error)
@@ -134,7 +133,7 @@ public static class RoomCharacterArtworkFiles
     }
 
     /// <summary>A character file's sheet: the common room elements' or a character set's.</summary>
-    private abstract record RoomCharacterSource
+    private abstract partial record RoomCharacterSource
     {
         /// <summary>Only the nested cases derive.</summary>
         private RoomCharacterSource()
@@ -145,7 +144,7 @@ public static class RoomCharacterArtworkFiles
         internal abstract int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets);
 
         /// <summary>The common room elements' sheet.</summary>
-        internal sealed record Common : RoomCharacterSource
+        internal sealed partial record Common : RoomCharacterSource
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
@@ -154,7 +153,7 @@ public static class RoomCharacterArtworkFiles
 
         /// <summary>A character set's sheet, which the cartridge stores compressed.</summary>
         /// <param name="Set">The set.</param>
-        internal record OfSet(RoomCharacterSet Set) : RoomCharacterSource
+        internal partial record OfSet(RoomCharacterSet Set) : RoomCharacterSource
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
@@ -164,7 +163,7 @@ public static class RoomCharacterArtworkFiles
         /// <summary>A character set's sheet the cartridge stores uncompressed, at its fixed length.</summary>
         /// <param name="Set">The set.</param>
         /// <param name="ByteCount">The bytes the sheet occupies.</param>
-        internal sealed record UncompressedSet(RoomCharacterSet Set, int ByteCount) : OfSet(Set)
+        internal sealed partial record UncompressedSet(RoomCharacterSet Set, int ByteCount) : OfSet(Set)
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) => ByteCount;
@@ -180,10 +179,10 @@ public static class RoomCharacterArtworkFiles
     };
 
     /// <summary>Records cartridge provenance and the required PNG entries for a stock installation.</summary>
-    private sealed record RoomCharacterFileManifest(
+    internal sealed partial record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
     /// <summary>Pairs an installed PNG hash with the planar transfer length its atlas must decode.</summary>
-    private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
+    internal sealed partial record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

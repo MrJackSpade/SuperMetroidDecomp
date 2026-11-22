@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// it was destroyed, and otherwise nine stages, each holding until the glass has taken two more hits; later stages
 /// throw shards as they break, and the last shows the shattered glass before the destroyed event.
 /// </summary>
-internal static class MotherBrainGlassStageDefinitions
+internal static partial class MotherBrainGlassStageDefinitions
 {
     /// <summary>How long a burst's in-between image shows.</summary>
     internal const int BurstFrameDuration = 4;

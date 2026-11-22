@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="Definition">What is spawned; allocation and actor lifetime belong to the enemy-projectile owner.</param>
 /// <param name="Facing">The side the spawning eye faces: it launches the sweat; smoke ignores it.</param>
 /// <param name="RoomObjectBlock">The room block of the spawning eye door.</param>
-public readonly record struct EyeDoorProjectileRequest(
+public readonly partial record struct EyeDoorProjectileRequest(
     EyeDoorProjectileDefinition Definition,
     EyeDoorOrientation Facing,
     Position16<RoomBlocks> RoomObjectBlock);

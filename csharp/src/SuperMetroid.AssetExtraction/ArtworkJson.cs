@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The serializer settings shared by installed artwork resources of every domain.</summary>
-public static class ArtworkJson
+public static partial class ArtworkJson
 {
     /// <summary>
     /// Emits stable camel-case artwork resources, rejects unknown authoring fields, and rejects a null where a document

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// changes of the Torizos and Mother Brain, the effects of Mother Brain's death, and the downward gates' projectile
 /// requests. Each lands in the room it is handed (<see cref="EnemyRoomEffectSite"/>, #2382).
 /// </summary>
-internal sealed class EnemyRoomEffects
+internal sealed partial class EnemyRoomEffects
 {
     /// <summary>Starts the escape countdown on Mother Brain's requested frame.</summary>
     private readonly EscapeTimer _escapeTimer;
@@ -136,7 +136,7 @@ internal sealed class EnemyRoomEffects
     /// Carries out the room-level effects one step of Mother Brain's death asked for: the escape's colour effects, the end
     /// of Samus's drained get-up, the escape countdown, her defeat's record and the Zebes time bomb's story event.
     /// </summary>
-    private void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
+    internal void ApplyMotherBrainDeathStep(MotherBrainRainbowBeamAttackStepResult death, EnemyRoomEffectSite site)
     {
         foreach (ColourEffectId definition in death.EscapeColourEffectRequests)
             site.ColourEffects.Start(definition, site.Samus.EquippedItems);

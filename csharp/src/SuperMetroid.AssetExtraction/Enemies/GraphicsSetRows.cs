@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// set's load leaves each member's colours, which shared row an enemy's initialization fixes, and whose row an enemy
 /// copies. Gameplay never sees a row.
 /// </summary>
-internal sealed class GraphicsSetRows
+internal sealed partial class GraphicsSetRows
 {
     /// <summary>The row each member's first record loads its colours into.</summary>
     private readonly Dictionary<EnemyDefinitionId, int> memberRows = [];

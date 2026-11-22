@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">The piece's animation, which its setup began as the creation built it (#2554).</param>
-internal sealed class GunshipBottomEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, GunshipSpawnSettings settings,
+internal sealed partial class GunshipBottomEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, GunshipSpawnSettings settings,
     GunshipPieceState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {

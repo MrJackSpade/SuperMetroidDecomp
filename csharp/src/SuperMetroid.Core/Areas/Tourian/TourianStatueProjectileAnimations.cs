@@ -7,7 +7,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian statue projectile animations (#641).</summary>
-internal static class TourianStatueProjectileAnimations
+internal static partial class TourianStatueProjectileAnimations
 {
     /// <summary>How many particles an eye glow releases as it ends, one spawn cue each.</summary>
     private const int ParticlesReleased = 4;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// Botwoon's death: how long he waits before he falls and how fast he falls, how long his wall bursts, how many drops it
 /// leaves, and where his drops fall and where and how often his wall explosions burst.
 /// </summary>
-internal static class BotwoonDeathDefinitions
+internal static partial class BotwoonDeathDefinitions
 {
     /// <summary>
     /// The updates Botwoon waits once his tail has finished entering the wall after the fatal hit, the update it does so

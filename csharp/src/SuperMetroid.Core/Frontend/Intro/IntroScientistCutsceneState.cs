@@ -4,13 +4,13 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Scripted Ceres laboratory vignette: the Baby's delivery to the scientists or their examination of it, each between two narration pages.</summary>
-internal sealed class IntroScientistCutsceneState
+internal sealed partial class IntroScientistCutsceneState
 {
     /// <summary>How one laboratory scene pans: while it has not reached its end, its page moves and the baby with it.</summary>
     /// <param name="StillPanning">Whether the scene's page, at its scroll, has yet to reach its end.</param>
     /// <param name="PagePan">How far the page moves each laboratory step.</param>
     /// <param name="BabyPan">How far the baby moves on screen each laboratory step.</param>
-    private sealed record LaboratoryPan(Func<Offset16<PlanePixels>, bool> StillPanning, Offset16<PlanePixels> PagePan, Offset16<ScreenPixels> BabyPan);
+    private sealed partial record LaboratoryPan(Func<Offset16<PlanePixels>, bool> StillPanning, Offset16<PlanePixels> PagePan, Offset16<ScreenPixels> BabyPan);
 
     /// <summary>
     /// The laboratory scenes that pan: the delivery scene moves the camera left while keeping the delivered baby fixed
@@ -25,7 +25,7 @@ internal sealed class IntroScientistCutsceneState
     });
 
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
-    private readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
+    internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
     /// <summary>Initializes the selected laboratory page, mirrored camera pan, and Baby actor animation.</summary>
     private IntroScientistCutsceneState(IntroLaboratoryScene scene)
@@ -98,6 +98,7 @@ internal sealed class IntroScientistCutsceneState
         baby.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>What <see cref="HandleCue"/> does for each <see cref="IntroLaboratoryCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroLaboratoryCue, Action> HandleCueForIntroLaboratoryCue => field ??= new(new Dictionary<IntroLaboratoryCue, Action>
     {
         [IntroLaboratoryCue.StartNextPage] = () =>

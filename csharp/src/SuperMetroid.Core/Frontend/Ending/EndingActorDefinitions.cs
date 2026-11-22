@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending's scene actors: where each starts, which of the screen's colours it draws in and which cinematic
 /// animation it runs.
 /// </summary>
-internal static class EndingActorDefinitions
+internal static partial class EndingActorDefinitions
 {
     /// <summary>The side-cloud escape's leading right cloud, starting past the screen's right.</summary>
     internal static readonly EndingSpriteDefinition SideCloudRightLeading =
@@ -71,19 +71,19 @@ internal static class EndingActorDefinitions
     /// <summary>Shared clear-time digit origin Y in screen pixels, aligned with the label and colon.</summary>
     public const int ClearTimeDigitY = 160;
     /// <summary>Suitless idle-body actor, at the suitless Samus's start.</summary>
-    private static readonly EndingSpriteDefinition SuitlessRewardBody =
+    internal static readonly EndingSpriteDefinition SuitlessRewardBody =
         new(EndingRewardStartDefinitions.Suitless.Position, EndingRewardStartDefinitions.Suitless.Colouring, EndingSceneAnimation.SuitlessIdle);
     /// <summary>Suitless idle-legs actor, at the suitless Samus's start, which the body shares.</summary>
-    private static readonly EndingSpriteDefinition SuitlessRewardLegs =
+    internal static readonly EndingSpriteDefinition SuitlessRewardLegs =
         new(EndingRewardStartDefinitions.Suitless.Position, EndingRewardStartDefinitions.Suitless.Colouring, EndingSceneAnimation.SuitlessLegsIdle);
     /// <summary>Suited idle-body actor, at the suited body's start.</summary>
-    private static readonly EndingSpriteDefinition ArmoredRewardBody =
+    internal static readonly EndingSpriteDefinition ArmoredRewardBody =
         new(EndingRewardStartDefinitions.SuitedBody.Position, EndingRewardStartDefinitions.SuitedBody.Colouring, EndingSceneAnimation.SuitedIdle);
     /// <summary>Helmetless suited-head actor, at the helmetless head's start.</summary>
-    private static readonly EndingSpriteDefinition HelmetlessRewardHead =
+    internal static readonly EndingSpriteDefinition HelmetlessRewardHead =
         new(EndingRewardStartDefinitions.HelmetlessHead.Position, EndingRewardStartDefinitions.HelmetlessHead.Colouring, EndingSceneAnimation.HeadIdle);
     /// <summary>Helmeted suited-head actor, at the helmeted head's start.</summary>
-    private static readonly EndingSpriteDefinition ArmoredRewardHead =
+    internal static readonly EndingSpriteDefinition ArmoredRewardHead =
         new(EndingRewardStartDefinitions.HelmetedHead.Position, EndingRewardStartDefinitions.HelmetedHead.Colouring, EndingSceneAnimation.HelmetIdle);
     /// <summary>The colouring the clear time's digits draw in, as the colon does.</summary>
     internal const EndingSpriteColouring ClearTimeDigitColouring = EndingSpriteColouring.ClearTimeDigits;

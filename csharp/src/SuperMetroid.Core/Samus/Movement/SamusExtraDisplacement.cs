@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// here prevents a convenient but incorrect reading such as clearing it after
 /// movement or applying the grounded one-pixel bias to airborne gravity.
 /// </remarks>
-internal static class SamusExtraDisplacement
+internal static partial class SamusExtraDisplacement
 {
     /// <summary>
     /// Adds the external vertical displacement to Samus's own vertical displacement, up or down. The vertical move does this after choosing up or down from her vertical direction, so a strong external value may reverse the actual collision scan direction.

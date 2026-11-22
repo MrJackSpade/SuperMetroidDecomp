@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [ArchitectureReview("context-bag", "A constructor parameter object: the game builds it only for RoomEnemySystem's " +
     "constructor, and every other method taking it forwards it to that same constructor.")]
-internal sealed class RoomEnemyCompatibility
+internal sealed partial class RoomEnemyCompatibility
 {
     /// <summary>The horizontal reach a power bomb's sweep continues with after the sweep kills an enemy.</summary>
     public required PowerBombRadiusAfterKill PowerBombRadius { get; init; }

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, TourianEntranceStatueSpawnSettings settings)
+internal sealed partial class TourianEntranceStatueEntity(TourianEntranceStatueBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, TourianEntranceStatueSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation, IEnemyDeparture
 {
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

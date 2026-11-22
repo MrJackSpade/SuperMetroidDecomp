@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// and to lay its shade over the inks its group recolours. The import keys the colours it reads by
 /// <see cref="SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxColorKey"/>; the game sees only their shades (#1583). The palette-FX program checks compare each layout with the original records.
 /// </summary>
-internal static class PaletteFxRecordDefinitions
+internal static partial class PaletteFxRecordDefinitions
 {
     /// <summary>A record that writes 15 colours.</summary>
     internal static readonly PaletteFxRecordPart[] Writes15 = [new(false, 15)];

@@ -10,13 +10,13 @@ internal sealed class D3D11GpuTimer : IDisposable
     /// <summary>Render device and immediate context whose owner thread issues every query.</summary>
     private readonly D3D11RenderDevice owner;
     /// <summary>Reusable disjoint and timestamp query sets for pending frame samples.</summary>
-    private readonly Slot[] slots;
+    internal readonly Slot[] slots;
     /// <summary>Ring insertion cursor.</summary>
     internal int head;
     /// <summary>Ring removal cursor.</summary>
-    private int tail;
+    internal int tail;
     /// <summary>Pending-sample count.</summary>
-    private int pending;
+    internal int pending;
     /// <summary>Tracks an open interval and final disposal of its query resources.</summary>
     private bool active, disposed;
 

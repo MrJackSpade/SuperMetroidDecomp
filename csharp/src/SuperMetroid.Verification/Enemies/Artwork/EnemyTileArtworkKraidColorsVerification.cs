@@ -311,8 +311,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         // The room binds Kraid's parts once; a later initialization joins the same parts again.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        _ = KraidPartsFixtures.PlaceKraid(enemies);
         return enemies;
     }
 
@@ -444,6 +443,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         enemies.Places.BindKraidPartsInRoomOrder();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
+        // His setup sets his room's screens' scrolls, which are the room's own; the check keeps no room around him (#2554).
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");

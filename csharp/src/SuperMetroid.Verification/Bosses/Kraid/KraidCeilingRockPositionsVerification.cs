@@ -34,8 +34,7 @@ internal static class KraidCeilingRockPositionsVerification
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemyPlace, KraidEnemyState> step = (growthBody, growthState) => enemies.KraidBehavior.Rise.RunKraidGrowthPhase(growthBody, growthState);
         var body = enemies.Places.InUpdateOrder[0];

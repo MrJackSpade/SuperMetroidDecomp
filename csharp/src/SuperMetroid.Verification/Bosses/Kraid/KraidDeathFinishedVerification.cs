@@ -22,8 +22,7 @@ internal static class KraidDeathFinishedVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         state.BodyState.SunkPhase = KraidSunkPhase.Finished;
         body.Presence = body.Presence.Without(EnemyPresence.Deleted | EnemyPresence.Hidden);
 

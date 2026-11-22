@@ -25,15 +25,15 @@ internal static class MotherBrainGlassSuperMissileVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
         enemies.VerificationServices().HeadShotOnGlassCounted = () => glassHits++;
-        var head = enemies.Places.InUpdateOrder[1];
-        head.Bind(EnemyDefinitionId.MotherBrainHead, head.KeptDefinition);
-        head.Bind(head.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(head.HeldOccupant().DefinitionId));
+        // Mother Brain is placed as her room places her, her brain behind its glass (#2554); the check stands her brain
+        // where it asks, behind the glass, with its own health.
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        state.Form = MotherBrainForm.Glass;
+        RoomEnemyPlace head = enemies.Places.InUpdateOrder[1];
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;
         head.Health = 3000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { Form = MotherBrainForm.Glass };
-        enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
         ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(head.HeldOccupant());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = InstalledFixtures.CreateProjectileSystem();

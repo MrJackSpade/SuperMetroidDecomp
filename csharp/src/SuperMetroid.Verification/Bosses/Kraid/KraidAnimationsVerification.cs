@@ -166,8 +166,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         // The parts bind before the encounter begins, so each holds it as its setup would.
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
     }

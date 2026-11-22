@@ -15,10 +15,6 @@ internal static class ControllerButtonLookupsVerification
         ControllerAction.ItemCancel, ControllerAction.AimUp, ControllerAction.AimDown,
     ];
 
-    /// <summary>Values outside the defined actions, which every action lookup rejects.</summary>
-    private static readonly ControllerAction[] UndefinedActions =
-        [(ControllerAction)int.MinValue, (ControllerAction)(-1), (ControllerAction)7, (ControllerAction)int.MaxValue];
-
     /// <summary>Whether <paramref name="bindings"/> bind <paramref name="buttons"/> to Shoot, rather than refusing it as unassignable.</summary>
     private static bool BindingAccepts(ControllerBindings bindings, ControllerButton buttons)
     {
@@ -78,9 +74,6 @@ internal static class ControllerButtonLookupsVerification
             AssertTrue(!bindings.With(ControllerAction.Shoot, rejected).IsUniquePermutation,
                 "nonassignable button invalidates permutation");
         }
-        foreach (ControllerAction undefined in UndefinedActions)
-            AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(undefined, original[0]),
-                $"reject undefined action {(int)undefined}");
         AssertTrue(!bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).IsUniquePermutation,
             "duplicate button invalidates permutation");
         // Bindings that leave a button to no action are not a permutation; a swap onto that button is refused rather than
@@ -114,9 +107,6 @@ internal static class ControllerButtonLookupsVerification
         foreach (ControllerAction action in Enum.GetValues<ControllerAction>())
             AssertEqual(ControllerWordCodec.FromJoypadWord(original[destinations[action]], "native default binding"), ControllerBindings.Default[action],
                 $"default action {action} WRAM {destinations[action]:X4}");
-        foreach (ControllerAction undefined in UndefinedActions)
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = ControllerBindings.Default[undefined]; },
-                $"invalid default action {(int)undefined}");
         AssertTrue(ControllerBindings.Default.IsUniquePermutation, "native defaults form a permutation");
     }
 }

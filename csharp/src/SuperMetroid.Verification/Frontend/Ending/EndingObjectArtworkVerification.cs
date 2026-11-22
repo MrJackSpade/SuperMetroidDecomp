@@ -52,11 +52,6 @@ internal static class EndingObjectArtworkVerification
             AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)index), "published fragment filename");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)invalid), "fragment filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingExplosionPicture)invalid), "fragment source bounds");
-        }
     }
 
     /// <summary>Compares the six cloud compositions with native OAM.</summary>

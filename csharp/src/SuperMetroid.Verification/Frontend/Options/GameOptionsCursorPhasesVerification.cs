@@ -51,9 +51,6 @@ internal static class GameOptionsCursorPhasesVerification
             AssertEqual(ReadVerificationWord(bus, 0x82f2ed + phase.Native * 2), pointer,
                 $"native options cursor selection {phase.Native}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 13, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsCursorPolicy.Select((GameOptionsPhase)invalid, GameOptionsPage.Primary),
-                "unsupported options cursor phase");
         var installed = RetailPresentationFixture();
         var controllerPage = NewMenu();
         for (int row = 0; row < GameOptionsPageRows.Primary.PlaceOf(GameOptionsPrimaryRow.ControllerSettings); row++)

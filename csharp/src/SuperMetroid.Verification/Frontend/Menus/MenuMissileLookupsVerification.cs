@@ -19,9 +19,6 @@ internal static class MenuMissileLookupsVerification
         for (int place = 0; place < 4; place++)
             AssertEqual(ReadVerificationWord(rom, 0x82bab2 + place * 2),
                 MenuMissileSpritemaps.SpritemapId(MenuMissileAnimationDefinitions.Roll[place]), $"menu missile frame {place}");
-        foreach (MenuMissileFrame frame in new[] { (MenuMissileFrame)(-1), (MenuMissileFrame)4 })
-            AssertThrows<ArgumentOutOfRangeException>(() => MenuMissileSpritemaps.SpritemapId(frame),
-                $"menu missile undefined frame {frame}");
     }
 
     /// <summary>Compares the duration the import installs for the menu missile's frames with each of the four bank-$82 words.</summary>

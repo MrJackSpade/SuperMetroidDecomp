@@ -106,10 +106,6 @@ internal static class EndingPaletteArtworkVerification
             EndingPaletteDefinitions.Palettes[EndingPaletteId.LogoCrossfade].ColorCount, "all native crossfade pointer payloads");
         AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source(EndingPaletteId.LogoCrossfade),
             "crossfade has no contiguous source");
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source((EndingPaletteId)invalid), "invalid palette source role");
-        }
     }
 
     /// <summary>

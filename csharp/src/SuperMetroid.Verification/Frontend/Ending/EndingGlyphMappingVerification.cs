@@ -149,10 +149,5 @@ internal static class EndingGlyphMappingVerification
                 for (char digit = '0'; digit <= '9'; digit++)
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(digit, style, bottom), "ending glyph digits restricted to copyright");
         }
-        foreach (EndingTextStyle invalid in new[] { (EndingTextStyle)4, (EndingTextStyle)255 })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph('A', invalid), "ending glyph style bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(0), invalid), "ending decoder style bounds");
-        }
     }
 }

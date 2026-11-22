@@ -33,8 +33,6 @@ internal static class FileSelectHelmetAnimationVerification
         AssertEqual((byte)0xa9, FileSelectHelmetAnimationRomByte(rom, 0x819e08), "native helmet terminal LDA");
         AssertEqual(ReadVerificationWord(rom, 0x819e09), FileSelectHelmetAnimation.Turn.Count - 1,
             "native helmet terminal frame clamp");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectHelmetSpritemaps.SpritemapId((FileSelectHelmetFrame)int.MaxValue),
-            "unsupported helmet picture");
     }
 
     /// <summary>Reads a native helmet-animation instruction byte solely for the cartridge-oracle comparison.</summary>

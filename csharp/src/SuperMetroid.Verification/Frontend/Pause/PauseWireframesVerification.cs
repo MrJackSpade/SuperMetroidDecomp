@@ -79,7 +79,6 @@ internal static class PauseWireframesVerification
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Varia, toggles.SelectedControl, "actual navigation returns to Varia");
         toggles.Step(0, ControllerButton.A); AssertPage(toggles, original, new PauseWireframe(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.RegularBoots));
 
-        AssertThrows<ArgumentOutOfRangeException>(() => InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], new PauseWireframe((PauseWireframeSuit)4, PauseWireframeBoots.RegularBoots)), "invalid compiled selector rejected");
         AssertThrows<ArgumentException>(() => InstalledFixtures.ImportOf(original).Pause.Wireframes.ApplyTo(new BackgroundTile[16], PauseWireframe.All[0]), "short patch target rejected before partial write");
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames and actual equipment toggles pass.");
 

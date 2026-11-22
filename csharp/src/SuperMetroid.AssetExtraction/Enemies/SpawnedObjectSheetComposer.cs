@@ -149,9 +149,11 @@ internal static partial class SpawnedObjectSheetComposer
         // after her room's load; the other objects of her body it holds are drawn from her body's own sheet, so none of its
         // frames is drawn in a look of hers and each shows her room's load (#1513, #1538).
         FrameDrawings Drawn(FrameDrawings drawings) => plan.Owner.IsMotherBrainTankGlass ? FrameDrawings.None : drawings;
-        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
+        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row, with the row a
+        // projectile's initialization or an effect actor's spawn ORs into every part (#2640, #2641).
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
-                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0),
+                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase,
+                    EnemyProjectilePaletteRowDefinitions.Rows.GetValueOrDefault(frame, 0)),
                 Drawn(FrameDrawings.Of(frame))))
             .Concat(EffectActorFrames(spawned.EffectActors).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EffectActorFrameName(frame),

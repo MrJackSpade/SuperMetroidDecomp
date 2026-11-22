@@ -29,9 +29,6 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
     /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(MarkShotWithoutDamage);
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal DeadSidehopperSpawnSettings Settings { get; } = settings;
-
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
 

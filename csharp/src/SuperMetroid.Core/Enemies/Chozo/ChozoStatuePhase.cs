@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </remarks>
 public abstract partial class ChozoStatuePhase
 {
-    /// <summary>Only the five phases below derive from this.</summary>
-    private ChozoStatuePhase() { }
 
     /// <summary>Placed, before its idle animation's first beat starts its wait.</summary>
     public static ChozoStatuePhase Placed { get; } = new PlacedPhase();

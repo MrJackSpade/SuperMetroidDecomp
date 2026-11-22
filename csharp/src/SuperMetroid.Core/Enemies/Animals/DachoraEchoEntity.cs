@@ -26,9 +26,6 @@ internal sealed partial class DachoraEchoEntity(RoomEnemyOccupant occupant, Room
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal DachoraSpawnSettings Settings { get; } = settings;
-
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DachoraEchoState State { get; } = state;
 

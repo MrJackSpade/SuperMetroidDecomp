@@ -26,9 +26,6 @@ internal sealed partial class WaverEntity(WaverBehavior species, RoomEnemyOccupa
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal WaverSpawnSettings Settings { get; } = settings;
-
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly WaverEnemyState state = state;
 

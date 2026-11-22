@@ -59,10 +59,6 @@ public interface IStateGraphRegistry
     /// <typeparam name="T">The element type.</typeparam>
     void Queue<T>();
 
-    /// <summary>Registers stacks of <typeparamref name="T"/>.</summary>
-    /// <typeparam name="T">The element type.</typeparam>
-    void Stack<T>();
-
     /// <summary>Registers hash sets of <typeparamref name="T"/>, which a snapshot rebuilds from their members (#1681).</summary>
     /// <typeparam name="T">The member type.</typeparam>
     void HashSet<T>();

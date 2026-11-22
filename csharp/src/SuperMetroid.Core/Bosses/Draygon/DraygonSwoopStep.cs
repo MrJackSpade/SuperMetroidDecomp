@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="path">The path the rightward setup planned.</param>
 internal abstract partial class DraygonSwoopStep(DraygonPhase phase, DraygonSwoopPath path) : DraygonPhaseStep(phase)
 {
-    /// <summary>The <c>phase</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly DraygonPhase phase = phase;
 
     /// <summary>
     /// The swoop's path: the heights from the swoop's lowest point up toward the reset height and the height the rightward

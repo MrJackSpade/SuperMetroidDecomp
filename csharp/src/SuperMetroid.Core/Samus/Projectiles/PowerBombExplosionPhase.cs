@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>Allocation and resting phases of the power-bomb explosion, plus Crystal Flash.</summary>
 public abstract partial record PowerBombExplosionPhase
 {
-    /// <summary>Allows only the cases below.</summary>
-    private PowerBombExplosionPhase()
-    {
-    }
 
     /// <summary>No explosion is running; an armed bomb may still be waiting for its fuse.</summary>
     public sealed partial record Inactive : PowerBombExplosionPhase;
@@ -14,10 +10,6 @@ public abstract partial record PowerBombExplosionPhase
     /// <summary>The phases of a running blast, from its start until its animation ends.</summary>
     public abstract partial record Running : PowerBombExplosionPhase
     {
-        /// <summary>Allows only the cases below.</summary>
-        private Running()
-        {
-        }
 
         /// <summary>
         /// The white pre-explosion: the harmless flash grows with decreasing speed to

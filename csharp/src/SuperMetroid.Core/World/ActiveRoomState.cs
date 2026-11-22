@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -25,10 +24,6 @@ internal sealed partial class ActiveRoomState
 
     /// <summary>The source room's foreground screen during a door's opening scroll, or null (#1346).</summary>
     internal RoomDoorBackground? DoorSourceBackground { get; set; }
-
-    /// <summary>The load station that established the loading or loaded room; null for a room entered
-    /// otherwise.</summary>
-    public LoadStation? ActiveLoadStation => Construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }

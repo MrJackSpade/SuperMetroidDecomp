@@ -39,11 +39,5 @@ public static partial class ShotBlockReactions
         /// or the grapple beam passes it with no reaction at all.
         /// </summary>
         public bool SetsOffOnlyInSolidBlocks => SolidBlockOnlyReactions.Contains(reaction);
-
-        /// <summary>
-        /// Whether a shot that strikes a block with the reaction frees the critters the escape's rescue wall holds in, a
-        /// response of its own that runs before the shot-block response.
-        /// </summary>
-        public bool FreesEscapingCritters => CrittersEscapeReactions.Contains(reaction);
     }
 }

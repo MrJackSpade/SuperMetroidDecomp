@@ -35,14 +35,8 @@ public sealed partial class IdentityTable<TIdentity, TValue> : IEnumerable<KeyVa
     /// <summary>The value of <paramref name="identity"/>.</summary>
     public TValue this[TIdentity identity] => values[identity];
 
-    /// <summary>The members, each once.</summary>
-    public IEnumerable<TIdentity> Keys => values.Keys;
-
-    /// <summary>The members' values, in the order of <see cref="Keys"/>.</summary>
+    /// <summary>The members' values, in the order of <c>Keys</c>.</summary>
     public IEnumerable<TValue> Values => values.Values;
-
-    /// <summary>How many members the identity has.</summary>
-    public int Count => values.Count;
 
     /// <inheritdoc/>
     public IEnumerator<KeyValuePair<TIdentity, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TIdentity, TValue>>)values).GetEnumerator();

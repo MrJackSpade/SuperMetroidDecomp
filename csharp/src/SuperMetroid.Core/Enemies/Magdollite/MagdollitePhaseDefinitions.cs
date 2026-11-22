@@ -14,10 +14,6 @@ internal static partial class MagdollitePhaseDefinitions
     /// <summary>How far the arm's body moves down as it grows a phase, and back up as it loses one, in pixels.</summary>
     internal const int BodyShiftPerPhase = 8;
 
-    /// <summary>The stages in the order the arm rises through them; each stage's neighbours are those beside it here.</summary>
-    internal static MagdolliteRiseStage[] RiseOrder { get; } =
-        [S.Setup, S.OneSegment, S.TwoSegments, S.ThreeSegments, S.FourSegments, S.FiveSegments, S.SixSegments, S.SevenSegments, S.EightSegments];
-
     /// <summary>
     /// Each stage's distance threshold, body animation and body-to-overlay Y offset (#2343):
     /// the setup shows the one-segment pillar as the first visible stage does; each following sixteen-pixel rise selects

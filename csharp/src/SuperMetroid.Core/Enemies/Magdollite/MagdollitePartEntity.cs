@@ -46,9 +46,6 @@ internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species,
     /// <summary>The Magdollite the part belongs to, which it holds from its setup.</summary>
     internal abstract MagdollitePartners Partners { get; }
 
-    /// <summary>The part's state, which it holds from its setup (#2554).</summary>
-    internal abstract MagdollitePartState State { get; }
-
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 

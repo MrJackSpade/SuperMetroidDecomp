@@ -27,7 +27,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>A body, which offers the wings listed after it the creation that builds them following it.</summary>
     private EnemyOccupant CreateBody(RoomEnemyOccupant occupant, KiHunterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
-        var following = new WingsFollowing(this, new KiHunterWingsBody(place, occupant, settings));
+        var following = new WingsFollowing(this, new KiHunterWingsBody(place, settings));
         foreach (EnemyDefinitionId wings in WingsDefinitions)
             _partOffers.Offer<KiHunterWingsSpawnSettings>(wings, following.CreateWings);
         return EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, settings));

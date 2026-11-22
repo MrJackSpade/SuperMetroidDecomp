@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend;
+﻿namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Which step of the ending (<see cref="Progression.SuperMetroidGameState.Ending"/>) runs.</summary>
 internal enum EndingStep

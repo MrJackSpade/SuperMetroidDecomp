@@ -32,9 +32,6 @@ internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, Roo
     /// <summary>The species' DeadTourianPowerBombReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyPowerBombReaction OwnDeadTourianPowerBombReaction => field ??= DeadTourianBehavior.DeadTourianPowerBombReaction(StartRot);
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal CorpseSpawnSettings Settings { get; } = settings;
-
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(state);
 

@@ -7,6 +7,4 @@ namespace SuperMetroid.Tooling;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 internal sealed class ToolingForAttribute(Type owner) : Attribute
 {
-    /// <summary>The shipped type this adapter describes.</summary>
-    public Type Owner { get; } = owner;
 }

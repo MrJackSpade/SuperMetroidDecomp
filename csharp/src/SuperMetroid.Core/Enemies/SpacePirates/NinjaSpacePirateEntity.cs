@@ -29,9 +29,6 @@ internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, 
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal NinjaSpacePirateSpawnSettings Settings { get; } = settings;
-
     /// <summary>The ninja Space Pirate species owner.</summary>
     protected NinjaSpacePirateBehavior Species => species;
 

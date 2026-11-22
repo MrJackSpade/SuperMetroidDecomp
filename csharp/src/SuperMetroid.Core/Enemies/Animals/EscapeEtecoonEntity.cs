@@ -26,9 +26,6 @@ internal sealed partial class EscapeEtecoonEntity(EscapeAnimalsBehavior species,
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal EscapeEtecoonSpawnSettings Settings { get; } = settings;
-
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly EscapeEtecoonEnemyState state = state;
 

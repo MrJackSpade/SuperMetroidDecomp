@@ -23,7 +23,7 @@ internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactor
                 $"Norfair lava-jumping follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
         }
         var parent = new SqueeptEntity(this, occupant, place, common);
-        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Squeept, new ParentFollowing(this, parent).CreateLater);
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Squeept, new ParentFollowing(this, parent.State, parent.Place).CreateLater);
         return EnemyOccupant.Running(parent);
     }
 
@@ -32,13 +32,17 @@ internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactor
     /// parent is built as any parent is.
     /// </summary>
     /// <param name="species">The Squeept species owner.</param>
-    /// <param name="parent">The parent a later follower follows.</param>
-    private sealed partial class ParentFollowing(SqueeptBehavior species, SqueeptEntity parent)
+    /// <param name="parentState">
+    /// The state of the parent a later follower follows. The joining holds what the creation reads, not the parent's entity, so a restore of the game's state never rebuilds
+    /// that entity from inside its own offer.
+    /// </param>
+    /// <param name="parentPlace">The place of the parent a later follower follows.</param>
+    private sealed partial class ParentFollowing(SqueeptBehavior species, SqueeptState parentState, RoomEnemyPlace parentPlace)
     {
         /// <summary>A later entry: a follower following the parent, or another parent.</summary>
         internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             settings.Role == EnemyFollowerRole.Follower
-                ? EnemyOccupant.Running(new NorfairLavaJumperFollowerEntity(species, occupant, place, common, parent))
+                ? EnemyOccupant.Running(new NorfairLavaJumperFollowerEntity(species, occupant, place, common, parentState, parentPlace))
                 : species.Create(occupant, settings, place, common);
     }
 
@@ -65,17 +69,17 @@ internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactor
 
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parent"/>.</exception>
-    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place, SqueeptEntity parent)
+    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parentPlace"/>.</exception>
+    internal NorfairLavaJumperFollowerState InitializeNorfairLavaJumperFollower(RoomEnemyPlace place, SqueeptState parentState, RoomEnemyPlace parentPlace)
     {
         // Every room with it places this cosmetic second half immediately after its moving parent, which it
         // finds when it is placed and follows from then on; a population that places anything else there is refused.
-        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parent).Place)
+        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parentPlace))
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
         }
-        var state = new NorfairLavaJumperFollowerState(parent.State, parent.Place)
+        var state = new NorfairLavaJumperFollowerState(Ensure.NotNull(parentState), parentPlace)
         {
             Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation),
         };

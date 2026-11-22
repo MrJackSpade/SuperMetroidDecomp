@@ -22,7 +22,7 @@ internal abstract partial class VerticalShutterEntity(ShuttersBehavior species, 
     internal VerticalShutterEnemyState State { get; } = state;
 
     /// <summary>The vertical shutters' own Power Bomb reaction, built once for this shutter.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= ShuttersBehavior.VerticalShutterPowerBombReaction(this);
+    private EnemyPowerBombReaction OwnPowerBomb => ShuttersBehavior.VerticalShutterPowerBombReaction(this);
 
     /// <summary>Sets the shutter off on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The Power Bomb's blast meeting the shutter.</param>

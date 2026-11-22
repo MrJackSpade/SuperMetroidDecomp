@@ -300,6 +300,85 @@ internal static partial class DebuggerStateLayoutVerification
         Console.WriteLine($"Debugger state restore: Botwoon's room restores with his {captured} body segments, his setup not run again.");
     }
 
+    /// <summary>
+    /// #2554: a restore rebuilds the Dachora room's speed-boost echoes, which join their body's trail through the creation
+    /// the body offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresDachoraEchoes() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.Dachora,
+            ("Dachora echoes", place => place.Entity is SuperMetroid.Core.Enemies.Animals.DachoraEchoEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds Rising Tide's Squeept followers, which follow their parents, and its Dragon wings, which take
+    /// their bodies' wing states, each through the creation its partner offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresSqueeptAndDragonParts() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.RisingTide,
+            ("Squeept followers", place => place.Entity is SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFollowerEntity),
+            ("Dragon wings", place => place.Entity is SuperMetroid.Core.Enemies.Dragon.DragonWingEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Cathedral's Geruta followers, which follow their parents through the creation each
+    /// parent offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresGerutaFollowers() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.Cathedral,
+            ("Geruta followers", place => place.Entity is SuperMetroid.Core.Enemies.Rios.GerutaFollowerEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Acid Statue room's Holtz followers, which follow their parents through the creation each
+    /// parent offered, with the room's Chozo statue and its hand (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresHoltzFollowers() =>
+        RoundTripJoinedParts(JoinedPartsRuntime(), SuperMetroid.Core.Rooms.RoomDefinitions.AcidStatue,
+            ("Holtz followers", place => place.Entity is SuperMetroid.Core.Enemies.Rios.HoltzFollowerEntity));
+
+    /// <summary>
+    /// #2554: a restore rebuilds the Attic's Ki-Hunter wings once Phantoon is dead, which follow their bodies through the
+    /// creation each body offered (<see cref="RoundTripJoinedParts"/>).
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoresKiHunterWings()
+    {
+        SuperMetroidRuntime runtime = JoinedPartsRuntime();
+        runtime.System.RecordBossesDefeated(SuperMetroid.Core.Progression.AreaId.WreckedShip, SuperMetroid.Core.Progression.DefeatedBosses.AreaBoss);
+        RoundTripJoinedParts(runtime, SuperMetroid.Core.Rooms.RoomDefinitions.Attic,
+            ("Ki-Hunter wings", place => place.Entity is SuperMetroid.Core.Enemies.KiHunters.KiHunterWingsEntity));
+    }
+
+    /// <summary>A retail runtime with its HUD and Ceres start set up, from which a room loads directly.</summary>
+    private static SuperMetroidRuntime JoinedPartsRuntime()
+    {
+        SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        return runtime;
+    }
+
+    /// <summary>
+    /// Loads <paramref name="room"/> into <paramref name="runtime"/>, captures and restores it, and checks that the restored
+    /// room holds as many of each kind of offered part as the captured one, which holds some, and that the restored runtime
+    /// has the captured runtime's graph digest.
+    /// </summary>
+    private static void RoundTripJoinedParts(SuperMetroidRuntime runtime, SuperMetroid.Core.Rooms.RoomDefinition room,
+        params (string Parts, Func<SuperMetroid.Core.Enemies.RoomEnemyPlace, bool> IsPart)[] kinds)
+    {
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        runtime.LoadCartridgeRoomForDebug(room);
+        int[] captured = [.. kinds.Select(kind => runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder.Count(kind.IsPart))];
+        for (int index = 0; index < kinds.Length; index++)
+            AssertTrue(captured[index] > 0, $"the room's population load built {kinds[index].Parts} through their partners' offers");
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(GraphDigestVerification.SerializeGraph(runtime, content), content);
+        for (int index = 0; index < kinds.Length; index++)
+        {
+            AssertEqual(captured[index], restored.Room.LoadedScope.Enemies.Places.InUpdateOrder.Count(kinds[index].IsPart),
+                $"the restored room holds its {kinds[index].Parts}");
+        }
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            $"the restored {room.Name} runtime has the captured runtime's graph digest");
+        Console.WriteLine($"Debugger state restore: {room.Name} restores with its {string.Join(" and ", kinds.Select((kind, index) => $"{captured[index]} {kind.Parts}"))}.");
+    }
+
     /// <summary>The live Botwoon body segments among <paramref name="runtime"/>'s room's enemy projectiles.</summary>
     private static int BotwoonBodySegments(SuperMetroidRuntime runtime) =>
         runtime.Room.LoadedScope.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == SuperMetroid.Core.Enemies.RoomEnemyProjectileKind.BotwoonBody);
@@ -407,6 +486,11 @@ internal static partial class DebuggerStateLayoutVerification
         Suite(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks());
         Suite(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals());
         Suite(nameof(VerifyDebuggerStateRestoreRunsNoSetup), () => VerifyDebuggerStateRestoreRunsNoSetup());
+        Suite(nameof(VerifyDebuggerStateRestoresDachoraEchoes), () => VerifyDebuggerStateRestoresDachoraEchoes());
+        Suite(nameof(VerifyDebuggerStateRestoresSqueeptAndDragonParts), () => VerifyDebuggerStateRestoresSqueeptAndDragonParts());
+        Suite(nameof(VerifyDebuggerStateRestoresGerutaFollowers), () => VerifyDebuggerStateRestoresGerutaFollowers());
+        Suite(nameof(VerifyDebuggerStateRestoresHoltzFollowers), () => VerifyDebuggerStateRestoresHoltzFollowers());
+        Suite(nameof(VerifyDebuggerStateRestoresKiHunterWings), () => VerifyDebuggerStateRestoresKiHunterWings());
         return 0;
     }
 }

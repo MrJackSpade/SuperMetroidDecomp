@@ -20,13 +20,13 @@ internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species,
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = followUpRecipients;
 
     /// <summary>The part's own shot reaction, which passes its fate to the enemies its follow-up reaches.</summary>
-    private EnemyShotReaction OwnShot => field ??= MagdolliteBehavior.MagdolliteShotReaction(this);
+    private EnemyShotReaction OwnShot => MagdolliteBehavior.MagdolliteShotReaction(this);
 
     /// <summary>The part's own bomb stages, which pass its fate to the enemies its follow-up reaches.</summary>
-    private EnemyBombReaction OwnBomb => field ??= MagdolliteBehavior.MagdolliteBombReaction(this);
+    private EnemyBombReaction OwnBomb => MagdolliteBehavior.MagdolliteBombReaction(this);
 
     /// <summary>The part's own Power Bomb reaction, which passes its fate to the enemies its follow-up reaches.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= MagdolliteBehavior.MagdollitePowerBombReaction(this);
+    private EnemyPowerBombReaction OwnPowerBomb => MagdolliteBehavior.MagdollitePowerBombReaction(this);
 
     /// <summary>Passes the part's fate on to the enemies its follow-up reaches, after a shot's common damage.</summary>
     /// <param name="context">The shot's hit.</param>

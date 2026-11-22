@@ -34,13 +34,29 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>The creation a body offers the wings its room lists right after it (#2554): the wings following the body.</summary>
-    /// <param name="species">The Ki-Hunter species owner.</param>
-    /// <param name="partner">The body the wings follow.</param>
-    private sealed partial class WingsFollowing(KiHunterBehavior species, KiHunterWingsBody partner)
+    private sealed partial class WingsFollowing
     {
+        /// <summary>The Ki-Hunter species owner.</summary>
+        private readonly KiHunterBehavior _species;
+
+        /// <summary>The body the wings follow.</summary>
+        private readonly KiHunterWingsBody _partner;
+
+        /// <summary>
+        /// Holds the body the wings follow. An ordinary constructor, not a primary one, so a restore of the game's state makes
+        /// the creation before it reads the body's place, whose spawn holds the creation again (#2554).
+        /// </summary>
+        /// <param name="species">The Ki-Hunter species owner.</param>
+        /// <param name="partner">The body the wings follow.</param>
+        internal WingsFollowing(KiHunterBehavior species, KiHunterWingsBody partner)
+        {
+            _species = species;
+            _partner = Ensure.NotNull(partner);
+        }
+
         /// <summary>The wings, following the body.</summary>
         internal EnemyOccupant CreateWings(RoomEnemyOccupant occupant, KiHunterWingsSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KiHunterWingsEntity(species, occupant, place, common, settings, partner));
+            EnemyOccupant.Running(new KiHunterWingsEntity(_species, occupant, place, common, settings, _partner));
     }
 
     /// <summary>The wings of every colour, which join the body listed before them.</summary>

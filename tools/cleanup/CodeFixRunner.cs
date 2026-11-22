@@ -2311,9 +2311,10 @@ internal static class ProjectLists
 /// Loads the analyzers, source generators and code fixes the runner runs from their bytes, so no file of theirs stays open
 /// while this process lives: the build the cleanup runs in it rewrites the repository analyzer and its code fixes (#2614,
 /// MSB3021/MSB3027). The workspace's own loader maps each analyzer file it loads, which holds it until the process ends.
-/// Each directory's assemblies share a load context of their own, so an analyzer's dependencies beside it bind to it; an
-/// assembly the host resolves itself (Roslyn's, the framework's and the runner's own) is the host's, so the analyzers
-/// share its types.
+/// Each directory's assemblies share a load context of their own; a dependency binds to the one beside the assembly that
+/// needs it, or else to one any analyzer reference names (a language's analyzers depend on their shared assembly a
+/// directory up); an assembly the host resolves itself (Roslyn's, the framework's and the runner's own) is the host's, so
+/// the analyzers share its types.
 /// </summary>
 internal sealed class InMemoryAnalyzerLoader : IAnalyzerAssemblyLoader
 {
@@ -2328,19 +2329,39 @@ internal sealed class InMemoryAnalyzerLoader : IAnalyzerAssemblyLoader
     /// <summary>The load context of each directory analyzers are loaded from, by full path.</summary>
     private readonly ConcurrentDictionary<string, DirectoryContext> contexts = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <inheritdoc />
-    public void AddDependencyLocation(string fullPath) => ContextOf(fullPath);
+    /// <summary>The path of each assembly an analyzer reference names, loaded or a dependency, by simple name.</summary>
+    private readonly ConcurrentDictionary<string, string> located = new(StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
-    public Assembly LoadFromPath(string fullPath) => ContextOf(fullPath).FromPath(Path.GetFullPath(fullPath));
+    public void AddDependencyLocation(string fullPath) => Locate(fullPath);
+
+    /// <inheritdoc />
+    public Assembly LoadFromPath(string fullPath) => ContextOf(Locate(fullPath)).FromPath(Path.GetFullPath(fullPath));
+
+    /// <summary>Records where the assembly at <paramref name="fullPath"/> is; returns its full path.</summary>
+    private string Locate(string fullPath)
+    {
+        string full = Path.GetFullPath(fullPath);
+        located.TryAdd(Path.GetFileNameWithoutExtension(full), full);
+        return full;
+    }
 
     /// <summary>The load context of the directory holding <paramref name="fullPath"/>.</summary>
     private DirectoryContext ContextOf(string fullPath)
     {
-        string directory = Path.GetDirectoryName(Path.GetFullPath(fullPath))
+        string directory = Path.GetDirectoryName(fullPath)
             ?? throw new ArgumentException($"{fullPath} has no directory.", nameof(fullPath));
-        return contexts.GetOrAdd(directory, static directory => new DirectoryContext(directory));
+        return contexts.GetOrAdd(directory, directory => new DirectoryContext(directory, this));
     }
+
+    /// <summary>
+    /// The assembly named <paramref name="name"/> an analyzer reference located outside <paramref name="directory"/>,
+    /// loaded in its own directory's context; none when no reference names it.
+    /// </summary>
+    private Assembly? LocatedElsewhere(string name, string directory) =>
+        located.TryGetValue(name, out string? path) && !string.Equals(Path.GetDirectoryName(path), directory, StringComparison.OrdinalIgnoreCase)
+            ? ContextOf(path).FromPath(path)
+            : null;
 
     /// <summary>
     /// <paramref name="reference"/> loading through this loader; a reference that is not a file is kept as it is.
@@ -2355,7 +2376,8 @@ internal sealed class InMemoryAnalyzerLoader : IAnalyzerAssemblyLoader
 
     /// <summary>The assemblies of one directory, each read from its bytes once.</summary>
     /// <param name="directory">The directory.</param>
-    private sealed class DirectoryContext(string directory) : System.Runtime.Loader.AssemblyLoadContext($"analyzers {directory}")
+    /// <param name="loader">The loader, which knows the assemblies other directories hold.</param>
+    private sealed class DirectoryContext(string directory, InMemoryAnalyzerLoader loader) : System.Runtime.Loader.AssemblyLoadContext($"analyzers {directory}")
     {
         /// <summary>Each assembly read, by full path.</summary>
         private readonly Dictionary<string, Assembly> loaded = new(StringComparer.OrdinalIgnoreCase);
@@ -2381,7 +2403,7 @@ internal sealed class InMemoryAnalyzerLoader : IAnalyzerAssemblyLoader
                 Default.Assemblies.Any(held => string.Equals(held.GetName().Name, name, StringComparison.OrdinalIgnoreCase)))
                 return null;
             string candidate = Path.Combine(directory, $"{name}.dll");
-            return File.Exists(candidate) ? FromPath(candidate) : null;
+            return File.Exists(candidate) ? FromPath(candidate) : loader.LocatedElsewhere(name, directory);
         }
     }
 }

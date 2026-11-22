@@ -8,8 +8,17 @@ namespace SuperMetroid.Core.Enemies;
 /// place it authored with a definition of its own (a stand-in answering a check's reactions, a species with a check's
 /// health), which the room's population load then builds with that definition, as a room whose definitions held it would.
 /// </summary>
-internal sealed partial class AuthoredEnemyDefinitions(IRoomEnemyDefinitionSource room) : IRoomEnemyDefinitionSource
+internal sealed partial class AuthoredEnemyDefinitions : IRoomEnemyDefinitionSource
 {
+    /// <summary>The room's own definitions.</summary>
+    private readonly IRoomEnemyDefinitionSource room;
+
+    /// <summary>Definitions over <paramref name="room"/>, the room's own, which the check has authored none over yet.</summary>
+    private AuthoredEnemyDefinitions(IRoomEnemyDefinitionSource room) => this.room = Ensure.NotNull(room);
+
+    /// <summary>Definitions over <paramref name="room"/>, the room's own, which the check has authored none over yet.</summary>
+    internal static AuthoredEnemyDefinitions Over(IRoomEnemyDefinitionSource room) => new(room);
+
     /// <summary>Each fixture room's definitions, by its enemies.</summary>
     private static readonly ConditionalWeakTable<RoomEnemySystem, AuthoredEnemyDefinitions> rooms = new();
 

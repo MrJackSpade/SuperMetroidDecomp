@@ -49,7 +49,7 @@ internal static class EnemySystemFixtures
         RoomWarnings? warnings = null)
     {
         // The room reads the definitions the check authors on its places over the room's own (#2554).
-        var authored = new AuthoredEnemyDefinitions(definitions ?? CompiledRoomEnemyDefinitions.Instance);
+        var authored = AuthoredEnemyDefinitions.Over(definitions ?? CompiledRoomEnemyDefinitions.Instance);
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
             Session = session,

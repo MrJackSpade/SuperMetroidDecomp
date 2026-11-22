@@ -4,6 +4,7 @@
 //
 // Usage: frame_capture ROM MOVIE OUTPUT_DIRECTORY FRAMES
 // FRAMES is a comma-separated list of source frames or ranges, a range optionally stepped: 1200,1300-1400,2000-3000/50.
+// Beside each picture it writes frame-N.cgram, the console's 256 colour words as they stood after the frame, little-endian.
 #include <windows.h>
 #include <crtdbg.h>
 #include <exception>
@@ -19,6 +20,7 @@
 #include "memmap.h"
 #include "movie.h"
 #include "snapshot.h"
+#include "ppu.h"
 #include "zlib.h"
 
 // The instrumented Snes9x calls these; frame capture records neither boundaries nor instructions.
@@ -134,6 +136,9 @@ int main(int argc,char** argv) {
    retro_run();
    if(requested.erase(frame)) {
     writePng(output/("frame-"+std::to_string(frame)+".png"));
+    std::ofstream colours(output/("frame-"+std::to_string(frame)+".cgram"),std::ios::binary);
+    colours.exceptions(std::ios::failbit|std::ios::badbit);
+    colours.write((const char*)PPU.CGDATA,sizeof(PPU.CGDATA));
     fprintf(stderr,"Captured frame %u, room %04X\n",frame,Memory.RAM[0x79b]|Memory.RAM[0x79c]<<8);
    }
    if(++loops>length+300) throw std::runtime_error("Movie playback did not terminate");

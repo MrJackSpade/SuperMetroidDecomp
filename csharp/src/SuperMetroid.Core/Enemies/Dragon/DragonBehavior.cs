@@ -226,32 +226,20 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
 
-    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
-    private void ResolveDragonCombatAfterCommon(EnemyBombHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
 
-    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
-    private void ResolveDragonCombatAfterCommon(EnemyPowerBombContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
 
-    /// <summary>Runs <see cref="ResolveDragonCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
-    private void ResolveDragonCombatAfterCommon(EnemyShotHitContext context) => ResolveDragonCombatAfterCommon(context.Enemy);
 
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>
     internal static void StartDragonAnimation(RoomEnemyPlace place, DragonPartState state, DragonSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, DragonAnimations.StartingWith(segment));
 
     /// <summary>
-    /// Finishes a bomb's hit on a Dragon part as its shot reaction does, carrying the hit to <paramref name="following"/>,
-    /// the enemy its follow-up reaches.
+    /// Finishes a bomb's hit on a Dragon part as its shot reaction does, carrying the hit on to the enemy its follow-up
+    /// reaches (<paramref name="afterCommon"/>, the part's own method).
     /// </summary>
-    internal static EnemyBombReaction DragonBombReaction(RoomEnemyPlace following) => new()
+    internal static EnemyBombReaction DragonBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
-||||||| 418ca79935
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveDragonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>A Dragon fireball (#1760): it arcs under gravity and leaves below the screen.</summary>
@@ -274,31 +262,19 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
             static (DragonWingState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Dragon wing's cue-free animation raised {cue}."));
 
-    /// <summary>Carries a Dragon part's power-bomb hit to <paramref name="following"/>, the enemy its follow-up reaches.</summary>
-    internal static EnemyPowerBombReaction DragonPowerBombReaction(RoomEnemyPlace following) => new()
+    /// <summary>Carries a Dragon part's power-bomb hit on to the enemy its follow-up reaches (<paramref name="afterCommon"/>).</summary>
+    internal static EnemyPowerBombReaction DragonPowerBombReaction(EnemyPowerBombStage afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
-||||||| 418ca79935
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveDragonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>
-    /// Carries a Dragon part's hit, after common projectile damage resolution, to <paramref name="following"/>, the enemy
-    /// its follow-up reaches.
+    /// Carries a Dragon part's hit, after common projectile damage resolution, on to the enemy its follow-up reaches
+    /// (<paramref name="afterCommon"/>, the part's own method).
     /// </summary>
-    internal static EnemyShotReaction DragonShotReaction(RoomEnemyPlace following) => new()
+    internal static EnemyShotReaction DragonShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => EnemyPartnerHits.CarryOnto(c.Enemy, following),
-||||||| 418ca79935
-        AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveDragonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>

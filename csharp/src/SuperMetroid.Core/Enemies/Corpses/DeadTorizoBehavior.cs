@@ -217,54 +217,19 @@ internal sealed partial class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFac
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyPowerBombReaction DeadTorizoPowerBombReaction(DeadTorizoEnemyState state) => new()
+    /// <param name="startsRot">The corpse's own method starting its rot.</param>
+    internal static EnemyPowerBombReaction DeadTorizoPowerBombReaction(EnemyPowerBombStage startsRot) => new()
     {
-<<<<<<< HEAD
-        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy, state),
-||||||| 418ca79935
-        ReplacesCommon = c => TriggerDeadTorizoPowerBomb(c.Enemy),
-=======
-        ReplacesCommon = TriggerDeadTorizoPowerBomb,
->>>>>>> origin/main
+        ReplacesCommon = startsRot,
     };
-
-    /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
-    private static void TriggerDeadTorizoPowerBomb(EnemyPowerBombContext context) => TriggerDeadTorizoPowerBomb(context.Enemy);
 
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction DeadTorizoShotReaction(DeadTorizoEnemyState state) => new()
+    /// <param name="marksShotAndRots">The corpse's own method marking the shot and starting its rot.</param>
+    internal static EnemyShotReaction DeadTorizoShotReaction(EnemyShotStage marksShotAndRots) => new()
     {
         // A shot is marked as having hit the corpse, deals no damage and makes no explosion, and starts the rot.
-<<<<<<< HEAD
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTorizoRotting(c.Enemy, state);
-            return true;
-        },
-||||||| 418ca79935
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTorizoRotting(c.Enemy);
-            return true;
-        },
-=======
-        BeforeSuperMissileQuake = MarkShotAndRot,
->>>>>>> origin/main
+        BeforeSuperMissileQuake = marksShotAndRots,
     };
-
-    /// <summary>Marks a shot's hit on the corpse and starts it rotting, with no damage or explosion.</summary>
-    /// <param name="c">The shot meeting the corpse.</param>
-    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
-    private static bool MarkShotAndRot(in EnemyShotContext c)
-    {
-        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-        TriggerDeadTorizoRotting(c.Enemy);
-        return true;
-    }
 
     /// <summary>Starts the corpse rotting when Samus touches it.</summary>
     internal static void ReactToDeadTorizoTouch(EnemyTouchContext context, DeadTorizoEnemyState deadTorizoEnemyState) =>

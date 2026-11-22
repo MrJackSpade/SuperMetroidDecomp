@@ -440,20 +440,11 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemySpawnFactor
             });
 
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
-    /// <param name="state">The state of the Metroid the reaction is built for.</param>
-    internal static EnemyPowerBombReaction PowerBombReaction(MetroidEnemyState state) => new()
+    /// <param name="finishesDeath">The Metroid's own method clearing its outer body.</param>
+    internal static EnemyPowerBombReaction PowerBombReaction(EnemyPowerBombStage finishesDeath) => new()
     {
-<<<<<<< HEAD
-        Lethal = new EnemyPowerBombLethal.AfterStage(c => FinishMetroidDeath(state, c.Samus)),
-||||||| 418ca79935
-        Lethal = new EnemyPowerBombLethal.AfterStage(c => FinishMetroidDeath(c.Enemy, c.Samus)),
-=======
-        Lethal = new EnemyPowerBombLethal.AfterStage(FinishMetroidDeath),
->>>>>>> origin/main
+        Lethal = new EnemyPowerBombLethal.AfterStage(finishesDeath),
     };
-
-    /// <summary>Clears a Metroid's outer body before a lethal Power Bomb's generic death.</summary>
-    private static void FinishMetroidDeath(EnemyPowerBombContext context) => FinishMetroidDeath(context.Enemy, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
     /// hit.</summary>
@@ -506,10 +497,10 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>The Metroid shot reaction, which routes ordinary projectile hits to its frozen and nonfrozen handling.</summary>
-    /// <param name="state">The state of the Metroid the reaction is built for.</param>
-    internal EnemyShotReaction ShotReaction(MetroidEnemyState state) => new()
+    /// <param name="resolvesShot">The Metroid's own method resolving the shot.</param>
+    internal static EnemyShotReaction ShotReaction(EnemyShotStage resolvesShot) => new()
     {
         AdmitsBombFamilies = true,
-        AfterSuperMissileQuake = (in EnemyShotContext c) => ResolveMetroidOrdinaryShot(c, state),
+        AfterSuperMissileQuake = resolvesShot,
     };
 }

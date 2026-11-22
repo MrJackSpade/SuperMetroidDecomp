@@ -11,16 +11,28 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BotwoonShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(state);
+    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(this);
 
     /// <summary>The species' BotwoonPowerBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReaction(state);
+    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReaction(this);
 
     /// <summary>The species' BotwoonBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(state);
+    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(this);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly BotwoonEnemyState state = species.InitializeBotwoon(occupant, place);
+
+    /// <summary>Finishes a shot's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void FinishHit(EnemyShotHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
+
+    /// <summary>Finishes a bomb's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void FinishHit(EnemyBombHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
+
+    /// <summary>Finishes a Power Bomb's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The blast meeting the head.</param>
+    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, state, frame);

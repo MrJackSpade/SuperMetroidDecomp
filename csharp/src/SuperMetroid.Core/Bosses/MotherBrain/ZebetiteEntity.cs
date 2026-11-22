@@ -13,13 +13,23 @@ internal sealed partial class ZebetiteEntity(ZebetiteBehavior species, RoomEnemy
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' ZebetiteShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnZebetiteShotReaction => field ??= species.ZebetiteShotReaction(State);
+    private EnemyShotReaction OwnZebetiteShotReaction => field ??= ZebetiteBehavior.ZebetiteShotReaction(ShareDamage);
 
     /// <summary>The species' ZebetiteBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnZebetiteBombReaction => field ??= species.ZebetiteBombReaction(State);
+    private EnemyBombReaction OwnZebetiteBombReaction => field ??= ZebetiteBehavior.ZebetiteBombReaction(ShareDamage);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(occupant, place, linkedTo);
+
+    /// <summary>Shares a shot's common damage across the linked Zebetites' health.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void ShareDamage(EnemyShotHitContext context) =>
+        species.ResolveZebetiteShotAfterCommon(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Shares a bomb's common damage across the linked Zebetites' health.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void ShareDamage(EnemyBombHitContext context) =>
+        species.ResolveZebetiteShotAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunZebetiteMainAi(Occupant, State);

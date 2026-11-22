@@ -18,10 +18,20 @@ internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomE
     private readonly BabyTurtleEnemyState state = MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family);
 
     /// <summary>The baby's own shot reaction, which wakes its Mama.</summary>
-    private EnemyShotReaction OwnShot => field ??= MamaTurtleBehavior.BabyTurtleShotReaction(state);
+    private EnemyShotReaction OwnShot => field ??= MamaTurtleBehavior.BabyTurtleShotReaction(this);
 
     /// <summary>The baby's own bomb stages, which wake its Mama.</summary>
-    private EnemyBombReaction OwnBomb => field ??= MamaTurtleBehavior.BabyTurtleBombReaction(state);
+    private EnemyBombReaction OwnBomb => field ??= MamaTurtleBehavior.BabyTurtleBombReaction(this);
+
+    /// <summary>Wakes the baby's Mama after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void WakeMama(EnemyShotHitContext context) =>
+        state.Family.State.Wake();
+
+    /// <summary>Wakes the baby's Mama after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void WakeMama(EnemyBombHitContext context) =>
+        state.Family.State.Wake();
 
     /// <summary>The baby turtle's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == TurtleReactions.Shot ? OwnShot : base.ShotReaction;

@@ -29,7 +29,12 @@ internal sealed partial class BombTorizoEntity(TorizoBehavior species, RoomEnemy
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.BombTorizoShotReaction(State);
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.BombTorizoShotReaction(this);
+
+    /// <summary>Resolves a shot on Bomb Torizo before its impact: his hitboxes' own reactions.</summary>
+    /// <param name="c">The shot meeting him.</param>
+    /// <returns>Whether the resolution replaces the rest of the shot reaction.</returns>
+    internal bool ResolveShotBeforeImpact(in EnemyShotContext c) => TorizoCombat.ResolveBombTorizoShotBeforeImpact(c, State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)

@@ -10,7 +10,7 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(State);
+    private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(MarkShotWithoutDamage);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal DeadSidehopperSpawnSettings Settings { get; } = settings;
@@ -20,6 +20,20 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(settings, place);
+
+    /// <summary>Runs the corpse's own Power Bomb reaction, in place of its common damage.</summary>
+    /// <param name="context">The blast meeting the corpse.</param>
+    internal void ReactToPowerBomb(EnemyPowerBombContext context) => species.ResolveDeadSidehopperPowerBomb(context, State);
+
+    /// <summary>Marks a shot's hit on the corpse, which ignores it until drained and then starts rotting.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the corpse takes no damage or impact.</returns>
+    internal bool MarkShotWithoutDamage(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        DeadSidehopperBehavior.ResolveDeadSidehopperShot(c.Enemy, State);
+        return true;
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, State, frame);
@@ -40,5 +54,5 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
     private protected override void ReplaceBombDamage(EnemyBombContext context) => DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context, State);
 
     /// <summary>The corpse's own Power Bomb reaction, built once for this corpse with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= species.DeadSidehopperPowerBombReaction(State);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= DeadSidehopperBehavior.DeadSidehopperPowerBombReaction(ReactToPowerBomb);
 }

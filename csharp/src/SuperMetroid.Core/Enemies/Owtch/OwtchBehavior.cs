@@ -166,7 +166,7 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<
     /// Owtch's shell takes common damage only while it walks left or turns at the left bound; every other state is
     /// immune.
     /// </summary>
-    private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
+    internal static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.TurningAtLeftBound;
 
     /// <summary>Restarts the selected facing animation at its first step.</summary>
@@ -176,21 +176,11 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>Allows common bomb damage only while the Owtch walks left, the one way its shell leaves it open.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyBombReaction OwtchBombReaction(OwtchEnemyState state) => new()
+    /// <param name="rejects">The Owtch's own method saying whether its shell turns the bomb away.</param>
+    internal static EnemyBombReaction OwtchBombReaction(Func<EnemyBombContext, bool> rejects) => new()
     {
-<<<<<<< HEAD
-        Rejects = c => !OwtchAcceptsOrdinaryShot(state),
-||||||| 418ca79935
-        Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
-=======
-        Rejects = ShellRejects,
->>>>>>> origin/main
+        Rejects = rejects,
     };
-
-    /// <summary>Whether the Owtch's shell turns a bomb away: it does unless the Owtch walks left.</summary>
-    private static bool ShellRejects(EnemyBombContext context) =>
-        !OwtchAcceptsOrdinaryShot(context.Enemy.RequireSpeciesState<OwtchEnemyState>());
 
     /// <summary>Runs Owtch's main AI.</summary>
     internal void RunOwtchMainAi(OwtchSpawnSettings owtchSpawnSettings, RoomEnemyPlace place, OwtchEnemyState owtchEnemyState)
@@ -211,44 +201,9 @@ internal sealed partial class OwtchBehavior : IEnemySpecies, IEnemySpawnFactory<
     /// <summary>Turns ordinary shots away from Owtch's shell unless it is walking left.</summary>
     /// <remarks>A shot the shell turns away does no damage, and a non-Plasma shot still ends where it struck, so the
     /// shell is immune while Owtch moves right, sinks, is buried or rises.</remarks>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction OwtchShotReaction(OwtchEnemyState state) => new()
+    /// <param name="turnsShotAway">The Owtch's own method turning the shot away from its shell.</param>
+    internal static EnemyShotReaction OwtchShotReaction(EnemyShotStage turnsShotAway) => new()
     {
-<<<<<<< HEAD
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (OwtchAcceptsOrdinaryShot(state))
-                return false;
-            if (c.MarksCollision)
-                c.Shot.Spend();
-            return true;
-        },
-||||||| 418ca79935
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
-                return false;
-            if (c.MarksCollision)
-                c.Shot.Spend();
-            return true;
-        },
-=======
-        AfterSuperMissileQuake = TurnShotAwayFromShell,
->>>>>>> origin/main
+        AfterSuperMissileQuake = turnsShotAway,
     };
-
-    /// <summary>
-    /// Turns an ordinary shot away from the Owtch's shell after the Super Missile quake, unless it walks left: a shot that
-    /// marks its collision ends where it struck.
-    /// </summary>
-    /// <param name="c">The shot meeting the Owtch.</param>
-    /// <returns>Whether the shell turned the shot away.</returns>
-    private static bool TurnShotAwayFromShell(in EnemyShotContext c)
-    {
-        if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
-            return false;
-        if (c.MarksCollision)
-            c.Shot.Spend();
-        return true;
-    }
 }

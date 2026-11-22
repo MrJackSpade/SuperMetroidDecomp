@@ -705,29 +705,14 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Finishes a bomb's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
-    private static void ResolveBotwoonCombatAfterCommon(EnemyBombHitContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
-
-    /// <summary>Finishes a Power Bomb's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
-    private static void ResolveBotwoonCombatAfterCommon(EnemyPowerBombContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
-
-    /// <summary>Finishes a shot's hit on Botwoon's head (<see cref="ResolveBotwoonCombatAfterCommon(RoomEnemyPlace)"/>).</summary>
-    private static void ResolveBotwoonCombatAfterCommon(EnemyShotHitContext context) => ResolveBotwoonCombatAfterCommon(context.Enemy);
-
     /// <summary>Routes bomb hits through the shared shot reaction without generic death animation.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyBombReaction BotwoonBombReaction(BotwoonEnemyState state) => new()
+    /// <param name="botwoon">The Botwoon the reaction is built for, whose own method finishes the hit.</param>
+    internal static EnemyBombReaction BotwoonBombReaction(BotwoonEntity botwoon) => new()
     {
         RunsGenericDeath = false,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveBotwoonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(botwoon).FinishHit,
     };
 
     /// <summary>Botwoon's body segments and spit (#1760): their spawners start their animations, and Botwoon runs them.</summary>
@@ -772,33 +757,21 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyPowerBombReaction BotwoonPowerBombReaction(BotwoonEnemyState state) => new()
+    /// <param name="botwoon">The Botwoon the reaction is built for, whose own method finishes the hit.</param>
+    internal static EnemyPowerBombReaction BotwoonPowerBombReaction(BotwoonEntity botwoon) => new()
     {
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveBotwoonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(botwoon).FinishHit,
     };
 
     /// <summary>Resolves the health bands and skips generic death on shot hits.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction BotwoonShotReaction(BotwoonEnemyState state) => new()
+    /// <param name="botwoon">The Botwoon the reaction is built for, whose own method finishes the hit.</param>
+    internal static EnemyShotReaction BotwoonShotReaction(BotwoonEntity botwoon) => new()
     {
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Botwoon's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveBotwoonCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveBotwoonCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(botwoon).FinishHit,
     };
 
     /// <summary>Resolves Samus contact, leaving Botwoon at zero health to die his own way.</summary>

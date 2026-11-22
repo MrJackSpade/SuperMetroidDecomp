@@ -87,25 +87,9 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
     internal DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
-<<<<<<< HEAD
-    private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
+    internal PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells as the pause sets up (#2554).</summary>
     internal MapScroll ActiveMapScroll { get; }
-||||||| 418ca79935
-    private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
-    /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; private set; }
-    /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
-    private MapScroll ActiveMapScroll => CurrentMapScroll ??
-        throw new InvalidOperationException("The pause map scroll has not been set up.");
-=======
-    internal PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
-    /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; set; }
-    /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
-    internal MapScroll ActiveMapScroll => CurrentMapScroll ??
-        throw new InvalidOperationException("The pause map scroll has not been set up.");
->>>>>>> origin/main
     /// <summary>The map screen's scroll position.</summary>
     internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>

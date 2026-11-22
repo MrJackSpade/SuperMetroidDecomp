@@ -75,16 +75,9 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
-<<<<<<< HEAD
     /// <summary>The room's enemy collision, which every species' shared participation reads once the system is built.</summary>
     private EnemyCollision CollisionOfRoom() => Collision;
 
-||||||| 418ca79935
-=======
-    /// <summary>The collision as the species' shared responses resolve it at use (#1759).</summary>
-    private EnemyCollision CurrentCollision() => Collision;
-
->>>>>>> origin/main
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     internal EnemyDeathsAndDrops DeathsAndDrops { get; }
 
@@ -326,13 +319,6 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
             UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence, YardKickDistance = compatibility.YardKickDistance,
             FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
         });
-<<<<<<< HEAD
-||||||| 418ca79935
-        EnemyCollision collision = Collision;
-        Species.AddRoomSpecies(new EnemyCommonParticipation(() => collision), SpeciesComposition.Factories, SpeciesComposition.WithoutScenery);
-=======
-        Species.AddRoomSpecies(new EnemyCommonParticipation(CurrentCollision), SpeciesComposition.Factories, SpeciesComposition.WithoutScenery);
->>>>>>> origin/main
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
     }

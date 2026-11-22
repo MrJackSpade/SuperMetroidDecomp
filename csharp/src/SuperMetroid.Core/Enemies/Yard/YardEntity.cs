@@ -10,13 +10,27 @@ internal sealed partial class YardEntity(YardEnemyBehavior species, RoomEnemyOcc
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' YardShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnYardShotReaction => field ??= species.YardShotReaction(state);
+    private EnemyShotReaction OwnYardShotReaction => field ??= YardEnemyBehavior.YardShotReaction(KickShellIntoAir);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal YardSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly YardEnemyState state = YardEnemyBehavior.InitializeYard(settings, place);
+
+    /// <summary>
+    /// Kicks the struck Yard's shell into the air before vulnerability, after the shot's impact: a bomb or a power bomb goes
+    /// on to its vulnerability damage instead.
+    /// </summary>
+    /// <param name="c">The shot meeting the Yard.</param>
+    /// <returns>Whether the kick replaced the vulnerability damage.</returns>
+    internal bool KickShellIntoAir(in EnemyShotContext c)
+    {
+        if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
+            return false;
+        species.ResolveYardBeamLaunch(c.Enemy, state, c.Samus);
+        return true;
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYardMainAi(Place, state, frame);

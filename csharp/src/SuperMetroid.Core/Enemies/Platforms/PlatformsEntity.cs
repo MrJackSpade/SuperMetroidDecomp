@@ -10,16 +10,32 @@ internal sealed partial class PlatformsEntity(PlatformsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' TripperShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(state);
+    private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(ShowFrozenFrame);
 
     /// <summary>The species' TripperBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReaction(state);
+    private EnemyBombReaction OwnTripperBombReaction => field ??= PlatformsBehavior.TripperBombReaction(ShowFrozenFrame);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal PlatformSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly PlatformEnemyState state = PlatformsBehavior.InitializePlatform(settings, place, occupant.DefinitionId);
+
+    /// <summary>Shows a frozen Tripper's frame for its movement after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void ShowFrozenFrame(EnemyBombHitContext context)
+    {
+        if (Ensure.NotNull(context).Enemy.Freeze.IsRunning)
+            context.Enemy.Frame = PlatformsBehavior.TripperFrozenFrame(state.XMovement);
+    }
+
+    /// <summary>Shows a Tripper's frozen frame for its movement after a shot froze it at once.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void ShowFrozenFrame(EnemyShotHitContext context)
+    {
+        if (Ensure.NotNull(context).Froze)
+            context.Enemy.Frame = PlatformsBehavior.TripperFrozenFrame(state.XMovement);
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPlatformsMainAi(Settings, Place, state, frame);

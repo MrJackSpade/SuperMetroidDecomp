@@ -6,37 +6,23 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The gunship's three pieces, which its top hull found when it was placed (#1542) and keeps: the room lists the top
 /// hull, then the bottom hull, then the entrance pad. The ship's lights glow on all three (#1733).
 /// </summary>
-<<<<<<< HEAD
-/// <param name="Top">The top hull, which runs the ship.</param>
-/// <param name="Bottom">The bottom hull, listed right after the top.</param>
-/// <param name="EntrancePad">The entrance pad, listed right after the bottom.</param>
-/// <param name="EntrancePadPiece">
-/// The entrance pad's animation, which the top hull starts as the pad opens and closes: the top hull makes it as it is set
-/// up, and the pad holds it from its own setup (#2554).
-/// </param>
-internal sealed record GunshipPieces(RoomEnemyPlace Top, RoomEnemyPlace Bottom, RoomEnemyPlace EntrancePad, GunshipPieceState EntrancePadPiece) : IGlowingEnemy
-||||||| 418ca79935
-/// <param name="Top">The top hull, which runs the ship.</param>
-/// <param name="Bottom">The bottom hull, listed right after the top.</param>
-/// <param name="EntrancePad">The entrance pad, listed right after the bottom.</param>
-internal sealed record GunshipPieces(RoomEnemyPlace Top, RoomEnemyPlace Bottom, RoomEnemyPlace EntrancePad) : IGlowingEnemy
-=======
 /// <remarks>
 /// An explicit constructor rather than a primary one: the glow its pieces start holds the pieces again, so a saved game
 /// state is restored with the pieces made before their fields (#2602).
 /// </remarks>
 internal sealed partial record GunshipPieces : IGlowingEnemy
->>>>>>> origin/main
 {
     /// <summary>The gunship's three pieces.</summary>
     /// <param name="top">The top hull, which runs the ship.</param>
     /// <param name="bottom">The bottom hull, listed right after the top.</param>
     /// <param name="entrancePad">The entrance pad, listed right after the bottom.</param>
-    internal GunshipPieces(RoomEnemyPlace top, RoomEnemyPlace bottom, RoomEnemyPlace entrancePad)
+    /// <param name="entrancePadPiece">The entrance pad's animation, which the top hull makes as it is set up.</param>
+    internal GunshipPieces(RoomEnemyPlace top, RoomEnemyPlace bottom, RoomEnemyPlace entrancePad, GunshipPieceState entrancePadPiece)
     {
         Top = top;
         Bottom = bottom;
         EntrancePad = entrancePad;
+        EntrancePadPiece = entrancePadPiece;
     }
 
     /// <summary>The top hull, which runs the ship.</summary>
@@ -47,6 +33,12 @@ internal sealed partial record GunshipPieces : IGlowingEnemy
 
     /// <summary>The entrance pad, listed right after the bottom.</summary>
     internal RoomEnemyPlace EntrancePad { get; }
+
+    /// <summary>
+    /// The entrance pad's animation, which the top hull starts as the pad opens and closes: the top hull makes it as it is set
+    /// up, and the pad holds it from its own setup (#2554).
+    /// </summary>
+    internal GunshipPieceState EntrancePadPiece { get; }
 
     /// <summary>The three pieces in the room's order, which the ship moves together.</summary>
     internal IEnumerable<RoomEnemyPlace> All

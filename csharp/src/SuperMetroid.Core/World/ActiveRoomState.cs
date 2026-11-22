@@ -47,17 +47,9 @@ internal sealed partial class ActiveRoomState
     {
         if (Construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-<<<<<<< HEAD
         var construction = new RoomScopeConstruction(door, room, assets, entry, camera, bombProjectiles, RoomMainHandOvers);
-        _construction = construction;
+        Construction = construction;
         return construction;
-||||||| 418ca79935
-        _construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
-        return _construction;
-=======
-        Construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
-        return Construction;
->>>>>>> origin/main
     }
 
     /// <summary>Makes <paramref name="scope"/> the loaded room's, ending any construction.</summary>

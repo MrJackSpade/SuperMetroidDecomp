@@ -10,16 +10,35 @@ internal sealed partial class OwtchEntity(OwtchBehavior species, RoomEnemyOccupa
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' OwtchShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReaction(state);
+    private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReaction(TurnShotAwayFromShell);
 
     /// <summary>The species' OwtchBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnOwtchBombReaction => field ??= OwtchBehavior.OwtchBombReaction(state);
+    private EnemyBombReaction OwnOwtchBombReaction => field ??= OwtchBehavior.OwtchBombReaction(ShellRejects);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal OwtchSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly OwtchEnemyState state = OwtchBehavior.InitializeOwtch(settings, place);
+
+    /// <summary>Whether the Owtch's shell turns a bomb away: it does unless the Owtch walks left.</summary>
+    /// <param name="context">The bomb meeting the Owtch.</param>
+    internal bool ShellRejects(EnemyBombContext context) => !OwtchBehavior.OwtchAcceptsOrdinaryShot(state);
+
+    /// <summary>
+    /// Turns an ordinary shot away from the Owtch's shell after the Super Missile quake, unless it walks left: a shot that
+    /// marks its collision ends where it struck.
+    /// </summary>
+    /// <param name="c">The shot meeting the Owtch.</param>
+    /// <returns>Whether the shell turned the shot away.</returns>
+    internal bool TurnShotAwayFromShell(in EnemyShotContext c)
+    {
+        if (OwtchBehavior.OwtchAcceptsOrdinaryShot(state))
+            return false;
+        if (c.MarksCollision)
+            c.Shot.Spend();
+        return true;
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Settings, Place, state);

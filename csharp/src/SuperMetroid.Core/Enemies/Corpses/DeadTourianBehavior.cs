@@ -90,7 +90,7 @@ internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFa
     }
 
     /// <summary>Power-bomb reactions reject actors whose decomposition already made them intangible.</summary>
-    private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place, DeadTourianCorpseEnemyState deadTourianCorpseEnemyState)
+    internal static void ResolveDeadTourianCorpsePowerBomb(RoomEnemyPlace place, DeadTourianCorpseEnemyState deadTourianCorpseEnemyState)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTourianCorpseRotting(place, deadTourianCorpseEnemyState);
@@ -139,55 +139,20 @@ internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFa
     }
 
     /// <summary>The power-bomb response, which ignores corpses already marked decomposed.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction(DeadTourianCorpseEnemyState state) => new()
+    /// <param name="startsRot">The corpse's own method starting its rot.</param>
+    internal static EnemyPowerBombReaction DeadTourianPowerBombReaction(EnemyPowerBombStage startsRot) => new()
     {
-<<<<<<< HEAD
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy, state),
-||||||| 418ca79935
-        ReplacesCommon = c => ResolveDeadTourianCorpsePowerBomb(c.Enemy),
-=======
-        ReplacesCommon = ResolveDeadTourianCorpsePowerBomb,
->>>>>>> origin/main
+        ReplacesCommon = startsRot,
     };
-
-    /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
-    private static void ResolveDeadTourianCorpsePowerBomb(EnemyPowerBombContext context) => ResolveDeadTourianCorpsePowerBomb(context.Enemy);
 
     /// <summary>Shot handling that marks the shot's hit and starts decomposition without health damage.</summary>
     /// <remarks>A shot makes the corpse keep updating off screen and lets Samus pass through it, and starts its rot; it
     /// deals no damage and makes no impact.</remarks>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction DeadTourianShotReaction(DeadTourianCorpseEnemyState state) => new()
+    /// <param name="marksShotAndRots">The corpse's own method marking the shot and starting its rot.</param>
+    internal static EnemyShotReaction DeadTourianShotReaction(EnemyShotStage marksShotAndRots) => new()
     {
-<<<<<<< HEAD
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy, state);
-            return true;
-        },
-||||||| 418ca79935
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            TriggerDeadTourianCorpseRotting(c.Enemy);
-            return true;
-        },
-=======
-        BeforeSuperMissileQuake = MarkShotAndRot,
->>>>>>> origin/main
+        BeforeSuperMissileQuake = marksShotAndRots,
     };
-
-    /// <summary>Marks a shot's hit on the corpse and starts its rot, with no damage or impact.</summary>
-    /// <param name="c">The shot meeting the corpse.</param>
-    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
-    private static bool MarkShotAndRot(in EnemyShotContext c)
-    {
-        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-        TriggerDeadTourianCorpseRotting(c.Enemy);
-        return true;
-    }
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
     internal static void ReactToDeadTourianTouch(EnemyTouchContext context, DeadTourianCorpseEnemyState deadTourianCorpseEnemyState) =>

@@ -13,16 +13,26 @@ internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomE
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(state);
+    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(DetachWings);
 
     /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(state);
+    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(DetachWings);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly KiHunterBodyState state = species.InitializeKiHunter(settings, place);
+
+    /// <summary>Runs the body's wing detachment after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void DetachWings(EnemyShotHitContext context) =>
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, state);
+
+    /// <summary>Runs the body's wing detachment after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void DetachWings(EnemyBombHitContext context) =>
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, state, frame);

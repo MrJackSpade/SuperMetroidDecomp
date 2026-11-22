@@ -29,7 +29,12 @@ internal sealed partial class GoldenTorizoEntity(TorizoBehavior species, RoomEne
     }
 
     /// <inheritdoc/>
-    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.GoldenTorizoShotReaction(State);
+    protected override EnemyShotReaction OwnShotReaction => field ??= TorizoCombat.GoldenTorizoShotReaction(this);
+
+    /// <summary>Resolves a shot on Golden Torizo before its impact: his own catches, dodges and stuns.</summary>
+    /// <param name="c">The shot meeting him.</param>
+    /// <returns>Whether the resolution replaces the rest of the shot reaction.</returns>
+    internal bool ResolveShotBeforeImpact(in EnemyShotContext c) => TorizoCombat.ResolveGoldenTorizoShotBeforeImpact(c, State);
 
     /// <inheritdoc/>
     public override bool TryReactToBomb(EnemyBombContext context)

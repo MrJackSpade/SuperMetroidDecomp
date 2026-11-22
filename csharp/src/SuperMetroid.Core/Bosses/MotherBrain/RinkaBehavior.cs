@@ -355,20 +355,12 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<
 
     /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyBombReaction RinkaBombReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyBombReaction RinkaBombReaction(RinkaEntity rinka) => new()
     {
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
-=======
         AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
->>>>>>> origin/main
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
@@ -389,19 +381,11 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyPowerBombReaction RinkaPowerBombReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyPowerBombReaction RinkaPowerBombReaction(RinkaEntity rinka) => new()
     {
         SkipsEnemy = IsHidden,
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
-=======
         AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
->>>>>>> origin/main
     };
 
     /// <summary>Whether a Rinka is hidden, which a Power Bomb skips.</summary>
@@ -409,29 +393,13 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<
 
     /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    /// <param name="rinkaSpawnSettings">What the enemy's population entry tells its species.</param>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction RinkaShotReaction(RinkaEntity rinka, RinkaSpawnSettings rinkaSpawnSettings, RinkaEnemyState state) => new()
+    internal static EnemyShotReaction RinkaShotReaction(RinkaEntity rinka) => new()
     {
         // Rinka's own death follows damage only; a shot that freezes it at once skips it.
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c =>
-        {
-            if (!c.Froze)
-                ResolveRinkaCombatAfterCommon(rinka, rinkaSpawnSettings, c.Enemy, state);
-        },
-||||||| 418ca79935
-        AfterCommon = c =>
-        {
-            if (!c.Froze)
-                ResolveRinkaCombatAfterCommon(rinka, c.Enemy);
-        },
-=======
         AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
->>>>>>> origin/main
     };
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>

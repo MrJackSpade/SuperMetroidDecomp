@@ -538,7 +538,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     /// Runs the Ki-Hunter's own response after the common shot and Power Bomb reactions. A surviving body freezes and
     /// flashes its wings with it until its health falls to the health at which the wings detach, which starts their fall.
     /// </summary>
-    private static void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
+    internal static void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body, KiHunterBodyState bodyState)
     {
         RoomEnemyPlace wings = bodyState.Wings;
         // Wings that are gone have nothing to lose or keep in step with: a wingless Ki-Hunter's are deleted as they are set
@@ -573,11 +573,7 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
         wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
-    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
-    private void ResolveKiHunterShotAfterCommon(EnemyBombHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
 
-    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
-    private void ResolveKiHunterShotAfterCommon(EnemyShotHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
 
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
@@ -708,16 +704,10 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
         state.Playback = EnemyAnimationPlayback.Start(wings, KiHunterAnimations.StartingWith(segment));
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyBombReaction KiHunterBombReaction(KiHunterBodyState state) => new()
+    /// <param name="afterCommon">The body's own method running its wing detachment.</param>
+    internal static EnemyBombReaction KiHunterBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveKiHunterShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
@@ -802,16 +792,10 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
                 : null);
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction KiHunterShotReaction(KiHunterBodyState state) => new()
+    /// <param name="afterCommon">The body's own method running its wing detachment.</param>
+    internal static EnemyShotReaction KiHunterShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveKiHunterShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>

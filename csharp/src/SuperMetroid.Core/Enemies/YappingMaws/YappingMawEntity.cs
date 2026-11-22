@@ -10,16 +10,26 @@ internal sealed partial class YappingMawEntity(YappingMawBehavior species, RoomE
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' YappingMawShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnYappingMawShotReaction => field ??= YappingMawBehavior.YappingMawShotReaction(state);
+    private EnemyShotReaction OwnYappingMawShotReaction => field ??= YappingMawBehavior.YappingMawShotReaction(FinishHit);
 
     /// <summary>The species' YappingMawBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnYappingMawBombReaction => field ??= YappingMawBehavior.YappingMawBombReaction(state);
+    private EnemyBombReaction OwnYappingMawBombReaction => field ??= YappingMawBehavior.YappingMawBombReaction(FinishHit);
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal YappingMawSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly YappingMawEnemyState state = species.InitializeYappingMaw(occupant, settings, place);
+
+    /// <summary>Releases the Maw's captive when a shot froze it, or cleans up its death, after the common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void FinishHit(EnemyShotHitContext context) =>
+        YappingMawBehavior.ResolveYappingMawShotAfterCommon(Ensure.NotNull(context).Enemy, state, context.Samus);
+
+    /// <summary>Releases the Maw's captive when a bomb froze it, or cleans up its death, after the common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void FinishHit(EnemyBombHitContext context) =>
+        YappingMawBehavior.ResolveYappingMawShotAfterCommon(Ensure.NotNull(context).Enemy, state, context.Samus);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunYappingMawMainAi(Settings, Place, state, frame);

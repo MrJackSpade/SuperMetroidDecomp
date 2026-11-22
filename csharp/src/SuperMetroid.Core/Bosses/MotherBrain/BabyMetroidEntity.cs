@@ -12,10 +12,20 @@ internal sealed partial class BabyMetroidEntity(BabyMetroidBehavior species, Roo
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BabyMetroidShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= BabyMetroidBehavior.BabyMetroidShotReaction(State);
+    private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= BabyMetroidBehavior.BabyMetroidShotReaction(RecoilFromShot);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X);
+
+    /// <summary>Marks a shot's collision with the Baby and recoils it from the shot, without hurting it.</summary>
+    /// <param name="c">The shot meeting the Baby.</param>
+    /// <returns>Always true: the recoil replaces the rest of the shot reaction.</returns>
+    internal bool RecoilFromShot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        BabyMetroidBehavior.ResolveBabyMetroidShot(c.Enemy, State, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots));
+        return true;
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidMainAi(Place, State, frame);

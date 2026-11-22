@@ -23,13 +23,28 @@ internal sealed partial class EvirBodyEntity(EvirBehavior species, RoomEnemyOccu
     private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
 
     /// <summary>The part's own bomb stages, which carry its hit to the enemies its follow-up reaches.</summary>
-    private EnemyBombReaction OwnBomb => field ??= EvirBehavior.EvirBombReaction(FollowUpRecipients);
+    private EnemyBombReaction OwnBomb => field ??= EvirBehavior.EvirBombReaction(PassHitOn);
 
     /// <summary>The part's own Power Bomb reaction, which carries its hit to the enemies its follow-up reaches.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= EvirBehavior.EvirPowerBombReaction(FollowUpRecipients);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= EvirBehavior.EvirPowerBombReaction(PassHitOn);
 
     /// <summary>The body's own shot reaction, which carries its hit to the enemies its follow-up reaches.</summary>
-    private EnemyShotReaction OwnShot => field ??= EvirBehavior.EvirShotReaction(FollowUpRecipients);
+    private EnemyShotReaction OwnShot => field ??= EvirBehavior.EvirShotReaction(PassHitOn);
+
+    /// <summary>Carries the part's shot hit on to the enemies its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void PassHitOn(EnemyShotHitContext context) =>
+        EvirBehavior.ResolveEvirCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+
+    /// <summary>Carries the part's bomb hit on to the enemies its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void PassHitOn(EnemyBombHitContext context) =>
+        EvirBehavior.ResolveEvirCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+
+    /// <summary>Carries the part's Power Bomb hit on to the enemies its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The blast meeting the enemy.</param>
+    internal void PassHitOn(EnemyPowerBombContext context) =>
+        EvirBehavior.ResolveEvirCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Settings, Place, State, frame);

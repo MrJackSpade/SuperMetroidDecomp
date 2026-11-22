@@ -405,7 +405,7 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// only the body, whose followers are its arms and spit; a power bomb also hits the intangible arms, whose followers
     /// are their spit and the next enemy.
     /// </summary>
-    private static void ResolveEvirCombatAfterCommon(RoomEnemyPlace actor, IReadOnlyList<RoomEnemyPlace> followers)
+    internal static void ResolveEvirCombatAfterCommon(RoomEnemyPlace actor, IReadOnlyList<RoomEnemyPlace> followers)
     {
         RoomEnemyPlace firstRelative = followers[0];
         RoomEnemyPlace secondRelative = followers[1];
@@ -436,28 +436,16 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
-    private void ResolveEvirCombatAfterCommon(EnemyBombHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
 
-    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a Power Bomb's common damage.</summary>
-    private void ResolveEvirCombatAfterCommon(EnemyPowerBombContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
 
-    /// <summary>Runs <see cref="ResolveEvirCombatAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
-    private void ResolveEvirCombatAfterCommon(EnemyShotHitContext context) => ResolveEvirCombatAfterCommon(context.Enemy);
 
     /// <summary>
     /// Finishes a bomb's hit on an Evir part as its other reactions do after the common damage, on
-    /// <paramref name="followers"/>, the enemies its follow-up reaches.
+    /// the enemies its follow-up reaches (<paramref name="afterCommon"/>, the part's own method).
     /// </summary>
-    internal static EnemyBombReaction EvirBombReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
+    internal static EnemyBombReaction EvirBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
-||||||| 418ca79935
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveEvirCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
@@ -501,33 +489,21 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A Power Bomb's hit on an Evir's body or arms, finished as its other reactions finish.</summary>
-    /// <param name="followers">The enemies the struck part's follow-up reaches.</param>
-    internal static EnemyPowerBombReaction EvirPowerBombReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
+    /// <param name="afterCommon">The part's own method carrying the hit on to the enemies its follow-up reaches.</param>
+    internal static EnemyPowerBombReaction EvirPowerBombReaction(EnemyPowerBombStage afterCommon) => new()
     {
         // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore finish with the same follow-up, which reaches the enemy after
         // them in the room's list.
-<<<<<<< HEAD
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
-||||||| 418ca79935
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveEvirCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
-    /// <param name="followers">The enemies the struck body's follow-up reaches.</param>
-    internal static EnemyShotReaction EvirShotReaction(IReadOnlyList<RoomEnemyPlace> followers) => new()
+    /// <param name="afterCommon">The body's own method carrying the hit on to the enemies its follow-up reaches.</param>
+    internal static EnemyShotReaction EvirShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
         // After every accepted shot's common damage, ice that froze the body included, the body passes its frozen
         // time to its arms and its attached (idle) spit.
-<<<<<<< HEAD
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy, followers),
-||||||| 418ca79935
-        AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveEvirCombatAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Runs common body contact and then Evir's own combat follow-up.</summary>

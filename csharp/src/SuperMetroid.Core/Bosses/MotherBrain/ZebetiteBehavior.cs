@@ -243,7 +243,7 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>Finishes a Zebetite's reaction to a shot, after its common damage.</summary>
-    private void ResolveZebetiteShotAfterCommon(RoomEnemyPlace struck, ZebetiteEnemyState zebetiteEnemyState)
+    internal void ResolveZebetiteShotAfterCommon(RoomEnemyPlace struck, ZebetiteEnemyState zebetiteEnemyState)
     {
         _audio.QueueEnemySound(ZebetiteDefinitions.ShotSound, SoundRequestPriority.Normal);
         RoomEnemyPlace linked = ZebetiteShotShare.Recipient(_places.InUpdateOrder[0], zebetiteEnemyState.LinkedHalf);
@@ -273,26 +273,14 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>Lets a bomb finish as a shot does on the Zebetite, without the generic death.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyBombReaction ZebetiteBombReaction(ZebetiteEnemyState state) => new()
+    /// <param name="afterCommon">The half's own method sharing the damage with its linked half.</param>
+    internal static EnemyBombReaction ZebetiteBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveZebetiteShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
-
-    /// <summary>Shares a bomb's common damage across the linked Zebetites' health.</summary>
-    private void ResolveZebetiteShotAfterCommon(EnemyBombHitContext context) => ResolveZebetiteShotAfterCommon(context.Enemy);
-
-    /// <summary>Shares a shot's common damage across the linked Zebetites' health.</summary>
-    private void ResolveZebetiteShotAfterCommon(EnemyShotHitContext context) => ResolveZebetiteShotAfterCommon(context.Enemy);
 
     /// <summary>Runs Zebetite's main AI.</summary>
     internal void RunZebetiteMainAi(RoomEnemyOccupant zebetite, ZebetiteEnemyState zebetiteEnemyState)
@@ -302,20 +290,14 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>Runs shot damage, then shares it across the linked Zebetites' health, with no generic death.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction ZebetiteShotReaction(ZebetiteEnemyState state) => new()
+    /// <param name="afterCommon">The half's own method sharing the damage with its linked half.</param>
+    internal static EnemyShotReaction ZebetiteShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
         EndsWithoutImpact = true,
         Lethal = EnemyShotLethal.SpeciesOwned,
         // The Zebetite's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveZebetiteShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>

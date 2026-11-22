@@ -111,53 +111,31 @@ internal sealed partial class TorizoCombat
 
 
     /// <summary>Bomb Torizo's shot reaction (#2240): its hitbox reactions before impact, then common damage without its death.</summary>
-    /// <param name="state">The state of the Torizo the reaction is built for.</param>
-    internal static EnemyShotReaction BombTorizoShotReaction(TorizoEnemyState state) =>
-        ShotReaction(state, (in EnemyShotContext c) => ResolveBombTorizoShotBeforeImpact(c, state));
+    /// <param name="torizo">The Torizo the reaction is built for, whose own methods it names.</param>
+    internal static EnemyShotReaction BombTorizoShotReaction(BombTorizoEntity torizo) =>
+        ShotReaction(Ensure.NotNull(torizo).ResolveShotBeforeImpact, torizo.BeginDeathOnLethalShot);
 
     /// <summary>
     /// Golden Torizo's shot reaction (#2240): its own catches, dodges and stuns before impact, then common damage without its
     /// death. Its definition's own reaction and its body hitboxes' ordinary reaction both come here.
     /// </summary>
-    /// <param name="state">The state of the Torizo the reaction is built for.</param>
-    internal static EnemyShotReaction GoldenTorizoShotReaction(TorizoEnemyState state) =>
-        ShotReaction(state, (in EnemyShotContext c) => ResolveGoldenTorizoShotBeforeImpact(c, state));
+    /// <param name="torizo">The Torizo the reaction is built for, whose own methods it names.</param>
+    internal static EnemyShotReaction GoldenTorizoShotReaction(GoldenTorizoEntity torizo) =>
+        ShotReaction(Ensure.NotNull(torizo).ResolveShotBeforeImpact, torizo.BeginDeathOnLethalShot);
 
     /// <summary>
     /// A Torizo's shot reaction, resolving each hit first by <paramref name="beforeImpact"/>. Its stand-up and sit-down
     /// frames' transitional reaction must stay distinguishable from the ordinary one, which the before-impact resolution
-    /// tells apart.
+    /// tells apart; a hit that takes its last health begins its own death (<paramref name="afterCommon"/>).
     /// </summary>
-    private static EnemyShotReaction ShotReaction(TorizoEnemyState state, EnemyShotStage beforeImpact) => new()
+    private static EnemyShotReaction ShotReaction(EnemyShotStage beforeImpact, Action<EnemyShotHitContext> afterCommon) => new()
     {
         BeforeImpact = beforeImpact,
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Both Torizos' shot reactions run the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-<<<<<<< HEAD
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, state);
-        },
-||||||| 418ca79935
-        AfterCommon = c =>
-        {
-            if (c.Enemy.Health == 0)
-                BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
-        },
-=======
-        AfterCommon = BeginTorizoDeathOnLethalShot,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
-
-    /// <summary>Begins a Torizo's own death when a shot's common damage takes its last health.</summary>
-    /// <param name="c">The shot's hit.</param>
-    private static void BeginTorizoDeathOnLethalShot(EnemyShotHitContext c)
-    {
-        if (c.Enemy.Health == 0)
-            BeginTorizoDeath(c.Enemy, c.Enemy.RequireSpeciesState<TorizoEnemyState>());
-    }
 
     /// <summary>Runs extended body touch damage without invoking the generic death animation.</summary>
     internal void ReactToTorizoTouch(EnemyTouchContext context, TorizoEnemyState torizoEnemyState)

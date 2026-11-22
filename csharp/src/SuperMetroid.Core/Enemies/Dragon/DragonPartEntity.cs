@@ -19,13 +19,28 @@ internal abstract partial class DragonPartEntity(DragonBehavior species, RoomEne
     private RoomEnemyPlace FollowUpRecipient { get; } = species.FollowUpRecipientOf(place);
 
     /// <summary>The part's own shot reaction, which carries its hit to the enemy its follow-up reaches.</summary>
-    private EnemyShotReaction OwnShot => field ??= DragonBehavior.DragonShotReaction(FollowUpRecipient);
+    private EnemyShotReaction OwnShot => field ??= DragonBehavior.DragonShotReaction(CarryHitOn);
 
     /// <summary>The part's own bomb stages, which carry its hit to the enemy its follow-up reaches.</summary>
-    private EnemyBombReaction OwnBomb => field ??= DragonBehavior.DragonBombReaction(FollowUpRecipient);
+    private EnemyBombReaction OwnBomb => field ??= DragonBehavior.DragonBombReaction(CarryHitOn);
 
     /// <summary>The part's own Power Bomb reaction, which carries its hit to the enemy its follow-up reaches.</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= DragonBehavior.DragonPowerBombReaction(FollowUpRecipient);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= DragonBehavior.DragonPowerBombReaction(CarryHitOn);
+
+    /// <summary>Carries the part's shot hit on to the enemy its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void CarryHitOn(EnemyShotHitContext context) =>
+        EnemyPartnerHits.CarryOnto(Ensure.NotNull(context).Enemy, FollowUpRecipient);
+
+    /// <summary>Carries the part's bomb hit on to the enemy its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void CarryHitOn(EnemyBombHitContext context) =>
+        EnemyPartnerHits.CarryOnto(Ensure.NotNull(context).Enemy, FollowUpRecipient);
+
+    /// <summary>Carries the part's Power Bomb hit on to the enemy its follow-up reaches, after the common damage.</summary>
+    /// <param name="context">The blast meeting the enemy.</param>
+    internal void CarryHitOn(EnemyPowerBombContext context) =>
+        EnemyPartnerHits.CarryOnto(Ensure.NotNull(context).Enemy, FollowUpRecipient);
 
     /// <summary>Whether the part's definition leaves Samus's touch to the species.</summary>
     private bool LeavesTouchToDragon => Occupant.Definition.Touch == DragonReactions.Touch;

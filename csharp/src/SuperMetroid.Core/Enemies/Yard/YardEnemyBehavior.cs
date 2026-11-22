@@ -613,7 +613,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFact
     /// disposal has already happened in the shared projectile pass; this method owns only
     /// the actor's launch and observable sound event.
     /// </summary>
-    private void ResolveYardBeamLaunch(
+    internal void ResolveYardBeamLaunch(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)
@@ -641,46 +641,14 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFact
     }
 
     /// <summary>Kicks a struck Yard's shell into the air, or lets a bomb's or a power bomb's vulnerability damage run.</summary>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal EnemyShotReaction YardShotReaction(YardEnemyState state) => new()
+    /// <param name="kicksShell">The Yard's own method kicking its shell into the air.</param>
+    internal static EnemyShotReaction YardShotReaction(EnemyShotStage kicksShell) => new()
     {
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
         // the shell into the air, after the shot's impact.
-<<<<<<< HEAD
-        BeforeVulnerability = (in EnemyShotContext c) =>
-        {
-            if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-                return false;
-            ResolveYardBeamLaunch(c.Enemy, state, c.Samus);
-            return true;
-        },
-||||||| 418ca79935
-        BeforeVulnerability = (in EnemyShotContext c) =>
-        {
-            if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-                return false;
-            ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
-            return true;
-        },
-=======
-        BeforeVulnerability = KickShellIntoAir,
->>>>>>> origin/main
+        BeforeVulnerability = kicksShell,
     };
-
-    /// <summary>
-    /// Kicks the struck Yard's shell into the air before vulnerability, after the shot's impact: a bomb or a power bomb goes
-    /// on to its vulnerability damage instead.
-    /// </summary>
-    /// <param name="c">The shot meeting the Yard.</param>
-    /// <returns>Whether the kick replaced the vulnerability damage.</returns>
-    private bool KickShellIntoAir(in EnemyShotContext c)
-    {
-        if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-            return false;
-        ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
-        return true;
-    }
 
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
     internal void ReactToYardTouch(RoomEnemyOccupant occupant, YardSpawnSettings yardSpawnSettings, EnemyTouchContext context, YardEnemyState yardEnemyState) =>

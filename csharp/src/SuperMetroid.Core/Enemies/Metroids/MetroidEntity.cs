@@ -15,6 +15,15 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly MetroidEnemyState state = species.InitializeMetroid(occupant, settings, place);
 
+    /// <summary>Clears the Metroid's outer body before a lethal Power Bomb's generic death.</summary>
+    /// <param name="context">The blast meeting the Metroid.</param>
+    internal void FinishDeath(EnemyPowerBombContext context) => MetroidBehavior.FinishMetroidDeath(state, Ensure.NotNull(context).Samus);
+
+    /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its hit.</summary>
+    /// <param name="c">The shot meeting the Metroid.</param>
+    /// <returns>Whether the resolution replaces the rest of the shot reaction.</returns>
+    internal bool ResolveOrdinaryShot(in EnemyShotContext c) => species.ResolveMetroidOrdinaryShot(c, state);
+
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunMetroidMainAi(Occupant, Place, state, frame);
 
@@ -49,10 +58,10 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetroidReactions.Shot ? OwnShot : base.ShotReaction;
 
     /// <summary>The Metroid's own shot reaction, built once for this Metroid with its state (#2554).</summary>
-    private EnemyShotReaction OwnShot => field ??= species.ShotReaction(state);
+    private EnemyShotReaction OwnShot => field ??= MetroidBehavior.ShotReaction(ResolveOrdinaryShot);
 
     /// <summary>The Metroid's own Power Bomb reaction, built once for this Metroid with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnPowerBomb => field ??= MetroidBehavior.PowerBombReaction(state);
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= MetroidBehavior.PowerBombReaction(FinishDeath);
 
     /// <summary>The Metroid's own bomb reaction, which comes before the ignoring check, where its definition leaves shots to it.</summary>
     /// <param name="context">The bomb contact.</param>

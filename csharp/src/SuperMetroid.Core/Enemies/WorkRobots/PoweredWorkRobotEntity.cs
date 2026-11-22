@@ -14,6 +14,16 @@ internal sealed partial class PoweredWorkRobotEntity(WorkRobotBehavior species, 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly WorkRobotEnemyState state = species.InitializePoweredWorkRobot(place);
 
+    /// <summary>Recoils the robot after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void Recoil(EnemyShotHitContext context) =>
+        WorkRobotBehavior.ResolveWorkRobotShotAfterCommon(Ensure.NotNull(context).Enemy, state, context.Samus);
+
+    /// <summary>Recoils the robot after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void Recoil(EnemyBombHitContext context) =>
+        WorkRobotBehavior.ResolveWorkRobotShotAfterCommon(Ensure.NotNull(context).Enemy, state, context.Samus);
+
     /// <summary>The robot leaves its place, so the glow no longer shows there (#2559).</summary>
     public void Leave() => Species.RemovePoweredRobot(Place);
 
@@ -24,8 +34,8 @@ internal sealed partial class PoweredWorkRobotEntity(WorkRobotBehavior species, 
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceWorkRobotTypedAnimation(Place, state, context);
 
     /// <summary>The robot takes a bomb's damage and recoils (#2164).</summary>
-    protected override EnemyBombReaction OwnBombReaction => field ??= WorkRobotBehavior.PoweredWorkRobotBombReaction(state);
+    protected override EnemyBombReaction OwnBombReaction => field ??= WorkRobotBehavior.PoweredWorkRobotBombReaction(Recoil);
 
     /// <summary>The robot's own shot reaction, which recoils it after the common shot reaction.</summary>
-    protected override EnemyShotReaction OwnShotReaction => field ??= WorkRobotBehavior.WorkRobotShotReaction(state);
+    protected override EnemyShotReaction OwnShotReaction => field ??= WorkRobotBehavior.WorkRobotShotReaction(Recoil);
 }

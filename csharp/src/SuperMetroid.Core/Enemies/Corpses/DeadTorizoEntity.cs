@@ -9,16 +9,30 @@ internal sealed partial class DeadTorizoEntity(DeadTorizoBehavior species, RoomE
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>The species' DeadTorizoShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= DeadTorizoBehavior.DeadTorizoShotReaction(State);
+    private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= DeadTorizoBehavior.DeadTorizoShotReaction(MarkShotAndRot);
 
     /// <summary>The species' DeadTorizoPowerBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= DeadTorizoBehavior.DeadTorizoPowerBombReaction(State);
+    private EnemyPowerBombReaction OwnDeadTorizoPowerBombReaction => field ??= DeadTorizoBehavior.DeadTorizoPowerBombReaction(StartRot);
 
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DeadTorizoEnemyState State { get; } = species.InitializeDeadTorizo(place);
+
+    /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
+    /// <param name="context">The blast meeting the corpse.</param>
+    internal void StartRot(EnemyPowerBombContext context) => DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Marks a shot's hit on the corpse and starts it rotting, with no damage or explosion.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    internal bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        DeadTorizoBehavior.TriggerDeadTorizoRotting(c.Enemy, State);
+        return true;
+    }
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTorizoMainAi(Place, State, frame);

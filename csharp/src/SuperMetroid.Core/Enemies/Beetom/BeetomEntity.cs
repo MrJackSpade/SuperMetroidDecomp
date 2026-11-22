@@ -10,13 +10,23 @@ internal sealed partial class BeetomEntity(BeetomBehavior species, RoomEnemyOccu
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The species' BeetomShotReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReaction(state);
+    private EnemyShotReaction OwnBeetomShotReaction => field ??= BeetomBehavior.BeetomShotReaction(LetGo);
 
     /// <summary>The species' BeetomBombReaction, built once for this enemy with its state (#2554).</summary>
-    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReaction(state);
+    private EnemyBombReaction OwnBeetomBombReaction => field ??= BeetomBehavior.BeetomBombReaction(LetGo);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly BeetomEnemyState state = species.InitializeBeetom(place, Ensure.NotNull(surroundings).Samus, surroundings.ControllerInput);
+
+    /// <summary>Lets the Beetom go of Samus after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void LetGo(EnemyShotHitContext context) =>
+        BeetomBehavior.ResolveBeetomShotAfterCommon(Ensure.NotNull(context).Enemy, state);
+
+    /// <summary>Lets the Beetom go of Samus after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void LetGo(EnemyBombHitContext context) =>
+        BeetomBehavior.ResolveBeetomShotAfterCommon(Ensure.NotNull(context).Enemy, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBeetomMainAi(Place, state, frame);

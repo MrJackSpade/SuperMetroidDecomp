@@ -139,7 +139,7 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// Finishes a Ripper's reaction to a shot, after the shot's common damage has dealt with health, death, impact and
     /// freezing: a shot that froze it pins the frozen frame for the way it faces.
     /// </summary>
-    private static void ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
+    internal static void ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace place, RipperEnemyState ripperEnemyState)
     {
         if (place.Freeze.IsOver)
             return;
@@ -148,30 +148,6 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
             : EnemyFrameId.RipperFrozenFacingRight;
     }
 
-<<<<<<< HEAD
-||||||| 418ca79935
-    /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
-    private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
-    {
-        var state = new RipperEnemyState();
-        place.SetSpeciesState(state);
-        return state;
-    }
-=======
-    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
-    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyBombHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
-
-    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
-    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyShotHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
-
-    /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
-    private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
-    {
-        var state = new RipperEnemyState();
-        place.SetSpeciesState(state);
-        return state;
-    }
->>>>>>> origin/main
 
     /// <summary>
     /// Turns a grapple Ripper or jet Ripper round and restarts the grapple Ripper's flying loop facing its new heading,
@@ -201,16 +177,10 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Preserves the direction-specific frozen frame after common bomb reactions.</summary>
-    /// <param name="state">The state of the Ripper the reaction is built for.</param>
-    internal static EnemyBombReaction RipperBombReaction(RipperEnemyState state) => new()
+    /// <param name="ripper">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyBombReaction RipperBombReaction(RipperEntity ripper) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(ripper).PinFrozenFrame,
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
@@ -232,15 +202,9 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>
-    /// <param name="state">The state of the Ripper the reaction is built for.</param>
-    internal static EnemyShotReaction RipperShotReaction(RipperEnemyState state) => new()
+    /// <param name="ripper">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyShotReaction RipperShotReaction(RipperEntity ripper) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy, state),
-||||||| 418ca79935
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(ripper).PinFrozenFrame,
     };
 }

@@ -679,39 +679,7 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
-<<<<<<< HEAD
         state.Family.State.Wake();
-||||||| 418ca79935
-        WakeMamaTurtle(baby);
-    }
-
-    /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
-        WakeMamaTurtle(baby);
-
-    /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(RoomEnemyPlace baby)
-    {
-        MamaStateOf(baby).Wake();
-=======
-        WakeMamaTurtle(baby);
-    }
-
-    /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
-        WakeMamaTurtle(baby);
-
-    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(EnemyBombHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
-
-    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(EnemyShotHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
-
-    /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(RoomEnemyPlace baby)
-    {
-        MamaStateOf(baby).Wake();
->>>>>>> origin/main
     }
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
@@ -752,16 +720,11 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Wakes the Mama of the baby whose state is <paramref name="state"/> after common bomb damage.</summary>
-    internal static EnemyBombReaction BabyTurtleBombReaction(BabyTurtleEnemyState state) => new()
+    /// <summary>Wakes the Mama of <paramref name="baby"/> after common bomb damage.</summary>
+    /// <param name="baby">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyBombReaction BabyTurtleBombReaction(BabyTurtleEntity baby) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = _ => state.Family.State.Wake(),
-||||||| 418ca79935
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveBabyTurtleShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(baby).WakeMama,
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
@@ -809,16 +772,11 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
         state.Playback = playback;
     }
 
-    /// <summary>Wakes the Mama of the baby whose state is <paramref name="state"/> after common projectile damage.</summary>
-    internal static EnemyShotReaction BabyTurtleShotReaction(BabyTurtleEnemyState state) => new()
+    /// <summary>Wakes the Mama of <paramref name="baby"/> after common projectile damage.</summary>
+    /// <param name="baby">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyShotReaction BabyTurtleShotReaction(BabyTurtleEntity baby) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = _ => state.Family.State.Wake(),
-||||||| 418ca79935
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
-=======
-        AfterCommon = ResolveBabyTurtleShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = Ensure.NotNull(baby).WakeMama,
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>

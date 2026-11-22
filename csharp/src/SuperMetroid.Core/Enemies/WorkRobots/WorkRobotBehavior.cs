@@ -258,7 +258,7 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     /// recoil ahead or behind and holds off its next laser for its recoil delay
     /// (<see cref="WorkRobotLaserDefinitions.RecoilDelay"/>).
     /// </summary>
-    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, WorkRobotEnemyState state, SamusState samus)
+    internal static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, WorkRobotEnemyState state, SamusState samus)
     {
         if (robot.Health == 0)
             return;
@@ -312,25 +312,11 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     internal void RemovePoweredRobot(RoomEnemyPlace place) => _poweredRobots.Remove(Ensure.NotNull(place));
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
-    /// <param name="state">The state of the robot the reaction is built for.</param>
-    internal static EnemyBombReaction PoweredWorkRobotBombReaction(WorkRobotEnemyState state) => new()
+    /// <param name="afterCommon">The enemy's own method recoiling it.</param>
+    internal static EnemyBombReaction PoweredWorkRobotBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
-||||||| 418ca79935
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
-=======
-        AfterCommon = ResolveWorkRobotShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
-
-    /// <summary>Applies a powered robot's recoil after a bomb's common damage.</summary>
-    private static void ResolveWorkRobotShotAfterCommon(EnemyBombHitContext context) =>
-        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
-
-    /// <summary>Applies a powered robot's recoil after a shot's common damage.</summary>
-    private static void ResolveWorkRobotShotAfterCommon(EnemyShotHitContext context) =>
-        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
     internal EnemyBombReaction UnpoweredWorkRobotBombReaction { get; } = new();
@@ -363,16 +349,10 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
                 : null);
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
-    /// <param name="state">The state of the robot the reaction is built for.</param>
-    internal static EnemyShotReaction WorkRobotShotReaction(WorkRobotEnemyState state) => new()
+    /// <param name="afterCommon">The enemy's own method recoiling it.</param>
+    internal static EnemyShotReaction WorkRobotShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-<<<<<<< HEAD
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, state, c.Samus),
-||||||| 418ca79935
-        AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
-=======
-        AfterCommon = ResolveWorkRobotShotAfterCommon,
->>>>>>> origin/main
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Routes robot contact to its external push without Samus damage.</summary>

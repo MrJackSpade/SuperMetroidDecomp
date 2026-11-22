@@ -21,43 +21,17 @@ internal sealed partial class GamePhases
         LoadingGame = new LoadingGameSequence(session);
         GameplayFadeIn = new GamePhase(SuperMetroidGameState.GameplayFadeIn,
             PhaseRandomStep.RuntimeOwned,
-<<<<<<< HEAD
-            step: (controllerInput, live) => Gameplay.RunGameplayFadeIn(controllerInput, live),
-            name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
-||||||| 418ca79935
-            step: controllerInput => Gameplay.RunGameplayFadeIn(controllerInput),
-            name: () => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})");
-=======
             step: Gameplay.RunGameplayFadeIn,
             name: Gameplay.GameplayFadeInName);
->>>>>>> origin/main
         MainGameplay = new GamePhase(SuperMetroidGameState.MainGameplay,
             PhaseRandomStep.RuntimeOwned,
-<<<<<<< HEAD
-            step: (controllerInput, live) => Gameplay.RunMainGameplay(controllerInput, live),
-            name: () => "Gameplay");
-||||||| 418ca79935
-            step: controllerInput => Gameplay.RunMainGameplay(controllerInput),
-            name: () => "Gameplay");
-=======
             step: Gameplay.RunMainGameplay,
             name: GameplayGamePhases.MainGameplayName);
->>>>>>> origin/main
         DoorTransition = new DoorTransitionGameSequence(session);
         ReserveTankRefill = new GamePhase(SuperMetroidGameState.ReserveTankRefill,
             PhaseRandomStep.RuntimeOwned,
-<<<<<<< HEAD
-            step: (controllerInput, live) => Gameplay.RunReserveTankRefill(controllerInput, live),
-            name: () => "Reserve tank refill");
-||||||| 418ca79935
-            step: controllerInput => Gameplay.RunReserveTankRefill(controllerInput),
-            name: () => "Reserve tank refill");
-        DeathSequence = new DeathGameSequence(session);
-=======
             step: Gameplay.RunReserveTankRefill,
             name: GameplayGamePhases.ReserveTankRefillName);
-        DeathSequence = new DeathGameSequence(session);
->>>>>>> origin/main
         GameOverMenu = new GameOverMenuGamePhase(session);
         CeresDeparture = new CeresDepartureGameSequence(session);
         Ending = new EndingGameSequence(session);
@@ -65,8 +39,6 @@ internal sealed partial class GamePhases
 
     /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
     internal GameplayGamePhases Gameplay { get; }
-
-
 
     /// <summary>The loading game sequence's phase.</summary>
     internal IGamePhase LoadingGame { get; }
@@ -80,19 +52,14 @@ internal sealed partial class GamePhases
     /// <summary>The door transition sequence's phase.</summary>
     internal IGamePhase DoorTransition { get; }
 
-
     /// <summary>The reserve tank refill sequence's phase.</summary>
     internal IGamePhase ReserveTankRefill { get; }
-
 
     /// <summary>The game over menu sequence's phase.</summary>
     internal IGamePhase GameOverMenu { get; }
 
-
     /// <summary>The ceres departure sequence's phase.</summary>
     internal IGamePhase CeresDeparture { get; }
-
-
 
     /// <summary>The ending sequence's phase.</summary>
     internal IGamePhase Ending { get; }

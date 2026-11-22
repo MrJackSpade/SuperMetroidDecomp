@@ -27,6 +27,14 @@ internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOc
     /// <summary>The Torizo's state, which its setup builds as the enemy is built (#2554).</summary>
     internal TorizoEnemyState State { get; } = species.Movement.InitializeTorizo(place, variant, surroundings.Samus, surroundings.ControllerInput);
 
+    /// <summary>Begins the Torizo's own death when a shot's common damage takes its last health.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void BeginDeathOnLethalShot(EnemyShotHitContext context)
+    {
+        if (Ensure.NotNull(context).Enemy.Health == 0)
+            TorizoCombat.BeginTorizoDeath(context.Enemy, State);
+    }
+
     /// <summary>Which Torizo this is, Crateria's Bomb Torizo or Norfair's Golden Torizo, whose values his fight reads (#2301, #2410).</summary>
     protected abstract TorizoVariant Variant { get; }
 

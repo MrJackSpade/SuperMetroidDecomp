@@ -298,7 +298,7 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemySpaw
         deadSidehopperEnemyState.Layout = new SidehopperVictim(SidehopperDrainStage.LatchedOn);
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
-    private static void ResolveDeadSidehopperShot(RoomEnemyPlace place, DeadSidehopperEnemyState state)
+    internal static void ResolveDeadSidehopperShot(RoomEnemyPlace place, DeadSidehopperEnemyState state)
     {
         if (place.Contact.HasAny(EnemyContact.IgnoresSamus) ||
             !state.IsDrained)
@@ -325,7 +325,7 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemySpaw
     }
 
     /// <summary>Resolves a power bomb reaching the dead Sidehopper.</summary>
-    private void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context, DeadSidehopperEnemyState state)
+    internal void ResolveDeadSidehopperPowerBomb(EnemyPowerBombContext context, DeadSidehopperEnemyState state)
     {
         RoomEnemyPlace place = context.Enemy;
         if (state.IsDrained)
@@ -401,46 +401,20 @@ internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemySpaw
     }
 
     /// <summary>Uses the private power-bomb reaction in place of common enemy damage handling.</summary>
-    /// <param name="state">The state of the corpse the reaction is built for.</param>
-    internal EnemyPowerBombReaction DeadSidehopperPowerBombReaction(DeadSidehopperEnemyState state) => new()
+    /// <param name="replacesCommon">The corpse's own method running its Power Bomb reaction.</param>
+    internal static EnemyPowerBombReaction DeadSidehopperPowerBombReaction(EnemyPowerBombStage replacesCommon) => new()
     {
-        ReplacesCommon = c => ResolveDeadSidehopperPowerBomb(c, state),
+        ReplacesCommon = replacesCommon,
     };
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
     /// <remarks>The shot is marked as having hit, but the victim ignores it until it is fully drained; even then it
     /// starts rotting without taking damage or an impact.</remarks>
-    /// <param name="state">The state of the enemy the reaction is built for, which it holds from its setup.</param>
-    internal static EnemyShotReaction DeadSidehopperShotReaction(DeadSidehopperEnemyState state) => new()
+    /// <param name="marksShot">The corpse's own method marking the shot and running its reaction.</param>
+    internal static EnemyShotReaction DeadSidehopperShotReaction(EnemyShotStage marksShot) => new()
     {
-<<<<<<< HEAD
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveDeadSidehopperShot(c.Enemy, state);
-            return true;
-        },
-||||||| 418ca79935
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveDeadSidehopperShot(c.Enemy);
-            return true;
-        },
-=======
-        BeforeSuperMissileQuake = MarkShotWithoutDamage,
->>>>>>> origin/main
+        BeforeSuperMissileQuake = marksShot,
     };
-
-    /// <summary>Marks a shot's hit on the corpse, which ignores it until drained and then starts rotting.</summary>
-    /// <param name="c">The shot meeting the corpse.</param>
-    /// <returns>Always true: the corpse takes no damage or impact.</returns>
-    private static bool MarkShotWithoutDamage(in EnemyShotContext c)
-    {
-        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-        ResolveDeadSidehopperShot(c.Enemy);
-        return true;
-    }
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context, DeadSidehopperEnemyState deadSidehopperEnemyState) =>

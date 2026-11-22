@@ -24,20 +24,16 @@ internal static class SporeSpawnSwayVerification
                      new VerifySporeSpawnSwayPhaseWrapsCase(128, 2, 130),
                  })
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
-            body.Position = body.Position.WithWhole(new(128, 624));
-            var state = new SporeSpawnEnemyState
-            {
-                Movement = SporeSpawnMovement.Moving,
-                MovementCenter = body.Position.Whole,
-                SwayRadius = new(48),
-                SwayStep = new(RotationAngle.FromSteps(Math.Abs(delta)), delta < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise),
-                Angle = RotationAngle.FromSteps(start),
-            };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment)).OfType<SporeSpawnStalkLink>()];
-            body.SetSpeciesState(state);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+                definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+            // Spore Spawn as his room's population sets him up, his sway centred where he is placed, swaying on.
+            RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(128, 624)))[0];
+            SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
+            state.Movement = SporeSpawnMovement.Moving;
+            state.SwayRadius = new(48);
+            state.SwayStep = new(RotationAngle.FromSteps(Math.Abs(delta)), delta < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise);
+            state.Angle = RotationAngle.FromSteps(start);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));

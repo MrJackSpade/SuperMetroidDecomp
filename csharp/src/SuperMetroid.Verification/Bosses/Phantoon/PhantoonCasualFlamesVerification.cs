@@ -27,11 +27,11 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(rom.ReadCartridgeWord(pointer + (flames + 1 - flame) * 2),
                     compiled.Flames[flame].WaitBeforeUpdates, "Native casual flame interval");
         }
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        var mouth = enemies.Places.InUpdateOrder[3];
-        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], mouth);
-        enemies.BeginPhantoonAsSetUp(state);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+        PhantoonEnemyState state = enemies.PlacePhantoon();
+        RoomEnemyPlace mouth = state.Mouth;
         void step(RoomEnemyPlace _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;

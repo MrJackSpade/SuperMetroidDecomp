@@ -32,15 +32,8 @@ internal static class PhantoonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        RoomEnemyPlace mouth = enemies.Places.InUpdateOrder[3];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
-        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.KeptDefinition);
-        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.KeptDefinition);
-        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.KeptDefinition);
-        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, eye, tentacles, mouth));
+        // His four parts as his room's population sets them up, the encounter his body's setup began.
+        _ = enemies.PlacePhantoon();
         return enemies;
     }
 

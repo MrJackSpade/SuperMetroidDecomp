@@ -21,12 +21,4 @@ internal static class EnemySheetComposerPrivateAccess
         internal static global::SuperMetroid.AssetExtraction.Enemies.GraphicsSetSheetSources Sources(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs inputs, global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition set) =>
             PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Enemies.GraphicsSetSheetSources>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer), "Sources", [typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs), typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition)], new object?[] { inputs, set });
     }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer)
-    {
-        /// <summary>The private method <c>Load</c>, invoked by name.</summary>
-        internal static global::SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LoadedGraphicsSet Load(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs inputs, global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition set) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer.LoadedGraphicsSet>(typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetComposer), "Load", [typeof(global::SuperMetroid.AssetExtraction.Enemies.EnemySheetInputs), typeof(global::SuperMetroid.AssetExtraction.Enemies.RoomEnemyGraphicsSetDefinition)], new object?[] { inputs, set });
-    }
 }

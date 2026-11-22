@@ -17,8 +17,13 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="StandardObjects">The standard OBJ characters a room load uploads first.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
+/// <param name="SetMembers">
+/// The members each graphics set loads, by set (#1527): the retail catalogue for the installation's sets; a fixture composing
+/// a set of its own names that set's members.
+/// </param>
 internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
-    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer)
+    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer,
+    IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers)
     : IInstalledEncounterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
@@ -35,19 +40,14 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             installed.Areas,
             StandardObjectArtworkFiles.LoadForImport(ImportDataDirectory.Of(standardObjects)).Characters,
             GameplayBasePaletteFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName))),
-            LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)))
+            LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)),
+            RoomEnemyGraphicsSetLists.Members)
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName)), BeamPaletteFile.FileName)),
             Maps = MapPresentationFiles.LoadForImport(maps, ImportDataDirectory.Of(maps)),
         };
     }
 
-
-    /// <summary>
-    /// The members each graphics set loads, by set (#1527): the retail catalogue for the installation's sets; a
-    /// fixture composing a set of its own names that set's members.
-    /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers { get; private init; } = RoomEnemyGraphicsSetLists.Members;
 
     /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
     internal required InstalledBeamPalettes BeamPalettes { get; init; }

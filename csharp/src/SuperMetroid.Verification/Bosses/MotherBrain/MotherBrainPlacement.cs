@@ -18,12 +18,21 @@ internal static class MotherBrainPlacement
     /// <returns>Her encounter.</returns>
     internal static MotherBrainEnemyState PlaceMotherBrain(RoomEnemySystem enemies, SamusState samus)
     {
+        SetUpGlass(enemies);
+        return MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+    }
+
+    /// <summary>
+    /// Sets her glass up as her room's objects do before its enemies spawn, and gives <paramref name="enemies"/> the room's
+    /// glass, which her body's setup confirms loaded.
+    /// </summary>
+    internal static void SetUpGlass(RoomEnemySystem enemies)
+    {
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectPlace glassPlace = roomObjects.Places.Spawn() ?? throw new InvalidOperationException("A new room has a free room-object place.");
         glassPlace.Block = new Position16<RoomBlocks>(8, 8);
         RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.SetupMotherBrainGlass(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), glassPlace,
             RoomObjectFixtures.UnspawnedThrows.GlassShards);
         enemies.VerificationServices().RoomGlass = RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass;
-        return MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
     }
 }

@@ -20,7 +20,7 @@ internal static class BabyMetroidThemeVerification
         // Her late fight and the Baby read the room's random numbers, which stand at zero here.
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
-        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, samus);
         MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, samus);
         BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(lateFight);
         BabyMetroidCutsceneState baby = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");

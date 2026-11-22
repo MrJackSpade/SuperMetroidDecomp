@@ -24,7 +24,7 @@ internal static class BabyMetroidDeathCryVerification
         // Her late fight and the Baby read the room's random numbers, which stand at zero here.
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
-        MotherBrainEnemyState motherBrain = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
+        MotherBrainEnemyState motherBrain = MotherBrainPlacement.PlaceMotherBrain(enemies, samus);
         MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(motherBrain, samus);
         BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(lateFight);
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,

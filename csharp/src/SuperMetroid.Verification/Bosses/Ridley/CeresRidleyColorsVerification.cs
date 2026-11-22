@@ -80,7 +80,7 @@ internal static class CeresRidleyColorsVerification
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
         Action<RidleyEncounterState> eyeTick = RidleyReveal.TickEyeFadeIn;
-        Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = enemies.RidleyBody.Reveal.TickBodyFadeIn;
+        Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = (place, ridley) => enemies.RidleyBody.Reveal.TickBodyFadeIn(place, ridley, EnemyStacking.InFrontOfSamus);
         Action<CeresRidleyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes };
         // The eye fade shows its sixteen shades from the darkest, the cartridge's last row, then holds his own eye colours,

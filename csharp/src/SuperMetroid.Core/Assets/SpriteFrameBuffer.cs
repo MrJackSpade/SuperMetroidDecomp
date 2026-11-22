@@ -38,6 +38,30 @@ public sealed partial class SpriteFrameBuffer
         AddForActorLayering[layering](draw);
     }
 
+    /// <summary>
+    /// The place after every draw emitted so far this frame (#2618), where draws emitted later can be inserted with
+    /// <see cref="InsertAt"/>: in front of everything emitted after it.
+    /// </summary>
+    public SpriteDrawPlace NextPlace() => new(pending.Count == 0 ? null : pending[^1]);
+
+    /// <summary>
+    /// Inserts <paramref name="drawn"/>'s draws, in their order, at <paramref name="place"/> (#2618): behind the draws
+    /// emitted before the place was taken and in front of every draw emitted after it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The draw the place follows is no longer among this frame's draws.</exception>
+    public void InsertAt(SpriteDrawPlace place, SpriteFrameBuffer drawn)
+    {
+        Ensure.NotNull(drawn);
+        int index = 0;
+        if (place.After is { } after)
+        {
+            index = pending.FindIndex(draw => ReferenceEquals(draw, after)) + 1;
+            if (index == 0)
+                throw new InvalidOperationException("The draw a sprite place follows is not among this frame's draws.");
+        }
+        pending.InsertRange(index, drawn.pending);
+    }
+
     /// <summary>Finishes the frame: publishes the pending draws as <see cref="Draws"/>.</summary>
     public void FinalizeFrame()
     {

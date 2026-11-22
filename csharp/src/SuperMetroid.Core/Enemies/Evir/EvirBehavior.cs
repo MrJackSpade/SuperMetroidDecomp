@@ -105,6 +105,8 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <returns>The state the enemy holds from its setup.</returns>
     internal EvirArmsState InitializeEvirArms(RoomEnemyPlace place, RoomEnemyPlace body)
     {
+        // The arms stand in front of their body, behind Samus (#2618).
+        place.Stacking = EnemyStacking.JustBehindSamus;
         // The arms are not a second creature: they always read facing and position from their body.
         RequireListedAfter(body, _places.Member(place, EvirPartListingDefinitions.Listing, EvirMember.Arms, EvirMember.Body), place, "arms");
         var arms = new EvirArmsState(body);

@@ -22,7 +22,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
         Drops: EnemyDrops.Rolling(new EnemyDropChances(80, 80, 80, 5, 5, 5)),
-        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
+        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable,
+        Stacking: EnemyStacking.BehindSamus);
 
     /// <summary>Compiled baby turtle enemy definition.</summary>
     private static readonly RoomEnemyDefinition Baby = new(
@@ -41,7 +42,8 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Scanned,
         Drops: EnemyDrops.Rolling(new EnemyDropChances(80, 80, 80, 5, 5, 5)),
-        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable);
+        Vulnerability: EnemyVulnerabilityDefinitions.Invulnerable,
+        Stacking: EnemyStacking.BehindSamus);
 
     /// <summary>Resolves a compiled family header by its native bank-$A0 pointer.</summary>
     internal static bool TryGet(EnemyDefinitionId pointer, out RoomEnemyDefinition definition)

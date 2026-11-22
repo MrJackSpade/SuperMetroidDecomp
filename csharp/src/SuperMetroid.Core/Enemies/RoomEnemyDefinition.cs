@@ -26,6 +26,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="Drops">What the enemy's death drops: nothing, or a pickup its chances roll for.</param>
 /// <param name="Vulnerability">The enemy's vulnerabilities, the standard ones (<see cref="EnemyVulnerabilityDefinitions.Standard"/>) or its own.</param>
+/// <param name="Stacking">Where the enemy's picture stands among the room's actors as it spawns (#2618); its behaviour may move it.</param>
 public readonly partial record struct RoomEnemyDefinition(
     int Health,
     int Damage,
@@ -42,4 +43,5 @@ public readonly partial record struct RoomEnemyDefinition(
     EnemyHitboxScan TouchHitboxScan,
     EnemyHitboxScan ShotHitboxScan,
     EnemyDrops Drops,
-    EnemyVulnerabilities Vulnerability);
+    EnemyVulnerabilities Vulnerability,
+    EnemyStacking Stacking);

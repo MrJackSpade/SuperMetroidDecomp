@@ -33,5 +33,6 @@ internal static class EnemyDefinitionFixtures
         TouchHitboxScan: default,
         ShotHitboxScan: default,
         Drops: EnemyDrops.Nothing,
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard,
+        Stacking: EnemyStacking.BehindSamus);
 }

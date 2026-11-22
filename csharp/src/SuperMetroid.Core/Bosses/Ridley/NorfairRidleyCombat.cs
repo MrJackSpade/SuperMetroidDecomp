@@ -65,6 +65,8 @@ internal sealed partial class NorfairRidleyCombat
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
+        // Lower Norfair's Ridley stands behind Samus, unlike his species' definition (#2618).
+        place.Stacking = EnemyStacking.BehindSamus;
 
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);

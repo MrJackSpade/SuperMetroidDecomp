@@ -55,6 +55,8 @@ internal sealed partial class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFa
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        // The statue stands in front of every other actor, Samus in its hand included (#2618).
+        statue.Stacking = EnemyStacking.Frontmost;
         statue.Frame = EnemyFrameId.PointAtOrigin;
         statue.AnimationClock.Restart();
 

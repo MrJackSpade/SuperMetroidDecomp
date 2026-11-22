@@ -413,6 +413,8 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactor
             state.Begin(BeetomAction.StartDraining, state.Facing);
             state.AttachedToSamus = true;
             state.ButtonCounter = BeetomMotionDefinitions.MashCount;
+            // Latched on, it stands in front of Samus (#2618).
+            place.Stacking = EnemyStacking.InFrontOfSamus;
         }
 
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)

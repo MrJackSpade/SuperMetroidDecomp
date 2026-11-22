@@ -25,7 +25,8 @@ internal static partial class RoomEnemyAuxiliaryDefinitionCatalog
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
         Drops: EnemyDrops.Rolling(new EnemyDropChances(smallEnergy: 0, bigEnergy: 0, missile: 0, nothing: 255, superMissile: 0, powerBomb: 0)),
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard,
+        Stacking: EnemyStacking.InFrontOfSamus);
 
     /// <summary>The falling tubes of Mother Brain's cutscene.</summary>
     internal static readonly RoomEnemyDefinition MotherBrainTubes = new(
@@ -44,7 +45,8 @@ internal static partial class RoomEnemyAuxiliaryDefinitionCatalog
         TouchHitboxScan: EnemyHitboxScan.Withheld,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
         Drops: EnemyDrops.Nothing,
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard,
+        Stacking: EnemyStacking.BehindSamus);
 
     /// <summary>
     /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door

@@ -40,6 +40,9 @@ internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyReve
     /// <summary>Lower Norfair Ridley's wait once Samus's door has finished, its first update the one the door finishes on.</summary>
     public int InitialDelayUpdates => NorfairRidleyRevealDefinitions.RevealDelayUpdates;
 
+    /// <summary>Lower Norfair Ridley stays behind Samus, where his setup placed him, once his body has faded in.</summary>
+    public EnemyStacking RevealedStacking => EnemyStacking.BehindSamus;
+
     /// <summary>Begins Lower Norfair Ridley's hold after his roar: his arena's reveal, which takes its first step on its first update.</summary>
     /// <param name="ridley">His encounter.</param>
     public void BeginRoarHold(NorfairRidleyState ridley) => Ensure.NotNull(ridley).BeginArenaReveal();

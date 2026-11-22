@@ -52,6 +52,7 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
         place.Contact = population.Contact;
         place.Processing = population.Processing;
         place.Presence = population.Presence;
+        place.Stacking = definition.Stacking;
         place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
         place.AiStates = EnemyAiStates.None;
         place.AnimationClock.Restart();

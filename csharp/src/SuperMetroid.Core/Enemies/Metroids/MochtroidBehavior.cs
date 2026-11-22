@@ -37,6 +37,8 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemySpawnFact
     /// <returns>The state the enemy holds from its setup.</returns>
     internal static MochtroidEnemyState InitializeMochtroid(RoomEnemyPlace place)
     {
+        // A Mochtroid stands in front of Samus, whom it latches onto (#2618).
+        place.Stacking = EnemyStacking.InFrontOfSamus;
         // A new Mochtroid has started no animation, so its first request always starts one. Ordinary room loads
         // start every Mochtroid this way.
         var state = new MochtroidEnemyState

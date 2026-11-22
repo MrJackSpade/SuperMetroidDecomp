@@ -192,6 +192,11 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// <summary>Whether the occupant is drawn, still occupies the place and returns after a kill, initially the population entry's.</summary>
     public EnemyPresence Presence { get; internal set; }
     /// <summary>
+    /// Where the occupant's picture stands among the room's actors (#2618), initially its definition's; the enemy pass queues
+    /// it with the standing it has then.
+    /// </summary>
+    public EnemyStacking Stacking { get; internal set; }
+    /// <summary>
     /// Whether the occupant collides by its frames' hitboxes rather than by its radius, initially the population entry's.
     /// The enemies' draw pass also reaches such an occupant wherever it is, not only when its radius puts it on screen.
     /// </summary>

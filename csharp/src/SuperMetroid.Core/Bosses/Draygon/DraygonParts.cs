@@ -107,6 +107,8 @@ internal sealed partial class DraygonParts
     {
         DraygonPart joined = JoiningPart(arms, Ensure.NotNull(draygon).ArmsPart);
         arms.Shading = draygon.Colours.Sprites;
+        // The arms stand in front of Samus, whom they carry (#2618).
+        arms.Stacking = EnemyStacking.InFrontOfSamus;
         return joined;
     }
 

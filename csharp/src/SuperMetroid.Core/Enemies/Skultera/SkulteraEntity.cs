@@ -24,6 +24,7 @@ internal sealed partial class SkulteraEntity(SkulteraBehavior species, RoomEnemy
         SkulteraSpawnSettings settings)
         : this(species, occupant, place, common, settings, SkulteraBehavior.InitializeSkultera(settings))
     {
+        place.Stacking = SkulteraBehavior.SwimmingStacking(settings.StartDirection);
     }
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

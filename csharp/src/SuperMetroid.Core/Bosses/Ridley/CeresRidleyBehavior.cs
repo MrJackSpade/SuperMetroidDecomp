@@ -44,6 +44,9 @@ internal sealed partial class CeresRidleyBehavior : IRidleyRevealEncounter<Ceres
     /// <summary>Ceres Ridley's wait once Samus's door has finished, its first update the one the door finishes on.</summary>
     public int InitialDelayUpdates => CeresRidleyFightDefinitions.RevealDelayUpdates;
 
+    /// <summary>Ceres Ridley stands in front of Samus once his body has faded in; he stood behind her while he was unseen.</summary>
+    public EnemyStacking RevealedStacking => EnemyStacking.InFrontOfSamus;
+
     /// <summary>Begins Ceres Ridley's hold after his roar, on whose last update he takes off.</summary>
     /// <param name="ridley">His encounter.</param>
     public void BeginRoarHold(CeresRidleyState ridley) => Ensure.NotNull(ridley).PhaseTimer.LastFor(CeresRidleyFightDefinitions.RoarHoldUpdates);

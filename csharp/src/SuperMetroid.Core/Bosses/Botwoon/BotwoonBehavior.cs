@@ -457,13 +457,15 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
             BotwoonHeadAnimationSegment segment;
             if (state.InsideHole)
             {
-                // The head becomes intangible while it travels inside the wall.
+                // The head becomes intangible while it travels inside the wall, and stands behind every other actor.
+                head.Stacking = EnemyStacking.Rearmost;
                 head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
                 segment = BotwoonHeadAnimationSegment.Hidden;
             }
             else
             {
-                // Collision is restored once the head is outside.
+                // Collision is restored once the head is outside, where it stands in front of Samus.
+                head.Stacking = EnemyStacking.InFrontOfSamus;
                 head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
                 segment = BotwoonHeadAnimationSegment.MovingToward(EnemyMath.CalculateAimAngle(moved));
             }
@@ -483,6 +485,8 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
         BotwoonEnemyState state,
         SamusState samus)
     {
+        // The aiming head stands in front of Samus, as it does outside the wall.
+        head.Stacking = EnemyStacking.InFrontOfSamus;
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - head.Position.X.Whole, samus.Position.Y.Whole - head.Position.Y.Whole));
         StartBotwoonHeadAnimation(head, state, BotwoonHeadAnimationSegment.SpittingToward(aim));

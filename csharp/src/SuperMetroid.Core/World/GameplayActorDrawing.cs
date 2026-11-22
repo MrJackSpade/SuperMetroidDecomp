@@ -88,6 +88,10 @@ internal sealed partial class GameplayActorDrawing
                 _freeze.TimeIsFrozen);
         }
 
+        // The enemies standing in front of Samus are drawn here, ahead of her (#2618); the enemy draw pass prepares them only
+        // after her drawing, so their draws are inserted at this place then.
+        SpriteDrawPlace enemiesInFrontOfSamus = _sprites.NextPlace();
+
         // The death sequence owns her colours while it owns her; otherwise the colour step runs.
         if (colourEffects == SamusColourEffects.Advance && !deathOwnsSamus)
             AdvanceSamusColours(room, samus);
@@ -275,9 +279,13 @@ internal sealed partial class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // The enemies draw after Samus and her projectiles, each at its frame's depth.
+            // The enemies' draw pass runs after Samus and her projectiles. Those standing in front of her are shown at the place
+            // taken before her drawing, the rest after her, each at its frame's depth (#2618).
             IReadOnlyList<EnemyDrawList.PreparedEnemyDraw> prepared = room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
-            room.Enemies.Drawing.Draw(prepared, _sprites, room.Camera.PixelPosition, samus);
+            var inFront = new SpriteFrameBuffer();
+            room.Enemies.Drawing.DrawInFrontOfSamus(prepared, inFront, room.Camera.PixelPosition);
+            _sprites.InsertAt(enemiesInFrontOfSamus, inFront);
+            room.Enemies.Drawing.DrawBehindSamus(prepared, _sprites, room.Camera.PixelPosition, samus);
         }
 
         if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)

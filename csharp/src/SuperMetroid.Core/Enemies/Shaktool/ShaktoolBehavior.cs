@@ -84,6 +84,7 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
         state.ResetOrientation();
         place.Processing = place.Processing.With(ShaktoolSegmentDefinitions.Processing);
         place.Contact = place.Contact.With(definition.Contact);
+        place.Stacking = definition.Stacking;
         state.Motion = definition.Motion;
         // Initialization and synchronization both take the segment's authored angular velocity unchanged.
         state.AngularVelocity = definition.AngularVelocity;

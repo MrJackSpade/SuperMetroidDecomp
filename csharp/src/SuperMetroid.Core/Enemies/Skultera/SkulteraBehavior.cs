@@ -37,6 +37,13 @@ internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemySpawnFacto
         ApplySkulteraCueForSkulteraCueKind[cue.Kind](state);
     }
 
+    /// <summary>
+    /// Where a Skultera swimming toward <paramref name="direction"/> stands among the room's actors (#2618): in front of
+    /// Samus swimming left, far behind her swimming right.
+    /// </summary>
+    internal static EnemyStacking SwimmingStacking(HorizontalDirection direction) =>
+        direction == HorizontalDirection.Left ? EnemyStacking.InFrontOfSamus : EnemyStacking.FarBehindSamus;
+
     /// <summary>Initializes the Skultera.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
     internal static SkulteraEnemyState InitializeSkultera(SkulteraSpawnSettings settings)
@@ -139,6 +146,7 @@ internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemySpawnFacto
         HorizontalDirection direction)
     {
         state.Action = SkulteraAction.Swimming;
+        place.Stacking = SwimmingStacking(direction);
         state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight));

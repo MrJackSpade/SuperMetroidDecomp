@@ -48,7 +48,8 @@ internal sealed partial class EnemyDrawList
     /// Queues <paramref name="enemy"/> to show after the enemies already queued; <paramref name="reached"/> tells whether
     /// the draw pass reaches it, which only a reached enemy's draw-pass side effects depend on.
     /// </summary>
-    internal void Enqueue(RoomEnemyPlace enemy, bool reached) => _queued.Add(new QueuedEnemy(Ensure.NotNull(enemy), reached));
+    internal void Enqueue(RoomEnemyPlace enemy, bool reached) =>
+        _queued.Add(new QueuedEnemy(Ensure.NotNull(enemy), reached, enemy.Stacking));
 
     /// <summary>
     /// The simulation half of the enemies' draw, in queue order. For each enemy the draw pass reaches, the Puyo value its
@@ -63,7 +64,7 @@ internal sealed partial class EnemyDrawList
     internal IReadOnlyList<PreparedEnemyDraw> Advance(Position16<RoomPixels> camera)
     {
         var prepared = new List<PreparedEnemyDraw>();
-        foreach ((RoomEnemyPlace place, bool reached) in _queued)
+        foreach ((RoomEnemyPlace place, bool reached, EnemyStacking stacking) in _queued)
         {
             // The draw of every reached enemy, a cleared or reserved one too, leaves the value a Puyo's ceiling
             // strike reads clear.
@@ -111,15 +112,15 @@ internal sealed partial class EnemyDrawList
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
                 EnemyAnimationPlayer.DrawBossBodyFrame(place, occupant, displays.GetDisplayFrame(shown));
-            prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth));
+            prepared.Add(new PreparedEnemyDraw(place, occupant, origin, drawShading, shown, pictured, placed?.PictureDepth, stacking));
         }
         return prepared;
     }
 
     /// <summary>
-    /// Publishes the draws <paramref name="prepared"/> that <see cref="Advance"/> prepared, in queue order, each at the depth its frame shows at. An
-    /// occupant's supplemental sprites are written just before its body; Mother Brain's late parts and the dead Torizo's
-    /// sand heap follow every queued enemy.
+    /// Publishes every draw <paramref name="prepared"/> that <see cref="Advance"/> prepared: those standing in front of Samus
+    /// (<see cref="DrawInFrontOfSamus"/>), then the rest (<see cref="DrawBehindSamus"/>), for a frame that draws no Samus
+    /// between them.
     /// </summary>
     /// <param name="prepared">The draws <see cref="Advance"/> prepared.</param>
     /// <param name="sprites">The frame's sprite description; the occupants and the late draws write its sprites.</param>
@@ -127,11 +128,62 @@ internal sealed partial class EnemyDrawList
     /// <param name="samus">Samus, whom Mother Brain's brain animation reads as her late parts advance it.</param>
     internal void Draw(IReadOnlyList<PreparedEnemyDraw> prepared, SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
     {
+        DrawInFrontOfSamus(prepared, sprites, camera);
+        DrawBehindSamus(prepared, sprites, camera, samus);
+    }
+
+    /// <summary>
+    /// Publishes the draws of <paramref name="prepared"/> whose enemies stand in front of Samus (#2618), front to back by
+    /// standing and in queue order within one, each at the depth its frame shows at. An occupant's supplemental sprites are
+    /// written just before its body.
+    /// </summary>
+    /// <param name="prepared">The draws <see cref="Advance"/> prepared.</param>
+    /// <param name="sprites">The sprites the draws are written to, which the frame places in front of Samus.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    internal void DrawInFrontOfSamus(IReadOnlyList<PreparedEnemyDraw> prepared, SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
         Ensure.NotNull(prepared);
         Ensure.NotNull(sprites);
+        foreach (EnemyStacking stacking in EnemyStackingOrder.FrontToBack)
+        {
+            if (EnemyStackingOrder.InFrontOfSamus.Contains(stacking))
+                PublishStanding(prepared, stacking, sprites, camera);
+        }
+    }
 
+    /// <summary>
+    /// Publishes the draws of <paramref name="prepared"/> whose enemies stand behind Samus (#2618), front to back by standing
+    /// and in queue order within one, each at the depth its frame shows at; Mother Brain's late parts and the dead Torizo's
+    /// sand heap follow every queued enemy.
+    /// </summary>
+    /// <param name="prepared">The draws <see cref="Advance"/> prepared.</param>
+    /// <param name="sprites">The frame's sprite description; the occupants and the late draws write its sprites.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="samus">Samus, whom Mother Brain's brain animation reads as her late parts advance it.</param>
+    internal void DrawBehindSamus(IReadOnlyList<PreparedEnemyDraw> prepared, SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
+    {
+        Ensure.NotNull(prepared);
+        Ensure.NotNull(sprites);
+        foreach (EnemyStacking stacking in EnemyStackingOrder.FrontToBack)
+        {
+            if (!EnemyStackingOrder.InFrontOfSamus.Contains(stacking))
+                PublishStanding(prepared, stacking, sprites, camera);
+        }
+
+        // The encounters' late draws follow every queued enemy's draw; Mother Brain's advances her brain, which reads the
+        // room's random numbers.
+        foreach (IEnemyLateDraw late in _lateDraws)
+            late.DrawAfterEnemies(sprites, camera, samus);
+    }
+
+    /// <summary>Publishes the draws of <paramref name="prepared"/> whose enemies stand at <paramref name="stacking"/>, in queue order.</summary>
+    private void PublishStanding(IReadOnlyList<PreparedEnemyDraw> prepared, EnemyStacking stacking, SpriteFrameBuffer sprites,
+        Position16<RoomPixels> camera)
+    {
         foreach (PreparedEnemyDraw draw in prepared)
         {
+            if (draw.Stacking != stacking)
+                continue;
             RoomEnemyPlace place = draw.Place;
             var source = new SpriteSource(SpriteSourceKind.Enemy);
             // An occupant may draw supplemental sprites before the common enemy drawing draws its body (Ridley's tail
@@ -149,17 +201,13 @@ internal sealed partial class EnemyDrawList
                     Depth = draw.Depth,
                 });
         }
-
-        // The encounters' late draws follow every queued enemy's draw; Mother Brain's advances her brain, which reads the
-        // room's random numbers.
-        foreach (IEnemyLateDraw late in _lateDraws)
-            late.DrawAfterEnemies(sprites, camera, samus);
     }
 
     /// <summary>One live enemy queued to show.</summary>
     /// <param name="Place">The enemy.</param>
     /// <param name="Reached">Whether the draw pass reaches it, running its draw's side effects.</param>
-    private readonly partial record struct QueuedEnemy(RoomEnemyPlace Place, bool Reached);
+    /// <param name="Stacking">Where its picture stands among the room's actors as the enemy pass queued it (#2618).</param>
+    private readonly partial record struct QueuedEnemy(RoomEnemyPlace Place, bool Reached, EnemyStacking Stacking);
 
     /// <summary>One queued enemy's draw, formed by <see cref="Advance"/>.</summary>
     /// <param name="Place">The enemy.</param>
@@ -170,8 +218,10 @@ internal sealed partial class EnemyDrawList
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
     /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
+    /// <param name="Stacking">Where its picture stands among the room's actors (#2618).</param>
     internal readonly partial record struct PreparedEnemyDraw(RoomEnemyPlace Place, RoomEnemyOccupant Occupant,
-        Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
+        Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth,
+        EnemyStacking Stacking);
 
     /// <summary>
     /// Selects the shading an enemy is drawn in, immediately before

@@ -118,7 +118,7 @@ internal static class GameplayDisplayFrameTestsVerification
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         // The room's display reads the body the encounter attached as it set up (#2194): this one's.
-        runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
+        runtime.Enemies.Presentation.AttachBossBody(new PlacedBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain), motherBrain));
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!Registers(runtime).ShownLayers.HasFlag(ScreenLayers.BossBody), "the accepted NMI publishes Mother Brain's hidden body");

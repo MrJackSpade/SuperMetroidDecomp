@@ -27,7 +27,7 @@ public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.Boss
         BodyOccupant = bodyOccupant;
         Body = body;
         Tongue = Ensure.NotNull(tongue);
-        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire, this);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire);
     }
 
     /// <summary>

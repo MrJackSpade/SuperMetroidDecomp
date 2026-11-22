@@ -8,12 +8,10 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// boss draws its parts (<see cref="BossBodyPartDefinitions"/>), and the row above which alone the body shows. Phantoon's
 /// body, eye, tentacles and mouth, Draygon's body, eye and dying arms, Crocomire's body and melt images, and Mother
 /// Brain's body show their frames here; a part shows its current frame alone, in place of the frame it showed before.
+/// The room shows the body placed and hidden as its boss says (<see cref="PlacedBossBody"/>).
 /// </summary>
-internal sealed partial class BossBodyParts : IBossBodyDisplay
+internal sealed partial class BossBodyParts
 {
-    /// <summary>Where the boss places the body and whether it shows nothing, or none for a body no boss places (#2194).</summary>
-    private readonly IBossBodyShowing? showing;
-
     /// <summary>The boss whose body it is.</summary>
     private readonly BossBodyOwner owner;
 
@@ -35,25 +33,18 @@ internal sealed partial class BossBodyParts : IBossBodyDisplay
     /// <summary>The body as it stands, until a part shows another frame or the body is cleared or cut.</summary>
     private BossBodyLayer? published;
 
-    /// <summary>
-    /// A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows from the start, placed and
-    /// hidden as <paramref name="showing"/> says (#2194).
-    /// </summary>
+    /// <summary>A body of <paramref name="owner"/>'s no part shows a frame on yet, which the room shows from the start.</summary>
     /// <exception cref="InvalidOperationException">The boss draws its own body, as Kraid does.</exception>
-    public BossBodyParts(BossBodyOwner owner, IBossBodyShowing? showing)
+    public BossBodyParts(BossBodyOwner owner)
     {
-        this.showing = showing;
         parts = BossBodyPartDefinitions.DrawOrders.TryGetValue(owner, out ImmutableArray<EnemyDefinitionId> order) ? order
             : throw new InvalidOperationException($"{owner} draws its own body; it shows no parts' frames.");
         this.owner = owner;
         IsShown = true;
     }
 
-    /// <summary>
-    /// A body of <paramref name="owner"/>'s the room shows only once it is revealed, placed and hidden as
-    /// <paramref name="showing"/> says (#2194).
-    /// </summary>
-    public static BossBodyParts Hidden(BossBodyOwner owner, IBossBodyShowing? showing) => new(owner, showing) { IsShown = false };
+    /// <summary>A body of <paramref name="owner"/>'s the room shows only once it is revealed.</summary>
+    public static BossBodyParts Hidden(BossBodyOwner owner) => new(owner) { IsShown = false };
 
     /// <summary>Whether the room shows the body: false only while Mother Brain readies hers before her second phase (#1356).</summary>
     internal bool IsShown { get; set; }
@@ -116,13 +107,4 @@ internal sealed partial class BossBodyParts : IBossBodyDisplay
 
     /// <summary>The body as it stands, shared until it changes.</summary>
     internal BossBodyLayer Publish() => published ??= new BossBodyLayer([.. parts.Where(frames.ContainsKey).Select(part => frames[part])], shownAbove);
-
-    /// <inheritdoc />
-    BossBodyShowing? IBossBodyDisplay.Showing => IsShown ? new BossBodyShowing(Publish(), showing?.BodyPlacement) : null;
-
-    /// <inheritdoc />
-    bool IBossBodyDisplay.HidesBodyLayer => showing is { BodyHidden: true };
-
-    /// <inheritdoc/>
-    bool IBossBodyDisplay.HidesBackgroundLayer => showing?.HidesBackgroundLayer == true;
 }

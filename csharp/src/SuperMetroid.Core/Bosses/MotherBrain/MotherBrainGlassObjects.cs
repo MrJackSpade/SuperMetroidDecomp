@@ -29,10 +29,13 @@ internal sealed partial class MotherBrainGlassObjects
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
     internal bool MotherBrainGlassWasLoaded { get; set; }
 
-    /// <summary>Sets the glass up at its place in the room.</summary>
-    internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
+    /// <summary>
+    /// Sets the glass up at its place in the room, throwing its shards among <paramref name="shards"/>: the room's enemy
+    /// projectiles, which the room's enemies built before its room objects are set up.
+    /// </summary>
+    internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place, IMotherBrainGlassShardSpawner shards)
     {
-        place.Become(new MotherBrainGlassObject(this));
+        place.Become(new MotherBrainGlassObject(this, shards));
         // The setup makes the glass's block solid and shootable and leaves its picture as it is (#2502).
         level.SetCollisionAndBehavior(place.Block, RoomCollisionType.SolidBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
@@ -70,9 +73,10 @@ internal sealed partial class MotherBrainGlassObjects
 
     /// <summary>
     /// Queues the shatter sound and throws a burst of shard projectiles from the glass's block into the step's
-    /// <paramref name="outcome"/>.
+    /// <paramref name="outcome"/>, each spawning among <paramref name="spawner"/>.
     /// </summary>
-    internal void ThrowShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards, RoomObjectStepOutcome outcome)
+    internal void ThrowShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards, RoomObjectStepOutcome outcome,
+        IMotherBrainGlassShardSpawner spawner)
     {
         Ensure.NotNull(place);
         Ensure.NotNull(shards);
@@ -81,7 +85,7 @@ internal sealed partial class MotherBrainGlassObjects
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock));
+            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock, spawner));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>

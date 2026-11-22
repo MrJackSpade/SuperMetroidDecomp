@@ -10,9 +10,19 @@ internal sealed partial class RoomObjectPopulationLoader
     /// <summary>The room-object families whose setups keep state of their own, and the room's places.</summary>
     private readonly RoomObjectPopulationLoaderDependencies _families;
 
-    /// <summary>Connects setup-family services and the room's places for one room-object system.</summary>
-    internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies) =>
+    /// <summary>The room's enemy projectiles' spawners, which the room objects that throw projectiles take as they set up.</summary>
+    private readonly RoomObjectThrownProjectileSpawners _thrown;
+
+    /// <summary>
+    /// Connects setup-family services and the room's places for one room-object system, and the room's enemy projectiles'
+    /// spawners of the projectiles its room objects throw.
+    /// </summary>
+    internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies, RoomObjectThrownProjectileSpawners thrown)
+    {
         _families = Ensure.NotNull(dependencies);
+        _thrown = Ensure.NotNull(thrown);
+    }
+
     /// <summary>
     /// Places one room-object population exactly once, in its placements' order. Each
     /// placement takes its place before its setup runs, as the game's room-object spawn
@@ -71,6 +81,7 @@ internal sealed partial class RoomObjectPopulationLoader
                 Bosses = services.Bosses,
                 Place = place,
                 Families = _families,
+                Thrown = _thrown,
             }));
         }
 

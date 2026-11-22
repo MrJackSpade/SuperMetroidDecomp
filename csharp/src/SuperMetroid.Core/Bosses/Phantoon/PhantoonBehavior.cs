@@ -72,7 +72,7 @@ internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemySpawnFacto
         _places = dependencies.Places;
         _partOffers = dependencies.PartOffers;
         Presentation = new PhantoonPresentation(dependencies.FrameContext);
-        Combat = new PhantoonCombat(_room, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
+        Combat = dependencies.Combat;
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.PassEvents, Combat);
         Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, dependencies.FrameContext, Presentation, Combat);
         Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, Audio = _audio, PassEvents = dependencies.PassEvents });
@@ -99,7 +99,7 @@ internal sealed partial class PhantoonBehavior : IEnemySpecies, IEnemySpawnFacto
             EnemyOccupant.Running(new PhantoonMouthEntity(this, part, place, common, _bossArtwork, state)));
 
         // Phantoon shows his body, eye, tentacle and mouth frames on his body (#1353, #1466, #1515), nothing at first.
-        _presentation.AttachBossBody(state.BodyParts);
+        _presentation.AttachBossBody(new PlacedBossBody(state.BodyParts, state));
         _presentation.BossShadings.Show(BossShadingLayer.Phantoon, state.Colours);
 
         // His body is black as the fight starts, which his later fades start from (#1512).

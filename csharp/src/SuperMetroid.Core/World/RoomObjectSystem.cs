@@ -121,12 +121,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Handles grey door conditions and opening animation.</summary>
     internal GreyDoorObjects GreyDoors { get; }
 
-    /// <summary>
-    /// The room's enemy projectiles' spawners of the projectiles its room objects throw (#2514), which the update that runs
-    /// the room objects' step hands each thrown projectile.
-    /// </summary>
-    internal RoomObjectThrownProjectileSpawners Thrown { get; }
-
     /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
@@ -147,7 +141,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Ensure.NotNull(reachedByEnemies);
-        Thrown = Ensure.NotNull(thrown);
         Events = services.Events;
         Places = reachedByEnemies.Places;
         Sounds = reachedByEnemies.Sounds;
@@ -173,7 +166,7 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         CeresEscape = new CeresEscapeObjects(Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = reachedByEnemies.BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = reachedByEnemies.MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = reachedByEnemies.BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = reachedByEnemies.MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls }, thrown);
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }

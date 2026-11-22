@@ -99,15 +99,15 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         _partOffers = dependencies.PartOffers;
-        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
+        Access = dependencies.Access;
         BodyLayer = new KraidBodyLayer(_bossArtwork);
-        Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        Projectiles = dependencies.KraidProjectiles;
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork, Projectiles.Rocks);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Access, Background, Projectiles.SpitRock);
         Rise = new KraidRise(new KraidRiseDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Places = dependencies.Places, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
         Death = new KraidDeath(new KraidDeathDependencies { PassEvents = dependencies.PassEvents, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, dependencies.Collision);
+        Combat = dependencies.Combat;
     }
 
     /// <summary>

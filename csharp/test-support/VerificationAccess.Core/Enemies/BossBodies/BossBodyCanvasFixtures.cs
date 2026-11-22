@@ -18,8 +18,8 @@ internal static class BossBodyCanvasFixtures
     internal static BossBodyParts AttachBlank(RoomEnemySystem enemies, BossBodySheets sheets, BossBodyOwner owner)
     {
         enemies.BossArtworkBinding.BodySheets = sheets;
-        var body = new BossBodyParts(owner, showing: null);
-        enemies.Presentation.AttachBossBody(body);
+        var body = new BossBodyParts(owner);
+        enemies.Presentation.AttachBossBody(UnplacedBossBody.Showing(body));
         return body;
     }
 
@@ -36,7 +36,7 @@ internal static class BossBodyCanvasFixtures
         {
             if (parts.Any(part.Holds))
             {
-                enemies.Presentation.AttachBossBody(new BossBodyParts(owner, showing: null));
+                enemies.Presentation.AttachBossBody(UnplacedBossBody.Showing(new BossBodyParts(owner)));
                 return;
             }
         }

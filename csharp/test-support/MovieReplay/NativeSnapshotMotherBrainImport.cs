@@ -433,14 +433,14 @@ internal static class NativeSnapshotMotherBrainImport
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         BossBodySheet sheet = runtime.BossArtwork.Body(BossBodyOwner.MotherBrain);
-        var image = new BossBodyParts(BossBodyOwner.MotherBrain, showing: null);
+        var image = new BossBodyParts(BossBodyOwner.MotherBrain);
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
             image.Show(state.Body.HeldOccupant().DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
-        runtime.Enemies.Presentation.AttachBossBody(image);
+        runtime.Enemies.Presentation.AttachBossBody(UnplacedBossBody.Showing(image));
     }
 
     /// <summary>The WRAM offset of the enemy BG2 staging image, <c>$7E:2000</c>.</summary>

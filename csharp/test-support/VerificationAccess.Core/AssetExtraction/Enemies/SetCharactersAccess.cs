@@ -22,10 +22,9 @@ internal static class SetCharactersAccess
         internal SpriteArtwork Page(IReadOnlyList<EncounterLook> shown)
         {
             Ensure.NotNull(shown);
-            SetCharacters.FrameLookPart[] parts = [.. shown.Select(look => self.Encounters.FirstOrDefault(encounter => EncounterLookUploads.ShownAs(encounter.Encounter) == look.Encounter)
-                is { } played ? new SetCharacters.FrameLookPart(played, [ComposedLook.Of(played.Encounter, look)], look.Encounter)
-                : throw new InvalidDataException($"The set's members play no encounter that shows {look}."))];
-            return self.Page(parts, [.. parts.Select(part => part.Looks[0])]);
+            return self.Composed([.. shown.Select(look => self.Encounters.FirstOrDefault(encounter => EncounterLookUploads.ShownAs(encounter.Encounter) == look.Encounter)
+                is { } played ? (played, ComposedLook.Of(played.Encounter, look))
+                : throw new InvalidDataException($"The set's members play no encounter that shows {look}."))]);
         }
 
         /// <summary>
@@ -38,8 +37,23 @@ internal static class SetCharactersAccess
         {
             EncounterLookSteps played = self.Encounters.FirstOrDefault(candidate => candidate.Encounter == encounter)
                 ?? throw new InvalidDataException($"The set's members do not play {encounter}.");
-            ComposedLook shownLook = EncounterLookUploads.Looks(encounter)[look];
-            return self.Page([new SetCharacters.FrameLookPart(played, [shownLook], EncounterLookUploads.ShownAs(encounter))], [shownLook]);
+            return self.Composed([(played, EncounterLookUploads.Looks(encounter)[look])]);
+        }
+
+        /// <summary>
+        /// The room load's characters with every look of each encounter in <paramref name="shown"/> up to the one it shows
+        /// copied over them in order, as the import composes a frame's picture of those looks.
+        /// </summary>
+        private SpriteArtwork Composed(IReadOnlyList<(EncounterLookSteps Played, ComposedLook Look)> shown)
+        {
+            // The loaded page's characters are the room load's table, followed by the page's blank overhang.
+            byte[] characters = self.Loaded.Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
+            foreach ((EncounterLookSteps played, ComposedLook look) in shown)
+            {
+                foreach (EncounterArtworkUpload upload in played.CopiesThrough(look))
+                    upload.ApplyTo(characters);
+            }
+            return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), characters);
         }
     }
 }

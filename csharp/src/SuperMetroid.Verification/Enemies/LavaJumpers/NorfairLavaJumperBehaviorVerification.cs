@@ -50,7 +50,7 @@ internal static class NorfairLavaJumperBehaviorVerification
 
         RoomEnemyPlace follower = places[1];
         // The follower's setup builds the state its animation, which the check plays, runs on.
-        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>());
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>().State, parent);
         follower.AnimationClock.StepOnNextUpdate();
         // The flare and the flickers after it are one cycle (#2337), which starts over at the flare.
         ushort[] cycle = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower, NorfairLavaJumperSegment.FollowerFlickering).ToArray();

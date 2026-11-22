@@ -153,7 +153,6 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>What <c>Draw</c> does for each <see cref="SamusDeathDraw"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>> DrawForSamusDeathDraw => field ??= new(new Dictionary<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>>
     {
         [SamusDeathDraw.Pose] = (samus, sprites, cameraPosition, turningFloor) => samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor),

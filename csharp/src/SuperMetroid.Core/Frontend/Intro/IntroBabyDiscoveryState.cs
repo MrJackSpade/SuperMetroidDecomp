@@ -188,7 +188,6 @@ internal sealed partial class IntroBabyDiscoveryState
     }
 
     /// <summary>What <see cref="CheckDemoPhase"/> does for each <see cref="IntroBabyDiscoveryDemoPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroBabyDiscoveryDemoPhase, Action<bool>> CheckDemoPhaseForIntroBabyDiscoveryDemoPhase => field ??= new(new Dictionary<IntroBabyDiscoveryDemoPhase, Action<bool>>
     {
         [IntroBabyDiscoveryDemoPhase.RunningLeft] = crossfadeFinishing =>
@@ -230,7 +229,6 @@ internal sealed partial class IntroBabyDiscoveryState
     }
 
     /// <summary>What <see cref="HandleEggCue"/> does for each <see cref="IntroDiscoveryCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroDiscoveryCue, Action> HandleEggCueForIntroDiscoveryCue => field ??= new(new Dictionary<IntroDiscoveryCue, Action>
     {
         [IntroDiscoveryCue.SpawnShellPieces] = () =>
@@ -263,7 +261,6 @@ internal sealed partial class IntroBabyDiscoveryState
     }
 
     /// <summary>What <see cref="StepConfusedBaby"/> does for each <see cref="ConfusedBabyMotion"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<ConfusedBabyMotion, Action<bool>> StepConfusedBabyForConfusedBabyMotion => field ??= new(new Dictionary<ConfusedBabyMotion, Action<bool>>
     {
         [ConfusedBabyMotion.WaitingForHatch] = crossfadeFinishing =>

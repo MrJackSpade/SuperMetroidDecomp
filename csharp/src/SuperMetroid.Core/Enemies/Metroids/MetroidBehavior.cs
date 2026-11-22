@@ -47,7 +47,6 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="ApplyMetroidCue"/> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MetroidCueKind, Action> ApplyMetroidCueForMetroidCueKind => field ??= new(new Dictionary<MetroidCueKind, Action>
     {
         [MetroidCueKind.PlayDrainingSound] = () =>
@@ -93,7 +92,6 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunMetroidMain"/> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>> RunMetroidMainForMetroidMovement => field ??= new(new Dictionary<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>>
     {
         [MetroidMovement.Homing] = (place, samus, level, state, targetY) => RunMetroidHoming(place, state, samus, targetY, level),

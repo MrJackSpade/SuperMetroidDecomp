@@ -88,7 +88,6 @@ internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>What <see cref="RunEscapeEtecoonMain"/> does for each <see cref="EscapeEtecoonAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>> RunEscapeEtecoonMainForEscapeEtecoonAction => field ??= new(new Dictionary<EscapeEtecoonAction, Action<RoomEnemyPlace, EscapeEtecoonEnemyState, RoomLevelData>>
     {
         [EscapeEtecoonAction.ExpressingGratitude] = (place, state, level) => { },

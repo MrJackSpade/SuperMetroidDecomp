@@ -77,7 +77,6 @@ internal sealed partial class EyeDoorEyeObject(EyeDoorOrientation orientation, P
         context.Draw(place, EyeDoorDraws.Of(Orientation, frame));
 
     /// <summary>What <c>Raise</c> does for each <see cref="EyeDoorAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>> RaiseForEyeDoorAction => field ??= new(new Dictionary<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorAction.Shoot] = (place, context) => context.RoomObjects.EyeDoors.Shoot(place, Orientation, Door.Placed.Door),
@@ -90,7 +89,6 @@ internal sealed partial class EyeDoorEyeObject(EyeDoorOrientation orientation, P
         (raised, place, context) => RaiseForEyeDoorAction[raised](place, context);
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorEyePhase => field ??= new(new Dictionary<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorEyePhase.Placed] = (place, context) => Look(place, context),

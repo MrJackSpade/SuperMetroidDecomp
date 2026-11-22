@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 public sealed partial class SamusLiquidPhysicsState
 {
     /// <summary>What <see cref="ConfigureFor"/> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<RoomFxType, Action<RoomLiquidReading>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomLiquidReading>>
     {
         [RoomFxType.Water] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.Water),
@@ -432,7 +431,6 @@ public sealed partial class SamusLiquidPhysicsState
     }
 
     /// <summary>Whether the ground of each wetness is wet under Samus.</summary>
-    [field: NonSerialized]
     private IdentityTable<RoomGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<RoomGroundWetness, Func<SamusState, bool>>
     {
         [RoomGroundWetness.Dry] = samus => false,

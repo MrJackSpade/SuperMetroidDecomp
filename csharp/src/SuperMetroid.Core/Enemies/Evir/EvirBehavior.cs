@@ -88,7 +88,6 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyEvirCue"/> does for each <see cref="EvirCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EvirCueKind, Action<EvirSpitState>> ApplyEvirCueForEvirCueKind => field ??= new(new Dictionary<EvirCueKind, Action<EvirSpitState>>
     {
         [EvirCueKind.PlaySpitSound] = state => QueueEvirSpitSound(),

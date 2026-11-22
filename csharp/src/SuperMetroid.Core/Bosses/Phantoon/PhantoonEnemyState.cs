@@ -163,9 +163,9 @@ public sealed partial class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossB
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Gets the encounter's lazily created wave of his body, which advances separately from display latching.</summary>
-    public PhantoonBodyWaveEffect BodyWave => field ??= new();
+    /// <summary>Gets the encounter's wave of his body, which advances separately from display latching.</summary>
+    public PhantoonBodyWaveEffect BodyWave { get; } = new();
 
-    /// <summary>Gets the encounter's lazily created visibility effect: whether his body shows, hidden or translucent, live and as the display latched it with his body's pixelation.</summary>
-    public PhantoonBodyVisibilityEffect BodyVisibility => field ??= new();
+    /// <summary>Gets the encounter's visibility effect: whether his body shows, hidden or translucent, live and as the display latched it with his body's pixelation.</summary>
+    public PhantoonBodyVisibilityEffect BodyVisibility { get; } = new();
 }

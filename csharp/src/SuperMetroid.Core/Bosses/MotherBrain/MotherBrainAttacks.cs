@@ -103,7 +103,6 @@ internal sealed partial class MotherBrainAttacks
     }
 
     /// <summary>What <see cref="RunMotherBrainSecondPhaseTryAttack"/> does for each <see cref="MotherBrainAttackPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainSecondPhaseTryAttackForMotherBrainAttackPhase => field ??= new(new Dictionary<MotherBrainAttackPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainAttackPhase.ChooseAttack] = (state, samus) => ChooseMotherBrainSecondPhaseAttack(state, samus),
@@ -132,7 +131,6 @@ internal sealed partial class MotherBrainAttacks
     }
 
     /// <summary>What <see cref="ChooseMotherBrainSecondPhaseAttack"/> does for each <see cref="MotherBrainSecondPhaseAttack"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>> ChooseMotherBrainSecondPhaseAttackForMotherBrainSecondPhaseAttack => field ??= new(new Dictionary<MotherBrainSecondPhaseAttack, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainSecondPhaseAttack.Neutral] = (state, samus) => MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2),

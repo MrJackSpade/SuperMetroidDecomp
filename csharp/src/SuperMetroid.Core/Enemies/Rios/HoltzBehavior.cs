@@ -26,7 +26,7 @@ internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<
                 $"Lower Norfair Rio follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
         }
         var parent = new HoltzEntity(this, occupant, place, common);
-        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Holtz, new ParentFollowing(this, parent).CreateLater);
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Holtz, new ParentFollowing(this, parent.State, parent.Place).CreateLater);
         return EnemyOccupant.Running(parent);
     }
 
@@ -35,13 +35,17 @@ internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<
     /// parent is built as any parent is.
     /// </summary>
     /// <param name="species">The Holtz species owner.</param>
-    /// <param name="parent">The parent a later follower follows.</param>
-    private sealed partial class ParentFollowing(HoltzBehavior species, HoltzEntity parent)
+    /// <param name="parentState">
+    /// The state of the parent a later follower follows. The joining holds what the creation reads, not the parent's entity, so a restore of the game's state never rebuilds
+    /// that entity from inside its own offer.
+    /// </param>
+    /// <param name="parentPlace">The place of the parent a later follower follows.</param>
+    private sealed partial class ParentFollowing(HoltzBehavior species, HoltzEnemyState parentState, RoomEnemyPlace parentPlace)
     {
         /// <summary>A later entry: a follower following the parent, or another parent.</summary>
         internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             settings.Role == EnemyFollowerRole.Follower
-                ? EnemyOccupant.Running(new HoltzFollowerEntity(species, occupant, place, common, parent))
+                ? EnemyOccupant.Running(new HoltzFollowerEntity(species, occupant, place, common, parentState, parentPlace))
                 : species.Create(occupant, settings, place, common);
     }
 
@@ -71,15 +75,15 @@ internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its looping flames.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parent"/>.</exception>
-    internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place, HoltzEntity parent)
+    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parentPlace"/>.</exception>
+    internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place, HoltzEnemyState parentState, RoomEnemyPlace parentPlace)
     {
-        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parent).Place)
+        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parentPlace))
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
         }
-        var state = new HoltzFollowerState(parent.State, parent.Place)
+        var state = new HoltzFollowerState(Ensure.NotNull(parentState), parentPlace)
         {
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
         };
@@ -99,7 +103,6 @@ internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>What <see cref="RunHoltzMain"/> does for each <see cref="HoltzAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>> RunHoltzMainForHoltzAction => field ??= new(new Dictionary<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>>
     {
         [HoltzAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>

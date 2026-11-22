@@ -29,7 +29,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
         AssertTrue(parent.Entity is SqueeptEntity && follower.Entity is NorfairLavaJumperFollowerEntity,
             "parameter one's sign bit selects the follower: the placement builds each part's own entity (#2164)");
         // The follower's setup builds the state its main AI runs on, which follows its parent's rise and fall.
-        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>());
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>().State, parent);
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
         enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, followerState);

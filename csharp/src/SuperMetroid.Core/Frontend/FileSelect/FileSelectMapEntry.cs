@@ -30,7 +30,6 @@ public sealed partial class FileSelectMapEntry
     public int Bottom => ScreenGeometry.ScreenHeightPixels - Top;
 
     /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapEntryPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<FileSelectMapEntryPhase, Action> StepForFileSelectMapEntryPhase => field ??= new(new Dictionary<FileSelectMapEntryPhase, Action>
     {
         [FileSelectMapEntryPhase.BlackHold] = () =>

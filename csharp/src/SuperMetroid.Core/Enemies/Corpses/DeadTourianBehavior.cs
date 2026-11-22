@@ -62,7 +62,6 @@ internal sealed partial class DeadTourianBehavior : IEnemySpecies, IEnemySpawnFa
     }
 
     /// <summary>What <see cref="RunDeadTourianCorpseMain"/> does for each <see cref="CorpsePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>> RunDeadTourianCorpseMainForDeadTourianCorpsePhase => field ??= new(new Dictionary<CorpsePhase, Action<RoomEnemyPlace, SamusState, DeadTourianCorpseEnemyState>>
     {
         [CorpsePhase.Waiting] = WaitToRot,

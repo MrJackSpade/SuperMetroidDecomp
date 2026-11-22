@@ -39,7 +39,6 @@ internal sealed partial class DoorTransitionGameSequence(FrontendSession session
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="DoorTransitionStep"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>> StepForDoorTransitionStep => field ??= new(new Dictionary<DoorTransitionStep, Action<ControllerButton, LoadedGameplay>>
     {
         [DoorTransitionStep.EnteringDoor] = (controllerInput, live) =>

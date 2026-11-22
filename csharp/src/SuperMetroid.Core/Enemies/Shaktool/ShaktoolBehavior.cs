@@ -341,7 +341,6 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private static IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
     {
         [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
@@ -454,7 +453,6 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private static IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolChain, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolChain, ShaktoolCue>>
     {
         [ShaktoolCueKind.Lower] = ApplyShaktoolCueForShaktoolCueKindLower,

@@ -22,7 +22,7 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
         if (Ensure.NotNull(settings).Part == DragonPart.Wing)
             return EnemyOccupant.PlacedOnly(DragonWingEntity.SetUp(this, occupant, place, common, StartingWingState()));
         var body = new DragonEntity(this, occupant, place, common);
-        _partOffers.Offer<DragonSpawnSettings>(EnemyDefinitionId.Dragon, new WingJoining(this, body).CreateLater);
+        _partOffers.Offer<DragonSpawnSettings>(EnemyDefinitionId.Dragon, new WingJoining(this, body.State.WingState).CreateLater);
         return EnemyOccupant.Running(body);
     }
 
@@ -31,13 +31,16 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
     /// animates; another body is built as any body is.
     /// </summary>
     /// <param name="species">The Dragon species owner.</param>
-    /// <param name="body">The body whose wing state a later wing takes.</param>
-    private sealed partial class WingJoining(DragonBehavior species, DragonEntity body)
+    /// <param name="wing">
+    /// The wing state of the body a later wing takes. The joining holds what the creation reads, not the body's entity, so a restore of the game's state never rebuilds
+    /// that entity from inside its own offer.
+    /// </param>
+    private sealed partial class WingJoining(DragonBehavior species, DragonWingState wing)
     {
         /// <summary>A later entry: the body's wing, or another body.</summary>
         internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, DragonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             settings.Part == DragonPart.Wing
-                ? EnemyOccupant.PlacedOnly(DragonWingEntity.SetUp(species, occupant, place, common, body.State.WingState))
+                ? EnemyOccupant.PlacedOnly(DragonWingEntity.SetUp(species, occupant, place, common, wing))
                 : species.Create(occupant, settings, place, common);
     }
 
@@ -117,7 +120,6 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
     internal RoomEnemyPlace FollowUpRecipientOf(RoomEnemyPlace place) => FollowUpAfterStruckPart.Recipient(_places.PlacesAfter(place));
 
     /// <summary>What <see cref="RunDragonMain"/> does for each <see cref="DragonAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, DragonWingState, SamusState>> RunDragonMainForDragonAction => field ??= new(new Dictionary<DragonAction, Action<RoomEnemyOccupant, RoomEnemyPlace, DragonEnemyState, DragonWingState, SamusState>>
     {
         [DragonAction.WaitToRise] = (_, place, state, wing, samus) => RunDragonWaitToRise(place, state, wing, samus),

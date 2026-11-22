@@ -24,23 +24,17 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Creates the parent's drop requested by a shot Kago bug.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-
-    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
-    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus, EnemyAudioQueue audio)
     {
-        _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
-        _deathsAndDrops = deathsAndDrops;
         _roomStatus = roomStatus;
+        Bug = new BugBehavior(room, audio, deathsAndDrops);
     }
 
     /// <summary>Initializes the Kago.</summary>
@@ -94,7 +88,7 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    internal BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    internal BugBehavior Bug { get; }
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
@@ -113,7 +107,6 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
         /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
         {
             [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
@@ -131,7 +124,6 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
         /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
         {
             [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),

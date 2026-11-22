@@ -316,7 +316,6 @@ internal sealed partial class SamusPoseInputList
     /// its transitions read and every part of that chord newly pressed. It is worked out from the list alone, so a snapshot
     /// neither holds nor works it out.
     /// </summary>
-    [field: NonSerialized]
     internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
 

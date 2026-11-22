@@ -584,7 +584,6 @@ internal sealed partial class EnemyDeathsAndDrops
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>What <see cref="ApplyEnemyDeathAndDropCue"/> comes to for each <see cref="EnemyDeathAndDropCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>> ApplyEnemyDeathAndDropCueForEnemyDeathAndDropCueKind => field ??= new(new Dictionary<EnemyDeathAndDropCueKind, Func<EnemyProjectile, SamusState, EnemyDeathAndDropSegment?>>
     {
         [EnemyDeathAndDropCueKind.Delete] = (projectile, samus) =>

@@ -84,7 +84,6 @@ public sealed partial class CeresHazeState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="Phase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<Phase, Action<RoomFade>> StepForPhase => field ??= new(new Dictionary<Phase, Action<RoomFade>>
     {
         [Phase.FadingIn] = roomFade =>

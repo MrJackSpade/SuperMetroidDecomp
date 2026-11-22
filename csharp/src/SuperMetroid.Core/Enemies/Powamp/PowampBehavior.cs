@@ -48,6 +48,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemySpawnFactory
         _places = places;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
+        Spike = new(FlyPowampSpike, shot: StartsSpikeDelete);
     }
 
     /// <summary>
@@ -87,7 +88,6 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
     /// <summary>What <see cref="RunPowampMain"/> does for each <see cref="PowampAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon, PowampBalloonEntity>> RunPowampMainForPowampAction => field ??= new(new Dictionary<PowampAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PowampBodyState, RoomLevelData, SamusState, PowampBalloon, PowampBalloonEntity>>
     {
         [PowampAction.DeflatedResting] = (_, place, state, level, samus, balloon, _) => RunPowampDeflatedResting(place, state, balloon),
@@ -476,7 +476,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemySpawnFactory
     /// A Powamp spike (#1760): it flies outward, accelerating, with room collision. A shot spike runs the same private
     /// delete animation its definition names as its shot animation.
     /// </summary>
-    internal StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike => field ??= new(FlyPowampSpike, shot: StartsSpikeDelete);
+    internal StatefulSingleMotionProjectileBehavior<PowampSpikeState> Spike { get; }
 
     /// <summary>Moves a Powamp spike (<see cref="Spike"/>).</summary>
     private void FlyPowampSpike(EnemyProjectileMotionContext context) => FlyPowampSpike(context.Projectile, context.Level);

@@ -100,7 +100,6 @@ internal sealed partial class IntroNarrationActors
     public void HideCaret() => caretHidden = true;
 
     /// <summary>What <see cref="StartPage"/> does for each <see cref="IntroNarrationPageOpening"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroNarrationPageOpening, Action> StartPageForIntroNarrationPageOpening => field ??= new(new Dictionary<IntroNarrationPageOpening, Action>
     {
         [IntroNarrationPageOpening.KeepsSetupCaret] = () => { },
@@ -166,7 +165,6 @@ internal sealed partial class IntroNarrationActors
     }
 
     /// <summary>What the typing does at each <see cref="IntroNarrationTypingCue"/> it raises, each cue's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
     {
         [IntroNarrationTypingCue.ShowSubtitle] = page =>

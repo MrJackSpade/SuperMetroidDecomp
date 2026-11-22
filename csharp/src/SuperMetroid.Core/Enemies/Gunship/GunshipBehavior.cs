@@ -223,7 +223,6 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunGunshipTopMain"/> does for each <see cref="GunshipPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GunshipPhase, Action<RoomEnemyPlace, GunshipTop, SamusState, GameplayAction>> RunGunshipTopMainForGunshipPhase => field ??= new(new Dictionary<GunshipPhase, Action<RoomEnemyPlace, GunshipTop, SamusState, GameplayAction>>
     {
         [GunshipPhase.DescendAfterCeres] = (top, ship, samus, _) => DescendPostCeresGunship(top, ship.Ship, ship.Pieces, samus),

@@ -21,10 +21,11 @@ internal sealed partial class GerutaFollowerEntity(GerutaBehavior species, RoomE
     /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
     /// <param name="place">The place the follower occupies.</param>
     /// <param name="common">The shared participation.</param>
-    /// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
+    /// <param name="parentState">The state of the parent the room lists right before the follower, which offered it its creation (#2554).</param>
+    /// <param name="parentPlace">The place of that parent.</param>
     internal GerutaFollowerEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-        GerutaEntity parent)
-        : this(species, occupant, place, common, species.InitializeGerutaFollower(place, parent))
+        GerutaEnemyState parentState, RoomEnemyPlace parentPlace)
+        : this(species, occupant, place, common, species.InitializeGerutaFollower(place, parentState, parentPlace))
     {
     }
 

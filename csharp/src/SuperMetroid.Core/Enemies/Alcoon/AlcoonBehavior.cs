@@ -63,7 +63,6 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactor
     private readonly partial record struct ApplyAlcoonCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, AlcoonEnemyState State, RoomLevelData Level, AlcoonBehavior Owner);
 
     /// <summary>What each of the Alcoon's signals does, and the animation it continues at, or null to run on.</summary>
-    [field: NonSerialized]
     private IdentityTable<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>> AlcoonSignals => field ??=
         new(new Dictionary<AlcoonCueKind, Func<RoomEnemyPlace, AlcoonEnemyState, RoomLevelData, AnimationContinuation<AlcoonSegment>?>>
         {
@@ -118,7 +117,6 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactor
     }
 
     /// <summary>What <see cref="RunAlcoonMain"/> does for each <see cref="AlcoonAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>> RunAlcoonMainForAlcoonAction => field ??= new(new Dictionary<AlcoonAction, Action<RoomEnemyPlace, AlcoonEnemyState, SamusState, RoomLevelData>>
     {
         [AlcoonAction.WaitingForSamus] = (place, state, samus, level) => WaitForAlcoonActivation(place, state, samus),

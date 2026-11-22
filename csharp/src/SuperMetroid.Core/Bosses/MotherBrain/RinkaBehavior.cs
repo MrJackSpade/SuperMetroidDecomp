@@ -160,7 +160,6 @@ internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemySpawnFactory<
     }
 
     /// <summary>What <see cref="RunRinkaMain"/> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<RinkaAction, Action<RoomEnemyOccupant, RinkaSpawnSettings, RoomEnemyPlace, RinkaEnemyState, SamusState>> RunRinkaMainForRinkaAction => field ??= new(new Dictionary<RinkaAction, Action<RoomEnemyOccupant, RinkaSpawnSettings, RoomEnemyPlace, RinkaEnemyState, SamusState>>
     {
         [RinkaAction.WatchForLeavingViewport] = (occupant, settings, place, state, samus) =>

@@ -55,6 +55,12 @@ public sealed partial class RoomLevelData
     /// <summary>The foreground plane last published for display, until the next visual write; derived, never saved.</summary>
     private RoomLevelPlane? PublishedForeground { get; set; }
 
+    /// <summary>
+    /// The background plane, built the first time the room shows it and kept: the block-picture resolver knows the plane it
+    /// resolved by its identity, so a restored room's background is the plane its restored resolver holds (#2554).
+    /// </summary>
+    private RoomLevelPlane? PublishedBackground { get; set; }
+
     /// <summary>Copies a room's grid; an installed layout changes only what the blocks initially show.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride and both are positive (#1627).</param>
     /// <param name="planes">The foreground terrain, behaviour and background appearances, each exactly width times height entries in row-major order.</param>
@@ -173,7 +179,7 @@ public sealed partial class RoomLevelData
     public RoomLevelPlane ForegroundPlane => PublishedForeground ??= new(Size, shownForeground, shownCollectibles);
 
     /// <summary>The background plane as the room shows it; nothing changes the background after loading, so it is built once.</summary>
-    public RoomLevelPlane BackgroundPlane => field ??= new(Size, background);
+    public RoomLevelPlane BackgroundPlane => PublishedBackground ??= new(Size, background);
 
     /// <summary>
     /// <paramref name="block"/>, which must be a block of the room's grid, as a room object that sits on the grid is

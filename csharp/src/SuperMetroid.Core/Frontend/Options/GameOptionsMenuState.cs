@@ -142,7 +142,6 @@ public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, ICompose
     });
 
     /// <summary>What <c>Step</c> does for each <see cref="GameOptionsPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GameOptionsPhase, Action<ControllerButton>> StepForGameOptionsPhase => field ??= new(new Dictionary<GameOptionsPhase, Action<ControllerButton>>
     {
         [GameOptionsPhase.BlackHold] = pressed =>
@@ -240,7 +239,6 @@ public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, ICompose
     }
 
     /// <summary>What <see cref="StepPrimary"/> does for each <see cref="GameOptionsPrimaryRow"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GameOptionsPrimaryRow, Action> StepPrimaryForGameOptionsPrimaryRow => field ??= new(new Dictionary<GameOptionsPrimaryRow, Action>
     {
         [GameOptionsPrimaryRow.StartGame] = () =>
@@ -402,7 +400,6 @@ public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, ICompose
         });
 
     /// <summary>What <see cref="SelectFirstRow"/> does for each <see cref="GameOptionsPage"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GameOptionsPage, Action> SelectFirstRowForGameOptionsPage => field ??= new(new Dictionary<GameOptionsPage, Action>
     {
         [GameOptionsPage.Primary] = () => primaryRow = GameOptionsPageRows.Primary.Top,

@@ -144,12 +144,17 @@ internal sealed class GraphComparisons : IStateGraphRegistry
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             return Bytes(left).SequenceEqual(Bytes(right));
         // A run of the game's values holding references is compared element by element as it is met, through the values'
-        // own field writer, so no element is boxed and only the references they hold are queued.
+        // own field writer, so no element is boxed and only the references they hold are queued. Two values with the same
+        // bits hold the same scalars and the same objects, so they are the same without being written; a run whose bits
+        // all match is the same as a whole.
         if (typeof(T).IsValueType && ValueFields<T>.Write is { } write)
         {
+            if (Bytes(left).SequenceEqual(Bytes(right)))
+                return true;
             for (int index = 0; index < left.Length; index++)
             {
-                if (!walk.SameFields(write, left[index], right[index]))
+                if (!Bytes(left.Slice(index, 1)).SequenceEqual(Bytes(right.Slice(index, 1))) &&
+                    !walk.SameFields(write, left[index], right[index]))
                     return false;
             }
             return true;

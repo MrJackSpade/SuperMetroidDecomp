@@ -157,7 +157,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Right);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.MorphBall, pause.SelectedControl, "pause Right selects the first collected suit and miscellaneous control, Morph Ball");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
@@ -181,7 +181,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Bombs, pause.SelectedControl, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the equipment selector at the Bombs' origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
@@ -286,14 +286,13 @@ internal static class PauseMenuVerification
         [.. pause.ComposeScene().Layers.ToArray().OfType<SpritesLayer>().Single().Draws.Cast<ImageSpriteDraw>()];
 
     /// <summary>
-    /// The one draw of the display packet showing the suits and boots categories' selector frame for the selector's
-    /// current phase, which a beam or reserve selector does not show.
+    /// The one draw of the display packet showing a suits and boots categories' selector frame, one of the frames the
+    /// selector's looks show for those columns, which a beam or reserve selector does not show.
     /// </summary>
-    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet)
+    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet, PauseSelectorPresentation selectors)
     {
-        SpriteSheetFrame frame = pauseSheet.Frame(PauseSelectorAnchors.SheetFrameName(
-            pause.ItemSelectorAnimationState.Look.Equipment));
-        return ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, frame));
+        SpriteSheetFrame[] frames = [.. selectors.Looks.Select(look => pauseSheet.Frame(PauseSelectorAnchors.SheetFrameName(look.Equipment)))];
+        return ShownSpriteDraws(pause).Single(draw => frames.Any(frame => ReferenceEquals(draw.Image, frame)));
     }
 
     /// <summary>Seeds a three-byte SNES pointer in the constructed pause-menu cartridge fixture.</summary>

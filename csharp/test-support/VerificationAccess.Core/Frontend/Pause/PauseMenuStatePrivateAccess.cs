@@ -71,11 +71,4 @@ internal static class PauseMenuStatePrivateAccess
         /// <summary>The private field <c>screen</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Frontend.Pause.PauseScreen screen => PrivateState.Field<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Pause.PauseScreen>(self, "screen");
     }
-
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Frontend.Pause.PauseMenuState self)
-    {
-        /// <summary>The private field <c>itemSelector</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue> itemSelector => PrivateState.Field<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "itemSelector");
-    }
 }

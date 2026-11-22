@@ -48,14 +48,14 @@ internal static class PhantoonShotDamageVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PhantoonBody));
+        // His four parts as his room's population sets them up, with his definition's health; the encounter is the one his
+        // body's setup began. He swoops with his eye open and his body no longer ignoring Samus.
+        PhantoonEnemyState state = enemies.PlacePhantoon();
+        RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(128, 96));
         body.Frame = EnemyFrameId.PhantoonBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        body.Health = 2500;
-        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1],
-            enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
+        state.Phase = PhantoonPhase.Swooping;
         state.PhaseWait.LastFor(60);
         state.ShowBody(PhantoonBodyHitArea.EyeOnly);
         state.BodyPictureShown();

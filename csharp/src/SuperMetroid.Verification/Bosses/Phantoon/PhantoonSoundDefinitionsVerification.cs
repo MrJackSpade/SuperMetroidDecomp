@@ -25,10 +25,8 @@ internal static class PhantoonSoundDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
-        var state = new PhantoonEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        enemies.BeginPhantoonAsSetUp(state);
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+        PhantoonEnemyState state = enemies.PlacePhantoon();
         Action<PhantoonEnemyState, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         AssertEqual(PhantoonSoundDefinitions.MaterializationSounds[0], state.NextMaterializationSound.Entry, "Phantoon's first materialization queues the cycle's first sound");

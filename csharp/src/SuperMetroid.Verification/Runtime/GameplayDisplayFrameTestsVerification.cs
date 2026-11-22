@@ -115,10 +115,11 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
-        runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
-        // The room's display reads the body the encounter attached as it set up (#2194): this one's.
-        runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
+        // Her room's population set her up as the room loaded: the encounter is the one her body's setup began, and the room's
+        // display reads the hidden body it attached (#2194). Her body is placed with her and her death hides its layer.
+        MotherBrainEnemyState motherBrain = runtime.Enemies.Places.InUpdateOrder[0].EntityOf<MotherBrainBodyEntity>().Encounter;
+        motherBrain.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
+        motherBrain.DeathHidesBodyLayer = true;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!Registers(runtime).ShownLayers.HasFlag(ScreenLayers.BossBody), "the accepted NMI publishes Mother Brain's hidden body");

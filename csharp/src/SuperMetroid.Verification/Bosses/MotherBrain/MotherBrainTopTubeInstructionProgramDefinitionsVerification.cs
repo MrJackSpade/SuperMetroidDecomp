@@ -111,8 +111,9 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            // The tubes fall in Mother Brain's encounter, whose colours they take, as her body's initializer loads it.
-            enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()));
+            // The tubes fall in Mother Brain's encounter, whose colours they take, as her room's population places her, her
+            // glass set up first, and her body's setup begins it.
+            _ = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
             return enemies;
         }
 

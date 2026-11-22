@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -38,34 +36,5 @@ public sealed class BeamTileCatalog
     /// <summary>The immutable 256-byte planar transfer of a beam combination's characters.</summary>
     public ReadOnlyMemory<byte> Resolve(SamusBeamCombination beam) =>
         Ensure.Listed(sheets, beam).Characters;
-
-    /// <summary>
-    /// Each beam combination that has artwork and the VRAM asset holding its sheet (#2557); the Spazer and Plasma
-    /// combinations have none.
-    /// </summary>
-    private static readonly FrozenDictionary<SamusBeamCombination, InstalledArtworkId> Assets = new Dictionary<SamusBeamCombination, InstalledArtworkId>
-    {
-        [SamusBeamCombination.Power] = InstalledArtworkId.BeamPowerTiles,
-        [SamusBeamCombination.Wave] = InstalledArtworkId.BeamWaveTiles,
-        [SamusBeamCombination.Ice] = InstalledArtworkId.BeamIceTiles,
-        [SamusBeamCombination.IceWave] = InstalledArtworkId.BeamIceWaveTiles,
-        [SamusBeamCombination.Spazer] = InstalledArtworkId.BeamSpazerTiles,
-        [SamusBeamCombination.SpazerWave] = InstalledArtworkId.BeamSpazerWaveTiles,
-        [SamusBeamCombination.SpazerIce] = InstalledArtworkId.BeamSpazerIceTiles,
-        [SamusBeamCombination.SpazerIceWave] = InstalledArtworkId.BeamSpazerIceWaveTiles,
-        [SamusBeamCombination.Plasma] = InstalledArtworkId.BeamPlasmaTiles,
-        [SamusBeamCombination.PlasmaWave] = InstalledArtworkId.BeamPlasmaWaveTiles,
-        [SamusBeamCombination.PlasmaIce] = InstalledArtworkId.BeamPlasmaIceTiles,
-        [SamusBeamCombination.PlasmaIceWave] = InstalledArtworkId.BeamPlasmaIceWaveTiles,
-        [SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitions.Selection] = InstalledArtworkId.BeamChainsawTiles,
-        [SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamGraphicsDefinitions.Selection] = InstalledArtworkId.BeamSpacetimeTiles,
-    }.ToFrozenDictionary();
-
-    /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination has no artwork ($0C or $0F).</exception>
-    public static InstalledArtworkId AssetFor(SamusBeamCombination selection) =>
-        Assets.TryGetValue(selection, out InstalledArtworkId asset)
-            ? asset
-            : throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no artwork.");
 
 }

@@ -26,9 +26,6 @@ internal sealed class EndingLogo
     /// </summary>
     private EndingLogoCrossfadeStep? NextCrossfade { get; set; }
 
-    /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
-    public bool CrossfadeStarted => NextCrossfade is not null;
-
     /// <summary>How the logo's sprites show: drawn until the grey-out cue begins the crossfade, then glowing over its picture.</summary>
     public SpriteBlend Sprites { get; private set; } = SpriteBlend.Drawn;
     /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>

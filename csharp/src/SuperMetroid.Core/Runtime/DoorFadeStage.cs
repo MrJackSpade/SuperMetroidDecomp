@@ -2,7 +2,6 @@ using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;
 

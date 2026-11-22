@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;

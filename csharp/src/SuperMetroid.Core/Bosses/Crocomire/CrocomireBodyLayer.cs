@@ -1,7 +1,5 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Animation;

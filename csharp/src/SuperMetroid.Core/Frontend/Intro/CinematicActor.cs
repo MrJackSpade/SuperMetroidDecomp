@@ -123,7 +123,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
             animation, ref place, cue => ApplyCue(cue, ownerCue));
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        shown.React(StepHidingReactions, new StepContext(ownerCue, this));
+        shown.React(StepHidingReactions, new StepContext(this));
     }
 
     /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
@@ -156,9 +156,8 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
-    private readonly record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
+    private readonly record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>Hands the cue to the actor's owner.</summary>
     private void ApplyCue(TCue cue, Action<TCue>? ownerCue)

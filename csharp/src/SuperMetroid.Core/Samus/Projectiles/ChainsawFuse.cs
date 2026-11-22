@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

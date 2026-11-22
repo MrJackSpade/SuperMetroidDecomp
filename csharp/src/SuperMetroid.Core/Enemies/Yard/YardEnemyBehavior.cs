@@ -69,7 +69,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             MoveBy: static (moveBy, context) =>
             {
                 context.Place.Position += moveBy.Offset;
-                return (AnimationContinuation<YardSegment>?)null;
+                return null;
             },
             SetDirection: static (setDirection, context) =>
             {

@@ -30,10 +30,9 @@ public abstract record SamusKnockback
     public sealed record Moving(SamusKnockbackDirection Direction) : SamusKnockback
     {
         /// <inheritdoc/>
-        internal override SamusKnockback HandBack() => new HandedBack(Direction);
+        internal override SamusKnockback HandBack() => new HandedBack();
     }
 
     /// <summary>A knockback whose movement went back to her pose before her knockback hold ran out.</summary>
-    /// <param name="Direction">Which way it moved her.</param>
-    public sealed record HandedBack(SamusKnockbackDirection Direction) : SamusKnockback;
+    public sealed record HandedBack() : SamusKnockback;
 }

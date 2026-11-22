@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Samus.Abilities;

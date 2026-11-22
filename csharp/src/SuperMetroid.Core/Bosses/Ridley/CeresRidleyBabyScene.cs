@@ -109,7 +109,7 @@ internal sealed class CeresRidleyBabyScene
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
-        outcome.React(AdvanceCeresBabyAnimationReactions, new AdvanceCeresBabyAnimationContext(baby, ridley, this));
+        outcome.React(AdvanceCeresBabyAnimationReactions, new AdvanceCeresBabyAnimationContext(baby));
     }
 
     /// <summary>What <see cref="AdvanceCeresBabyAnimation"/> does on each <see cref="AnimationShown{CeresBabySegment, CeresBabyPose}"/>, built once (#2553).</summary>
@@ -130,9 +130,7 @@ internal sealed class CeresRidleyBabyScene
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
-    /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
-    /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
-    private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
+    private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby);
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>

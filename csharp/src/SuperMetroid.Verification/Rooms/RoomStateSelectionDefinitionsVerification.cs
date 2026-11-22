@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.AssetExtraction.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;

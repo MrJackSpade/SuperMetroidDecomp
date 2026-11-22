@@ -4,7 +4,6 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

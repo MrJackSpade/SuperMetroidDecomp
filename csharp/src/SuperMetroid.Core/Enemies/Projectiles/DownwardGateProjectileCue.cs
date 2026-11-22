@@ -33,9 +33,3 @@ internal abstract record DownwardGateProjectileCue
         internal override void React<TContext>(DownwardGateProjectileCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="DownwardGateProjectileCue"/> does on each of its cases (#2553).</summary>
-/// <param name="SetYVelocity">Reacts to a <see cref="DownwardGateProjectileCue.SetYVelocity"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="DownwardGateProjectileCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record DownwardGateProjectileCueReactions<TContext>(Action<DownwardGateProjectileCue.SetYVelocity, TContext> SetYVelocity, Action<DownwardGateProjectileCue.Signal, TContext> Signal);

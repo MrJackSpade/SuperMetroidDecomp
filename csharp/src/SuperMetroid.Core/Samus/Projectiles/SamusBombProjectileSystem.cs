@@ -3,7 +3,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -30,9 +29,6 @@ public sealed class SamusBombProjectileSystem
 
     /// <summary>A placed Morph Ball bomb.</summary>
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
-
-    /// <summary>A placed Power Bomb.</summary>
-    private static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBomb[] _bombs =
@@ -922,7 +918,7 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBomb bomb = _bombs[place];
             if (!bomb.IsActive ||
-                bomb.Occupant is not { } placed ||
+                bomb.Occupant is not { } ||
                 bomb.IsBombSpread ||
                 bomb.IsSpent)
             {

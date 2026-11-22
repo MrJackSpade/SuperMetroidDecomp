@@ -31,9 +31,3 @@ internal abstract record BotwoonHeadCue
         internal override void React<TContext>(BotwoonHeadCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="BotwoonHeadCue"/> does on each of its cases (#2553).</summary>
-/// <param name="ApplyFacingRadius">Reacts to a <see cref="BotwoonHeadCue.ApplyFacingRadius"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="BotwoonHeadCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record BotwoonHeadCueReactions<TContext>(Action<BotwoonHeadCue.ApplyFacingRadius, TContext> ApplyFacingRadius, Action<BotwoonHeadCue.Signal, TContext> Signal);

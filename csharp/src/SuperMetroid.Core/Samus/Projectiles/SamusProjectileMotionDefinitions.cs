@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The beam speeds and beam/missile acceleration definitions.</summary>

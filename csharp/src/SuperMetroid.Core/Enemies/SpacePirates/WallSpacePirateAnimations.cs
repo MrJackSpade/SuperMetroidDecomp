@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -120,7 +119,7 @@ internal static class WallSpacePirateAnimations
         Wait(32),
         Cue(new WallSpacePirateCue.PrepareJump(facing)),
         Cue(new WallSpacePirateCue.BeginOnWall(WallSpacePirateAction.WallJumping, facing)),
-        Cue(new WallSpacePirateCue.Signal(K.PlayJumpSound)),
+        Cue(new WallSpacePirateCue.Signal()),
         Show(reaching, 10),
         Hold(curledLeaping),
     ];

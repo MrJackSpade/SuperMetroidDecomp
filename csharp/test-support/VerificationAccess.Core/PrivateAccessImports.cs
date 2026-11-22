@@ -552,7 +552,6 @@ global using static SuperMetroid.Core.Escape.ZebesEscapeDefinitionsPrivateAccess
 global using static SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionCinematicStatePrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.CreditsScrollPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingActorDefinitionsPrivateAccess;
-global using static SuperMetroid.Core.Frontend.Ending.EndingCloudDriftPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingColoursPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentationPrivateAccess;
 global using static SuperMetroid.Core.Frontend.Ending.EndingCreditsRollScenePrivateAccess;

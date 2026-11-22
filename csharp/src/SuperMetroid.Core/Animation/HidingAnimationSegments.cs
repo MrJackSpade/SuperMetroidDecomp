@@ -35,5 +35,5 @@ internal sealed class HidingAnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>What a play shows on each beat it passes, built once: a hidden stretch hides the owner for its updates.</summary>
     private static HidingAnimationBeatCases<TFrame, TEvent, Play, IHidingAnimationShown<TSegment, TFrame>?> BeatPlays { get; } = new(
         Beat: static (beat, ref play) => beat.Match(PausingBeatPlays, ref play),
-        Hidden: static (hidden, ref play) => new AnimationHiddenShown<TSegment, TFrame>(play.Phase.Segment, hidden.Duration));
+        Hidden: static (hidden, ref play) => new AnimationHiddenShown<TSegment, TFrame>(hidden.Duration));
 }

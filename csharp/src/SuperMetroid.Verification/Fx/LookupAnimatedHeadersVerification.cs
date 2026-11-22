@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;

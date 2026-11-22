@@ -20,9 +20,6 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// <summary>How the station is used: its access blocks, its animations, its reward and its message.</summary>
     internal StationAccessRule Rule { get; } = Ensure.NotNull(rule);
 
-    /// <summary>Which station it is.</summary>
-    private StationKind Kind => Rule.Kind;
-
     /// <summary>Area whose map a map station acquires.</summary>
     public AreaId Area { get; } = area;
 

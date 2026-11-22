@@ -208,12 +208,6 @@ public sealed class EnemyProjectile
     }
 
     /// <summary>
-    /// Replaces the running animation with <paramref name="animation"/> without touching the frame timer, as a
-    /// direct animation change does: the new segment's first frame shows when the current frame expires.
-    /// </summary>
-    internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
-
-    /// <summary>
     /// Frees the projectile's place without ending the projectile, for a Draygon goop or wall-turret shot a power bomb's
     /// explosion catches (#1590): a later spawn may take the place, while the update that freed it goes on with the
     /// projectile, which keeps its animation, state and properties. The caught shot finishes the update it was caught in:

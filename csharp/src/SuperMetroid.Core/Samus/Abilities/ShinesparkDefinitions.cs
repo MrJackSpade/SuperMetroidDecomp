@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Poses;
-
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Shared constants used by shinespark.</summary>

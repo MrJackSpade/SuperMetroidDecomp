@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;

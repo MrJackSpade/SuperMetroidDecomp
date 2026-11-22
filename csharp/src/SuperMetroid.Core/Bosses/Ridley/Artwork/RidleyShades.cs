@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 

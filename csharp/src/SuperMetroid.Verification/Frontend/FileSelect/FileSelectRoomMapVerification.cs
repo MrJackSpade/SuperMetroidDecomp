@@ -380,7 +380,7 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks area and room confirmation edges, cancel precedence, and the animated return boundary.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        _ = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
             var navigation = new FileSelectMapNavigation(ZebesArea.Maridia, RetailPresentationFixture().Maps.Labels, confirm);

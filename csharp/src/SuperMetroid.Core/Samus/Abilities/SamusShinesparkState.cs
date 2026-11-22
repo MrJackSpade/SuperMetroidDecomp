@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
@@ -546,7 +545,7 @@ public sealed class SamusShinesparkState
     /// <returns>Whether the echo is still on the screen; its shot is cleared otherwise.</returns>
     internal bool StepReleasedEcho(SamusState samus, Position16<RoomPixels> cameraPosition, SamusProjectileOccupant held, ShinesparkEchoShotState flight)
     {
-        SamusProjectile shot = Ensure.NotNull(held).Projectile;
+        _ = Ensure.NotNull(held).Projectile;
         ShinesparkCrashEcho echo = flight.Echo;
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial

@@ -21,12 +21,6 @@ internal sealed class EnemySpeciesRegistry : IEnemySpeciesSource
     {
     }
 
-    /// <summary>A registry of <paramref name="factories"/> alone, indexed by definition.</summary>
-    /// <param name="common">The shared participation every entity composes.</param>
-    /// <param name="factories">The species' factories.</param>
-    /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    private EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories) => AddFactories(common, factories);
-
     /// <summary>Indexes <paramref name="factories"/> by definition, rejecting a definition owned twice.</summary>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
     private void AddFactories(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)

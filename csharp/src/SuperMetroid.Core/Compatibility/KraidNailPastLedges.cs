@@ -18,8 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a fingernail higher than Kraid's four contour ledges is pushed back at the record that follows them")]
 public sealed class KraidNailPastLedges
 {
-    /// <summary>The offset from Kraid's body a nail past the ledges is pushed back at, as a wrapped room coordinate.</summary>
-    private readonly int _leftOffset;
 
     /// <summary>
     /// How far above Kraid's body a nail can fly: terrain reflects a nail inside Kraid's room, two screens tall, and his
@@ -37,7 +35,7 @@ public sealed class KraidNailPastLedges
     /// <exception cref="InvalidDataException">The bound lies within a nail's reach above Kraid's body.</exception>
     public KraidNailPastLedges(int leftOffset, int bound)
     {
-        _leftOffset = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, leftOffset));
+        LeftOffset = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, leftOffset));
         int wrappedBound = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, bound));
         if (CoordinateAxis.Difference(wrappedBound, -NailReachAboveBody) > 0)
         {
@@ -50,5 +48,5 @@ public sealed class KraidNailPastLedges
     /// The offset from Kraid's body's X at which a nail higher than every ledge is pushed back, as a wrapped room
     /// coordinate: every such nail lies below the record's bound.
     /// </summary>
-    public int LeftOffset => _leftOffset;
+    public int LeftOffset { get; }
 }

@@ -31,9 +31,3 @@ internal abstract record GerutaCue
         internal override void React<TContext>(GerutaCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SwoopStartFinished(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="GerutaCue"/> does on each of its cases (#2553).</summary>
-/// <param name="PlaceFlames">Reacts to a <see cref="GerutaCue.PlaceFlames"/>.</param>
-/// <param name="SwoopStartFinished">Reacts to a <see cref="GerutaCue.SwoopStartFinished"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record GerutaCueReactions<TContext>(Action<GerutaCue.PlaceFlames, TContext> PlaceFlames, Action<GerutaCue.SwoopStartFinished, TContext> SwoopStartFinished);

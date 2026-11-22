@@ -18,11 +18,6 @@ internal abstract class SamusTerrain
     /// <summary>The collision level the scans probe.</summary>
     internal RoomLevelData Level { get; }
 
-    /// <summary>The terrain of a room: <paramref name="level"/>, whose reacting blocks reach <paramref name="roomObjects"/>.</summary>
-    /// <param name="level">The room's collision level.</param>
-    /// <param name="roomObjects">The room's room objects, which its reacting blocks reach.</param>
-    internal static RoomTerrain InRoom(RoomLevelData level, ISamusRoomObjects roomObjects) => new(level, roomObjects);
-
     /// <summary>
     /// The block met at the cell <paramref name="block"/> a read found: the block it stands for
     /// (<see cref="RoomLevelData.StandingBlockFor"/>), carrying its reaction when this terrain's blocks reach room objects;

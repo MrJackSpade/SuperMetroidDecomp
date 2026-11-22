@@ -17,20 +17,16 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public sealed class ChargedShotGlow
 {
     /// <summary>Starts a glow of <paramref name="kind"/>, showing nothing until its first update shows its first shade.</summary>
-    private ChargedShotGlow(ChargedShotGlowKind kind, SamusGlowSegment sequence)
+    private ChargedShotGlow(SamusGlowSegment sequence)
     {
-        Kind = kind;
         Play = SamusGlowPlay.Starting(sequence);
     }
 
     /// <summary>An ordinary charged shot's flash as the shot starts it.</summary>
-    public static ChargedShotGlow StartChargedShotFlash() => new(ChargedShotGlowKind.ChargedShotFlash, SamusGlowSegment.Of(SamusGlow.ChargedShotFlash));
+    public static ChargedShotGlow StartChargedShotFlash() => new(SamusGlowSegment.Of(SamusGlow.ChargedShotFlash));
 
     /// <summary>The Hyper Beam's glow as its shot starts it.</summary>
-    public static ChargedShotGlow StartHyperBeamGlow() => new(ChargedShotGlowKind.HyperBeamGlow, SamusGlowSegment.Of(SamusGlow.HyperShotGlow));
-
-    /// <summary>Which glow this is.</summary>
-    private ChargedShotGlowKind Kind { get; }
+    public static ChargedShotGlow StartHyperBeamGlow() => new(SamusGlowSegment.Of(SamusGlow.HyperShotGlow));
 
     /// <summary>The play of the glow's sequence: the shade it shows and the updates that shade has left.</summary>
     private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Play { get; }

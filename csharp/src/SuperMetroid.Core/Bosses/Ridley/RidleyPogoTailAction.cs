@@ -27,18 +27,18 @@ public sealed class RidleyPogoTailAction : RidleySteeredTailAction
     /// <summary>Builds the steps, each after the steps it goes on to.</summary>
     static RidleyPogoTailAction()
     {
-        Stabbing = new(nameof(Stab), RidleyTailDefinitions.StabSwing, static (self, _) => self);
+        Stabbing = new("Stab", RidleyTailDefinitions.StabSwing, static (self, _) => self);
         RidleyPogoTailAction stabbing = Stabbing;
-        ReadyingStab = new(nameof(StabSetup), pointedSwing: null,
+        ReadyingStab = new("StabSetup", pointedSwing: null,
             (self, settling) => settling.RestsWhileFalling ? stabbing : self);
         RidleyPogoTailAction readyingStab = ReadyingStab;
         Bouncing = new(nameof(Pogo), pointedSwing: null,
             (self, settling) => settling.RestsWhileFalling ? readyingStab : self);
         RidleyPogoTailAction bouncing = Bouncing;
-        PointingDown = new(nameof(PointDown), RidleyTailDefinitions.WhipSwing,
+        PointingDown = new("PointDown", RidleyTailDefinitions.WhipSwing,
             (self, settling) => settling.LinkMoves ? self : bouncing);
         RidleyPogoTailAction pointingDown = PointingDown;
-        Setup = new(nameof(PogoSetup), RidleyTailDefinitions.WhipSwing, (_, _) => pointingDown);
+        Setup = new("PogoSetup", RidleyTailDefinitions.WhipSwing, (_, _) => pointingDown);
     }
 
     /// <summary>The tail swings down for the pogo, then points down.</summary>

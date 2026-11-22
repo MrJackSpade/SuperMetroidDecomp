@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Ending.EndingTextTyping, SuperMetroid.Core.Frontend.Ending.EndingSceneCue>;
 using D = SuperMetroid.Core.Frontend.Ending.EndingTypedTextDefinitions;
 using K = SuperMetroid.Core.Frontend.Ending.EndingSceneCue;

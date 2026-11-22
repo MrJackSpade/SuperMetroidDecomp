@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Areas.WreckedShip;

@@ -761,7 +761,6 @@ internal static class RoomObjectPopulationVerification
     private static void VerifyNativeOutOfBoundsPopulationSetupOrder()
     {
         const ushort population = 0x96c0;
-        const ushort malformedPopulation = 0x96e0;
         const int width = 16;
         const int height = 32;
         const int offRoomX = 1;

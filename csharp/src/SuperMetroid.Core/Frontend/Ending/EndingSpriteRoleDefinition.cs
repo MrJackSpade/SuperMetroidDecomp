@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro.Artwork;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>What every ending actor of one role draws from, which sprite layer it shows on, and how it moves (#2489).</summary>

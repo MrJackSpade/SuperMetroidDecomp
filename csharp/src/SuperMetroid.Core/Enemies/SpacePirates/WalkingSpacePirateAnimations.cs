@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCueKind;
 using P = SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 using Beats = SuperMetroid.Core.Animation.AnimationBeats<SuperMetroid.Core.Enemies.Artwork.EnemyFrameId, SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCue>;
@@ -67,7 +66,7 @@ internal static class WalkingSpacePirateAnimations
             Show(side.ClawsRaised, 8),
             Show(side.ClawsForward, 8),
             Show(side.ClawsLifting, 8),
-            Cue(new WalkingSpacePirateCue.Signal(K.ChooseMovement)),
+            Cue(new WalkingSpacePirateCue.Signal()),
         ],
         [segments.Looking] =
         [

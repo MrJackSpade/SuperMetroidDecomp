@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -19,7 +20,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="encounter">What the enemy's setup built (#2554).</param>
 internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
     EnemyCommonParticipation common, BossArtworkBinding bossArtwork, MotherBrainEnemyState encounter)
-    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
+    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction, IEnemyDrawHooks
 {
     /// <summary>
     /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
@@ -71,6 +72,19 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
 
     /// <summary>Shots meet the body's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
+
+    /// <summary>
+    /// Her legs, the body's own picture, show her own colouring (#2636): the game draws them in the colours her health, her
+    /// beam, her greying and her phase two change, as it draws her brain, so they show her damage with the rest of her.
+    /// </summary>
+    public PictureShading? CommonDrawShading() => Encounter.Colours.OwnShading;
+
+    /// <summary>The body draws nothing before its legs.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="camera">The camera position.</param>
+    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+    }
 
     /// <summary>The body's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>

@@ -79,7 +79,6 @@ internal sealed partial class MotherBrainBody
         body.AnimationClock.StepOnNextUpdate();
         body.Contact = body.Contact.With(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus);
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
-        body.Shading = EnemyShades.HurtFlashLook;
 
         // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
         // sequence share.

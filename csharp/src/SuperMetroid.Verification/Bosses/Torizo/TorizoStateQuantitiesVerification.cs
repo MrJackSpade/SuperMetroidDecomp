@@ -6,6 +6,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;

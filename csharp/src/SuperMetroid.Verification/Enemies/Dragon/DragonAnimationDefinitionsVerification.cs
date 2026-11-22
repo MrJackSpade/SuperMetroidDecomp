@@ -118,7 +118,9 @@ internal static class DragonAnimationDefinitionsVerification
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
-        // The body waits to rise from its setup; its main AI runs that wait.
+        // The body waits to rise from its setup; its main AI runs that wait. The room's load starts each part's frame timer
+        // at one, and a facing whose animation each part already plays (the left-facing ones its setup starts) leaves it so;
+        // the other facing installs its animations with a timer of one.
         AssertEqual(DragonAction.WaitToRise, bodyState.Action, "the placed Dragon waits to rise");
         body.RunMainAi(samus);
         DragonSegment idle = facingLeft
@@ -131,14 +133,12 @@ internal static class DragonAnimationDefinitionsVerification
             body,
             bodyState,
             idle,
-            facingLeft ? "live left-facing Dragon body" : "live right-facing Dragon body",
-            expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
+            facingLeft ? "live left-facing Dragon body" : "live right-facing Dragon body");
         AssertDragonAnimationHandoff(
             wing,
             (wingState),
             wings,
-            facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
-            expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
+            facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing");
 
         bodyState.ActionTimer = UpdateCountdown.Ended();
         DragonBehavior.RunDragonRising(body, bodyState);

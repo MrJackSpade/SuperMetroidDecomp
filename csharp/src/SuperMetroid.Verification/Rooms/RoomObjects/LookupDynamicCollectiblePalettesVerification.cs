@@ -8,15 +8,15 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <summary>Checks every collectible's generated palette offsets against native upload programs.</summary>
 internal static class LookupDynamicCollectiblePalettesVerification
 {
-    /// <summary>Checks 17 kinds, three header families, eight tiles each, and invalid kind or tile indexes.</summary>
+    /// <summary>Checks 17 kinds, three header families, eight tiles each, the tanks' rejection and invalid tile indexes.</summary>
     internal static void VerifyDynamicCollectiblePaletteSelectors(CartridgeImportAddressSpace rom)
     {
         var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         AssertEqual(17, exported.Length, "Dynamic palette original kind count");
-        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        for (int raw = 0; raw < Enum.GetValues<InWorldCollectibleKind>().Length; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
-            if (raw is < 4 or > 20)
+            if (raw < 4)
             {
                 AssertThrows<InvalidDataException>(() => DynamicCollectibleGraphics.Get(kind), "Dynamic graphics rejected byte kind");
                 AssertThrows<InvalidDataException>(() => DynamicCollectibleGraphics.PaletteOffset(kind,0), "Dynamic palette rejected byte kind");

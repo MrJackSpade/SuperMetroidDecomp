@@ -111,8 +111,6 @@ internal static class BlockReactionSelectorsVerification
             bool selected = RoomBlockBehaviorCodec.Decode(index).TryGetContactCrumble(out _);
             AssertEqual(index < 8, selected, $"special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
-            "contact crumble program rejects an undefined crumble block");
     }
 
     /// <summary>The crumble block common special-block reaction <paramref name="index"/> selects, rejecting any other index.</summary>

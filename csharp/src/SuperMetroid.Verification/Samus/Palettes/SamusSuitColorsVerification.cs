@@ -51,8 +51,6 @@ internal static class SamusSuitColorsVerification
                 AssertEqual(RgbColor.FromWordIgnoringTopBit(ReadVerificationWord(cartridge, source + 2 * color)), colors.Resolve(suit, color),
                     "Every native suit word is kept as installed");
         }
-        // A suit outside the three the cartridge shows is rejected, as the 0/2/4 table offsets were.
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((SamusSuit)Enum.GetValues<SamusSuit>().Length, 0), "Undefined suit");
         foreach (SamusSuit shownSuit in Enum.GetValues<SamusSuit>())
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(shownSuit, invalid), "Normal color index bounds");

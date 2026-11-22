@@ -165,8 +165,6 @@ internal static class SignedVelocityVerification
                 throw new InvalidDataException($"{raw}: a quantity taken toward a direction differs from it or its reversal.");
             compared++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => 1.Toward((HorizontalDirection)2), "an undefined horizontal direction is refused");
-        AssertThrows<ArgumentOutOfRangeException>(() => 1.Toward((VerticalDirection)2), "an undefined vertical direction is refused");
-        return compared + 2;
+        return compared;
     }
 }

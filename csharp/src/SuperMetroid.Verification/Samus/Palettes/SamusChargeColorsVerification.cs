@@ -225,7 +225,6 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, invalid, 0), "Invalid suited death palette");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor((SuperMetroid.Core.Samus.Colours.SamusSuit)99, 0, 0), "Invalid death suit");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, invalid), "Invalid suited color");

@@ -144,9 +144,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             var enemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork.Bosses);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
-            RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-            enemy.NorfairRidleyBehavior.Combat.InitializeNorfairRidley(place);
+            // The room's population load sets him up.
+            RoomEnemyPlace place = enemy.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Ridley))[0];
             NorfairRidleyState state = enemy.NorfairRidley() ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;

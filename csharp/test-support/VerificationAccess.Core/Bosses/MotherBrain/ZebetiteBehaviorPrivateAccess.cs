@@ -11,10 +11,6 @@ internal static class ZebetiteBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior self)
     {
-        /// <summary>The private method <c>CycleZebetiteColours</c>, invoked by name.</summary>
-        internal void CycleZebetiteColours(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.ZebetiteBehavior>(self, "CycleZebetiteColours", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
-
         /// <summary>The private property <c>PulseShown</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Bosses.MotherBrain.ZebetitePulse? PulseShown
         {

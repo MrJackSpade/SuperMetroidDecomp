@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Hashes block appearances into a selected presentation's identity (#1469).</summary>
-internal static class SelectedPresentationHashAppearances
+internal static partial class SelectedPresentationHashAppearances
 {
     /// <summary>Appearance hashing for <see cref="SelectedPresentationHash"/>.</summary>
     extension(SelectedPresentationHash hash)

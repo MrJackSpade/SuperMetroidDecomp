@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class DachoraAnimations
+internal static partial class DachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DachoraSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -43,7 +43,7 @@ internal static class DachoraAnimations
     /// neck, pecks <see cref="IdlePecks"/> times and stretches back up, repeating (#2432). The echoes, the falls and the
     /// charge's crouch are still pictures (#2275).
     /// </summary>
-    private static Dictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
+    internal static Dictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
         [P.RunningLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeft)]),
         [P.RunningLeftFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeftFast)]),

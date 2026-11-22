@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The authored timing of the in-world collectibles' pictures (#1554).</summary>
-internal static class CollectibleTimingDefinitions
+internal static partial class CollectibleTimingDefinitions
 {
     /// <summary>The updates each of an item's two visible images shows.</summary>
     internal const int VisibleImageUpdates = 4;

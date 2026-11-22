@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>
-public static class IntroCinematicArtworkFormat
+public static partial class IntroCinematicArtworkFormat
 {
     /// <summary>Opening bundle's source-identity and file-hash manifest resource, <c>intro-artwork.json</c>.</summary>
     public const string ManifestFileName = "intro-artwork.json";

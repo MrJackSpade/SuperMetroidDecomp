@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The narration page being typed (#2553): its identity, its installed characters and its typing, held together so a page
 /// never runs without its characters.
 /// </summary>
-internal sealed class IntroNarrationPage
+internal sealed partial class IntroNarrationPage
 {
     /// <summary>Builds <paramref name="id"/>'s characters from <paramref name="presentation"/> and starts its typing after the page's opening pause.</summary>
     internal IntroNarrationPage(IntroNarrationPageId id, IntroNarrationPresentation presentation)

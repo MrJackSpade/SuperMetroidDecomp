@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="Length">How many blocks the run covers.</param>
 /// <param name="Opened">How the run's blocks collide with the access opened.</param>
 /// <param name="Closed">How the run's blocks collide with the access closed.</param>
-internal readonly record struct ChozoSlopeAccessRun(Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed);
+internal readonly partial record struct ChozoSlopeAccessRun(Offset16<RoomBlocks> From, int Length, RoomCollisionType Opened, RoomCollisionType Closed);

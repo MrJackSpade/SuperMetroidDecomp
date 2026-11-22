@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
 [RoomLifetime]
-internal sealed class CrocomireFight
+internal sealed partial class CrocomireFight
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -239,7 +239,7 @@ internal sealed class CrocomireFight
     /// <param name="Level">The room's collision level, which the movement cues require.</param>
     /// <param name="Samus">Samus, whom the fight AI measures against.</param>
     /// <param name="Owner">The <see cref="CrocomireFight"/> reacting.</param>
-    private readonly record struct ApplyCrocomireBodyCueContext(CrocomireEnemyState State, RoomEnemyPlace Body, int CameraX, RoomLevelData Level, SamusState Samus, CrocomireFight Owner);
+    private readonly partial record struct ApplyCrocomireBodyCueContext(CrocomireEnemyState State, RoomEnemyPlace Body, int CameraX, RoomLevelData Level, SamusState Samus, CrocomireFight Owner);
 
     /// <summary>Whether a step under <paramref name="condition"/> moves the body now.</summary>
     private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch
@@ -251,6 +251,7 @@ internal sealed class CrocomireFight
     };
 
     /// <summary>What <see cref="ApplyCrocomireBodySignal"/> comes to for each <see cref="CrocomireBodyCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>> ApplyCrocomireBodySignalForCrocomireBodyCueKind => field ??= new(new Dictionary<CrocomireBodyCueKind, Func<CrocomireEnemyState, SamusState, RoomLevelData, RoomEnemyPlace, CrocomireBodyAnimation?>>
     {
         [CrocomireBodyCueKind.FightAi] = (state, samus, level, body) => RunCrocomireFightCue(state, samus),
@@ -325,6 +326,7 @@ internal sealed class CrocomireFight
         body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.StepBackScreenReach < cameraX;
 
     /// <summary>What <see cref="RunCrocomireFightCue"/> comes to for each <see cref="CrocomirePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>> RunCrocomireFightCueForCrocomirePhase => field ??= new(new Dictionary<CrocomirePhase, Func<CrocomireEnemyState, SamusState, CrocomireBodyAnimation?>>
     {
         [CrocomirePhase.Dormant] = (state, samus) =>
@@ -448,7 +450,7 @@ internal sealed class CrocomireFight
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
-    private void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
+    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireProjectile, _combat.MouthShot, graphics: SpriteGraphics.SharedIn(CrocomireColours.ProjectileShading), new CrocomireProjectileAnimation(_combat.MouthShot, CrocomireProjectileSegment.Mouth));
         if (projectile is null)

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>The scrolling sky's bands as the display draws them (#1468, #1687): bands of the background's horizontal scroll down the gameplay lines.</summary>
-public static class SkyBandScrolls
+public static partial class SkyBandScrolls
 {
     /// <summary>
     /// The sky's bands of horizontal scroll down the gameplay lines, each moved by <paramref name="shift"/>: each gameplay

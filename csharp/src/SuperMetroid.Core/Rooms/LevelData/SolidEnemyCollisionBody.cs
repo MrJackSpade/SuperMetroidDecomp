@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="Position">The collision box's centre in the room, in whole pixels; Y increases downward.</param>
 /// <param name="Radius">Collision half-extents in pixels.</param>
 /// <param name="Solid">Whether the body blocks Samus: a frozen enemy always does, otherwise its properties decide.</param>
-public readonly record struct SolidEnemyCollisionBody(
+public readonly partial record struct SolidEnemyCollisionBody(
     ISolidEnemy Enemy,
     Position16<RoomPixels> Position,
     Extent16<RoomPixels> Radius,

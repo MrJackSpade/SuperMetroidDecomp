@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>A phase the ending's cast shows (#2571): it steps itself on the ending and enters its successor.</summary>
-internal class EndingCastPhase : EndingCreditsPhase
+internal partial class EndingCastPhase : EndingCreditsPhase
 {
     /// <summary>Runs one update of the phase.</summary>
     private readonly Func<EndingCreditsState, bool> _step;

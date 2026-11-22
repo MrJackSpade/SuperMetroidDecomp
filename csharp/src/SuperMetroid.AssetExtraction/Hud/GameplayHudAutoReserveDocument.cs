@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable AUTO reserve-indicator cells and their HUD anchors.</summary>
-public sealed record GameplayHudAutoReserveDocument
+public sealed partial record GameplayHudAutoReserveDocument
 {
     /// <summary>Gets the ordered AUTO indicator cell coordinates.</summary>
     public required Position16<CharacterCells>[] Anchors { get; init; }

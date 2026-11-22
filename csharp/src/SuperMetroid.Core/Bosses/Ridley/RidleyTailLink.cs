@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// its lengths, and knows the links either side of it. The tail is shared by Ceres Ridley and Lower Norfair Ridley;
 /// encounter-specific controllers only change the tail's common targets and the links' swings.
 /// </summary>
-public sealed class RidleyTailLink
+public sealed partial class RidleyTailLink
 {
     /// <summary>Makes a link at its rest length and initial angle, joined after <paramref name="previous"/>.</summary>
     /// <param name="definition">The link's lengths and initial angle.</param>

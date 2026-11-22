@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// frame shown, and a frame held for good or a hold rests where it stands, its clock stopped (#2454). Owners keep the
 /// playback and perform its events: <c>if (place.AnimationClock.Expire()) { ...; Play(...); }</c>.
 /// </summary>
-internal static class EnemyAnimationPlayback
+internal static partial class EnemyAnimationPlayback
 {
     /// <summary>
     /// Starts <paramref name="animation"/> on <paramref name="place"/> (#1624): its first step plays on the next update, from
@@ -270,11 +270,11 @@ internal static class EnemyAnimationPlayback
     /// <param name="Enemy">The enemy.</param>
     /// <param name="ShowFrame">Shows a frame on the enemy.</param>
     /// <param name="Context">What showing a frame reads besides the enemy and the frame.</param>
-    private readonly record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
+    private readonly partial record struct EnemyFrameShowing<TFrame, TContext>(RoomEnemyPlace Enemy, Action<RoomEnemyPlace, TFrame, TContext> ShowFrame, TContext Context)
         where TFrame : struct;
 
     /// <summary>What a step of an enemy's animation shows on it, for each outcome, built once per animation (#2553).</summary>
-    private static class ShownOn<TSegment, TFrame, TContext>
+    private static partial class ShownOn<TSegment, TFrame, TContext>
         where TSegment : struct
         where TFrame : struct
     {

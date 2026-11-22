@@ -6,7 +6,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="GameplayActorDrawing"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record GameplayActorDrawingDependencies
+internal sealed partial record GameplayActorDrawingDependencies
 {
     /// <summary>The installed artwork Samus, her shots and her suits' colours are drawn from.</summary>
     public required RuntimeArtwork Artwork { get; init; }

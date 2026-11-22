@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Power's entries, then Varia's, then Gravity's. The import reads the lists by this layout once; the game names a suit's
 /// colours by the suit.
 /// </summary>
-public static class SamusSuitListLayout
+public static partial class SamusSuitListLayout
 {
     /// <summary>The suits in the order their colour lists follow one another.</summary>
     public static ImmutableArray<SamusSuit> Order { get; } = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// objects (#1862): rows four blocks wide stacked down from the object's block, all air. What each frame shows is its
 /// installed picture (#1557).
 /// </summary>
-internal static class TourianAccessObjectDrawDefinitions
+internal static partial class TourianAccessObjectDrawDefinitions
 {
     /// <summary>One opened row of the floor: four air blocks from the object's block.</summary>
     private static readonly RoomBlockShape OpenRow = RoomBlockShapes.Rectangle(new(4, 1), RoomCollisionType.Air);

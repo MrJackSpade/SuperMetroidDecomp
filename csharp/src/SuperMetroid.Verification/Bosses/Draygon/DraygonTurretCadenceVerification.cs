@@ -77,7 +77,7 @@ internal static class DraygonTurretCadenceVerification
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
-        PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
+        explosion.Blast.ExplosionRadius = PowerBombRadius.FromWholePixels(32);
         runtime.Player.IntroducedSamus.SlowdownLevel = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,

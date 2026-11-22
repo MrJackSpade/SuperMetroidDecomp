@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// Both effects show the same colours; the Spore Spawn room's deletes itself once the area's mini-boss dies.
 /// </remarks>
-public static class BrinstarBlueSporePaletteFxColorDefinitions
+public static partial class BrinstarBlueSporePaletteFxColorDefinitions
 {
     /// <summary>The ordinary Brinstar entry without a boss-death pre-instruction.</summary>
     internal static readonly BrinstarBlueSporePaletteFxColorDefinition BrinstarBlueBackgroundSpores =
@@ -16,7 +16,7 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
         new(ColourEffectId.SporeSpawnBlueBackgroundSpores, ColorsPerFrame);
 
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
-    private const int ColorsPerFrame = 3;
+    internal const int ColorsPerFrame = 3;
 
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = [BrinstarBlueBackgroundSpores, SporeSpawnBlueBackgroundSpores];

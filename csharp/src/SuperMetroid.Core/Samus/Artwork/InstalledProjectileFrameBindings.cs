@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// invisible frame shows no composition. Durations, trail values, radii, damage and animation control flow are gameplay,
 /// held apart from this picture binding.
 /// </summary>
-public sealed class InstalledProjectileFrameBindings
+public sealed partial class InstalledProjectileFrameBindings
 {
     /// <summary>The composition each pictured frame draws.</summary>
     private readonly Dictionary<SamusProjectileFrameId, ProjectileSpriteId> sprites;

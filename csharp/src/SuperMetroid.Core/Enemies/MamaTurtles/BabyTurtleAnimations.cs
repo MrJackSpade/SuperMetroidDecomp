@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The baby turtles' crawl, hiding, shell and spin animations (#641, #2342). Each frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BabyTurtleCue"/> naming
 /// what it does.
 /// </summary>
-internal static class BabyTurtleAnimations
+internal static partial class BabyTurtleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BabyTurtleSegment, EnemyFrameId, BabyTurtleCue> Segments { get; } = new(
@@ -48,7 +48,7 @@ internal static class BabyTurtleAnimations
     /// <see cref="PushingStrides"/> times with its legs planting and pushing, then with them trailing, and ends at the check
     /// that crawls on or turns the baby round.
     /// </summary>
-    private static Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
+    internal static Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>> StartingAt { get; } = new Dictionary<BabyTurtleSegment, Animation<BabyTurtleSegment>>
     {
         [P.CrawlingLeft] = new([Segments.Repeated(P.CrawlingLeft, PushingStrides), Segments.Whole(P.CrawlingLeftLegsTrailing)], AnimationEnd.Holds),
         [P.Spinning] = Animation<BabyTurtleSegment>.Looping([Segments.Whole(P.Spinning)]),

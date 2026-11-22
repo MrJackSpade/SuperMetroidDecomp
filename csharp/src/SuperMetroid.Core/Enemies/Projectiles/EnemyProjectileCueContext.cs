@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="SamusBombs">Samus's bombs, whose power bomb explosion a cue may test (#2159).</param>
 /// <param name="Projectiles">The projectile engine running the pass, which carries out the shared cues.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct EnemyProjectileCueContext(
+internal readonly partial record struct EnemyProjectileCueContext(
     EnemyProjectile Projectile,
     SamusState Samus,
     Position16<RoomPixels> Camera,

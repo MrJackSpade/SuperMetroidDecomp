@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore
 /// Samus.
 /// </summary>
-internal static class PhantoonCollisionDefinitions
+internal static partial class PhantoonCollisionDefinitions
 {
 
     /// <summary>Half width of the full body's central collision rectangle.</summary>

@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON schema for displayed Grapple swing orientations; physical body offsets, facing selection, and animation timing remain engine-owned.</summary>
-public sealed record GrappleSwingFrameDocument
+public sealed partial record GrappleSwingFrameDocument
 {
     /// <summary>Schema revision, which must equal <see cref="GrappleSwingFrameFile.Version"/>.</summary>
     public required int Version { get; init; }

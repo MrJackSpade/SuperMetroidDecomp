@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="MotherBrainEffectCue"/> with the values it acts on.
 /// </summary>
-internal static class MotherBrainEffectAnimations
+internal static partial class MotherBrainEffectAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The random choices of Mother Brain's fight, her ascent and the baby metroid's scenes: holds, dust, the hand beam's
 /// scatter, her attack choices and the chances her late phases take on the random sample (#1619).
 /// </summary>
-internal static class MotherBrainRandomDefinitions
+internal static partial class MotherBrainRandomDefinitions
 {
     /// <summary>The roll most of her chances read.</summary>
     private static readonly RandomSampleField RollOf4096 = RandomSampleField.OneOf(4096);

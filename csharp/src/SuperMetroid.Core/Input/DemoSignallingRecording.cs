@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 /// A recording that signals its owner as it ends (#1300, #2553): its inputs play as any recording's do, then its signal
 /// runs the action its owner loaded it with, then its input ends.
 /// </summary>
-public sealed record DemoSignallingRecording
+public sealed partial record DemoSignallingRecording
 {
     /// <summary>Creates a signalling recording; every input lasts at least one update.</summary>
     /// <param name="inputs">The inputs, in the order they play.</param>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body animation start, room objects, dust and random numbers, and its sound and music requests.</summary>
 [RoomLifetime]
-internal sealed class CrocomireEncounterAccess
+internal sealed partial class CrocomireEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

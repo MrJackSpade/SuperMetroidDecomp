@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The state of Crocomire's tongue actor.</summary>
-public sealed class CrocomireTongueState
+public sealed partial class CrocomireTongueState
 {
     /// <summary>Starts the tongue's state as part of <paramref name="crocomire"/>, the encounter its body set up.</summary>
     internal CrocomireTongueState(CrocomireEnemyState crocomire) => Crocomire = Ensure.NotNull(crocomire);

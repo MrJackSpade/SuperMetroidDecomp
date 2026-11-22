@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The enemy-library sounds Spore Spawn queues.</summary>
-internal static class SporeSpawnSoundDefinitions
+internal static partial class SporeSpawnSoundDefinitions
 {
     /// <summary>The opening sound, queued as the head opens.</summary>
     internal static readonly SoundEffectId Opening = EnemySound.ShotSporeSpawn;

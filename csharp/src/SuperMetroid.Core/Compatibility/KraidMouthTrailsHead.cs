@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// last record included; the head-animation check compares every place's reads with the cartridge's.
 /// </remarks>
 [CompatibilityService("Kraid's mouth tests take the shapes of the head step just passed: a cry between poses lends its preceding pose's inner shape to the outer test and leaves the inner test no pose, as an animation's start does")]
-internal static class KraidMouthTrailsHead
+internal static partial class KraidMouthTrailsHead
 {
     /// <summary>The shapes Kraid's two mouth tests take at <paramref name="place"/> of a head animation.</summary>
     /// <typeparam name="TPose">A head pose.</typeparam>
@@ -43,7 +43,7 @@ internal static class KraidMouthTrailsHead
 
     /// <summary>One step of Kraid's head animation: a pose, or a roar or dying cry, which has no shapes of its own.</summary>
     /// <typeparam name="TPose">A head pose.</typeparam>
-    internal abstract record HeadStep<TPose>
+    internal abstract partial record HeadStep<TPose>
         where TPose : struct
     {
         /// <summary>Only the nested cases derive.</summary>
@@ -56,17 +56,17 @@ internal static class KraidMouthTrailsHead
 
         /// <summary>A step showing <paramref name="Pose"/>.</summary>
         /// <param name="Pose">The pose shown.</param>
-        internal sealed record Posed(TPose Pose) : HeadStep<TPose>;
+        internal sealed partial record Posed(TPose Pose) : HeadStep<TPose>;
 
         /// <summary>A roar or a dying cry.</summary>
-        private sealed record Crying : HeadStep<TPose>;
+        private sealed partial record Crying : HeadStep<TPose>;
     }
 
     /// <summary>Where Kraid's two mouth tests take their shapes at one place of his head animation.</summary>
     /// <typeparam name="TPose">A head pose.</typeparam>
     /// <param name="Outer">The outer test's shape, tested by body hits.</param>
     /// <param name="Inner">The inner test's shape, tested by mouth hits.</param>
-    internal readonly record struct MouthShapes<TPose>(MouthShape<TPose> Outer, MouthShape<TPose> Inner)
+    internal readonly partial record struct MouthShapes<TPose>(MouthShape<TPose> Outer, MouthShape<TPose> Inner)
         where TPose : struct;
 
     /// <summary>Which of a pose's two shapes a mouth test takes.</summary>
@@ -80,7 +80,7 @@ internal static class KraidMouthTrailsHead
 
     /// <summary>One of Kraid's mouth tests' shapes: a pose's outer or inner shape, or no pose at all.</summary>
     /// <typeparam name="TPose">A head pose.</typeparam>
-    internal abstract record MouthShape<TPose>
+    internal abstract partial record MouthShape<TPose>
         where TPose : struct
     {
         /// <summary>Only the nested cases derive.</summary>
@@ -100,9 +100,9 @@ internal static class KraidMouthTrailsHead
         /// <summary>A test taking one of <paramref name="Pose"/>'s shapes.</summary>
         /// <param name="Pose">The pose whose shape the test takes.</param>
         /// <param name="Shape">Which of the pose's shapes the test takes.</param>
-        internal sealed record OfPose(TPose Pose, PoseShape Shape) : MouthShape<TPose>;
+        internal sealed partial record OfPose(TPose Pose, PoseShape Shape) : MouthShape<TPose>;
 
         /// <summary>A test that finds no pose.</summary>
-        private sealed record NoPoseFound : MouthShape<TPose>;
+        private sealed partial record NoPoseFound : MouthShape<TPose>;
     }
 }

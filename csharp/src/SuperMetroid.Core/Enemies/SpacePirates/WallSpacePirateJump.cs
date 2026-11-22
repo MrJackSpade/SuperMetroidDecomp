@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="RightTarget">The angle at which a jump to the right wall lands.</param>
 /// <param name="LeftTarget">The angle at which a jump to the left wall lands.</param>
 /// <param name="TurnPerUpdate">How far the jump's angle turns each update.</param>
-internal sealed record WallSpacePirateJump(RotationAngle RightTarget, RotationAngle LeftTarget, RotationAngle TurnPerUpdate);
+internal sealed partial record WallSpacePirateJump(RotationAngle RightTarget, RotationAngle LeftTarget, RotationAngle TurnPerUpdate);

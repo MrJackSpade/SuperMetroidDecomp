@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <param name="Traversal">Which way the path is walked.</param>
 /// <param name="FirstStep">The step the walk starts at.</param>
 /// <param name="Destination">The hole the walk reaches.</param>
-internal readonly record struct BotwoonPathWalk(
+internal readonly partial record struct BotwoonPathWalk(
     BotwoonPathDefinition Path,
     BotwoonPathTraversal Traversal,
     int FirstStep,

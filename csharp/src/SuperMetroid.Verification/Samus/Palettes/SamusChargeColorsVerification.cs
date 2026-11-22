@@ -47,9 +47,7 @@ internal static class SamusChargeColorsVerification
             }
         }
 
-        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusChargeColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock charge colors are null.");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())

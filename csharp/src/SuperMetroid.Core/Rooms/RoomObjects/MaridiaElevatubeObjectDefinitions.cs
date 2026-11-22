@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The draw of the elevatube room object spawned by Maridia's door setup.
 /// </summary>
-internal static class MaridiaElevatubeObjectDefinitions
+internal static partial class MaridiaElevatubeObjectDefinitions
 {
     /// <summary>The elevatube's one draw.</summary>
     internal enum Draw

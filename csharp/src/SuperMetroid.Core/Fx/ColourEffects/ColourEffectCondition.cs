@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// names the condition (<see cref="ColourEffectDefinition"/>); the effect watches it from the update after it shows its
 /// first frame until it ends.
 /// </summary>
-public abstract record ColourEffectCondition
+public abstract partial record ColourEffectCondition
 {
     /// <summary>Closes the hierarchy to the conditions declared here.</summary>
     private ColourEffectCondition()
@@ -23,7 +23,7 @@ public abstract record ColourEffectCondition
     /// The effect watches nothing (#2544): the condition of an effect whose definition names none, and of every effect before
     /// it shows its first frame.
     /// </summary>
-    public sealed record WatchesNothing : ColourEffectCondition
+    public sealed partial record WatchesNothing : ColourEffectCondition
     {
         /// <inheritdoc/>
         internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).WatchesNothing(this, context);
@@ -38,7 +38,7 @@ public abstract record ColourEffectCondition
     /// lightning stays calm while Samus is high on the surface.
     /// </summary>
     /// <param name="Height">The room height, in whole pixels, Samus must be above.</param>
-    public sealed record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition
+    public sealed partial record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition
     {
         /// <inheritdoc/>
         internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).RestartsWhileSamusIsHigh(this, context);
@@ -48,7 +48,7 @@ public abstract record ColourEffectCondition
     /// The effect ends on the first update the Torizo whose belly it lights (<see cref="ILitTorizo"/>), the Torizo whose
     /// fight start started it, has no health left.
     /// </summary>
-    public sealed record EndsWhenTorizoDies : ColourEffectCondition
+    public sealed partial record EndsWhenTorizoDies : ColourEffectCondition
     {
         /// <inheritdoc/>
         internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenTorizoDies(this, context);
@@ -58,7 +58,7 @@ public abstract record ColourEffectCondition
     }
 
     /// <summary>The effect ends on the first update the area's mini-boss is recorded dead: Spore Spawn's spores.</summary>
-    public sealed record EndsWhenAreaMiniBossDies : ColourEffectCondition
+    public sealed partial record EndsWhenAreaMiniBossDies : ColourEffectCondition
     {
         /// <inheritdoc/>
         internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenAreaMiniBossDies(this, context);
@@ -71,7 +71,7 @@ public abstract record ColourEffectCondition
     /// Samus's heat shimmer: each update the heat burns a Samus without a heat-protecting suit, and the shimmer restarts
     /// on the heat phase the Norfair glow published when it changed.
     /// </summary>
-    public sealed record BurnsSamusInHeat : ColourEffectCondition
+    public sealed partial record BurnsSamusInHeat : ColourEffectCondition
     {
         /// <inheritdoc/>
         internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BurnsSamusInHeat(this, context);
@@ -88,4 +88,4 @@ public abstract record ColourEffectCondition
 /// <param name="EndsWhenAreaMiniBossDies">Reacts to a <see cref="ColourEffectCondition.EndsWhenAreaMiniBossDies"/>.</param>
 /// <param name="BurnsSamusInHeat">Reacts to a <see cref="ColourEffectCondition.BurnsSamusInHeat"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record ColourEffectConditionReactions<TContext>(Action<ColourEffectCondition.WatchesNothing, TContext> WatchesNothing, Action<ColourEffectCondition.RestartsWhileSamusIsHigh, TContext> RestartsWhileSamusIsHigh, Action<ColourEffectCondition.EndsWhenTorizoDies, TContext> EndsWhenTorizoDies, Action<ColourEffectCondition.EndsWhenAreaMiniBossDies, TContext> EndsWhenAreaMiniBossDies, Action<ColourEffectCondition.BurnsSamusInHeat, TContext> BurnsSamusInHeat);
+public sealed partial record ColourEffectConditionReactions<TContext>(Action<ColourEffectCondition.WatchesNothing, TContext> WatchesNothing, Action<ColourEffectCondition.RestartsWhileSamusIsHigh, TContext> RestartsWhileSamusIsHigh, Action<ColourEffectCondition.EndsWhenTorizoDies, TContext> EndsWhenTorizoDies, Action<ColourEffectCondition.EndsWhenAreaMiniBossDies, TContext> EndsWhenAreaMiniBossDies, Action<ColourEffectCondition.BurnsSamusInHeat, TContext> BurnsSamusInHeat);

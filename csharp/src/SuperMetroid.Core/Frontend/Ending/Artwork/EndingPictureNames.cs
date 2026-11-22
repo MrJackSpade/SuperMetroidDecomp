@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// The names of the ending's pre-assembled background pictures (#1467), which the import composes into the ending's
 /// picture sheets and the scenes select by what they show.
 /// </summary>
-public static class EndingPictureNames
+public static partial class EndingPictureNames
 {
     /// <summary>The waiting scene's backdrop, a whole screen.</summary>
     public const string WaitingBackdrop = "WaitingBackdrop";

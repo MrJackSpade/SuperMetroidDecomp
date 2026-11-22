@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// Every assist works at one seam around the game's own behaviour, so damage, firing, timers and room setup keep their
 /// ordinary side effects. Attract-demo playback always runs unassisted.
 /// </remarks>
-public sealed record GameplayAssists
+public sealed partial record GameplayAssists
 {
     /// <summary>The unassisted game: no assist is active.</summary>
     public static GameplayAssists None { get; } = new();

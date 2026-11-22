@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The health, distances, counts and places at which Bomb and Golden Torizo's AI and animation branches decide (#1945).
 /// Distances are whole pixels between Torizo's and Samus's X; a range's nearest value is included and its farthest is not.
 /// </summary>
-internal static class TorizoDecisionDefinitions
+internal static partial class TorizoDecisionDefinitions
 {
     /// <summary>Bomb Torizo's gut blows up once its health falls below this, and below it either Torizo drools.</summary>
     internal const int GutBlowUpHealth = 350;

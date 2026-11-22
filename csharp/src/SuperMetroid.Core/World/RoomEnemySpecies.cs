@@ -99,7 +99,7 @@ namespace SuperMetroid.Core.World;
 /// </remarks>
 [SpeciesComposition]
 [RoomLifetime]
-internal sealed class RoomEnemySpecies
+internal sealed partial class RoomEnemySpecies
 {
     /// <summary>Builds every owner the room's scenery lets it build and registers each with its contracts.</summary>
     /// <param name="enemies">
@@ -348,25 +348,25 @@ internal sealed class RoomEnemySpecies
     private static IEnumerable<T> Present<T>(T? owner) where T : class => owner is null ? [] : [owner];
 
     /// <summary>What the room sees of Ridley's encounters in Ceres and Lower Norfair, and the Ceres escape's progress.</summary>
-    private RidleyEncounter RidleyEncounter { get; }
+    internal RidleyEncounter RidleyEncounter { get; }
 
     /// <summary>Coordinates Ridley's multipart tail through the shared place and projectile services.</summary>
-    private RidleyTail RidleyTail { get; }
+    internal RidleyTail RidleyTail { get; }
 
     /// <summary>Ridley's fireballs and the afterburn that trails them, which Mother Brain's afterburn reuses.</summary>
-    private RidleyProjectiles RidleyProjectiles { get; }
+    internal RidleyProjectiles RidleyProjectiles { get; }
 
     /// <summary>The parts of Ridley's body both his encounters run (#2229).</summary>
-    private RidleyBody RidleyBody { get; }
+    internal RidleyBody RidleyBody { get; }
 
     /// <summary>The station's escape from Ceres Ridley's room: his getaway and the self-destruct warning (#2228).</summary>
-    private CeresEscape CeresEscape { get; }
+    internal CeresEscape CeresEscape { get; }
 
     /// <summary>Raises the dust of dead monsters' fallen corpse rows through the same frame as enemy processing.</summary>
-    private CorpseRowDust CorpseRowDust { get; }
+    internal CorpseRowDust CorpseRowDust { get; }
 
     /// <summary>Owns Mother Brain's room encounter and its cutscene state.</summary>
-    private MotherBrainEncounter MotherBrainEncounter { get; }
+    internal MotherBrainEncounter MotherBrainEncounter { get; }
 
     /// <summary>Every species with room or frame lifecycle state, in the game's reset order.</summary>
     internal IReadOnlyList<IEnemySpecies> FrameParticipants { get; }
@@ -453,7 +453,7 @@ internal sealed class RoomEnemySpecies
     /// <summary>Mother Brain's rainbow beam, stepped after the enemy pass while her head is loaded.</summary>
     /// <param name="encounters">The room's boss encounters.</param>
     /// <param name="artwork">The bosses' installed artwork, whose rainbow colours the beam cycles.</param>
-    private sealed class MotherBrainRainbowBeamStep(RoomBossEncounters encounters, BossArtworkBinding artwork) : IStepAfterEnemyPass
+    private sealed partial class MotherBrainRainbowBeamStep(RoomBossEncounters encounters, BossArtworkBinding artwork) : IStepAfterEnemyPass
     {
         /// <inheritdoc/>
         public void StepAfterEnemyPass()
@@ -466,7 +466,7 @@ internal sealed class RoomEnemySpecies
     /// <summary>Mother Brain's brain and neck, whose draw advances her brain's reads of the room's random numbers.</summary>
     /// <param name="motherBrain">Mother Brain.</param>
     /// <param name="encounters">The room's boss encounters.</param>
-    private sealed class MotherBrainLateParts(MotherBrainBehavior motherBrain, RoomBossEncounters encounters) : IEnemyLateDraw
+    private sealed partial class MotherBrainLateParts(MotherBrainBehavior motherBrain, RoomBossEncounters encounters) : IEnemyLateDraw
     {
         /// <inheritdoc/>
         public void DrawAfterEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus) =>
@@ -475,7 +475,7 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>The dead Torizo's sand heap.</summary>
     /// <param name="deadTorizo">The dead Torizo.</param>
-    private sealed class DeadTorizoSandHeap(DeadTorizoBehavior deadTorizo) : IEnemyLateDraw
+    private sealed partial class DeadTorizoSandHeap(DeadTorizoBehavior deadTorizo) : IEnemyLateDraw
     {
         /// <inheritdoc/>
         public void DrawAfterEnemies(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus) =>
@@ -487,7 +487,7 @@ internal sealed class RoomEnemySpecies
     /// after the actors' drawing steps once it has (#2573), and the Baby and his room's door overlay, each shown once.
     /// </summary>
     /// <param name="ceres">The Ceres encounter.</param>
-    private sealed class CeresBabyPassScene(ICeresEncounter ceres) : IEnemyPassScene
+    private sealed partial class CeresBabyPassScene(ICeresEncounter ceres) : IEnemyPassScene
     {
         /// <inheritdoc/>
         public void StepWithEnemyPass() => ceres.StepCeresBabyWithEnemyPass();
@@ -505,7 +505,7 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>The loaded bosses' displayed body wave, visibility and rainbow beam colour.</summary>
     /// <param name="encounters">The room's boss encounters.</param>
-    private sealed class BossBodyDisplayLatch(RoomBossEncounters encounters) : IDisplayLatch
+    private sealed partial class BossBodyDisplayLatch(RoomBossEncounters encounters) : IDisplayLatch
     {
         /// <inheritdoc/>
         public void LatchDisplay()
@@ -521,7 +521,7 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>Phantoon's body wave and visibility, which step with the room's effects.</summary>
     /// <param name="encounters">The room's boss encounters.</param>
-    private sealed class PhantoonBodyDisplaySteps(RoomBossEncounters encounters) : IStepWithRoomEffects
+    private sealed partial class PhantoonBodyDisplaySteps(RoomBossEncounters encounters) : IStepWithRoomEffects
     {
         /// <inheritdoc/>
         public void StepWithRoomEffects()
@@ -537,10 +537,10 @@ internal sealed class RoomEnemySpecies
     /// <param name="rinka">The Rinkas, whose setup reads the camera as loading progresses.</param>
     /// <param name="prePhantoonRoom">The room before Phantoon's.</param>
     /// <param name="ridley">What the room sees of Ridley's encounters.</param>
-    internal sealed class LoaderOperations(RinkaBehavior rinka, PrePhantoonRoomBehavior prePhantoonRoom, RidleyEncounter ridley) : IEnemyLoaderHooks
+    internal sealed partial class LoaderOperations(RinkaBehavior rinka, PrePhantoonRoomBehavior prePhantoonRoom, RidleyEncounter ridley) : IEnemyLoaderHooks
     {
         /// <summary>The room before Phantoon's.</summary>
-        private PrePhantoonRoomBehavior PrePhantoonRoom { get; } = prePhantoonRoom;
+        internal PrePhantoonRoomBehavior PrePhantoonRoom { get; } = prePhantoonRoom;
 
         /// <inheritdoc/>
         public bool HasDeferredLoaderTimeCameraReads => rinka.HasDeferredLoaderTimeCameraReads;
@@ -562,7 +562,7 @@ internal sealed class RoomEnemySpecies
     /// <summary>The gunship's scenario and the Rinkas' camera, which the room's load hands the species first.</summary>
     /// <param name="gunship">Samus's gunship.</param>
     /// <param name="rinka">The Rinkas.</param>
-    private sealed class RoomLoadPreparation(GunshipBehavior gunship, RinkaBehavior rinka) : IEnemyLoadPreparation
+    private sealed partial class RoomLoadPreparation(GunshipBehavior gunship, RinkaBehavior rinka) : IEnemyLoadPreparation
     {
         /// <inheritdoc/>
         public void PrepareRoomLoad(IRoomEnemyLoad request)
@@ -576,14 +576,14 @@ internal sealed class RoomEnemySpecies
 
     /// <summary>The attract demo's setup of Kraid's room.</summary>
     /// <param name="kraid">Kraid.</param>
-    private sealed class AttractDemoOperations(KraidBehavior kraid) : IEnemyAttractDemoHooks
+    private sealed partial class AttractDemoOperations(KraidBehavior kraid) : IEnemyAttractDemoHooks
     {
         /// <inheritdoc/>
         public void StartKraidPhaseWait(int updates) => kraid.Parts.Encounter.BodyState.PhaseWait.LastFor(updates);
     }
 
     /// <summary>The enemy-side effects room objects and room effects trigger, carried out by the owners they belong to.</summary>
-    internal sealed class ObjectSpawns(
+    internal sealed partial class ObjectSpawns(
         NoobTubeBehavior noobTube,
         EyeDoorBehavior eyeDoor,
         OldTourianEscapeShaftWallBehavior oldTourianWall,
@@ -593,13 +593,13 @@ internal sealed class RoomEnemySpecies
         EscapeExplosionsBehavior escapeExplosions) : IEnemyObjectSpawns
     {
         /// <summary>The eyes guarding some doors.</summary>
-        private EyeDoorBehavior EyeDoor { get; } = eyeDoor;
+        internal EyeDoorBehavior EyeDoor { get; } = eyeDoor;
 
         /// <summary>The wall of old Tourian's escape shaft.</summary>
-        private OldTourianEscapeShaftWallBehavior OldTourianWall { get; } = oldTourianWall;
+        internal OldTourianEscapeShaftWallBehavior OldTourianWall { get; } = oldTourianWall;
 
         /// <summary>The explosions that go off around Samus during the escape.</summary>
-        private EscapeExplosionsBehavior EscapeExplosions { get; } = escapeExplosions;
+        internal EscapeExplosionsBehavior EscapeExplosions { get; } = escapeExplosions;
 
         /// <inheritdoc/>
         public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) => noobTube.SpawnNoobTubeProjectile(request);
@@ -630,10 +630,10 @@ internal sealed class RoomEnemySpecies
     }
 
     /// <summary>The room-object work the Chozo statues and downward gates exchange with their room objects.</summary>
-    internal sealed class ObjectRequests(ChozoStatueBehavior chozoStatue, DownwardGateBehavior downwardGate) : IEnemyObjectRequests
+    internal sealed partial class ObjectRequests(ChozoStatueBehavior chozoStatue, DownwardGateBehavior downwardGate) : IEnemyObjectRequests
     {
         /// <summary>The gates that close downward over a passage.</summary>
-        private DownwardGateBehavior DownwardGate { get; } = downwardGate;
+        internal DownwardGateBehavior DownwardGate { get; } = downwardGate;
 
         /// <inheritdoc/>
         public IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ActivateChozoStatueHandTrigger() =>
@@ -648,7 +648,7 @@ internal sealed class RoomEnemySpecies
     /// <param name="CeresEscape">The station's escape from Ceres Ridley's room.</param>
     /// <param name="motherBrain">Mother Brain's room encounter.</param>
     /// <param name="beam">The Morph Ball eye's beam.</param>
-    private sealed class DisplayContributions(CeresEscape CeresEscape, MotherBrainEncounter motherBrain, MorphBallEyeBeamState beam)
+    private sealed partial class DisplayContributions(CeresEscape CeresEscape, MotherBrainEncounter motherBrain, MorphBallEyeBeamState beam)
         : IEnemyDisplayContributions
     {
         /// <inheritdoc/>

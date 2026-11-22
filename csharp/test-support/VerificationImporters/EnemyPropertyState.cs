@@ -38,6 +38,6 @@ internal readonly record struct EnemyPropertyState(
         place.Processing = Processing;
         place.Presence = Presence;
         place.CollidesByFrameHitboxes = CollidesByFrameHitboxes;
-        SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), NewInstructionFrame);
+        place.AnimationClock.ShowsNewFrame = NewInstructionFrame;
     }
 }

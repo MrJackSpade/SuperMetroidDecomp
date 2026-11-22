@@ -116,13 +116,19 @@ internal sealed class CoreModel
         }
         Behaviours = [.. _behaviours.Values.OrderBy(b => b.Path, StringComparer.Ordinal)];
         CheckDistinct();
-        foreach (SyntaxTree tree in Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in AuthoredTrees)
             ReadTree(tree);
         BuildDispatch();
     }
 
     /// <summary>The Core compilation.</summary>
     public Compilation Compilation { get; }
+
+    /// <summary>
+    /// The compilation's trees the game's authors wrote: not the members the compiler writes for debugger states (#2602),
+    /// whose restore constructors and registrations make no frame.
+    /// </summary>
+    public IEnumerable<SyntaxTree> AuthoredTrees => Compilation.SyntaxTrees.Where(tree => !tree.FilePath.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The Core project directory.</summary>
     public string Directory { get; }
@@ -436,7 +442,7 @@ internal sealed class CoreModel
             return known;
         bool constructor = definition.MethodKind == MethodKind.Constructor;
         var sites = new List<CallSite>();
-        foreach (SyntaxTree tree in Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (SyntaxNode node in tree.GetRoot().DescendantNodes())
@@ -522,7 +528,7 @@ internal sealed class CoreModel
             return known;
         var parameters = new HashSet<IParameterSymbol>(SymbolEqualityComparer.Default);
         var pending = new Queue<IParameterSymbol>();
-        foreach (IMethodSymbol constructor in family.OriginalDefinition.InstanceConstructors)
+        foreach (IMethodSymbol constructor in GameConstructors.Of(family.OriginalDefinition))
         {
             if (ProgramParameterOf(constructor, family) is { } program)
                 Pass(constructor, program);

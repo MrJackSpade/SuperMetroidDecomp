@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// floor places, by <see cref="CeresElevatorDoorFactory"/>.
 /// </summary>
 [RoomLifetime]
-internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
+internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 {
 
     /// <summary>Captures the room systems the Ceres doors and walls use.</summary>
@@ -80,7 +80,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     /// The step of the elevator room's glow the elevator door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
-    internal int? ElevatorRoomGlowStep { private get; set; }
+    internal int? ElevatorRoomGlowStep { get; set; }
 
     /// <summary>Lays the elevator room's glow step, once the door has cycled one, over the room's pictures (#1512).</summary>
     public void ShadeGameplay(GameplayShadingBuilder frame)
@@ -127,21 +127,22 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
     }
 
     /// <summary>The animation a door starts, standing closed, when it appears with Samus away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorClosedAnimation = CeresDoorSegment.Closed;
+    internal const CeresDoorSegment DoorClosedAnimation = CeresDoorSegment.Closed;
 
     /// <summary>The animation an open door starts, closing, once Samus is away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorClosingAnimation = CeresDoorSegment.Close;
+    internal const CeresDoorSegment DoorClosingAnimation = CeresDoorSegment.Close;
 
     /// <summary>The animation a closed door starts again, waiting closed, while Samus is away (#2189), facing as it does.</summary>
-    private const CeresDoorSegment DoorWaitingAnimation = CeresDoorSegment.ClosedWait;
+    internal const CeresDoorSegment DoorWaitingAnimation = CeresDoorSegment.ClosedWait;
 
     /// <summary>The animation the door of Ridley's room starts again while the area boss is alive (#2189).</summary>
-    private const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
+    internal const CeresDoorSegment RidleyRoomDoorWaitingAnimation = CeresDoorSegment.RidleyRoomDoorWait;
 
     /// <summary>The animation the elevator room's wall starts, as the left-facing door it stands as, until Ceres Ridley has escaped (#2189).</summary>
-    private const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
+    internal const CeresDoorSegment ElevatorRoomWallDoorAnimation = CeresDoorSegment.Door;
 
     /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>>
     {
         [CeresDoorCueKind.DoorAppears] = (place, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,

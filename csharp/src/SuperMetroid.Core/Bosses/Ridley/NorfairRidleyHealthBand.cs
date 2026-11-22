@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// health is under (<see cref="NorfairRidleyHealthBandDefinitions.WoundedLowestFirst"/>), and in
 /// <see cref="NorfairRidleyHealthBandDefinitions.Unhurt"/> above them all.
 /// </summary>
-public sealed class NorfairRidleyHealthBand
+public sealed partial class NorfairRidleyHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="hoverDivisor">The acceleration divisor of his hover, wall sweep and power-bomb dodge.</param>

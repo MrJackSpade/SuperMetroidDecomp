@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// One retail area map and station reveal plane as the import decoded them (#1416): the cartridge bytes, where they were
 /// read from, and the decoded cells the map presentation is extracted from.
 /// </summary>
-public sealed class ImportedAreaMap : IAreaMapView
+public sealed partial class ImportedAreaMap : IAreaMapView
 {
     /// <summary>The cell each map word shows (#1513), in logical 64-by-32 cell order.</summary>
     private readonly MapCell[] cells;

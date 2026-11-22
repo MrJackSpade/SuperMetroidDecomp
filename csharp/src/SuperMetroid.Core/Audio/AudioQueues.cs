@@ -14,19 +14,19 @@ namespace SuperMetroid.Core.Audio;
 /// states are game state, so the host plays only what the queues release and invents no
 /// gameplay-specific sounds.
 /// </remarks>
-public sealed class AudioQueues
+public sealed partial class AudioQueues
 {
     /// <summary>
     /// The music requests waiting on the music queue, oldest first, each with its delay. The request the queue fetched
     /// stays first until it has played. No path holds more requests than the game's queue keeps without filling it,
     /// so the queue never refuses or overwrites one (#1692).
     /// </summary>
-    private readonly Queue<QueuedMusic> Music = new();
+    internal readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    private readonly IdentityTable<SoundEffectLibrary, SoundQueue> SoundQueues =
+    internal readonly IdentityTable<SoundEffectLibrary, SoundQueue> SoundQueues =
         new(SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue()));
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
-    private readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
+    internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
     /// <summary>The sound each of the three sound queues last asked its library for, as an acknowledgement of it, or none.</summary>
     internal SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> SentSoundRequests => SoundHandshakes.Requests;
@@ -37,7 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
-    private FetchedMusicRequest? FetchedMusic { get; set; }
+    internal FetchedMusicRequest? FetchedMusic { get; set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
     /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
@@ -64,10 +64,10 @@ public sealed class AudioQueues
     }
 
     /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    private MusicDataSet? DataSet { get; set; }
+    internal MusicDataSet? DataSet { get; set; }
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
-    private MusicTrack? PlayingTrack { get; set; }
+    internal MusicTrack? PlayingTrack { get; set; }
 
     /// <summary>
     /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one
@@ -319,6 +319,7 @@ public sealed class AudioQueues
     }
 
     /// <summary>What <see cref="HandleSoundEffectQueue"/> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>> HandleSoundEffectQueueForHandshakeStep => field ??= new(new Dictionary<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>>
     {
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait] = (library, requests) =>

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="EffectOverlay">What the room effect shows on the effect overlay, its artwork resolved (#2505).</param>
 /// <param name="MorphBallEyeBeam">The Morph Ball eye beam's cone as the frame ends: its eye's position and aim, its width and colour; null while no beam exists.</param>
 /// <param name="Tints">The tints the frame's effects blend with, each published by its own effect.</param>
-public abstract record RoomFrameLatch(
+public abstract partial record RoomFrameLatch(
     ShownHud Hud,
     PicturedHud PicturedHud,
     GameplayRenderSnapshot Scrolls,

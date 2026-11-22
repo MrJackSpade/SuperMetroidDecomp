@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// the room the services are built for (#2486), and the control lock acts on the introduced Samus.
 /// </summary>
 [RoomLifetime]
-internal sealed class RoomEnemyRuntimeServices(
+internal sealed partial class RoomEnemyRuntimeServices(
     SharedGameState system,
     RoomScrollGrid scrolls,
     SamusFrameState player,

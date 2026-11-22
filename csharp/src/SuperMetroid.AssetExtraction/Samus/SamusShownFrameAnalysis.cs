@@ -55,7 +55,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// animation frame itself, its timing and everything gameplay reads from it stay as the game computes them.
 /// </para>
 /// </remarks>
-internal sealed class SamusShownFrameAnalysis
+internal sealed partial class SamusShownFrameAnalysis
 {
     /// <summary>The movement types in the order the analysis lists those a pose was initialized in (#2567).</summary>
     private static readonly IReadOnlyList<SamusMovementType> MovementTypeOrder = Ensure.EveryMemberOnce<SamusMovementType>(
@@ -141,7 +141,7 @@ internal sealed class SamusShownFrameAnalysis
     }
 
     /// <summary>Every pose some path of the game gives Samus: the poses the body can show.</summary>
-    private static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
+    internal static IReadOnlyList<SamusPoseId> Poses { get; } = Ensure.EveryMemberOnce(SamusPoseIdKeys.ListedOrder);
 
     /// <summary>
     /// What the installation holds of the analysis, for every pose with a record: every frame the pose shows, with the
@@ -431,17 +431,17 @@ internal sealed class SamusShownFrameAnalysis
     /// <summary>A frame of a pose, by its place in the layout of the pose's animation.</summary>
     /// <param name="Pose">The pose.</param>
     /// <param name="Frame">The frame's place in the layout of the pose's animation.</param>
-    private readonly record struct PoseFrame(SamusPoseId Pose, int Frame);
+    private readonly partial record struct PoseFrame(SamusPoseId Pose, int Frame);
 
     /// <summary>A frame an outside path publishes, with the pose it publishes it for.</summary>
     /// <param name="Pose">The pose.</param>
     /// <param name="Publication">The frame published.</param>
-    private readonly record struct PosePublication(SamusPoseId Pose, SamusPublishedFrame Publication);
+    private readonly partial record struct PosePublication(SamusPoseId Pose, SamusPublishedFrame Publication);
 
     /// <summary>A frame an outside path publishes for a pose.</summary>
     /// <param name="Frame">The animation frame written, by its place in the pose's animation's layout.</param>
     /// <param name="Drawing">Whether the draw shows the frame as written or after the animation pass advances it.</param>
-    private readonly record struct SamusPublishedFrame(int Frame, PublishedFrameDrawing Drawing);
+    private readonly partial record struct SamusPublishedFrame(int Frame, PublishedFrameDrawing Drawing);
 
     /// <summary>How the draw shows a frame an outside path publishes.</summary>
     private enum PublishedFrameDrawing

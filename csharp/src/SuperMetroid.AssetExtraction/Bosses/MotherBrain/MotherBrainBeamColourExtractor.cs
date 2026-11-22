@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// Installs the colours of Mother Brain's rainbow beam backdrop by purpose (#1637): its first colour and the colours of its
 /// hue cycle, without the cycle's terminator or the table they were kept in.
 /// </summary>
-internal static class MotherBrainBeamColourExtractor
+internal static partial class MotherBrainBeamColourExtractor
 {
     /// <summary>Imports the beam backdrop's colours, checking the cycle's terminator.</summary>
     /// <param name="bus">Cartridge import source for the beam's colours.</param>

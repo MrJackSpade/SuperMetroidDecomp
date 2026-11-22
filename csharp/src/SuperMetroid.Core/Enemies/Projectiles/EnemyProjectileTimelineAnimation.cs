@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
 /// <typeparam name="TEvent">The family's events.</typeparam>
-internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent> : EnemyProjectileAnimation
+internal abstract partial class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent> : EnemyProjectileAnimation
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -27,7 +27,7 @@ internal abstract class EnemyProjectileTimelineAnimation<TSegment, TFrame, TEven
     private protected EnemyProjectileTimelineAnimation(TSegment startsAt, Animation<TSegment> animation) => Start(startsAt, animation);
 
     /// <summary>The animation playing and where it stands.</summary>
-    private AnimationPlayback<TSegment> Playback { get; set; }
+    internal AnimationPlayback<TSegment> Playback { get; set; }
 
     /// <summary>The segment the playing animation starts at, which its owner names as it starts it.</summary>
     private TSegment StartedAt { get; set; }

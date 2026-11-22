@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The sprites that show Samus's colourings (#1405, #1512). The colourings' sizes, and which inks of her sheets each
 /// recolours, are the import's.
 /// </summary>
-internal static class SamusColourDefinitions
+internal static partial class SamusColourDefinitions
 {
     /// <summary>The sprites that show Samus's colours: her body, her equipment's and her weapons' draws.</summary>
     public static ImmutableHashSet<SpriteSourceKind> Sources { get; } =

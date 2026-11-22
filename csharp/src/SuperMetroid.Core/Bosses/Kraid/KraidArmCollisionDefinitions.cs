@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// those pictures has five components in collision order: a limb and its connector, his body at the arm's origin, and a second limb and its
 /// connector; each pose is named for the frame it is (#2211).
 /// </summary>
-internal static class KraidArmCollisionDefinitions
+internal static partial class KraidArmCollisionDefinitions
 {
     /// <summary>The arm raised, its claw closed.</summary>
     private static readonly KraidArmComponentDefinition[] RaisedClawClosed =

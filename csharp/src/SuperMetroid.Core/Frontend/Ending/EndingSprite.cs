@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// A live ending actor with its role and its own motion: a picture actor (<see cref="EndingPictureSprite"/>) or a typed
 /// text (<see cref="EndingTextSprite"/>), both running animations that publish the escape scenes' cues (#2195, #2197).
 /// </summary>
-internal abstract class EndingSprite
+internal abstract partial class EndingSprite
 {
     /// <summary>Creates an actor of <paramref name="role"/>, starting the motion its role names (#2489).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The role is undefined.</exception>

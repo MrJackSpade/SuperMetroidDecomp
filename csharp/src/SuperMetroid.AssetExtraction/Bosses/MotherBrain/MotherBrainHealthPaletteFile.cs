@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain health palette document.</summary>
-public static class MotherBrainHealthPaletteFile
+public static partial class MotherBrainHealthPaletteFile
 {
     /// <summary>Supported schema version: 2 keys each health band's body and rear-leg colours by the band (#2565).</summary>
     public const int Version = 2;
@@ -48,6 +48,6 @@ public static class MotherBrainHealthPaletteFile
     /// <param name="document">Four health-band images for body/brain and rear legs; supplied arrays are not modified.</param>
     public static void Write(Stream json, MotherBrainHealthPaletteDocument document)
     {
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)));
     }
 }

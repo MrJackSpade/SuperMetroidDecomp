@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// cue reads and clears it the next time it runs in a phase that steps back; his sinking and his skeleton clear it.
 /// </remarks>
 [CompatibilityService("a mouth hit's step back waits for Crocomire's step-back cue")]
-public sealed class CrocomireAwaitedStepBack
+public sealed partial class CrocomireAwaitedStepBack
 {
     /// <summary>Whether a hit's step back waits for his fight.</summary>
     public bool IsAwaited { get; private set; }

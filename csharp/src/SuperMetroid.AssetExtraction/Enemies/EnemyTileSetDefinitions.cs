@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// knowledge the import composes sheets from, which the game itself never reads. Decoded from the enemy headers and
 /// graphics-set records; the enemy-definition check compares the sizes with the cartridge's headers.
 /// </summary>
-internal static class EnemyTileSetDefinitions
+internal static partial class EnemyTileSetDefinitions
 {
     /// <summary>The bytes of each enemy's tile set, which its graphics set uploads into the enemy tile area.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, int> ByteCounts { get; } = new Dictionary<EnemyDefinitionId, int>

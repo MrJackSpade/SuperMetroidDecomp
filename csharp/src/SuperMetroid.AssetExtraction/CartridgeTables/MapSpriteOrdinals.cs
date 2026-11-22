@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// The cartridge's menu spritemap ordinals naming each <see cref="MapSpriteId"/> (#1416): indices into the $82:C569
 /// pointer table, which the map sprite, arrow and landmark extractors translate once at import.
 /// </summary>
-internal static class MapSpriteOrdinals
+internal static partial class MapSpriteOrdinals
 {
     /// <summary>The spritemap ordinal of each map sprite.</summary>
     internal static readonly NativeWordIdentities<MapSpriteId> Spritemaps = new(new Dictionary<MapSpriteId, ushort>

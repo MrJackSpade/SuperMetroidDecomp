@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// A picture a room effect actor shows (#1817): a frame of its enemy sheet, or, for the burst Samus's hit shows at an
 /// enemy, one of her hit-burst sprites, which only her projectile sheets picture (#1713).
 /// </summary>
-internal readonly record struct RoomEffectActorPicture
+internal readonly partial record struct RoomEffectActorPicture
 {
     /// <summary>The one picture the actor shows (#2560).</summary>
     private readonly Picture picture;
@@ -33,13 +33,13 @@ internal readonly record struct RoomEffectActorPicture
         ?? throw new InvalidOperationException($"Room effect-actor picture {HitBurst} is Samus's hit burst, on no enemy sheet.");
 
     /// <summary>An effect actor's picture (#2560): a closed choice of an enemy-sheet frame and Samus's hit-burst sprite.</summary>
-    private abstract record Picture;
+    private abstract partial record Picture;
 
     /// <summary>A frame of an enemy sheet.</summary>
     /// <param name="Frame">The frame.</param>
-    private sealed record EnemySheetPicture(EnemyFrameId Frame) : Picture;
+    private sealed partial record EnemySheetPicture(EnemyFrameId Frame) : Picture;
 
     /// <summary>Samus's hit-burst sprite.</summary>
     /// <param name="Sprite">The sprite.</param>
-    private sealed record HitBurstPicture(ProjectileSpriteId Sprite) : Picture;
+    private sealed partial record HitBurstPicture(ProjectileSpriteId Sprite) : Picture;
 }

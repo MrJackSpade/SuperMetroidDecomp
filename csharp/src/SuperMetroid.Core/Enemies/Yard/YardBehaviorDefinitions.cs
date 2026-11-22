@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Each of the Yard's behaviours (<see cref="YardBehavior"/>).</summary>
-internal static class YardBehaviorDefinitions
+internal static partial class YardBehaviorDefinitions
 {
     /// <summary>
     /// Each behaviour: crawling normally or hiding, the Yard watches Samus and takes hits; crawling aggressively it watches

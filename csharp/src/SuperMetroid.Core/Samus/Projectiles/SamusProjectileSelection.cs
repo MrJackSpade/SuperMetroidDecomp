@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSelectionDefinit
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which projectile kind a beam shot, missile, bomb, special attack or echo is.</summary>
-internal static class SamusProjectileSelection
+internal static partial class SamusProjectileSelection
 {
     /// <summary>
     /// The kind a shot of <paramref name="beams"/> is, charged when <paramref name="charged"/>. Each Spazer and Plasma

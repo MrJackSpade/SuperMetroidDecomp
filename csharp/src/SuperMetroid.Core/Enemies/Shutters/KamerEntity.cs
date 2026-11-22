@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Kamer occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KamerEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class KamerEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : ShootableShutterEntity(species, occupant, place, common)
 {
     /// <summary>The Kamer shows its platform.</summary>

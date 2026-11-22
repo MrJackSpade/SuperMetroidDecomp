@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>One of the four Rinkas of the Mother Brain flashback: the sprite it shows and what its launch chose.</summary>
-internal sealed class IntroRinka
+internal sealed partial class IntroRinka
 {
     /// <summary>Creates the Rinka of <paramref name="launch"/> where it appears, running the Rinka animation.</summary>
     /// <param name="launch">The Rinka's launch: where it appears, its drift and how it flies.</param>

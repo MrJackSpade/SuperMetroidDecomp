@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the stage before
 /// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
-public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
@@ -86,7 +86,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
     /// until the bridge gives way under him, then each stage of his death in turn to his inert corpse.
     /// </summary>
-    internal ListStep<CrocomireDeathStage> DeathStage { get; private set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
+    internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
     /// <summary>Hands his death over to the stage after the one he is at.</summary>
     /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>

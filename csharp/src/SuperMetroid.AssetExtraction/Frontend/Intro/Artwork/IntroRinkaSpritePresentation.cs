@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
-public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroRinkaSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Three compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -54,8 +54,7 @@ public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroRinkaSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroRinkaSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

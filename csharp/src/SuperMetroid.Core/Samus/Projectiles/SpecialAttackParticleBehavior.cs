@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// What a special attack particle does on its update (#1923): enemy collision only marks it spent, and its own update
 /// then ends it. The sound the update makes joins the update's audio requests at once.
 /// </summary>
-internal abstract class SpecialAttackParticleBehavior : SamusShotBehavior
+internal abstract partial class SpecialAttackParticleBehavior : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal sealed override void Run(SamusShotUpdate update)

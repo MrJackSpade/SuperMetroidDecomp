@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// The reactions of Draygon's own that its frames' hitboxes name (#1759). Only Draygon's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class DraygonReactions
+internal static partial class DraygonReactions
 {
     /// <summary>Draygon's touch reaction.</summary>
     internal static EnemyReaction Touch => SpeciesOwnReactions.DraygonTouch;

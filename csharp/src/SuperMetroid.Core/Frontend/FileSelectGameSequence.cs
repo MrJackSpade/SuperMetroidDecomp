@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Choosing a game: the save slots, the selected game's options and a saved game's area map.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class FileSelectGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;
@@ -50,6 +50,7 @@ internal sealed class FileSelectGameSequence(FrontendSession session) : IGamePha
     public bool IsWaitingOutDisplayFrame => WaitsOutDisplayFrame[session.FileSelectStep](session);
 
     /// <summary>What <c>Step</c> does for each <see cref="FileSelectStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<FileSelectStep, Action<ControllerButton>> StepForFileSelectStep => field ??= new(new Dictionary<FileSelectStep, Action<ControllerButton>>
     {
         [FileSelectStep.SaveSlots] = controllerInput => RunSaveSlots(controllerInput),

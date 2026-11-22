@@ -14,6 +14,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <param name="SuitlessSamus">$4000-byte suitless reward OBJ sheet.</param>
 /// <param name="TransformationCharacters">$0100-byte BG3 transformation-character transfer.</param>
 /// <param name="PostShotLogoTiles">$2000-byte logo character stream divided into four staged uploads.</param>
-public sealed record EndingObjectCharacters(RoomCharacterAtlas Clouds, RoomCharacterAtlas Explosion, RoomCharacterAtlas WaitingSamus,
+public sealed partial record EndingObjectCharacters(RoomCharacterAtlas Clouds, RoomCharacterAtlas Explosion, RoomCharacterAtlas WaitingSamus,
     RoomCharacterAtlas ShootingScreen, RoomCharacterAtlas SuitlessSamus, RoomCharacterAtlas TransformationCharacters,
     RoomCharacterAtlas PostShotLogoTiles);

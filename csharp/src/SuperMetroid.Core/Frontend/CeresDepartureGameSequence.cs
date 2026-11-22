@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// (<see cref="CeresDepartureState"/>) is the sequence's step.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class CeresDepartureGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class CeresDepartureGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.CeresDeparture;

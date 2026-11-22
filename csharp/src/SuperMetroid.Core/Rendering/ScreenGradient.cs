@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// stop rather than mixing neighbouring stops, as the title's glow changes its colour in whole steps where each band
 /// begins. Lines above <see cref="Top"/> and from <see cref="Bottom"/> down are not blended.
 /// </summary>
-public sealed record ScreenGradient
+public sealed partial record ScreenGradient
 {
     /// <summary>The stops from the top of the band down, each beginning on a lower line than the one before.</summary>
     public ImmutableArray<GradientStop> Stops { get; }

@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// documents it writes. The import turns a cell into the pixel the game places a picture at where it decodes it
 /// (<see cref="CharacterCellConversions"/>); nothing the game reads holds a cell.
 /// </summary>
-public sealed class CharacterCells : ISpatialSpace;
+public sealed partial class CharacterCells : ISpatialSpace;

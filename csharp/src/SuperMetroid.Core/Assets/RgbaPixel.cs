@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Assets;
 /// textures in this four-byte layout, so each channel is stored at one byte.
 /// </remarks>
 [EncodingOwner("RGBA8888 texture pixel")]
-public readonly record struct RgbaPixel(byte R, byte G, byte B, byte A = 255); // cartridge-encoding: allow(HostPixelFormat) - host RGBA8888 pixel: four one-byte channels whose 4-byte layout pixel buffers are reinterpreted as and read back from GPU textures
+public readonly partial record struct RgbaPixel(byte R, byte G, byte B, byte A = 255); // cartridge-encoding: allow(HostPixelFormat) - host RGBA8888 pixel: four one-byte channels whose 4-byte layout pixel buffers are reinterpreted as and read back from GPU textures

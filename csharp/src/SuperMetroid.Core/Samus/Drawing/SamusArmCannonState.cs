@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// direction- and frame-specific picture separately at the pose's placement (#1463).
 /// Keeping this independent from pose art preserves its before/after-body priority.
 /// </remarks>
-public sealed class SamusArmCannonState
+public sealed partial class SamusArmCannonState
 {
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
-    internal HudItem PreviousSelectedHudItem { get; private set; }
+    internal HudItem PreviousSelectedHudItem { get; set; }
 
     /// <summary>The installed artwork the cover is placed by: installed content, not game state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -27,16 +27,16 @@ public sealed class SamusArmCannonState
     internal SamusArmCannonState(SamusArtworkBinding artwork) => _artwork = Ensure.NotNull(artwork);
 
     /// <summary>The cover: closed, opening, open or closing, with the picture it shows (#2560).</summary>
-    private SamusArmCannonCover Cover { get; set; } = SamusArmCannonCover.Closed;
+    internal SamusArmCannonCover Cover { get; set; } = SamusArmCannonCover.Closed;
 
     /// <summary>
     /// The HUD selection's stability wait, lasting <see cref="SamusArmCannonDefinitions.StableSelectionUpdates"/>: a
     /// change starts it again, counting the changing update as its first, and a transition may begin once it is over.
     /// </summary>
-    private readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
+    internal readonly UpdateCountdown stability = UpdateCountdown.Lasting(SamusArmCannonDefinitions.StableSelectionUpdates);
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
-    public SamusArmCannonDrawOrder DrawOrder { get; private set; }
+    public SamusArmCannonDrawOrder DrawOrder { get; internal set; }
 
     /// <summary>
     /// Runs the HUD selection stability update and the arm cannon's open-state update. Calling once

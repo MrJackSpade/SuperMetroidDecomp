@@ -355,7 +355,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        BossBodySheet sheet = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding, global::SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>(runtime.BossArtwork, "BodySheets").Of(owner);
+        BossBodySheet sheet = runtime.BossArtwork.Body(owner);
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         byte[] loaded = runtime.ComposedVram();
         // A frame pictured under a room animation's frames (Crocomire's melt states, #1513) shows those frames' characters

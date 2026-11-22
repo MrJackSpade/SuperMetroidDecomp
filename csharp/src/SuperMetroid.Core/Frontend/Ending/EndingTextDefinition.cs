@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Position">Origin in signed screen pixels.</param>
 /// <param name="Colouring">The colouring the text's letters draw in (#1512).</param>
 /// <param name="Text">The text the actor types.</param>
-internal readonly record struct EndingTextDefinition(
+internal readonly partial record struct EndingTextDefinition(
     Offset16<ScreenPixels> Position,
     EndingSpriteColouring Colouring,
     EndingTypedText Text);

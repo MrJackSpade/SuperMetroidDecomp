@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Progression;
 /// <param name="UsedStations">The used save stations and elevators the copy decides.</param>
 /// <param name="AreaMaps">Each area whose map the copy leaves acquired (true) or not (false).</param>
 /// <param name="SavedStartupRoute">The saved startup route replacing the session's, or null when the copy stops before it.</param>
-public sealed record ProgressionOverwrite(
+public sealed partial record ProgressionOverwrite(
     DecidedFlags<StoryEvent> Events,
     int? ZebetitesDestroyed,
     IReadOnlyDictionary<AreaId, DefeatedBosses> AreaBosses,

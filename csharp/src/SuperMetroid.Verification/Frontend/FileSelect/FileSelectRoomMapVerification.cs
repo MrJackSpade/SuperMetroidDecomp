@@ -184,7 +184,7 @@ internal static class FileSelectRoomMapVerification
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
         // colours (#1512, #1597).
@@ -251,7 +251,7 @@ internal static class FileSelectRoomMapVerification
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront,
                 Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar, MapStationLayoutFile.Read(stationJson), MapLandmarkFile.Read(landmarkJson),
             MenuSheetFixtures.MapSprites(sprites));
@@ -490,7 +490,7 @@ internal static class FileSelectRoomMapVerification
                 TileColumn = 1, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null,
                 FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];

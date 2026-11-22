@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// or a whole turn; the Multiviola bounce check compares every heading with that toggle.
 /// </remarks>
 [CompatibilityService("a Multiviola's heading bounces into the neighbouring quarter turn across the surface, keeping its place within the quarter")]
-public static class MultiviolaQuarterBounce
+public static partial class MultiviolaQuarterBounce
 {
     /// <summary>The quarter turns of a full turn.</summary>
     private const int QuartersPerTurn = 4;

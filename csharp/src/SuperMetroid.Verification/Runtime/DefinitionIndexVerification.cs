@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using System.Reflection;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -99,16 +98,11 @@ internal static class DefinitionIndexVerification
     private static string? NamespaceOf(DefinitionCatalog catalog) =>
         TypeNameOf(catalog).Split('+')[0] is var outer && outer.LastIndexOf('.') is var dot and >= 0 ? outer[..dot] : null;
 
-    /// <summary>The assembly declaring <paramref name="catalog"/>'s members; read only for a catalog that holds one.</summary>
-    /// <exception cref="InvalidOperationException">A member is declared by no type.</exception>
-    private static System.Reflection.Assembly HomeOf(DefinitionCatalog catalog) => catalog.Members[0].DeclaringType?.Assembly
-        ?? throw new InvalidOperationException($"{catalog.Prefix} holds a member no type declares.");
-
     /// <summary>
     /// #1716: the index asks a catalog about an object whenever the catalog exposes one of the object's type, so a capture
     /// names every catalog member a game can reach by its path. Every object each catalog <paramref name="covered"/> selects
-    /// exposes, walked as <see cref="DefinitionExposure"/> describes, is of a type whose candidates include that catalog.
-    /// Reading the members runs the catalogs' initializers, so the catalogs are checked in three groups.
+    /// exposes, walked as its type's generated members hand it to a debugger state (#2602), is of a type whose candidates
+    /// include that catalog. Reading the members runs the catalogs' initializers, so the catalogs are checked in three groups.
     /// </summary>
     private static void VerifyCandidatesCoverExposedMembers(string group, Func<DefinitionCatalog, bool> covered)
     {
@@ -123,7 +117,7 @@ internal static class DefinitionIndexVerification
                 exposedObjects++;
                 Type type = exposed.GetType();
                 if (!candidates.TryGetValue(type, out HashSet<DefinitionCatalog>? asked))
-                    candidates.Add(type, asked = [.. definitions.Candidates(type)]);
+                    candidates.Add(type, asked = [.. definitions.Candidates(exposed)]);
                 if (!asked.Contains(catalog))
                     throw new InvalidOperationException(
                         $"Verification failed: {TypeNameOf(catalog)} exposes a {type.FullName}, but the index does not ask it about objects of that type.");
@@ -138,25 +132,24 @@ internal static class DefinitionIndexVerification
         [.. definitions.Catalogs.Where(catalog => catalog.BuiltGraph is not null)];
 
     /// <summary>
-    /// Every object other than a string that <paramref name="catalog"/>'s members expose: each member's object; what a
-    /// type of the game's assembly or a value type holds in its fields; an array's elements; and what another assembly's
-    /// class exposes: the elements it enumerates and its comparers, a lazily loaded part's value once loaded, or the
-    /// fields declared with one of its type arguments.
+    /// Every object other than a string that <paramref name="catalog"/>'s members expose: each member's object, and every
+    /// object a debugger state reaches from it through each type's generated members: a field's value, an element, a
+    /// dictionary entry's key or value, a loaded part's value, a value type walked through to what it holds.
     /// </summary>
-    [ReflectionAudit("the definition index check walks what each catalog's members expose, field by field")]
     private static List<object> Exposed(DefinitionCatalog catalog)
     {
         var exposed = new List<object>();
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
         var pending = new Stack<object>();
-        foreach (FieldInfo member in catalog.Members)
-            if (member.GetValue(null) is { } root)
+        foreach (StateGraphCatalogMember member in catalog.Members)
+            if (member.Read() is { } root)
                 pending.Push(root);
+        var held = new HeldObjects(pending);
         while (pending.Count > 0)
         {
             object value = pending.Pop();
             Type type = value.GetType();
-            if (value is string or Pointer || type.IsPrimitive || type.IsEnum)
+            if (value is string or Delegate or Type || type.IsPrimitive || type.IsEnum)
                 continue;
             if (!type.IsValueType)
             {
@@ -164,83 +157,36 @@ internal static class DefinitionIndexVerification
                     continue;
                 exposed.Add(value);
             }
-            if (value is Delegate or MemberInfo)
-                continue;
-            foreach (object held in Held(value, type, HomeOf(catalog)))
-                pending.Push(held);
+            StateGraphTypes.Shared.For(value).Visit(value, held);
         }
         return exposed;
     }
 
-    /// <summary>The objects <paramref name="value"/> of <paramref name="type"/> exposes, as <see cref="Exposed"/> describes.</summary>
-    [ReflectionAudit("the definition index check walks what each catalog's members expose, field by field")]
-    private static IEnumerable<object> Held(object value, Type type, Assembly game)
+    /// <summary>Collects every value an object hands a debugger state's walk.</summary>
+    /// <param name="pending">Receives the values.</param>
+    private sealed class HeldObjects(Stack<object> pending) : IStateGraphChildren
     {
-        if (value is Array array)
+        /// <inheritdoc/>
+        public void Child(StateGraphField field, object? value)
         {
-            // An array of values holding no reference exposes nothing but values.
-            if (!HoldsReferences(Ensure.NotNull(type.GetElementType())))
-                yield break;
-            foreach (object? element in array)
-                if (element is not null)
-                    yield return element;
-            yield break;
+            if (value is not null)
+                pending.Push(value);
         }
-        if (type.Assembly == game || type.IsValueType)
+
+        /// <inheritdoc/>
+        public void Element(int index, object? value)
         {
-            foreach (FieldInfo field in Fields(type))
-                if (!field.FieldType.IsPointer && field.GetValue(value) is { } held)
-                    yield return held;
-            yield break;
+            if (value is not null)
+                pending.Push(value);
         }
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Lazy<>))
+
+        /// <inheritdoc/>
+        public void Part(string step, object? value)
         {
-            if (type.GetProperty(nameof(Lazy<object>.IsValueCreated))?.GetValue(value) is true &&
-                type.GetProperty(nameof(Lazy<object>.Value))?.GetValue(value) is { } loaded)
-                yield return loaded;
-            yield break;
+            if (value is not null)
+                pending.Push(value);
         }
-        if (value is System.Collections.IEnumerable elements)
-        {
-            foreach (object? element in elements)
-                if (element is not null)
-                    yield return element;
-            foreach (string comparer in (string[])["Comparer", "KeyComparer", "ValueComparer"])
-                if (type.GetProperty(comparer, BindingFlags.Instance | BindingFlags.Public) is { } property &&
-                    property.GetIndexParameters().Length == 0 && property.GetValue(value) is { } held)
-                    yield return held;
-            yield break;
-        }
-        Type[] arguments = type.IsGenericType ? type.GetGenericArguments() : [];
-        foreach (FieldInfo field in Fields(type))
-            if (arguments.Contains(field.FieldType) && field.GetValue(value) is { } held)
-                yield return held;
     }
-
-    /// <summary>Every instance field of <paramref name="type"/> and its bases, read once per type.</summary>
-    [ReflectionAudit("the definition index check walks what each catalog's members expose, field by field")]
-    private static FieldInfo[] Fields(Type type)
-    {
-        if (fields.TryGetValue(type, out FieldInfo[]? known))
-            return known;
-        var declaredFields = new List<FieldInfo>();
-        for (Type? current = type; current is not null; current = current.BaseType)
-            declaredFields.AddRange(current.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly));
-        FieldInfo[] all = [.. declaredFields];
-        fields.Add(type, all);
-        return all;
-    }
-
-    /// <summary>Each type's instance fields, as <see cref="Fields"/> reads them.</summary>
-    private static readonly Dictionary<Type, FieldInfo[]> fields = [];
-
-    /// <summary>Whether values of <paramref name="type"/> can hold a reference; a reference type always can.</summary>
-    [ReflectionAudit("the definition index check skips arrays of values that hold no reference")]
-    private static bool HoldsReferences(Type type) => !type.IsValueType ||
-        (typeof(System.Runtime.CompilerServices.RuntimeHelpers)
-            .GetMethod(nameof(System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences))
-            ?? throw new InvalidOperationException("The runtime cannot tell which types hold references."))
-            .MakeGenericMethod(type).Invoke(null, null) is true;
 
     /// <summary>Runs the definition index checks.</summary>
     [VerificationCommand("--definition-index")]

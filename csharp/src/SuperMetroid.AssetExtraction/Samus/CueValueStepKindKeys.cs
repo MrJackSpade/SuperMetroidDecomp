@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The installed key of each <see cref="SamusOverreadDocument.CueValueStepKind"/> (#2520), written out so renaming a member
 /// never changes a name the installed overread document spells it by.
 /// </summary>
-internal static class CueValueStepKindKeys
+internal static partial class CueValueStepKindKeys
 {
     /// <summary>Each cue-value step kind's installed key.</summary>
     internal static InstalledKeys<SamusOverreadDocument.CueValueStepKind> Installed { get; } =

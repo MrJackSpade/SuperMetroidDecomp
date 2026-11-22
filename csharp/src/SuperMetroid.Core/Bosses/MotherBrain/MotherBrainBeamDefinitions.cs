@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The definition data of Mother Brain's rainbow beam: where it leaves her mouth and how long it holds Samus's shots
 /// off. Its colours are installed (#1557).
 /// </summary>
-public static class MotherBrainBeamDefinitions
+public static partial class MotherBrainBeamDefinitions
 {
     /// <summary>How far right of the head's X the beam's apex is.</summary>
     public const int MouthXOffset = 14;

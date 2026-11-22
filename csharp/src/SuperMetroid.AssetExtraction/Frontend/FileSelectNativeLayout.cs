@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// cells and anchors.
 /// </summary>
 [EncodingOwner("bank-$81 file-select tilemap offsets and border and helmet spritemaps")]
-internal static class FileSelectNativeLayout
+internal static partial class FileSelectNativeLayout
 {
     /// <summary>
     /// The menu spritemap each picture of the selected slot's helmet selects (#2359, #2565): the consecutive spritemaps

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Each owner shows the image its player reaches, and the phase a fade or the reveal holds moves on once the sequence
 /// rests.
 /// </summary>
-internal static class RidleyFadeAnimations
+internal static partial class RidleyFadeAnimations
 {
     /// <summary>The sequences' beats, each image shown for its updates.</summary>
     internal static AnimationSegments<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> Segments { get; } = new(

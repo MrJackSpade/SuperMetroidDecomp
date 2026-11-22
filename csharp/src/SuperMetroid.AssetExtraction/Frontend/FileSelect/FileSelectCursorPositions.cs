@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// <summary>
 /// Places the file-select cursors: the main and copy/clear selection rows and each save slot's helmet.
 /// </summary>
-internal static class FileSelectCursorPositions
+internal static partial class FileSelectCursorPositions
 {
     /// <summary>The main-page cursor's X, the same for every choice.</summary>
     internal const int MainCursorX = 14;

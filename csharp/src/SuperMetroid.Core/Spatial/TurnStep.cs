@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// </summary>
 /// <param name="PerUpdate">How far the angle turns each update.</param>
 /// <param name="Direction">Which way it turns.</param>
-public readonly record struct TurnStep(RotationAngle PerUpdate, RotationDirection Direction)
+public readonly partial record struct TurnStep(RotationAngle PerUpdate, RotationDirection Direction)
 {
     /// <summary>No turn at all, the way round a counterclockwise turn goes.</summary>
     public static TurnStep None => new(RotationAngle.Zero, RotationDirection.Counterclockwise);

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// while the glow runs. The way back passes the places between the ends again (#2393). A powered robot's setup starts the
 /// glow on its last step for one update, so its first step shows on the next.
 /// </summary>
-internal static class WorkRobotGlowAnimations
+internal static partial class WorkRobotGlowAnimations
 {
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> Segments { get; } = new(

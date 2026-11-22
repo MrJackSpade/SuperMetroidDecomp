@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// the block it shows and how it lays the block's picture out. A reveal that writes more than one block writes those that
 /// lie inside the revealed area.
 /// </summary>
-public static class XrayRevealMap
+public static partial class XrayRevealMap
 {
     /// <summary>
     /// Runs the reveal's base-copy and terrain-reveal passes. Item and special-room

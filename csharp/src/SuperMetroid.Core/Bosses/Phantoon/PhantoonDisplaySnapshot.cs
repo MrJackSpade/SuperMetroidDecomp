@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="BodyPlacement">Where his body is placed, the room pixel each of its frames lies against and his wave ripples about (#2031).</param>
 /// <param name="BodyVisibility">Whether his body shows as the room shows it, hidden or translucent.</param>
 /// <param name="PixelationBlockSize">His body's pixelation block size in screen pixels latched for display, 1..16; one means none.</param>
-public sealed record PhantoonDisplaySnapshot(
+public sealed partial record PhantoonDisplaySnapshot(
     PhantoonWave? Wave,
     Position16<RoomPixels> BodyPlacement,
     PhantoonBodyVisibility BodyVisibility,

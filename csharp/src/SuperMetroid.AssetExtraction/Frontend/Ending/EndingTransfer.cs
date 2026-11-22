@@ -5,4 +5,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// cut from (#1467); the game selects the composed sheets by scene state and keeps no transfer history. Each kind of
 /// transfer carries exactly what it loads.
 /// </summary>
-internal abstract record EndingTransfer;
+internal abstract partial record EndingTransfer;

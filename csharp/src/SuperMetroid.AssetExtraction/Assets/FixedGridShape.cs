@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Assets;
 /// </summary>
 /// <param name="Rows">Required number of rows.</param>
 /// <param name="Columns">Required number of entries in every row.</param>
-internal readonly record struct FixedGridShape(int Rows, int Columns)
+internal readonly partial record struct FixedGridShape(int Rows, int Columns)
 {
     /// <summary>Whether <paramref name="rows"/> is present with exactly <see cref="Rows"/> rows.</summary>
     internal bool HasRows<T>([NotNullWhen(true)] T[]? rows) => rows is not null && rows.Length == Rows;

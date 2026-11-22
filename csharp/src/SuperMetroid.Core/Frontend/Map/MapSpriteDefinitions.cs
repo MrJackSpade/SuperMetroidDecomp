@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Presentation keys for the <see cref="MapSpriteId"/> map compositions.</summary>
-public static class MapSpriteDefinitions
+public static partial class MapSpriteDefinitions
 {
     /// <summary>The world-map label of each Zebes area.</summary>
     internal static readonly IdentityTable<ZebesArea, MapSpriteId> WorldLabels =

@@ -2,7 +2,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>Exact bounded motion policies for the Landing Site gunship.</summary>
-internal static class GunshipMotionDefinitions
+internal static partial class GunshipMotionDefinitions
 {
 
     /// <summary>

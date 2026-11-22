@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// How far a door transition pushes Samus on each step of the door-opening scroll: a door's own speed, or the game's
 /// default for the door's axis.
 /// </summary>
-public readonly record struct DoorSamusSpeed
+public readonly partial record struct DoorSamusSpeed
 {
     /// <summary>The default push through a vertical door: one and a half pixels per step.</summary>
     private static readonly SignedEightEight VerticalDefault = Pixels(1, 1, 2);

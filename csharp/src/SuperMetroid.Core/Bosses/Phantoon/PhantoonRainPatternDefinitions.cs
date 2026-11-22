@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The patterns of Phantoon's flame rain, by where his body reappears (#2258).</summary>
-public static class PhantoonRainPatternDefinitions
+public static partial class PhantoonRainPatternDefinitions
 {
     /// <summary>He reappears at the room's centre.</summary>
     public static PhantoonRainPattern Centre { get; } = new(1, new(128, 96));

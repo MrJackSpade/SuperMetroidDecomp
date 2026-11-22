@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 
 /// <summary>Host-file geometry for the CRE and graphics-set 4-bpp character streams.</summary>
-public static class RoomCharacterAtlasFormat
+public static partial class RoomCharacterAtlasFormat
 {
     /// <summary>Maximum number of 8x8 character cells per PNG row; shorter streams use only their tile count as the width.</summary>
     public const int TileColumns = 32;

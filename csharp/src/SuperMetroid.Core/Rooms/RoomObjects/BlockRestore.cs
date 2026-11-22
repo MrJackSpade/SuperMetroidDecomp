@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// How a block that grows back shows its picture again (#2557): a single block restores its saved terrain, and a larger
 /// one draws its family's restored picture of its arrangement for one update.
 /// </summary>
-internal sealed class BlockRestore
+internal sealed partial class BlockRestore
 {
     /// <summary>The family's restored picture of a larger arrangement.</summary>
     private readonly Func<BlockArrangement, RoomObjectDraw> larger;

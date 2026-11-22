@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// compared pixel by pixel until the first that differs; a cheap hash narrows which are compared. The content is read in
 /// place from the image it lies on, which must not change while it is compared.
 /// </summary>
-internal sealed class InstalledPictureContent : IEquatable<InstalledPictureContent>
+internal sealed partial class InstalledPictureContent : IEquatable<InstalledPictureContent>
 {
     /// <summary>The image the picture lies on.</summary>
     private readonly InstalledImagePlanes image;

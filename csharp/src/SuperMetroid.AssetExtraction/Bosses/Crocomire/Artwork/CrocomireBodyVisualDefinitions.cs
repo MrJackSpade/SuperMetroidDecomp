@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 /// components and body-layer streams; the final eight death-transition roots have
 /// only ordinary sprite components. Skeleton poses use a separate later range.
 /// </summary>
-internal static class CrocomireBodyVisualDefinitions
+internal static partial class CrocomireBodyVisualDefinitions
 {
     /// <summary>Fifty selected fight-body roots exclude the later skeleton range.</summary>
     internal const int BodyFrameCount = 50;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// Only screen-wide sizes live here. Dimensions belonging to one animation, temporary buffer, or algorithm remain beside
 /// that code even when their numeric value happens to match one of these constants.
 /// </remarks>
-public static class ScreenGeometry
+public static partial class ScreenGeometry
 {
     /// <summary>The screen's width in pixels.</summary>
     public const int ScreenWidthPixels = 256;

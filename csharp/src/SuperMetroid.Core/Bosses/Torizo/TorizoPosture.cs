@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 /// <param name="Facing">The way the Torizo faces.</param>
 /// <param name="LeadingFoot">The foot the Torizo's last step left forward, the one it stepped on.</param>
-internal readonly record struct TorizoPosture(HorizontalDirection Facing, HorizontalDirection LeadingFoot)
+internal readonly partial record struct TorizoPosture(HorizontalDirection Facing, HorizontalDirection LeadingFoot)
 {
     /// <summary>A new Torizo's posture: facing left on its left foot, not turning.</summary>
     internal static TorizoPosture Initial { get; } = new(HorizontalDirection.Left, HorizontalDirection.Left);

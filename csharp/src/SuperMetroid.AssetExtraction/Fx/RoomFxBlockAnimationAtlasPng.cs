@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Reads the import's room-FX atlas PNG into the two-bit characters of its ordered native frames (#1409).</summary>
-public static class RoomFxBlockAnimationAtlasPng
+public static partial class RoomFxBlockAnimationAtlasPng
 {
     /// <summary>Compiles indexed pixels back into their ordered native 2-bpp DMA frames.</summary>
     /// <param name="png">The import's room-FX atlas PNG.</param>

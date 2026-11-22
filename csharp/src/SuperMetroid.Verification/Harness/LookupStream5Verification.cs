@@ -101,8 +101,8 @@ internal static class LookupStream5Verification
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
                 ? CrocomireBodyAnimation.MeltingFleshTopRow : CrocomireBodyAnimation.MeltingBareSkullTopRow);
         }
-        var first = art.first;
-        var second = art.second;
+        var first = art.flesh;
+        var second = art.bareSkull;
         string expectedIdentity = SelectedPresentationHash.Create("enemy-crocomire-melt-v2", content =>
         {
             content.Append("first", first.Characters.Span); content.Append("second", second.Characters.Span);
@@ -203,7 +203,7 @@ internal static class LookupStream5Verification
             fade(state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
             AssertEqual(17, state.PhaseWait.UpdatesLeft, "Incomplete fade preserves prior countdown");
-            SuperMetroid.Core.PrivateState.Set(state.BodyFade, nameof(PhantoonFadeProgress.IsFinished), true);
+            state.BodyFade.IsFinished = true;
             fade(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
             AssertEqual(duration, state.PhaseWait.UpdatesLeft, "Completed fade selects exact native hidden duration");
@@ -1159,8 +1159,7 @@ internal static class LookupStream5Verification
         }).ToArray();
         var original = new MapPaletteCycleDocument { Version = MapPaletteCycleFile.Version, Frames = frames };
         // The extraction states each frame's look as the colour its highlight shows: both of the frame's highlight colours.
-        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(
-            SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), ArtworkJson.Options)
+        MapPaletteCycleDocument extracted = System.Text.Json.JsonSerializer.Deserialize<MapPaletteCycleDocument>(SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleExtractor.Extract(rom), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("The extracted map highlight cycle is null.");
         AssertTrue(extracted.Frames.SequenceEqual(frames), "the extracted highlight cycle holds each frame's hold and highlight colour");
         for (int frame = 0; frame < 14; frame++)
@@ -1184,7 +1183,7 @@ internal static class LookupStream5Verification
 
         static MapPaletteCycle Check(MapPaletteCycleDocument document)
         {
-            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+            byte[] json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options));
             var cycle = MapPaletteCycleFile.Read(new MemoryStream(json, writable: false));
             AssertEqual(document.Frames.Length, cycle.FrameCount, "Highlight frame count");
             AssertEqual(document.Frames.Length, cycle.Timing.FrameCount, "Highlight timing frame count");
@@ -1662,7 +1661,7 @@ internal static class LookupStream5Verification
         CeresFlightPalette Check()
         {
             var document = new CeresFlightPaletteDocument { Version = 1, Colors = colors };
-            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+            using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightPaletteDocument>(ArtworkJson.Options)));
             CeresFlightPalette actual = CeresFlightPaletteFile.Read(json);
             RgbColor[] selected = [.. actual.Colours];
             RgbColor[] loaded = [.. actual.BackgroundColours, .. actual.SpriteColours];
@@ -1811,7 +1810,7 @@ internal static class LookupStream5Verification
                 door.FrameCounter = (ushort)counter; door.ElevatorDoor().RunMainAi(aiFrame);
                 int row = (counter & 0x38) >> 3;
                 // The tick names the glow step the room's pictures show, which the import paints from this row (#1512).
-                AssertEqual(row, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Areas.Ceres.CeresDoorBehavior, int?>(system.CeresDoorBehavior, "ElevatorRoomGlowStep"), "Actual native eight-tick row selection");
+                AssertEqual(row, system.CeresDoorBehavior.ElevatorRoomGlowStep, "Actual native eight-tick row selection");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

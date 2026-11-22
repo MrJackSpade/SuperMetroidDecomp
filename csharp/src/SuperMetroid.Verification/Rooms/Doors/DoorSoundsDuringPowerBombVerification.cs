@@ -33,11 +33,13 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
+        // A real power bomb, laid and set off through gameplay, explodes as Samus enters the door.
+        PowerBombDetonation.ExplodeThroughGameplay(runtime, buttons => game.Step(buttons));
+        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
@@ -51,8 +53,9 @@ internal static class DoorSoundsDuringPowerBombVerification
         }
         AssertTrue(selected, "Landing Site has an exit");
 
-        runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
+        AssertTrue(runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive, "the power bomb is still exploding as Samus enters the door");
         var audio = game.AudioForVerification;
+
         SoundRequestsMark library1 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
         SoundRequestsMark library2 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         game.Session.Enter(DoorTransitionStep.EnteringDoor);

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// Puyo's grounded loops and airborne hop poses as typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class PuyoAnimations
+internal static partial class PuyoAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PuyoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -40,7 +40,7 @@ internal static class PuyoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<PuyoSegment, Animation<PuyoSegment>> StartingAt { get; } = new Dictionary<PuyoSegment, Animation<PuyoSegment>>
+    internal static Dictionary<PuyoSegment, Animation<PuyoSegment>> StartingAt { get; } = new Dictionary<PuyoSegment, Animation<PuyoSegment>>
     {
         [P.GroundedFast] = Animation<PuyoSegment>.Looping([Segments.Whole(P.GroundedFast)]),
         [P.GroundedMedium] = Animation<PuyoSegment>.Looping([Segments.Whole(P.GroundedMedium)]),

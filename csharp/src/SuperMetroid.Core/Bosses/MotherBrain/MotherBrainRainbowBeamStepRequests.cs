@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What one update of Mother Brain's late fight asks of the room, gathered while the update runs through her phases and
 /// reported as one <see cref="MotherBrainRainbowBeamAttackStepResult"/>.
 /// </summary>
-internal sealed class MotherBrainRainbowBeamStepRequests
+internal sealed partial class MotherBrainRainbowBeamStepRequests
 {
     /// <summary>The forced Samus movement the update applied, if any.</summary>
     internal MotherBrainForcedSamusMovementResult? Movement { get; set; }

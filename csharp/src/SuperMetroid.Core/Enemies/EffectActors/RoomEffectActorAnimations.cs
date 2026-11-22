@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// beat shows a <see cref="RoomEffectActorPicture"/>: an enemy-sheet frame or, for the hit burst, one of Samus's burst
 /// pictures (#1817).
 /// </summary>
-internal static class RoomEffectActorAnimations
+internal static partial class RoomEffectActorAnimations
 {
     /// <summary>How many times a Metroid's shell flickers at its usual size as its first pass starts.</summary>
     private const int ShellFirstFlickers = 7;

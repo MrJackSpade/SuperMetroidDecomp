@@ -48,7 +48,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// cartridge's enemy headers (#1693). The game reads only the documents it binds, the frames' displays and Kraid's eye
 /// colours (<see cref="Load"/>), which are installed, and the player edits them in place.
 /// </summary>
-public static class EnemyTileArtworkFiles
+public static partial class EnemyTileArtworkFiles
 {
     /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
@@ -349,7 +349,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(auxiliaryColors)));
         // The manifest names every sheet by its enemy's or artwork's key and pins the import data's hashes: only the import reads it (#1693, #2548).
         File.WriteAllBytes(Path.Combine(importData, EnemyTileArtworkFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(JsonOptions)));
     }
 
     /// <summary>
@@ -619,7 +619,7 @@ public static class EnemyTileArtworkFiles
     }
 
     /// <summary>Records cartridge provenance and hashes for every stock enemy-art resource in the installation.</summary>
-    internal sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, EnemyTileFileEntry> Entries,
         Dictionary<string, EnemyTileFileEntry> UnplacedEntries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
@@ -664,5 +664,5 @@ public static class EnemyTileArtworkFiles
         string AuxiliaryColorsSha256);
 
     /// <summary>Pairs an enemy sheet's native transfer size with its indexed PNG and palette digests.</summary>
-    internal sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
+    internal sealed partial record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

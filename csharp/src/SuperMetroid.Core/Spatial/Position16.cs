@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space; positions in different spaces never convert implicitly.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y coordinates.")]
 [EncodingOwner("sixteen-bit wrapping coordinate")]
-public readonly record struct Position16<TSpace>
+public readonly partial record struct Position16<TSpace>
     where TSpace : ISpatialSpace
 {
     /// <summary>The position at two coordinates that must already lie in 0 through 65535.</summary>

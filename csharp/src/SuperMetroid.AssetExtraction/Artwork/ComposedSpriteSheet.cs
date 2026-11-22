@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Pixels">The sheet image's pixels, row by row from the top; zero alpha is transparent.</param>
 /// <param name="Inks">Each pixel's ink, the colour group and colour it was painted in; <see cref="ComposedInk.None"/> where transparent.</param>
 /// <param name="Manifest">The frames' rectangles, origins, colour groups and depths, and the standard colours.</param>
-internal sealed record ComposedSpriteSheet(Extent16<ImagePixels> Size, RgbaPixel[] Pixels, ComposedInk[] Inks,
+internal sealed partial record ComposedSpriteSheet(Extent16<ImagePixels> Size, RgbaPixel[] Pixels, ComposedInk[] Inks,
     SpriteSheetDocument Manifest)
 {
     /// <summary>

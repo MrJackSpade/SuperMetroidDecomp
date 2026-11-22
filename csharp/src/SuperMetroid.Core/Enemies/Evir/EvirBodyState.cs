@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The state of an Evir's body, which bobs up and down and turns to face Samus while its spit is present.</summary>
-public sealed class EvirBodyState : EvirPartState
+public sealed partial class EvirBodyState : EvirPartState
 {
     /// <summary>Starts the state of a body whose spit the room lists at <paramref name="spit"/>, two places after it.</summary>
     internal EvirBodyState(RoomEnemyPlace spit) => Spit = Ensure.NotNull(spit);

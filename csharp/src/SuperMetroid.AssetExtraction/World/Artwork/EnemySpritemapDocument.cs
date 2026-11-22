@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
-public sealed record EnemySpritemapDocument
+public sealed partial record EnemySpritemapDocument
 {
     /// <summary>Composition schema revision; loading requires <see cref="EnemySpritemapSchema.Revision"/>.</summary>
     public required int Version { get; init; }

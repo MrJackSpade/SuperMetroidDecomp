@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// Immutable compiled map-screen pages authored as named JSON tile grids: the world map's foreground and each area's
 /// background and room frame. Only the import reads them; it pictures each page once (#1467).
 /// </summary>
-public sealed class MapScreenPresentation
+public sealed partial class MapScreenPresentation
 {
     /// <summary>Validated named map pages, each 1024 placed tiles in 32-column row order.</summary>
     private readonly Dictionary<MapScreenPageId, BackgroundTile[]> pages;
@@ -44,7 +44,7 @@ public sealed class MapScreenPresentation
     /// <summary>Writes a map-screen document as camel-case JSON.</summary>
     public static void Write(Stream output, MapScreenDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapScreenDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

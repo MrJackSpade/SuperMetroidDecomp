@@ -16,7 +16,7 @@ The audit has five modes, all taking `--solution <SuperMetroid.Full.slnx>`:
 | `--write` | Regenerates both inventories, then fails on every other problem the full check reports, stale reviews included. |
 | `--findings` | Fails only on what needs judgment: an unjustified finding, a review without a reason, a Core module cycle, a test-only member. CI runs this mode. |
 | `--prune-stale-reviews` | Deletes every `[ArchitectureReview]` whose finding its type no longer has, writing nothing if any edit fails. |
-| `--test-only-members` | The test-only-member census (#2570): lists every product member or accessor that is not private, that a check reaches, and that no shipped or tool code outside its own type reaches the same way, and fails when there is any; the full check and `--findings` fail on each too. |
+| `--test-only-members` | The test-only-member census (#2570, #2602): lists every way of reaching a product member (a field or method, a property's read or write) that a check takes and no product code, the member's own type included, takes, and fails when there is any; the full check and `--findings` fail on each too. Such a way exists only for checks: it is deleted and its checks drive the game instead. A member the game uses that a check needs is internal and the check calls it. |
 
 A stale inventory and a stale review are deterministic, so they never block a push: the asynchronous cleanup
 (`tools/cleanup/README.md`) prunes stale reviews and regenerates the inventories after each push.

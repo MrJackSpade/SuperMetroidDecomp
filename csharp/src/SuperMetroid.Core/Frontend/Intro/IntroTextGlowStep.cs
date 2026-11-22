@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// One step of a typed narration letter's glow (#2361): the letter is typed in the first step's colours, and its glow then
 /// shows each step in turn, leaving the letter in the last step's colours.
 /// </summary>
-public readonly record struct IntroTextGlowStep
+public readonly partial record struct IntroTextGlowStep
 {
     /// <summary>The steps of the glow.</summary>
     private const int StepCount = 4;

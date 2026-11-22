@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Room objects triggered by Samus projectiles reaching their block rather than by contact.</summary>
 [RoomLifetime]
-internal sealed class ProjectileTriggerObjects
+internal sealed partial class ProjectileTriggerObjects
 {
     /// <summary>The room-object places, searched in update order on a projectile hit.</summary>
     private readonly RoomObjectPlaceList _places;

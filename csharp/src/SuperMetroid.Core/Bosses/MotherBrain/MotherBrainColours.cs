@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// fade over her body; her room's grey and then its lights over her room; the Baby's arrival and then its fade over the
 /// Baby. A later effect shows over the earlier ones where it colours the same part of her.
 /// </summary>
-internal sealed class MotherBrainColours : IGameplayShadingSource
+internal sealed partial class MotherBrainColours : IGameplayShadingSource
 {
     /// <summary>
     /// The image each fade layer last showed (<see cref="MotherBrainFadeLayer"/>): her brain's fake-death fade or its
@@ -64,10 +64,10 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     }
 
     /// <summary>The shading her body layer shows: her whole body's colouring.</summary>
-    private PictureShading BodyLayerShading => OverBody(PictureShading.Standard);
+    internal PictureShading BodyLayerShading => OverBody(PictureShading.Standard);
 
     /// <summary>The shading her fight lays over her room's pictures: its grey, then its lights.</summary>
-    private PictureShading RoomShading
+    internal PictureShading RoomShading
     {
         get
         {

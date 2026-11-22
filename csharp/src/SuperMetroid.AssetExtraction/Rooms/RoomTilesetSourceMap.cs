@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Characters">Each character sheet's source; the Tourian statue ghost's is stored uncompressed.</param>
 /// <param name="Blocks">Each block table's compressed source.</param>
 /// <param name="Palettes">Each palette's compressed source.</param>
-internal sealed record RoomTilesetSourceMap(
+internal sealed partial record RoomTilesetSourceMap(
     FrozenDictionary<RoomCharacterSet, SnesAddress> Characters,
     FrozenDictionary<RoomBlockSet, SnesAddress> Blocks,
     FrozenDictionary<RoomPaletteSet, SnesAddress> Palettes);

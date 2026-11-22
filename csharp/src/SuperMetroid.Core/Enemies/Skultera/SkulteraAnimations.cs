@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// Skultera's swimming and turning animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkulteraCue"/> naming what it does.
 /// </summary>
-internal static class SkulteraAnimations
+internal static partial class SkulteraAnimations
 {
 
     /// <summary>Every segment's beats.</summary>
@@ -23,7 +23,7 @@ internal static class SkulteraAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<SkulteraSegment, Animation<SkulteraSegment>> StartingAt { get; } = new Dictionary<SkulteraSegment, Animation<SkulteraSegment>>
+    internal static Dictionary<SkulteraSegment, Animation<SkulteraSegment>> StartingAt { get; } = new Dictionary<SkulteraSegment, Animation<SkulteraSegment>>
     {
         [P.SwimmingLeft] = Animation<SkulteraSegment>.Looping([Segments.Whole(P.SwimmingLeft)]),
         [P.TurningRight] = new([Segments.Whole(P.TurningRight)], AnimationEnd.Holds),

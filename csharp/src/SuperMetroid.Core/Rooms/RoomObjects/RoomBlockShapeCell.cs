@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Cell">Where the cell lies, in blocks from the room object's origin block.</param>
 /// <param name="Collision">How the cell collides once the shape is drawn.</param>
-internal readonly record struct RoomBlockShapeCell(Offset16<RoomBlocks> Cell, RoomCollisionType Collision);
+internal readonly partial record struct RoomBlockShapeCell(Offset16<RoomBlocks> Cell, RoomCollisionType Collision);

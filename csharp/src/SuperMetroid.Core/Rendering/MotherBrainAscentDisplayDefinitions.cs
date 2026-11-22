@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Where the layers shown change while Mother Brain rises through the floor.</summary>
-internal static class MotherBrainAscentDisplayDefinitions
+internal static partial class MotherBrainAscentDisplayDefinitions
 {
     /// <summary>The screen line the first gameplay band ends before.</summary>
     internal const int UpperBandEnd = 56;

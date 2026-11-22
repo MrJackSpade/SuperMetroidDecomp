@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The SPC driver's music sequencer: track commands, effects, notes and the pan, sweep, vibrato and tremolo it ticks.</summary>
-internal sealed class SpcMusicSequencer
+internal sealed partial class SpcMusicSequencer
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     private readonly SpcRam ram;
@@ -87,7 +87,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>Decodes one music effect and its native operand length, updating channel or global driver state.</summary>
-    private void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
+    internal void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverDefinitions.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicDefinitionCodec.EffectCount)
@@ -684,7 +684,7 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The next byte of a music sequence stream at <paramref name="cursor"/>, advancing it with 16-bit wrap.</summary>
-    private byte NextSequenceByte(ref int cursor)
+    internal byte NextSequenceByte(ref int cursor)
     {
         int position = cursor;
         cursor = SpcDriverWrap.Word(cursor + 1);
@@ -692,10 +692,10 @@ internal sealed class SpcMusicSequencer
     }
 
     /// <summary>The music sequence byte at <paramref name="cursor"/>, without advancing.</summary>
-    private byte PeekSequenceByte(int cursor) => ram[cursor];
+    internal byte PeekSequenceByte(int cursor) => ram[cursor];
 
     /// <summary>Byte <paramref name="index"/> of the echo FIR coefficient preset table.</summary>
-    private sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
+    internal sbyte ReadFirCoefficient(int index) => unchecked((sbyte)ram[SpcDriverDefinitions.Echo.FirCoefficientTableAddress + index]);
 
     /// <summary>
     /// <c>$F4</c> as the sequencer reads it: the CPU's latest music command, or

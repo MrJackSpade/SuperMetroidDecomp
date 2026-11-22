@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Lines">The band's lines, at or below the HUD.</param>
 /// <param name="Shows">The room's layers and the actors the band shows.</param>
-public readonly record struct ShownBand(ScreenLineBand Lines, ScreenLayers Shows);
+public readonly partial record struct ShownBand(ScreenLineBand Lines, ScreenLayers Shows);

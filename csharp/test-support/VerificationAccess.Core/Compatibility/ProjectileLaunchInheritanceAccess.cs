@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -12,7 +10,7 @@ internal static class ProjectileLaunchInheritanceAccess
     extension(ProjectileLaunchInheritance self)
     {
         /// <summary>The last distance recorded in <paramref name="direction"/>; zero once cleared.</summary>
-        internal SignedSixteenSixteen Distance(HorizontalDirection direction) => Distances(self)[direction switch
+        internal SignedSixteenSixteen Distance(HorizontalDirection direction) => self.distances[direction switch
         {
             HorizontalDirection.Left => 0,
             HorizontalDirection.Right => 1,
@@ -20,8 +18,4 @@ internal static class ProjectileLaunchInheritanceAccess
         }];
     }
 
-    /// <summary>The inheritance's four distance records, leftward, rightward, upward and downward.</summary>
-    private static SignedSixteenSixteen[] Distances(ProjectileLaunchInheritance inheritance) =>
-        typeof(ProjectileLaunchInheritance).GetField("_distances", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(inheritance) as SignedSixteenSixteen[]
-            ?? throw new InvalidOperationException("ProjectileLaunchInheritance no longer keeps its distances in _distances.");
 }

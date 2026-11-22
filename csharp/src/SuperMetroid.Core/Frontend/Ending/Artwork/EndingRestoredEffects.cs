@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// </summary>
 /// <param name="Fades">The fades the load ends.</param>
 /// <param name="ColourEffects">The colour-effect colours whose settled look the load replaces.</param>
-internal sealed record EndingRestoredEffects(ImmutableArray<EndingFade> Fades, ImmutableArray<ColourEffectColours> ColourEffects);
+internal sealed partial record EndingRestoredEffects(ImmutableArray<EndingFade> Fades, ImmutableArray<ColourEffectColours> ColourEffects);

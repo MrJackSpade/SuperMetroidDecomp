@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable Spore Spawn RGB5 images for spores, health stages, and three death-scene layers; every row retains all sixteen native palette slots.</summary>
-public sealed record SporeSpawnColorDocument
+public sealed partial record SporeSpawnColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }

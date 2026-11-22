@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// rather than a projectile. A door, gate or shootable object asks only which projectile family the strike lands as; the
 /// critters' escape wall alone tells the grapple beam's touch apart and refuses it.
 /// </summary>
-public abstract record BlockStrike
+public abstract partial record BlockStrike
 {
     /// <summary>Only the two strikes below derive from the strike.</summary>
     private BlockStrike()
@@ -21,14 +21,14 @@ public abstract record BlockStrike
 
     /// <summary>A strike by one of Samus's projectiles.</summary>
     /// <param name="ProjectileFamily">The striking projectile's family.</param>
-    public sealed record ProjectileStrike(SamusProjectileFamily ProjectileFamily) : BlockStrike
+    public sealed partial record ProjectileStrike(SamusProjectileFamily ProjectileFamily) : BlockStrike
     {
         /// <inheritdoc/>
         public override SamusProjectileFamily Family => ProjectileFamily;
     }
 
     /// <summary>The grapple beam's touch, which lands as a beam.</summary>
-    public sealed record GrappleTouch : BlockStrike
+    public sealed partial record GrappleTouch : BlockStrike
     {
         /// <summary>The grapple beam's touch; every touch strikes alike.</summary>
         public static GrappleTouch Instance { get; } = new();

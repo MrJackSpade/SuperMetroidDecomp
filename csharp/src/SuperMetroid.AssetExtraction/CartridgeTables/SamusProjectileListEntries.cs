@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Reads the Samus projectile list layout from where the lists start (#1301, #1411).</summary>
-internal static class SamusProjectileListEntries
+internal static partial class SamusProjectileListEntries
 {
     /// <summary>Reads the word just before every list and the timed records each stores, and lays the lists out.</summary>
     internal static SamusProjectileListLayout Read(IImportCartridgeSource cartridge) => new(SamusProjectileListEntryDefinitions.Entries.ToDictionary(

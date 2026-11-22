@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// The colour groups a composed sheet's frame uses (#1464): those its pixels were coloured from, which the import uses to
 /// decide which pictures can share a sheet's colouring. The installed sheet does not keep them (#1544).
 /// </summary>
-public readonly record struct ImageColourGroups
+public readonly partial record struct ImageColourGroups
 {
     /// <summary>The members of the set of every group, one bit per group.</summary>
     internal const int EveryMember = (1 << ImageColourGroup.Count) - 1;

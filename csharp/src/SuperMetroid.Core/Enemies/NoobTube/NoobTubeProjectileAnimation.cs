@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// A n00b tube piece's typed animation: the crack's or a bubble's, which start at their segments, or a glass shard's, which
 /// its spawn starts by the shard (<see cref="NoobTubeProjectileAnimations.ShardAnimations"/>, #2044).
 /// </summary>
-internal sealed class NoobTubeProjectileAnimation
+internal sealed partial class NoobTubeProjectileAnimation
     : EnemyProjectileTypedAnimation<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue>
 {
     /// <summary>Whether the animation shows its mirrored frames, which its owner sets as the shard's flicker reflects it.</summary>
@@ -42,7 +42,7 @@ internal sealed class NoobTubeProjectileAnimation
     /// <summary>Hands each event the piece's animation raises to the tube pieces' behaviour with the animation's mirroring.</summary>
     /// <param name="owner">The tube pieces' behaviour.</param>
     /// <param name="mirroring">The animation's mirroring.</param>
-    private sealed class PieceCues(NoobTubeBehavior.NoobTubeProjectileBehavior owner, NoobTubeShardMirroring mirroring)
+    private sealed partial class PieceCues(NoobTubeBehavior.NoobTubeProjectileBehavior owner, NoobTubeShardMirroring mirroring)
         : EnemyProjectileCueRunner<NoobTubeProjectileSegment, NoobTubeProjectileCue>
     {
         /// <inheritdoc/>

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Right">The target's right edge.</param>
 /// <param name="Bottom">The target's bottom edge.</param>
 /// <param name="Contact">The contact the test selects (#2560): the shot reaction with strict edges, or the touch reaction with inclusive ones.</param>
-internal readonly record struct EnemyHitboxProbe(int Left, int Top, int Right, int Bottom, HitboxContactKind Contact)
+internal readonly partial record struct EnemyHitboxProbe(int Left, int Top, int Right, int Bottom, HitboxContactKind Contact)
 {
     /// <summary>
     /// The edges of a target at <paramref name="position"/> reaching <paramref name="radius"/> each way, for the

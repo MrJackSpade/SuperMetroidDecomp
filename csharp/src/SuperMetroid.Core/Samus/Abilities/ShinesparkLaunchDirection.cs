@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// A shinespark's launch direction (#2553): horizontal, vertical or diagonal, with its launch for each facing. A windup's
 /// direction input and its countdown's vertical launch choose one, and the windup's facing picks its launch.
 /// </summary>
-public sealed class ShinesparkLaunchDirection
+public sealed partial class ShinesparkLaunchDirection
 {
     /// <summary>Only the three directions declared here exist.</summary>
     /// <param name="facingRight">The direction's launch facing right.</param>

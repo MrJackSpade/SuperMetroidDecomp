@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <see cref="MotherBrainRoomFlashDefinitions.FlashImageTicks"/> updates, and the flash loops
 /// (<see cref="MotherBrainRoomFlashAnimations"/>).
 /// </summary>
-public readonly record struct MotherBrainRoomFlashImage
+public readonly partial record struct MotherBrainRoomFlashImage
 {
     /// <summary>The image at <paramref name="step"/> of the cycle.</summary>
     private MotherBrainRoomFlashImage(int step) => Step = step;

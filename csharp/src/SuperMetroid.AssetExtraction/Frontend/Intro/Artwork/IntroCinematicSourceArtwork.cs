@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// them and keeps the backdrops the backdrop document names (#1544). The sheets' frames are named from the families' poses
 /// (<see cref="CinematicSpritePoses"/>).
 /// </summary>
-public class IntroCinematicSourceArtwork
+public partial class IntroCinematicSourceArtwork
 {
     /// <summary>Validates and retains the selected opening artwork.</summary>
     /// <param name="parts">The opening's installed scene artwork.</param>
@@ -28,11 +28,11 @@ public class IntroCinematicSourceArtwork
     }
 
     /// <summary>The colour the opening shows where nothing is drawn, at full brightness: its first background colour (#1512).</summary>
-    private RgbColor Backdrop { get; }
+    internal RgbColor Backdrop { get; }
 
     /// <summary>The Ceres approach's backdrop and placements.</summary>
-    private CeresFlightSourceArtwork CeresFlight { get; }
+    internal CeresFlightSourceArtwork CeresFlight { get; }
 
     /// <summary>The destruction and Zebes-reveal actors' placements.</summary>
-    private CeresDestructionArtwork CeresDestruction { get; }
+    internal CeresDestructionArtwork CeresDestruction { get; }
 }

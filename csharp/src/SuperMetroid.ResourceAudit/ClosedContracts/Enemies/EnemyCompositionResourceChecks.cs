@@ -75,8 +75,7 @@ internal static class EnemyCompositionResourceChecks
 
     /// <summary>Loads a constructed composition document.</summary>
     private static EnemySpritemapCatalog Load(EnemySpritemapDocument document) =>
-        EnemySpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+        EnemySpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
 
     /// <summary>Reports a failed composition resource contract with its specific reason.</summary>
     private static void Require(bool condition, string message)

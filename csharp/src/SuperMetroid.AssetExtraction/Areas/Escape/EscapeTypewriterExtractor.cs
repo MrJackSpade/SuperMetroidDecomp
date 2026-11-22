@@ -10,7 +10,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Extracts safe text and placement from the two native escape typewriter streams.</summary>
-public static class EscapeTypewriterExtractor
+public static partial class EscapeTypewriterExtractor
 {
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>
@@ -115,6 +115,6 @@ public static class EscapeTypewriterExtractor
     /// <summary>Serializes both warning programs and writes their UTF-8 document bytes to the destination.</summary>
     /// <param name="output">Non-null caller-owned writable stream, written at its current position without being disposed.</param>
     /// <param name="document">Selected programs to serialize.</param>
-    private static void Write(Stream output, EscapeTypewriterDocument document) =>
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+    internal static void Write(Stream output, EscapeTypewriterDocument document) =>
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTypewriterDocument>(ArtworkJson.Options)));
 }

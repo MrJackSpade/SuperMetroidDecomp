@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 /// steps.
 /// </summary>
 /// <typeparam name="T">The value each arc holds.</typeparam>
-internal sealed class TurnArcs<T>
+internal sealed partial class TurnArcs<T>
 {
     /// <summary>The steps of a full turn.</summary>
     private const int StepsPerTurn = RotationAngle.StepsPerTurn;

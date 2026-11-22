@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>What one Samus animation step reads (#633): the controller input, the frame counter, the shared random generator, the prospective input pose, whether a demo supplies the pose input, and whether a boss is present.</summary>
-public sealed record SamusAnimationStep
+public sealed partial record SamusAnimationStep
 {
     /// <summary>The actions held this update.</summary>
     public GameplayAction ControllerInput { get; init; } = GameplayAction.None;

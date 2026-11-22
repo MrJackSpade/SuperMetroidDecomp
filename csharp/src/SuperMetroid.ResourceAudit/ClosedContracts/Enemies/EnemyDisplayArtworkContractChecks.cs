@@ -22,8 +22,7 @@ internal static class EnemyDisplayArtworkContractChecks
         var simpleBindings = simpleFrames.Keys.ToDictionary(name => name, name => name);
         var simpleDocument = new EnemySpritemapDocument {
             Version = EnemySpritemapSchema.Revision, Frames = simpleFrames, DisplayFrames = simpleBindings };
-        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<T>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
         EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames.First();
         Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,
@@ -74,7 +73,7 @@ internal static class EnemyDisplayArtworkContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyDisplayFixture", sources,
-            platforms.Append(typeof(EnemySpritemapCatalog).Assembly.Location).Append(typeof(EnemyFrameId).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction).Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

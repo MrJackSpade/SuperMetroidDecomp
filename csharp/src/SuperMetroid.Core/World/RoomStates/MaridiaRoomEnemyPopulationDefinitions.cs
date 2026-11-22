@@ -22,7 +22,7 @@ using SuperMetroid.Core.Enemies.Yard;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Maridia rooms. The empty list Draygon's room loads once its boss is dead is the one the Mother Brain room loads once the main area boss is dead.</summary>
-internal static class MaridiaRoomEnemyPopulationDefinitions
+internal static partial class MaridiaRoomEnemyPopulationDefinitions
 {
     /// <summary>The enemy population of the Mt. Everest room.</summary>
     internal static PlacedRoomEnemyPopulationDefinition MtEverest { get; } = new("MtEverest",

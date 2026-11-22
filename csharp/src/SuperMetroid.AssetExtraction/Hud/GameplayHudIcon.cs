@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="Anchor">The cell its upper-left tile sits in.</param>
 /// <param name="Width">Its width in cells.</param>
 /// <param name="Cells">Its tiles, row by row.</param>
-internal sealed record GameplayHudIcon(Position16<CharacterCells> Anchor, int Width, ImmutableArray<BackgroundTile> Cells)
+internal sealed partial record GameplayHudIcon(Position16<CharacterCells> Anchor, int Width, ImmutableArray<BackgroundTile> Cells)
 {
     /// <summary>Every icon is two cells tall.</summary>
     internal const int Height = 2;

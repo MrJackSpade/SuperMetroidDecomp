@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// loaded once when a sheet of it is first composed, and from the ending's colours, which the import decodes from the
 /// cartridge (#1544). The escape timer composes from the cartridge and is not here.
 /// </summary>
-internal sealed class SpriteSheetSourceCatalog
+internal sealed partial class SpriteSheetSourceCatalog
 {
     /// <summary>Samus's stock artwork.</summary>
     private readonly Lazy<SamusSheetInputs> samus;
@@ -118,7 +118,7 @@ internal sealed class SpriteSheetSourceCatalog
     /// The sheet does not compose from sprite parts: the escape timer composes from the cartridge, and the painted sheets
     /// from their pages, images, floors and pictures.
     /// </exception>
-    private SpriteSheetSources For(SpriteSheetId sheet) => _parts[sheet]();
+    internal SpriteSheetSources For(SpriteSheetId sheet) => _parts[sheet]();
 
     /// <summary>
     /// Each sheet composed from sprite parts, bound to the parts it composes: the menus' and the opening's sprites, the

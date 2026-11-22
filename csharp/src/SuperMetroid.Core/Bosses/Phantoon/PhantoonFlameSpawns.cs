@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Where Phantoon's flames start: the rage waves' and the spiral's circles, the intro's flames and the rain columns.</summary>
-public static class PhantoonFlameSpawns
+public static partial class PhantoonFlameSpawns
 {
     /// <summary>The flames of an even rage wave, in the order they spawn.</summary>
     internal static IReadOnlyList<PhantoonRageFlameStart> EvenRageWave => PhantoonFlameSpawnDefinitions.EvenRageWave;
@@ -16,7 +16,7 @@ public static class PhantoonFlameSpawns
     internal static IReadOnlyList<TrigonometryAngle> StartingFlameStarts => PhantoonFlameSpawnDefinitions.StartingFlameStarts;
 
     /// <summary>The rain columns' screen Xs, left to right.</summary>
-    private static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
+    internal static IReadOnlyList<int> RainXs => PhantoonFlameSpawnDefinitions.RainXs;
 
     /// <summary>The rain column at <paramref name="place"/> of <see cref="RainXs"/>, counting from the left from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The rain has no such column.</exception>

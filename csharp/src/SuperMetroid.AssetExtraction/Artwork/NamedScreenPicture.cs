@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <typeparam name="TSource">What the picture is laid out from.</typeparam>
 /// <param name="Name">The picture's frame name.</param>
 /// <param name="Picture">Lays the picture, named <paramref name="Name"/>, out from its source.</param>
-internal sealed record NamedScreenPicture<TSource>(string Name, Func<TSource, ScreenPictureSubject> Picture);
+internal sealed partial record NamedScreenPicture<TSource>(string Name, Func<TSource, ScreenPictureSubject> Picture);

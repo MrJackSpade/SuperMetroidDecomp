@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainHead
+internal sealed partial class MotherBrainHead
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -171,7 +171,7 @@ internal sealed class MotherBrainHead
     /// <param name="frame">The frame, where it lies and its shading.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
-    private void DrawMotherBrainWorldFrame(
+    internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
@@ -246,7 +246,7 @@ internal sealed class MotherBrainHead
     /// <summary>A picture her brain's draw shows and whether her brain's shake counted one of its updates off for it.</summary>
     /// <param name="Frame">The picture.</param>
     /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
-    private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
+    private readonly partial record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
     /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on
@@ -308,13 +308,14 @@ internal sealed class MotherBrainHead
     /// <param name="State">The state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="MotherBrainHead"/> reacting.</param>
-    private readonly record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
+    private readonly partial record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
 
     /// <summary>
     /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.
     /// Only the animations of her attacks on the Baby, which her late fight starts, raise the Baby's cues
     /// (ApplyLateFightHeadCue), so one raised before it fails.
     /// </summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>> HeadSignals => field ??=
         new(new Dictionary<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>>
         {
@@ -452,7 +453,7 @@ internal sealed class MotherBrainHead
     /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
-    private void SpawnMotherBrainOnionRing(
+    internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
@@ -472,7 +473,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Runs the head's drool step and the drool's setup.</summary>
-    private void SpawnMotherBrainDrool(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
             return;
@@ -527,7 +528,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
-    private void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
+    internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.RainbowBeamCharging));
         if (projectile is null)

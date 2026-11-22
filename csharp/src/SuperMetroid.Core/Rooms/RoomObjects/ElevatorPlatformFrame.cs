@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Draw">What the frame draws at the platform's block.</param>
 /// <param name="Updates">The updates the frame stays before the next frame draws.</param>
-internal readonly record struct ElevatorPlatformFrame(RoomObjectDraw Draw, int Updates);
+internal readonly partial record struct ElevatorPlatformFrame(RoomObjectDraw Draw, int Updates);

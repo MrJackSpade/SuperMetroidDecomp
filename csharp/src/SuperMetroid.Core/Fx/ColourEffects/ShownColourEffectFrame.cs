@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 /// <param name="Colours">The colour group the frame recolours.</param>
 /// <param name="Frame">The frame the group shows.</param>
-internal readonly record struct ShownColourEffectFrame(ColourEffectColours Colours, ColourEffectFrame Frame);
+internal readonly partial record struct ShownColourEffectFrame(ColourEffectColours Colours, ColourEffectFrame Frame);

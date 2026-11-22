@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Spatial;
 /// screen direction anticlockwise by <see cref="Angle"/>; on a screen whose rows run downward that shows the floor turned
 /// clockwise.
 /// </remarks>
-public readonly record struct FloorView
+public readonly partial record struct FloorView
 {
     /// <summary>The scale that shows the floor at its own size: one floor pixel to each screen pixel.</summary>
     public const double OwnSize = 1;
@@ -53,7 +53,7 @@ public readonly record struct FloorView
     public Offset16<FloorPixels> Scroll { get; init; }
 
     /// <summary>What shows beyond the floor's edges.</summary>
-    public FloorOverflowMode Outside { get; private init; }
+    public FloorOverflowMode Outside { get; internal init; }
 
     /// <summary>The view of a scene's floor turned by <paramref name="angle"/> and shown at <paramref name="zoom"/>.</summary>
     /// <param name="angle">How far the scene has turned the floor clockwise.</param>

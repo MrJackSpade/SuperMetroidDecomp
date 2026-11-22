@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="From">The scene the crossfade fades out.</param>
 /// <param name="To">The scene the crossfade fades in.</param>
 /// <param name="UpdatesLeft">The updates the crossfade has left after this one: one before its last, none once it has ended.</param>
-internal readonly record struct IntroCrossfadeTick(IntroCrossfadeScene From, IntroCrossfadeScene To, [property: IntegerQuantity("updates the crossfade has left")] int UpdatesLeft)
+internal readonly partial record struct IntroCrossfadeTick(IntroCrossfadeScene From, IntroCrossfadeScene To, [property: IntegerQuantity("updates the crossfade has left")] int UpdatesLeft)
 {
     /// <summary>
     /// Whether the crossfade has counted down to its final update, which runs next: the actors it retires go on this

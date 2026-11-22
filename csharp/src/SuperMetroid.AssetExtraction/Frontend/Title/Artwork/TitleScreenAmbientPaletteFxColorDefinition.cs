@@ -4,7 +4,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>One complete looping title-screen ambient palette program.</summary>
-public sealed class TitleScreenAmbientPaletteFxColorDefinition
+public sealed partial class TitleScreenAmbientPaletteFxColorDefinition
 {
     /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows.</summary>
     /// <param name="effect">The colour effect whose records the program holds.</param>

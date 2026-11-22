@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Extracts only Zebetite's eight authored pulse images from the pinned cartridge.</summary>
-public static class ZebetiteColorExtractor
+public static partial class ZebetiteColorExtractor
 {
     /// <summary>Exports the eight two-color Zebetite pulse images from $A6:FD87 in native frame order.</summary>
     /// <param name="bus">Cartridge source for the sixteen consecutive packed color words, selected at runtime for OBJ palette two colors C and D.</param>

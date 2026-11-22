@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Spawns Kraid's ceiling, platform and spike room objects in the room's shared room-object places.</summary>
 /// <param name="places">The room's room-object places, which Kraid's mutations contend for with every other room object.</param>
-internal sealed class KraidRoomObjects(RoomObjectPlaceList places)
+internal sealed partial class KraidRoomObjects(RoomObjectPlaceList places)
 {
     /// <summary>
     /// Spawns one of Kraid's room mutations at its block and runs its deactivating setup. The setup immediately

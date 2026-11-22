@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </summary>
 /// <param name="Letters">The caption's visible letters shown, in order, one or more.</param>
 /// <param name="Shows">Which caption shows: <see cref="SpaceColonyCaptionText.WithKatakana"/> once the katakana caption shows.</param>
-internal readonly record struct SpaceColonyCaptionTyping(int Letters, SpaceColonyCaptionText Shows);
+internal readonly partial record struct SpaceColonyCaptionTyping(int Letters, SpaceColonyCaptionText Shows);

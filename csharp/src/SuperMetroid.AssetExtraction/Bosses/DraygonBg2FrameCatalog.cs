@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Installed Draygon BG2 tilemap presentation. The $A5 instruction selector,
 /// collision geometry, and callback records are not editable visual data.
 /// </summary>
-public sealed class DraygonBg2FrameCatalog
+public sealed partial class DraygonBg2FrameCatalog
 {
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>

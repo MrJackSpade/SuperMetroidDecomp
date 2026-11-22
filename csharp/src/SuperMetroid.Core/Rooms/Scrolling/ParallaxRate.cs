@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// The share of the foreground's movement a parallax background moves by (#2046): a fraction strictly between nothing
 /// and the whole, exact to a 256th, so the background always trails the foreground.
 /// </summary>
-public sealed record ParallaxRate
+public sealed partial record ParallaxRate
 {
     /// <summary>The 256ths in the whole of the foreground's movement.</summary>
     private const int Whole = 256;

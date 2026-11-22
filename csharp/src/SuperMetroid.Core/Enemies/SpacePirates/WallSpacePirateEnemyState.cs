@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>
 /// The state of a wall Pirate: the jump its placement chose.
 /// </summary>
-public sealed class WallSpacePirateEnemyState
+public sealed partial class WallSpacePirateEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/> on <paramref name="wall"/>, jumping as <paramref name="jump"/> does.</summary>
     internal WallSpacePirateEnemyState(WallSpacePirateAction action, HorizontalDirection wall, WallSpacePirateJump jump)

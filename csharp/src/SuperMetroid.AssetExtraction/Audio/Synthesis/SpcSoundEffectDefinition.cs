@@ -5,5 +5,5 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <param name="Stream">Where the effect's instruction stream starts in SPC RAM.</param>
 /// <param name="Policy">The voice count and priority its command handler allocates.</param>
 /// <param name="Admission">How its command handler admits a changed request for it.</param>
-internal readonly record struct SpcSoundEffectDefinition<TPolicy>(int Stream, TPolicy Policy,
+internal readonly partial record struct SpcSoundEffectDefinition<TPolicy>(int Stream, TPolicy Policy,
     SpcSoundRequestAdmission Admission = SpcSoundRequestAdmission.ByPriority) where TPolicy : struct, Enum;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// Bull's idle and immune-shot animations (#641, #2477). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class BullAnimations
+internal static partial class BullAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BullSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -19,7 +19,7 @@ internal static class BullAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
+    internal static Dictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
         [P.Idle] = Animation<BullSegment>.Looping([Segments.Whole(P.Idle)]),
     };

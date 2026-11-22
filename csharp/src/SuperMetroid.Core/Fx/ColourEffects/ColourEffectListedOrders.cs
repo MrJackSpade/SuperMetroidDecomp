@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// The orders the import lists colour effects' shown frames in (#2567): by colour group, then by effect, each written
 /// out so reordering the groups' or the effects' members never reorders a sheet's shades.
 /// </summary>
-internal static class ColourEffectListedOrders
+internal static partial class ColourEffectListedOrders
 {
     /// <summary>The colour groups in the order the shades of their frames are listed.</summary>
     internal static WrittenOrder<ColourEffectColours> Groups { get; } = new(Ensure.EveryMemberOnce<ColourEffectColours>(

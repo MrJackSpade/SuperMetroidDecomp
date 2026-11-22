@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Per-update projectile movement: the beam, Wave Beam, Hyper Beam, missile and Super Missile flights, Super Missile links, and the movement-window deletion check.</summary>
 [RoomLifetime]
-internal sealed class ProjectileMotion
+internal sealed partial class ProjectileMotion
 {
     /// <summary>Clears shots that expire or leave the movement window.</summary>
     private readonly ProjectileAnimation _animation;
@@ -289,7 +289,7 @@ internal sealed class ProjectileMotion
     /// Creates the invisible collision link at ignition in the lowest free place and records its place in the owner; with
     /// no free place the owner keeps the link it named (<see cref="UnlinkedSuperMissileLink"/>).
     /// </summary>
-    private void SpawnSuperMissileLink(
+    internal void SpawnSuperMissileLink(
         SamusState samus,
         SamusProjectile owner,
         SuperMissileShotState ownerState)
@@ -478,7 +478,7 @@ internal sealed class ProjectileMotion
     }
 
     /// <summary>Tests the missile's centre against a slope's mirrored surface, or the square slope's quarter it lies in.</summary>
-    private static bool MissileSlopePointReaction(
+    internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectileOccupant held)
     {

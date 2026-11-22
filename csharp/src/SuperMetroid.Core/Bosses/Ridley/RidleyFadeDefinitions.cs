@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The authored colour runs of the Ridley encounters (#2316), each shown one image at a time by its owner, its images in
 /// the order the run shows them (#2409).
 /// </summary>
-public static class RidleyFadeDefinitions
+public static partial class RidleyFadeDefinitions
 {
     /// <summary>Both Ridleys' eyes fading in from the darkest shade (its first image) to his own eye colours (its last).</summary>
     public static RidleyFade EyeFade { get; } = new("ridley-eye-fade", RidleyEyeFadeDefinitions.ShadeCount);

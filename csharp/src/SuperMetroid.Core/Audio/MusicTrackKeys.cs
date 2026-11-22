@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// The installed key of each <see cref="MusicTrack"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class MusicTrackKeys
+internal static partial class MusicTrackKeys
 {
     /// <summary>Each MusicTrack member's installed key.</summary>
     internal static InstalledKeys<MusicTrack> Installed { get; } = new(new Dictionary<MusicTrack, string>

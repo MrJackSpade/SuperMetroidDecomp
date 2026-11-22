@@ -5,4 +5,4 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// then its other arguments. A note never ends the program.
 /// </summary>
 /// <param name="ArgumentCount">The argument count, the instrument included.</param>
-internal sealed record SoundEffectNoteShape(int ArgumentCount) : SoundEffectInstructionShape(ArgumentCount, Terminal: false);
+internal sealed partial record SoundEffectNoteShape(int ArgumentCount) : SoundEffectInstructionShape(ArgumentCount, Terminal: false);

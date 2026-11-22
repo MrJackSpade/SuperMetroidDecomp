@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// <param name="Offset">The cells from the point the game places the picture at (a page's corner, or a field's anchor) to its top-left cell.</param>
 /// <param name="Size">The picture's width and height in cells.</param>
 /// <param name="Tiles">Its tiles row by row; none where it paints nothing.</param>
-internal sealed record ScreenPictureSubject(string Name, Offset16<CharacterCells> Offset, Extent16<CharacterCells> Size, BackgroundTile?[] Tiles)
+internal sealed partial record ScreenPictureSubject(string Name, Offset16<CharacterCells> Offset, Extent16<CharacterCells> Size, BackgroundTile?[] Tiles)
 {
     /// <summary>The whole of <paramref name="page"/>, <paramref name="width"/> cells across, except <paramref name="omitted"/> cells.</summary>
     /// <exception cref="ArgumentException">The page is not whole rows.</exception>

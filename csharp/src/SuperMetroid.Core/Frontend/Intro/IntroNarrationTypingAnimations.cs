@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <see cref="IntroNarrationDefinitions.CharacterDelayFrames"/> updates, on a page that ends the intro its caret's
 /// blinking hold, then the page's finish. The page's characters are installed, so its typing is built for the page it types.
 /// </summary>
-internal static class IntroNarrationTypingAnimations
+internal static partial class IntroNarrationTypingAnimations
 {
     /// <summary>The typing of <paramref name="page"/>, which has <paramref name="characters"/> installed characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="characters"/> is negative.</exception>

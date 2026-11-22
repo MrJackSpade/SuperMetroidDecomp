@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads the four bank-$AD pointer-selected damage palette pairs once at installation.</summary>
-internal static class MotherBrainHealthPaletteExtractor
+internal static partial class MotherBrainHealthPaletteExtractor
 {
     /// <summary>Follows body and back-leg state pointers, decodes each BGR555 color, and writes the installed JSON document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)

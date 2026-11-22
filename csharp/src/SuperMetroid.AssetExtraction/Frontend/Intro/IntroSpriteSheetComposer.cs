@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// families; each Ceres scene's sheet holds the poses its actors show. The compositions are import data (#1638): the sheets'
 /// frames are named from the families' poses alone (<see cref="CinematicSpritePoses"/>).
 /// </summary>
-internal static class IntroSpriteSheetComposer
+internal static partial class IntroSpriteSheetComposer
 {
     /// <summary>The intro sheet's cinematic families, in composition order.</summary>
     private static readonly CinematicSpriteFamily[] IntroFamilies =
@@ -96,7 +96,7 @@ internal static class IntroSpriteSheetComposer
     /// <summary>The poses one family composes for one scene.</summary>
     /// <param name="Family">The family.</param>
     /// <param name="Poses">The poses of the family the scene's actors show.</param>
-    private sealed record ScenePoses(CinematicSpriteFamily Family, HashSet<CinematicSpritePose> Poses);
+    private sealed partial record ScenePoses(CinematicSpriteFamily Family, HashSet<CinematicSpritePose> Poses);
 
     /// <summary>What the intro sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportIntroCinematicArtwork intro)
@@ -111,7 +111,7 @@ internal static class IntroSpriteSheetComposer
     /// sheet pictures every frame in its own colours.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">A family is not one the opening draws.</exception>
-    private static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, ImportIntroCinematicArtwork intro)
+    internal static SpriteSheetSources Sources(IEnumerable<ICinematicSpriteFrames> families, ImportIntroCinematicArtwork intro)
     {
         Ensure.NotNull(intro);
         // The intro's actors draw in each colouring and cross-fade level as shades of the sheet (#1512).
@@ -210,7 +210,7 @@ internal static class IntroSpriteSheetComposer
     /// Each family's composition of every pose over <paramref name="page"/>, its objects at <paramref name="sizes"/> and its
     /// palette-inheriting parts in the sprite set <paramref name="set"/> gives the family's pose.
     /// </summary>
-    private static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
+    internal static IEnumerable<SheetFrameSource> Frames(IEnumerable<ICinematicSpriteFrames> families, SpriteArtwork page,
         ScreenObjectSizes sizes, Func<CinematicSpriteFamily, CinematicSpritePose, int> set) =>
         Ensure.NotNull(families).SelectMany(family => family.Frames.OrderBy(pair => CinematicSpritemapSources.CartridgeOrder(pair.Key)).Select(pair =>
         {

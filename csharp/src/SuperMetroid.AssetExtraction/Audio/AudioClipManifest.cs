@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="InitialBeat">How long the music's beat lasts at power-on, before any song has played.</param>
 /// <param name="Music">One clip per song of each clip set.</param>
 /// <param name="SoundEffects">One entry per sound effect and per stop.</param>
-public sealed record AudioClipManifest(
+public sealed partial record AudioClipManifest(
     int FormatVersion,
     int SampleRate,
     BeatLength InitialBeat,

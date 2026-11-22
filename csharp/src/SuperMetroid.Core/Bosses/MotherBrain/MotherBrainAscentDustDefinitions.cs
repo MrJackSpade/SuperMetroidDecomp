@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Where the floor dust rises while Mother Brain stands up for her second phase.</summary>
-internal static class MotherBrainAscentDustDefinitions
+internal static partial class MotherBrainAscentDustDefinitions
 {
     /// <summary>
     /// The room positions on the floor the ascent's dust clouds burst at, in the order they burst (#2315), continuing

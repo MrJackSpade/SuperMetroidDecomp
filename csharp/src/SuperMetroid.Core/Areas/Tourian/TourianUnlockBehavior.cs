@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
 [RoomLifetime]
-internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
+internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
     /// <summary>The room's randomness, which aims the particles.</summary>
     private readonly EnemyRoomBinding _room;
@@ -173,7 +173,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// The unlock's effects (#1760): the descending statue's dust, the eyes' glows, the released souls, particles and their
     /// tails, and the splashes. Their spawners start their animations.
     /// </summary>
-    private EnemyProjectileBehavior Effects => this;
+    internal EnemyProjectileBehavior Effects => this;
 
     /// <summary>A splash holds at the water, a particle falls and a soul rises from their spawn; the dust, the eye glows and the tails hold still.</summary>
     private static readonly Dictionary<RoomEnemyProjectileKind, TourianStatueEffectMotion?> StartingMotions = new()
@@ -187,6 +187,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     };
 
     /// <summary>What <c>Move</c> does for each <see cref="TourianStatueEffectMotion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>> MoveForTourianStatueEffectMotion => field ??= new(new Dictionary<TourianStatueEffectMotion, Action<EnemyProjectileMotionContext>>
     {
         [TourianStatueEffectMotion.SplashHolding] = context => HoldTourianStatueSplash(context.Projectile),

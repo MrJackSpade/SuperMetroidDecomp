@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's grounded pose transitions: turns, aim, running and stopping, running into a wall, moonwalk and knockback pose collision.</summary>
-internal static class SamusGroundedPoseTransitions
+internal static partial class SamusGroundedPoseTransitions
 {
     /// <summary>
     /// Installs the fallback pose of an aimed crouching turn when every input is
@@ -81,7 +81,7 @@ internal static class SamusGroundedPoseTransitions
     /// may be the current running pose after a killed-X-speed collision or the prospective
     /// running pose tested by the one-pixel arm-pump probe.
     /// </summary>
-    private static SamusPoseId SelectRanIntoWallPose(SamusPoseAim.Aiming aim) => aim.WallStop;
+    internal static SamusPoseId SelectRanIntoWallPose(SamusPoseAim.Aiming aim) => aim.WallStop;
 
     /// <summary>
     /// Checks whether the prospective pose runs into a wall.

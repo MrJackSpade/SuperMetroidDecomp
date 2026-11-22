@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One joint of Mother Brain's neck (#2314): how far it hangs from its anchor, and where it lies.</summary>
-public sealed class MotherBrainNeckJoint
+public sealed partial class MotherBrainNeckJoint
 {
     /// <summary>Makes the joint <paramref name="definition"/> places.</summary>
     /// <param name="definition">The joint's distance from its anchor and whether Samus can touch it.</param>

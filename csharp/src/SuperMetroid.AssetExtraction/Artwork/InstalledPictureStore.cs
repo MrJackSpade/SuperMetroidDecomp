@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// changed is opened again. A page or map a player edited in place is used as edited, and fails only where it is
 /// decoded, when it does not decode.
 /// </summary>
-internal sealed class InstalledPictureStore
+internal sealed partial class InstalledPictureStore
 {
     /// <summary>Taken around every read and write of <see cref="opened"/>.</summary>
     private static readonly Lock gate = new();
@@ -210,7 +210,7 @@ internal sealed class InstalledPictureStore
             .Select(frame => frame.Key).Order(StringComparer.Ordinal);
 
     /// <summary>One page of the store: its file, its size, and its pixels, decoded when first read.</summary>
-    private sealed class InstalledPage
+    private sealed partial class InstalledPage
     {
         /// <summary>The page image's path.</summary>
         private readonly string path;
@@ -266,7 +266,7 @@ internal sealed class InstalledPictureStore
     /// and the map file holding them, decoded when a map is first read.
     /// </summary>
     /// <typeparam name="T">The value each pixel of a map holds.</typeparam>
-    private sealed class InstalledMaps<T>
+    private sealed partial class InstalledMaps<T>
         where T : unmanaged, IEquatable<T>
     {
         /// <summary>The map file's path.</summary>

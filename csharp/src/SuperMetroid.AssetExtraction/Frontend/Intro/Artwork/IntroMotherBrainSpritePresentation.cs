@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Mother Brain OAM art, separate from AI and instruction timing.</summary>
-public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -55,8 +55,7 @@ public sealed class IntroMotherBrainSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroMotherBrainSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroMotherBrainSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

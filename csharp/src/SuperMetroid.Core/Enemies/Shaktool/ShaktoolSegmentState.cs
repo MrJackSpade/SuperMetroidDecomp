@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// The state of one of Shaktool's seven linked segments: its own orbit, turn speed, motion and animation. The motion and
 /// target the whole chain shares are its chain's (<see cref="ShaktoolChain"/>, #2452).
 /// </summary>
-public sealed class ShaktoolSegmentState
+public sealed partial class ShaktoolSegmentState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShaktoolSegment> Playback { get; set; }

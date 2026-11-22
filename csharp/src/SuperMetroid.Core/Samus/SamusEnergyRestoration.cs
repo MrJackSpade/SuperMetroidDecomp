@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>Shared energy restoration, including overflow into reserve tanks.</summary>
-public static class SamusEnergyRestoration
+public static partial class SamusEnergyRestoration
 {
     /// <summary>
     /// Restores energy to Samus. Fill regular energy first, spill

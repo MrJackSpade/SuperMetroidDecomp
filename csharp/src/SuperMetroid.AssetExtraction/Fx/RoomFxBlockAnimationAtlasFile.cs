@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// it holds. Only the import pipeline reads and writes
 /// the file, and composes room sheets from its compiled characters (<see cref="RoomFxBlockAnimationAtlasFormat"/>).
 /// </summary>
-public static class RoomFxBlockAnimationAtlasFile
+public static partial class RoomFxBlockAnimationAtlasFile
 {
     /// <summary>Import-data indexed PNG filename of the import's room-FX atlas: the strip of room-FX and related animated characters.</summary>
     public const string FileName = "room-fx-block-animations.png";

@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Enemies.BossBodies;
 
 /// <summary>Every boss's installed body sheet (#1466), by boss.</summary>
-public sealed class BossBodySheets
+public sealed partial class BossBodySheets
 {
     /// <summary>The sheets by boss.</summary>
     private readonly Dictionary<BossBodyOwner, BossBodySheet> sheets;

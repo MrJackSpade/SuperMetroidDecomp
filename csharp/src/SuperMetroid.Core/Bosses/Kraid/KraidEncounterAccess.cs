@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
 [RoomLifetime]
-internal sealed class KraidEncounterAccess
+internal sealed partial class KraidEncounterAccess
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
 [RoomLifetime]
-internal sealed class ProjectileTerrainCollision
+internal sealed partial class ProjectileTerrainCollision
 {
     /// <summary>Ends shots when the kill step rejects an already converted family.</summary>
     private readonly ProjectileAnimation _animation;
@@ -124,7 +124,7 @@ internal sealed class ProjectileTerrainCollision
     /// Checks every block along the projectile's vertical span and reports a collision only when every block in the span
     /// stops the shot, or one ends the span.
     /// </summary>
-    private static bool ScanHorizontalShotReactions(
+    internal static bool ScanHorizontalShotReactions(
         SamusTerrain terrain,
         SamusProjectileOccupant held)
     {
@@ -155,7 +155,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>Checks every block along the projectile's horizontal span, preserving each block reaction before aggregating solidity.</summary>
-    private static bool ScanVerticalShotReactions(
+    internal static bool ScanVerticalShotReactions(
         SamusTerrain terrain,
         SamusProjectileOccupant held)
     {
@@ -189,7 +189,7 @@ internal sealed class ProjectileTerrainCollision
     /// </summary>
     /// <param name="Place">Where the block lies in the span: the only block, or its first (top or left), a middle or its last.</param>
     /// <param name="TargetBoundary">The coordinate of the shot's leading edge, in room pixels.</param>
-    private readonly record struct ShotSpan(SpanPlace Place, int TargetBoundary)
+    private readonly partial record struct ShotSpan(SpanPlace Place, int TargetBoundary)
     {
         /// <summary>
         /// The block <paramref name="index"/> blocks into a span whose last block is <paramref name="lastIndex"/> blocks
@@ -511,7 +511,7 @@ internal sealed class ProjectileTerrainCollision
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="held">The Wave or Hyper shot.</param>
     /// <param name="straddledTerrain">The installation's straddled terrain, which the projectile system's terrain collision holds.</param>
-    private static void ScanHorizontalWaveShotReactions(
+    internal static void ScanHorizontalWaveShotReactions(
         SamusTerrain terrain, SamusProjectileOccupant held, StraddledTerrain<RoomTerrainBlock> straddledTerrain)
     {
         SamusProjectile shot = held.Projectile;

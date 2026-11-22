@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// </summary>
 /// <param name="Decided">How many bits, from bit zero, the write decides.</param>
 /// <param name="Set">The decided bits the write sets, ascending.</param>
-public sealed record BitTablePrefix(int Decided, IReadOnlyList<int> Set);
+public sealed partial record BitTablePrefix(int Decided, IReadOnlyList<int> Set);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>A beam a beam-column control stands for.</summary>
 /// <param name="Beam">The beam.</param>
-public sealed record BeamPauseUpgrade(SamusBeamFlags Beam) : PauseUpgrade
+public sealed partial record BeamPauseUpgrade(SamusBeamFlags Beam) : PauseUpgrade
 {
     /// <inheritdoc/>
     public override bool IsIn(SamusBeamFlags beams, SamusEquipmentFlags items) => (beams & Beam) != SamusBeamFlags.None;

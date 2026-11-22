@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// load hands the parts it has built, before the room is adopted.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct EnemyRoomEffectSite
+internal readonly partial record struct EnemyRoomEffectSite
 {
     /// <summary>The room's level, which the boss room objects edit.</summary>
     internal required RoomLevelData Level { get; init; }

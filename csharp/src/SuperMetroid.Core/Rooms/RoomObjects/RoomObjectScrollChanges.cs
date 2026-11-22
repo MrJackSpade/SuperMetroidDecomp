@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>How a scroll change writes its scroll states.</summary>
-internal static class RoomObjectScrollChanges
+internal static partial class RoomObjectScrollChanges
 {
     /// <summary>Applies <paramref name="change"/>'s ordered scroll writes, each to its screen of the room.</summary>
     internal static void Apply(RoomScrollChange change, Action<Position16<RoomScreens>, RoomScrollState> write)

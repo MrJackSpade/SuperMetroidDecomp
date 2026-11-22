@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The Hyper Beam's full-body colour cycle (#1464): for each of its frames, the colours Samus's suit shows. The import
 /// pipeline decodes them from an installed document; the timer that steps through the frames is Samus's.
 /// </summary>
-public sealed class SamusHyperBeamColours
+public sealed partial class SamusHyperBeamColours
 {
     /// <summary>Each cycle frame's suit colours, in cycle order.</summary>
     private readonly ImmutableArray<ImmutableArray<RgbColor>> frames;

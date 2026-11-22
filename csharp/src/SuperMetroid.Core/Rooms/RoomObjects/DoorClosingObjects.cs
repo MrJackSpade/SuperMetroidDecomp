@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The room object that closes the door behind Samus, selected by the door's closing behaviour and travel direction.</summary>
-public static class DoorClosingObjects
+public static partial class DoorClosingObjects
 {
     /// <summary>
     /// The closer for <paramref name="orientation"/>: none for a door that does not close, the blue cap facing the travel

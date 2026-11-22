@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>Dragon's animations turned to a side: the body's idle and attack and the wing's flapping, facing left or right.</summary>
-internal static class DragonPhases
+internal static partial class DragonPhases
 {
     /// <summary>The body's idle pose, facing <paramref name="facing"/>.</summary>
     internal static DragonSegment Idle(HorizontalDirection facing) => facing == HorizontalDirection.Left ? DragonSegment.IdleFacingLeft : DragonSegment.IdleFacingRight;

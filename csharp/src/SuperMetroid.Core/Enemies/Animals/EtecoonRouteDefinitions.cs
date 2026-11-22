@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>Where Samus wakes and steers an Etecoon, and the room columns its teaching routes turn at (#2279).</summary>
-internal static class EtecoonRouteDefinitions
+internal static partial class EtecoonRouteDefinitions
 {
     /// <summary>
     /// Each route: the one running left to the teaching start calls out as its Etecoon wakes; the one teaching at once

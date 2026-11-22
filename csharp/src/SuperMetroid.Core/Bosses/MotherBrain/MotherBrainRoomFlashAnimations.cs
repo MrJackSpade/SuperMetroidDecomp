@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// (#2404): its images (<see cref="MotherBrainRoomFlashDefinitions.FlashFrameCount"/>), each shown <see cref="MotherBrainRoomFlashDefinitions.FlashImageTicks"/> updates, looping
 /// for as long as the flash runs.
 /// </summary>
-internal static class MotherBrainRoomFlashAnimations
+internal static partial class MotherBrainRoomFlashAnimations
 {
     /// <summary>The flash's run of images.</summary>
     internal static AnimationSegments<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue> Segments { get; } = new(
@@ -18,7 +18,7 @@ internal static class MotherBrainRoomFlashAnimations
         });
 
     /// <summary>The flash, looping its images for good.</summary>
-    private static Animation<MotherBrainRoomFlashSegment> Flash { get; } = Animation<MotherBrainRoomFlashSegment>.Looping([Segments.Whole(MotherBrainRoomFlashSegment.Flash)]);
+    internal static Animation<MotherBrainRoomFlashSegment> Flash { get; } = Animation<MotherBrainRoomFlashSegment>.Looping([Segments.Whole(MotherBrainRoomFlashSegment.Flash)]);
 
     /// <summary>
     /// The flash started on its first image for its whole hold, the update that starts it counting as the first: her room

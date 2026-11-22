@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable appearance-only schema for the single grapple endpoint and four timed rope styles; the segment array remains caller-mutable until compilation.</summary>
-public sealed record GrappleSpriteDocument
+public sealed partial record GrappleSpriteDocument
 {
     /// <summary>Schema revision; loading requires <see cref="GrappleSpriteDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

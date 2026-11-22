@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="Drift">The floor's drift each update of the stretch.</param>
 /// <param name="Updates">How many updates the stretch lasts, at least one.</param>
-internal readonly record struct CeresRidleyGetawayDriftStretch(Offset16<FloorPixels> Drift, int Updates);
+internal readonly partial record struct CeresRidleyGetawayDriftStretch(Offset16<FloorPixels> Drift, int Updates);

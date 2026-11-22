@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// (<see cref="Clear"/>) for each image, and finds each key the first time its colour shows. A colour whose entry another
 /// colour took is found again; what an entry holds is always the place of its own colour's key.
 /// </summary>
-public sealed class ColourKeyPlaces
+public sealed partial class ColourKeyPlaces
 {
     /// <summary>The colours held at once, a prime: more than an image's pictures usually show, so few colours share an entry.</summary>
     private const int Entries = 1021;

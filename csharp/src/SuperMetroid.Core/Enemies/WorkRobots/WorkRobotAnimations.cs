@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="WorkRobotCue"/> naming what it does.
 /// </summary>
-internal static class WorkRobotAnimations
+internal static partial class WorkRobotAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<WorkRobotSegment, EnemyFrameId, WorkRobotCue> Segments { get; } = new(
@@ -145,7 +145,7 @@ internal static class WorkRobotAnimations
     /// The animation that starts at each segment an owner can start or restart at. The wall, shot-ahead and shot-behind
     /// animations walk on when they end (#2167).
     /// </summary>
-    private static Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>> StartingAt { get; } = new Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>>
+    internal static Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>> StartingAt { get; } = new Dictionary<WorkRobotSegment, Animation<WorkRobotSegment>>
     {
         [P.NoPowerNeutral] = new([Segments.Whole(P.NoPowerNeutral)], AnimationEnd.Holds),
         [P.NoPowerLeaningLeft] = new([Segments.Whole(P.NoPowerLeaningLeft)], AnimationEnd.Holds),

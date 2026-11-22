@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The encounter look a <see cref="TorizoArtworkLook"/> gives the Torizo that shows it (#1761, #2409). Each look's name is
 /// its installed key, written out in <see cref="TorizoArtworkLookKeys"/>, so renaming a look's identity never changes a name on disk.
 /// </summary>
-internal static class TorizoArtworkLooks
+internal static partial class TorizoArtworkLooks
 {
     /// <summary>The look of a Torizo's artwork.</summary>
     extension(TorizoArtworkLook look)

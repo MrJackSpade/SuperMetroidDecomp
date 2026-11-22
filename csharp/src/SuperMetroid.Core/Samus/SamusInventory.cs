@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Samus;
 /// <param name="MaxPowerBombs">The power bomb capacity.</param>
 /// <param name="MaxReserveEnergy">The reserve tanks' capacity in energy-point units.</param>
 /// <param name="ReserveEnergy">The energy stored in the reserve tanks.</param>
-public readonly record struct SamusInventory(
+public readonly partial record struct SamusInventory(
     SamusEquipmentFlags EquippedItems,
     SamusEquipmentFlags CollectedItems,
     SamusBeamFlags EquippedBeams,

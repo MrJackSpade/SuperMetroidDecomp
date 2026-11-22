@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The encounter segments both Torizos share: the gut and face blow-ups, the death, the stun, the Bomb Torizo's wake and the
 /// seated eyes and standing colour fade both wakes play. Both statues sit facing left.
 /// </summary>
-internal static class TorizoEncounterAnimations
+internal static partial class TorizoEncounterAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()

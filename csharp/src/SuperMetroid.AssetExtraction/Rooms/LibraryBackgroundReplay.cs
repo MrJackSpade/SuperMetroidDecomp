@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// pages and the HUD's characters where Kraid's list copies them, and fills pages with the blank tile. The BG2 pages the
 /// replay leaves are pictured as the background's image, which the runtime selects by name instead.
 /// </summary>
-internal static class LibraryBackgroundReplay
+internal static partial class LibraryBackgroundReplay
 {
     /// <summary>
     /// Replays <paramref name="program"/> as a room entered through <paramref name="activeDoor"/> (null for a door the program
@@ -38,7 +38,7 @@ internal static class LibraryBackgroundReplay
     /// The list holds a command the interpreter does not accept, a zero-length transfer, or a transfer from ROM that no
     /// installed artwork owns.
     /// </exception>
-    private static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
+    internal static void Execute(SnesVram vram, string list, IReadOnlyList<LibraryBackgroundInstruction> instructions,
         LibraryBackgroundPicture picture, LibraryBackgroundArtwork artwork, ReadOnlyMemory<byte> enemyBg2Staging = default)
     {
         Ensure.NotNull(picture);
@@ -148,14 +148,20 @@ internal static class LibraryBackgroundReplay
     }
 
     /// <summary>The work RAM a replay reads and writes: the tilemap staging, and the enemy BG2 staging it only reads.</summary>
-    /// <param name="enemyBg2">The enemy BG2 staging's leading bytes; the rest are zero.</param>
-    private sealed class Staging(ReadOnlyMemory<byte> enemyBg2)
+    private sealed partial class Staging
     {
+        /// <summary>Creates a <see cref="Staging"/>.</summary>
+        /// <param name="enemyBg2">The enemy BG2 staging's leading bytes; the rest are zero.</param>
+        public Staging(ReadOnlyMemory<byte> enemyBg2)
+        {
+            this.enemy = Copied(enemyBg2);
+        }
+
         /// <summary>The tilemap staging's bytes in address order.</summary>
         private readonly byte[] tilemap = new byte[LibraryBackgroundStagingDefinitions.TilemapStagingByteCount];
 
         /// <summary>The enemy BG2 staging's bytes in address order.</summary>
-        private readonly byte[] enemy = Copied(enemyBg2);
+        private readonly byte[] enemy;
 
         /// <summary>The staged bytes at <paramref name="address"/>, which must lie in one staging.</summary>
         /// <exception cref="InvalidDataException">The range lies in neither staging.</exception>

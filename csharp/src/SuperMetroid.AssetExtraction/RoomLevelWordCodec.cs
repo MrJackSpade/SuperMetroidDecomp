@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction;
 /// what every such read finds into the installed straddled terrain (#1612).
 /// </summary>
 [EncodingOwner("room level data word")]
-public static class RoomLevelWordCodec
+public static partial class RoomLevelWordCodec
 {
     /// <summary>The bits naming the block shown.</summary>
     private const int BlockMask = (1 << 10) - 1;

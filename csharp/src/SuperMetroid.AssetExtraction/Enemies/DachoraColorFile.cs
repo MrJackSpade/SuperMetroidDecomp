@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes the installed Dachora colour document.</summary>
-public static class DachoraColorFile
+public static partial class DachoraColorFile
 {
     /// <summary>Loads the supported camel-case JSON schema, rejecting duplicate or unknown properties, incorrect palette/frame counts, null colors, and RGB5 channels outside 0..31.</summary>
     /// <param name="json">Readable JSON stream, left open after loading.</param>
@@ -31,7 +31,7 @@ public static class DachoraColorFile
     /// <param name="document">Supported-version default palette and four-frame speed/shine sequences.</param>
     /// <returns>JSON bytes ready to store as the Dachora color resource.</returns>
     public static byte[] Write(DachoraColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.DachoraColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, string name)

@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Presentation-only schema of one area's map: no reveal masks, callbacks, save indexes or exploration commands.</summary>
-public sealed record MapPresentationDocument
+public sealed partial record MapPresentationDocument
 {
     /// <summary>Schema revision for the area's lowercase-name <c>.json</c> file; loading requires the supported revision, version 2 since cells are named by what they show (#1513).</summary>
     public required int Version { get; init; }

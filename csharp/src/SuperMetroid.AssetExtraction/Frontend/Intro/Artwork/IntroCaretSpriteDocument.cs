@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable JSON schema for ordered visible-caret sprite parts; positioning and blink timing remain cinematic-script behavior, not authored frame sequences.</summary>
-public sealed record IntroCaretSpriteDocument
+public sealed partial record IntroCaretSpriteDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="IntroCaretSpriteVersion.Current"/>.</summary>
     public required int Version { get; init; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Shared on-disk layout used by the desktop host, Android host, and installation CLI.</summary>
-public static class GameInstallationLayout
+public static partial class GameInstallationLayout
 {
     /// <summary>Replaceable stock-content child directory, atomically published and repaired by the installer.</summary>
     public const string ContentDirectoryName = "game";

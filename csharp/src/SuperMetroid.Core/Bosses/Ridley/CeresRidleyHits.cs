@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>What Samus's weapons do to Ceres Ridley: each accepted shot or bomb counts toward the hits that end his fight (<see cref="CeresRidleyFightDefinitions.HitsToDriveOff"/>).</summary>
 [RoomLifetime]
-internal sealed class CeresRidleyHits
+internal sealed partial class CeresRidleyHits
 {
     /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the station's escape progress.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -97,7 +97,7 @@ internal sealed class CeresRidleyHits
     /// Whether a shot's rectangle overlaps any hitbox of the frame Ridley shows: his body is that frame's hitboxes, not
     /// the small radius of his species definition.
     /// </summary>
-    private static bool FrameHitboxesOverlapRectangle(
+    internal static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)

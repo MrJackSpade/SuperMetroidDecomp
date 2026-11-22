@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// The colour each ink it recolours shows under it, by ink in rising order; an ink is its colour group's place times
 /// sixteen plus its colour.
 /// </param>
-internal sealed record SheetShade(PictureShade Shade, ImmutableSortedDictionary<int, RgbColor> InkColours)
+internal sealed partial record SheetShade(PictureShade Shade, ImmutableSortedDictionary<int, RgbColor> InkColours)
 {
     /// <summary>
     /// Whether a draw showing the shade takes part in colour math over every part: a frontend colouring's drawn shade,

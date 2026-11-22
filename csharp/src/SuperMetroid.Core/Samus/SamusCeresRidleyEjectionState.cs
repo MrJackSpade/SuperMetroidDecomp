@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus;
 /// The request is made from room-main code, after Samus has already moved for that
 /// frame, so the shove first moves her on the following gameplay frame.
 /// </remarks>
-public sealed class SamusCeresRidleyEjectionState
+public sealed partial class SamusCeresRidleyEjectionState
 {
     /// <summary>Where the shove stands (#2560): inactive, starting on its next update, or pushing her toward a side.</summary>
     private Shove Phase { get; set; } = Shove.Inactive;
@@ -125,7 +125,7 @@ public sealed class SamusCeresRidleyEjectionState
     }
 
     /// <summary>Where Ceres Ridley's shove stands: inactive, starting, or pushing toward its side.</summary>
-    private abstract record Shove
+    private abstract partial record Shove
     {
         /// <summary>No shove holds her.</summary>
         internal static Shove Inactive { get; } = new InactiveShove();
@@ -134,13 +134,13 @@ public sealed class SamusCeresRidleyEjectionState
         internal static Shove Starting { get; } = new StartingShove();
 
         /// <summary>No shove holds her.</summary>
-        private sealed record InactiveShove : Shove;
+        private sealed partial record InactiveShove : Shove;
 
         /// <summary>The shove starts on its next update.</summary>
-        private sealed record StartingShove : Shove;
+        private sealed partial record StartingShove : Shove;
     }
 
     /// <summary>The shove pushes her toward <paramref name="Side"/>.</summary>
     /// <param name="Side">The side it pushes her toward.</param>
-    private sealed record Pushing(HorizontalDirection Side) : Shove;
+    private sealed partial record Pushing(HorizontalDirection Side) : Shove;
 }

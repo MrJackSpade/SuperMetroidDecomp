@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupGlassLayoutsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainGlassStockVerification;

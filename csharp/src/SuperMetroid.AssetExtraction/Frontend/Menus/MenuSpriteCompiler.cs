@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>Shared checked compilation for compositions on the indexed menu OBJ sheet.</summary>
-internal static class MenuSpriteCompiler
+internal static partial class MenuSpriteCompiler
 {
     /// <summary>
     /// Validates each part against the indexed menu OBJ sheet and SNES OAM limits, then

@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The staff credits document's schema and the Font-3 tiles its glyphs are pictured from; the roll's layout in pixels is <see cref="CreditsRollDefinitions"/>.</summary>
-public static class CreditsPresentationDefinitions
+public static partial class CreditsPresentationDefinitions
 {
     /// <summary>Required schema revision of the editable ordered staff-credit line document.</summary>
     public const int Version = 1;

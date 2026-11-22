@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Options;
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>File identity, schema names and page geometry of the installed <c>options-menu.json</c>.</summary>
-public static class GameOptionsPresentationFormat
+public static partial class GameOptionsPresentationFormat
 {
     /// <summary>Supported options-menu presentation JSON schema version: 2 holds no hidden cursor anchor (#1775).</summary>
     public const int Version = 3;

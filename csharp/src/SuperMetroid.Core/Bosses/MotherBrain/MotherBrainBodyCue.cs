@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A gameplay cue of Mother Brain's body animations.</summary>
-internal abstract record MotherBrainBodyCue
+internal abstract partial record MotherBrainBodyCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private MotherBrainBodyCue()
@@ -19,7 +19,7 @@ internal abstract record MotherBrainBodyCue
 
     /// <summary>Publishes a body pose to the AI.</summary>
     /// <param name="Pose">The pose published.</param>
-    internal sealed record SetPose(MotherBrainBodyPose Pose) : MotherBrainBodyCue
+    internal sealed partial record SetPose(MotherBrainBodyPose Pose) : MotherBrainBodyCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MotherBrainBodyCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetPose(this, context);
@@ -27,7 +27,7 @@ internal abstract record MotherBrainBodyCue
 
     /// <summary>Moves her body; her body's pictures follow it (#1949).</summary>
     /// <param name="Offset">The body displacement.</param>
-    internal sealed record Move(Offset16<RoomPixels> Offset) : MotherBrainBodyCue
+    internal sealed partial record Move(Offset16<RoomPixels> Offset) : MotherBrainBodyCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MotherBrainBodyCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Move(this, context);
@@ -35,7 +35,7 @@ internal abstract record MotherBrainBodyCue
 
     /// <summary>Plants a foot (shaking the room), then moves the body.</summary>
     /// <param name="Offset">The body displacement.</param>
-    internal sealed record StepAndMove(Offset16<RoomPixels> Offset) : MotherBrainBodyCue
+    internal sealed partial record StepAndMove(Offset16<RoomPixels> Offset) : MotherBrainBodyCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MotherBrainBodyCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).StepAndMove(this, context);
@@ -44,7 +44,7 @@ internal abstract record MotherBrainBodyCue
     /// <summary>Spawns a charge particle at the hand.</summary>
     /// <param name="Offset">Where the particle spawns, from the body.</param>
     /// <param name="Dust">The particle spawned.</param>
-    internal sealed record SpawnHandDust(Offset16<RoomPixels> Offset, DustExplosionAnimation Dust) : MotherBrainBodyCue
+    internal sealed partial record SpawnHandDust(Offset16<RoomPixels> Offset, DustExplosionAnimation Dust) : MotherBrainBodyCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MotherBrainBodyCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SpawnHandDust(this, context);
@@ -52,7 +52,7 @@ internal abstract record MotherBrainBodyCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(MotherBrainBodyCueKind Kind) : MotherBrainBodyCue
+    internal sealed partial record Signal(MotherBrainBodyCueKind Kind) : MotherBrainBodyCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MotherBrainBodyCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -72,4 +72,4 @@ internal abstract record MotherBrainBodyCue
 /// <param name="SpawnHandDust">Reacts to a <see cref="MotherBrainBodyCue.SpawnHandDust"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="MotherBrainBodyCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record MotherBrainBodyCueReactions<TContext>(Action<MotherBrainBodyCue.SetPose, TContext> SetPose, Action<MotherBrainBodyCue.Move, TContext> Move, Action<MotherBrainBodyCue.StepAndMove, TContext> StepAndMove, Action<MotherBrainBodyCue.SpawnHandDust, TContext> SpawnHandDust, Action<MotherBrainBodyCue.Signal, TContext> Signal);
+internal sealed partial record MotherBrainBodyCueReactions<TContext>(Action<MotherBrainBodyCue.SetPose, TContext> SetPose, Action<MotherBrainBodyCue.Move, TContext> Move, Action<MotherBrainBodyCue.StepAndMove, TContext> StepAndMove, Action<MotherBrainBodyCue.SpawnHandDust, TContext> SpawnHandDust, Action<MotherBrainBodyCue.Signal, TContext> Signal);

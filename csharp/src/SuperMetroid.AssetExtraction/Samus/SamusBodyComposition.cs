@@ -10,4 +10,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Top">The top half the picture shows.</param>
 /// <param name="Bottom">The bottom half the picture shows, or null when the frame shows none.</param>
 /// <param name="ChestCover">Where the chest cover sits relative to the body's origin, or null for a body without one.</param>
-internal readonly record struct SamusBodyComposition(SamusBodyHalfFrame Top, SamusBodyHalfFrame? Bottom, Offset16<ScreenPixels>? ChestCover);
+internal readonly partial record struct SamusBodyComposition(SamusBodyHalfFrame Top, SamusBodyHalfFrame? Bottom, Offset16<ScreenPixels>? ChestCover);

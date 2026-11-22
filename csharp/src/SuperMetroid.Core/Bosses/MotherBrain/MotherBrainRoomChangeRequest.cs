@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// the row's own block (<see cref="MotherBrainMuralRowReveal"/>).
 /// </summary>
 /// <param name="Block">The room block the change is spawned at.</param>
-public abstract record MotherBrainRoomChangeRequest(Position16<RoomBlocks> Block) : EnemyPassEvent
+public abstract partial record MotherBrainRoomChangeRequest(Position16<RoomBlocks> Block) : EnemyPassEvent
 {
     /// <summary>The terrain change the spawned room object makes.</summary>
     internal abstract TerrainChange Change { get; }

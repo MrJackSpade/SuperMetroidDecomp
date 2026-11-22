@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
 /// </summary>
 [RoomLifetime]
-internal sealed class KraidParts
+internal sealed partial class KraidParts
 {
     /// <summary>His body's reference, which runs first.</summary>
     internal KraidPartReference BodyReference { get; } = new("body");
@@ -90,7 +90,7 @@ internal sealed class KraidParts
     internal RoomEnemyPlace SecondNail => SecondNailReference.Place;
 
     /// <summary>His lint part <paramref name="part"/>.</summary>
-    private RoomEnemyPlace Lint(KraidLintPart part) => part switch
+    internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {
         KraidLintPart.Top => TopLint,
         KraidLintPart.Middle => MiddleLint,

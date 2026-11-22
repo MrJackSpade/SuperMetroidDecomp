@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the white-out.</param>
-internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
+internal sealed partial class TimeUpGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.TimeUp;
@@ -48,6 +48,7 @@ internal sealed class TimeUpGameSequence(FrontendSession session, GameplayGamePh
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="TimeUpStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TimeUpStep, Action<ControllerButton>> StepForTimeUpStep => field ??= new(new Dictionary<TimeUpStep, Action<ControllerButton>>
     {
         [TimeUpStep.WhiteningOut] = controllerInput => WhiteOut(controllerInput),

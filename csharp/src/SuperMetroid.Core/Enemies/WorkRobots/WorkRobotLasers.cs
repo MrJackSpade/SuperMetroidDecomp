@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>The projectile definition each Work Robot laser spawns.</summary>
-internal static class WorkRobotLasers
+internal static partial class WorkRobotLasers
 {
     /// <summary>The projectile definition <paramref name="laser"/> spawns.</summary>
     internal static RoomEnemyProjectileKind ProjectileKind(this WorkRobotLaser laser) => ProjectileKinds[laser];

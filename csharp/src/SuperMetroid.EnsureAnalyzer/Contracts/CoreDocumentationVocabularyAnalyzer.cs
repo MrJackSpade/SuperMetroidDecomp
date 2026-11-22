@@ -1,3 +1,4 @@
+using SuperMetroid.EnsureAnalyzer.SourceLayout;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -2953,14 +2954,23 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         {
             if (start.Compilation.AssemblyName == ExtractionAssembly)
             {
-                start.RegisterSyntaxTreeAction(tree => AnalyzeRestatedNumbers(tree, tree.IsGeneratedCode));
+                // Code a source generator emits documents what its generator writes, not the game (#2602).
+            start.RegisterSyntaxTreeAction(tree =>
+            {
+                if (!GeneratedSource.IsSourceGeneratorOutput(tree.Tree, tree.CancellationToken))
+                    AnalyzeRestatedNumbers(tree, tree.IsGeneratedCode);
+            });
                 return;
             }
             if (start.Compilation.AssemblyName != CoreLayerAnalyzer.CoreAssembly)
                 return;
             Compilation compilation = start.Compilation;
             var codeNames = new Lazy<ImmutableHashSet<string>>(() => CodeNames(compilation, start.CancellationToken));
-            start.RegisterSyntaxTreeAction(tree => AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames, tree.IsGeneratedCode));
+            start.RegisterSyntaxTreeAction(tree =>
+            {
+                if (!GeneratedSource.IsSourceGeneratorOutput(tree.Tree, tree.CancellationToken))
+                    AnalyzeTree(tree, tree.IsGeneratedCode ? null : codeNames, tree.IsGeneratedCode);
+            });
             start.RegisterSymbolAction(AnalyzeSpeciesOwnerSummary, SymbolKind.NamedType);
         });
     }

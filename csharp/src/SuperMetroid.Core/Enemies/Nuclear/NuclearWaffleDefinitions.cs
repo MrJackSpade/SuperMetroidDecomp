@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The authored definitions of Puromi, the Nuclear Waffle.</summary>
-internal static class NuclearWaffleDefinitions
+internal static partial class NuclearWaffleDefinitions
 {
     /// <summary>The persistent, damaging links of the waffle's body, each an enemy projectile (#2162).</summary>
     internal const int ProjectileLinks = 4;

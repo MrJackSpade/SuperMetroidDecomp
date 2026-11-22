@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Period">The screen lines of one whole cycle of the wave, at least one.</param>
 /// <param name="FirstLine">The first screen line the wave displaces, 0 through the screen's height.</param>
 /// <param name="EndLine">The screen line after the last the wave displaces, <paramref name="FirstLine"/> through the screen's height.</param>
-public sealed record ScrollWave(int BaseScroll, UnsignedSixteenSixteen Amplitude, TrigonometryAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
+public sealed partial record ScrollWave(int BaseScroll, UnsignedSixteenSixteen Amplitude, TrigonometryAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
 {
     /// <summary>The screen lines of one whole cycle of the wave, at least one.</summary>
     public int Period

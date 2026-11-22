@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Which reaction family each collision kind reads, and every reaction of each family (#1722).</summary>
-public static class BlockReactionFamilies
+public static partial class BlockReactionFamilies
 {
     /// <summary>The family <paramref name="kind"/> reads its block's reaction from, or null for a kind that reads none.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="kind"/> is undefined.</exception>

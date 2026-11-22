@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installed editable pages for legs, Baby, attack restoration, and the exploded door.</summary>
-public sealed class MotherBrainSpecialSpriteArtworkCatalog
+public sealed partial class MotherBrainSpecialSpriteArtworkCatalog
 {
 
     /// <summary>The four installed sheets, by the sheet each is.</summary>

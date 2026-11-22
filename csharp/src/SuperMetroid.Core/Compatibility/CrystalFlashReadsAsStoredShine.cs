@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// read that timer without testing which handler owns it.
 /// </remarks>
 [CompatibilityService("Samus reads as holding a stored shine while Crystal Flash's colouring runs")]
-public static class CrystalFlashReadsAsStoredShine
+public static partial class CrystalFlashReadsAsStoredShine
 {
     /// <summary>Whether Samus holds a stored shine as the game's shine tests see it.</summary>
     /// <param name="crystalFlashColouringRuns">Whether Crystal Flash's colouring runs, through its beam-colour restoration.</param>

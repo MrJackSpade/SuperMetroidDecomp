@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// and the Super Missile's link among them, change what it holds.
 /// </summary>
 [ArchitectureReview("back-reference", "The shot holding a place and the place it holds (#2558): the place's taking creates the occupant, and the place's queries (the type it strikes blocks with, what a beam fired over it finds) read the occupant, so the two share the shot's lifetime.")]
-public sealed class SamusProjectileOccupant
+public sealed partial class SamusProjectileOccupant
 {
     /// <summary>
     /// The projectile of <paramref name="type"/> dealing <paramref name="damage"/> taking <paramref name="projectile"/>'s place,
@@ -110,7 +110,7 @@ public sealed class SamusProjectileOccupant
     /// particle starts to trail, counted by its flight, and started again with the flight's interval on each update it
     /// leaves one; null for a shot that leaves no trail, as the Hyper Beam's.
     /// </summary>
-    internal UpdateCountdown? Trail { private get; set; }
+    internal UpdateCountdown? Trail { get; set; }
 
     /// <summary>
     /// Counts one update of the shot's flight toward its next trail: whether the shot leaves one on this update, after which

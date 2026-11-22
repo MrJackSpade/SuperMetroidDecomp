@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Etecoon], Create);
@@ -59,6 +59,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunEtecoonMain"/> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>> RunEtecoonMainForEtecoonAction => field ??= new(new Dictionary<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>>
     {
         [EtecoonAction.Dormant] = (place, state, samus, level) => RunEtecoonDormant(place, state, samus),

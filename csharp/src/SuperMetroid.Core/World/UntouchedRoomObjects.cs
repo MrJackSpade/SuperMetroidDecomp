@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// projectiles its objects throw.
 /// </summary>
 /// <param name="objects">The room's objects, as their load placed them.</param>
-internal readonly struct UntouchedRoomObjects(RoomObjectSystem objects)
+internal readonly partial struct UntouchedRoomObjects(RoomObjectSystem objects)
 {
     /// <summary>Steps the objects once, as the door's step does.</summary>
     /// <returns>The enemy projectiles the step's objects threw, in the order they threw them.</returns>

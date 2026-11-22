@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// back to the top entry, so a bounce spends two updates at the top of its arc. Places only move one entry at a time and
 /// compare; a rise never starts past the top, and a fall never reads the curve there.
 /// </summary>
-public readonly record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
+public readonly partial record struct BoyonCurvePlace : IComparable<BoyonCurvePlace>
 {
     /// <summary>The entry from the top; none past the top.</summary>
     private readonly int entry;
 
     /// <summary>Keeps the place's entry, zero or more.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="entry"/> is negative.</exception>
-    private BoyonCurvePlace(int entry) => this.entry = Ensure.AtLeastZero(entry);
+    internal BoyonCurvePlace(int entry) => this.entry = Ensure.AtLeastZero(entry);
 
     /// <summary>The place past the top a rise leaves.</summary>
     private static BoyonCurvePlace PastTheTop { get; } = new() { IsPastTheTop = true };

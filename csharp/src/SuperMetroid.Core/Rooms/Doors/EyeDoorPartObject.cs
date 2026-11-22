@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="EyeDoorBottomObject"/>) stands in no door (#2493). A part only draws its poses: its animations raise
 /// nothing (#2481).
 /// </summary>
-internal abstract class EyeDoorPartObject
+internal abstract partial class EyeDoorPartObject
     : SilentSequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose>
 {
     /// <summary>A part of <paramref name="part"/>'s kind and facing, just placed in <paramref name="door"/>.</summary>
@@ -27,7 +27,7 @@ internal abstract class EyeDoorPartObject
     }
 
     /// <summary>Which part this is and the way its door faces.</summary>
-    private EyeDoorPart Part { get; }
+    internal EyeDoorPart Part { get; }
 
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation => Part.Orientation;
@@ -36,13 +36,13 @@ internal abstract class EyeDoorPartObject
     internal PlacedDoor Door { get; }
 
     /// <summary>What the part is doing (#2482).</summary>
-    private EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
+    internal EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
 
     /// <summary>
     /// Whether the part waits for its door to be opened for good, which makes it leave the room. The wait starts the first
     /// time Samus comes near and stays when she leaves, so it is a fact of its own beside what the part shows.
     /// </summary>
-    private bool WaitsForOpenedDoor { get; set; }
+    internal bool WaitsForOpenedDoor { get; set; }
 
     /// <summary>Leaves the room on the part's next update, as the body closing behind Samus does.</summary>
     private protected void LeaveOnNextUpdate()
@@ -74,6 +74,7 @@ internal abstract class EyeDoorPartObject
         context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorPartPhase => field ??= new(new Dictionary<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [EyeDoorPartPhase.ClosingBehindSamus] = (place, context) => context.RoomObjects.DeleteObject(place),

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <param name="ReplacedByHyper">Whether the Hyper label shows in its place while Samus fires the Hyper Beam: the ordinary beam labels.</param>
 /// <param name="BorrowsPageCells">Whether the label is written over another label's page cells rather than cells of its own.</param>
 [IndependentFlag("independent facts of one label: whether Hyper Beam replaces it and whether it is written over another label's page cells")]
-internal sealed record PauseEquipmentLabelDefinition(
+internal sealed partial record PauseEquipmentLabelDefinition(
     PauseEquipmentLabelWidth StoredWidth,
     PauseEquipmentLabelWidth ShownWidth,
     bool ReplacedByHyper,

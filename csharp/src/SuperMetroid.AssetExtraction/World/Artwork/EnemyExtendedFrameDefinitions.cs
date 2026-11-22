@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// Their selectors come from compiled instruction catalogs;
 /// component hitbox pointers remain gameplay-owned and absent from the asset.
 /// </summary>
-internal static class EnemyExtendedFrameDefinitions
+internal static partial class EnemyExtendedFrameDefinitions
 {
     /// <summary>Additional Torizo identities introduced by the completed-family schema.</summary>
     internal const int CompleteTorizoAdditionalFrameCount = 27;
@@ -27,49 +27,49 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>OAM component bound for ordinary extended frames outside Crocomire's skeleton.</summary>
     internal const int MaximumComponents = 8;
     /// <summary>Walking Pirate frames published first in the schema order.</summary>
-    private const int WalkingFrameCount = 35;
+    internal const int WalkingFrameCount = 35;
     /// <summary>Wall Pirate frames following the walking family.</summary>
-    private const int WallFrameCount = 18;
+    internal const int WallFrameCount = 18;
     /// <summary>Ninja Pirate frames following the wall family.</summary>
-    private const int NinjaFrameCount = 75;
+    internal const int NinjaFrameCount = 75;
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 32;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int PhantoonBg2FrameCount = 18;
     /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>
-    private const int CeresSteamFrameCount = 28;
+    internal const int CeresSteamFrameCount = 28;
     /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>
-    private const int OumFrameCount = 30;
+    internal const int OumFrameCount = 30;
     /// <summary>Crocomire tongue and claw sprite frames before the body sequence.</summary>
-    private const int CrocomireSpriteFrameCount = 9;
+    internal const int CrocomireSpriteFrameCount = 9;
     /// <summary>Body frame count supplied by Crocomire's visual definitions.</summary>
-    private const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
+    internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
     /// <summary>Single dormant Bomb Torizo statue composition.</summary>
     internal const int BombTorizoDormantFrameCount = 1;
     /// <summary>The Torizos' third stand-up pose facing left, which Golden Torizo shows first, before its awakening.</summary>
     internal const int TorizoFacingLeftStandingUpThirdFrameCount = 1;
     /// <summary>Kraid arm OAM frames used independently of body art.</summary>
-    private const int KraidArmFrameCount = 12;
+    internal const int KraidArmFrameCount = 12;
     /// <summary>Golden Torizo awakening component poses.</summary>
-    private const int GoldenTorizoAwakeningFrameCount = 6;
+    internal const int GoldenTorizoAwakeningFrameCount = 6;
     /// <summary>Golden Torizo walking component poses.</summary>
-    private const int GoldenTorizoWalkingFrameCount = 10;
+    internal const int GoldenTorizoWalkingFrameCount = 10;
     /// <summary>Golden Torizo rightward turn component poses.</summary>
-    private const int GoldenTorizoRightwardFrameCount = 11;
+    internal const int GoldenTorizoRightwardFrameCount = 11;
     /// <summary>Torizo backward-jump component poses.</summary>
-    private const int TorizoJumpBackFrameCount = 3;
+    internal const int TorizoJumpBackFrameCount = 3;
     /// <summary>Golden Torizo right-facing orb component poses.</summary>
-    private const int GoldenTorizoRightOrbFrameCount = 6;
+    internal const int GoldenTorizoRightOrbFrameCount = 6;
     /// <summary>Golden Torizo right-facing sonic attack poses.</summary>
-    private const int GoldenTorizoRightSonicFrameCount = 21;
+    internal const int GoldenTorizoRightSonicFrameCount = 21;
     /// <summary>The Torizos' one left-facing springing pose, which their leaps and falls show.</summary>
-    private const int TorizoFacingLeftSpringingFrameCount = 1;
+    internal const int TorizoFacingLeftSpringingFrameCount = 1;
     /// <summary>Golden Torizo left-foot orb component poses.</summary>
-    private const int GoldenTorizoLeftFootOrbFrameCount = 5;
+    internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
     /// <summary>Additional left-facing Torizo jump-back poses.</summary>
-    private const int TorizoJumpBackLeftNewFrameCount = 2;
+    internal const int TorizoJumpBackLeftNewFrameCount = 2;
     /// <summary>Golden Torizo left-facing orb component poses.</summary>
-    private const int GoldenTorizoLeftOrbFrameCount = 12;
+    internal const int GoldenTorizoLeftOrbFrameCount = 12;
     /// <summary>Total initial Pirate prefix before boss families.</summary>
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;

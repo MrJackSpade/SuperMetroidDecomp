@@ -9,6 +9,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Colour">The colour the pixels show unshaded.</param>
 /// <param name="Region">The recolour region the pixels lie in among the picture's pixels of <paramref name="Colour"/>.</param>
-public readonly record struct ColourKey(RgbColor Colour, int Region)
+public readonly partial record struct ColourKey(RgbColor Colour, int Region)
 {
 }

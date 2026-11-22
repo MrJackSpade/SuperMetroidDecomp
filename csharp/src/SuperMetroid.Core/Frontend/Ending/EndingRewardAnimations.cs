@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The post-credits reward Samus's animations (#641, #1600, #2196, #2197): her gesture, which hands off to her jump, and the
 /// jump itself, each with the cues its own owner carries out.
 /// </summary>
-internal static class EndingRewardAnimations
+internal static partial class EndingRewardAnimations
 {
     /// <summary>How long the suited Samus's arm stays hidden while her body stands idle, before the arm's gesture shows.</summary>
     private const int ArmHiddenUpdates = 64;

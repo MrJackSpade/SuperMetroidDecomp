@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// and the sprite inks the navigation lights and the PLANET ZEBES caption's fades recolour (#1733). A colour is its set's
 /// place times sixteen plus its colour within the set, as the Ceres flight loads its palette.
 /// </summary>
-internal static class CeresSheetInks
+internal static partial class CeresSheetInks
 {
     /// <summary>The Ceres cinematics' sprite colourings in the order their sheets list the drawn shades (#2567).</summary>
     private static readonly IReadOnlyList<CeresSpriteColouring> ColouringOrder = Ensure.EveryMemberOnce<CeresSpriteColouring>(

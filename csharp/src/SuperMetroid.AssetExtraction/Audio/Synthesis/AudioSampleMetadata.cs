@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>One validated BRR directory entry and its canonical PCM sample alias.</summary>
-public sealed record AudioSampleMetadata(
+public sealed partial record AudioSampleMetadata(
     int Source,
     int StartAddress,
     int LoopAddress,

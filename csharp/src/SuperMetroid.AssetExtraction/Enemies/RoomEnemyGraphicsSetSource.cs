@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>What a graphics-set record loads (#2560): a closed choice of an enemy's artwork or artwork for no enemy.</summary>
-internal abstract record RoomEnemyGraphicsSetSource
+internal abstract partial record RoomEnemyGraphicsSetSource
 {
     /// <summary>The source's name in diagnostics.</summary>
     internal abstract string Name { get; }

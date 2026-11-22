@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Multiviola left-or-up speed checks the second, with that arithmetic.
 /// </remarks>
 [CompatibilityService("a speed reversed one part at a time: its whole pixels negated or complemented and its fraction negated on its own, the fraction's carry never reaching the whole pixels")]
-internal static class PartwiseReversal
+internal static partial class PartwiseReversal
 {
     /// <summary>
     /// <paramref name="speed"/> reversed by negating its whole pixels and its fraction each on their own: its true reversal

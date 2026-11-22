@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The intro Rinkas: their actor, the two waves of launches, and their drift.</summary>
-internal static class IntroRinkaDefinitions
+internal static partial class IntroRinkaDefinitions
 {
     /// <summary>The intro Rinka's actor: the Rinka animation. The Rinka holds still until the animation starts it moving.</summary>
     /// <remarks>
@@ -13,14 +13,14 @@ internal static class IntroRinkaDefinitions
         new(IntroRinkaAnimation.Rinka);
 
     /// <summary>The first pair launched, in launch order: the Rinka that strikes Samus, then one that flies past her.</summary>
-    private static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
+    internal static IReadOnlyList<IntroRinkaLaunch> StrikingPair { get; } =
     [
         new(new(112, 72), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.StrikesSamus),
         new(new(192, 56), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),
     ];
 
     /// <summary>The second pair launched, in launch order: both fly past Samus.</summary>
-    private static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
+    internal static IReadOnlyList<IntroRinkaLaunch> MissingPair { get; } =
     [
         new(new(128, 48), SignedSixteenSixteen.FromPixelFraction(1, 2), IntroRinkaFlight.MissesSamus),
         new(new(232, 80), SignedSixteenSixteen.FromPixelFraction(-1, 2), IntroRinkaFlight.MissesSamus),

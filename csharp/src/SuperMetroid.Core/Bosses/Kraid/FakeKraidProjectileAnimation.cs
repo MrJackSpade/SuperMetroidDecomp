@@ -4,10 +4,15 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>A Fake Kraid spit or spike's typed animation: it shows its pose and holds it for good.</summary>
-/// <param name="pose">The pose to show.</param>
-internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
-    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>(pose, PoseAnimations[pose])
+internal sealed partial class FakeKraidProjectileAnimation
+    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>
 {
+    /// <summary>Creates a <see cref="FakeKraidProjectileAnimation"/>.</summary>
+    /// <param name="pose">The pose to show.</param>
+    public FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
+        : base(pose, PoseAnimations[pose])
+    {
+    }
 
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;

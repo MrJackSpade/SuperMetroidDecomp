@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Stable identities and rectangle shape of the four portrait eye drawings. The installed cells are the drawings; timing and pixels are outside this retained scope.</summary>
-public static class IntroEyeTilemapFormat
+public static partial class IntroEyeTilemapFormat
 {
     /// <summary>Supported eye-frame document schema revision.</summary>
     public const int Version = 1;

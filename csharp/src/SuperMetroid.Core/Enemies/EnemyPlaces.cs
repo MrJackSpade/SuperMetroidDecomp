@@ -4,7 +4,7 @@
 /// The room's enemy places, in <see cref="EnemyPlaceOrder"/>, with the extent of the places the population and later
 /// spawns have filled.
 /// </summary>
-internal sealed class EnemyPlaces
+internal sealed partial class EnemyPlaces
 {
     /// <summary>
     /// Creates the places once, each given its ordinal and the record of what its removed occupants leave for their

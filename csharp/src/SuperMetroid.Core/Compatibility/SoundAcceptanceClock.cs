@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// acknowledgement traces.
 /// </remarks>
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
-public sealed class SoundAcceptanceClock<TLibrary, TSound>
+public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
@@ -110,7 +110,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// one whole period, at which a step falls due. Only a stride moves it, and a stride stops at the next step, so it
     /// never passes one period.
     /// </summary>
-    private readonly record struct SoundStepPhase
+    private readonly partial record struct SoundStepPhase
     {
         /// <summary>The phase <paramref name="samples"/> samples after a step.</summary>
         private SoundStepPhase(int samples) => Samples = samples;
@@ -135,7 +135,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// <summary>One stride of the clock's phase toward its next step.</summary>
     /// <param name="Phase">The phase after the stride.</param>
     /// <param name="Taken">The samples the stride took.</param>
-    private readonly record struct SoundStride(SoundStepPhase Phase, int Taken);
+    private readonly partial record struct SoundStride(SoundStepPhase Phase, int Taken);
 
     /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library, in order, on its overflow.</summary>
     private SoundClockStep<TLibrary, TSound> Step(int sampleOffset, int periods)
@@ -167,7 +167,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
             : throw new ArgumentOutOfRangeException(nameof(library), library, "The sound clock was not given this library.");
 
     /// <summary>One library's requests, as the clock keeps them between checks.</summary>
-    private sealed class LibraryRequests
+    private sealed partial class LibraryRequests
     {
         /// <summary>The game's most recent request to the library; none requests nothing.</summary>
         internal TSound? Requested { get; set; }
@@ -189,7 +189,7 @@ public sealed class SoundAcceptanceClock<TLibrary, TSound>
     /// default value, reads as the value's default, so two sets are equal when every library reads the same in both.
     /// </summary>
     /// <typeparam name="TValue">What each library holds.</typeparam>
-    internal readonly struct ByLibrary<TValue> : IEquatable<ByLibrary<TValue>>
+    internal readonly partial struct ByLibrary<TValue> : IEquatable<ByLibrary<TValue>>
         where TValue : struct, IEquatable<TValue>
     {
         /// <summary>The libraries the set holds, distinct, in order; default for the default value, which holds none.</summary>

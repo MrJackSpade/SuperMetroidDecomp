@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The changes Mother Brain's fight makes to her room's acid: room effects of their own beside her room's effect selection, which selects only
 /// the resting acid, so her fight is the one thing that reaches them (#1546).
 /// </summary>
-internal static class MotherBrainRoomFxDefinitions
+internal static partial class MotherBrainRoomFxDefinitions
 {
     /// <summary>
     /// Her room's acid rises from its low level to its high one after a short delay: requested by her body's initialization and applied

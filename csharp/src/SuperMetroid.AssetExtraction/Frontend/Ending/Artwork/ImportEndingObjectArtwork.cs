@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// characters from the component's import data, which the ending's pictures and sheets are composed from. The game reads
 /// none of the characters.
 /// </summary>
-public sealed class ImportEndingObjectArtwork : EndingObjectSourceArtwork
+public sealed partial class ImportEndingObjectArtwork : EndingObjectSourceArtwork
 {
     /// <summary>Validates and retains the installed documents and the import's characters.</summary>
     /// <param name="parts">The ending's maps and sprite presentations.</param>

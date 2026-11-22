@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The platform crumbles of Kraid's sinking body.</summary>
-internal static class KraidSinkSchedule
+internal static partial class KraidSinkSchedule
 {
     /// <summary>
     /// The platform crumble Kraid's body sinking to <paramref name="y"/> starts, or null when none does (#1889): six of the

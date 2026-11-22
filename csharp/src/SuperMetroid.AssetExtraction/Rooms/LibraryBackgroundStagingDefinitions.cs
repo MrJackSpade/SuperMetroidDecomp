@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// extraction's replay of the list reproduces (#1406).
 /// </summary>
 [EncodingOwner("work RAM and VRAM staging layout of the library-background command lists")]
-internal static class LibraryBackgroundStagingDefinitions
+internal static partial class LibraryBackgroundStagingDefinitions
 {
     /// <summary><c>$7E:4000</c>: the tilemap staging decompression and fills write, and transfers read.</summary>
     internal static readonly SnesAddress TilemapStagingAddress = new(0x7e, 0x4000);

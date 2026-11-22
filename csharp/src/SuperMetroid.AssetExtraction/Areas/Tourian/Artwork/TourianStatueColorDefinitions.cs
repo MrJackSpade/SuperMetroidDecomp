@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 /// <summary>The shape of the Tourian statue's installed colours (#1415).</summary>
-public static class TourianStatueColorDefinitions
+public static partial class TourianStatueColorDefinitions
 {
 
     /// <summary>Each boss statue's eye glow shade, keyed by the statue it belongs to (#1747, #2482, #2565).</summary>

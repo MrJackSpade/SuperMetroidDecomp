@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Wrecked Ship rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class WreckedShipDoorDefinitions
+public static partial class WreckedShipDoorDefinitions
 {
     /// <summary>The door from the Bowling Alley room to the West Ocean room.</summary>
     public static DoorDefinition BowlingAlleyToWestOcean { get; } = new("BowlingAlleyToWestOcean", RoomDefinitions.WestOcean, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(126, 22), new(7, 1), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None) { ExchangesExploredMaps = true };

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Twelve trail tiles in one indexed sheet, compiled into two noncontiguous VRAM transfers.</summary>
-public sealed class ProjectileTrailAtlas : IInstalledArtworkContent
+public sealed partial class ProjectileTrailAtlas : IInstalledArtworkContent
 {
     /// <summary>Encoded four-bit planar characters in ice/wave order followed by missile trail art, with no native VRAM gap in the file.</summary>
     private readonly byte[] tiles;

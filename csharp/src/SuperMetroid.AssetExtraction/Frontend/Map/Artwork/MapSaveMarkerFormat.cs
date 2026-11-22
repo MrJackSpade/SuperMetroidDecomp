@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Asset filename and supported JSON revision for editable selected-save marker drawing positions.</summary>
-public static class MapSaveMarkerFormat
+public static partial class MapSaveMarkerFormat
 {
     /// <summary>
     /// Required revision of the complete named-station coordinate schema; version 2 keys each marker by its station's name.

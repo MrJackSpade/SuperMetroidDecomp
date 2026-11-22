@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The timing of the gate in Mother Brain's escape room (#1554).</summary>
-internal static class MotherBrainEscapeGateDefinitions
+internal static partial class MotherBrainEscapeGateDefinitions
 {
     /// <summary>The gate the room places: drawn closed on its first update, it leaves the room six updates later.</summary>
     internal static TerrainChange Shut { get; } = new(1,

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// corpses), and the dust sound the family requests. Each corpse rots its own rows; this only raises their dust.
 /// </summary>
 [RoomLifetime]
-internal sealed class CorpseRowDust
+internal sealed partial class CorpseRowDust
 {
     /// <summary>Receives the family's dust sound, queued as the family makes it.</summary>
     private readonly EnemyAudioQueue _audio;

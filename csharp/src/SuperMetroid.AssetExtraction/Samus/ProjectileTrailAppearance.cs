@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One small eight-by-eight OBJ's selected character and attributes, using the full gameplay projectile tile layout rather than coordinates in the compact trail PNG.</summary>
-public sealed record ProjectileTrailAppearance
+public sealed partial record ProjectileTrailAppearance
 {
     /// <summary>Zero-based gameplay OBJ tile column 0..15; with the row this produces character number row * 16 + column.</summary>
     public required int TileColumn { get; init; }

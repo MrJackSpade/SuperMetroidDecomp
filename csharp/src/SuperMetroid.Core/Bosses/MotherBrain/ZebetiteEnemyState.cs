@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The state of one half of Tourian's Zebetite barrier.</summary>
-public sealed class ZebetiteEnemyState
+public sealed partial class ZebetiteEnemyState
 {
     /// <summary>
     /// Creates the state for one Zebetite half from its spawn parameters: its pairing. It has no linked half until a

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The import's four auxiliary enemy colour families (#1637), import data only the import pre-colours their sheets' shades
 /// from; runtime AI retains update cadence, drain-stage progression, and health-band selection.
 /// </summary>
-public sealed record EnemyAuxiliaryColorDocument
+public sealed partial record EnemyAuxiliaryColorDocument
 {
     /// <summary>Schema revision, which must equal <see cref="EnemyAuxiliaryColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

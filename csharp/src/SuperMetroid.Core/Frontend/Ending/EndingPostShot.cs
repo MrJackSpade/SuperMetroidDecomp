@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>After the shot: rotate the shot graphic, fade Samus, and hold before the white flash.</summary>
-internal sealed class EndingPostShot
+internal sealed partial class EndingPostShot
 {
     /// <summary>The shot picture's fade out (#2541): a step on each of the shot's updates from its first.</summary>
     private readonly PacedFadeSteps shotFade = new(EndingPostShotDefinitions.FadeSteps, EndingPostShotDefinitions.FadeUpdatesPerStep,
@@ -19,7 +19,7 @@ internal sealed class EndingPostShot
     /// <summary>Where the shot stands (#2560): rotating down to its minimum zoom, holding there, or handed to the white flash.</summary>
     private Stage stage;
     /// <summary>Indicates that the shot graphic has reached its minimum zoom.</summary>
-    private bool RotationFinished => stage != Stage.Rotating;
+    internal bool RotationFinished => stage != Stage.Rotating;
     /// <summary>Advances the rotation, both colour fades and the white-flash handoff by one update.</summary>
     /// <returns>Whether the hold has expired, which hands the ending over to the white flash.</returns>
     public bool Step(EndingScreen screen)

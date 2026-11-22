@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Seven contiguous native scrolling-sky tilemap pages, selected by host artwork.</summary>
-public sealed class RoomSkyTilemaps
+public sealed partial class RoomSkyTilemaps
 {
     /// <summary>The tiles of the seven selected sky pages, in scrolling order.</summary>
-    private readonly BackgroundTile[] pages;
+    internal readonly BackgroundTile[] pages;
 
     /// <summary>The land rows, built when first shown.</summary>
     private SkyTilemap? land;

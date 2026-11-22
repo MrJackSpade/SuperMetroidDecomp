@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Which scene page each part of the opening cinematic shows (#1404).</summary>
-internal static class IntroScenePages
+internal static partial class IntroScenePages
 {
     /// <summary>The laboratory of each scene.</summary>
     private static IdentityTable<IntroLaboratoryScene, IntroScenePage> LaboratoryByScene => field ??= new(new Dictionary<IntroLaboratoryScene, IntroScenePage>

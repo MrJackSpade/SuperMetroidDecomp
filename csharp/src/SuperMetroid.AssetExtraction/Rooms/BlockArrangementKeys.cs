@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each shot-block shape (<see cref="BlockArrangement"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class BlockArrangementKeys
+internal static partial class BlockArrangementKeys
 {
     /// <summary>Each BlockArrangement member's installed key.</summary>
     internal static InstalledKeys<BlockArrangement> Installed { get; } = new(new Dictionary<BlockArrangement, string>

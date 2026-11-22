@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// each other hole and back into the same hole, and six inside the wall, one between each pair of holes, walked
 /// forward from the first hole of the pair and backward from the second.
 /// </summary>
-internal static class BotwoonPathDefinitions
+internal static partial class BotwoonPathDefinitions
 {
     /// <summary>In the open from the left hole to the bottom hole.</summary>
     private static readonly BotwoonPathStep[] OpenLeftToBottom =

@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// import-data directory (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. A room's
 /// background changes through its pictures in the installed block sheets.
 /// </summary>
-public static class RoomBackgroundTilemapArtworkFiles
+public static partial class RoomBackgroundTilemapArtworkFiles
 {
     /// <summary>Import-data manifest filename recording every background tilemap, its length, and its JSON hash.</summary>
-    private const string ManifestFileName = "room-backgrounds.json";
+    internal const string ManifestFileName = "room-backgrounds.json";
     /// <summary>
     /// Manifest revision; 2 names each tilemap for its background rather than its cartridge address (#1414), and 3 writes the
     /// tilemaps as import data, not installed (#1638).
@@ -58,8 +58,7 @@ public static class RoomBackgroundTilemapArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomBackgroundFileManifest(FormatVersion, sourceCartridgeSha256, entries), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomBackgroundFileManifest(FormatVersion, sourceCartridgeSha256, entries), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapArtworkFiles.RoomBackgroundFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the backgrounds' provenance and compiles each tilemap document of the component's import data, without cartridge access.</summary>
@@ -118,8 +117,8 @@ public static class RoomBackgroundTilemapArtworkFiles
     };
 
     /// <summary>One stock tilemap's name, decompressed length in bytes, and JSON digest.</summary>
-    private sealed record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
+    internal sealed partial record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
     /// <summary>Records cartridge provenance and complete stock background tilemap coverage.</summary>
-    private sealed record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);
 }

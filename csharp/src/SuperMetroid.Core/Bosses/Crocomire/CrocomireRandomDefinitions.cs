@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The random choices of Crocomire's fight and death: its dust, its acid smoke and its bridge's fragments.</summary>
-internal static class CrocomireRandomDefinitions
+internal static partial class CrocomireRandomDefinitions
 {
     /// <summary>A dying Crocomire's acid smoke offset from its body's X, 0 through 63 pixels.</summary>
     internal static readonly RandomSampleField AcidSmokeXOffset = RandomSampleField.OneOf(64);

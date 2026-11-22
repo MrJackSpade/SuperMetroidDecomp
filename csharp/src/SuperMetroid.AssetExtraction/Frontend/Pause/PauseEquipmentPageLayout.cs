@@ -14,13 +14,13 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// the wireframe, the reserve labels and digits, and the arrow's colouring. The import cuts the page's pictures from these
 /// layouts and verification compares them with native VRAM.
 /// </summary>
-internal static class PauseEquipmentPageLayout
+internal static partial class PauseEquipmentPageLayout
 {
     /// <summary>Cells across the equipment page.</summary>
     internal const int Columns = PauseEquipmentBaseDefinitions.Columns;
 
     /// <summary>The equipment page's tiles, row by row, as the cartridge writes them for <paramref name="page"/>.</summary>
-    private static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
+    internal static BackgroundTile[] LayOut(ImportAreaMapPresentation maps, ShownEquipmentPage page)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(page);
@@ -154,7 +154,7 @@ internal static class PauseEquipmentPageLayout
     /// <param name="AfterWireframe">The cells parts placed after the wireframe write.</param>
     /// <param name="AfterLabels">The cells parts placed after the labels write.</param>
     /// <param name="AfterHyper">The cells parts placed after Hyper's column write.</param>
-    private sealed record PageParts(ImportAreaMapPresentation Maps, PageFootprints Footprints, HashSet<int> AfterReserve,
+    private sealed partial record PageParts(ImportAreaMapPresentation Maps, PageFootprints Footprints, HashSet<int> AfterReserve,
         HashSet<int> AfterWireframe, HashSet<int> AfterLabels, HashSet<int> AfterHyper)
     {
         /// <summary>Every cell any part writes.</summary>
@@ -205,7 +205,7 @@ internal static class PauseEquipmentPageLayout
     /// <param name="Mode">The MODE label's cells and its AUTO and MANUAL replacements'.</param>
     /// <param name="Tank">The RESERVE TANK label's cells.</param>
     /// <param name="Arrow">The reserve arrow's cells.</param>
-    private sealed record PageFootprints(int[] Dynamic, int[] HyperColumn, int[] Wireframe, int[] Reserve, int[] Mode, int[] Tank, int[] Arrow)
+    private sealed partial record PageFootprints(int[] Dynamic, int[] HyperColumn, int[] Wireframe, int[] Reserve, int[] Mode, int[] Tank, int[] Arrow)
     {
         /// <summary>The footprints of <paramref name="maps"/>' equipment artwork.</summary>
         /// <exception cref="InvalidDataException">Two parts overlap in a way the pictures cannot keep apart.</exception>

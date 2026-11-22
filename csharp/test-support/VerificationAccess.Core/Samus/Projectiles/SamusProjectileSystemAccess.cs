@@ -8,7 +8,7 @@ internal static class SamusProjectileSystemAccess
     {
         /// <summary>The live trails, oldest first.</summary>
         internal IReadOnlyList<SamusProjectileTrail> LiveTrails =>
-            PrivateState.Field<ProjectileTrails, List<SamusProjectileTrail>>(self.Trails, "trails");
+            self.Trails.trails;
 
         /// <summary>Starts a trail already under way, as a restored game does, and returns it.</summary>
         /// <param name="origin">The place of the shot that left the trail, which both sparkles stand from.</param>

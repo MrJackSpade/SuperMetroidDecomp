@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// The Boulder's mirrored rolling loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class BoulderAnimations
+internal static partial class BoulderAnimations
 {
     /// <summary>The updates each of the Boulder's turned frames shows for.</summary>
     private const int TurnUpdates = 8;
 
     /// <summary>The Boulder rolling left, an eighth of a turn a frame.</summary>
-    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] RollingLeft { get; } = Beats.Steady(TurnUpdates,
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>.Unpaused[] RollingLeft { get; } = Beats.Steady(TurnUpdates,
         EnemyFrameId.BoulderTurned0, EnemyFrameId.BoulderTurned45, EnemyFrameId.BoulderTurned90, EnemyFrameId.BoulderTurned135,
         EnemyFrameId.BoulderTurned180, EnemyFrameId.BoulderTurned225, EnemyFrameId.BoulderTurned270, EnemyFrameId.BoulderTurned315);
 
@@ -28,7 +28,7 @@ internal static class BoulderAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = Segments.EachLooping(P.Left, P.Right);
+    internal static Dictionary<BoulderSegment, Animation<BoulderSegment>> StartingAt { get; } = Segments.EachLooping(P.Left, P.Right);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BoulderSegment> StartingWith(BoulderSegment segment) => StartingAt[segment];

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number Crocomire's acid smoke reads for its side, exactly as the game read it")]
-internal static class CrocomireRandomRolls
+internal static partial class CrocomireRandomRolls
 {
     /// <summary>
     /// The roll of two the acid smoke's random number makes for the smoke's side: the number's second place, which the

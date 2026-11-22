@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// bit of the presence and exploration planes, and the tilemap word. The cartridge stores the map tiles and both one-bit
 /// planes as two adjacent pages rather than as 64-column rows.
 /// </summary>
-public static class AreaMapPages
+public static partial class AreaMapPages
 {
     /// <summary>Width of each 32-by-32 page; X coordinates 32..63 select the second page rather than extending a 64-cell row.</summary>
     public const int PageWidthInTiles = 32;

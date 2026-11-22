@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The shape and pacing of Phantoon's enraged flame waves, independent of how each flame then moves.</summary>
-internal static class PhantoonRageDefinitions
+internal static partial class PhantoonRageDefinitions
 {
     /// <summary>The flame waves his rage sends before his eye closes and he fades out.</summary>
     internal const int WaveCount = 8;

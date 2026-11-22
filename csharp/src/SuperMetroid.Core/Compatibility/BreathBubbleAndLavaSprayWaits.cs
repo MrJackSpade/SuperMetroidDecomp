@@ -27,13 +27,13 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("Samus's breath bubbles and lava spray wait for the splashes, dust and spray that shared their places to run out")]
-public sealed class BreathBubbleAndLavaSprayWaits
+public sealed partial class BreathBubbleAndLavaSprayWaits
 {
     /// <summary>The wait for the effect holding up the next breath bubble to run out; over when none does.</summary>
-    private readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();
+    internal readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();
 
     /// <summary>The wait for the effect holding up the next lava spray to run out; over when none does.</summary>
-    private readonly UpdateCountdown sprayWait = UpdateCountdown.Ended();
+    internal readonly UpdateCountdown sprayWait = UpdateCountdown.Ended();
 
     /// <summary>Whether a breath bubble may form.</summary>
     public bool BubbleCanForm => bubbleWait.IsOver;

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="CollidesByFrameHitboxes">Whether the enemy collides by its frames' hitboxes rather than by its radius.</param>
 /// <param name="SpawnSettings">What the entry tells its species about how to start, decoded by the import (#1471, #1472).</param>
 [IndependentFlag("whether an authored placement collides by its frames' hitboxes, a fact of the population data")]
-public sealed record RoomEnemyPlacement(
+public sealed partial record RoomEnemyPlacement(
     EnemyDefinitionId DefinitionId,
     EnemyPlacing Placing,
     EnemyContact Contact,

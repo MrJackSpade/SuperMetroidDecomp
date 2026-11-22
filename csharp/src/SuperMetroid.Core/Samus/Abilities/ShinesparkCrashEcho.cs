@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// shot first moves.
 /// </summary>
 /// <param name="release">Which of the crash's two echoes this is.</param>
-public sealed class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
+public sealed partial class ShinesparkCrashEcho(ShinesparkCrashEchoRelease release)
 {
     /// <summary>Where the echo was last placed: Samus's position as it departed, then where its shot moved it.</summary>
     private Position16<RoomPixels> _position;
 
     /// <summary>The shot that carries the echo, or none before the echo first departs and after Samus's shots are cleared.</summary>
-    private SamusProjectile? Shot { get; set; }
+    internal SamusProjectile? Shot { get; set; }
 
     /// <summary>Where the echo is shown, or none once no shot carries it.</summary>
     public Position16<RoomPixels>? ShownPosition =>

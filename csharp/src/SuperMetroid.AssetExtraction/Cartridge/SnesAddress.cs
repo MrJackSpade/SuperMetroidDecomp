@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// bank when a 65C816 routine advances only its sixteen-bit pointer register.
 /// </remarks>
 [EncodingOwner("cartridge bank and offset address")]
-public readonly record struct SnesAddress
+public readonly partial record struct SnesAddress
 {
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>
     public SnesAddress(byte bank, ushort offset)

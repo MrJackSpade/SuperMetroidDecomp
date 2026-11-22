@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <param name="RisingSpeeds">The piece's vertical speed on each update it rises, in order; negative rises.</param>
 /// <param name="Updates">The updates the curve covers; every piece has landed before its curve ends.</param>
-internal sealed record IntroEggFallCurve(ImmutableArray<SignedSixteenSixteen> RisingSpeeds, int Updates)
+internal sealed partial record IntroEggFallCurve(ImmutableArray<SignedSixteenSixteen> RisingSpeeds, int Updates)
 {
     /// <summary>The piece's vertical speed on the update after it has flown <paramref name="updatesFlown"/> updates.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updatesFlown"/> is negative or past the curve.</exception>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The cartridge's gameplay sprite character table, which the import composes sprite looks over (#1392, #1466).</summary>
-public static class SpriteCharacterTableLayout
+public static partial class SpriteCharacterTableLayout
 {
     /// <summary>Bytes one sprite character of installed artwork holds, the unit the artwork definitions count in.</summary>
     public const int CharacterByteCount = 32;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// Polyp's stationary pose as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class PolypAnimations
+internal static partial class PolypAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PolypSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -21,7 +21,7 @@ internal static class PolypAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<PolypSegment, Animation<PolypSegment>> StartingAt { get; } = new Dictionary<PolypSegment, Animation<PolypSegment>>
+    internal static Dictionary<PolypSegment, Animation<PolypSegment>> StartingAt { get; } = new Dictionary<PolypSegment, Animation<PolypSegment>>
     {
         [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.Holds),
     };

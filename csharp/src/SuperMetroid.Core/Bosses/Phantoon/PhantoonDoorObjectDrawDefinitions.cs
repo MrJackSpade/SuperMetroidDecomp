@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// door's top block and, for the fight's door, the column beside it, where the grey door's closed cap sits, collides as
 /// that cap does: a shootable block over three vertical extensions. What each frame shows is its installed picture.
 /// </summary>
-internal static class PhantoonDoorObjectDrawDefinitions
+internal static partial class PhantoonDoorObjectDrawDefinitions
 {
     /// <summary>The restored door frame: the door's transition column, four door blocks down from its top block.</summary>
     private static readonly RoomBlockShape RestoredDoor = RoomBlockShapes.Column(4, RoomCollisionType.DoorBlock);

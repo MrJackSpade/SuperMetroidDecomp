@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Definitions are grouped by the part of Samus's movement they define. Her live velocity, timers and the selected
 /// movement do not belong in this catalog.
 /// </remarks>
-public static class SamusMovementDefinitions
+public static partial class SamusMovementDefinitions
 {
     /// <summary>How far a moving elevator carries Samus down each update: one whole pixel.</summary>
     public static SignedSixteenSixteen ElevatorCarry { get; } = SignedSixteenSixteen.FromWholePixels(1);
@@ -40,7 +40,7 @@ public static class SamusMovementDefinitions
     public const int SpeedEchoVerticalApproach = 2;
 
     /// <summary>Samus's horizontal acceleration: how fast her extra run speed builds.</summary>
-    public static class HorizontalMotion
+    public static partial class HorizontalMotion
     {
         /// <summary>Per-frame extra-run acceleration while charging the Speed Booster: a sixteenth of a pixel.</summary>
         public static readonly UnsignedSixteenSixteen ExtraRunAcceleration = UnsignedSixteenSixteen.FromPixelFraction(1, 16);

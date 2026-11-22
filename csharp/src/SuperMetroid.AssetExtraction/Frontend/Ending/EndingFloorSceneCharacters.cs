@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// the high-byte lane the ending floor sheets compose from. The discarded odd bytes of the native packed map source never
 /// reach visible VRAM because the subsequent high-byte-only transfer overwrites them.
 /// </summary>
-public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
+public sealed partial class EndingFloorSceneCharacters : EndingFloorSceneArtwork
 {
     /// <summary>Retains the validated low-byte map and high-byte character lanes for one scene.</summary>
     /// <param name="map">The row-ordered tile indices.</param>
@@ -61,8 +61,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
     public static void WriteMap(Stream json, EndingFloorMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 
@@ -72,8 +71,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
         EndingFloorMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
         }
         catch (JsonException error)

@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// container's and Baby's rows, Ridley's own row, and the room's tile groups the retreat, floor zoom and Norfair's reveal
 /// recolour; and the colours and alarm of the self-destruct warning's own written pictures (#1544).
 /// </summary>
-internal static class RidleySheetShades
+internal static partial class RidleySheetShades
 {
     /// <summary>The Baby's shades in the order Ceres Ridley's sheet lists them (#2567).</summary>
     private static readonly IReadOnlyList<CeresBabyShade> BabyShadeOrder = Ensure.EveryMemberOnce<CeresBabyShade>(
@@ -115,7 +115,7 @@ internal static class RidleySheetShades
     /// The shades of Ceres Ridley's sprites: the door's, container's and Baby's start colours, his cleared own row, his
     /// eye and body fades, his health bands, and the Baby's shades.
     /// </summary>
-    private static List<SheetShade> CeresSprites(CeresRidleyColorCatalog ceres)
+    internal static List<SheetShade> CeresSprites(CeresRidleyColorCatalog ceres)
     {
         Ensure.NotNull(ceres);
         var shades = new List<SheetShade>
@@ -149,7 +149,7 @@ internal static class RidleySheetShades
     }
 
     /// <summary>The shades of Norfair Ridley's sprites: the colours his initialization loads and his cleared own row.</summary>
-    private static IReadOnlyList<SheetShade> NorfairSprites(NorfairRidleyColorCatalog norfair)
+    internal static IReadOnlyList<SheetShade> NorfairSprites(NorfairRidleyColorCatalog norfair)
     {
         Ensure.NotNull(norfair);
         return [SheetShade.Run(RidleyShades.NorfairStart, StartFirstInk, Colours(NorfairRidleyColorFormat.InitialColorCount, norfair.ResolveInitial)),
@@ -157,7 +157,7 @@ internal static class RidleySheetShades
     }
 
     /// <summary>The shades of Ceres Ridley's room: his retreat and the getaway floor's zoom.</summary>
-    private static List<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor)
+    internal static List<SheetShade> CeresRoom(CeresRidleyColorCatalog ceres, CeresRidleyFloorColorCatalog floor)
     {
         Ensure.NotNull(ceres);
         Ensure.NotNull(floor);
@@ -175,7 +175,7 @@ internal static class RidleySheetShades
     }
 
     /// <summary>The shades of Norfair Ridley's arena: its sixth tile group cleared as he arrives, and each step of its reveal.</summary>
-    private static List<SheetShade> NorfairRoom(NorfairRidleyColorCatalog norfair)
+    internal static List<SheetShade> NorfairRoom(NorfairRidleyColorCatalog norfair)
     {
         Ensure.NotNull(norfair);
         var shades = new List<SheetShade> { SheetShade.Run(RidleyShades.NorfairHidden, OwnRow + 1, new RgbColor[Group - 1]) };

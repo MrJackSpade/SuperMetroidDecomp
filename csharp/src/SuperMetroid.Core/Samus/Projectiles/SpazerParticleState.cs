@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
 /// <param name="turnPerUpdate">The particle's turn round Samus each update while it circles, its own way round.</param>
-internal sealed class SpazerParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate)
+internal sealed partial class SpazerParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate)
     : OrbitingParticleState(part, TrigonometryAngle.Zero, BeamComboDefinitions.SpazerCirclingRadius, turnPerUpdate)
 {
     /// <summary>The particle's phase.</summary>

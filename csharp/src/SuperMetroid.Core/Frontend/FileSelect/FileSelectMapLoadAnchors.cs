@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>The player-map anchors used when the map opens, independent of editable marker artwork.</summary>
-public static class FileSelectMapLoadAnchors
+public static partial class FileSelectMapLoadAnchors
 {
     /// <summary>Projects a valid saved station from its placement and the room definitions.</summary>
     /// <remarks>

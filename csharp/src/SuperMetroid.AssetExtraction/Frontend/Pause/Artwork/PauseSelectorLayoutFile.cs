@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// compositions, whose parts are the original's packed sprite placements, are import data
 /// (<see cref="PauseSelectorFormat.ArtworkFileName"/>).
 /// </summary>
-public static class PauseSelectorLayoutFile
+public static partial class PauseSelectorLayoutFile
 {
     /// <summary>Supported layout revision.</summary>
     public const int Version = 1;
@@ -24,7 +24,7 @@ public static class PauseSelectorLayoutFile
         return JsonSerializer.SerializeToUtf8Bytes(new PauseSelectorLayoutDocument
         {
             Version = Version, InitialDurationTicks = document.InitialDurationTicks, Anchors = document.Anchors, Animation = document.Animation,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseSelectorLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout: the anchors, frame sequences and timing the game binds.</summary>

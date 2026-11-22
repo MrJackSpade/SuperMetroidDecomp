@@ -14,4 +14,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Shade">The shade's name, which the game's draws give.</param>
 /// <param name="Row">The palette row the draw selects.</param>
 /// <param name="SpriteColours">The eight sprite rows' colours, sixteen each, as the selected row shows them.</param>
-internal sealed record SheetRowShade(PictureShade Shade, int Row, RgbColor[] SpriteColours);
+internal sealed partial record SheetRowShade(PictureShade Shade, int Row, RgbColor[] SpriteColours);

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="FacingLeft">The segment the animation starts at while he faces left.</param>
 /// <param name="FacingRight">The segment the animation starts at while he faces right or turns.</param>
-internal readonly record struct RidleyFacedAnimation(RidleyBodySegment FacingLeft, RidleyBodySegment FacingRight)
+internal readonly partial record struct RidleyFacedAnimation(RidleyBodySegment FacingLeft, RidleyBodySegment FacingRight)
 {
     /// <summary>The segment the animation starts at for <paramref name="facing"/>.</summary>
     internal RidleyBodySegment For(RidleyFacing facing) => facing == RidleyFacing.Left ? FacingLeft : FacingRight;

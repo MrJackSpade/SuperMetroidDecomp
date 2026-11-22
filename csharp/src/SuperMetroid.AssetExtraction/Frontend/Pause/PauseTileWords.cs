@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Decodes the cartridge's pause-screen tilemap words into the editable atlas cells the pause documents hold (#1466).</summary>
-internal static class PauseTileWords
+internal static partial class PauseTileWords
 {
     /// <summary>Decodes a packed pause tile into its selected map or interface atlas cell and display attributes.</summary>
     /// <param name="raw">The packed pause tile, 0 through 65535.</param>

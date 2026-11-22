@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>How long an Etecoon's waits last and how it falls (#2149).</summary>
-internal static class EtecoonTimingDefinitions
+internal static partial class EtecoonTimingDefinitions
 {
     /// <summary>
     /// How long a woken Etecoon flexes before its first hop, in updates: the longest wait an Etecoon makes.

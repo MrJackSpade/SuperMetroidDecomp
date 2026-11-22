@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Rendering;
 /// negative, and the room's background plane, which does not repeat, shows nothing there.
 /// </param>
 /// <param name="Room">The room's background plane the band shows (#1346, #1403), drawn from its block pictures.</param>
-public readonly record struct TurningRoomLowerBand(int FirstLine, Offset16<BackgroundPixels> Scroll, RoomBackgroundLayer Room);
+public readonly partial record struct TurningRoomLowerBand(int FirstLine, Offset16<BackgroundPixels> Scroll, RoomBackgroundLayer Room);

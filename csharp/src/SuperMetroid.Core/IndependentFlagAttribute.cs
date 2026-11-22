@@ -6,7 +6,7 @@ namespace SuperMetroid.Core;
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Class |
     AttributeTargets.Struct | AttributeTargets.Field | AttributeTargets.Property, Inherited = false)]
-public sealed class IndependentFlagAttribute : Attribute
+public sealed partial class IndependentFlagAttribute : Attribute
 {
     /// <summary>Marks an independent flag; the analyzers read the reason from the attribute argument.</summary>
     /// <param name="reason">The fact the bool states and where it comes from.</param>

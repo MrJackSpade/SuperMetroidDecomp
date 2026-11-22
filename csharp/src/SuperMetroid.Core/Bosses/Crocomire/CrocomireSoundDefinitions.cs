@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's enemy-library sound effects, queued at normal priority.</summary>
-internal static class CrocomireSoundDefinitions
+internal static partial class CrocomireSoundDefinitions
 {
     /// <summary>The sound queued as each fight projectile leaves the mouth.</summary>
     internal static readonly SoundEffectId ProjectileSpit = EnemySound.Rattle;

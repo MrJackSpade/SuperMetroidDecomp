@@ -10,7 +10,7 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Compares Direct3D on the graphics device and the WARP reference for color windows, subscreen math, and message masks.</summary>
@@ -128,7 +128,7 @@ internal static class ColorWindowSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory,
                 new DisplayLayer[] { background,
-                    global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.MessageBoxLayer>([typeof(global::SuperMetroid.Core.Assets.SpriteSheetFrame), typeof(int)], new object?[] { SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius }) }, DisplayBrightness.Black.Brighter(13)));
+                    new global::SuperMetroid.Core.Rendering.MessageBoxLayer(SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(random, palette, rows), radius) }, DisplayBrightness.Black.Brighter(13)));
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }

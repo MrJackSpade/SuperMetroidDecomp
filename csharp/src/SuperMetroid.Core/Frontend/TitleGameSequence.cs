@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The title sequence: power-on or a soft reset starts it, then the title runs until a file select or an idle demo.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class TitleGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Title;
@@ -26,6 +26,7 @@ internal sealed class TitleGameSequence(FrontendSession session) : IGamePhase
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="TitleStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleStep, Action<ControllerButton>> StepForTitleStep => field ??= new(new Dictionary<TitleStep, Action<ControllerButton>>
     {
         [TitleStep.Starting] = controllerInput => Start(),

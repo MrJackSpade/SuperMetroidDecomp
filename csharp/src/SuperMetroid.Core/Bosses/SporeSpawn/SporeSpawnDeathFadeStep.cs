@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// shows each in turn, each a sixth more of the way from the colours his body, level and background start it in to the
 /// husk's, and a defeated room loads him at the last, the husk's colours.
 /// </summary>
-public readonly record struct SporeSpawnDeathFadeStep
+public readonly partial record struct SporeSpawnDeathFadeStep
 {
     /// <summary>The step whose installed shades are <paramref name="installedShade"/>.</summary>
     private SporeSpawnDeathFadeStep(int installedShade) => Step = installedShade;

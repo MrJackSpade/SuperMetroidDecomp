@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Jump, falling and landing actor definitions used after the reward gesture.</summary>
-internal static class EndingRewardJumpDefinitions
+internal static partial class EndingRewardJumpDefinitions
 {
     /// <summary>Initial upward velocity applied when the reward jump begins.</summary>
     public static SignedSixteenSixteen LaunchVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-16);

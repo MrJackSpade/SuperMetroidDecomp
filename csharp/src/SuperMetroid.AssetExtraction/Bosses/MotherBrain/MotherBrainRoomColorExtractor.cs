@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
-internal static class MotherBrainRoomColorExtractor
+internal static partial class MotherBrainRoomColorExtractor
 {
     /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>
     internal static ushort FlashPaletteOperandAddress(int index) =>

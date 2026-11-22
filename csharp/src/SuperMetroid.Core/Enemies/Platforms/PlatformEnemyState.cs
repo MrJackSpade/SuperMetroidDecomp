@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// movement and art it has selected. It reads its patrol speed and its acceleration's cap from its spawn settings as it
 /// moves (#2439).
 /// </summary>
-public sealed class PlatformEnemyState
+public sealed partial class PlatformEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PlatformSegment> Playback { get; set; }

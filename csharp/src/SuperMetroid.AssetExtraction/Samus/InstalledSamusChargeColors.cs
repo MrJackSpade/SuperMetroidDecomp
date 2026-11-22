@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The installed Samus body colours during beam charge, pseudo-Screw, and Hyper-shot glow, every suit's phase rows
 /// and every Hyper-shot frame kept as installed.
 /// </summary>
-public sealed class InstalledSamusChargeColors
+public sealed partial class InstalledSamusChargeColors
 {
     /// <summary>The installed charged-beam rows, keyed by suit, then by phase and colour.</summary>
     private readonly Dictionary<SamusSuit, RgbColor[][]> chargedBeam;

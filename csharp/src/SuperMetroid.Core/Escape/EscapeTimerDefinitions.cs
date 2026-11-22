@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>The escape timer's durations, clock units, startup delays and on-screen motion.</summary>
-internal static class EscapeTimerDefinitions
+internal static partial class EscapeTimerDefinitions
 {
     /// <summary>Seconds in one minute of the countdown.</summary>
     internal const int SecondsPerMinute = 60;

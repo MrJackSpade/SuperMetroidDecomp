@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.WreckedShip;
 
 /// <summary>The Wrecked Ship entrance treadmills: their spawns and the belt row a treadmill runs.</summary>
-internal sealed class WreckedShipTreadmillObjects
+internal sealed partial class WreckedShipTreadmillObjects
 {
     /// <summary>The room's room objects, which the treadmill joins.</summary>
     private readonly RoomObjectPlaceList _places;

@@ -58,7 +58,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ProjectileLaunchInhe
             Write(offset, distance.UnsignedWholePixels);
             Write(offset + 2, distance.Fraction);
         }
-        Write(0, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Compatibility.ProjectileLaunchInheritance, global::SuperMetroid.Core.Spatial.SignedSixteenSixteen>(inheritance, "CameraVerticalSpeed").Fraction);
+        Write(0, inheritance.CameraVerticalSpeed.Fraction);
         WriteDistance(FirstRecordOffset, inheritance.Distance(HorizontalDirection.Left));
         WriteDistance(FirstRecordOffset + RecordByteCount, inheritance.Distance(HorizontalDirection.Right));
         WriteDistance(FirstRecordOffset + RecordByteCount * 2, inheritance.Distance(VerticalDirection.Up));

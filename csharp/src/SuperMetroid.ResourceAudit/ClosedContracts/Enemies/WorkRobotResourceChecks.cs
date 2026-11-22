@@ -50,8 +50,7 @@ internal static class WorkRobotResourceChecks
 
     /// <summary>Loads a constructed projectile artwork document.</summary>
     private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document) =>
-        EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+        EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
 
     /// <summary>Reports a failed resource contract with context for the audit command.</summary>
     private static void Require(bool condition, string message)

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// What each scroll extension writes at its block (#2481): the way back toward the trigger it extends, which its
 /// extension collision and behaviour follow. A placement's setup carries the extension it places.
 /// </summary>
-internal static class ScrollExtensionDefinitions
+internal static partial class ScrollExtensionDefinitions
 {
     /// <summary>An extension reaching right from its trigger: its trigger is the block to its left.</summary>
     internal static ScrollExtension Rightwards { get; } = new(ScrollExtensionDirection.Left);

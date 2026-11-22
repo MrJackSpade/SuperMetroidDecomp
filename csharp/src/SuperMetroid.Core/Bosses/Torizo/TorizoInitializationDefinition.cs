@@ -12,5 +12,5 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </param>
 /// <param name="Processing">The processing it adds to its population's.</param>
 /// <param name="Radius">Its collision radii.</param>
-internal readonly record struct TorizoInitializationDefinition(
+internal readonly partial record struct TorizoInitializationDefinition(
     Position16<RoomPixels> Position, TorizoAnimation Animation, SuperMetroid.Core.Enemies.Artwork.EnemyFrameId InitialFrame, SuperMetroid.Core.Enemies.EnemyProcessing Processing, Extent16<RoomPixels> Radius);

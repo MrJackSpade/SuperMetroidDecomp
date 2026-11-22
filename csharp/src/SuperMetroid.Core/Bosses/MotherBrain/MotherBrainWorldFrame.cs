@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Frame">The frame shown.</param>
 /// <param name="World">Its room position.</param>
 /// <param name="Shading">The shading it draws in.</param>
-internal readonly record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, PictureShading Shading);
+internal readonly partial record struct MotherBrainWorldFrame(EnemyFrameId Frame, Position16<RoomPixels> World, PictureShading Shading);

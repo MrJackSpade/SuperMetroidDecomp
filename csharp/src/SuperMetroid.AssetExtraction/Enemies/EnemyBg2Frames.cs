@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The bosses' installed BG2 frame documents: loading and validating their named frames, which the import composes the
 /// bosses' body sheets from (#1466), and their identity.
 /// </summary>
-internal static class EnemyBg2Frames
+internal static partial class EnemyBg2Frames
 {
 
     /// <summary>Validates a complete named frame document and compiles its horizontal tile runs to BG2 destinations.</summary>

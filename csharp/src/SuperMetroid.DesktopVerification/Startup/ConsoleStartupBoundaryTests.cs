@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using SuperMetroid.DesktopVerification.Harness;
 
 namespace SuperMetroid.DesktopVerification.Startup;
 
@@ -22,7 +23,7 @@ internal static class ConsoleStartupBoundaryTests
             RedirectStandardOutput = true,
             UseShellExecute = false,
         };
-        start.ArgumentList.Add(typeof(ConsoleStartupBoundaryTests).Assembly.Location);
+        start.ArgumentList.Add(VerifierAssembly.Path);
         start.ArgumentList.Add(FailingChildFlag);
         using Process child = Process.Start(start) ?? throw new InvalidOperationException("Could not start the console-boundary child.");
         Task<string> output = child.StandardOutput.ReadToEndAsync();

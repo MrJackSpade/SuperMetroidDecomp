@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
@@ -26,7 +27,7 @@ internal static class NorfairGlowVerification
         foreach (var stream in streams)
         {
             var fxSession = new ColourEffectSessionState();
-            var fx = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var fx = new global::SuperMetroid.Core.Fx.ColourEffectSystem(fxSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             var colors = new SnesCgram();
             fx.Start(stream.Definition, 0);
             ushort[] ramp = stream.Definition == 0xf791 ? red : orange;

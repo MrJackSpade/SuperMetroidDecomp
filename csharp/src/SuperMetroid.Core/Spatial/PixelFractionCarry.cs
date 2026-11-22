@@ -7,13 +7,13 @@ namespace SuperMetroid.Core.Spatial;
 /// carried travel crosses a pixel. The carry is kept apart from the position's own fraction, which such a mover leaves as
 /// it was.
 /// </summary>
-public readonly record struct PixelFractionCarry
+public readonly partial record struct PixelFractionCarry
 {
     /// <summary>Keeps a part of a pixel already checked to lie within one pixel.</summary>
-    private PixelFractionCarry(SignedEightEight part) => Part = part;
+    internal PixelFractionCarry(SignedEightEight part) => Part = part;
 
     /// <summary>The part of a pixel carried: none up to, but not including, one pixel.</summary>
-    private SignedEightEight Part { get; }
+    internal SignedEightEight Part { get; }
 
     /// <summary>No travel carried.</summary>
     public static PixelFractionCarry None => default;

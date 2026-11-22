@@ -7,16 +7,16 @@ namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 /// Editable entrance, eye-glow, and grey-transition RGB5 colors for the Tourian statue, which the import pre-colours the
 /// statue scene's shades from (#1512).
 /// </summary>
-public sealed class TourianStatuePalettes
+public sealed partial class TourianStatuePalettes
 {
     /// <summary>Sixteen base-decoration inks.</summary>
-    private readonly PaletteBand baseColors;
+    internal readonly PaletteBand baseColors;
     /// <summary>Sixteen statue-body inks.</summary>
-    private readonly PaletteBand statueColors;
+    internal readonly PaletteBand statueColors;
     /// <summary>Each boss statue's eye glow, overlaid on base-decoration colors nine through twelve.</summary>
     private readonly Dictionary<TourianStatue, PaletteBand> eyeColors;
     /// <summary>Eight grey inks a released statue takes.</summary>
-    private readonly PaletteBand greyColors;
+    internal readonly PaletteBand greyColors;
 
     /// <summary>Keeps the base, statue, eye, and grey colors as independent paint bands.</summary>
     /// <param name="baseColors">The base-decoration band.</param>
@@ -51,7 +51,7 @@ public sealed class TourianStatuePalettes
     public RgbColor GreyColor(int color) => greyColors.Read(color);
 
     /// <summary>One installed band of colours, held whole as the player may have edited them.</summary>
-    internal sealed class PaletteBand
+    internal sealed partial class PaletteBand
     {
         /// <summary>Every installed colour of the band, in palette order.</summary>
         private readonly RgbColor[] colors;

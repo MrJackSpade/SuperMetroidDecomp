@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// record (<see cref="PersistentProgress.UsedStations"/>) keeps the stations Samus has used, and the room loader reads
 /// where loading at the station puts Samus from the station's placement.
 /// </summary>
-public sealed class LoadStation
+public sealed partial class LoadStation
 {
     /// <summary>Names one load station.</summary>
     /// <param name="name">The station's name.</param>

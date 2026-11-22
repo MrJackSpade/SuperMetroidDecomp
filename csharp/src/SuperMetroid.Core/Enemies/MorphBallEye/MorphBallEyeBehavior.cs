@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -72,6 +72,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMorphBallEyeMain"/> does for each <see cref="MorphBallEyeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MorphBallEyeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>> RunMorphBallEyeMainForMorphBallEyeAction => field ??= new(new Dictionary<MorphBallEyeAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MorphBallEyeEnemyState, SamusState>>
     {
         [MorphBallEyeAction.WaitForSamus] = (occupant, place, state, samus) => WaitForSamusNearMorphBallEye(occupant, place, state, samus),
@@ -190,6 +191,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="StepMorphBallEyeBeam"/> does for each <see cref="MorphBallEyeBeamPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MorphBallEyeBeamPhase, Action> StepMorphBallEyeBeamForMorphBallEyeBeamPhase => field ??= new(new Dictionary<MorphBallEyeBeamPhase, Action>
     {
         [MorphBallEyeBeamPhase.Inactive] = () => { },
@@ -238,7 +240,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
-    private void StepFullMorphBallEyeBeam()
+    internal void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = BeamEyeState();
         if (!bodyState.IsActivated)

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 /// Editable Ceres escape warning and door characters. The transfer order,
 /// sizes and destinations remain compiled gameplay/presentation metadata.
 /// </summary>
-public sealed class CeresEscapeTileArtwork
+public sealed partial class CeresEscapeTileArtwork
 {
 
     /// <summary>Validated, owned warning-text and door atlases, by the page each holds.</summary>

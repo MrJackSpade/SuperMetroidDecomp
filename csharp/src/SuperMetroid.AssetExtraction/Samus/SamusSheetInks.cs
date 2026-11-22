@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the colour it shows (<see cref="SuperMetroid.AssetExtraction.Artwork.InstalledSheetConversion"/>), so nothing installed
 /// names an ink.
 /// </summary>
-internal static class SamusSheetInks
+internal static partial class SamusSheetInks
 {
     /// <summary>The colours of one sprite colour group.</summary>
     internal const int GroupColours = 16;

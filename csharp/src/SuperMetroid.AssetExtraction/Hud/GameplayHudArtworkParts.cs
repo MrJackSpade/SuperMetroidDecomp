@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// The installed HUD's tiles and layout as the import decodes them from the editable HUD document (#1466): the tile each
 /// element shows and the cells each sits in. The import validates them and pictures the HUD's images from them.
 /// </summary>
-internal sealed record GameplayHudArtworkParts
+internal sealed partial record GameplayHudArtworkParts
 {
     /// <summary>The static row above the three rows the HUD draws, one tile per column.</summary>
     public required ImmutableArray<BackgroundTile> TopRow { get; init; }

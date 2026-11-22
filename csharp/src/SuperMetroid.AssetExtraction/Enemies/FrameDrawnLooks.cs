@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Whether the frame's artwork is what its one look copies: a frame those copies never write reads only what the room's load
 /// or an earlier look leaves there, another family's artwork, so it shows nothing.
 /// </param>
-internal sealed record FrameDrawnLooks(IReadOnlyList<ComposedLook> Looks, bool ArtworkOfLook);
+internal sealed partial record FrameDrawnLooks(IReadOnlyList<ComposedLook> Looks, bool ArtworkOfLook);

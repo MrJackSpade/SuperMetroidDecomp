@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Terrain blocks the game writes by name.</summary>
-public static class RoomTerrainBlocks
+public static partial class RoomTerrainBlocks
 {
     /// <summary>
     /// A plain solid block with no picture, as the room never shows it (<see cref="RoomBlockAppearance.BeyondRoom"/>, #2100):

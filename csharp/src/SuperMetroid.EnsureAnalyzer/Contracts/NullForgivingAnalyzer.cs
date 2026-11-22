@@ -42,6 +42,9 @@ public sealed class NullForgivingAnalyzer : DiagnosticAnalyzer
     /// <summary>Reports the suppressed operand at the operator token.</summary>
     private static void Report(SyntaxNodeAnalysisContext context)
     {
+        // Code a source generator emits states what its generator writes, not the repository's code (#2602).
+        if (SuperMetroid.EnsureAnalyzer.SourceLayout.GeneratedSource.IsSourceGeneratorOutput(context.Node.SyntaxTree, context.CancellationToken))
+            return;
         var suppression = (Microsoft.CodeAnalysis.CSharp.Syntax.PostfixUnaryExpressionSyntax)context.Node;
         string operand = suppression.Operand.ToString();
         if (operand.Length > 60)

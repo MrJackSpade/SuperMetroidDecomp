@@ -7,10 +7,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The order the cartridge's beam tables index beam combinations by: a combination's place is its components' equipment
 /// bits, Wave lowest, then Ice, Spazer and Plasma. Only the import pipeline reads the tables, so only it knows the order.
 /// </summary>
-internal static class SamusBeamCombinationTableOrder
+internal static partial class SamusBeamCombinationTableOrder
 {
     /// <summary>The combinations in the order the beam tables index them.</summary>
-    private static readonly SamusBeamCombination[] TableOrder =
+    internal static readonly SamusBeamCombination[] TableOrder =
     [
         SamusBeamCombination.Power, SamusBeamCombination.Wave, SamusBeamCombination.Ice, SamusBeamCombination.IceWave,
         SamusBeamCombination.Spazer, SamusBeamCombination.SpazerWave, SamusBeamCombination.SpazerIce,

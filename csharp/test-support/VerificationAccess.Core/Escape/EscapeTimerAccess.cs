@@ -11,7 +11,7 @@ internal static class EscapeTimerAccess
     {
         /// <summary>Sets the remaining countdown, as the timer's start installs its duration.</summary>
         /// <param name="centiseconds">The remaining countdown, 0 through <see cref="EscapeTimerDefinitions.LongestTime"/>.</param>
-        internal void SetRemaining(int centiseconds) => PrivateState.Call(self, "SetRemaining", centiseconds);
+        internal void SetRemaining(int centiseconds) => self.SetRemaining(centiseconds);
 
         /// <summary>
         /// Starts the Ceres countdown and runs the timer's own updates until it counts down in its corner

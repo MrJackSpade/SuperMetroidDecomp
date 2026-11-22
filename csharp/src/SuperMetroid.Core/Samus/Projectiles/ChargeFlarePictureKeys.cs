@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The installed key of each main-flare and spark picture (#2520, #2553), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class ChargeFlarePictureKeys
+internal static partial class ChargeFlarePictureKeys
 {
     /// <summary>Each MainFlarePicture member's installed key.</summary>
     internal static InstalledKeys<MainFlarePicture> MainFlare { get; } = new(new Dictionary<MainFlarePicture, string>

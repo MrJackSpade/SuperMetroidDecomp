@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TBeams">A beam combination.</typeparam>
 /// <typeparam name="TBehavior">The frame behaviour a shot runs.</typeparam>
 [CompatibilityService("a Spazer and Plasma beam's shot runs the frame behaviour that follows the beam frame-behaviour lists")]
-public sealed class UnauthoredBeamShotBehaviors<TBeams, TBehavior>
+public sealed partial class UnauthoredBeamShotBehaviors<TBeams, TBehavior>
     where TBeams : notnull
     where TBehavior : notnull
 {

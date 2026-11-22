@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// page holds the pictures in.
 /// </summary>
 [EncodingOwner("bank-$9A sources of the arm cannon's cover pictures")]
-internal static class ArmCannonTileSources
+internal static partial class ArmCannonTileSources
 {
     /// <summary>The bytes between one cover picture's source and the next.</summary>
     private const int TileSourceStride = 512;

@@ -9,6 +9,6 @@ internal static class ActiveRoomStateAccess3
     extension(ActiveRoomState self)
     {
         /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
-        public CeresElevatorArrivalState? CeresElevatorArrival => self._construction is null ? self.Scope?.CeresElevatorArrival : null;
+        public CeresElevatorArrivalState? CeresElevatorArrival => self.Construction is null ? self.Scope?.CeresElevatorArrival : null;
     }
 }

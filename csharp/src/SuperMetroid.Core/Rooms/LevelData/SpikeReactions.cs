@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Reads what the spike responses do with a spike's reaction (#1722).</summary>
-public static class SpikeReactions
+public static partial class SpikeReactions
 {
     /// <summary>What the grapple beam makes of a spike reaction.</summary>
     extension(SpikeReaction reaction)

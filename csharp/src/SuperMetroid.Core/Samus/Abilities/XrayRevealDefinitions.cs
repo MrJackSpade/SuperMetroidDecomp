@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// shapes keep the game's copy dimensions, extension traversal and Brinstar-only behaviour; the blocks each copy shows
 /// are installed pictures (#1596).
 /// </summary>
-internal static class XrayRevealDefinitions
+internal static partial class XrayRevealDefinitions
 {
     /// <summary>The reveal shape each special-air reaction selects: the scroll trigger alone (#1028).</summary>
     internal static readonly IReadOnlyDictionary<BlockReaction, XrayRevealShape> SpecialAirReveals = new Dictionary<BlockReaction, XrayRevealShape>

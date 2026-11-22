@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Editable JSON definition of the six room-FX BG3 transfers, storing character selectors and BG attributes instead of packed SNES tilemap words.</summary>
-public sealed record RoomFxLayer3TilemapDocument
+public sealed partial record RoomFxLayer3TilemapDocument
 {
     /// <summary>Schema revision; loading requires <see cref="RoomFxLayer3TilemapFormat.Version"/> before compiling any page.</summary>
     public required int Version { get; init; }

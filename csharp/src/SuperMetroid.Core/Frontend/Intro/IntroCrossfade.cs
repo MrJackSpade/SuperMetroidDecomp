@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <c>n / Levels</c>, rounded down. That is the rounding the game's fade gives each channel, so
 /// an early fade-in step can still show black.
 /// </remarks>
-public sealed class IntroCrossfade
+public sealed partial class IntroCrossfade
 {
     /// <summary>The crossfaded scenes in the order their shades are layered, each listed once (#2567).</summary>
     private static readonly IReadOnlyList<IntroCrossfadeScene> ShadedScenes = Ensure.EveryMemberOnce(IntroCinematicDefinitions.Crossfade.ShadedScenes);

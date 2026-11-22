@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The finished pictures a sheet holds of a frame encounters' looks change (#1538): one for each combination of the looks
 /// the encounters show while it is drawn, one look of each. Encounters play independently of one another.
 /// </summary>
-internal static class FrameLookPictures
+internal static partial class FrameLookPictures
 {
     /// <summary>
     /// Each combination of the looks <paramref name="changes"/> show while the frame is drawn, one look of each encounter in

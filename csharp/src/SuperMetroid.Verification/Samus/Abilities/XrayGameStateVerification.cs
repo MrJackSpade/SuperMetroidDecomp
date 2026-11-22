@@ -46,7 +46,7 @@ internal static class XrayGameStateVerification
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             game.AdoptRuntime(runtime);
-            global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+            game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(0);
             game.Step(ControllerButton.Select);
@@ -63,7 +63,7 @@ internal static class XrayGameStateVerification
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins pause darkening");
             game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "the held-Run frame is a darkening gameplay frame");
-            AssertEqual(SuperMetroidGameState.Pause, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Progression.SuperMetroidGameState>(runtime, "RunningGameState"), "the runtime sees the live pause");
+            AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }
@@ -74,7 +74,7 @@ internal static class XrayGameStateVerification
             game.Session.Enter(PauseStep.BrighteningGameplay);
             game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.BrighteningGameplay), "the held-Run frame is an unpausing gameplay frame");
-            AssertEqual(SuperMetroidGameState.Pause, global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Runtime.SuperMetroidRuntime, global::SuperMetroid.Core.Progression.SuperMetroidGameState>(runtime, "RunningGameState"), "the runtime sees the live pause");
+            AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }

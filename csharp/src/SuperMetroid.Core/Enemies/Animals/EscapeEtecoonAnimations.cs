@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The escaping Etecoons' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EscapeEtecoonCue"/> with the values it acts on.
 /// </summary>
-internal static class EscapeEtecoonAnimations
+internal static partial class EscapeEtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeEtecoonSegment, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(
@@ -64,7 +64,7 @@ internal static class EscapeEtecoonAnimations
     /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left (<see cref="ThankingStepRuns"/>), looks, and runs
     /// for the escape.
     /// </summary>
-    private static Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
+    internal static Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
         [P.RunningLeftLowTide] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningLeftLowTide)], [Segments.Whole(P.RunningLeftLowTideStride)]),
         [P.RunningLeftHighTide] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.RunningLeftHighTide)]),

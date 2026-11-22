@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the four cartridge-authored full-body palette cycles without their timing rules.</summary>
-public static class SamusFullBodyCycleColorExtractor
+public static partial class SamusFullBodyCycleColorExtractor
 {
     /// <summary>Exports Speed Booster, Screw Attack, stored-shine, and active-Shinespark full-body color families without their state/timing rules.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$9B palette rows selected by compiled family/suit/shade pointers.</param>

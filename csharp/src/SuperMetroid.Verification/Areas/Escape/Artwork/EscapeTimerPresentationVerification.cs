@@ -101,8 +101,8 @@ internal static class EscapeTimerPresentationVerification
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
                 address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
         AssertTrue(nativeSheet.Pixels.AsSpan().SequenceEqual(guardedSheet.Pixels) &&
-                System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(nativeSheet.Manifest, SpriteSheetFile.Options).AsSpan()
-                    .SequenceEqual(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(guardedSheet.Manifest, SpriteSheetFile.Options)),
+                System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(nativeSheet.Manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetDocument>(SpriteSheetFile.Options)).AsSpan()
+                    .SequenceEqual(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(guardedSheet.Manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetDocument>(SpriteSheetFile.Options))),
             "timer sheet composition selects the same spritemaps without rereading the pointer table");
         Console.WriteLine("Escape timer digit pointers: ten cartridge words and a sheet composed without rereading the pointer table.");
     }

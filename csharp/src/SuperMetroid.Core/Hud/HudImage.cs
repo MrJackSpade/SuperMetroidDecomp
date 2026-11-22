@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Hud;
 /// numeral, an item icon in a shade, the AUTO indicator in one of its states or a minimap cell. The HUD's values select images and
 /// place them; the import pictures each in every colouring the HUD shows in, as the frame its name names.
 /// </summary>
-public abstract record HudImage
+public abstract partial record HudImage
 {
     /// <summary>The installed frame that pictures the image.</summary>
     [InstalledKey]

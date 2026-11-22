@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NuclearWaffle], Create);
@@ -60,6 +60,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunNuclearWaffleMain"/> does for each <see cref="NuclearWaffleAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NuclearWaffleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NuclearWaffleEnemyState>> RunNuclearWaffleMainForNuclearWaffleAction => field ??= new(new Dictionary<NuclearWaffleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, NuclearWaffleEnemyState>>
     {
         [NuclearWaffleAction.Waiting] = (occupant, place, state) => RunNuclearWaffleWaiting(occupant, place, state),

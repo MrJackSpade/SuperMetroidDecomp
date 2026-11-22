@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the allocator's own order.
 /// </remarks>
 [CompatibilityService("Botwoon's dying body segments fall in the order of the enemy-projectile places they were spawned into, later places sooner")]
-public static class BotwoonSegmentFallDelay
+public static partial class BotwoonSegmentFallDelay
 {
     /// <summary>The updates a dying segment in the first projectile place waits before it falls.</summary>
     private const int FirstPlaceWaitUpdates = 160;

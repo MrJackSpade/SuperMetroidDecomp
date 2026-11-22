@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's tail curling and whipping freely behind him in flight (<see cref="RidleyTailAction.Neutral"/>).</summary>
-internal sealed class RidleyNeutralTailAction() : RidleySteeredTailAction(nameof(Neutral))
+internal sealed partial class RidleyNeutralTailAction() : RidleySteeredTailAction(nameof(Neutral))
 {
     /// <inheritdoc/>
     internal override void Steer(RidleyTail tail, RoomEnemyPlace place, RidleyEncounterState state, SamusState samus, SamusProjectileSystem samusProjectiles) =>

@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending sequence's setup wait, music, reward selection and authored hold durations (#1416).</summary>
-public static class EndingSequenceDefinitions
+public static partial class EndingSequenceDefinitions
 {
     /// <summary>The frames the ending's setup waits before its scene setup.</summary>
     public const int SetupFrameWaits = 9;
 
     /// <summary>The music the escape and ending sequences queue at their boundaries.</summary>
-    public static class Music
+    public static partial class Music
     {
         /// <summary>The song the escape selects once Zebes's explosion music has loaded.</summary>
         public const MusicTrack EscapeSong = MusicTrack.ZebesExplosion;
@@ -20,7 +20,7 @@ public static class EndingSequenceDefinitions
     }
 
     /// <summary>Whole-hour thresholds selecting the suitless, helmetless or fully armored Samus reward.</summary>
-    public static class Rewards
+    public static partial class Rewards
     {
         /// <summary>Exclusive whole-hour cutoff for the suitless reward: recorded game time below it.</summary>
         public const int SuitlessMaximumHoursExclusive = 3;
@@ -30,7 +30,7 @@ public static class EndingSequenceDefinitions
     }
 
     /// <summary>Authored reveal, colour-fade and panel-hold durations, in cinematic updates.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>Each half of the reward reveal's updates: it pauses after the first half, and the second follows later.</summary>
         public const int RewardRevealHalfFrames = 64;

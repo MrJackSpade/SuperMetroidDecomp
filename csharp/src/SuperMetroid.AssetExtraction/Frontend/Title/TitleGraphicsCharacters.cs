@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// floor and Baby Metroid characters as chunky 8-bit pixels and the OBJ characters as SNES 4-bpp planar bytes, which the
 /// title sheets compose from.
 /// </summary>
-public sealed class TitleGraphicsCharacters
+public sealed partial class TitleGraphicsCharacters
 {
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
@@ -125,7 +125,7 @@ public sealed class TitleGraphicsCharacters
     /// <param name="document">The map and sprite-composition document to serialize.</param>
     public static void WriteMap(Stream json, TitleFloorMapDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options));
         TitleFloorMapDocument restored;
         try
         {

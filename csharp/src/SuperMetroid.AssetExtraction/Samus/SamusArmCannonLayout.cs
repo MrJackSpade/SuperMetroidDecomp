@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <c>samus-arm-cannon.json</c> holds only this; the drawing descriptors the import decoded the placements from, the cover
 /// appearances and the tile selections are import data (<see cref="SamusArmCannonSourceArtwork"/>).
 /// </summary>
-public sealed class SamusArmCannonLayout
+public sealed partial class SamusArmCannonLayout
 {
     /// <summary>Each pose's placement.</summary>
     private readonly Dictionary<SamusPoseId, SamusArmCannonPlacement> placements;
@@ -84,7 +84,7 @@ public sealed class SamusArmCannonLayout
                     pair => SamusAnimationDelays.AnimationForPose(pose).NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
             };
         }),
-    }, Options);
+    }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusArmCannonLayoutDocument>(Options));
 
     /// <summary>The placement <paramref name="document"/> describes for <paramref name="pose"/>.</summary>
     /// <exception cref="InvalidDataException">A displacement names no frame of the pose's animation.</exception>

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Extracts the six safe English narration pages from native bank-$8C scripts.</summary>
 [EncodingOwner("cartridge intro narration script words")]
-public static class IntroNarrationExtractor
+public static partial class IntroNarrationExtractor
 {
     /// <summary>Decodes all six English opening narration pages from checked bank-$8C character scripts into editable text lines.</summary>
     /// <param name="bus">Cartridge source for the page instruction streams and their single-tile glyph payloads.</param>

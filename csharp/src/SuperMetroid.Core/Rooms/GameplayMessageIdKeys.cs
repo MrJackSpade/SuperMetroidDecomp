@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms;
 /// The installed key of each <see cref="GameplayMessageId"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class GameplayMessageIdKeys
+internal static partial class GameplayMessageIdKeys
 {
     /// <summary>Each GameplayMessageId member's installed key.</summary>
     internal static InstalledKeys<GameplayMessageId> Installed { get; } = new(new Dictionary<GameplayMessageId, string>

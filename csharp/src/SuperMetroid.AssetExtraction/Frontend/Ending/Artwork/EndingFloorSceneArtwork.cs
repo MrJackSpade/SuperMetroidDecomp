@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// characters its artwork holds. The installed ending floor sheets picture the characters; their pixels and the map's
 /// file belong to the import pipeline that reads the installed artwork.
 /// </summary>
-public class EndingFloorSceneArtwork
+public partial class EndingFloorSceneArtwork
 {
     /// <summary>Retains the validated low-byte map and the installed characters' count for one scene.</summary>
     /// <param name="map">The row-ordered tile indices.</param>

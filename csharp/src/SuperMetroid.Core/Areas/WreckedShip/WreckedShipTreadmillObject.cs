@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// <param name="row">The row the treadmill writes, checked to fit its room as it spawned.</param>
 /// <param name="direction">The belt's push direction.</param>
 /// <param name="areaBossDefeated">Whether Phantoon was defeated when the treadmill spawned.</param>
-internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillRow row, WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
+internal sealed partial class WreckedShipTreadmillObject(WreckedShipTreadmillRow row, WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
 {
     /// <summary>The belt's push direction.</summary>
     internal WreckedShipTreadmillDirection Direction { get; } = direction;

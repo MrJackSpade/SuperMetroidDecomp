@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Eight-channel routing table selected by a top-level track instruction.</summary>
-public sealed record AudioMusicPhraseMetadata(
+public sealed partial record AudioMusicPhraseMetadata(
     string Id,
     int Address,
     IReadOnlyList<string?> ChannelPrograms)

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Areas.Ceres;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
-public static class EnemyProjectileSpritemapDefinitions
+public static partial class EnemyProjectileSpritemapDefinitions
 {
     /// <summary>Installed editable JSON filename for projectile OAM compositions and presentation-only timed-program frames.</summary>
     public const string FileName = "enemy-projectile-compositions.json";

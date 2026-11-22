@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// The Cacatac's spike animations, one per launch direction, which names it (#641, #2067). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class CacatacProjectileAnimations
+internal static partial class CacatacProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

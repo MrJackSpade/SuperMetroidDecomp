@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MotherBrainEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
@@ -39,7 +39,7 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     }
 
     /// <summary>The head's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? (field ??= Species.Combat.HeadShotReactionOf(this)) : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.HeadShot ? (field ??= MotherBrainCombat.HeadShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>Runs the head's own reaction to a bomb that selects its shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>

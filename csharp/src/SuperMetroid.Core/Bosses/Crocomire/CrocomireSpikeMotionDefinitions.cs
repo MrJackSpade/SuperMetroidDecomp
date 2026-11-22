@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The pieces of Crocomire's falling spike wall and how they fall.</summary>
-internal static class CrocomireSpikeMotionDefinitions
+internal static partial class CrocomireSpikeMotionDefinitions
 {
     /// <summary>The row a falling piece lands on and crumbles, inclusive (#2182).</summary>
     internal const int LandingY = 168;

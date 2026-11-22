@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileKindDefinitions;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The animation each projectile kind starts.</summary>
-internal static class SamusProjectileKinds
+internal static partial class SamusProjectileKinds
 {
     /// <summary>The animation a shot of the directional <paramref name="kind"/> fired in <paramref name="direction"/> starts.</summary>
     /// <exception cref="ArgumentOutOfRangeException">Shots of the kind start one animation whatever their direction.</exception>

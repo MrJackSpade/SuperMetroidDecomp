@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// asks them, and a door or the death sequence fades the whole display. Later shades win where they recolour the same
 /// inks.
 /// </summary>
-public sealed class GameplayShadingBuilder
+public sealed partial class GameplayShadingBuilder
 {
     /// <summary>Each group's shading so far.</summary>
     private readonly Dictionary<GameplayPictures, PictureShading> shadings =

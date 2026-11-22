@@ -25,7 +25,7 @@ internal static class KraidColorSourceSelectionVerification
             Secondary = original[KraidPaletteSource.Secondary],
             DeathArm = original[KraidPaletteSource.DeathArm],
         };
-        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document));
+        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.KraidColorDocument>()));
         var catalog = KraidColorFile.Read(json);
         ushort Encode(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         foreach (var (source, row) in original)

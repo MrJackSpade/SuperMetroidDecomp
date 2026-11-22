@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Where the ending's actors stand in the order they run and draw.</summary>
-internal static class EndingCastOrderDefinitions
+internal static partial class EndingCastOrderDefinitions
 {
     /// <summary>
     /// The actors the ending shows one of at a time, in the order they run and draw after every other actor: the

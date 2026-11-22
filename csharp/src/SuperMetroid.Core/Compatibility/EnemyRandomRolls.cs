@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number each of these enemies' random choices reads, exactly as the game read it")]
-internal static class EnemyRandomRolls
+internal static partial class EnemyRandomRolls
 {
     /// <summary>
     /// The roll of two that moves a Tourian or Sidehopper corpse's dust cloud a fine step to the right: the number's second

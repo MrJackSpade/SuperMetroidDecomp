@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// pixels of one colour recolour differently, the sheet's recolour-region map tells them apart. Where a picture blends in
 /// some pixels and not others when drawn as a sprite, the sheet's blend map says which.
 /// </summary>
-public sealed class SpriteImage
+public sealed partial class SpriteImage
 {
     /// <summary>
     /// The pixels and the maps, decoded when first read: an installation's stock images are checked when it opens, so
@@ -158,5 +158,5 @@ public sealed class SpriteImage
     /// <param name="Source">The decoded pixels and maps.</param>
     /// <param name="Keys">The distinct colour keys in first-shown order.</param>
     /// <param name="Places">Each key's place among the keys.</param>
-    private sealed record DecodedImage(SpriteImagePixels Source, ImmutableArray<ColourKey> Keys, Dictionary<ColourKey, int> Places);
+    private sealed partial record DecodedImage(SpriteImagePixels Source, ImmutableArray<ColourKey> Keys, Dictionary<ColourKey, int> Places);
 }

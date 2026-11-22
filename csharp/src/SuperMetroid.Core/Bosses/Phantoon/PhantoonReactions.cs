@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// The reactions of Phantoon's own that its frames' hitboxes name (#1759). Only Phantoon's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class PhantoonReactions
+internal static partial class PhantoonReactions
 {
     /// <summary>Phantoon's body touch reaction.</summary>
     internal static EnemyReaction Touch => SpeciesOwnReactions.PhantoonTouch;

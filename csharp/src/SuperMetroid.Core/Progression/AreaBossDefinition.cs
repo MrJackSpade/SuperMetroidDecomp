@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Progression;
 /// </param>
 /// <param name="RecordedAs">Which of its area's defeats the boss's defeat is recorded as in the area's progress (#2563).</param>
 [IndependentFlag("whether X-ray keeps the background while the boss is loaded is a fact of that boss alone")]
-internal sealed record AreaBossDefinition(bool XrayKeepsBackground, DefeatedBosses RecordedAs);
+internal sealed partial record AreaBossDefinition(bool XrayKeepsBackground, DefeatedBosses RecordedAs);

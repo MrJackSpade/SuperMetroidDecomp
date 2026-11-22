@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The sinking's end is a latch of its own beside the releases: the base decoration marks it once the statues rest, and a
 /// room entered after the descent has unlocked Tourian marks it on every update while its releases never begin.
 /// </remarks>
-public sealed class TourianStatueAnimation
+public sealed partial class TourianStatueAnimation
 {
     /// <summary>
     /// Whether the entrance statue has finished sinking. The statue's base decoration sets it once the sinking animation

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 /// <param name="WhileRidleyLives">The tint while Ceres Ridley is alive.</param>
 /// <param name="AfterRidleyDies">The tint once Ceres Ridley is dead.</param>
-public sealed record CeresHazeTints(RgbColor WhileRidleyLives, RgbColor AfterRidleyDies)
+public sealed partial record CeresHazeTints(RgbColor WhileRidleyLives, RgbColor AfterRidleyDies)
 {
     /// <summary>The installed colour of <paramref name="tint"/>.</summary>
     /// <exception cref="InvalidOperationException">The tint is undefined.</exception>

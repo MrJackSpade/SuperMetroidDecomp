@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The downward gate's animations (#2480): its authored images (<see cref="DownwardGateMovementDefinitions"/>), each shown
 /// for its own updates, played once through on the shared animation player.
 /// </summary>
-internal static class DownwardGateAnimations
+internal static partial class DownwardGateAnimations
 {
     /// <summary>Each run's images.</summary>
     internal static AnimationSegments<DownwardGateSegment, DownwardGateImage, NoAnimationCue> Segments { get; } = new(

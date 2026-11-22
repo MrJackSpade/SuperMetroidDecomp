@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The Tourian access floor's draws (<see cref="TourianAccessObjectDefinitions"/>, #2034): the block shape each opens,
 /// from <see cref="TourianAccessObjectDrawDefinitions"/> (#1862), and the installed picture each shows.
 /// </summary>
-internal static class TourianAccessDraws
+internal static partial class TourianAccessDraws
 {
     /// <summary>The floor's frames, pictured by the installed Tourian access frames.</summary>
     internal static RoomObjectDrawFamily<TourianAccessDraw> Family { get; } =
@@ -26,5 +26,5 @@ internal static class TourianAccessDraws
     /// empty row (<see cref="TourianAccessDraw.EmptyRow"/>) shows it gone.
     /// </summary>
     /// <param name="Stage">What the crumbling row shows.</param>
-    internal readonly record struct CrumbleDraw(BlockBreakupStage Stage);
+    internal readonly partial record struct CrumbleDraw(BlockBreakupStage Stage);
 }

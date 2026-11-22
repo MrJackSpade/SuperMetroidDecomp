@@ -3,13 +3,13 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Where each palette-FX record and colour lives in bank $8D: the import pipeline's map from keys to the cartridge.</summary>
-internal static class PaletteFxRecordSources
+internal static partial class PaletteFxRecordSources
 {
     /// <summary>Each record's timer-word address, by record.</summary>
-    private static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
+    internal static readonly Dictionary<PaletteFxRecord, ushort> Addresses = PaletteFxRecordSourceDefinitions.ByAddress.ToDictionary(pair => pair.Value, pair => pair.Key);
 
     /// <summary>The bank-$8D address of <paramref name="record"/>'s timer word.</summary>
-    private static ushort Address(PaletteFxRecord record) => Addresses[record];
+    internal static ushort Address(PaletteFxRecord record) => Addresses[record];
 
     /// <summary>
     /// The bank-$8D address of the colour word <paramref name="key"/> names: after the record's timer word, counting each

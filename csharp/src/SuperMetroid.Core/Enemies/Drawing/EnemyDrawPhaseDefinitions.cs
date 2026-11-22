@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 /// shakes the enemy it launched from. The common enemy draw reads them, and so do the bosses and species that draw their
 /// own flash or blink the same way.
 /// </summary>
-internal static class EnemyDrawPhaseDefinitions
+internal static partial class EnemyDrawPhaseDefinitions
 {
     /// <summary>How many of its draws a solid or frozen enemy shakes after Samus wall-jumps off it.</summary>
     internal const int WallJumpLaunchShakeDraws = 64;

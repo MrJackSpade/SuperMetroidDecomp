@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>One cue of the Yard's animations: what it does, with the values it acts on.</summary>
-internal abstract record YardCue
+internal abstract partial record YardCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private YardCue()
@@ -17,7 +17,7 @@ internal abstract record YardCue
 
     /// <summary>Moves the Yard by a signed pixel offset in X and Y.</summary>
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
-    internal sealed record MoveBy(Offset16<RoomPixels> Offset) : YardCue
+    internal sealed partial record MoveBy(Offset16<RoomPixels> Offset) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).MoveBy(this, context);
@@ -25,7 +25,7 @@ internal abstract record YardCue
 
     /// <summary>Sets the attachment direction and the airborne facing it implies.</summary>
     /// <param name="Direction">The surface direction a <see cref="SetDirection"/> cue attaches the Yard in.</param>
-    internal sealed record SetDirection(YardDirection Direction) : YardCue
+    internal sealed partial record SetDirection(YardDirection Direction) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SetDirection(this, context);
@@ -33,7 +33,7 @@ internal abstract record YardCue
 
     /// <summary>Names the animation the Yard hides with, or none.</summary>
     /// <param name="OptionalTarget">The animation the Yard hides with, or none where it does not hide.</param>
-    internal sealed record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue
+    internal sealed partial record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SetHidingAnimation(this, context);
@@ -41,7 +41,7 @@ internal abstract record YardCue
 
     /// <summary>The Yard begins crawling <paramref name="Crawl"/> along its surface, as its crawl animation starts.</summary>
     /// <param name="Crawl">The way the Yard begins to crawl: along which surface, which way.</param>
-    internal sealed record BeginCrawling(YardDirection Crawl) : YardCue
+    internal sealed partial record BeginCrawling(YardDirection Crawl) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginCrawling(this, context);
@@ -49,7 +49,7 @@ internal abstract record YardCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(YardCueKind Kind) : YardCue
+    internal sealed partial record Signal(YardCueKind Kind) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
@@ -64,4 +64,4 @@ internal abstract record YardCue
 /// <param name="BeginCrawling">Makes a <see cref="YardCue.BeginCrawling"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="YardCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.Signal, TContext, TResult> Signal);
+internal sealed partial record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.Signal, TContext, TResult> Signal);

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>
 /// Where his skeleton flows, waits, breaks through the spike wall and falls apart, and what it leaves (#2182).
 /// </summary>
-internal static class CrocomireSkeletonDefinitions
+internal static partial class CrocomireSkeletonDefinitions
 {
     /// <summary>How far his skeleton flows left down the river each update, in pixels.</summary>
     internal const int RiverDrift = 2;

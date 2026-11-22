@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// which the import composes once in the cinematic's colours. The cinematic places the pictures its scene state shows
 /// on a plane the size of the cinematic's pictures.
 /// </summary>
-public static class IntroScenePictures
+public static partial class IntroScenePictures
 {
     /// <summary>The name of the portrait's picture.</summary>
     public const string Portrait = "portrait";

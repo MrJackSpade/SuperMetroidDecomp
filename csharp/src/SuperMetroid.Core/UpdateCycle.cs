@@ -10,7 +10,7 @@ namespace SuperMetroid.Core;
 /// A count read here may run up or down and below zero: the step is the count's place in the cycle counted from below,
 /// so a count of -1 sits on the cycle's last count and the step it holds.
 /// </remarks>
-public readonly record struct UpdateCycle
+public readonly partial record struct UpdateCycle
 {
     /// <summary>A cycle of <paramref name="steps"/> steps, each held for <paramref name="countsPerStep"/> counts.</summary>
     /// <param name="steps">How many steps the cycle passes through, two or more.</param>

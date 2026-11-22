@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The map words of the item percentage's two-row digits and percent sign, which the import pictures (#1416, #1467).</summary>
-internal static class EndingPercentageGlyphDefinitions
+internal static partial class EndingPercentageGlyphDefinitions
 {
     /// <summary>The decimal digits the percentage shows.</summary>
     internal const int Digits = 10;

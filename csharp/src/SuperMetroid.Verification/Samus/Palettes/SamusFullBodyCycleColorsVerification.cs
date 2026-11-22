@@ -63,9 +63,7 @@ internal static class SamusFullBodyCycleColorsVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);
         Suite(nameof(VerifyFullBodyPaletteColorData), () => VerifyFullBodyPaletteColorData(rom, extracted));
 
-        SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock full-body cycle color JSON is null.");
         var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledFixtures.ImportOf(original).SamusColours.FullBodyCycles };
         var guard = NewFullBodyColorReadGuard(rom);
@@ -138,7 +136,7 @@ internal static class SamusFullBodyCycleColorsVerification
 
         PaletteRgb5 originalColor = document.SpeedBooster["Power"][0][1];
         document.SpeedBooster["Power"][0][1] = originalColor with { Blue = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => SamusFullBodyCycleColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "full-body cycle colors reject out-of-range RGB5 values");

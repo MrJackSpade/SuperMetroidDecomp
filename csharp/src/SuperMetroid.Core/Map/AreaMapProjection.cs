@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>Shared exploration projection for the pause and room-select maps.</summary>
-public static class AreaMapProjection
+public static partial class AreaMapProjection
 {
     /// <summary>
     /// How a map screen shows each cell of <paramref name="map"/> (#1513): an explored cell as explored, a revealed one as

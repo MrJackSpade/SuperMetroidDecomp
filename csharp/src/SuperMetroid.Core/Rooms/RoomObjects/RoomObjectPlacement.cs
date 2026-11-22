@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// names the kind of room object it places (#2557). Setup payloads are bounded domain records, not a store that can supply
 /// arbitrary values.
 /// </summary>
-public sealed record RoomObjectPlacement
+public sealed partial record RoomObjectPlacement
 {
     /// <summary>A placement at <paramref name="block"/> that its family sets up with <paramref name="setup"/>.</summary>
     /// <param name="block">Placement in 16-pixel room blocks.</param>
@@ -24,7 +24,7 @@ public sealed record RoomObjectPlacement
     /// stands on the game's block: the room's resident-trigger lookup gives a projectile's hit to the first active place
     /// at the struck block whatever it holds, so the block is observed (#2558).
     /// </summary>
-    public Position16<RoomBlocks> Block { get; private init; }
+    public Position16<RoomBlocks> Block { get; internal init; }
 
     /// <summary>The setup the placement's family runs, with what the placement gives it, decoded at import.</summary>
     internal RoomObjectPlacementSetup Setup { get; }

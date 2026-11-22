@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// each room's own code.
 /// </remarks>
 [RoomLifetime]
-public sealed class LoadedRoomAssets
+public sealed partial class LoadedRoomAssets
 {
     /// <summary>Retains the selected definition, the room's grid, scroll grid, and installed graphics.</summary>
     private LoadedRoomAssets(

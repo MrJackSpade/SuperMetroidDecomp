@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Escape.Artwork;
 /// Locates each of the five escape-text character pages (<see cref="EscapeTextSheetFormat.PageCount"/>) in the installed sheet
 /// and in OBJ character memory.
 /// </summary>
-public static class EscapeTextPages
+public static partial class EscapeTextPages
 {
     /// <summary>Where text page <paramref name="page"/> starts within the installed sheet, from the escape text's page list.</summary>
     public static int PageOffset(int page) => (uint)page < PageCount

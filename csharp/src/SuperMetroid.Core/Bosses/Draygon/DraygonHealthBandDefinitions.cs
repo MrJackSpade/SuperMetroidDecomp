@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's health bands (#2266), each an eighth of his health wide from none upward, the highest holding the rest up
 /// to his full health; each lower band shows his body layer more hurt.
 /// </summary>
-public static class DraygonHealthBandDefinitions
+public static partial class DraygonHealthBandDefinitions
 {
     /// <summary>Draygon at seven eighths of his health or more: his own colours.</summary>
     public static DraygonHealthBand Unhurt { get; } = new(5250, "unhurt");

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// from install the same picture; the first frame in reading order keeps its rectangle, every later one shows that
 /// rectangle, and the rectangle a later one held is cleared wherever no remaining frame lies.
 /// </summary>
-internal static class InstalledFrameSharing
+internal static partial class InstalledFrameSharing
 {
     /// <summary>
     /// Points every frame of <paramref name="frames"/> whose picture an earlier frame already holds at that frame's
@@ -98,7 +98,7 @@ internal static class InstalledFrameSharing
     /// <summary>A frame's rectangle on its sheet.</summary>
     /// <param name="Corner">The rectangle's top-left pixel.</param>
     /// <param name="Size">The rectangle's width and height.</param>
-    private readonly record struct Rectangle(Position16<ImagePixels> Corner, Extent16<ImagePixels> Size)
+    private readonly partial record struct Rectangle(Position16<ImagePixels> Corner, Extent16<ImagePixels> Size)
     {
         /// <summary>Whether the rectangle covers <paramref name="pixel"/>.</summary>
         public bool Covers(Position16<ImagePixels> pixel) =>

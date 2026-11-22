@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The rescued animals' escape pod's compositions, as the ending's sheet composes them (#1463).</summary>
-internal sealed class EndingAnimalEscapeParts : ICinematicSpriteFrames
+internal sealed partial class EndingAnimalEscapeParts : ICinematicSpriteFrames
 {
     /// <summary>The pod's two pictures.</summary>
     internal static readonly EndingAnimalEscapeParts Sprites = new();

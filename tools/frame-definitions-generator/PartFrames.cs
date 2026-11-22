@@ -711,7 +711,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             if (!behaviour.Definitions.Contains(choice.Definition))
                 problems.Add($"population choice for {choice.Definition}, which {behaviour.Type.Name} does not serve");
             int placements = 0;
-            foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+            foreach (SyntaxTree tree in model.AuthoredTrees)
             {
                 SemanticModel semantic = model.ModelOf(tree);
                 foreach (BaseObjectCreationExpressionSyntax settings in tree.GetRoot().DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
@@ -1517,7 +1517,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         }
         // Only a name spelled as one of an enum key type's members can name one; the rest need no binding.
         var members = new HashSet<string>(keyType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel semantic = model.ModelOf(tree);
             foreach (ExpressionSyntax expression in tree.GetRoot().DescendantNodes().OfType<ExpressionSyntax>())
@@ -1575,7 +1575,7 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     private IEnumerable<string> NamedOutside(INamedTypeSymbol programType, IReadOnlyList<ExpressionSyntax> initializers)
     {
         var named = new SortedSet<string>(StringComparer.Ordinal);
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in model.AuthoredTrees)
         {
             SemanticModel semantic = model.ModelOf(tree);
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())

@@ -6,7 +6,7 @@ using S = SuperMetroid.Core.Frontend.Intro.CinematicSpritePose;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The animations of the intro flashback's Rinkas (#641, #1600, #2196, #2197).</summary>
-internal static class IntroRinkaAnimations
+internal static partial class IntroRinkaAnimations
 {
     /// <summary>
     /// A Rinka's animation: its pictures in turn, then it starts moving and loops its second, first, second and third

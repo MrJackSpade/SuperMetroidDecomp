@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// and of the body and bottom it watches over (#2480), each action an event raised just before the picture after it
 /// draws. Both facings play the same animations, mirrored; the right-facing body and bottom pulse faster.
 /// </summary>
-internal static class EyeDoorSequenceDefinitions
+internal static partial class EyeDoorSequenceDefinitions
 {
     /// <summary>The sound each hit on the eye makes.</summary>
     internal static readonly SoundEffectId HitSound = EnemySound.EnemyKilled;
@@ -22,7 +22,7 @@ internal static class EyeDoorSequenceDefinitions
     internal const int HitThreshold = 3;
 
     /// <summary>How many times the destroyed eye flashes to the blue cap before it turns into it.</summary>
-    private const int OpeningFlashes = 10;
+    internal const int OpeningFlashes = 10;
 
     /// <summary>How near Samus must stand, across and up or down, to open the closed eye or keep it watching.</summary>
     internal static Extent16<RoomBlocks> WakeReach { get; } = new(6, 4);

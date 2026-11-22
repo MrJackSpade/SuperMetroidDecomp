@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Samus.Artwork.ProjectileSheetDefinitions;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Which sheet and frames each projectile beam combination draws from.</summary>
-public static class ProjectileSheetFrames
+public static partial class ProjectileSheetFrames
 {
     /// <summary>The gameplay sheet of a draw pictured with <paramref name="beams"/> (#1586).</summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no sheet.</exception>

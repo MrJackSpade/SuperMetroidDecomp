@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime;
 /// has opened.
 /// </summary>
 /// <param name="samusColours">Samus's colours, whose beams' shade the fade in keeps lit.</param>
-internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSource
+internal sealed partial class DoorFade(SamusColours samusColours) : IGameplayShadingSource
 {
     /// <summary>Samus's colours, whose beams' shade the fade in keeps lit.</summary>
     private readonly SamusColours samusColours = Ensure.NotNull(samusColours);
@@ -24,7 +24,7 @@ internal sealed class DoorFade(SamusColours samusColours) : IGameplayShadingSour
     private bool betweenCommonRooms;
 
     /// <summary>Where the fade is.</summary>
-    private DoorFadeStage Stage { get; set; } = DoorFadeStage.None;
+    internal DoorFadeStage Stage { get; set; } = DoorFadeStage.None;
 
     /// <summary>Starts the room being left fading out over <paramref name="fade"/>'s steps.</summary>
     /// <param name="fade">The fade's steps, which the door takes one per update.</param>

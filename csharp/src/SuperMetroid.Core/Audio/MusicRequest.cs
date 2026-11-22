@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// One request the game puts on its music queue (#1410): play a song of the loaded data set or its area theme (#1748),
 /// stop the music, or change the music data set. The queue holds each with its delay and carries it out when the delay expires.
 /// </summary>
-public abstract record MusicRequest
+public abstract partial record MusicRequest
 {
     /// <summary>Closes the hierarchy to the requests declared here.</summary>
     private MusicRequest()
@@ -17,7 +17,7 @@ public abstract record MusicRequest
 
     /// <summary>Plays <paramref name="Track"/> of the loaded data set.</summary>
     /// <param name="Track">The track to play.</param>
-    public sealed record PlayTrack(MusicTrack Track) : MusicRequest
+    public sealed partial record PlayTrack(MusicTrack Track) : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => Track;
@@ -27,7 +27,7 @@ public abstract record MusicRequest
     /// Plays the area theme (<see cref="AreaThemeDefinitions"/>) of the data set loaded when the request plays, which a room
     /// that keeps the loaded set asks for (#1748).
     /// </summary>
-    public sealed record PlayAreaTheme : MusicRequest
+    public sealed partial record PlayAreaTheme : MusicRequest
     {
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">No data set is loaded, so no area theme can play.</exception>
@@ -37,7 +37,7 @@ public abstract record MusicRequest
     }
 
     /// <summary>Stops the music.</summary>
-    public sealed record StopMusic : MusicRequest
+    public sealed partial record StopMusic : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;
@@ -45,7 +45,7 @@ public abstract record MusicRequest
 
     /// <summary>Changes the music data set to <paramref name="DataSet"/>, which stops the music.</summary>
     /// <param name="DataSet">The data set to load.</param>
-    public sealed record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
+    public sealed partial record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
     {
         /// <inheritdoc/>
         internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;

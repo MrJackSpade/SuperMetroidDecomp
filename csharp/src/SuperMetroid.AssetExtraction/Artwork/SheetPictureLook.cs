@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// picture was composed with are left out: the installed image names its own colours, so two pictures drawn alike from
 /// different rows or palette bits look the same.
 /// </summary>
-internal sealed class SheetPictureLook
+internal sealed partial class SheetPictureLook
 {
     /// <summary>Keeps a look's key and the inks behind its colours.</summary>
     internal SheetPictureLook(string key, int[] shownInks)

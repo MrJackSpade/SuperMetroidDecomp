@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// An accepted eight-update scroll step under way on a map screen (#1975): the way it moves the map, and its age, counted
 /// once each update it runs, which moves the map at its pulse and finishes the step on its eighth update.
 /// </summary>
-public sealed class MapScrollStep
+public sealed partial class MapScrollStep
 {
     /// <summary>A step in <paramref name="direction"/> with all its updates left.</summary>
     internal MapScrollStep(MapScrollDirection direction) => Direction = direction;

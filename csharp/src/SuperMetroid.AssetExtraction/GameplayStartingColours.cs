@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 /// projectiles' that every room load restores; the background colours pre-colour nothing, so none is kept (#2570). The import pipeline decodes them from the installed
 /// starting image, whose colour order is its own knowledge, and pre-colours sheets from them; Core never reads them.
 /// </summary>
-public sealed class GameplayStartingColours
+public sealed partial class GameplayStartingColours
 {
     /// <summary>The sprite colours, in the cartridge's order.</summary>
     private readonly RgbColor[] spriteColours;

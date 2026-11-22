@@ -105,8 +105,7 @@ internal static class CeresFlightArtworkVerification
         string name = CeresFlightActorLayoutFormat.FileName;
         string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
         CeresFlightActorLayoutDocument document =
-            JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(File.ReadAllBytes(stockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Ceres flight actor layout is empty.");
         for (int index = 0; index < document.Actors.Length; index++)
         {

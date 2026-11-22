@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// One variant of an enemy in the enemy sheet manifest (#1599): the enemy it shows, the installed sheet showing it in the
 /// variant's colours, how encounters' looks change its frames and where a rotting corpse lies in its pictures.
 /// </summary>
-internal sealed record EnemyVariantDocument
+internal sealed partial record EnemyVariantDocument
 {
     /// <summary>The enemy the variant shows, by definition name.</summary>
     public required string Enemy { get; init; }

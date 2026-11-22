@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The import's tube-crack and Chozo-statue colours (#1637), import data only the import pre-colours their sheets from: each
 /// image's two ordered sixteen-color OBJ palettes as the cartridge stores them, transparent-slot words included.
 /// </summary>
-public sealed record ChozoAndTubeColorDocument
+public sealed partial record ChozoAndTubeColorDocument
 {
     /// <summary>Color schema revision; loading currently requires version 1.</summary>
     public required int Version { get; init; }

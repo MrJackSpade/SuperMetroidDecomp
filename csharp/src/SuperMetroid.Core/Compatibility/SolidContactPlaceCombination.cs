@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// offset; the offsets are the positions shifted left, so the combination is the same in positions.
 /// </remarks>
 [CompatibilityService("An idle shutter takes Samus to be pressing against the enemy whose place the places of the solid enemies she met this update, combined bit by bit, name")]
-public static class SolidContactPlaceCombination
+public static partial class SolidContactPlaceCombination
 {
     /// <summary>
     /// The place Samus's contacts combine to, or null when she met no solid enemy in any direction.

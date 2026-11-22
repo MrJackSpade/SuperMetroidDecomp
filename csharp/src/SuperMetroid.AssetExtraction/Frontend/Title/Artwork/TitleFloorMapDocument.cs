@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
 /// <summary>Serializable title Mode 7 map and native-selected sprite compositions.</summary>
 [SpatialComponents("External format: the title Mode 7 map JSON stores its declared grid dimensions as width/height integers.")]
-public sealed record TitleFloorMapDocument
+public sealed partial record TitleFloorMapDocument
 {
     /// <summary>Gets the title-graphics document schema version.</summary>
     public required int Version { get; init; }

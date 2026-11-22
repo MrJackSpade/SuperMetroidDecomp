@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>One cue of Cacatac's animations: what it does, with the values it acts on (#2432).</summary>
-internal abstract record CacatacCue
+internal abstract partial record CacatacCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private CacatacCue()
@@ -17,7 +17,7 @@ internal abstract record CacatacCue
 
     /// <summary>Spits a spike.</summary>
     /// <param name="Direction">The launch direction the spike flies in.</param>
-    internal sealed record SpawnSpike(CacatacSpikeDirection Direction) : CacatacCue
+    internal sealed partial record SpawnSpike(CacatacSpikeDirection Direction) : CacatacCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(CacatacCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SpawnSpike(this, context);
@@ -25,7 +25,7 @@ internal abstract record CacatacCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(CacatacCueKind Kind) : CacatacCue
+    internal sealed partial record Signal(CacatacCueKind Kind) : CacatacCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(CacatacCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -36,4 +36,4 @@ internal abstract record CacatacCue
 /// <param name="SpawnSpike">Reacts to a <see cref="CacatacCue.SpawnSpike"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="CacatacCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record CacatacCueReactions<TContext>(Action<CacatacCue.SpawnSpike, TContext> SpawnSpike, Action<CacatacCue.Signal, TContext> Signal);
+internal sealed partial record CacatacCueReactions<TContext>(Action<CacatacCue.SpawnSpike, TContext> SpawnSpike, Action<CacatacCue.Signal, TContext> Signal);

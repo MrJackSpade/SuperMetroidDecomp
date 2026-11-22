@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Shared Ceres/Norfair target-seeking acceleration divisors.</summary>
-public static class RidleyInertiaDefinitions
+public static partial class RidleyInertiaDefinitions
 {
     /// <summary>Moving Ridley to his death spot divides by the largest divisor.</summary>
     public const int DeathDivisor = LargestDivisor;

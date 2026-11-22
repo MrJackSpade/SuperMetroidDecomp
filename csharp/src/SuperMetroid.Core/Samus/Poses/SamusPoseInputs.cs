@@ -3,7 +3,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which pose each pose's input list selects for the held and newly pressed actions.</summary>
-internal static class SamusPoseInputs
+internal static partial class SamusPoseInputs
 {
     /// <summary>
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the

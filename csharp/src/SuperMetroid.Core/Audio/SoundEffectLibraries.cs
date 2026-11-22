@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>The game's sound-effect libraries in the order each request check serves them.</summary>
-public static class SoundEffectLibraries
+public static partial class SoundEffectLibraries
 {
     /// <summary>
     /// The libraries in queue order: Samus's, the enemies', the room's. Each sound clock request check serves them in

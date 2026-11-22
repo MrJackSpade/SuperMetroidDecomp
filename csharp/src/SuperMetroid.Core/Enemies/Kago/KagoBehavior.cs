@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Kago], Create);
@@ -59,7 +59,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    private void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, KagoEnemyState state)
+    internal void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -89,13 +89,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyBombReaction KagoBombReaction(RoomEnemyOccupant kago) => new()
+    internal static EnemyBombReaction KagoBombReaction(KagoEntity kago) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    private BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    internal BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
@@ -104,7 +104,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="room">The loaded room, whose random number a bug reads without advancing it.</param>
     /// <param name="audio">The enemy sound queue a waiting or airborne bug's sound joins.</param>
     /// <param name="deathsAndDrops">The drops a shot bug leaves.</param>
-    internal sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
+    internal sealed partial class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
         : EnemyProjectileMotionBehavior<KagoBugMotion>, IEnemyProjectileCues<KagoBugProjectileCue>
     {
         /// <summary>Each bug's Kago, its ground wait and its sound cadence, given as its Kago releases it.</summary>
@@ -114,6 +114,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
         /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
         {
             [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
@@ -131,6 +132,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
         /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
         {
             [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),
@@ -278,13 +280,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
     /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal EnemyShotReaction KagoShotReaction(RoomEnemyOccupant kago) => new()
+    internal static EnemyShotReaction KagoShotReaction(KagoEntity kago) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(kago, c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
-    private void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
+    internal void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)

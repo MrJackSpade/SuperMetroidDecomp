@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies;
 /// frame hitboxes, vulnerability and freezing, and the reactions they run.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyCollision
+internal sealed partial class EnemyCollision
 {
     /// <summary>Lists the enemies admitted to interaction this frame, whose reactions touch and projectile contact select.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -760,7 +760,7 @@ internal sealed class EnemyCollision
     /// charged shot taking the charged-beam multiplier unless the beam freezes; missile, Super Missile, bomb and Power
     /// Bomb families take their own responses.
     /// </summary>
-    private static NormalShotVulnerability ReadNormalShotVulnerability(
+    internal static NormalShotVulnerability ReadNormalShotVulnerability(
         RoomEnemyOccupant enemy,
         SamusProjectileType projectileType)
     {
@@ -798,7 +798,7 @@ internal sealed class EnemyCollision
     /// </summary>
     /// <param name="enemy">The enemy frozen.</param>
     /// <param name="roomArea">The area of the room the enemy is in.</param>
-    private void FreezeEnemyFromNormalShot(RoomEnemyPlace enemy, AreaId roomArea)
+    internal void FreezeEnemyFromNormalShot(RoomEnemyPlace enemy, AreaId roomArea)
     {
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
@@ -842,7 +842,7 @@ internal sealed class EnemyCollision
     /// decides; non-beam families never prevent it.
     /// </summary>
     [IndependentFlag("independent facts of an ordinary shot's vulnerability: immediate freeze, and lethal-freeze prevention")]
-    internal readonly record struct NormalShotVulnerability(
+    internal readonly partial record struct NormalShotVulnerability(
         WeaponDamageFactor Multiplier,
         bool FreezeImmediately,
         bool PreventsLethalFreeze)

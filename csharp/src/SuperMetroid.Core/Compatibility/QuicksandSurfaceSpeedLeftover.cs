@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// bit cleared, rather than clearing both words.
 /// </remarks>
 [CompatibilityService("a quicksand surface takes away Samus's whole base speed but keeps the part of its fraction below half a pixel")]
-internal static class QuicksandSurfaceSpeedLeftover
+internal static partial class QuicksandSurfaceSpeedLeftover
 {
     /// <summary>Half a pixel in fraction steps: the surface keeps only the part of the fraction below it.</summary>
     private const int HalfPixelFraction = FixedCoordinate.HalfPixelFraction;

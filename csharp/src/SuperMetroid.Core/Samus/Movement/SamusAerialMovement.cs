@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// jumps, including the equipped vertical bonus. Terrain and solid/frozen-enemy wall jumps
 /// plus all three liquid launches are distinct results.
 /// </remarks>
-public static class SamusAerialMovement
+public static partial class SamusAerialMovement
 {
     /// <summary>
     /// Starts a jump through every environment/equipment path.
@@ -60,7 +60,7 @@ public static class SamusAerialMovement
     /// Applies the Speed Booster jump bonus when Speed Booster is equipped: the dash's extra run speed raises the launch
     /// speed part by part, as <see cref="SpeedBoosterJumpBonus"/> describes.
     /// </summary>
-    private static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
+    internal static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))

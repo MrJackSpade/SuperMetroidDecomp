@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Horizontal camera target offsets the horizontal camera follow uses.</summary>
-internal static class HorizontalCameraTargets
+internal static partial class HorizontalCameraTargets
 {
     /// <summary>
     /// Select Samus's screen-relative target (<see cref="HorizontalCameraTargetDefinitions"/>) for the way the camera

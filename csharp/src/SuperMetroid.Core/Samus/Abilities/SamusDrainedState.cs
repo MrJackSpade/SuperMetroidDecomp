@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
 /// mutations made by those calls and the fall the drained-fall animation cue starts later.
 /// </remarks>
-public sealed class SamusDrainedState
+public sealed partial class SamusDrainedState
 {
     /// <summary>
     /// Where the rainbow's colouring stands (#2562): showing, or ended by letting drained Samus fall or the rainbow's stop,
@@ -57,14 +57,14 @@ public sealed class SamusDrainedState
     /// first colouring moves it on at once, and each shade it moves on to shows for <see cref="RainbowGlowHold"/> as it
     /// stands then, not for its own beat.
     /// </summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
         SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow));
 
     /// <summary>
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
-    public DrainedGetUpCheck GetUpCheck { get; private set; }
+    public DrainedGetUpCheck GetUpCheck { get; internal set; }
 
     /// <summary>
     /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's
@@ -377,7 +377,7 @@ public sealed class SamusDrainedState
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
-    private void SetupForRainbowBeam(SamusState samus)
+    internal void SetupForRainbowBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

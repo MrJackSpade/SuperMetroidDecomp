@@ -4,7 +4,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The cartridge's pose numbering, data only; <see cref="SamusPoseNumbering"/> is its one reader.</summary>
-internal static class SamusPoseNumberDefinitions
+internal static partial class SamusPoseNumberDefinitions
 {
     /// <summary>
     /// Every pose in the order the game numbers them, from zero: the 253 records in the pose tables. A record no gameplay

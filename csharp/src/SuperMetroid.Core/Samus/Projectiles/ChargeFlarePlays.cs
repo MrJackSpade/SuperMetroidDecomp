@@ -4,11 +4,11 @@ using static SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Builds each charge-flare component's ordinary animation, with its own pictures and compositions (#2553).</summary>
-internal static class ChargeFlarePlays
+internal static partial class ChargeFlarePlays
 {
     /// <summary>The main flare's ordinary animation, cleared on its first picture.</summary>
     internal static ChargeFlarePlay<MainFlareSegment, MainFlarePicture> MainFlare() =>
-        new(MainFlareSegments, MainFlareAnimation, static (_, picture) => ChargeFlarePictures.MainFlare(picture));
+        new(MainFlareSegments, MainFlareAnimation, ChargeFlarePictures.MainFlareFacing);
 
     /// <summary>Component <paramref name="component"/>'s ordinary animation, cleared on its first picture.</summary>
     internal static IChargeFlarePlay Of(ChargeFlareComponent component) => Builders[component]();

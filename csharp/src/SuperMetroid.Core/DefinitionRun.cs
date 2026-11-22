@@ -5,7 +5,7 @@ namespace SuperMetroid.Core;
 /// list or any step data that holds the same entry several times in a row names the entry and its count, so the run reads
 /// as one fact and cannot drift entry by entry.
 /// </summary>
-internal static class DefinitionRun
+internal static partial class DefinitionRun
 {
     /// <summary><paramref name="entry"/> written <paramref name="count"/> times in a row.</summary>
     /// <typeparam name="T">The entry's type.</typeparam>

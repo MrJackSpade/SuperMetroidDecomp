@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <see cref="CrocomireArenaObjectDrawDefinitions"/>, and the installed picture (#1557) each shows. Each arena mutation is
 /// its own draw (#2557): the mutation names the shape it draws, so no second identity maps one to the other.
 /// </summary>
-internal static class CrocomireArenaDraws
+internal static partial class CrocomireArenaDraws
 {
     /// <summary>The arena's five frames, pictured by the installed Crocomire arena frames.</summary>
     internal static RoomObjectDrawFamily<CrocomireArenaMutation> Family { get; } =

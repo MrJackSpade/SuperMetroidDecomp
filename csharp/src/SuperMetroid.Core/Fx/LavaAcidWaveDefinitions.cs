@@ -5,7 +5,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How lava's and acid's heat haze moves and how lava bubbles (#1415).</summary>
-public static class LavaAcidWaveDefinitions
+public static partial class LavaAcidWaveDefinitions
 {
     /// <summary>Frames between the vertical heat-haze wave's steps.</summary>
     public const int VerticalWavePhaseDuration = 4;

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Escape;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="EnemyRoomEffects"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record EnemyRoomEffectsDependencies
+internal sealed partial record EnemyRoomEffectsDependencies
 {
     /// <summary>The escape countdown, which Mother Brain's defeat starts.</summary>
     public required EscapeTimer EscapeTimer { get; init; }

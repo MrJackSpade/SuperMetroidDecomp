@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Mouth">The cone's apex: the mouth's room position, right of the head and below.</param>
 /// <param name="LowerEdge">The edge half the beam's width short of its aim, wrapped around the turn.</param>
 /// <param name="UpperEdge">The edge half the beam's width past its aim, wrapped around the turn.</param>
-public readonly record struct MotherBrainRainbowBeamGeometry(
+public readonly partial record struct MotherBrainRainbowBeamGeometry(
     Position16<RoomPixels> Mouth,
     TrigonometryAngle LowerEdge,
     TrigonometryAngle UpperEdge);

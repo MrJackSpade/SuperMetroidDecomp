@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// The reactions of the Fireflea's own (#2558) that its definition names where it shares none of the engine's: the
 /// reaction that runs when Samus or her weapons meet it, which its entity answers.
 /// </summary>
-internal static class FirefleaReactions
+internal static partial class FirefleaReactions
 {
     /// <summary>The reaction of the Fireflea's own to Samus's touch, which its entity answers.</summary>
     internal static EnemyReaction Touch { get; } = EnemyReaction.OfSpecies("Fireflea.Touch");

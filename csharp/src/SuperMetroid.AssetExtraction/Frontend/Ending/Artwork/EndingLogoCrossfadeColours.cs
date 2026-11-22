@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// sprites' colours. The import pipeline decodes them from the installed crossfade palette, whose colour order is its
 /// own knowledge; the logo reads them by step, layer and colour.
 /// </summary>
-internal sealed class EndingLogoCrossfadeColours
+internal sealed partial class EndingLogoCrossfadeColours
 {
     /// <summary>The colours of one layer at one crossfade step.</summary>
     internal const int ColoursPerLayer = 16;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// How Mother Brain's neck bobs, lowers and raises, by the same angle steps in the fight and in the rainbow beam's
 /// sequence.
 /// </summary>
-internal static class MotherBrainNeckKinematics
+internal static partial class MotherBrainNeckKinematics
 {
     /// <summary>Lowest angle the lower neck bobs down to before reversing upward.</summary>
     private static readonly RotationAngle LowerBobFloor = RotationAngle.FromSteps(40);
@@ -176,6 +176,6 @@ internal static class MotherBrainNeckKinematics
     /// <summary>
     /// One axis of a joint's displacement: its distance times the angle's sine, in whole pixels rounded down.
     /// </summary>
-    private static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
+    internal static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
         UnitComponent.SineOf(angle).ReachRoundedDownOf(distance);
 }

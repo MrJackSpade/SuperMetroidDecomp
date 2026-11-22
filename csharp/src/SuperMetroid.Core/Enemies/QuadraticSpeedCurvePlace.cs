@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// each mover caps or floors its place well inside the curve, and a place past the curve's last mark or before its start
 /// fails when its speed is read.
 /// </summary>
-public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSpeedCurvePlace>
+public readonly partial record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSpeedCurvePlace>
 {
     /// <summary>The 256ths in a mark, as a power of two.</summary>
     private const int TwoHundredFiftySixthsPerMarkExponent = 8;
@@ -44,7 +44,7 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(checked(marks * TwoHundredFiftySixthsPerMark));
 
     /// <summary>The place <paramref name="twoHundredFiftySixths"/> 256ths of a mark along the curve, or the step of that many.</summary>
-    private static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
+    internal static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>
     /// The place <paramref name="numerator"/> <paramref name="denominator"/>ths of a mark along the curve, or the step of that

@@ -12,19 +12,19 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// decide the body halves each composition's picture shows. The import decoded them once from the cartridge's tables; the
 /// body sheet holds one whole picture per pose and picture frame, composed from them (#1585).
 /// </summary>
-public sealed class SamusSpritemapSources
+public sealed partial class SamusSpritemapSources
 {
     /// <summary>The largest number of parts one composition may hold.</summary>
     private const int MaxParts = 128;
 
     /// <summary>Validated compositions, by identity.</summary>
-    private readonly Dictionary<SamusSpritemapId, SamusSpritemapDefinition> definitions;
+    internal readonly Dictionary<SamusSpritemapId, SamusSpritemapDefinition> definitions;
     /// <summary>The composition each decoded pose half frame shows, or none for one that draws nothing.</summary>
-    private readonly Dictionary<SamusBodyHalfFrame, SamusSpritemapId?> halves;
+    internal readonly Dictionary<SamusBodyHalfFrame, SamusSpritemapId?> halves;
     /// <summary>The composition each suit-explosion sheet frame shows, or none.</summary>
-    private readonly Dictionary<string, SamusSpritemapId?> explosion;
+    internal readonly Dictionary<string, SamusSpritemapId?> explosion;
     /// <summary>The composition each diving-splash and bubbles sheet frame shows, or none.</summary>
-    private readonly Dictionary<string, SamusSpritemapId?> atmosphere;
+    internal readonly Dictionary<string, SamusSpritemapId?> atmosphere;
     /// <summary>The body halves each composition reads characters of.</summary>
     private readonly Dictionary<SamusSpritemapId, SamusBodyHalvesShown> halvesShown;
     /// <summary>Whole frames already built, by composition.</summary>
@@ -52,7 +52,7 @@ public sealed class SamusSpritemapSources
 
     /// <summary>The composition <paramref name="frame"/> shows; false only for a frame with none, which composes nothing.</summary>
     /// <exception cref="InvalidDataException">The pose half frame is not decoded.</exception>
-    private bool TryGetComposition(SamusBodyHalfFrame frame, out SamusSpritemapId composition)
+    internal bool TryGetComposition(SamusBodyHalfFrame frame, out SamusSpritemapId composition)
     {
         SamusSpritemapId? shown = halves.TryGetValue(frame, out SamusSpritemapId? decoded)
             ? decoded

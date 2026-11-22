@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>How the four particles a Skree or Metaree bursts into fly out (#2182): the right pair's, which the left pair mirror.</summary>
-internal static class MetalParticleBurstDefinitions
+internal static partial class MetalParticleBurstDefinitions
 {
     /// <summary>How far to the right of the enemy the right pair starts, and to the left the left pair, in pixels.</summary>
     internal const int SideOffset = 6;

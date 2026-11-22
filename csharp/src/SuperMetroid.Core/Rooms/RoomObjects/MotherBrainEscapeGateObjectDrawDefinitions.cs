@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The block shape of the three frames of the Mother Brain escape gate (#1608). What each frame shows is its installed
 /// picture (#1557).
 /// </summary>
-internal static class MotherBrainEscapeGateObjectDrawDefinitions
+internal static partial class MotherBrainEscapeGateObjectDrawDefinitions
 {
     /// <summary>The gate: four solid blocks down its column from the origin, in every frame, the visually open one included.</summary>
     private static readonly RoomBlockShape Gate = RoomBlockShapes.Column(4, RoomCollisionType.SolidBlock);

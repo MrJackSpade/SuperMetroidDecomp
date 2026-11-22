@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="playerButtons">The player's physical button latch, for code that reads fixed buttons.</param>
 /// <param name="options">The controller bindings that read the buttons as actions.</param>
 /// <param name="clock">The frame counters.</param>
-internal sealed class AcceptedFrameInput(
+internal sealed partial class AcceptedFrameInput(
     GameplayActionInput playerActions,
     ControllerInputState playerButtons,
     GameplayOptions options,

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// What the input-transition lookup decides: a new pose, the pose's no-input fallback, or keeping the pose.
 /// </summary>
-public abstract record SamusPoseTransitionLookup
+public abstract partial record SamusPoseTransitionLookup
 {
     /// <summary>Only the three outcomes derive from it (#2560).</summary>
     private SamusPoseTransitionLookup()
@@ -24,11 +24,11 @@ public abstract record SamusPoseTransitionLookup
 
     /// <summary>A transition to a new pose.</summary>
     /// <param name="Next">The transition chosen.</param>
-    public sealed record Chosen(SamusPoseTransition Next) : SamusPoseTransitionLookup;
+    public sealed partial record Chosen(SamusPoseTransition Next) : SamusPoseTransitionLookup;
 
     /// <summary>The pose is kept.</summary>
-    private sealed record Keeping : SamusPoseTransitionLookup;
+    private sealed partial record Keeping : SamusPoseTransitionLookup;
 
     /// <summary>The pose definition's fallback decides.</summary>
-    private sealed record FallingBack : SamusPoseTransitionLookup;
+    private sealed partial record FallingBack : SamusPoseTransitionLookup;
 }

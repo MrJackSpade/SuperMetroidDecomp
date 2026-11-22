@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Etecoon's look, run, wall-jump, hop and flex animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class EtecoonAnimations
+internal static partial class EtecoonAnimations
 {
     /// <summary>
     /// A hop's arm poses in the order it shows them, facing as its poses do: <paramref name="raising"/>, <paramref name="up"/>,
@@ -89,7 +89,7 @@ internal static class EtecoonAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275): a crouch, a cling and the
     /// placed Etecoon's crouch are still pictures, and a wall jump either way leaps and then spins for good.
     /// </summary>
-    private static Dictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
+    internal static Dictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
     {
         [P.LookRightAtSamusAndRunLeft] = new([Segments.Whole(P.LookRightAtSamusAndRunLeft)], AnimationEnd.Holds),
         [P.BeginRunningLeft] = Animation<EtecoonSegment>.LeadingInto([Segments.Whole(P.BeginRunningLeft)], [Segments.Whole(P.RunningLeft)]),

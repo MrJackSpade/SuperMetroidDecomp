@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// holds of it (#1633), so a thread painting many sheets allocates only their installed pixels. The picture store writes
 /// their pictures (#1635). Not shared between threads.
 /// </summary>
-internal sealed class InstalledSheetPainter
+internal sealed partial class InstalledSheetPainter
 {
     /// <summary>The planes a laid-out sheet is painted on before it is converted.</summary>
     private readonly SpriteSheetCanvas canvas = new();

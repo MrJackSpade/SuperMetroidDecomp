@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies;
 /// (#1512).
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyPresentation
+internal sealed partial class EnemyPresentation
 {
     /// <summary>The enemy session, which holds the installed sheets.</summary>
     private readonly EnemySession _session;
@@ -38,7 +38,7 @@ internal sealed class EnemyPresentation
     /// The population whose artwork the room's enemies and the objects they spawn draw from (#1599): the one the room's
     /// load placed, or none for a room that has placed no enemies, which draws from the standard artwork.
     /// </summary>
-    private RoomEnemyPopulationDefinition? DrawnPopulation { get; set; }
+    internal RoomEnemyPopulationDefinition? DrawnPopulation { get; set; }
 
     /// <summary>
     /// Room load: the room's enemies and the objects they spawn draw from <paramref name="population"/>'s artwork from now
@@ -47,7 +47,7 @@ internal sealed class EnemyPresentation
     internal void DrawPopulation(RoomEnemyPopulationDefinition population) => DrawnPopulation = Ensure.NotNull(population);
 
     /// <summary>The artwork the room draws from: its population's, or the standard artwork while it has placed no enemies.</summary>
-    private PopulationArtwork Artwork => DrawnPopulation is { } population ? Sheets.For(population) : Sheets.Standard;
+    internal PopulationArtwork Artwork => DrawnPopulation is { } population ? Sheets.For(population) : Sheets.Standard;
 
     /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
     internal RoomAppearance Appearance
@@ -90,7 +90,7 @@ internal sealed class EnemyPresentation
         BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
-    private EncounterLooks Looks { get; }
+    internal EncounterLooks Looks { get; }
 
     /// <summary>Shows <paramref name="look"/> on its encounter's frames from this update on (#1538).</summary>
     internal void ShowLook(EncounterLook look) => Looks.Show(look);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it
 /// acts on.
 /// </summary>
-internal static class DustExplosionProjectileAnimations
+internal static partial class DustExplosionProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

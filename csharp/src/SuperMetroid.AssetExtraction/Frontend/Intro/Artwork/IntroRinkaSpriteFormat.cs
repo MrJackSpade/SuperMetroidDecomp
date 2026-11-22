@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Installed visual resource for the three intro Rinka frames.</summary>
-public static class IntroRinkaSpriteFormat
+public static partial class IntroRinkaSpriteFormat
 {
     /// <summary>Supported JSON visual-schema revision; actor motion and instruction timing remain in cinematic definitions.</summary>
     public const int Version = 1;

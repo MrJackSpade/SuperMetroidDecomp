@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// collectibles and the camera as they are when a frame shows them. Nothing is kept between frames: the reveal shows the
 /// room as it is.
 /// </summary>
-internal sealed class XrayReveal
+internal sealed partial class XrayReveal
 {
     /// <summary>Supplies the camera position, which places the reveal.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
@@ -27,7 +27,7 @@ internal sealed class XrayReveal
     }
 
     /// <summary>The installed reveal pictures (#2290), which a host binding another installation's artwork replaces.</summary>
-    private InstalledXrayReveals XrayRevealVisuals { get; set; }
+    internal InstalledXrayReveals XrayRevealVisuals { get; set; }
 
     /// <summary>Replaces the reveal pictures with <paramref name="visuals"/>, as a host binding another installation's artwork does.</summary>
     internal void Rebind(InstalledXrayReveals visuals) => XrayRevealVisuals = Ensure.NotNull(visuals);

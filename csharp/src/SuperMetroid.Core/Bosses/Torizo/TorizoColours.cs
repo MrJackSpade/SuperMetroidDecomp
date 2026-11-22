@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// which it last changed. The colours never reach gameplay; only when a fade completes does, through the shared counter
 /// (<see cref="Step"/>).
 /// </remarks>
-internal sealed class TorizoColours
+internal sealed partial class TorizoColours
 {
     /// <summary>The colouring last shown whole: loaded, written by a hurt, or reached by a completed fade.</summary>
     private TorizoLook settled = new(TorizoLookKind.BombStatue);

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="FlareRingCored">The ring still holding its core.</param>
 /// <param name="FlareRing">The open ring.</param>
 /// <param name="FlareRingFading">The ring fading away.</param>
-internal sealed record FlareBurst(
+internal sealed partial record FlareBurst(
     EnemyProjectileFrameId Spark,
     EnemyProjectileFrameId FlareBall,
     EnemyProjectileFrameId FlareRingCored,

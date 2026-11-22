@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The segments of Kraid's arm's normal swing (<see cref="KraidArmState"/>).</summary>
-internal static class KraidArmSwingDefinitions
+internal static partial class KraidArmSwingDefinitions
 {
     /// <summary>The segments an animation of the normal swing starts at: the swing and its pause.</summary>
     internal static readonly KraidPartSegment[] NormalSwing = [KraidPartSegment.ArmNormal, KraidPartSegment.ArmNormalPause];

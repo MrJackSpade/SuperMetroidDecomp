@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Observable result of one room-block movement scan.</summary>
-public readonly record struct BlockMoveResult(
+public readonly partial record struct BlockMoveResult(
     SignedSixteenSixteen AcceptedDisplacement,
     bool Collided,
     SolidEnemyCollisionResult? EnemyCollision = null)

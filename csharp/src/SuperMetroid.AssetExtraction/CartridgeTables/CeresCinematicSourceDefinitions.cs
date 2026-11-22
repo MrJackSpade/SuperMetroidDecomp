@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// import pipeline's private knowledge of the cartridge, decoded once into the installed Ceres cinematic documents.
 /// </summary>
 [EncodingOwner("cartridge addresses of the opening flight and Ceres destruction artwork and placements")]
-internal static class CeresCinematicSourceDefinitions
+internal static partial class CeresCinematicSourceDefinitions
 {
     /// <summary>$8C:E5E9, the flight's 256-colour palette.</summary>
     internal const int FlightPalette = 0x8ce5e9;

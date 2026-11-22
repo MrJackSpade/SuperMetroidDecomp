@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>How a Skree winds up, dives and burrows (#2076).</summary>
-internal static class SkreeMotionDefinitions
+internal static partial class SkreeMotionDefinitions
 {
     /// <summary>How close Samus comes horizontally, in pixels and exclusive, before an idling Skree winds up.</summary>
     internal const int WindUpDistance = 48;

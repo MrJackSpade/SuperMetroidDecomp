@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable energy-tank cell definitions and HUD anchors.</summary>
-public sealed record GameplayHudEnergyTankDocument
+public sealed partial record GameplayHudEnergyTankDocument
 {
     /// <summary>Gets the ordered energy-tank cell coordinates.</summary>
     public required Position16<CharacterCells>[] Anchors { get; init; }

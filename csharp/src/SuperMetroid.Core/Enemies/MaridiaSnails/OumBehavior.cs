@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Oum species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Oum], Create);
@@ -54,6 +54,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunOumMain"/> does for each <see cref="OumAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>> RunOumMainForOumAction => field ??= new(new Dictionary<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>>
     {
         [OumAction.Idle] = (place, state, samus, level, pushSide) => RunOumIdle(place, state, samus, level),
@@ -170,6 +171,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunOumBounce"/> does for each <see cref="OumBouncePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>> RunOumBounceForOumBouncePhase => field ??= new(new Dictionary<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>>
     {
         [OumBouncePhase.Falling] = (place, state, level) =>
@@ -332,6 +334,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyOumCue"/> does for each <see cref="OumCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<OumCueKind, Action<OumEnemyState>> ApplyOumCueForOumCueKind => field ??= new(new Dictionary<OumCueKind, Action<OumEnemyState>>
     {
         [OumCueKind.PlaySplash] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal),
@@ -365,7 +368,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// still shows its spawn idle it counts as playing the right-facing idle, and its first start of another animation, the
     /// left-facing idle included, starts it afresh (<see cref="OumEnemyState.ShowsSpawnIdle"/>).
     /// </summary>
-    private static void StartOumAnimation(
+    internal static void StartOumAnimation(
         RoomEnemyPlace place,
         OumEnemyState state,
         OumSegment segment)
@@ -398,16 +401,23 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Plays the Oum's shot sound after the common shot damage, for damaging, freezing, and zero-damage vulnerability
+    /// Plays the Oum's shot sound after a bomb's common damage, for damaging, freezing, and zero-damage vulnerability
     /// results alike.
     /// </summary>
-    private void ResolveOumShotAfterCommon() =>
+    private void ResolveOumShotAfterCommon(EnemyBombHitContext context) =>
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
+
+    /// <summary>
+    /// Plays the Oum's shot sound after a shot's common damage, for damaging, freezing, and zero-damage vulnerability
+    /// results alike.
+    /// </summary>
+    private void ResolveOumShotAfterCommon(EnemyShotHitContext context) =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal EnemyBombReaction OumBombReaction => field ??= new()
     {
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterCommon = ResolveOumShotAfterCommon,
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
@@ -434,27 +444,35 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A hit on the protected shell does nothing; only a vulnerable hitbox takes common damage.</summary>
     internal EnemyShotReaction OumShotReaction => field ??= new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
-            if (c.HitboxShot == EnemyReaction.Ignore)
-            {
-                // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
-                // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-                return true;
-            }
-            if (c.HitboxShot != OumReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot}.");
-            }
-            return false;
-        },
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterSuperMissileQuake = ReactToShellShot,
+        AfterCommon = ResolveOumShotAfterCommon,
     };
+
+    /// <summary>
+    /// Takes a shot meeting the Oum's protected shell after the Super Missile quake: it only marks the projectile. Its
+    /// vulnerable hitbox goes on to the common damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the Oum.</param>
+    /// <returns>Whether the shell took the shot.</returns>
+    private static bool ReactToShellShot(in EnemyShotContext c)
+    {
+        if (!c.UsesFrameHitboxes)
+            throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
+        if (c.HitboxShot == EnemyReaction.Ignore)
+        {
+            // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
+            // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            return true;
+        }
+        if (c.HitboxShot != OumReactions.Shot)
+        {
+            throw new InvalidDataException(
+                $"Maridia Large Snail has no response to shot reaction " +
+                $"{c.HitboxShot}.");
+        }
+        return false;
+    }
 
     /// <summary>Reacts to Samus touching a damaging or non-damaging Oum hitbox, each with its own push.</summary>
     internal void ReactToOumTouch(EnemyTouchContext context)

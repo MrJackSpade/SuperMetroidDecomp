@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// presentation quirk the port does not replicate (owner ruling on #1513: no sprite sheet frame shows half a Samus); the
 /// carried movement itself stays gameplay and still governs her movement, collisions and the wall contact's rewind.
 /// </remarks>
-internal static class SamusBodyCompositions
+internal static partial class SamusBodyCompositions
 {
     /// <summary>
     /// The halves the whole picture of <paramref name="pose"/> at picture frame <paramref name="pictureFrame"/> is composed

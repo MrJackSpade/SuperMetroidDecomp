@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The ending: the gunship leaves Zebes while the screen darkens, then Zebes's destruction, the results and the credits.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class EndingGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Ending;
@@ -43,6 +43,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
         session.EndingStep == EndingStep.Credits && session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true;
 
     /// <summary>What <c>Step</c> does for each <see cref="EndingStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<EndingStep, Action<ControllerButton>> StepForEndingStep => field ??= new(new Dictionary<EndingStep, Action<ControllerButton>>
     {
         [EndingStep.LeavingZebes] = controllerInput => LeaveZebes(controllerInput),

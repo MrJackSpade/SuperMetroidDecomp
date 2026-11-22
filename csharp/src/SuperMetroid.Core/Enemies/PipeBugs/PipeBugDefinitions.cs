@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// centred on the leader's (<see cref="LeaderRole"/>), each place above or below it a fixed number of updates later or sooner. Also the Brinstar Pipe Bug's flight speed
 /// (#2076), and when and how each kind of bug emerges and flies (#2156).
 /// </summary>
-internal static class PipeBugDefinitions
+internal static partial class PipeBugDefinitions
 {
     /// <summary>How far a Brinstar Pipe Bug flies sideways each update, in pixels.</summary>
     internal const int BrinstarFlightStep = 2;
@@ -14,16 +14,16 @@ internal static class PipeBugDefinitions
     internal static readonly NorfairPipeBugRole LeaderRole = new NorfairPipeBugRole.Leader(104);
 
     /// <summary>The member just above the leader: it rises 16 pixels further and departs at 96.</summary>
-    private static readonly NorfairPipeBugRole UpperNearRole = new NorfairPipeBugRole.Follower(96, new NorfairPipeBugStagger(VerticalDirection.Up, 16));
+    internal static readonly NorfairPipeBugRole UpperNearRole = new NorfairPipeBugRole.Follower(96, new NorfairPipeBugStagger(VerticalDirection.Up, 16));
 
     /// <summary>The member farthest above the leader: it rises 32 pixels further and departs at 88.</summary>
-    private static readonly NorfairPipeBugRole UpperFarRole = new NorfairPipeBugRole.Follower(88, new NorfairPipeBugStagger(VerticalDirection.Up, 32));
+    internal static readonly NorfairPipeBugRole UpperFarRole = new NorfairPipeBugRole.Follower(88, new NorfairPipeBugStagger(VerticalDirection.Up, 32));
 
     /// <summary>The member just below the leader: it sinks 16 pixels back and departs at 112.</summary>
-    private static readonly NorfairPipeBugRole LowerNearRole = new NorfairPipeBugRole.Follower(112, new NorfairPipeBugStagger(VerticalDirection.Down, 16));
+    internal static readonly NorfairPipeBugRole LowerNearRole = new NorfairPipeBugRole.Follower(112, new NorfairPipeBugStagger(VerticalDirection.Down, 16));
 
     /// <summary>The member farthest below the leader: it sinks 32 pixels back and departs at 120.</summary>
-    private static readonly NorfairPipeBugRole LowerFarRole = new NorfairPipeBugRole.Follower(120, new NorfairPipeBugStagger(VerticalDirection.Down, 32));
+    internal static readonly NorfairPipeBugRole LowerFarRole = new NorfairPipeBugRole.Follower(120, new NorfairPipeBugStagger(VerticalDirection.Down, 32));
 
     /// <summary>
     /// How the room lists a formation (#2556): the leader, then the near and far members above it, then the near and far

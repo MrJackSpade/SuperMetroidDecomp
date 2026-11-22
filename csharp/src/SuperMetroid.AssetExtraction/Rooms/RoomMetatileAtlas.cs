@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Editable 16x16 visual blocks. This catalog contains only the four tiles each block
 /// shows; room collision types, BTS behavior and placement remain elsewhere.
 /// </summary>
-public sealed class RoomMetatileAtlas
+public sealed partial class RoomMetatileAtlas
 {
     /// <summary>Four tiles per block in quadrant order.</summary>
     private readonly BackgroundTile[] blockTiles;
@@ -71,7 +71,7 @@ public sealed class RoomMetatileAtlas
     public static void Write(Stream json, RoomMetatileDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomMetatileDocument>(JsonOptions)));
     }
 
     /// <summary>Strict camel-case JSON settings for editable metatile documents.</summary>

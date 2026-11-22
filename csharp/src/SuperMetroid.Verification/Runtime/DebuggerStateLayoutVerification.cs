@@ -14,7 +14,7 @@ namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks debugger graph restoration rejects stale field and type layouts.</summary>
-internal static class DebuggerStateLayoutVerification
+internal static partial class DebuggerStateLayoutVerification
 {
     /// <summary>
     /// #1270: debugger states restore only this build's exact layout. A stale field, a type this build
@@ -30,12 +30,14 @@ internal static class DebuggerStateLayoutVerification
             "a current-layout graph round-trips");
 
         // Same-length replacements keep every length prefix valid, so only the identity changes.
-        const string timerField = "<PoseChangeAutoFireTimer>k__BackingField";
-        RequireUnsupported(Replace(current, timerField, "<PoseChangeAutoFireTamer>k__BackingField"),
+        const string timerField = "PoseChangeAutoFireTimer";
+        RequireUnsupported(Replace(current, timerField, "PoseChangeAutoFireTamer"),
             "a renamed field", RestoreBound<SamusGrappleState>);
-        RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState,", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf,"),
+        RequireUnsupported(Replace(current, "SuperMetroid.Core.Samus.Grapple.SamusGrappleState", "SuperMetroid.Core.Samus.Grapple.SamusGrappleStatf"),
             "a type this build does not have", RestoreBound<SamusGrappleState>);
-        RequireUnsupported(Replace(current, "System.Int32,", "System.Int64,", after: timerField),
+        // A state stores each name's text once and names it by number after (#2602), so retyping the stored name retypes
+        // every value of the type, and the first field read holding one is refused.
+        RequireUnsupported(Replace(current, "System.Int32", "System.Int64"),
             "a retyped field value", RestoreBound<SamusGrappleState>);
         Console.WriteLine("Debugger state layout: current graphs round-trip; renamed fields, missing types and retyped values are rejected.");
 
@@ -69,25 +71,16 @@ internal static class DebuggerStateLayoutVerification
 
     /// <summary>
     /// A copy of <paramref name="graph"/> with the first occurrence of <paramref name="from"/> replaced by the same-length
-    /// <paramref name="to"/>: the first after the first occurrence of <paramref name="after"/> when one is given.
+    /// <paramref name="to"/>: the name's stored text, which every later use of the name refers to.
     /// </summary>
-    private static byte[] Replace(byte[] graph, string from, string to, string? after = null)
+    private static byte[] Replace(byte[] graph, string from, string to)
     {
         byte[] source = Encoding.UTF8.GetBytes(from), target = Encoding.UTF8.GetBytes(to);
         if (source.Length != target.Length)
             throw new InvalidOperationException("A layout substitution must keep the encoded length.");
-        int start = 0;
-        if (after is not null)
-        {
-            int anchor = graph.AsSpan().IndexOf(Encoding.UTF8.GetBytes(after));
-            if (anchor < 0)
-                throw new InvalidOperationException($"The serialized graph does not contain '{after}'.");
-            start = anchor + Encoding.UTF8.GetByteCount(after);
-        }
-        int found = graph.AsSpan(start).IndexOf(source);
-        if (found < 0)
-            throw new InvalidOperationException($"The serialized graph does not contain '{from}'{(after is null ? "" : $" after '{after}'")}.");
-        int index = start + found;
+        int index = graph.AsSpan().IndexOf(source);
+        if (index < 0)
+            throw new InvalidOperationException($"The serialized graph does not contain '{from}'.");
         byte[] copy = [.. graph];
         target.CopyTo(copy, index);
         return copy;
@@ -208,7 +201,7 @@ internal static class DebuggerStateLayoutVerification
         {
             RoomObjectSetupBlocks = new InstalledRoomObjectSetupBlocks(new Dictionary<RoomObjectSetupBlock, RoomBlockAppearance> { [block] = shown }),
         });
-        RoomObjectDraw grapple = global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.World.RoomObjectArtwork, global::SuperMetroid.Core.Rooms.RoomObjects.InstalledRoomObjectPictures>(RoomObjectFixtures.Installed, "RoomObjectGrappleBlockVisuals").Images.All.Keys.First();
+        RoomObjectDraw grapple = RoomObjectFixtures.Installed.RoomObjectGrappleBlockVisuals.Images.All.Keys.First();
 
         var restored = DeserializeDebuggerGraph<SuperMetroid.Core.World.RoomObjectVisuals>(SerializeDebuggerGraph(visuals));
         AssertTrue(!ReferenceEquals(visuals, restored), "the restore builds its own room-object visuals");
@@ -262,9 +255,9 @@ internal static class DebuggerStateLayoutVerification
         ];
         byte[] packed = SerializeDebuggerGraph(blocks);
         AssertTrue(DeserializeDebuggerGraph<RoomTerrainBlock[]>(packed).SequenceEqual(blocks), "a packed block run round-trips");
-        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "<Collision>k__BackingField", "<Collisiom>k__BackingField"),
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "Collision:", "Collisiom:"),
             "a packed run with a renamed field");
-        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType,", "LevelData.RoomCollisionTypf,"),
+        RequireUnsupported<RoomTerrainBlock[]>(Replace(packed, "LevelData.RoomCollisionType", "LevelData.RoomCollisionTypf"),
             "a packed run naming a type this build does not have");
         Console.WriteLine("Debugger state packing: packed runs with renamed fields or missing types are rejected.");
 
@@ -272,9 +265,9 @@ internal static class DebuggerStateLayoutVerification
         // their field is named once in the run's schema, and each object they hold is written once and restored shared.
         var shared = new HashedOwner("shared");
         HoldingElement[] holding = [new(shared, 1), new(shared, 2), new(null, 3), new(new HashedOwner("own"), 4)];
-        byte[] held = SerializeDebuggerGraph(holding);
-        AssertEqual(1, Occurrences(held, "<Owner>k__BackingField"), "a run of struct elements holding references names their field once");
-        HoldingElement[] restoredHolding = DeserializeDebuggerGraph<HoldingElement[]>(held);
+        byte[] held = SerializeDebuggerGraph(new HoldingRun(holding));
+        AssertEqual(1, Occurrences(held, "Owner:"), "a run of struct elements holding references names their field once");
+        HoldingElement[] restoredHolding = DeserializeDebuggerGraph<HoldingRun>(held).Elements;
         AssertTrue(restoredHolding.Select(element => element.Count).SequenceEqual(holding.Select(element => element.Count)) &&
             restoredHolding[0].Owner is { Name: "shared" } && ReferenceEquals(restoredHolding[0].Owner, restoredHolding[1].Owner) &&
             restoredHolding[2].Owner is null && restoredHolding[3].Owner is { Name: "own" } && !ReferenceEquals(restoredHolding[3].Owner, restoredHolding[0].Owner),
@@ -299,11 +292,19 @@ internal static class DebuggerStateLayoutVerification
     /// <summary>A struct element holding a reference and a count, as a room's block behaviour holds its kept behaviour.</summary>
     /// <param name="Owner">The object it holds, or none.</param>
     /// <param name="Count">Its count.</param>
-    private readonly record struct HoldingElement(HashedOwner? Owner, int Count);
+    private readonly partial record struct HoldingElement(HashedOwner? Owner, int Count);
+
+    /// <summary>A run of <see cref="HoldingElement"/>s, held by a field declared with their array type, as a game object holds one.</summary>
+    /// <param name="elements">The run.</param>
+    private sealed partial class HoldingRun(HoldingElement[] elements)
+    {
+        /// <summary>The run.</summary>
+        internal HoldingElement[] Elements { get; } = elements;
+    }
 
     /// <summary>A key compared by reference identity, whose hash is its object's.</summary>
     /// <param name="name">The name the fixture gives it.</param>
-    private sealed class HashedOwner(string name)
+    private sealed partial class HashedOwner(string name)
     {
         /// <summary>The name the fixture gives it.</summary>
         internal string Name { get; } = name;
@@ -312,13 +313,13 @@ internal static class DebuggerStateLayoutVerification
     /// <summary>A record key, whose hash combines its name's and its owner's identity hash.</summary>
     /// <param name="Name">The owner's name.</param>
     /// <param name="Owner">The owner it keys.</param>
-    private sealed record HashedKey(string Name, HashedOwner Owner);
+    private sealed partial record HashedKey(string Name, HashedOwner Owner);
 
     /// <summary>A dictionary subclass, which the rebuild of its base cannot rebuild.</summary>
-    private sealed class NamedCounts : Dictionary<string, int>;
+    private sealed partial class NamedCounts : Dictionary<string, int>;
 
     /// <summary>A state holding every hash-keyed collection kind the debugger state rebuilds.</summary>
-    private sealed class HashKeyedState
+    private sealed partial class HashKeyedState
     {
         /// <summary>Every owner, in creation order.</summary>
         internal List<HashedOwner> Owners { get; } = [];
@@ -354,6 +355,7 @@ internal static class DebuggerStateLayoutVerification
     /// <summary>Serializes a fixture object through the production debugger graph format.</summary>
     private static byte[] SerializeDebuggerGraph(object root)
     {
+        GraphDigestVerification.DeclareDefinitionIndex();
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, root);
         return stream.ToArray();

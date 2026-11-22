@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>How near Samus a Ki-Hunter swoops, how fast it accelerates and how its detached wings orbit.</summary>
-public static class KiHunterMotionDefinitions
+public static partial class KiHunterMotionDefinitions
 {
     /// <summary>How near, in pixels, Samus must come horizontally for a flying Ki-Hunter to swoop at her.</summary>
     public const int SwoopTriggerDistance = 96;

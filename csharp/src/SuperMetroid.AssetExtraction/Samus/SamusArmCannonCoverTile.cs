@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 /// <param name="Orientation">The orientation the picture is drawn for.</param>
 /// <param name="Frame">How far open the picture shows.</param>
-internal readonly record struct SamusArmCannonCoverTile(SamusArmCannonCoverOrientation Orientation, SamusArmCannonCoverFrame Frame);
+internal readonly partial record struct SamusArmCannonCoverTile(SamusArmCannonCoverOrientation Orientation, SamusArmCannonCoverFrame Frame);

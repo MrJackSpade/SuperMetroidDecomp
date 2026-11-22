@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the overlay occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MagdolliteOverlayEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class MagdolliteOverlayEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : MagdollitePartEntity(species, occupant, place, common), IEnemyInitialization
 {
     /// <inheritdoc/>

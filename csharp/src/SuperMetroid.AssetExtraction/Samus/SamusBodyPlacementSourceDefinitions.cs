@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The shape of the cartridge's Samus body placement tables and the fixed placements its draw selects (#1517), which
 /// <see cref="SamusBodyPlacementDecoding"/> decodes once into each installed frame's placement.
 /// </summary>
-internal static class SamusBodyPlacementSourceDefinitions
+internal static partial class SamusBodyPlacementSourceDefinitions
 {
     /// <summary>
     /// Where the unsuited forward-facing body's chest cover sits from Samus's world point: seven pixels left of it and

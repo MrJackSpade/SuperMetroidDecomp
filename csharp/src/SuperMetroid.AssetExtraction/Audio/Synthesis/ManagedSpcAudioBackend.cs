@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// and sound-effect starts the session's <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> published. One owner must
 /// call it in update order.
 /// </summary>
-public sealed class ManagedSpcAudioBackend
+public sealed partial class ManagedSpcAudioBackend
 {
     /// <summary>Decoded cartridge uploads, instruments, music, sound programs, and sample banks.</summary>
     private readonly ExtractedAudioAssetCatalog assets;

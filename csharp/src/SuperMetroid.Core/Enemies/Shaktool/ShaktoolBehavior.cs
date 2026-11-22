@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Shaktool], Create);
@@ -109,9 +109,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The chain a segment found when it was placed: its segments and their shared motion and target (#2452).</summary>
-    private ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
+    internal ShaktoolChain ChainOf(RoomEnemyPlace segment) => _chains.Of(segment).Chain;
 
     /// <summary>What <see cref="RunShaktoolMain"/> does for each <see cref="ShaktoolSegmentMotion"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>> RunShaktoolMainForShaktoolSegmentMotion => field ??= new(new Dictionary<ShaktoolSegmentMotion, Action<RoomEnemyPlace, ShaktoolSegmentState, RoomLevelData>>
     {
         [ShaktoolSegmentMotion.Idle] = (place, state, level) => { },
@@ -130,7 +131,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the segment on its orbit around the segment before it in the chain.</summary>
-    private void PositionShaktoolAroundPreviousSegment(
+    internal void PositionShaktoolAroundPreviousSegment(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
@@ -146,7 +147,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// A segment's place from the one before it at <paramref name="angle"/>: the orbit's sine
     /// (<see cref="ShaktoolOrbitDefinitions.OrbitSine"/>) at the angle across, and at the angle a quarter turn behind down.
     /// </summary>
-    private static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
+    internal static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
         ShaktoolOrbitDefinitions.OrbitSine.At(angle), ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn));
 
     /// <summary>
@@ -167,7 +168,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, showing the
     /// head's picture for that facing (#2284, #2452).
     /// </summary>
-    private void AdvanceAndOrientShaktoolCenter(
+    internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemyPlace place,
         ShaktoolSegmentState state)
     {
@@ -242,6 +243,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ReverseShaktoolAfterCollision"/> does for each <see cref="ShaktoolWallResponse"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>> ReverseShaktoolAfterCollisionForShaktoolWallResponse => field ??= new(new Dictionary<ShaktoolWallResponse, Action<RoomEnemyPlace, Position16<RoomPixels>, ShaktoolChain, ShaktoolChainMotion>>
     {
         [ShaktoolWallResponse.ReverseOrbit] = (place, previous, chain, motion) => chain.Motion = new(ShaktoolChainPhase.Curling, ShaktoolWallResponse.TurnEndForEnd, motion.OrbitDirection.Reversed()),
@@ -258,7 +260,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reverses the chain at terrain contact as its next wall response says: it turns end for end, or its orbit turns the
     /// other way round; either way it curls again and turns toward a new target.
     /// </summary>
-    private void ReverseShaktoolAfterCollision(
+    internal void ReverseShaktoolAfterCollision(
         RoomEnemyPlace place,
         ShaktoolSegmentState state,
         Position16<RoomPixels> previous)
@@ -375,6 +377,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Enemy place {place.Ordinal} has no initialized Shaktool state.");
 
     /// <summary>What <see cref="ApplyShaktoolCue"/> does for each <see cref="ShaktoolCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>> ApplyShaktoolCueForShaktoolCueKind => field ??= new(new Dictionary<ShaktoolCueKind, Action<RoomEnemyPlace, ShaktoolCue>>
     {
         [ShaktoolCueKind.Lower] = (place, cue) => ApplyShaktoolCueForShaktoolCueKindLower(place, cue),
@@ -398,7 +401,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of a Shaktool segment's animation.</summary>
-    private void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
+    internal void ApplyShaktoolCue(RoomEnemyPlace place, ShaktoolCue cue)
     {
         ApplyShaktoolCueForShaktoolCueKind[cue.Kind](place, cue);
     }
@@ -413,7 +416,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The shared enemy sine velocity at <paramref name="angle"/>: one pixel per update at its peak.</summary>
-    private static SignedEightEight SineVelocity(TrigonometryAngle angle) =>
+    internal static SignedEightEight SineVelocity(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>
@@ -432,10 +435,16 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
+    /// <summary>Runs <see cref="ResolveShaktoolShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveShaktoolShotAfterCommon(EnemyBombHitContext context) => ResolveShaktoolShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveShaktoolShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveShaktoolShotAfterCommon(EnemyShotHitContext context) => ResolveShaktoolShotAfterCommon(context.Enemy);
+
     /// <summary>Shaktool's reaction to a bomb: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyBombReaction ShaktoolBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveShaktoolShotAfterCommon,
     };
 
     /// <summary>Runs Shaktool's main AI.</summary>
@@ -470,6 +479,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shaktool's reaction to a shot: after the common damage, a lethal hit ends the whole Shaktool.</summary>
     internal EnemyShotReaction ShaktoolShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveShaktoolShotAfterCommon,
     };
 }

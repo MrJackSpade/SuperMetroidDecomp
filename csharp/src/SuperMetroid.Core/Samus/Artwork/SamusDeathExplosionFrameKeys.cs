@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The installed key of each <see cref="SamusDeathExplosionFrame"/> (#2520), written out so renaming a member never
 /// changes a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusDeathExplosionFrameKeys
+internal static partial class SamusDeathExplosionFrameKeys
 {
     /// <summary>Each SamusDeathExplosionFrame member's installed key.</summary>
     internal static InstalledKeys<SamusDeathExplosionFrame> Installed { get; } = new(new Dictionary<SamusDeathExplosionFrame, string>

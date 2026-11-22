@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="Area">The area the statue's room lies in.</param>
 /// <param name="HandBehavior">The behaviour of its hand's block, which a touch of the hand meets.</param>
 /// <param name="Admission">What admits Samus to its hand.</param>
-internal sealed record ChozoStatueSiteDefinition(
+internal sealed partial record ChozoStatueSiteDefinition(
     PictureShade Shade,
     ChozoStatueSegment Idle,
     ChozoStatueSegment Activated,

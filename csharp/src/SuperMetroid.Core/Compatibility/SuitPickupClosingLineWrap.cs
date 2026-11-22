@@ -22,10 +22,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("the suit pickup's closing line carries its left edge from the screen's right side round to its left, which sets when the pickup releases Samus")]
-public static class SuitPickupClosingLineWrap
+public static partial class SuitPickupClosingLineWrap
 {
     /// <summary>The columns of the screen's row the line's edges move within.</summary>
-    private const int RowColumns = 256;
+    internal const int RowColumns = 256;
 
     /// <summary>The columns each edge moves inward on every update.</summary>
     private const int ColumnsPerUpdate = 8;

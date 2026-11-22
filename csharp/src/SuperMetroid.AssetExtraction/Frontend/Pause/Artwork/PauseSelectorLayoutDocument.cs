@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// The installed equipment-selector layout document (#1638): the anchors, the initial dwell and the animation the game binds,
 /// each phase naming the frame each selector shows.
 /// </summary>
-public sealed record PauseSelectorLayoutDocument
+public sealed partial record PauseSelectorLayoutDocument
 {
     /// <summary>Gets the layout revision.</summary>
     public required int Version { get; init; }

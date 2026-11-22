@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// speed, the box tests his phases hand off on, his wing beat and starting his body's animations.
 /// </summary>
 [RoomLifetime]
-internal sealed class RidleyFlight
+internal sealed partial class RidleyFlight
 {
     /// <summary>The room's earthquake, which a fast Ceres Ridley striking his chamber's wall starts.</summary>
     private readonly RoomEarthquake _earthquake;

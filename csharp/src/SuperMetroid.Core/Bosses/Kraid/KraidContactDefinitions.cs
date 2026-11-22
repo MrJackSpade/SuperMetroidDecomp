@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Contact geometry and response definitions for Kraid's private AI.</summary>
-internal static class KraidContactDefinitions
+internal static partial class KraidContactDefinitions
 {
     /// <summary>The lint's leading edge, just left of its hitbox's left edge.</summary>
     internal const int LintLeadingEdge = -26;

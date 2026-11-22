@@ -67,7 +67,7 @@ internal static class EnemyColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("EnemyColorProviderFixture", trees,
-            platforms.Append(typeof(SuperMetroid.Core.Assets.RgbColor).Assembly.Location).Append(typeof(BotwoonColorCatalog).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "EnemyColorPresentationContractChecks");

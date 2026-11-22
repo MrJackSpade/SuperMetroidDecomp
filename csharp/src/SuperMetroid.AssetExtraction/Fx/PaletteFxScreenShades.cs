@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// The screen's composer places each group's first ink, as <c>PaletteFXObject_Handler</c> writes a record's colours from
 /// the object's colour pointer, skipping those it skips.
 /// </summary>
-internal static class PaletteFxScreenShades
+internal static partial class PaletteFxScreenShades
 {
     /// <summary>
     /// The shades of every record of <paramref name="group"/> that <paramref name="objects"/>' programs show, over

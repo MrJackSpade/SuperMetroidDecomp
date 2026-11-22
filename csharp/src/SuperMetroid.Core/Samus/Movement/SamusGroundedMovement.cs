@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,
 /// knockback is <see cref="SamusKnockbackMovement"/>'s, and the boost's colours and echoes are drawn outside movement.
 /// </remarks>
-public static class SamusGroundedMovement
+public static partial class SamusGroundedMovement
 {
     /// <summary>
     /// Runs front-view movement, including the active-elevator

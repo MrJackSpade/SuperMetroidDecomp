@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// reacts, so nothing Samus or her shots meet in it reaches a room object, and it has none.
 /// </summary>
 [RoomScopeBoundary("A cinematic scene's terrain, kept for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class PlainTerrain : SamusTerrain
+internal sealed partial class PlainTerrain : SamusTerrain
 {
     /// <summary>The collision each plain block has.</summary>
     private static IdentityTable<PlainTerrainBlock, RoomCollisionType> Collision { get; } = new(new Dictionary<PlainTerrainBlock, RoomCollisionType>

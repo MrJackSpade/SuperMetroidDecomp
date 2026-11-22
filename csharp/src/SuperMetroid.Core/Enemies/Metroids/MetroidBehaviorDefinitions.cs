@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The fixed behavior definitions of ordinary Metroids.</summary>
-internal static class MetroidBehaviorDefinitions
+internal static partial class MetroidBehaviorDefinitions
 {
     /// <summary>
     /// The two-pixel moves a Metroid a Power Bomb shakes loose makes, one an update, in the order it makes them (#2343):

@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.World;
 /// installation holds every family's pictures, so there is no family a room draws without them.
 /// </summary>
 [ArchitectureReview("context-bag", "The installed room-object pictures as one value (#2290), as GameplayArtwork carries its catalogs; every member is an immutable picture catalog of one family, not a service.")]
-internal sealed record RoomObjectArtwork
+internal sealed partial record RoomObjectArtwork
 {
     /// <summary>Visual-only shot-block selection; collision is the terrain's.</summary>
     public required InstalledRoomObjectPictures RoomObjectShotBlockVisuals { get; init; }
 
     /// <summary>Grapple-block art; the terrain owns collision.</summary>
-    public required InstalledRoomObjectPictures RoomObjectGrappleBlockVisuals { private get; init; }
+    public required InstalledRoomObjectPictures RoomObjectGrappleBlockVisuals { internal get; init; }
 
     /// <summary>Station appearance; the terrain retains collision.</summary>
     public required InstalledRoomObjectPictures RoomObjectStationVisuals { get; init; }

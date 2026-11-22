@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Names what an eye-door draw shows in its installed picture's identity, and finds it in the eye door's draw tables (#1994).</summary>
-internal static class EyeDoorLookNames
+internal static partial class EyeDoorLookNames
 {
     /// <summary>The eye's looks, the middle's poses and the bottom's poses, each in the order its draw table lists them.</summary>
     internal static IReadOnlyList<EyeDoorLook> TableOrder { get; } =

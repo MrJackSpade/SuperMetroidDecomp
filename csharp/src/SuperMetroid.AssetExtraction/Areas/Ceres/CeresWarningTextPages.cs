@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// The installed characters each Ceres warning page shows (#1406, #1463, #1513): consecutive full pages of the installed
 /// warning text from its first byte, the last a half page.
 /// </summary>
-internal static class CeresWarningTextPages
+internal static partial class CeresWarningTextPages
 {
     /// <summary>The byte of the installed warning text warning page <paramref name="page"/> starts at.</summary>
     internal static int ByteOffset(int page) => page * PageCharacters * CharacterBytes;

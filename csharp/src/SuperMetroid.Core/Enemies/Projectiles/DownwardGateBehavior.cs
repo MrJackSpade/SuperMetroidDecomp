@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>The downward gates: each gate moving down to close, closed, and rising again when woken.</summary>
 [RoomLifetime]
-internal sealed class DownwardGateBehavior
+internal sealed partial class DownwardGateBehavior
 {
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -83,7 +83,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>
     /// Moves the gate at its speed, a whole pixel an update, and shows its next place each time it has moved a block.
     /// </summary>
-    private static void RunDownwardGateProjectileMovement(GateBehavior owner, EnemyProjectile projectile)
+    internal static void RunDownwardGateProjectileMovement(GateBehavior owner, EnemyProjectile projectile)
     {
         DownwardGateState gate = owner.Gates.Of(projectile);
         for (int pixel = 0; pixel < projectile.Velocity.Y.MagnitudeWholePixels; pixel++)
@@ -133,16 +133,16 @@ internal sealed class DownwardGateBehavior
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Projectile">The projectile the cases read.</param>
     /// <param name="Owner">The owner the cases read.</param>
-    private readonly record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
+    private readonly partial record struct ApplyDownwardGateCueContext(EnemyProjectile Projectile, GateBehavior Owner);
 
     /// <summary>A downward gate, moving or closed (#1760).</summary>
-    private GateBehavior Gate { get; } = new();
+    internal GateBehavior Gate { get; } = new();
 
     /// <summary>
     /// A downward gate: it slides by its vertical velocity, down while moving and up while closed, from when its animation
     /// starts it sliding until the animation stops it, and handles its animation's cues.
     /// </summary>
-    internal sealed class GateBehavior() : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
+    internal sealed partial class GateBehavior() : EnemyProjectileMotionBehavior<SingleMotion>(initial: null), IEnemyProjectileCues<DownwardGateProjectileCue>
     {
         /// <summary>Each gate's block and the stage it is at, given as the gate's room object raises it.</summary>
         internal EnemyProjectileStates<DownwardGateState> Gates { get; } = new();

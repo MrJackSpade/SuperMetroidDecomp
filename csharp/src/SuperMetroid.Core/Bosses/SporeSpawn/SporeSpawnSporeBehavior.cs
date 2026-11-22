@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// deletes itself.
 /// </summary>
 /// <param name="deathsAndDrops">The killed sound and the drop a shot spore leaves.</param>
-internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
+internal sealed partial class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops)
     : EnemyProjectileMotionBehavior<SingleMotion>(SingleMotion.Moving), IEnemyProjectileCues<SporeSpawnSporeCue>
 {
     /// <summary>The way each spore drifts and its step along its path, given as its spawner releases it.</summary>
@@ -25,6 +25,7 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     internal override void Move(EnemyProjectileMotionContext context, SingleMotion motion) => DriftSpore(context.Projectile);
 
     /// <summary>What <see cref="RunCue"/> does for each <see cref="SporeSpawnSporeCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SporeSpawnSporeCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForSporeCue => field ??= new(new Dictionary<SporeSpawnSporeCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
     {
         [SporeSpawnSporeCue.SetImpactProperties] = (context, spore) => SetImpactProperties(spore),
@@ -41,7 +42,7 @@ internal sealed class SporeSpawnSporeBehavior(EnemyDeathsAndDrops deathsAndDrops
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
-    private void DriftSpore(EnemyProjectile spore)
+    internal void DriftSpore(EnemyProjectile spore)
     {
         SporeSpawnSporeState drift = Drifts.Of(Ensure.NotNull(spore));
         Offset16<RoomPixels> movement = drift.PathStep.Entry;

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// <param name="CollectedBeams">The beams Samus has collected.</param>
 /// <param name="EquippedBeams">The collected beams Samus has equipped.</param>
 /// <param name="Input">The recording the scene plays in the player's place, and the one it continues into.</param>
-public sealed record AttractDemoScene(
+public sealed partial record AttractDemoScene(
     RoomDefinition Room, DoorDefinition Door, Position16<RoomPixels> CameraPosition, AttractDemoSamusStaging Samus,
     int Duration, AttractDemoRoomSetup? RoomSetup, SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
     int Health, SamusBeamFlags CollectedBeams, SamusBeamFlags EquippedBeams, AttractDemoInputDefinition Input);

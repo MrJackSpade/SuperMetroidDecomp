@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads an installed room-character PNG into the planar characters its native stream holds (#1409).</summary>
-public static class RoomCharacterAtlasPng
+public static partial class RoomCharacterAtlasPng
 {
     /// <summary>Loads exactly the number of characters in the corresponding native stream.</summary>
     /// <param name="png">Indexed artwork with indices 0..15; unused cells in the final tile row must contain only index zero.</param>

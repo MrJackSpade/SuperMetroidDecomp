@@ -3,8 +3,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The playback of a projectile's timeline animation, which production keeps private (#2570): checks read and set where
-/// the animation stands through <see cref="PrivateState"/>. The methods serve a family whose animation derives through
+/// The playback of a projectile's timeline animation, which its own updates advance (#2570, #2602): checks read and set
+/// where the animation stands. The methods serve a family whose animation derives through
 /// another generic animation, from which C# infers their type arguments but no extension block's.
 /// </summary>
 internal static class EnemyProjectileTimelineAnimationAccess
@@ -24,7 +24,7 @@ internal static class EnemyProjectileTimelineAnimationAccess
         where TSegment : struct
         where TFrame : struct
         where TEvent : notnull =>
-        PrivateState.Get<EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent>, AnimationPlayback<TSegment>>(animation, "Playback");
+        animation.Playback;
 
     /// <summary>Puts the animation at <paramref name="playback"/>, to start a projectile mid-animation.</summary>
     internal static void SetPlayback<TSegment, TFrame, TEvent>(this EnemyProjectileTimelineAnimation<TSegment, TFrame, TEvent> animation,
@@ -32,5 +32,5 @@ internal static class EnemyProjectileTimelineAnimationAccess
         where TSegment : struct
         where TFrame : struct
         where TEvent : notnull =>
-        PrivateState.Set(animation, "Playback", playback);
+        animation.Playback = playback;
 }

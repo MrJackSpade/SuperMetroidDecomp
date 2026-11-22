@@ -4,11 +4,17 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A hand beam's typed animation.</summary>
-/// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
-internal sealed class MotherBrainHandBeamAnimation(IEnemyProjectileCues<MotherBrainHandBeamCue> owner)
-    : EnemyProjectileFrameAnimation<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>(
-        MotherBrainHandBeamSegment.Stage, MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Stage], EnemyProjectileCueRunner<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>.By(owner))
+internal sealed partial class MotherBrainHandBeamAnimation
+    : EnemyProjectileFrameAnimation<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>
 {
+    /// <summary>Creates a <see cref="MotherBrainHandBeamAnimation"/>.</summary>
+    /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+    public MotherBrainHandBeamAnimation(IEnemyProjectileCues<MotherBrainHandBeamCue> owner)
+        : base(
+        MotherBrainHandBeamSegment.Stage, MotherBrainHandBeamAnimations.StartingAt[MotherBrainHandBeamSegment.Stage], EnemyProjectileCueRunner<MotherBrainHandBeamSegment, MotherBrainHandBeamCue>.By(owner))
+    {
+    }
+
     /// <inheritdoc/>
     private protected override IUnpausedAnimationPlay<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments =>
         MotherBrainHandBeamAnimations.Segments;

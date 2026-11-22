@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// sheets hold. Generated from the enemy behaviours by tools/frame-definitions-generator; regenerate rather than edit.
 /// </summary>
 [ArchitectureReview("large", "Generated data: the two thousand frames the enemy definitions show; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
-internal static class EnemyDefinitionFrameDefinitions
+internal static partial class EnemyDefinitionFrameDefinitions
 {
     /// <summary>The frames <c>Areas/Ceres/CeresDoorFactory.cs</c> shows for <c>CeresDoor</c>.</summary>
     private static readonly EnemyFrameId[] CeresDoorFrames =

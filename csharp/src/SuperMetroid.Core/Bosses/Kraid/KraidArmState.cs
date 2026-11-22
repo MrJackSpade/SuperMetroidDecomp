@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// holds (<see cref="KraidPartState"/>). It runs no phase: it follows his body every update and rests otherwise (#2208).
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidArmState : KraidAnimatedPartState
+public sealed partial class KraidArmState : KraidAnimatedPartState
 {
     /// <summary>Makes the arm of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the arm is part of.</param>

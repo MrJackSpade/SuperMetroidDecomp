@@ -46,10 +46,6 @@ internal static class ConsumerAudit
     internal static bool IsImport(SyntaxTree tree) =>
         tree.FilePath.StartsWith("csharp/src/SuperMetroid.AssetExtraction/", StringComparison.Ordinal);
 
-    /// <summary>A Core program owner's runtime type, or the development type it moved to whole.</summary>
-    internal static Type? ProgramOwnerType(string fullName) =>
-        typeof(SuperMetroid.Core.World.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
-
     /// <summary>Parses Core and its tooling mirror with SDK implicit usings for semantic source inspection.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {

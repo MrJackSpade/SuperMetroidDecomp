@@ -4,7 +4,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The spawn geometry and movement of Spore Spawn's projectiles.</summary>
-internal static class SporeSpawnProjectileDefinitions
+internal static partial class SporeSpawnProjectileDefinitions
 {
     /// <summary>
     /// His stalk's four segments in the order he spawns them, each relative to his body: on his centre line, from 64 pixels

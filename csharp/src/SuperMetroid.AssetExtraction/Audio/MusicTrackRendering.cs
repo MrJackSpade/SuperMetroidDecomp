@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// selects the track on frame 1, as <see cref="MusicTrackAnalysis.Analyze"/> does, so sample
 /// positions agree with the analysis.
 /// </summary>
-internal static class MusicTrackRendering
+internal static partial class MusicTrackRendering
 {
     /// <summary>
     /// Renders the exported clip of <paramref name="track"/>: from the tick that started it to its

@@ -61,8 +61,8 @@ internal static class MotherBrainSheetsPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("MotherBrainSheetsFixture", sources,
-            platforms.Append(typeof(MotherBrainSpecialSpriteArtworkCatalog).Assembly.Location)
-                .Append(typeof(SuperMetroid.Core.Ensure).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction)
+                .Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

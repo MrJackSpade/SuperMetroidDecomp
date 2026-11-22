@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>A slope block's geometry: which slope shape it has, and how the shape is mirrored.</summary>
-public readonly record struct SlopeGeometry
+public readonly partial record struct SlopeGeometry
 {
     /// <summary>A slope of <paramref name="shape"/> mirrored by <paramref name="mirroring"/>.</summary>
     /// <param name="shape">The shape, one of <see cref="SlopeShapeDefinitions.All"/>.</param>

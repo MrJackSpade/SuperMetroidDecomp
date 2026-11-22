@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's eye fade (#2247, #2409): his eyes show their shades (<see cref="ShadeCount"/>) in turn from the darkest to his own eye colours,
 /// then hold his own eye colours before his body fade begins. The colours are the import's.
 /// </summary>
-internal static class RidleyEyeFadeDefinitions
+internal static partial class RidleyEyeFadeDefinitions
 {
     /// <summary>The eye shades the fade shows, from the darkest to his own eye colours.</summary>
     public const int ShadeCount = 16;

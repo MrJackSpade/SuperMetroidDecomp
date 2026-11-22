@@ -35,7 +35,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a block scan's rows continue from zero past the 256th and its blocks past the 32768th, so scans past a room's edge read blocks from its top; an enemy projectile's scan counts its span within 65536 pixels, so a span ending before its first block runs 4095 blocks on")]
-public static class BlockScanCycle
+public static partial class BlockScanCycle
 {
     /// <summary>The pixels within which an enemy projectile's scan counts its span before the count continues from zero.</summary>
     private const int SpanPixels = 65536;

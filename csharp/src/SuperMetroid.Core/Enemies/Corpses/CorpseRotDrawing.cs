@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// Draws a rotting corpse's frame whole as its own rot leaves it (#1539): from where the corpse lies in the frame's picture
 /// and the corpse's rows, the picture row each pixel row of the picture shows.
 /// </summary>
-internal static class CorpseRotDrawing
+internal static partial class CorpseRotDrawing
 {
     /// <summary>
     /// How picture <paramref name="picture"/>, <paramref name="size"/> pixels, in which the corpse lies as

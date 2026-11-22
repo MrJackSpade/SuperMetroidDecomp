@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// as its area resolves them (<see cref="In"/>).
 /// </para>
 /// </remarks>
-public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
+public readonly partial struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
     /// <summary>
     /// The kept behaviour each set of readings is, for <see cref="Holding"/>: every behaviour some write keeps and every
@@ -33,10 +33,10 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings = KeptBehaviors();
 
     /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
-    private static int MostBackwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Min();
+    internal static int MostBackwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Min();
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
-    private static int MostForwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Max();
+    internal static int MostForwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Max();
 
     /// <summary>The unresolved behaviour each behaviour the areas resolve is, keyed by itself and by each of its resolutions.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> UnresolvedOf = [];
@@ -131,7 +131,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>An unresolved behaviour in one area, which resolves it.</summary>
     /// <param name="Unresolved">The behaviour holding neither the special-block nor the special-air reading.</param>
     /// <param name="Area">The area resolving it.</param>
-    private readonly record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
+    private readonly partial record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
 
     /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
     private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>
@@ -153,7 +153,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior None => new(EmptyReadings);
 
     /// <summary>The kept behaviour this one is.</summary>
-    private RoomBlockReadings Readings => kept ?? EmptyReadings;
+    internal RoomBlockReadings Readings => kept ?? EmptyReadings;
 
     /// <summary>The behaviour holding <paramref name="readings"/>, which must be one of the kept behaviours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No kept behaviour holds exactly these readings.</exception>

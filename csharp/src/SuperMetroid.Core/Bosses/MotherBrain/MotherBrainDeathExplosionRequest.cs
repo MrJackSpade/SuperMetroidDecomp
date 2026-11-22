@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Offset">Where the explosion bursts relative to her body.</param>
 /// <param name="Animation">Which explosion it shows.</param>
 /// <param name="Sound">The sound it requests, at the priority it requests it.</param>
-public readonly record struct MotherBrainDeathExplosionRequest(
+public readonly partial record struct MotherBrainDeathExplosionRequest(
     Offset16<RoomPixels> Offset,
     DustExplosionAnimation Animation,
     SoundRequest Sound);

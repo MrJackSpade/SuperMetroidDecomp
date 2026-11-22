@@ -15,19 +15,19 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="rule">How the station is used.</param>
 /// <param name="area">The area whose map a map station serves.</param>
 /// <param name="animation">The animation it shows first.</param>
-internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, StationAnimation animation) : RoomObjectBehaviour
+internal sealed partial class AccessStationObject(StationAccessRule rule, AreaId area, StationAnimation animation) : RoomObjectBehaviour
 {
     /// <summary>How the station is used: its access blocks, its animations, its reward and its message.</summary>
     internal StationAccessRule Rule { get; } = Ensure.NotNull(rule);
 
     /// <summary>Which station it is.</summary>
-    private StationKind Kind => Rule.Kind;
+    internal StationKind Kind => Rule.Kind;
 
     /// <summary>Area whose map a map station acquires.</summary>
     public AreaId Area { get; } = area;
 
     /// <summary>Animation the station currently shows.</summary>
-    private StationAnimation ShownAnimation { get; set; } = animation;
+    internal StationAnimation ShownAnimation { get; set; } = animation;
 
     /// <summary>Animation shown once the station has given its reward: the map station's acquired one, or its ordinary one.</summary>
     internal StationAnimation CompletedAnimation => Rule.AcquiredAnimation ?? Rule.Animation;
@@ -46,7 +46,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     /// Whether the access arm is idle, about to start at a touch accepted since its last update, in use at the access Samus
     /// used, or waiting for the map screen to close.
     /// </summary>
-    private StationOperationPhase OperationPhase { get; set; } = StationOperationPhase.Idle;
+    internal StationOperationPhase OperationPhase { get; set; } = StationOperationPhase.Idle;
 
     /// <summary>Whether the station accepts Samus's touch: while idle, or before its next update takes a touch it accepted.</summary>
     internal bool AcceptsTouch => OperationPhase == StationOperationPhase.Idle || OperationPhase is StationOperationPhase.TouchAccepted;
@@ -129,6 +129,7 @@ internal sealed class AccessStationObject(StationAccessRule rule, AreaId area, S
     }
 
     /// <summary>What <see cref="ReachAccessMoment"/> does for each <see cref="StationAccessCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>> ReachAccessMomentForStationAccessCue => field ??= new(new Dictionary<StationAccessCue, Action<RoomObjectStepContext, IRoomSamus>>
     {
         [StationAccessCue.Activates] = (context, samus) =>

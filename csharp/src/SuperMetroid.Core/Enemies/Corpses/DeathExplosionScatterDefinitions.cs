@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The ten-point small-explosion scatter shared by Ridley's death and the Baby Metroid's death, which scatter their
 /// explosions over the same points. The points are an authored scatter pattern with no symmetry or radial rule.
 /// </summary>
-internal static class DeathExplosionScatterDefinitions
+internal static partial class DeathExplosionScatterDefinitions
 {
     /// <summary>
     /// Signed pixel offsets from each explosion centre, in the order a death bursts its explosions at them: its first at

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// room's layers (#1634, #2031). The part showing it draws the picture over the parts drawn before it, and a pixel the picture
 /// leaves clear shows them. Each state a room animation gives a frame is a frame of its own, pictured whole (#1513).
 /// </summary>
-public sealed class BossBodyFrame
+public sealed partial class BossBodyFrame
 {
     /// <summary>Holds the frame's picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="name">The frame's name in its sheet.</param>
@@ -52,7 +52,7 @@ public sealed class BossBodyFrame
     /// How a dissolve erases the picture step by step (#1652, #2478), as the import found it: Crocomire's melt images. Null for
     /// every other frame.
     /// </summary>
-    private PictureDissolve? Dissolve { get; }
+    internal PictureDissolve? Dissolve { get; }
 
     /// <summary>The pixels the picture hides as this frame shows it (#1652), or null where it shows them all.</summary>
     public HiddenPicturePixels? Hidden { get; }

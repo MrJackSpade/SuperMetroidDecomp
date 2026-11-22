@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a step along a room's rows past a row's end continues on the next row, and one before a row's start on the row above")]
-public static class RoomReadingOrder
+public static partial class RoomReadingOrder
 {
     /// <summary>
     /// The block <paramref name="step"/> from <paramref name="block"/> in the room's reading order: the step's columns

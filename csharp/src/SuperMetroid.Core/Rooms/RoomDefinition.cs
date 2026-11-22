@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms;
 /// room may name besides its place are the catalog's, so every room is one of <see cref="RoomDefinitions.All"/> or equal to
 /// one, and each room's state choice is total (<see cref="World.RoomStates.RoomStateSelection"/>).
 /// </remarks>
-public sealed record RoomDefinition
+public sealed partial record RoomDefinition
 {
     /// <summary>Builds one of the catalog's rooms, on its area's ground until the catalog names another.</summary>
     /// <param name="name">The room's name.</param>
@@ -79,7 +79,7 @@ public sealed record RoomDefinition
     /// <param name="Area">The room's area.</param>
     /// <param name="MapPosition">The area-map cell of the room's top-left screen.</param>
     /// <param name="Size">The room's size in scroll screens.</param>
-    private sealed record RoomPlace(string Name, AreaId Area, Position16<MapTiles> MapPosition, Extent16<RoomScreens> Size)
+    private sealed partial record RoomPlace(string Name, AreaId Area, Position16<MapTiles> MapPosition, Extent16<RoomScreens> Size)
     {
         /// <summary>The ground the room is on: its area's unless the room declares its own.</summary>
         internal RoomGround Ground { get; init; } = RoomGroundDefinitions.AreaGrounds[Area];

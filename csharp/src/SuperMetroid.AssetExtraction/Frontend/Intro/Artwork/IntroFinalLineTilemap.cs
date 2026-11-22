@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The final-line map: the four rows of the opening's Japanese subtitle line, as ordered editable tile references.</summary>
-public sealed class IntroFinalLineTilemap
+public sealed partial class IntroFinalLineTilemap
 {
     /// <summary>The 128 installed map tiles in native cell order.</summary>
     private readonly BackgroundTile[] tiles;
@@ -44,8 +44,7 @@ public sealed class IntroFinalLineTilemap
     public static void Write(Stream json, IntroFinalLineTilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

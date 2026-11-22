@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Runtime;
 /// the frame.
 /// </summary>
 /// <remarks>A default request is a runtime-only host's update (<see cref="GameplayUpdateOwner.RuntimeOnlyHost"/>) with no boundary work.</remarks>
-public sealed record RuntimeFrameRequest
+public sealed partial record RuntimeFrameRequest
 {
     /// <summary>The game state that owns this update.</summary>
     public GameplayUpdateOwner Owner { get; init; } = GameplayUpdateOwner.RuntimeOnlyHost;

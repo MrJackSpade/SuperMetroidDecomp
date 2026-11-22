@@ -35,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// component's files. The game's read (<see cref="EnemyTileArtworkFiles.Load"/>) opens no manifest and reads only the
 /// documents it binds.
 /// </summary>
-internal sealed class EnemyTileArtworkReader
+internal sealed partial class EnemyTileArtworkReader
 {
     /// <summary>The checked manifest of the import data.</summary>
     private readonly EnemyTileArtworkFiles.EnemyTileManifest manifest;
@@ -59,7 +59,7 @@ internal sealed class EnemyTileArtworkReader
         EnemyTileArtworkFiles.EnemyTileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), EnemyTileArtworkFiles.JsonOptions)
+            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(EnemyTileArtworkFiles.JsonOptions))
                 ?? throw new InvalidDataException("Enemy tile manifest is empty.");
         }
         catch (JsonException error)
@@ -343,7 +343,7 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>The enemies' compositions, import data whose parts are packed sprite placements (#1638), from <paramref name="importData"/>.</summary>
     /// <exception cref="InvalidDataException">A composition is invalid.</exception>
-    private static EnemySpritemapCatalog Spritemaps(string importData)
+    internal static EnemySpritemapCatalog Spritemaps(string importData)
     {
         try
         {

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="SamusFramePhases"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record SamusFramePhasesDependencies
+internal sealed partial record SamusFramePhasesDependencies
 {
     /// <summary>The attract demo's input, which replaces the player's while the demo plays Samus.</summary>
     public required IAttractSamusInput AttractDemo { get; init; }

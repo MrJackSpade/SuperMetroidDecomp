@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// The enemy family of each extended frame (#1623), read from the document's family runs
 /// (<see cref="EnemyExtendedFrameDefinitions.FamilyRuns"/>), each of which names its frames, rather than from the frames' names.
 /// </summary>
-internal static class EnemyExtendedFrameFamilies
+internal static partial class EnemyExtendedFrameFamilies
 {
     /// <summary>Each extended frame's run of its family's frames.</summary>
     private static readonly Lazy<FrozenDictionary<EnemyFrameId, EnemyExtendedFrameRun>> Runs = new(Build);

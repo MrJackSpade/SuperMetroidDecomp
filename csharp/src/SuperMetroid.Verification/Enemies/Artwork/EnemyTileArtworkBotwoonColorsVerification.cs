@@ -39,8 +39,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
 
         string file = Path.Combine(stockDirectory, BotwoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        BotwoonColorDocument visual = JsonSerializer.Deserialize<BotwoonColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        BotwoonColorDocument visual = JsonSerializer.Deserialize<BotwoonColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BotwoonColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Botwoon color JSON is null.");
         BotwoonColorCatalog colors = native;
 

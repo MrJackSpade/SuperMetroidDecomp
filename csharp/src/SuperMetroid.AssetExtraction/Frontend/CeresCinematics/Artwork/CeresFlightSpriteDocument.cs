@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable JSON schema for Ceres approach/destruction OAM compositions; scene scripts retain actor placement, motion, and frame-selection timing.</summary>
-public sealed record CeresFlightSpriteDocument
+public sealed partial record CeresFlightSpriteDocument
 {
     /// <summary>Schema revision, which must equal <see cref="CeresFlightSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }

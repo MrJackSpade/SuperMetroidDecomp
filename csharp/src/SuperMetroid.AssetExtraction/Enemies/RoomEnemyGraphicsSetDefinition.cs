@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// only the text its diagnostics show.
 /// </summary>
 /// <param name="name">The set's name, written out where the set is declared.</param>
-internal sealed class RoomEnemyGraphicsSetDefinition(string name)
+internal sealed partial class RoomEnemyGraphicsSetDefinition(string name)
 {
     /// <summary>The set's name, written out where the set is declared.</summary>
     public string Name { get; } = Ensure.NotNull(name);

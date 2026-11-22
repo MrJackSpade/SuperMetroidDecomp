@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// The installed key of each <see cref="TitleCard"/>, written out so renaming a member never changes a name the
 /// installation or an installed document spells it by.
 /// </summary>
-internal static class TitleCardKeys
+internal static partial class TitleCardKeys
 {
     /// <summary>Each TitleCard member's installed key.</summary>
     internal static InstalledKeys<TitleCard> Installed { get; } = new(new Dictionary<TitleCard, string>

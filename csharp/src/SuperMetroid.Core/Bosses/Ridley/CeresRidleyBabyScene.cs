@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The Baby Metroid Ceres Ridley carries: its fall, its animation and its picture.</summary>
 [RoomLifetime]
-internal sealed class CeresRidleyBabyScene
+internal sealed partial class CeresRidleyBabyScene
 {
     /// <summary>Provides room randomness.</summary>
     private readonly EnemyRoomBinding _room;
@@ -96,7 +96,7 @@ internal sealed class CeresRidleyBabyScene
     /// duration, counted off one each update, and the next pose is then shown.
     /// </summary>
     /// <param name="ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
-    private void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
+    internal void AdvanceCeresBabyAnimation(CeresRidleyState ridley)
     {
         CeresBaby baby = ridley.Baby;
         if (!baby.Clock.Expire())
@@ -132,17 +132,17 @@ internal sealed class CeresRidleyBabyScene
     /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
     /// <param name="Ridley">Ceres Ridley's encounter, which holds the Baby and the colours its cues show.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
-    private readonly record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
+    private readonly partial record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby, CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
     /// <summary>The animation the Baby starts while it moves, where it reacts to its motion (#2167).</summary>
-    private const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
+    internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
 
     /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
-    private const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
+    internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
@@ -169,5 +169,5 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Ridley">The ridley the cases read.</param>
     /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
-    private readonly record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
+    private readonly partial record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

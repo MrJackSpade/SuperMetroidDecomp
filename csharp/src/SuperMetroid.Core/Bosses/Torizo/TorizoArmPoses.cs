@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Level">The arm held level.</param>
 /// <param name="Raised">The arm raised.</param>
 /// <param name="Overhead">The arm overhead.</param>
-internal sealed record TorizoArmPoses(EnemyFrameId Down, EnemyFrameId Lifting, EnemyFrameId Level, EnemyFrameId Raised, EnemyFrameId Overhead);
+internal sealed partial record TorizoArmPoses(EnemyFrameId Down, EnemyFrameId Lifting, EnemyFrameId Level, EnemyFrameId Raised, EnemyFrameId Overhead);

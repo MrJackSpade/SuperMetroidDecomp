@@ -5,7 +5,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="TourianStatueSequence"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record TourianStatueSequenceDependencies
+internal sealed partial record TourianStatueSequenceDependencies
 {
     /// <summary>Samus, whose equipped items the colour effects a release starts read.</summary>
     public required SamusFrameState Player { get; init; }

@@ -85,7 +85,7 @@ public sealed class LooseCommentAnalyzer : DiagnosticAnalyzer
     /// authors no generator for these and cannot change their text, so they are not repository source.
     /// </summary>
     internal static bool IsSdkBuildOutput(SyntaxTree tree, CancellationToken cancellation) =>
-        tree.FilePath.Replace('\\', '/').Contains("/obj/", StringComparison.Ordinal) && GeneratedSource.IsGenerated(tree, cancellation);
+        GeneratedSource.IsSourceGeneratorOutput(tree, cancellation);
 
     /// <summary>Whether <paramref name="trivia"/> lies within the span of an executable body.</summary>
     internal static bool IsInsideExecutableBody(SyntaxTrivia trivia)

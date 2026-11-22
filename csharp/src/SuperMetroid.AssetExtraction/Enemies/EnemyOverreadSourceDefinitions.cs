@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// into the enemy overread services (#1500).
 /// </summary>
 [EncodingOwner("cartridge regions enemies read past their authored data")]
-internal static class EnemyOverreadSourceDefinitions
+internal static partial class EnemyOverreadSourceDefinitions
 {
     /// <summary>
     /// $A8:AF55, Magdollite's nine-word arm-height threshold table. The maximum-rise branch at $A8:B259 reads the word at

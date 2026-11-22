@@ -36,7 +36,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>).
 /// </para>
 /// </remarks>
-public static class RoomLevelStreamFiles
+public static partial class RoomLevelStreamFiles
 {
     /// <summary>The reaction families in the order the level stream files list them (#2567).</summary>
     private static readonly IReadOnlyList<BlockReactionFamily> FamilyOrder = Ensure.EveryMemberOnce<BlockReactionFamily>(
@@ -53,7 +53,7 @@ public static class RoomLevelStreamFiles
     /// The family's document naming the collision kinds, in the order the level files write them by position; the levels
     /// are the retail rooms' (#1693), each in its own file.
     /// </summary>
-    private const string CollisionKindsFileName = "room-level-streams.json";
+    internal const string CollisionKindsFileName = "room-level-streams.json";
     /// <summary>
     /// Collision-kind document schema version this loader accepts; version 3 installs typed blocks instead of decompressed
     /// level data, 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693), 5 writes each
@@ -92,7 +92,7 @@ public static class RoomLevelStreamFiles
     /// <summary>Formats the stable per-level filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.bin</c>.</returns>
-    private static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
+    internal static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
 
     /// <summary>
     /// Decompresses and decodes every distinct retail room level and writes each as typed blocks, and where each room's door
@@ -125,8 +125,7 @@ public static class RoomLevelStreamFiles
         JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(RoomCollisionTypeKeys.Installed.Of)],
             Families.ToDictionary(family => BlockReactionFamilyKeys.Installed.Of(family),
                 family => BlockReactionFamilies.Reactions(family).Select(reaction => reaction.Key).ToArray()),
-            [.. SlopeShapes.Select(shape => shape.Name)]),
-            JsonOptions);
+            [.. SlopeShapes.Select(shape => shape.Name)]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.CollisionKindDocument>(JsonOptions));
     }
 
     /// <summary>
@@ -457,6 +456,6 @@ public static class RoomLevelStreamFiles
     /// The collision kinds, each reaction family's reactions, and the slope shapes, by the position the level files write
     /// them at, under the document's schema revision.
     /// </summary>
-    private sealed record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
+    internal sealed partial record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
         string[] SlopeShapes);
 }

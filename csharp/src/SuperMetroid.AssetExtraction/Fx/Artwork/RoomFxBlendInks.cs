@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 /// The import's room-FX blend colours, selected by FX records (#1512): the import pre-colours the effect overlay pictures
 /// in each selection's three inks. Only the import reads them (#1544).
 /// </summary>
-public sealed class RoomFxBlendInks
+public sealed partial class RoomFxBlendInks
 {
     /// <summary>Each authored selection's three inks.</summary>
     private readonly Dictionary<RoomEffectTint, RgbColor[]> inks;

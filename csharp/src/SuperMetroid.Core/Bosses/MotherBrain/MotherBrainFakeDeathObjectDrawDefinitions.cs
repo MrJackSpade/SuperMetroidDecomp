@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// wall fill, the escape door, the rows of the mural behind her tank and the tube clears, and how each cell
 /// collides. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class MotherBrainFakeDeathObjectDrawDefinitions
+internal static partial class MotherBrainFakeDeathObjectDrawDefinitions
 {
     /// <summary>The wall fill: three solid blocks down a column, centred on the origin.</summary>
     private static readonly RoomBlockShape FillWall = new(

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Defines one timed pause-selector animation phase for all three categories.</summary>
-public sealed record PauseSelectorPhase
+public sealed partial record PauseSelectorPhase
 {
     /// <summary>Gets the phase duration in accepted update ticks.</summary>
     public required int DurationTicks { get; init; }

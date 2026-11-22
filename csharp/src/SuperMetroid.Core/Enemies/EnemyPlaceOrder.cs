@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// spawn fills the earliest emptied place, and enemies update, queue for drawing and so overlap in place order,
 /// while the blast reaches them from the last place back to the first.
 /// </summary>
-internal static class EnemyPlaceOrder
+internal static partial class EnemyPlaceOrder
 {
     /// <summary>
     /// How many enemies, counting each part of a multipart enemy, a room holds at once: the game's thirty-two, kept

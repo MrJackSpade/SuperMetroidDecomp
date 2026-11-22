@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>What a room's setup reaches while the room's objects are placed (#2287).</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record RoomSetupPlacing
+internal sealed partial record RoomSetupPlacing
 {
     /// <summary>The room and the state loading.</summary>
     public required SelectedRoom Room { get; init; }

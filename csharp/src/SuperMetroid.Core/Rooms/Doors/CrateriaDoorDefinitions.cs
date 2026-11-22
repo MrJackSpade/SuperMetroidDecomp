@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Crateria rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class CrateriaDoorDefinitions
+public static partial class CrateriaDoorDefinitions
 {
 
     /// <summary>The door into the Landing Site room that the landing cutscene uses.</summary>

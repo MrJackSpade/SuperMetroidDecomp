@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// terrain.
 /// </param>
 [IndependentFlag("independent facts of one collision kind: whether bombs pass it and whether a bomb leaves it alone")]
-internal sealed record RoomCollisionTypeDefinition(
+internal sealed partial record RoomCollisionTypeDefinition(
     RoomCollisionBehaviorKind Behavior,
     BlockReactionFamily? Reactions,
     bool BombsPass,

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// input's values in the order the options give them, and the option an input takes for each value. Composition asks
 /// these for every character of every assignment, so none of them scans the options again.
 /// </summary>
-internal sealed class AppearanceOptions
+internal sealed partial class AppearanceOptions
 {
     /// <summary>The options reaching each character asked about so far, by character set and then character.</summary>
     private readonly Dictionary<BgCharacterSet, Dictionary<int, AppearanceOption[]>> reaching = [];

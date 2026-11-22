@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// tanks' refill. The pause's brightening and the time-up's white-out run the same main gameplay update.
 /// </summary>
 /// <param name="session">The frontend session these phases run against.</param>
-internal sealed class GameplayGamePhases(FrontendSession session)
+internal sealed partial class GameplayGamePhases(FrontendSession session)
 {
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.GameplayFadeIn"/>.</summary>
     internal void RunGameplayFadeIn(ControllerButton controllerInput)
@@ -23,6 +23,17 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.GameplayFadeIn.Brighten())
             session.FinishGameplayFadeIn();
     }
+
+    /// <summary>The status of <see cref="SuperMetroidGameState.GameplayFadeIn"/>: the fade's target and brightness.</summary>
+    internal string GameplayFadeInName() => session.GameplayFadeTarget == GameplayFadeTarget.CeresArrival
+        ? $"Ceres elevator fade-in (brightness {session.GameplayFadeIn.Level})"
+        : $"Landing Site fade-in (brightness {session.GameplayFadeIn.Level})";
+
+    /// <summary>The status of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
+    internal static string MainGameplayName() => "Gameplay";
+
+    /// <summary>The status of <see cref="SuperMetroidGameState.ReserveTankRefill"/>.</summary>
+    internal static string ReserveTankRefillName() => "Reserve tank refill";
 
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.MainGameplay"/>.</summary>
     internal void RunMainGameplay(ControllerButton controllerInput)
@@ -105,6 +116,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>What <see cref="EnterUpdateTransition"/> does for each <see cref="GameplayUpdateTransition"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameplayUpdateTransition, Action> EnterUpdateTransitionForGameplayUpdateTransition => field ??= new(new Dictionary<GameplayUpdateTransition, Action>
     {
         [GameplayUpdateTransition.None] = () =>
@@ -155,6 +167,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusOutOfHealthRoute, Func<SamusState, bool>> OutOfHealthRoutes => field ??=
         new(new Dictionary<SamusOutOfHealthRoute, Func<SamusState, bool>>
         {

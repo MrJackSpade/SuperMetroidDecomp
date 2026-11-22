@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
@@ -25,7 +25,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SparkEntity(this, occupant, place, common));
 
     /// <summary>Owner of the falling-spark projectile emitted by one spark action.</summary>
-    private FallingSparksBehavior FallingSparks { get; }
+    internal FallingSparksBehavior FallingSparks { get; }
 
     /// <summary>Binds the spark species to its falling-spark producer.</summary>
     internal SparkBehavior(FallingSparksBehavior fallingSparksBehavior) => FallingSparks = fallingSparksBehavior;
@@ -68,6 +68,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunSparkMain"/> does for each <see cref="SparkAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>> RunSparkMainForSparkAction => field ??= new(new Dictionary<SparkAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SparkEnemyState>>
     {
         [SparkAction.AlwaysActive] = (_, place, state) => { },
@@ -107,7 +108,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Counts one update of the Spark's wait: whether it ends on this update, which every action follows with a new wait.</summary>
     /// <exception cref="InvalidOperationException">The wait is already over: a counting Spark's base time is zero.</exception>
-    private static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
+    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state) => state.ActionTimer.Count();
 
     /// <summary>
     /// Sets the Spark's action timer: its placement's wait between actions (#2450) and <paramref name="additionalTime"/>.

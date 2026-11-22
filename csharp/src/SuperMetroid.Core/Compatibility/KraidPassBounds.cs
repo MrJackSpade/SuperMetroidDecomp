@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Kraid recorded movie confirm the leftovers.
 /// </remarks>
 [CompatibilityService("a later projectile in the same Kraid collision pass is tested against the bounds the previous hit left behind")]
-public struct KraidPassBounds
+public partial struct KraidPassBounds
 {
     /// <summary>The bottom a mouth hit that does no damage leaves per place its dud flash takes.</summary>
     private const int BottomPerDudFlashPlace = 2;
@@ -34,7 +34,7 @@ public struct KraidPassBounds
     /// vulnerability table, in the working value the next projectile's signed comparison reads as the top (#1413); the
     /// enemy definitions check confirms the table's location is this coordinate.
     /// </summary>
-    private const int TopAfterMouthHit = -3750;
+    internal const int TopAfterMouthHit = -3750;
 
     /// <summary>
     /// The left bound a mouth hit that does no damage leaves: six pixels from the room's left. Evidence: the dud flash's

@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Fixed hidden-wall rumble schedule.</summary>
-internal static class CrocomireRumbleDefinitions
+internal static partial class CrocomireRumbleDefinitions
 {
     /// <summary>
     /// The rumble's oscillations in the order it plays them (#1879): the swing grows from one pixel to four over the

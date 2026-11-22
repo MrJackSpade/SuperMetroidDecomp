@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// The phase of Phantoon's encounter the body runs each update (#1413, #2571): each phase runs itself on his encounter, so
 /// the body runs its current phase rather than looking up what a phase identity stands for.
 /// </summary>
-public sealed class PhantoonPhase
+public sealed partial class PhantoonPhase
 {
     /// <summary>The phase's name, for diagnostics.</summary>
     private readonly string _name;

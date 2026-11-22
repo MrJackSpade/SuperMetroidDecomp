@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's animations, and their seventeen distinct hitbox lists.
 /// Touch and shots meet these offsets and rectangles, whatever his installed pictures show.
 /// </summary>
-internal static class RidleyCollisionDefinitions
+internal static partial class RidleyCollisionDefinitions
 {
     /// <summary>The 32-pixel margin Ridley's interaction check adds on each axis before the camera-relative test.</summary>
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);

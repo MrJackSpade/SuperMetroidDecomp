@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// a dotted column) joins it; 17 is the arrow at a shaft's end that leads out of the area, drawn pointing away from the
 /// shaft; 109 is a dotted corridor without walls leading between rooms or off the map.
 /// </remarks>
-internal static class MapCellCharacterDefinitions
+internal static partial class MapCellCharacterDefinitions
 {
     /// <summary>
     /// The colour row each shade shows a cell in: the area maps store every mapped cell in the unexplored row, and a cell's

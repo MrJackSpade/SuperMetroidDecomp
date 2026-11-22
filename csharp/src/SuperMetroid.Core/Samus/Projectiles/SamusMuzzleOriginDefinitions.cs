@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Where a shot leaves the arm cannon, from Samus's position, by the direction it is fired in (#2280).</summary>
-internal static class SamusMuzzleOriginDefinitions
+internal static partial class SamusMuzzleOriginDefinitions
 {
     /// <summary>
     /// The muzzle of a shot fired in every pose but running and moonwalking aimed diagonally up: standing, crouching,

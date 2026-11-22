@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// ordinary linear bus transfers must continue to cross banks normally.
 /// </summary>
 [EncodingOwner("cartridge bank-relative pointer arithmetic")]
-public static class SnesAddressMath
+public static partial class SnesAddressMath
 {
 
     /// <summary>

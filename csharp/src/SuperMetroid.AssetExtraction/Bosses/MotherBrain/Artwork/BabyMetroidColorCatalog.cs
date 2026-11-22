@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The installed live-Baby Metroid RGB5 images, kept as installed; timer and fade destinations stay compiled.</summary>
-public sealed class BabyMetroidColorCatalog
+public sealed partial class BabyMetroidColorCatalog
 {
     /// <summary>The installed normal pulse phases.</summary>
     private readonly InstalledColourRows normal;

@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>PNG and native transfer geometry for the 160-tile ending font resource.</summary>
-public static class EndingFontAtlasFormat
+public static partial class EndingFontAtlasFormat
 {
     /// <summary>Installed indexed-PNG resource, <c>ending-font.png</c>, extracted from the native Font3 source at $97:E7DE.</summary>
     public const string FileName = "ending-font.png";

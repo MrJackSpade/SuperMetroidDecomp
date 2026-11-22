@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// A boss's body is its own layer (<see cref="Rendering.BossBodyView"/>, #2573), with nothing behind it. The frame boundary latches one of them and the X-ray's capture
 /// replaces it with the reveal, so a backend draws exactly the one the frame shows.
 /// </summary>
-public abstract record ShownRoomBackground
+public abstract partial record ShownRoomBackground
 {
     /// <summary>Only the kinds of background below derive from this.</summary>
     private protected ShownRoomBackground()

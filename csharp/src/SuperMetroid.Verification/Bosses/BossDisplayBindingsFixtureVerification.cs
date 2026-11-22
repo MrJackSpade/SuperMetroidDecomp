@@ -107,7 +107,7 @@ internal static class BossDisplayBindingsFixtureVerification
         {
             Actor.SpritemapPointer = frame;
             Actor.CollidesByFrameHitboxes = true;
-            SuperMetroid.Core.PrivateState.Set(Actor.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), fresh);
+            Actor.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

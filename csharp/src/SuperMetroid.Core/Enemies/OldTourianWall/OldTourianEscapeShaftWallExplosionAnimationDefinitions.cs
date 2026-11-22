@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 /// Where the old Tourian escape shaft's fake wall explodes, whose animation
 /// <see cref="OldTourianWallExplosionAnimation"/> plays its six small-explosion pictures.
 /// </summary>
-internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
+internal static partial class OldTourianEscapeShaftWallExplosionAnimationDefinitions
 {
     /// <summary>The wall-middle X the explosions are placed at.</summary>
     internal const int XPosition = 272;

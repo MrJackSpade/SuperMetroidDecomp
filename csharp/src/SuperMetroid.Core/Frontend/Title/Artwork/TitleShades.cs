@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 /// copyright's colours as the title's skip restores them. The floor's console lights are colour-effect shades
 /// (<see cref="Fx.ColourEffects.ColourEffectShades"/>). Which inks each recolours, and to what, is the import's.
 /// </summary>
-public static class TitleShades
+public static partial class TitleShades
 {
     /// <summary>
     /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a

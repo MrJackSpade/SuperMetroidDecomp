@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed cinematic-actor definitions for egg shell fragments and slime drops.</summary>
-internal static class IntroEggEffectDefinitions
+internal static partial class IntroEggEffectDefinitions
 {
     /// <summary>The shell's pieces in the order the hatching egg spawns them, which is the order they update and draw in.</summary>
     internal static IReadOnlyList<IntroEggShellFragment> ShellFragments { get; } =

@@ -54,7 +54,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// import's read (<see cref="LoadForImport"/>) reads, from the component's import data directory
 /// (<see cref="ImportDataFiles"/>): the installation holds none of them.
 /// </summary>
-public static class MapPresentationFiles
+public static partial class MapPresentationFiles
 {
     /// <summary>
     /// The component's character and tile pages (#1636), which the extraction writes to its import-data directory and only
@@ -75,7 +75,7 @@ public static class MapPresentationFiles
     /// import-data directory beside the pages: the installation never holds them. The manifest lists their hashes beside the
     /// installed documents'.
     /// </summary>
-    private static readonly string[] ImportDocumentFiles =
+    internal static readonly string[] ImportDocumentFiles =
     [
         FileSelectPresentationFormat.ArtworkFileName, PauseBackdropDefinitions.FileName, PauseWireframeDefinitions.FileName,
         PauseEquipmentBaseDefinitions.FileName, PauseEquipmentLabelArtworkDefinitions.FileName, PauseReserveUiDefinitions.FileName,
@@ -316,7 +316,7 @@ public static class MapPresentationFiles
     /// character page (#1636) or a colour document only the import reads (#1637) from its import data, which only the
     /// import's read has, with the extraction manifest there (#1693), which lists every file the import's read reads.
     /// </summary>
-    private sealed class InstalledMapReader : IDisposable
+    private sealed partial class InstalledMapReader : IDisposable
     {
         /// <summary>Root of the installed map presentation files.</summary>
         private readonly string directory;

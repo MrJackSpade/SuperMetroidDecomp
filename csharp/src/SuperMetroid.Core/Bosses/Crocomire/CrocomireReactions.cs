@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// The reactions of Crocomire's own that its frames' hitboxes name (#1759). Only Crocomire's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class CrocomireReactions
+internal static partial class CrocomireReactions
 {
     /// <summary>The claws' touch reaction, which pushes Samus back.</summary>
     internal static EnemyReaction ClawTouch { get; } = EnemyReaction.OfSpecies("Crocomire.ClawTouch");

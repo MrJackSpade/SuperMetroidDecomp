@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>When a Choot wakes and how its jump climbs the speed curve (#2279).</summary>
-internal static class ChootMotionDefinitions
+internal static partial class ChootMotionDefinitions
 {
     /// <summary>The horizontal distance, in pixels, Samus must come strictly within for a waiting Choot to arm its jump.</summary>
     internal const int ActivationDistance = 80;

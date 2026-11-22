@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// The pause frame as the cartridge lays it out (#1467): where its button rows replace the backdrop's and the palettes the
 /// labels are recoloured with. Only the import reads them; it pictures the frame once.
 /// </summary>
-internal static class PauseFrameDefinitions
+internal static partial class PauseFrameDefinitions
 {
     /// <summary>The backdrop row the two button rows start on.</summary>
     internal const int ButtonRowsFirstRow = 25;

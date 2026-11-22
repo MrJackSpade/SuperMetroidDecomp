@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// narration's typing and glows run before the frame is shown in every update that changes them, so what the text holds
 /// is what the frame shows.
 /// </remarks>
-internal sealed class IntroNarrationText
+internal sealed partial class IntroNarrationText
 {
     /// <summary>The first text row, counted in glyphs from the narration's top.</summary>
     internal const int FirstTextRow = IntroNarrationDefinitions.FirstTextRow;

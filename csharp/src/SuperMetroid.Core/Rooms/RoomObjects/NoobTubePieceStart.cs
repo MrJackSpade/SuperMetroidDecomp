@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// begins at a segment, and each glass shard starts its own flight (#2044). The tube's enemy-side behaviour turns it into
 /// the animation the piece plays.
 /// </summary>
-internal abstract record NoobTubePieceStart
+internal abstract partial record NoobTubePieceStart
 {
     /// <summary>Only the two cases below start a piece.</summary>
     private NoobTubePieceStart()
@@ -21,7 +21,7 @@ internal abstract record NoobTubePieceStart
 
     /// <summary>A piece that starts the animation beginning at <paramref name="Segment"/>: the crack or a bubble.</summary>
     /// <param name="Segment">The segment the piece's animation begins at.</param>
-    internal sealed record AtSegment(NoobTubeProjectileSegment Segment) : NoobTubePieceStart
+    internal sealed partial record AtSegment(NoobTubeProjectileSegment Segment) : NoobTubePieceStart
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NoobTubePieceStartCases<TContext, TResult> cases, TContext context) =>
@@ -30,7 +30,7 @@ internal abstract record NoobTubePieceStart
 
     /// <summary>A glass shard, which starts its own flight.</summary>
     /// <param name="Shard">The shard whose flight it starts.</param>
-    internal sealed record ShardFlight(NoobTubeShard Shard) : NoobTubePieceStart
+    internal sealed partial record ShardFlight(NoobTubeShard Shard) : NoobTubePieceStart
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NoobTubePieceStartCases<TContext, TResult> cases, TContext context) =>
@@ -43,6 +43,6 @@ internal abstract record NoobTubePieceStart
 /// <typeparam name="TResult">What each case is made into.</typeparam>
 /// <param name="AtSegment">Makes a <see cref="NoobTubePieceStart.AtSegment"/> into a result.</param>
 /// <param name="ShardFlight">Makes a <see cref="NoobTubePieceStart.ShardFlight"/> into a result.</param>
-internal sealed record NoobTubePieceStartCases<TContext, TResult>(
+internal sealed partial record NoobTubePieceStartCases<TContext, TResult>(
     Func<NoobTubePieceStart.AtSegment, TContext, TResult> AtSegment,
     Func<NoobTubePieceStart.ShardFlight, TContext, TResult> ShardFlight);

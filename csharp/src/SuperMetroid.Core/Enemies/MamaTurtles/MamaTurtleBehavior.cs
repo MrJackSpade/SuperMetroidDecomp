@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.BabyTurtle] = (occupant, place, common) => EnemyOccupant.Of(new BabyTurtleEntity(this, occupant, place, common)),
@@ -65,9 +66,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
-    private readonly record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
+    private readonly partial record struct ApplyMamaTurtleCueContext(RoomEnemyPlace Place, MamaTurtleBehavior Owner);
 
     /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
+    [field: NonSerialized]
     private IdentityTable<MamaTurtleCueKind, Action<RoomEnemyPlace>> MamaTurtleSignals => field ??= new(new Dictionary<MamaTurtleCueKind, Action<RoomEnemyPlace>>
     {
         [MamaTurtleCueKind.EnterShell] = place => StartMamaTurtleEnteringShell(place.RequireSpeciesState<MamaTurtleEnemyState>()),
@@ -82,6 +84,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         BabyTurtleCues[cue.Kind](place, samus, level);
 
     /// <summary>What each of a baby turtle's cues does, and the animation it continues at, or null to run on.</summary>
+    [field: NonSerialized]
     private IdentityTable<BabyTurtleCueKind, Func<RoomEnemyPlace, SamusState, RoomLevelData, BabyTurtleSegment?>> BabyTurtleCues => field ??=
         new(new Dictionary<BabyTurtleCueKind, Func<RoomEnemyPlace, SamusState, RoomLevelData, BabyTurtleSegment?>>
         {
@@ -166,6 +169,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMamaTurtleMain"/> does for each <see cref="MamaTurtleAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>> RunMamaTurtleMainForMamaTurtleAction => field ??= new(new Dictionary<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>>
     {
         [MamaTurtleAction.Placed] = (_, place, state, samus, pseudoScrew, level, frameCycle) => state.Action = MamaTurtleAction.Asleep,
@@ -204,7 +208,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the dormant shell's height and carry step.</summary>
-    private static void RunMamaTurtleAsleep(
+    internal static void RunMamaTurtleAsleep(
         RoomEnemyPlace mama,
         SamusState samus)
     {
@@ -348,7 +352,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Adds the hover acceleration to the horizontal speed, a fraction past a whole pixel carrying into the whole pixels, and
     /// caps the whole speed using the old velocity's sign.
     /// </summary>
-    private static void AddAndClampMamaTurtleHorizontalAcceleration(
+    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
@@ -369,7 +373,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SignedSixteenSixteen WholePixelFall(SignedSixteenSixteen fall) => fall.WithoutFraction();
 
     /// <summary>Reverses the hovering turtle's horizontal velocity and acceleration at a wall (<see cref="MamaTurtleWallReversal"/>).</summary>
-    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
         state.Velocity = state.Velocity.WithX(MamaTurtleWallReversal.ReversedVelocity(velocity));
@@ -451,6 +455,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunBabyTurtleMain"/> does for each <see cref="BabyTurtleAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>> RunBabyTurtleMainForBabyTurtleAction => field ??= new(new Dictionary<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>>
     {
         [BabyTurtleAction.CrawlingNotCarryingSamus] = (baby, state, samus, level) =>
@@ -670,6 +675,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
         WakeMamaTurtle(baby);
 
+    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveBabyTurtleShotAfterCommon(EnemyBombHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveBabyTurtleShotAfterCommon(EnemyShotHitContext context) => ResolveBabyTurtleShotAfterCommon(context.Enemy);
+
     /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
     private void WakeMamaTurtle(RoomEnemyPlace baby)
     {
@@ -723,7 +734,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
     internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBabyTurtleShotAfterCommon,
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
@@ -776,7 +787,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
     internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveBabyTurtleShotAfterCommon,
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>

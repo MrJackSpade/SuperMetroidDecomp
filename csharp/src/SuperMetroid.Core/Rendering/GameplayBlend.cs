@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// (<see cref="EffectBehindRoomBlend"/>), or the X-ray's dimming outside its cone (<see cref="XrayDimmingBlend"/>). Each
 /// describes the effect it shows; the backend draws it.
 /// </summary>
-public abstract record GameplayBlend
+public abstract partial record GameplayBlend
 {
     /// <summary>Only the effects declared beside it derive from this.</summary>
     private protected GameplayBlend()

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// through each place's entity, spawns into the first free place, and the places Samus can touch this frame.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyLifecycle : IEnemyLifecycle
+internal sealed partial class EnemyLifecycle : IEnemyLifecycle
 {
     /// <summary>The room whose definitions spawns read.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,7 +58,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
     /// </summary>
     /// <exception cref="InvalidDataException">The place holds no entity.</exception>
-    private static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
         EnemyOccupant occupant = OccupantOf(place);
@@ -72,7 +72,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
     /// population load's alone.
     /// </summary>
     /// <exception cref="InvalidDataException">The place holds no entity.</exception>
-    private static void SetUpSpawnedEnemy(RoomEnemyPlace place) =>
+    internal static void SetUpSpawnedEnemy(RoomEnemyPlace place) =>
         OccupantOf(place).Initialization?.Initialize();
 
     /// <summary>The occupant <paramref name="place"/> holds.</summary>

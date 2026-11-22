@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Earthquakes;
 /// <param name="Foreground">The foreground scroll displacement.</param>
 /// <param name="Background">The background scroll displacement.</param>
 /// <param name="Projectile">Enemy-projectile draw displacement.</param>
-internal readonly record struct RoomShakeDefinition(
+internal readonly partial record struct RoomShakeDefinition(
     Offset16<RoomPixels> Foreground, Offset16<BackgroundPixels> Background, Offset16<RoomPixels> Projectile);

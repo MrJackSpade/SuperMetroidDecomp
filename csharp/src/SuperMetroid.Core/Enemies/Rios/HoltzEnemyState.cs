@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// The state of a Holtz parent; its flame follower keeps a <see cref="HoltzFollowerState"/>. This
 /// variant has a parent and a follower as the Geruta does, but a visibility switch of its own.
 /// </summary>
-public sealed class HoltzEnemyState
+public sealed partial class HoltzEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal HoltzEnemyState(HoltzAction action) => Action = action;

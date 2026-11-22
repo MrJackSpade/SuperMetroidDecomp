@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// The game-over Baby Metroid's animation (#1825), played by the shared animation playback: it idles twice and cries, idles
 /// four times and cries, idles three times and cries, then starts again. Each cry is heard as its first pose ends.
 /// </summary>
-internal static class GameOverBabyAnimation
+internal static partial class GameOverBabyAnimation
 {
     /// <summary>The look the Baby rests in before its animation starts, which is also its first.</summary>
     internal static GameOverBabyLook Resting { get; } = new(F.Closed, C.Idle);

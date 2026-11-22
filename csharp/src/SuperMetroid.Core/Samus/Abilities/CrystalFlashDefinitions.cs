@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What a Crystal Flash asks of Samus and what it gives her back.</summary>
-internal static class CrystalFlashDefinitions
+internal static partial class CrystalFlashDefinitions
 {
     /// <summary>Samus's energy must be below this for the flash to start.</summary>
     public const int AdmittingEnergyBelow = 51;

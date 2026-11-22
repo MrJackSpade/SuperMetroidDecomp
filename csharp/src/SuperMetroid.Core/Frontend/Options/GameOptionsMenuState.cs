@@ -10,7 +10,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Complete options-menu owner, including both secondary pages.</summary>
-public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -26,13 +26,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     /// <summary>Receives the cursor and confirmation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The menu screen the options menu draws: its artwork, pictures, colours and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>Derives newly pressed buttons from the held controller buttons.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>The installed menu art, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
-    private ShownOptionsPage ShownPage { get; set; }
+    internal ShownOptionsPage ShownPage { get; set; }
 
     /// <summary>Page to load when the current page has dissolved to black.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
@@ -92,16 +92,16 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         LoadVisiblePage();
     }
 
-    /// <summary>The row the cursor selects on each page.</summary>
-    private IdentityTable<GameOptionsPage, Func<GameOptionsRow>> SelectedRows => field ??= new(new Dictionary<GameOptionsPage, Func<GameOptionsRow>>
+    /// <summary>The row the cursor selects on each page, read from the menu's row on that page.</summary>
+    private static IdentityTable<GameOptionsPage, Func<GameOptionsMenuState, GameOptionsRow>> SelectedRows { get; } = new(new Dictionary<GameOptionsPage, Func<GameOptionsMenuState, GameOptionsRow>>
     {
-        [GameOptionsPage.Primary] = () => new GameOptionsRow.OnPrimaryPage(primaryRow),
-        [GameOptionsPage.Controller] = () => new GameOptionsRow.OnControllerPage(controllerRow),
-        [GameOptionsPage.Special] = () => new GameOptionsRow.OnSpecialPage(specialRow),
+        [GameOptionsPage.Primary] = static menu => new GameOptionsRow.OnPrimaryPage(menu.primaryRow),
+        [GameOptionsPage.Controller] = static menu => new GameOptionsRow.OnControllerPage(menu.controllerRow),
+        [GameOptionsPage.Special] = static menu => new GameOptionsRow.OnSpecialPage(menu.specialRow),
     });
 
     /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
-    private GameOptionsRow SelectedRow => SelectedRows[Page]();
+    internal GameOptionsRow SelectedRow => SelectedRows[Page](this);
 
     /// <summary>
     /// The selected save's startup route, loaded from the save by file select.
@@ -113,7 +113,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public TextLanguage Language { get; private set; }
 
     /// <summary>The page the menu shows: the page taking input, or the page a transition shows (#2560).</summary>
-    private GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
+    internal GameOptionsPage Page { get; set; } = GameOptionsPage.Primary;
 
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
@@ -125,7 +125,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     public bool MoonwalkEnabled { get; private set; }
 
     /// <summary>Gets the options menu's current phase.</summary>
-    public GameOptionsPhase Phase { get; private set; }
+    public GameOptionsPhase Phase { get; internal set; }
 
     /// <summary>
     /// How the menu hands off to the frontend (#2562): the opening sequence or file select, kept once it reaches one;
@@ -142,6 +142,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     });
 
     /// <summary>What <c>Step</c> does for each <see cref="GameOptionsPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameOptionsPhase, Action<ControllerButton>> StepForGameOptionsPhase => field ??= new(new Dictionary<GameOptionsPhase, Action<ControllerButton>>
     {
         [GameOptionsPhase.BlackHold] = pressed =>
@@ -239,6 +240,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
     }
 
     /// <summary>What <see cref="StepPrimary"/> does for each <see cref="GameOptionsPrimaryRow"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameOptionsPrimaryRow, Action> StepPrimaryForGameOptionsPrimaryRow => field ??= new(new Dictionary<GameOptionsPrimaryRow, Action>
     {
         [GameOptionsPrimaryRow.StartGame] = () =>
@@ -400,6 +402,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen, IComposedFronten
         });
 
     /// <summary>What <see cref="SelectFirstRow"/> does for each <see cref="GameOptionsPage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GameOptionsPage, Action> SelectFirstRowForGameOptionsPage => field ??= new(new Dictionary<GameOptionsPage, Action>
     {
         [GameOptionsPage.Primary] = () => primaryRow = GameOptionsPageRows.Primary.Top,

@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 /// The installed rainbow palette document's fade and beam geometry, which the import reads and writes (#1502); the game
 /// only plays the compiled colours.
 /// </summary>
-public static class MotherBrainRainbowPaletteGeometry
+public static partial class MotherBrainRainbowPaletteGeometry
 {
     /// <summary>Eight authored steps in each drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>
     public const int GreyFrameCount = 8;

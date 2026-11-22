@@ -45,7 +45,7 @@ internal static class DesktopCheckProcesses
         };
         // Run through dotnet: pass the verifier assembly; through the apphost: the executable is the verifier.
         if (Path.GetFileNameWithoutExtension(host).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-            start.ArgumentList.Add(typeof(DesktopCheckProcesses).Assembly.Location);
+            start.ArgumentList.Add(VerifierAssembly.Path);
         start.ArgumentList.Add(CheckFlag);
         start.ArgumentList.Add(name);
         Process process = Process.Start(start)

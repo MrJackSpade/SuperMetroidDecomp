@@ -52,8 +52,7 @@ internal static class EndingRewardSpriteArtworkVerification
     internal static void VerifyEndingRewardSpritesRejectMissingFrame()
     {
         EndingRewardSpriteDocument document =
-            JsonSerializer.Deserialize<EndingRewardSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingRewardSpriteFormat.FileName)), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<EndingRewardSpriteDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingRewardSpriteFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingRewardSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock ending reward sprite JSON is empty.");
         document.Frames.Remove("suitless-idle-upper");
         document.Frames.Remove("suitless-hair-1");

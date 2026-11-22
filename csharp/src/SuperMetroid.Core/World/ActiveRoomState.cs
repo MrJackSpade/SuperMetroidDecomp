@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 /// effects, statues, enemies and bombs, what one room leaves the next, and the layers the door transition shows.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
-internal sealed class ActiveRoomState
+internal sealed partial class ActiveRoomState
 {
 
     /// <summary>
@@ -29,7 +29,7 @@ internal sealed class ActiveRoomState
 
     /// <summary>The load station that established the loading or loaded room; null for a room entered
     /// otherwise.</summary>
-    public LoadStation? ActiveLoadStation => _construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
+    public LoadStation? ActiveLoadStation => Construction is { } construction ? construction.LoadStation : Scope?.LoadStation;
 
     /// <summary>The completed scope of the loaded room, or null before the first load.</summary>
     internal RoomScope? Scope { get; private set; }
@@ -38,7 +38,7 @@ internal sealed class ActiveRoomState
     internal int RoomsLoaded { get; private set; }
 
     /// <summary>The scope a room load is building; null between loads.</summary>
-    private RoomScopeConstruction? _construction;
+    internal RoomScopeConstruction? Construction { get; private set; }
 
     /// <summary>The loaded room's scope; gameplay runs only in a loaded room.</summary>
     internal RoomScope LoadedScope => Scope ?? throw new InvalidOperationException("No room is loaded.");
@@ -48,10 +48,10 @@ internal sealed class ActiveRoomState
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
         LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival)
     {
-        if (_construction is not null)
+        if (Construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        _construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
-        return _construction;
+        Construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, RoomMainHandOvers);
+        return Construction;
     }
 
     /// <summary>Makes <paramref name="scope"/> the loaded room's, ending any construction.</summary>
@@ -59,12 +59,12 @@ internal sealed class ActiveRoomState
     {
         Scope = Ensure.NotNull(scope);
         RoomsLoaded++;
-        _construction = null;
+        Construction = null;
     }
 
     /// <summary>The value one room view reads: the part under construction during a load, otherwise the loaded scope's.</summary>
-    private T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
-        _construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
+    internal T? View<T>(Func<RoomScopeConstruction, T?> building, Func<RoomScope, T?> loaded) where T : class =>
+        Construction is { } construction ? building(construction) : Scope is { } scope ? loaded(scope) : null;
 
     /// <summary>The selected room and state of the room loading or loaded.</summary>
     public SelectedRoom? ActiveRoom => View(c => c.Room, s => s.Room);
@@ -94,7 +94,7 @@ internal sealed class ActiveRoomState
     /// Active room's loaded foreground, block behaviours and background. Rendering and collision must
     /// share this instance; null means no room level data has been loaded yet.
     /// </summary>
-    private RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
+    internal RoomLevelData? LevelData => View(c => c.LevelData, s => s.LevelData);
     /// <summary>The loaded room's level data.</summary>
     public RoomLevelData LoadedLevelData => LevelData ??
         throw new InvalidOperationException("No room level data is loaded.");

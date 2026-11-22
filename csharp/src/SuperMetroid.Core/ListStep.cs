@@ -5,7 +5,7 @@ namespace SuperMetroid.Core;
 /// entries after and before it when the walk cycles, the first following the last.
 /// </summary>
 /// <typeparam name="T">The list's entries.</typeparam>
-public readonly record struct ListStep<T>
+public readonly partial record struct ListStep<T>
 {
     /// <summary>The list walked.</summary>
     private readonly IReadOnlyList<T> _list;
@@ -18,7 +18,7 @@ public readonly record struct ListStep<T>
     }
 
     /// <summary>The entry's place in its list, counting from zero.</summary>
-    private int Place { get; }
+    internal int Place { get; }
 
     /// <summary>The entry.</summary>
     public T Entry => _list[Place];

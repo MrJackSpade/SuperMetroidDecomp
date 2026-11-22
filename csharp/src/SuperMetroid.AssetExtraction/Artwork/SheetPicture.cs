@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// groups and depth its frame document names, so it can be laid on another sheet and drawn as it was. What it shows in each
 /// shade is its sheet's colouring over <see cref="Rows"/>, which it does not hold.
 /// </summary>
-internal sealed class SheetPicture
+internal sealed partial class SheetPicture
 {
     /// <summary>Each pixel's colour, row by row from the top of the rectangle.</summary>
     private readonly RgbaPixel[] pixels;

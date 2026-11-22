@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// picture of that look. Each room's scope holds its own (#2160), so a room starts with every encounter showing the look
 /// its room's load gives it.
 /// </summary>
-public sealed class EncounterLooks : IEncounterLookView
+public sealed partial class EncounterLooks : IEncounterLookView
 {
     /// <summary>The look each encounter that has shown another than its loaded look shows now.</summary>
     private readonly Dictionary<EncounterArtwork, EncounterLook> shown = [];

@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// Botwoon's health bands (#1544, #2266), each shown once his health falls below its threshold, evenly apart from his
 /// full health down; the import pre-colours his head and body in each band's colours.
 /// </summary>
-public static class BotwoonHealthBandDefinitions
+public static partial class BotwoonHealthBandDefinitions
 {
     /// <summary>Botwoon below an eighth of his health, his last colours.</summary>
-    private static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth", null);
+    internal static BotwoonHealthBand BelowEighth { get; } = new(375, "below-eighth", null);
 
     /// <summary>Botwoon below a quarter of his health.</summary>
     public static BotwoonHealthBand BelowQuarter { get; } = new(750, "below-quarter", BelowEighth);

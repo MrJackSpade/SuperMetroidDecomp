@@ -30,10 +30,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("the Wrecked Ship ghost's brightening carries a channel passing full into the next, and its fades step all sixteen of its colours a level at a time, so when each ends decides when its AI moves on")]
-public readonly struct WreckedShipGhostFade
+public readonly partial struct WreckedShipGhostFade
 {
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>
-    private const int ColourCount = 16;
+    internal const int ColourCount = 16;
 
     /// <summary>The ghost's own colours, colour zero first, which its materializing fade moves toward (#1544).</summary>
     public static ImmutableArray<RgbColor> GhostColours => WreckedShipGhostFadeDefinitions.GhostColours;
@@ -45,7 +45,7 @@ public readonly struct WreckedShipGhostFade
     private readonly ImmutableArray<FadeLevelColour> shown;
 
     /// <summary>The colours the current fade moves toward, colour zero first.</summary>
-    private readonly ImmutableArray<FadeLevelColour> target;
+    internal readonly ImmutableArray<FadeLevelColour> target;
 
     /// <summary>The fade the next step toward <see cref="target"/> belongs to.</summary>
     private readonly Effect fade;

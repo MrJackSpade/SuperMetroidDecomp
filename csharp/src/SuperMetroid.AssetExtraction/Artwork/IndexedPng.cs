@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// bytes and packed palette indexes.
 /// </remarks>
 [EncodingOwner("indexed-colour PNG file")]
-public static class IndexedPng
+public static partial class IndexedPng
 {
     /// <summary>Decodes a complete static indexed PNG, preserving each pixel's palette index and palette alpha; verifies dimensions, chunk ordering/checksums, the 16-MiB encoded limit, and exact inflated row length before returning unpacked pixels.</summary>
     /// <param name="input">Caller-owned stream at the PNG signature, left open; the image must end at stream EOF without trailing bytes.</param>

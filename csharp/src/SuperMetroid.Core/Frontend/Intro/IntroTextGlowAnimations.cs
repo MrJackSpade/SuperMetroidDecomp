@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// (<see cref="IntroTextGlowStep"/>) in turn for <see cref="CinematicTextGlowDefinitions.GlowStepDuration"/> updates, the
 /// letter resting in the last step's colours.
 /// </summary>
-internal static class IntroTextGlowAnimations
+internal static partial class IntroTextGlowAnimations
 {
     /// <summary>The glow's steps.</summary>
     internal static AnimationSegments<IntroTextGlowSegment, IntroTextGlowStep, NoAnimationCue> Segments { get; } = new(

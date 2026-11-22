@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map-arrow document.</summary>
-public static class MapArrowFile
+public static partial class MapArrowFile
 {
     /// <summary>Loads and validates the four directional map-arrow visuals.</summary>
     /// <param name="json">Caller-owned stream containing the map-arrow document.</param>
@@ -36,7 +36,7 @@ public static class MapArrowFile
     /// <param name="document">The document to serialize.</param>
     public static void Write(Stream json, MapArrowDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapArrowDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

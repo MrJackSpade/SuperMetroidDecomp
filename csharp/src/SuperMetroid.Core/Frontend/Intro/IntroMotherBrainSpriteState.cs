@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// in front of the scene. Its animation cycles her authored frames. The actor also retains the hit counter,
 /// colour flash, and the exploding state and the room picture's shake.
 /// </remarks>
-internal sealed class IntroMotherBrainSpriteState
+internal sealed partial class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
     private readonly CinematicActor<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> actor =
@@ -26,7 +26,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     private UpdateCountdown exploding = UpdateCountdown.Ended();
     /// <summary>Missiles her hit test has consumed; the fourth starts the explosion.</summary>
-    private int hitCount;
+    internal int HitCount { get; private set; }
     /// <summary>Where she stands, from taking hits through her explosion and page two's crossfade to her deletion.</summary>
     private IntroMotherBrainPhase phase;
 
@@ -128,11 +128,11 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    private bool RecordMissileHit()
+    internal bool RecordMissileHit()
     {
         hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
-        hitCount++;
-        if (hitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
+        HitCount++;
+        if (HitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
@@ -143,6 +143,7 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="IntroMotherBrainCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroMotherBrainCue, Action> StepForIntroMotherBrainCue => field ??= new(new Dictionary<IntroMotherBrainCue, Action>
     {
         [IntroMotherBrainCue.StartNextPage] = () => NextPageRequested = true,

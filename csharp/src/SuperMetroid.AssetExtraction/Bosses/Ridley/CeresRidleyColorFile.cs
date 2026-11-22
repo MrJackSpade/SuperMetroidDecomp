@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Reads and writes the installed Ceres Ridley colour document.</summary>
-public static class CeresRidleyColorFile
+public static partial class CeresRidleyColorFile
 {
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
     /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
@@ -43,7 +43,7 @@ public static class CeresRidleyColorFile
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CeresRidleyColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static RgbColor[][] CompileRows(PaletteRgb5[][]? rows, int count,

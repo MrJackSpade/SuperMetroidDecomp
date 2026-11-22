@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The compositions the suitless and suited reward lists at $8B:ED1D..EE5C show. Counts describe visuals, not actor timing.</summary>
-public static class EndingRewardSpriteDefinitions
+public static partial class EndingRewardSpriteDefinitions
 {
     /// <summary>The 37 published reward compositions in installation order.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

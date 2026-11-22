@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge keeps each grapple tile transfer's characters (#1411): the $9A:8200/8A00/9200 Tiles_GrappleBeam groups.</summary>
-internal static class GrappleTileSources
+internal static partial class GrappleTileSources
 {
     /// <summary>
     /// The cartridge address of each transfer's first character byte, by its asset: the endpoints a point stride apart from

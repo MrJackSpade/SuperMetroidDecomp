@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>The sprite colours a room load leaves before any room content loads its own (#1392), which sheets compose over.</summary>
-internal static class RoomLoadPalettes
+internal static partial class RoomLoadPalettes
 {
     /// <summary>The colours of one sprite colour group.</summary>
     private const int GroupColours = 16;

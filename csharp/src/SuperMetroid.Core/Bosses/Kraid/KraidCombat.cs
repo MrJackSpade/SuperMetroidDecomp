@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's hitboxes and touch, and what Samus's weapons do to his mouth and body.</summary>
 [RoomLifetime]
-internal sealed class KraidCombat
+internal sealed partial class KraidCombat
 {
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -49,14 +49,22 @@ internal sealed class KraidCombat
     {
         // Kraid's arm is admitted by its definition's ignoring shot reaction, which still lets its hitboxes decide; its
         // authored hitboxes select the arm's private reaction.
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            if (c.HitboxShot == KraidReactions.ArmShot)
-                SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
-            return true;
-        },
+        AfterSuperMissileQuake = ReactToArmShot,
     };
+
+    /// <summary>
+    /// Takes a shot meeting Kraid's arm after the Super Missile quake: it touches without an impact, and his arm's own
+    /// reaction spawns its explosion.
+    /// </summary>
+    /// <param name="c">The shot meeting the arm.</param>
+    /// <returns>Always true: the arm's hitboxes take every shot.</returns>
+    private bool ReactToArmShot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        if (c.HitboxShot == KraidReactions.ArmShot)
+            SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
+        return true;
+    }
 
     /// <summary>
     /// The foot's shot reaction, which its hitboxes decide behind its definition's ignoring one: every rectangle ignores the
@@ -64,12 +72,17 @@ internal sealed class KraidCombat
     /// </summary>
     internal static EnemyShotReaction FootShotReaction { get; } = new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            return true;
-        },
+        AfterSuperMissileQuake = ReactToFootShot,
     };
+
+    /// <summary>Takes a shot meeting Kraid's foot after the Super Missile quake: it touches without an impact.</summary>
+    /// <param name="c">The shot meeting the foot.</param>
+    /// <returns>Always true: the foot's hitboxes take every shot.</returns>
+    private static bool ReactToFootShot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        return true;
+    }
 
     /// <summary>Runs the arm's push against Samus's touch.</summary>
     /// <param name="context">The touch.</param>
@@ -212,18 +225,18 @@ internal sealed class KraidCombat
     }
 
     /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>
-    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthHitbox shape) =>
         PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
-    private static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemyPlace body, KraidMouthCollisionEdges shape) =>
         KraidPassBounds.Placed(
             body.Position.X.Whole + shape.Left,
             body.Position.Y.Whole + shape.Top,
             body.Position.Y.Whole + shape.Bottom);
 
     /// <summary>Whether a projectile overlaps the pass's bounds as the mouth pass tests them.</summary>
-    private static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
+    internal static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
         bounds.Overlaps(
             shot.Position.Y - shot.Radius.Y,
             shot.Position.Y + shot.Radius.Y,
@@ -233,7 +246,7 @@ internal sealed class KraidCombat
     /// Whether a projectile overlaps Kraid's body: inside the pass's bounds when it reaches above their bottom, and
     /// otherwise left of the body's contour at its height, which leaves the projectile's right edge as the bottom.
     /// </summary>
-    private static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
+    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemyPlace body, KraidBehavior.KraidCollisionShot shot)
     {
         if (bounds.IsAboveBottom(shot.Position.Y - shot.Radius.Y))
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
@@ -360,7 +373,7 @@ internal sealed class KraidCombat
     /// <summary>A damaging hit on Kraid's mouth: the damage it deals and its kind.</summary>
     /// <param name="Damage">The damage dealt, never zero.</param>
     /// <param name="Hit">The kind of hit, which names the row later shots reach the mouth from.</param>
-    private readonly record struct KraidMouthStrike(int Damage, KraidMouthHitReach.DamagingHit Hit)
+    private readonly partial record struct KraidMouthStrike(int Damage, KraidMouthHitReach.DamagingHit Hit)
     {
         /// <summary>The strike <paramref name="shot"/> makes with <paramref name="vulnerability"/>, or none when it deals no damage.</summary>
         internal static KraidMouthStrike? Of(EnemyWeaponVulnerability vulnerability, KraidBehavior.KraidCollisionShot shot,

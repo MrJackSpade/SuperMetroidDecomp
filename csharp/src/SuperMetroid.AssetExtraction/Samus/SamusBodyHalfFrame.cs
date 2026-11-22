@@ -9,4 +9,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Pose">The pose whose half is shown.</param>
 /// <param name="Half">The body half.</param>
 /// <param name="AnimationFrame">The pose's animation frame.</param>
-public readonly record struct SamusBodyHalfFrame(SamusPoseId Pose, SamusBodyHalf Half, int AnimationFrame);
+public readonly partial record struct SamusBodyHalfFrame(SamusPoseId Pose, SamusBodyHalf Half, int AnimationFrame);

@@ -7,20 +7,26 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 /// draws at or mirrors, whether the crack's or a shard's flicker hides it, and how far along its swaying fall it is. The
 /// crack keeps only whether its flicker hides it, which it keeps once it falls (#2455).
 /// </summary>
-/// <param name="column">The column the debris starts at.</param>
-internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
+internal sealed partial class NoobTubeDebrisState : EnemyProjectileState
 {
+    /// <summary>Creates a <see cref="NoobTubeDebrisState"/>.</summary>
+    /// <param name="column">The column the debris starts at.</param>
+    public NoobTubeDebrisState(int column)
+    {
+        this.X = FixedCoordinate.FromWhole(column);
+    }
+
     /// <summary>Whether the crack's or a shard's flicker hides it on this update (#2455); a bubble never hides.</summary>
     public bool IsHidden { get; internal set; }
 
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
-    internal FixedCoordinate X { get; set; } = FixedCoordinate.FromWhole(column);
+    internal FixedCoordinate X { get; set; }
 
     /// <summary>
     /// How far through its sway the falling debris is, as an angle that goes once round a full turn each swing; it starts
     /// on a whole or a half step and moves on by whole steps.
     /// </summary>
-    private RotationAngle Sway { get; set; }
+    internal RotationAngle Sway { get; set; }
 
     /// <summary>
     /// The angle whose sine is the sway's sideways speed: the sway's whole steps, kept to the turn's second and fourth

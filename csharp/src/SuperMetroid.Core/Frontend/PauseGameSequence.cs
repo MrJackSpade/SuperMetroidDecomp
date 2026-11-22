@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
 /// <param name="gameplay">The main gameplay update, which runs behind the brightening at the pause's end.</param>
-internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
+internal sealed partial class PauseGameSequence(FrontendSession session, GameplayGamePhases gameplay) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Pause;
@@ -74,6 +74,7 @@ internal sealed class PauseGameSequence(FrontendSession session, GameplayGamePha
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="PauseStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PauseStep, Action<ControllerButton>> StepForPauseStep => field ??= new(new Dictionary<PauseStep, Action<ControllerButton>>
     {
         [PauseStep.DarkeningGameplay] = controllerInput => DarkenGameplay(controllerInput),

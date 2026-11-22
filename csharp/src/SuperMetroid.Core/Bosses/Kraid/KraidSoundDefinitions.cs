@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's and Fake Kraid's sound effects.</summary>
-internal static class KraidSoundDefinitions
+internal static partial class KraidSoundDefinitions
 {
     /// <summary>Fake Kraid's cry before it spits, requested only while its origin is on screen.</summary>
     internal static SoundEffectId FakeKraidCry { get; } = EnemySound.FakeKraidCry;

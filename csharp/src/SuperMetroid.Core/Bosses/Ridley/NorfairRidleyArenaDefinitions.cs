@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// pogo, carry and death turn on, how near his claws must come to grab Samus, the pogo's bounce and his death's drops.
 /// The targets that depend on the way he faces are <see cref="RidleyMovementTargets"/>'.
 /// </summary>
-internal static class NorfairRidleyArenaDefinitions
+internal static partial class NorfairRidleyArenaDefinitions
 {
     /// <summary>Where Ridley is placed, below his arena's visible floor.</summary>
     internal static readonly Position16<RoomPixels> Spawn = new(96, 394);

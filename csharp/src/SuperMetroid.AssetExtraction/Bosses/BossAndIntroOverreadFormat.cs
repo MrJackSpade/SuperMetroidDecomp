@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Defines the installed boss and intro overread file.</summary>
-internal static class BossAndIntroOverreadFormat
+internal static partial class BossAndIntroOverreadFormat
 {
     /// <summary>
     /// Supported schema revision. Revision one held Kraid's, Crocomire's and the egg shell's decoded reads (#1500); revision

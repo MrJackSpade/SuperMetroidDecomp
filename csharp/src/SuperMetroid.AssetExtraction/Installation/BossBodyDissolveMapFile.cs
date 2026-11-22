@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// each map's rows from the top a run-length list from the left whose counts cover exactly the picture's width: a run of
 /// pixels the dissolve keeps holds only its count, and a run it erases its band, its steps and its count.
 /// </summary>
-internal static class BossBodyDissolveMapFile
+internal static partial class BossBodyDissolveMapFile
 {
     /// <summary>
     /// The map format's revision: 1 held each dissolving boss body picture's map once, by its tag (#2478); 2 spells a kept
@@ -45,7 +45,7 @@ internal static class BossBodyDissolveMapFile
             if (!documents.TryAdd(tag, Encoded(Ensure.NotNull(map))))
                 throw new ArgumentException($"Dissolve map {tag} is named twice.", nameof(maps));
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodyDissolveMapFile.Document>(Options));
     }
 
     /// <summary>One map's runs.</summary>
@@ -144,10 +144,10 @@ internal static class BossBodyDissolveMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed partial record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs: a kept run's count, or an erased run's band, steps, then count.</param>
-    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][][] Rows);
+    internal sealed partial record MapDocument(Extent16<ImagePixels> Size, int[][][] Rows);
 }

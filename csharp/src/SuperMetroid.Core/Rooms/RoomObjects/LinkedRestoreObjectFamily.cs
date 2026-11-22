@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// restoration shows is its installed picture (#1557); what it changes is its block shape (#1862), which its draw's
 /// arrangement selects (#2484). Each kind's restorations are drawn by their own draw family (#2034).
 /// </summary>
-internal static class LinkedRestoreObjectFamily
+internal static partial class LinkedRestoreObjectFamily
 {
     /// <summary>How a bomb-block restoration's parent collides.</summary>
     private const RoomCollisionType BombBlockParent = RoomCollisionType.BombableBlock;

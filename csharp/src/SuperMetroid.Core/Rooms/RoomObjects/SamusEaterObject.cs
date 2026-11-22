@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// immunity, shows its fangs out, then its idle image for one update, and leaves the room.
 /// </summary>
 [RoomLifetime]
-internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame>
+internal sealed partial class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame>
 {
     /// <summary>A plant that has just caught Samus.</summary>
     /// <param name="owner">The room's plants, which reach Samus.</param>
@@ -44,10 +44,10 @@ internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSeg
     internal Position16<RoomPixels> HeldPosition { get; }
 
     /// <summary>Where the plant is in its course.</summary>
-    private SamusEaterPhase Phase { get; set; } = SamusEaterPhase.Biting;
+    internal SamusEaterPhase Phase { get; set; } = SamusEaterPhase.Biting;
 
     /// <summary>Whether the plant holds Samus: while it chews, from the end of its first update's bite until it releases her.</summary>
-    private bool Holding => Phase == SamusEaterPhase.Chewing;
+    internal bool Holding => Phase == SamusEaterPhase.Chewing;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -58,6 +58,7 @@ internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSeg
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="SamusEaterPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForSamusEaterPhase => field ??= new(new Dictionary<SamusEaterPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [SamusEaterPhase.Biting] = (place, context) =>
@@ -86,6 +87,7 @@ internal sealed class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSeg
     }
 
     /// <summary>What <c>Show</c> does for each <see cref="SamusEaterBite"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SamusEaterBite, Action<RoomObjectStepContext>> ShowForSamusEaterBite => field ??= new(new Dictionary<SamusEaterBite, Action<RoomObjectStepContext>>
     {
         [SamusEaterBite.None] = context =>

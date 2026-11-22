@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>The gunship's engine hum (#2043): how soon it first sounds and how often it repeats.</summary>
-internal static class GunshipHoverSoundDefinitions
+internal static partial class GunshipHoverSoundDefinitions
 {
     /// <summary>The updates before the landed ship's first hover sound, counted from its placement, the one it sounds on included.</summary>
     internal const int FirstDelay = 71;

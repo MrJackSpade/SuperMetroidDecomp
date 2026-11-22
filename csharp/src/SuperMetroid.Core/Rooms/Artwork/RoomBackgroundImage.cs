@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// pictures one period of what it shows (#1651), laid out as its room shows it (#1617), which the background shows over and
 /// over across and down; the scrolling sky pictures all its rows.
 /// </summary>
-public sealed class RoomBackgroundImage
+public sealed partial class RoomBackgroundImage
 {
     /// <summary>The frame of an image's sheet that pictures the whole background.</summary>
     public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
-    private const int CellPixels = RoomGridConversions.BlockPixels;
+    internal const int CellPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,

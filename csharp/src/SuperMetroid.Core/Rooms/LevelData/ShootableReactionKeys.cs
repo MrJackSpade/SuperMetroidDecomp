@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="ShootableReaction"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class ShootableReactionKeys
+internal static partial class ShootableReactionKeys
 {
     /// <summary>Each ShootableReaction member's installed key.</summary>
     internal static InstalledKeys<ShootableReaction> Installed { get; } = new(new Dictionary<ShootableReaction, string>

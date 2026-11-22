@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Compares boss body pictures by what they paint (#1466): their size and each cell's place, tile and character bytes,
 /// whatever they are named and whichever tier their cells are written in (#1634). Pictures equal by it share one place on the body sheet.
 /// </summary>
-internal sealed class BossBodyPictureContent : IEqualityComparer<BossBodyPicture>
+internal sealed partial class BossBodyPictureContent : IEqualityComparer<BossBodyPicture>
 {
     /// <summary>The comparer.</summary>
     internal static readonly BossBodyPictureContent Instance = new();

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// Owtch's left and right shell-cycling animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="OwtchCue"/> naming what it does.
 /// </summary>
-internal static class OwtchAnimations
+internal static partial class OwtchAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<OwtchSegment, EnemyFrameId, OwtchCue> Segments { get; } = new(
@@ -40,7 +40,7 @@ internal static class OwtchAnimations
     /// The animation that starts at each segment an owner can start or restart at: its entry cue once, then its crawl
     /// looping (#2061, #2276).
     /// </summary>
-    private static Dictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
+    internal static Dictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
         [P.MovingLeft] = Animation<OwtchSegment>.LeadingInto([Segments.Whole(P.MovingLeft)], [Segments.Whole(P.CrawlingLeft)]),
         [P.MovingRight] = Animation<OwtchSegment>.LeadingInto([Segments.Whole(P.MovingRight)], [Segments.Whole(P.CrawlingRight)]),

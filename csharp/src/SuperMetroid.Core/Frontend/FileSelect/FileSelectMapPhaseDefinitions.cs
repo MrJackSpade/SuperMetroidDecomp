@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>What each of the save-selection map's navigation phases does (<see cref="FileSelectMapMenuState"/>).</summary>
-internal static class FileSelectMapPhaseDefinitions
+internal static partial class FileSelectMapPhaseDefinitions
 {
     /// <summary>
     /// The phases the room map is navigated in: an update that begins in one steps the map's arrows and scrolls it, and

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Asset filename and supported JSON schema revision for editable area-map landmark anchors.</summary>
-public static class MapLandmarkFormat
+public static partial class MapLandmarkFormat
 {
     /// <summary>Supported revision of the complete named-landmark coordinate schema.</summary>
     public const int Version = 2;

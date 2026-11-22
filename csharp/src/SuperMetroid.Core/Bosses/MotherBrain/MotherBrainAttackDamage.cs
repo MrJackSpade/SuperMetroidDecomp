@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// rings deal theirs through her own collision rather than the projectiles' common touch, to Samus and to the Baby
 /// Metroid alike, and her finish-off thresholds count both her onion rings' and her bomb's.
 /// </summary>
-internal static class MotherBrainAttackDamage
+internal static partial class MotherBrainAttackDamage
 {
     /// <summary>The damage one onion ring deals Samus or the Baby Metroid.</summary>
     internal static int OnionRing => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.MotherBrainOnionRing).Damage;

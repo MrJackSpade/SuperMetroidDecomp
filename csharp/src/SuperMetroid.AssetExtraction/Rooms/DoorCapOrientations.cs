@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Decodes and names the orientation of a door-cap draw list.</summary>
-internal static class DoorCapOrientations
+internal static partial class DoorCapOrientations
 {
     /// <summary>The orientations in the order the door caps' draw tables list them, which the caps' editable visuals follow.</summary>
     internal static IReadOnlyList<ColoredDoorOrientation> InTableOrder { get; } =

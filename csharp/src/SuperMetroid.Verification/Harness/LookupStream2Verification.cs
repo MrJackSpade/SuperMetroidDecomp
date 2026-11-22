@@ -126,7 +126,7 @@ internal static class LookupStream2Verification
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(ArtworkJson.Options))));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -265,7 +265,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.ColourEffectSystem>([typeof(global::SuperMetroid.Core.Fx.ColourEffectSessionState), typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+            var actual = new global::SuperMetroid.Core.Fx.ColourEffectSystem(actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -1577,7 +1577,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(220, nativeBodyParts, "Golden Torizo ten native body-composition extents");
         EnemyExtendedFrameCatalog Load() => EnemyExtendedFrameDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument>(ArtworkJson.Options))));
         void Check(EnemyExtendedFrameCatalog catalog)
         {
             foreach (var frame in selected)

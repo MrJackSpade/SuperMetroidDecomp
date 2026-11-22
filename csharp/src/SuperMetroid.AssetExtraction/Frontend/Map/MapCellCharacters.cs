@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// cell is pictured from the first character and mirroring that pictures it, in the colour row of the shade it is shown
 /// in. The game never sees a character, a mirroring or a colour row.
 /// </summary>
-internal static class MapCellCharacters
+internal static partial class MapCellCharacters
 {
     /// <summary>Each classified character and mirroring's cell.</summary>
     private static readonly Dictionary<MapCellSource, MapCell> CellsBySource = IndexSources();
@@ -58,7 +58,7 @@ internal static class MapCellCharacters
 
     /// <summary>The cell map character <paramref name="character"/> pictures, mirrored by <paramref name="mirroring"/>.</summary>
     /// <exception cref="InvalidDataException">The character, so mirrored, is not one the retail maps draw a cell with.</exception>
-    private static MapCell Picture(int character, PictureFlip mirroring) =>
+    internal static MapCell Picture(int character, PictureFlip mirroring) =>
         CellsBySource.TryGetValue(new MapCellSource(character, mirroring), out MapCell cell)
             ? cell
             : throw new InvalidDataException($"Map character {character} mirrored {mirroring} is not one the retail maps draw a cell with.");

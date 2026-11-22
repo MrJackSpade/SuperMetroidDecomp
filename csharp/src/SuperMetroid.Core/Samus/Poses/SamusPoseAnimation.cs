@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// a segment's end cue, or past the last segment, names no step of the animation and reads the outcome the import decoded
 /// for it (<see cref="SamusAnimationDelays.TryStepFor"/>).
 /// </summary>
-internal sealed class SamusPoseAnimation
+internal sealed partial class SamusPoseAnimation
 {
     /// <summary>The segments, in order.</summary>
     private readonly SamusAnimationSegment[] segments;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the struck occupant's set through the hit's context (<see cref="EnemyShotContext.StruckOccupant"/>,
 /// <see cref="EnemyBombContext.StruckOccupant"/>).
 /// </summary>
-internal sealed class EnemyOccupantStates
+internal sealed partial class EnemyOccupantStates
 {
     /// <summary>
     /// Each installed state, keyed by its type's full name: a name rather than the type itself, so a save state can hold

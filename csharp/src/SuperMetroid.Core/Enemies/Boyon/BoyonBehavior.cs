@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The Boyon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -24,6 +24,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new BoyonEntity(this, occupant, place, common));
 
     /// <summary>What <see cref="ApplyBoyonCue"/> does for each <see cref="BoyonCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>> ApplyBoyonCueForBoyonCueKind => field ??= new(new Dictionary<BoyonCueKind, Action<RoomEnemyPlace, BoyonEnemyState>>
     {
         [BoyonCueKind.PlayBounceSound] = (place, state) => PlayBoyonBounceSound(),
@@ -114,7 +115,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Its spawn settings' arc height, 48 to 96 pixels for Boyons, compared plainly with the arc's distance (#2282).
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">The arc is lower than nothing.</exception>
-    private static void DeriveBoyonArcBaseline(BoyonEnemyState state, int multiplier, SignedSixteenSixteen jumpHeight)
+    internal static void DeriveBoyonArcBaseline(BoyonEnemyState state, int multiplier, SignedSixteenSixteen jumpHeight)
     {
         if (jumpHeight.IsNegative)
             throw new ArgumentOutOfRangeException(nameof(jumpHeight), jumpHeight, "A Boyon's arc is no lower than nothing.");
@@ -158,7 +159,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The Boyon's speed at its place: the curve sample there scaled by its spawn settings'
     /// <paramref name="multiplier"/>; past the curve's end it keeps the curve's last speed.
     /// </summary>
-    private static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
+    internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state, int multiplier) =>
         BoyonBounceCurve.Multiply(state.CurvePlace, multiplier);
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>

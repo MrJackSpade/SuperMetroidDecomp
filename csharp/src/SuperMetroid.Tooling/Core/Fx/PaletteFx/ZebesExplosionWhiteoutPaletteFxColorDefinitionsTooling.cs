@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 internal static class ZebesExplosionWhiteoutPaletteFxColorDefinitionsTooling
 {
     /// <summary>All native definitions whose mechanics are owned by this catalog.</summary>
-    [AccessedByReflection]
     public static IReadOnlyList<ZebesExplosionWhiteoutPaletteFxColorDefinition> All { get; } =
     [
         new(),

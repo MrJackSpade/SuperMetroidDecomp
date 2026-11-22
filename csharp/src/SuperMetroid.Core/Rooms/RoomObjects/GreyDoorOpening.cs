@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>A grey door's unlock condition and the door it keeps once set up.</summary>
 /// <param name="Condition">What unlocks the cap.</param>
 /// <param name="Door">The door the cap keeps.</param>
-public sealed record GreyDoorOpening(GreyDoorCondition Condition, DoorLock Door) : RoomObjectRoomArgument;
+public sealed partial record GreyDoorOpening(GreyDoorCondition Condition, DoorLock Door) : RoomObjectRoomArgument;

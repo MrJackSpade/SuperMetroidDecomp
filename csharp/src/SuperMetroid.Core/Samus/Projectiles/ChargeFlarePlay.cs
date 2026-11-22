@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <typeparam name="TSegment">The component's runs of pictures.</typeparam>
 /// <typeparam name="TPicture">The component's pictures: the main flare's or a spark ring's.</typeparam>
-internal sealed class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
+internal sealed partial class ChargeFlarePlay<TSegment, TPicture> : IChargeFlarePlay
     where TSegment : struct
     where TPicture : struct
 {

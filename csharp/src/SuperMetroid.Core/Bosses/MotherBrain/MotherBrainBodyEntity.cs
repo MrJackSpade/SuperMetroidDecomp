@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
@@ -32,7 +32,7 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? (field ??= Species.Combat.BodyShotReactionOf(this)) : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? (field ??= MotherBrainCombat.BodyShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>
     /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is

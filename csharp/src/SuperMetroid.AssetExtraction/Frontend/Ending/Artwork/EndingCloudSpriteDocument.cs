@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>JSON schema for the editable atmospheric ending-cloud compositions.</summary>
-public sealed record EndingCloudSpriteDocument
+public sealed partial record EndingCloudSpriteDocument
 {
     /// <summary>Gets the schema version, which must equal <see cref="EndingCloudSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }

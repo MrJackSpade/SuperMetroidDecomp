@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// import pictures each frame from them; gameplay draws the frame's picture by name. A run replaces only the tile each
 /// floor cell shows, never the tiles' pixels.
 /// </summary>
-internal static class CeresFloorDrawingDefinitions
+internal static partial class CeresFloorDrawingDefinitions
 {
     /// <summary>The wing cell's tile that draws nothing.</summary>
     internal const int TransparentWingTile = 255;

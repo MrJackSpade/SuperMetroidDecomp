@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <see cref="MagdolliteMotionDefinitions.GlowFrameDuration"/> updates, which the room loops once a Magdollite has started
 /// it. Every Magdollite and the lava it throws show the glow's frame.
 /// </summary>
-internal static class MagdolliteGlowAnimations
+internal static partial class MagdolliteGlowAnimations
 {
     /// <summary>
     /// The glow's frames in the order it shows them, from its first (#2474): the import installs one shade per frame, named

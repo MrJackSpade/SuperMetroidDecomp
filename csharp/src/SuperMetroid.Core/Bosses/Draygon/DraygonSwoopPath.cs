@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// lowest point up toward the reset height, in climbing order, and after them the height the body started the swoop at,
 /// which the descent takes first. The path holds as many entries as that climb takes and nothing else limits its length.
 /// </summary>
-internal sealed class DraygonSwoopPath
+internal sealed partial class DraygonSwoopPath
 {
     /// <summary>The body's height at each entry, from the swoop's lowest point up.</summary>
     private readonly ImmutableArray<int> _heights;

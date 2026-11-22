@@ -27,7 +27,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// depends on. The HUD's images are pictured the same way on a sheet of their own, each as its own frame (#1731). Every
 /// position here is a pixel of the sheet or of a picture: the tilemap's cells are decoded into pixels where its words are read.
 /// </summary>
-internal static class WrittenPictureSheetComposer
+internal static partial class WrittenPictureSheetComposer
 {
     /// <summary>The tile-word writers in the order their pictures are composed and shaded (#2567): Zebes's escape text, then Ceres's.</summary>
     internal static WrittenOrder<TileWordWriter> WriterOrder { get; } = new(Ensure.EveryMemberOnce<TileWordWriter>(
@@ -466,12 +466,12 @@ internal static class WrittenPictureSheetComposer
     /// <summary>One tile word a picture writes, at its tile's top-left pixel.</summary>
     /// <param name="Corner">The tile's top-left pixel, from the picture's own top-left.</param>
     /// <param name="Word">The tile word.</param>
-    private readonly record struct SubjectWord(Position16<ImagePixels> Corner, SnesBgTilemapWord Word);
+    private readonly partial record struct SubjectWord(Position16<ImagePixels> Corner, SnesBgTilemapWord Word);
 
     /// <summary>One picture something writes: the name gameplay writes it by and the tile words it is composed from.</summary>
     /// <param name="Name">The name.</param>
     /// <param name="Words">The words, each at its tile's pixel.</param>
-    private sealed record WrittenSubject(string Name, SubjectWord[] Words)
+    private sealed partial record WrittenSubject(string Name, SubjectWord[] Words)
     {
         /// <summary>The picture's origin from its top-left pixel: a liquid's surface strip's lies on its surface line (#1706), every other picture's at its corner.</summary>
         public Offset16<ImagePixels> Origin { get; init; }
@@ -482,40 +482,40 @@ internal static class WrittenPictureSheetComposer
     /// <param name="Size">Its size in pixels.</param>
     /// <param name="Words">Each word as it shows, at its tile's pixel within the frame.</param>
     /// <param name="Origin">Its origin from its top-left pixel, its subject's.</param>
-    private sealed record ShownPicture(string Name, Extent16<ImagePixels> Size, List<PictureWord> Words, Offset16<ImagePixels> Origin);
+    private sealed partial record ShownPicture(string Name, Extent16<ImagePixels> Size, List<PictureWord> Words, Offset16<ImagePixels> Origin);
 
     /// <summary>One word of a frame as it shows, at its tile's offset from the frame's top-left pixel.</summary>
     /// <param name="Offset">The offset of the word's tile from the frame's top-left pixel.</param>
     /// <param name="Word">The word as it shows.</param>
-    private readonly record struct PictureWord(Offset16<ImagePixels> Offset, ShownWord Word);
+    private readonly partial record struct PictureWord(Offset16<ImagePixels> Offset, ShownWord Word);
 
     /// <summary>A composed sheet and the inputs each of its subjects depends on, by the name its pictures begin with.</summary>
     /// <param name="Sheet">The sheet.</param>
     /// <param name="Inputs">The inputs.</param>
-    private sealed record ComposedPictures(ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> Inputs);
+    private sealed partial record ComposedPictures(ComposedSpriteSheet Sheet, IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> Inputs);
 
     /// <summary>What a sheet pictures.</summary>
     /// <param name="Subjects">The pictures gameplay writes, each pictured for every value of the inputs that reach it.</param>
     /// <param name="FixedParts">Parts pictured as the room loads them, such as the shelves of the HUD's images.</param>
     /// <param name="PartFrames">Frames cut from within the fixed parts.</param>
-    private sealed record WrittenSubjects(List<WrittenSubject> Subjects, List<WrittenSubject> FixedParts, IReadOnlyList<PartFrame> PartFrames);
+    private sealed partial record WrittenSubjects(List<WrittenSubject> Subjects, List<WrittenSubject> FixedParts, IReadOnlyList<PartFrame> PartFrames);
 
     /// <summary>A frame cut from within a fixed part (#1466): one of the HUD's images on its shelf.</summary>
     /// <param name="Name">The frame's name.</param>
     /// <param name="Part">The part it is cut from.</param>
     /// <param name="Corner">Its top-left pixel within the part.</param>
     /// <param name="Size">Its size in pixels.</param>
-    private sealed record PartFrame(string Name, string Part, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size);
+    private sealed partial record PartFrame(string Name, string Part, Position16<ImagePixels> Corner, Extent16<ImagePixels> Size);
 
     /// <summary>A tile word as it shows over the artwork bound at its character.</summary>
     /// <param name="Word">The tile word.</param>
     /// <param name="Shown">The artwork it shows.</param>
-    private readonly record struct ShownWord(SnesBgTilemapWord Word, BgArtworkShown Shown);
+    private readonly partial record struct ShownWord(SnesBgTilemapWord Word, BgArtworkShown Shown);
 
     /// <summary>What a layer's pictures are shown over beyond the room's load.</summary>
     /// <param name="Options">What the rooms show over the layer's characters after loading, each picture pictured again for.</param>
     /// <param name="Set">The character set the layer's words read.</param>
     /// <param name="Bound">Artwork the room binds beyond its load, which its pictures show over.</param>
     /// <param name="Content">What the room binds over its characters, the options' bound artwork beyond its load included.</param>
-    private sealed record WrittenOptions(AppearanceOptions Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound, BgArtworkBindings Content);
+    private sealed partial record WrittenOptions(AppearanceOptions Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound, BgArtworkBindings Content);
 }

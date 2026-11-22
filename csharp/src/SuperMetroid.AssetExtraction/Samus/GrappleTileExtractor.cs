@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts four endpoint tiles and twelve angle/animation segment tiles, omitting unused source-sheet padding.</summary>
-public static class GrappleTileExtractor
+public static partial class GrappleTileExtractor
 {
     /// <summary>Compacts four endpoint characters and three four-character rope-orientation groups from bank $9A into one replacement atlas.</summary>
     /// <param name="bus">Import-capable cartridge source for the endpoint, horizontal, diagonal, and vertical transfers in <see cref="GrappleTileDefinitions.Transfers"/>.</param>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// editable text and names its picture, its glyph style and the blank space before it. The wording remains editable
 /// content.
 /// </summary>
-public static class CreditsRoles
+public static partial class CreditsRoles
 {
     /// <summary>Every staff line in roll order: section headings in the small glyphs, names in the large.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines { get; } =

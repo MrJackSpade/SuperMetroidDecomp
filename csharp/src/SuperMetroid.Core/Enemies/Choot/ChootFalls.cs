@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>Where a falling Choot is: its pattern, and the offset of its path on each update of a loop of its fall.</summary>
-internal static class ChootFalls
+internal static partial class ChootFalls
 {
     /// <summary>
     /// The offset from the falling origin each falling path shows on each update of one loop, laid out once from its

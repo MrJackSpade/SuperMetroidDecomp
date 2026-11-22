@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// loads, where the tileset's floor has it rest (<see cref="RoomFloorSheet.Resting"/>), and otherwise nothing. Room state;
 /// each frame the display composes the floor from it as an <see cref="AffineFloor"/>.
 /// </summary>
-public sealed class RoomFloor
+public sealed partial class RoomFloor
 {
     /// <summary>The picture each actor on the floor shows now; an actor absent from it shows nothing.</summary>
-    private readonly Dictionary<CeresFloorActor, CeresFloorActorPicture> shown;
+    internal readonly Dictionary<CeresFloorActor, CeresFloorActorPicture> shown;
 
     /// <summary>The floor as composed, until a part shows another frame.</summary>
     private AffineFloor? published;
@@ -26,7 +26,7 @@ public sealed class RoomFloor
     }
 
     /// <summary>The tileset's installed floor and the pictures of the actors shown on it.</summary>
-    private RoomFloorSheet Sheet { get; }
+    internal RoomFloorSheet Sheet { get; }
 
     /// <summary>The actor <paramref name="frame"/> is a picture of shows it from now on.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not a picture of the floor's actors.</exception>

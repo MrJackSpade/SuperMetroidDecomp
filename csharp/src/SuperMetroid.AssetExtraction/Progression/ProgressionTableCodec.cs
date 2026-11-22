@@ -25,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// into <see cref="PersistentProgress.ZebetitesDestroyed"/>, and writing puts the count back into them.
 /// </remarks>
 [EncodingOwner("cartridge persistent progress tables")]
-public static class ProgressionTableCodec
+public static partial class ProgressionTableCodec
 {
     /// <summary>Bytes of the story-event table.</summary>
     public const int EventByteCount = StoryEventNumbers.NumberCount / BitsPerByte;
@@ -258,7 +258,7 @@ public static class ProgressionTableCodec
     /// </summary>
     /// <param name="value">An area's boss byte, as the table or a copy of it holds it.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
-    private static DefeatedBosses StoredBosses(int value)
+    internal static DefeatedBosses StoredBosses(int value)
     {
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
         DefeatedBosses bosses = DefeatedBosses.None;
@@ -271,7 +271,7 @@ public static class ProgressionTableCodec
     }
 
     /// <summary>The boss byte that records <paramref name="bosses"/>.</summary>
-    private static byte EncodeBossMask(DefeatedBosses bosses)
+    internal static byte EncodeBossMask(DefeatedBosses bosses)
     {
         int value = 0;
         for (int bit = 0; bit < BossFlagBits.Length; bit++)

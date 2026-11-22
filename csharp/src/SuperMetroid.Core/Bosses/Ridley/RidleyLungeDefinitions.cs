@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Thresholds for aborting and recovering from a Norfair Ridley lunge.</summary>
-public static class RidleyLungeDefinitions
+public static partial class RidleyLungeDefinitions
 {
     /// <summary>After a missed lunge, ten zero-health lunges end in the death roar.</summary>
     public const int DeathLungeLimit = 10;

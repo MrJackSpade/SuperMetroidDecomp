@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// Gameplay HUD initialization: the HUD's presentation.
 /// </summary>
-internal sealed class GameplayHudSetup
+internal sealed partial class GameplayHudSetup
 {
     /// <summary>Selects installed HUD artwork.</summary>
     private readonly RuntimeArtwork _artwork;

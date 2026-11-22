@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// elements, its collectibles' graphics and Kraid's backdrop. Extraction keys the bytes it composes pictures from by
 /// these; the pictures themselves are named by the appearance inputs that show the artwork (#1466).
 /// </summary>
-public static class RoomBgArtwork
+public static partial class RoomBgArtwork
 {
     /// <summary>The common room element characters every Zebes room loads.</summary>
     public static BgArtworkIdentity CommonRoomElements { get; } = new("common room element characters");

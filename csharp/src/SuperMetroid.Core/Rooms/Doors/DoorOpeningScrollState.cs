@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The camera, Samus and the background take these positions as they are, with nothing between one step and the next.
 /// Each scroll update moves them along the travel direction only.
 /// </remarks>
-internal sealed class DoorOpeningScrollState
+internal sealed partial class DoorOpeningScrollState
 {
 
     /// <summary>Captures the directional setup positions, Samus's step, and the exact destination positions.</summary>

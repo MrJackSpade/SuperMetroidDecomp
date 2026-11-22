@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// poses every actor's program shows, through every program it goes, falls or repeats into, each in the colouring the
 /// actor's draws name. A scene's sheet pictures exactly these poses, each in its colouring's sprite set.
 /// </summary>
-internal static class CeresSceneActors
+internal static partial class CeresSceneActors
 {
     /// <summary>The Ceres flight's poses: the front stars' and every rear-view actor's, each in its definition's colouring.</summary>
     /// <exception cref="InvalidDataException">The flight draws a pose in two colourings of different sets.</exception>

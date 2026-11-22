@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// installed as a shade at each level, each colour's steps (<see cref="FadeLevelColour"/>) scaled by the level and rounded
 /// down, as the cartridge's fades show them.
 /// </summary>
-internal static class PreColouredFade
+internal static partial class PreColouredFade
 {
     /// <summary><paramref name="colour"/> at <paramref name="level"/> between black and itself.</summary>
     /// <param name="colour">The colour at its whole level.</param>

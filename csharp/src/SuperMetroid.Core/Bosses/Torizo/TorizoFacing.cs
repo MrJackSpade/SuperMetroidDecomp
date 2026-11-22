@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Which way a Torizo faces and which foot it leads with, read from the state its entity owns (#2030, #2237), and the side
 /// of it Samus is on, as its attack branches test it.
 /// </summary>
-internal static class TorizoFacing
+internal static partial class TorizoFacing
 {
     /// <summary>The Torizo's posture: its facing, its leading foot and whether it is turning around.</summary>
     internal static TorizoPosture Posture(RoomEnemyPlace torizo) =>

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// wraps at a byte and every copy reads the bytes already emitted.
 /// </remarks>
 [EncodingOwner("compressed asset command stream")]
-public static class SmCompression
+public static partial class SmCompression
 {
     /// <summary>
     /// Decompresses exactly one complete stream. Trailing data is rejected because each

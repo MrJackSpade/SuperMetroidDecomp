@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the escape warning text and timer spritemaps the escape extractors read.</summary>
 [EncodingOwner("cartridge addresses of the escape warning text and timer spritemaps")]
-internal static class EscapeSourceDefinitions
+internal static partial class EscapeSourceDefinitions
 {
     /// <summary>$A6:C450 TypewriterText_CeresEscapeTimer: the Ceres escape warning program.</summary>
     internal static readonly SnesAddress CeresWarningText = new(0xa6, 0xc450);
@@ -24,7 +24,7 @@ internal static class EscapeSourceDefinitions
     /// <summary>$B7:DA00: the escape warning text's characters, which the Ceres and Zebes warnings both copy.</summary>
     internal static readonly SnesAddress TextCharacters = new(0xb7, 0xda00);
     /// <summary>$B0:BA00: the Ceres escape doors' characters.</summary>
-    private static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
+    internal static readonly SnesAddress CeresEscapeDoorCharacters = new(0xb0, 0xba00);
     /// <summary>$B0:C000: the escape timer's characters, its two pages one after the other.</summary>
     internal static readonly SnesAddress TimerCharacters = new(0xb0, 0xc000);
     /// <summary>Where each Ceres escape character page starts, by the page.</summary>

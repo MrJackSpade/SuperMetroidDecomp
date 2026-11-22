@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// Its crawl speed per update on both axes; none keeps the velocity it has and takes the default speed after its first
 /// landing.
 /// </param>
-internal sealed record ViolaSpawnSettings(CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : CrawlerStartSettings
+internal sealed partial record ViolaSpawnSettings(CrawlerSurfaceOrientation BlockSide, SignedEightEight? CrawlSpeed) : CrawlerStartSettings
 {
     /// <inheritdoc/>
     /// <remarks>A Viola starts on the surface of the block side it holds; its placement names no surface of its own.</remarks>

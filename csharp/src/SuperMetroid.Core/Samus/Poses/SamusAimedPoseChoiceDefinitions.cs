@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The poses Samus's turns, landings and wall stops choose by the direction she aims (#2323): each keeps her aim through
 /// the change, and an aim a choice does not list is one the poses it starts from never have.
 /// </summary>
-internal static class SamusAimedPoseChoiceDefinitions
+internal static partial class SamusAimedPoseChoiceDefinitions
 {
     /// <summary>
     /// The turn a normal jump takes, by the direction its pose aims. A straight-down aim takes the down-aimed turn away

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema and stock text-region geometry for completion and save notices.</summary>
-public static class GameplayMessageNoticeDefinitions
+public static partial class GameplayMessageNoticeDefinitions
 {
     /// <summary>Supported revision of the editable station-completion and save-confirmation notice JSON schema.</summary>
     public const int Version = 2;

@@ -11,10 +11,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <summary>Exports the explosion's glow colours as installed colours without exporting radius or HDMA mechanics.</summary>
 /// <remarks>The one decoder of the cartridge's three-byte fixed-colour triplets: each byte keeps its low five bits.</remarks>
 [EncodingOwner("Power Bomb glow-colour triplet")]
-public static class PowerBombGlowColorExtractor
+public static partial class PowerBombGlowColorExtractor
 {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
-        private const int ComponentMask = 0b1_1111;
+        internal const int ComponentMask = 0b1_1111;
 
     /// <summary>Imports the sixteen pre-explosion and thirty-two explosion glow colours used by Power Bomb effects.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native three-byte fixed-color sequences.</param>

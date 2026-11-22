@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Torizo's asymmetric touch rectangles, which a contact against its corpse checks in order.</summary>
-internal static class DeadTorizoTouchDefinitions
+internal static partial class DeadTorizoTouchDefinitions
 {
     /// <summary>Dead Torizo's seven asymmetric touch rectangles.</summary>
     private static readonly EnemyHitboxRectangle[] TouchRectangles =

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="FacingLeft">The value while he faces left.</param>
 /// <param name="Turning">The value while he turns toward the screen.</param>
 /// <param name="FacingRight">The value while he faces right.</param>
-internal readonly record struct RidleyFacedX(int FacingLeft, int Turning, int FacingRight)
+internal readonly partial record struct RidleyFacedX(int FacingLeft, int Turning, int FacingRight)
 {
     /// <summary>The value for <paramref name="facing"/>.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="facing"/> is no facing.</exception>

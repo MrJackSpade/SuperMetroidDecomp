@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="VerticalRadius">The pose's vertical collision radius, in pixels.</param>
 /// <param name="Aim">What the pose does with the arm cannon.</param>
 /// <param name="ProjectileHeight">How far above her centre the pose's shots and Grapple start, in pixels.</param>
-internal sealed record SamusPoseDefinition(
+internal sealed partial record SamusPoseDefinition(
     SamusFacingDirection Facing,
     SamusMovementType Movement,
     SamusNoInputPose NoInput,

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// What a pose falls back to when no input transition applies: another pose, or keeping the pose Samus is in.
 /// </summary>
-public readonly record struct SamusNoInputPose
+public readonly partial record struct SamusNoInputPose
 {
     /// <summary>The pose fallen back to, or null where the pose is kept.</summary>
     private readonly SamusPoseId? _pose;

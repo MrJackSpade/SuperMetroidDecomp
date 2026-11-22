@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>The world map's installed character atlases: their file names and geometry.</summary>
-public static class WorldMapArtworkFormat
+public static partial class WorldMapArtworkFormat
 {
     /// <summary>Indexed PNG containing the shared 4-bpp world-map foreground characters.</summary>
     public const string ForegroundFile = "world-map-foreground.png";

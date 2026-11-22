@@ -46,8 +46,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             CrocomireColorDefinitions.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
 
         CrocomireColorCatalog colors = native;
-        CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrocomireColorFormat.FileName)), CaseInsensitiveJson) ??
+        CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CrocomireColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.CrocomireColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Crocomire color JSON is null.");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads

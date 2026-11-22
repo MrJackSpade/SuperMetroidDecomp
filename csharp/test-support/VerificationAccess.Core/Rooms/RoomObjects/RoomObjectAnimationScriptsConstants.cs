@@ -6,6 +6,60 @@
 /// </summary>
 internal static class RoomObjectAnimationScriptsConstants
 {
+    /// <summary>Every named list with its name, in declaration order, which the catalog check reads.</summary>
+    internal static (string Name, ushort Pointer)[] All =>
+    [
+        (nameof(SaveStationIdleDraw), SaveStationIdleDraw),
+        (nameof(SaveStationAnimationFirstFrame), SaveStationAnimationFirstFrame),
+        (nameof(SaveStationAnimationSecondFrame), SaveStationAnimationSecondFrame),
+        (nameof(MaridiaElevatube), MaridiaElevatube),
+        (nameof(MotherBrainEscapeRoomGateClosing), MotherBrainEscapeRoomGateClosing),
+        (nameof(CrumbleReveal1x1), CrumbleReveal1x1),
+        (nameof(CrumbleReveal2x1), CrumbleReveal2x1),
+        (nameof(CrumbleReveal1x2), CrumbleReveal1x2),
+        (nameof(CrumbleReveal2x2), CrumbleReveal2x2),
+        (nameof(ContactCrumble1x1Respawning), ContactCrumble1x1Respawning),
+        (nameof(ContactCrumble2x1Respawning), ContactCrumble2x1Respawning),
+        (nameof(ContactCrumble1x2Respawning), ContactCrumble1x2Respawning),
+        (nameof(ContactCrumble2x2Respawning), ContactCrumble2x2Respawning),
+        (nameof(ContactCrumble1x1Permanent), ContactCrumble1x1Permanent),
+        (nameof(ContactCrumble2x1Permanent), ContactCrumble2x1Permanent),
+        (nameof(ContactCrumble1x2Permanent), ContactCrumble1x2Permanent),
+        (nameof(ContactCrumble2x2Permanent), ContactCrumble2x2Permanent),
+        (nameof(BombedPowerBombBlockReveal), BombedPowerBombBlockReveal),
+        (nameof(BombedSuperMissileBlockReveal), BombedSuperMissileBlockReveal),
+        (nameof(RespawningShotBlock1x1), RespawningShotBlock1x1),
+        (nameof(RespawningShotBlock2x1), RespawningShotBlock2x1),
+        (nameof(RespawningShotBlock1x2), RespawningShotBlock1x2),
+        (nameof(RespawningShotBlock2x2), RespawningShotBlock2x2),
+        (nameof(RespawningSuperMissileBlock), RespawningSuperMissileBlock),
+        (nameof(RespawningPowerBombBlock), RespawningPowerBombBlock),
+        (nameof(PermanentShotBlock1x1), PermanentShotBlock1x1),
+        (nameof(PermanentShotBlock2x1), PermanentShotBlock2x1),
+        (nameof(PermanentShotBlock1x2), PermanentShotBlock1x2),
+        (nameof(PermanentShotBlock2x2), PermanentShotBlock2x2),
+        (nameof(PermanentSuperMissileBlock), PermanentSuperMissileBlock),
+        (nameof(PermanentPowerBombBlock), PermanentPowerBombBlock),
+        (nameof(CollisionBombBlock1x1Respawning), CollisionBombBlock1x1Respawning),
+        (nameof(ReactionBombBlock1x1Respawning), ReactionBombBlock1x1Respawning),
+        (nameof(CollisionBombBlock2x1Respawning), CollisionBombBlock2x1Respawning),
+        (nameof(ReactionBombBlock2x1Respawning), ReactionBombBlock2x1Respawning),
+        (nameof(CollisionBombBlock1x2Respawning), CollisionBombBlock1x2Respawning),
+        (nameof(ReactionBombBlock1x2Respawning), ReactionBombBlock1x2Respawning),
+        (nameof(CollisionBombBlock2x2Respawning), CollisionBombBlock2x2Respawning),
+        (nameof(ReactionBombBlock2x2Respawning), ReactionBombBlock2x2Respawning),
+        (nameof(CollisionBombBlock1x1Permanent), CollisionBombBlock1x1Permanent),
+        (nameof(ReactionBombBlock1x1Permanent), ReactionBombBlock1x1Permanent),
+        (nameof(CollisionBombBlock2x1Permanent), CollisionBombBlock2x1Permanent),
+        (nameof(ReactionBombBlock2x1Permanent), ReactionBombBlock2x1Permanent),
+        (nameof(CollisionBombBlock1x2Permanent), CollisionBombBlock1x2Permanent),
+        (nameof(ReactionBombBlock1x2Permanent), ReactionBombBlock1x2Permanent),
+        (nameof(CollisionBombBlock2x2Permanent), CollisionBombBlock2x2Permanent),
+        (nameof(ReactionBombBlock2x2Permanent), ReactionBombBlock2x2Permanent),
+        (nameof(RespawningBreakableGrappleBlock), RespawningBreakableGrappleBlock),
+        (nameof(PermanentBreakableGrappleBlock), PermanentBreakableGrappleBlock),
+    ];
+
     /// <summary>Idle save-pod draw entry at $84:AFE8, before its trigger sleeps.</summary>
     public const ushort SaveStationIdleDraw = 0xafe8;
     /// <summary>First save-pod animation frame entry at $84:AFFA.</summary>

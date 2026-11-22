@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// sprite sheet, under each actor colouring and for the effects authored for its actors, its colouring's group over the
 /// palette-inheriting parts' inks and its own-palette parts' groups over their own inks.
 /// </summary>
-internal static class EndingScreenShades
+internal static partial class EndingScreenShades
 {
     /// <summary>The ending's sprite colourings in the order its sheets list the drawn shades (#2567).</summary>
     private static readonly EndingSpriteColouring[] ColouringOrder = [.. Ensure.EveryMemberOnce<EndingSpriteColouring>(

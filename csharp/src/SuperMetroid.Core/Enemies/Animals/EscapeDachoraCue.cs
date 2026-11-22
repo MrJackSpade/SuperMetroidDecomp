@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>One cue of the escaping Dachora's animations: what it does, with the values it acts on.</summary>
-internal abstract record EscapeDachoraCue
+internal abstract partial record EscapeDachoraCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private EscapeDachoraCue()
@@ -21,7 +21,7 @@ internal abstract record EscapeDachoraCue
     /// laps, counting on the laps it had left.
     /// </summary>
     /// <param name="Lap">The way the lap ran.</param>
-    internal sealed record LowTideLapEnds(HorizontalDirection Lap) : EscapeDachoraCue
+    internal sealed partial record LowTideLapEnds(HorizontalDirection Lap) : EscapeDachoraCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LowTideLapEnds(this, context);
@@ -32,7 +32,7 @@ internal abstract record EscapeDachoraCue
     /// run for the escape.
     /// </summary>
     /// <param name="Lap">The way the lap ran.</param>
-    internal sealed record LapEnds(HorizontalDirection Lap) : EscapeDachoraCue
+    internal sealed partial record LapEnds(HorizontalDirection Lap) : EscapeDachoraCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LapEnds(this, context);
@@ -40,7 +40,7 @@ internal abstract record EscapeDachoraCue
 
     /// <summary>Moves the Dachora by the cue's pixels (#2151).</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>
-    internal sealed record Move(int Offset) : EscapeDachoraCue
+    internal sealed partial record Move(int Offset) : EscapeDachoraCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(EscapeDachoraCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
@@ -53,4 +53,4 @@ internal abstract record EscapeDachoraCue
 /// <param name="LapEnds">Makes a <see cref="EscapeDachoraCue.LapEnds"/> into the result.</param>
 /// <param name="Move">Makes a <see cref="EscapeDachoraCue.Move"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record EscapeDachoraCueCases<TContext, TResult>(Func<EscapeDachoraCue.LowTideLapEnds, TContext, TResult> LowTideLapEnds, Func<EscapeDachoraCue.LapEnds, TContext, TResult> LapEnds, Func<EscapeDachoraCue.Move, TContext, TResult> Move);
+internal sealed partial record EscapeDachoraCueCases<TContext, TResult>(Func<EscapeDachoraCue.LowTideLapEnds, TContext, TResult> LowTideLapEnds, Func<EscapeDachoraCue.LapEnds, TContext, TResult> LapEnds, Func<EscapeDachoraCue.Move, TContext, TResult> Move);

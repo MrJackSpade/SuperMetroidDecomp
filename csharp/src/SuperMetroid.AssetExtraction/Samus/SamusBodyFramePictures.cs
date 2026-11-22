@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 /// <param name="Top">The top half's picture.</param>
 /// <param name="Bottom">The bottom half's picture, or null for a frame that names none.</param>
-public readonly record struct SamusBodyFramePictures(SamusBodyPicture Top, SamusBodyPicture? Bottom);
+public readonly partial record struct SamusBodyFramePictures(SamusBodyPicture Top, SamusBodyPicture? Bottom);

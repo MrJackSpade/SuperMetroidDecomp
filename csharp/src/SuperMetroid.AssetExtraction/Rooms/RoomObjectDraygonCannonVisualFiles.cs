@@ -8,7 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Draygon's wall cannons' twelve frames (#1557).</summary>
-public static class RoomObjectDraygonCannonVisualFiles
+public static partial class RoomObjectDraygonCannonVisualFiles
 {
     /// <summary>The way each cannon frame reaches from the cannon's core: the right cannon's frames right, the left's left.</summary>
     private static readonly IReadOnlyDictionary<DraygonCannonDraw, HorizontalDirection> Facings = new Dictionary<DraygonCannonDraw, HorizontalDirection>
@@ -41,7 +41,7 @@ public static class RoomObjectDraygonCannonVisualFiles
         };
 
     /// <summary>The installed file holding the right- and left-facing cannon frames' pictures.</summary>
-    private const string VisualFileName = "draygon-cannons.json";
+    internal const string VisualFileName = "draygon-cannons.json";
 
     /// <summary>The cannon frames in the installed file's order (#2567): the right-facing frames, then the left-facing.</summary>
     private static readonly IReadOnlyList<DraygonCannonDraw> FrameOrder = Ensure.EveryMemberOnce<DraygonCannonDraw>(

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// into the last two of Samus's projectile slots without searching for free ones, replacing whatever holds them.
 /// </remarks>
 [CompatibilityService("a shinespark crash's two echoes take Samus's last two shot places over whatever shots hold them")]
-public static class ShinesparkCrashEchoPlaces
+public static partial class ShinesparkCrashEchoPlaces
 {
     /// <summary>The place the crash's first echo takes among <paramref name="placeCount"/> shot places: the one before the last.</summary>
     /// <param name="placeCount">The number of Samus's shot places, at least two.</param>

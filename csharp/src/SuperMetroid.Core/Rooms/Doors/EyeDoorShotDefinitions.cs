@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>What Samus's weapons do to an eye door's eye (<see cref="EyeDoorEyeObject"/>).</summary>
-internal static class EyeDoorShotDefinitions
+internal static partial class EyeDoorShotDefinitions
 {
     /// <summary>
     /// The weapon families that hit the eye, with what each does: a missile counts one hit against it, a Super Missile

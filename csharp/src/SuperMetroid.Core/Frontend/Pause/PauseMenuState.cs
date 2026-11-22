@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The pause menu owns what its screens show; the game keeps the pause's steps, and Samus keeps her equipment, so an
 /// equipment-screen press changes Samus's equipment directly, as movement, drawing and saving see it.
 /// </remarks>
-internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
+internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
     [MemberNotNull(nameof(spriteSheets))]
@@ -48,13 +48,13 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// <summary>Queues menu navigation and animation sounds.</summary>
     private readonly AudioQueues audio;
     /// <summary>The map's highlight cycle, advanced once per accepted stable menu update.</summary>
-    private readonly MapHighlightAnimation mapHighlight;
+    internal readonly MapHighlightAnimation mapHighlight;
     /// <summary>Live inventory owner mutated by equipment and reserve controls.</summary>
     private readonly SamusState samus;
     /// <summary>The collected area maps and the explored map cells.</summary>
     private readonly SharedGameState system;
     /// <summary>Area whose map and pause backdrop are displayed.</summary>
-    private readonly AreaId area;
+    internal readonly AreaId area;
     /// <summary>Room definition map origin used to locate Samus on the area map.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
     /// <summary>Visibility rule for the installed map and its scroll bounds.</summary>
@@ -62,45 +62,45 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// <summary>Installed map artwork, bound when the game is bound to its installed content.</summary>
     private InstalledScreenContent screenContent;
     /// <summary>The pause screen: its artwork, pictures (including the retained gameplay HUD rows), colours and sprites (#1358).</summary>
-    private readonly PauseScreen screen;
+    internal readonly PauseScreen screen;
     /// <summary>
     /// What the equipment page shows this frame (#1467, #1515): each label in its item's state now, the wireframe of the
     /// equipped suit and boots, the reserve labels and digits once Samus has reserve capacity, and the arrow as the cursor
     /// and the reserve mode light it now (#1597).
     /// </summary>
-    private ShownEquipmentPage EquipmentPage => ShownEquipmentPage.Of(
+    internal ShownEquipmentPage EquipmentPage => ShownEquipmentPage.Of(
         new PauseInventory(samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems, samus.EquippedItems, samus.HyperBeamEnabled),
         samus.MaxReserveEnergy == 0 ? null : new ShownReserveDisplay(samus.ReserveTankMode, samus.ReserveEnergy),
         samus.MaxReserveEnergy == 0 ? ShownReserveArrow.NoReserves
             : ReserveArrow != ReserveArrowState.Dim ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);
     /// <summary>Which of the frame's button labels are lit (#1467); it survives page transitions and artwork rebinds.</summary>
-    private PauseButtonHighlight ButtonHighlight { get; set; }
+    internal PauseButtonHighlight ButtonHighlight { get; set; }
     /// <summary>How the map page shows the area map (#1466, #1467), as last loaded.</summary>
-    private ShownAreaMap ShownMap { get; set; }
+    internal ShownAreaMap ShownMap { get; set; }
     /// <summary>The map/equipment page change in progress, or null while none is.</summary>
-    private PausePageTransition? Transition { get; set; }
+    internal PausePageTransition? Transition { get; set; }
     /// <summary>
     /// The page transition's fade: one level darker every update on the way out, and one level brighter on alternate
     /// updates on the way in after the load.
     /// </summary>
     private readonly ScreenFade transitionFade = new(DisplayBrightness.Full);
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    private DisplayBrightness TransitionBrightness => transitionFade.Level;
+    internal DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
-    private PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
+    internal PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; private set; }
+    internal MapScroll? CurrentMapScroll { get; set; }
     /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
-    private MapScroll ActiveMapScroll => CurrentMapScroll ??
+    internal MapScroll ActiveMapScroll => CurrentMapScroll ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");
     /// <summary>The map screen's scroll position.</summary>
-    private Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
+    internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
     internal FileSelectMapAnimations MapArrows { get; }
     /// <summary>The map-position marker's pulse.</summary>
-    private readonly MapIndicatorPulse mapIndicator = new();
+    internal readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
-    private readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
+    internal readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
     /// <summary>Creates the pause screen and its map and equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -561,6 +561,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     }
 
     /// <summary>What <see cref="MoveEquipmentSelector"/> does for each <see cref="PauseEquipmentCategory"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>> MoveEquipmentSelectorForPauseEquipmentCategory => field ??= new(new Dictionary<PauseEquipmentCategory, Action<bool, bool, bool, bool, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>, ImmutableArray<PauseUpgradeControl>>>
     {
         [PauseEquipmentCategory.Beams] = (left, right, up, down, beams, suits, boots) =>
@@ -677,7 +678,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// The shading the reserve arrow's picture shows (#1512, #1597): its standard colours while Samus has no reserve
     /// capacity, the pulse phase of the accepted frame while AUTO pulses it, and its solid colours otherwise.
     /// </summary>
-    private PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
+    internal PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
         ? PictureShading.Standard
         : PictureShading.Shaded(ReserveArrow == ReserveArrowState.Animated
             ? PauseReserveArrowShades.Pulse(PauseReserveArrowPulseFrame.PacedBy(pauseFrameCount))
@@ -738,7 +739,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen, IComposedFrontendSce
     /// cursor stays on the transfer when no beam can take it) takes its sound on its only update, as the game's countdown
     /// from zero did.
     /// </summary>
-    private UpdateCountdown? ReserveRefillSound { get; set; }
+    internal UpdateCountdown? ReserveRefillSound { get; set; }
 
     /// <summary>Runs the reserve tank controls' input before their D-pad response.</summary>
     private void HandleReserveInput(ControllerButton pressed)

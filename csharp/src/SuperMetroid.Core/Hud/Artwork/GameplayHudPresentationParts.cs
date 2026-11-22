@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// each element's upper-left corner shows at, below the static top row, and which icons the template leaves room for.
 /// The import validates it; the presentation only places images.
 /// </summary>
-internal sealed record GameplayHudPresentationParts
+internal sealed partial record GameplayHudPresentationParts
 {
     /// <summary>The screen pixel each energy tank's upper-left corner shows at (<see cref="GameplayHudDefinitions.EnergyTankCount"/>).</summary>
     public required ImmutableArray<Position16<ScreenPixels>> EnergyTankCorners { get; init; }

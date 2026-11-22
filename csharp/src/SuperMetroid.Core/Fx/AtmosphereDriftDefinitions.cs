@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How fast rain, spores and fog drift across the screen each frame (#1415).</summary>
-public static class AtmosphereDriftDefinitions
+public static partial class AtmosphereDriftDefinitions
 {
     /// <summary>Rain falls six pixels a frame.</summary>
     public static SignedEightEight RainFallSpeed { get; } = SignedEightEight.FromPixels(6);

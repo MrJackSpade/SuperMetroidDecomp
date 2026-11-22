@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers enemy and enemy-projectile codecs resolve.</summary>
 [EncodingOwner("cartridge regions and addresses of the enemy and enemy-projectile tables")]
-internal static class EnemySourceDefinitions
+internal static partial class EnemySourceDefinitions
 {
     /// <summary>
     /// $86:8000-$86:FFFF: enemy-projectile instruction lists. A presentation frame's operand address

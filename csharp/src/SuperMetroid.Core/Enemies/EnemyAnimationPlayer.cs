@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the body frames bosses show on their bodies.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyAnimationPlayer
+internal sealed partial class EnemyAnimationPlayer
 {
     /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>
     private readonly EnemyPresentation _presentation;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// </summary>
 /// <param name="Suit">The suit the wireframe draws.</param>
 /// <param name="Boots">The boots the wireframe draws.</param>
-public readonly record struct PauseWireframe(PauseWireframeSuit Suit, PauseWireframeBoots Boots)
+public readonly partial record struct PauseWireframe(PauseWireframeSuit Suit, PauseWireframeBoots Boots)
 {
     /// <summary>
     /// Every wireframe, in the order the game lists them: the Power Suit's with regular boots and

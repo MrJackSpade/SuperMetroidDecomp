@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// then the final message, which the ending stays on. The logo's actors have finished and show nothing.
 /// </summary>
 /// <param name="typing">The text that types now.</param>
-internal sealed class EndingTypingScene(EndingTypewriter typing) : EndingScene
+internal sealed partial class EndingTypingScene(EndingTypewriter typing) : EndingScene
 {
     /// <summary>The text that types now.</summary>
     internal EndingTypewriter Typing { get; } = Ensure.NotNull(typing);

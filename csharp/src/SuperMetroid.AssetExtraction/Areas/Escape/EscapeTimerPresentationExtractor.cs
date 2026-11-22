@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Imports the timer's visual compositions without exposing its countdown mechanics.</summary>
 /// <summary>Writes the escape timer's stock layout: its anchors and digit spacing. Its frames are the installed sheet.</summary>
-public static class EscapeTimerPresentationExtractor
+public static partial class EscapeTimerPresentationExtractor
 {
     /// <summary>Writes the stock timer layout as JSON: the cartridge renderer's anchor immediates and eight-pixel digit spacing.</summary>
     public static byte[] Extract()
@@ -31,6 +31,6 @@ public static class EscapeTimerPresentationExtractor
     /// <param name="document">Authored layout whose collections are read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, EscapeTimerPresentationDocument document)
     {
-        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        output.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerPresentationDocument>(ArtworkJson.Options)));
     }
 }

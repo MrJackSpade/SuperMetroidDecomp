@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// documents.
 /// </summary>
 [EncodingOwner("cartridge addresses of the HUD tilemaps, glyph tables and message boxes")]
-internal static class HudSourceDefinitions
+internal static partial class HudSourceDefinitions
 {
     /// <summary>$80:988B, the HUD's static top row: a blank row with the minimap's border.</summary>
     internal const int TopRow = 0x80988b;
@@ -32,7 +32,7 @@ internal static class HudSourceDefinitions
     internal const int AutoReserveEmptyOffset = 12;
 
     /// <summary>The message boxes' sources in bank $85.</summary>
-    internal static class Messages
+    internal static partial class Messages
     {
         /// <summary>$85:869B, the messages' setup, draw and content definition triples.</summary>
         internal const int DefinitionTable = 0x85869b;

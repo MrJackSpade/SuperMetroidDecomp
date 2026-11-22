@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="SuitPickupBeam">Suit pickup light-beam window description; its colour comes from the frame-boundary latch.</param>
 /// <param name="Xray">X-ray beam phases and window cone inputs.</param>
 [IndependentFlag("independent display facts of the frame end")]
-public sealed record GameplayFrameEndDisplayInputs(
+public sealed partial record GameplayFrameEndDisplayInputs(
     ScreenLayers? DoorTransitionShownLayers,
     ScrollingSkyLayer? ScrollingSky,
     CrocomireMeltDistortion? CrocomireMelt,

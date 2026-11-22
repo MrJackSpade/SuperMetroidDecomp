@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Torizo.TorizoProjectileSegment;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The pieces of Bomb Torizo's breaking statue hand (#2029): each piece's animation, place and fall.</summary>
-internal static class BombTorizoStatueFragmentDefinitions
+internal static partial class BombTorizoStatueFragmentDefinitions
 {
     /// <summary>Every piece's initial fall speed, one pixel an update.</summary>
     internal static readonly SignedEightEight InitialFallSpeed = SignedEightEight.FromPixels(1);

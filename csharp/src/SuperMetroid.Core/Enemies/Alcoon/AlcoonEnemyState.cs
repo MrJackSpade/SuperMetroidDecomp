@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The state of one Alcoon.</summary>
-public sealed class AlcoonEnemyState
+public sealed partial class AlcoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal AlcoonEnemyState(AlcoonAction action) => Action = action;

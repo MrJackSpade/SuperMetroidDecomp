@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="From">The shading the fade starts from, laid over the colours shaded so far.</param>
 /// <param name="To">The shading the fade ends on, laid over the colours shaded so far.</param>
 /// <param name="Progress">How far the fade has come, from showing <paramref name="From"/> to showing <paramref name="To"/>.</param>
-public sealed record PictureShadeFade(PictureShading From, PictureShading To, FadeLevel Progress)
+public sealed partial record PictureShadeFade(PictureShading From, PictureShading To, FadeLevel Progress)
 {
     /// <summary>The shading the fade starts from.</summary>
     public PictureShading From { get; } = Ensure.NotNull(From);

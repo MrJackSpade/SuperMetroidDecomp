@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <see cref="LookUpdates"/>, and then
 /// shows its own colours until the next hit.
 /// </summary>
-internal static class BabyMetroidHurtFlashAnimations
+internal static partial class BabyMetroidHurtFlashAnimations
 {
     /// <summary>How many times one hit makes it blink.</summary>
     private const int Blinks = 4;

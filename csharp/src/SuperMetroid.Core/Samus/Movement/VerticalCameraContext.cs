@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="YDirection">Samus's vertical direction this frame.</param>
 /// <param name="FallingCameraOffset">How many pixels above Samus the camera aims its top while she moves any way but up; zero or more.</param>
 /// <param name="RisingCameraOffset">How many pixels above Samus the camera aims its top while she moves up; zero or more.</param>
-public readonly record struct VerticalCameraContext(
+public readonly partial record struct VerticalCameraContext(
     SamusVerticalDirection YDirection,
     int FallingCameraOffset,
     int RisingCameraOffset)

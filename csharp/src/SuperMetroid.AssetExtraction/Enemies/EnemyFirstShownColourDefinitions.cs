@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// rows they write, so a frame that shows before any later shade does not show the zero colours its header palette or
 /// the room load leaves there.
 /// </summary>
-internal static class EnemyFirstShownColourDefinitions
+internal static partial class EnemyFirstShownColourDefinitions
 {
     /// <summary>Norfair Ridley's first shades, which his breakup's fragments first show in too.</summary>
     private static PictureShade[] NorfairRidleyFirstShades { get; } = RidleyFirstShades(RidleyShades.NorfairStart, RidleyShades.NorfairHidden);

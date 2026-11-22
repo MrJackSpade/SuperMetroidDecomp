@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// transitions share a list. Each list holds its own ordered chords and reads them itself (#2571), so no switch over
 /// list identities picks the chords a pose reads.
 /// </summary>
-internal sealed class SamusPoseInputList
+internal sealed partial class SamusPoseInputList
 {
     /// <summary>The list's name, for diagnostics.</summary>
     private readonly string _name;
@@ -313,8 +313,10 @@ internal sealed class SamusPoseInputList
 
     /// <summary>
     /// The poses the list can select, found the first time it is asked about by reading the list under every held chord
-    /// its transitions read and every part of that chord newly pressed.
+    /// its transitions read and every part of that chord newly pressed. It is worked out from the list alone, so a snapshot
+    /// neither holds nor works it out.
     /// </summary>
+    [field: NonSerialized]
     internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
 

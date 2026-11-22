@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The draws of both mirrored, three-component eye doors: the draw each typed eye-door frame shows, the block shape each
 /// draws from <see cref="EyeDoorObjectDrawDefinitions"/> (#1862, #1994), and the installed picture the mirrored clear shows.
 /// </summary>
-internal static class EyeDoorDraws
+internal static partial class EyeDoorDraws
 {
     /// <summary>
     /// The block shape of each eye-door draw: its blocks down its column or along its row. Built on first use: the eye
@@ -63,7 +63,7 @@ internal static class EyeDoorDraws
     /// <summary>One eye-door draw: what it shows and its side.</summary>
     /// <param name="Look">What the draw shows, which names the component it writes.</param>
     /// <param name="Orientation">The way the door the draw belongs to faces; the two clears differ only in this.</param>
-    internal readonly record struct Draw(EyeDoorLook Look, EyeDoorOrientation Orientation)
+    internal readonly partial record struct Draw(EyeDoorLook Look, EyeDoorOrientation Orientation)
     {
         /// <summary>What the draw writes: a component, or the whole door's clear.</summary>
         internal EyeDoorDrawnPart Part => PartOf(Look);

@@ -9,12 +9,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
@@ -45,13 +46,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal MotherBrainFakeDeath FakeDeath { get; }
 
     /// <summary>Mother Brain rising into her second form: its graphics, brain setup, the rise and the menacing head shake.</summary>
-    private MotherBrainAscent Ascent { get; }
+    internal MotherBrainAscent Ascent { get; }
 
     /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
     internal MotherBrainAttacks Attacks { get; }
 
     /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    private MotherBrainRainbowAndDeath RainbowAndDeath { get; }
+    internal MotherBrainRainbowAndDeath RainbowAndDeath { get; }
 
     /// <summary>Mother Brain's hitboxes and touch, and what Samus's weapons do to her head and body.</summary>
     internal MotherBrainCombat Combat { get; }
@@ -124,6 +125,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMotherBrainFakeDeath"/> does for each <see cref="MotherBrainDescentPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainFakeDeathForMotherBrainDescentPhase => field ??= new(new Dictionary<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainDescentPhase.InitialPause] = (state, samus) =>
@@ -178,7 +180,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     });
 
     /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
-    private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
+    internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
         RunMotherBrainFakeDeathForMotherBrainDescentPhase[state.DescentPhase](state, samus);
     }
@@ -205,7 +207,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs one update of Mother Brain's room flash, while it runs: it plays on through its images, looping
     /// (<see cref="MotherBrainRoomFlashAnimations"/>), and her room shows the image it stands on.
     /// </summary>
-    private static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
+    internal static void RunMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         if (state.RoomFlash is not { } flash)
             return;
@@ -215,6 +217,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMotherBrainAscent"/> does for each <see cref="MotherBrainAscentPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainAscentPhase, Action<MotherBrainEnemyState>> RunMotherBrainAscentForMotherBrainAscentPhase => field ??= new(new Dictionary<MotherBrainAscentPhase, Action<MotherBrainEnemyState>>
     {
         [MotherBrainAscentPhase.DrawMural] = state => FakeDeath.DrawNextMuralRows(state),
@@ -237,6 +240,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMotherBrainPhase2Fight"/> does for each <see cref="MotherBrainPhase2FightPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainPhase2FightForMotherBrainPhase2FightPhase => field ??= new(new Dictionary<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainPhase2FightPhase.StretchingShakeHead] = (state, samus) => MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state),

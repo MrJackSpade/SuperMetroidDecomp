@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Ripples Samus in the ending (<see cref="EndingWavySamusDefinitions"/>): the sine wave her plane shows at each age of
 /// the backdrop's wait, and the plane's vertical scroll (#1468: the wave is described, and the backend draws each line).
 /// </summary>
-internal static class EndingWavySamus
+internal static partial class EndingWavySamus
 {
     /// <summary>
     /// The wave the plane shows at cinematic age <paramref name="age"/>, or null before it first shows. The age counts

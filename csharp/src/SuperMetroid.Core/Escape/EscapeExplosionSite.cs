@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Escape;
 /// block's column, and what the room's quake does beside them. Outdoors they go off at the outdoor cadence and only over
 /// scenery, the room shaking on with them; indoors at the slower indoor cadence anywhere on the screen.
 /// </summary>
-public abstract class EscapeExplosionSite
+public abstract partial class EscapeExplosionSite
 {
     /// <summary>Keeps the site's cadence and its kinds left open.</summary>
     /// <param name="cadence">The updates on which the site sets off an explosion.</param>
@@ -54,7 +54,7 @@ public abstract class EscapeExplosionSite
     /// The outdoor site: an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the
     /// kind its block's column phase gives it; the room's quake shakes on beside them.
     /// </summary>
-    private sealed class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosion,
+    private sealed partial class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosion,
         ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase)
     {
         /// <inheritdoc/>
@@ -65,7 +65,7 @@ public abstract class EscapeExplosionSite
     }
 
     /// <summary>The indoor site: an explosion goes off anywhere, and one whose random draw leaves its kind open is a small explosion.</summary>
-    private sealed class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosion,
+    private sealed partial class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosion,
         [ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen])
     {
         /// <inheritdoc/>

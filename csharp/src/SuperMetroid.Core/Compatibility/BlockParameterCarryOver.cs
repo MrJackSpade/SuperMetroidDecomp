@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TBehavior">A kept behaviour: every reading of one parameter the block keeps.</typeparam>
 /// <typeparam name="TReading">One kind's reading of it.</typeparam>
 [CompatibilityService("a block behaviour written for one collision kind is read by every kind the block later takes as the single parameter the block keeps")]
-public sealed class BlockParameterCarryOver<TBehavior, TReading>
+public sealed partial class BlockParameterCarryOver<TBehavior, TReading>
     where TBehavior : class
     where TReading : notnull
 {

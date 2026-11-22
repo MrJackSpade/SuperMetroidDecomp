@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// faint speck for the rest of its flight, or an animated star's faint speck, bright speck and dim star, each for its
 /// period, and then the full star for the rest of its flight.
 /// </summary>
-internal static class EndingShootingStarAnimations
+internal static partial class EndingShootingStarAnimations
 {
     /// <summary>Each pace's flight, for every pace a star flies at.</summary>
     internal static AnimationSegments<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Segments { get; } = Create();

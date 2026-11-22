@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Colours;
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>How many glow colours each of the explosion's glow sequences holds.</summary>
-public static class PowerBombGlowColorFormat
+public static partial class PowerBombGlowColorFormat
 {
     /// <summary>The count of each sequence.</summary>
     private static IdentityTable<PowerBombGlowSequence, int> CountBySequence => field ??= new(new Dictionary<PowerBombGlowSequence, int>

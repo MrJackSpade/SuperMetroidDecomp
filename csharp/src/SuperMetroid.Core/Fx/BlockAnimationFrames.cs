@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// frames are the pictures it shows, which asset extraction pictures and the animation selects at the update the game
 /// showed them.
 /// </summary>
-internal static class BlockAnimationFrames
+internal static partial class BlockAnimationFrames
 {
     /// <summary>
     /// The installed name of each block animation (#2511), written out so renaming an animation's identity never changes a

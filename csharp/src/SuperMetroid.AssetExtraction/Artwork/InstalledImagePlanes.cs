@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Planes">The pixels, row by row from the top, with the recolour-region and blend maps where the image has them.</param>
 /// <param name="Size">The image's width and height.</param>
-internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, Extent16<ImagePixels> Size)
+internal readonly partial record struct InstalledImagePlanes(SpriteImagePixels Planes, Extent16<ImagePixels> Size)
 {
 
     /// <summary>

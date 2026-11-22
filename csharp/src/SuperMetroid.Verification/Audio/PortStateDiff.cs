@@ -1,25 +1,26 @@
 using SuperMetroid.Core;
-using System.Collections;
-using System.Reflection;
+using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.Verification.Harness;
 using System.Runtime.CompilerServices;
 
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>
-/// Field-by-field comparison of two production object graphs. The snapshot-import audit uses
-/// it to find state a native snapshot import leaves different from the same moment reached by
-/// replaying the movie, so missing import mappings are named rather than discovered as later
-/// desynchronizations.
+/// Comparison of two production object graphs through the members the compiler writes for every game type (#2602). The
+/// snapshot-import audit uses it to find state a native snapshot import leaves different from the same moment reached by
+/// replaying the movie, so missing import mappings are named rather than discovered as later desynchronizations.
 /// </summary>
+/// <remarks>
+/// Two values are the same when their debugger-state graphs are (<see cref="GraphDigestVerification.SameGraph(object, object, object[])"/>),
+/// both naming the installed content by path. A pair that differs is followed into the children each value hands a state's
+/// walk (its fields that reach another object, its elements, its entries), and each differing pair none of whose children
+/// differs is listed: its own values differ.
+/// </remarks>
 internal sealed class PortStateDiff
 {
-    /// <summary>Reflects each declaring type's instance fields, including private state, without duplicate inherited fields.</summary>
-    private const BindingFlags InstanceFields =
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-
     /// <summary>Reference-paired graph nodes already compared, preventing cycles and repeated diagnostics.</summary>
     private readonly HashSet<PortStateDiffX> visited = new(PairComparer.Instance);
-    /// <summary>Leaf differences accumulated with their object-graph paths.</summary>
+    /// <summary>Differences accumulated with their object-graph paths.</summary>
     private readonly List<string> differences = [];
     /// <summary>Caller-selected subtrees omitted from the snapshot-import audit.</summary>
     private readonly Func<string, bool> excludePath;
@@ -27,7 +28,7 @@ internal sealed class PortStateDiff
     /// <summary>Starts one graph comparison with the caller's subtree filter.</summary>
     private PortStateDiff(Func<string, bool> excludePath) => this.excludePath = excludePath;
 
-    /// <summary>Lists every differing leaf between <paramref name="expected"/> and <paramref name="actual"/>.</summary>
+    /// <summary>Lists every differing node between <paramref name="expected"/> and <paramref name="actual"/>.</summary>
     /// <param name="expected">The reference graph, reached by replaying the movie.</param>
     /// <param name="actual">The graph under audit, built by the snapshot import.</param>
     /// <param name="rootName">The path prefix naming both roots in the report.</param>
@@ -39,96 +40,47 @@ internal sealed class PortStateDiff
         return diff.differences;
     }
 
-    /// <summary>Traverses matching graph nodes, summarizing primitive arrays and reporting differing leaves.</summary>
-    [ReflectionAudit("structural diff: every instance field of the port state graph is compared, so new state cannot escape")]
-    private void Visit(string path, object? expected, object? actual)
+    /// <summary>Compares one pair, following a differing pair into its children; returns whether the pair differs.</summary>
+    private bool Visit(string path, object? expected, object? actual)
     {
         if (excludePath(path))
-            return;
+            return false;
         if (expected is null || actual is null)
         {
-            if (expected is not null || actual is not null)
-                differences.Add($"{path}: expected {Describe(expected)}, actual {Describe(actual)}");
-            return;
+            if (expected is null && actual is null)
+                return false;
+            differences.Add($"{path}: expected {Describe(expected)}, actual {Describe(actual)}");
+            return true;
         }
         Type type = expected.GetType();
         if (type != actual.GetType())
         {
             differences.Add($"{path}: expected type {type.Name}, actual {actual.GetType().Name}");
-            return;
-        }
-        if (IsLeaf(type))
-        {
-            if (!expected.Equals(actual))
-                differences.Add($"{path}: expected {Describe(expected)}, actual {Describe(actual)}");
-            return;
-        }
-        if (expected is Delegate expectedDelegate)
-        {
-            var actualDelegate = (Delegate)actual;
-            if (expectedDelegate.Method != actualDelegate.Method)
-                differences.Add($"{path}: expected delegate {expectedDelegate.Method.Name}, actual {actualDelegate.Method.Name}");
-            return;
+            return true;
         }
         // Shared immutable catalogs are the same instance in both graphs.
         if (!type.IsValueType && ReferenceEquals(expected, actual))
-            return;
+            return false;
         if (!type.IsValueType && !visited.Add(new PortStateDiffX(expected, actual)))
-            return;
-        if (expected is Array expectedArray)
+            return false;
+        if (GraphDigestVerification.SameGraph(expected, actual))
+            return false;
+        var mine = new Children();
+        var theirs = new Children();
+        StateGraphTypes.Shared.For(expected).Visit(expected, mine);
+        StateGraphTypes.Shared.For(actual).Visit(actual, theirs);
+        bool childDiffers = false;
+        if (mine.Items.Count != theirs.Items.Count)
         {
-            var actualArray = (Array)actual;
-            if (expectedArray.Length != actualArray.Length)
-            {
-                differences.Add($"{path}: expected length {expectedArray.Length}, actual {actualArray.Length}");
-                return;
-            }
-            Type element = (type.GetElementType() ?? throw new InvalidOperationException("Verification requires type.GetElementType()."));
-            if (element.IsPrimitive)
-            {
-                // Large primitive buffers (WRAM-like images) are summarized, not listed.
-                int count = 0, first = -1;
-                for (int index = 0; index < expectedArray.Length; index++)
-                {
-                    if (Equals(expectedArray.GetValue(index), actualArray.GetValue(index))) continue;
-                    if (first < 0) first = index;
-                    count++;
-                }
-                if (count != 0)
-                    differences.Add($"{path}: {count} of {expectedArray.Length} elements differ, first [{first}] " +
-                        $"expected {Describe(expectedArray.GetValue(first))}, actual {Describe(actualArray.GetValue(first))}");
-                return;
-            }
-            for (int index = 0; index < expectedArray.Length; index++)
-                Visit($"{path}[{index}]", expectedArray.GetValue(index), actualArray.GetValue(index));
-            return;
+            differences.Add($"{path}: expected {mine.Items.Count} held values, actual {theirs.Items.Count}");
+            return true;
         }
-        if (expected is IList expectedList && type.IsGenericType)
-        {
-            var actualList = (IList)actual;
-            if (expectedList.Count != actualList.Count)
-                differences.Add($"{path}: expected count {expectedList.Count}, actual {actualList.Count}");
-            for (int index = 0; index < Math.Min(expectedList.Count, actualList.Count); index++)
-                Visit($"{path}[{index}]", expectedList[index], actualList[index]);
-            return;
-        }
-        for (Type? owner = type; owner is not null && owner != typeof(object); owner = owner.BaseType)
-            foreach (FieldInfo field in owner.GetFields(InstanceFields))
-            {
-                if (field.FieldType.IsPointer || field.FieldType.IsByRefLike) continue;
-                Visit($"{path}.{MemberName(field)}", field.GetValue(expected), field.GetValue(actual));
-            }
+        for (int index = 0; index < mine.Items.Count; index++)
+            childDiffers |= Visit($"{path}{mine.Items[index].Step}", mine.Items[index].Value, theirs.Items[index].Value);
+        if (!childDiffers)
+            differences.Add($"{path}: own values differ: expected {Describe(expected)}, actual {Describe(actual)}");
+        return true;
     }
-
-    /// <summary>Stops reflection at scalar values whose equality is meaningful for this audit.</summary>
-    private static bool IsLeaf(Type type) =>
-        type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
-
-    /// <summary>Reports auto-property backing fields under their source property names.</summary>
-    private static string MemberName(FieldInfo field) =>
-        field.Name.StartsWith('<') && field.Name.EndsWith(">k__BackingField", StringComparison.Ordinal)
-            ? field.Name[1..field.Name.IndexOf('>')]
-            : field.Name;
 
     /// <summary>Formats byte and word values in cartridge-style hexadecimal for readable differences.</summary>
     private static string Describe(object? value) => value switch
@@ -138,6 +90,22 @@ internal sealed class PortStateDiff
         byte octet => $"${octet:X2}",
         _ => value.ToString() ?? value.GetType().Name,
     };
+
+    /// <summary>The values one object hands a state's walk, each with the step that names it.</summary>
+    private sealed class Children : IStateGraphChildren
+    {
+        /// <summary>The values, in the walk's order.</summary>
+        internal List<(string Step, object? Value)> Items { get; } = [];
+
+        /// <inheritdoc/>
+        public void Child(StateGraphField field, object? value) => Items.Add(($".{field.Name}", value));
+
+        /// <inheritdoc/>
+        public void Element(int index, object? value) => Items.Add(($"[{index}]", value));
+
+        /// <inheritdoc/>
+        public void Part(string step, object? value) => Items.Add(($".{step}", value));
+    }
 
     /// <summary>Uses reference identity for both nodes of each visited graph pair.</summary>
     private sealed class PairComparer : IEqualityComparer<PortStateDiffX>

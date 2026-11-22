@@ -15,15 +15,15 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 public sealed class LatestRenderFrameMailbox
 {
     /// <summary>Serializes ownership transfer and generation changes without holding the lock during rendering.</summary>
-    private readonly Lock sync = new();
+    internal readonly Lock sync = new();
     /// <summary>At most one unpublished immutable visual packet; a newer publish replaces it.</summary>
-    private RenderFrame? Pending { get; set; }
+    internal RenderFrame? Pending { get; set; }
     /// <summary>Current simulation load/reset identity accepted for publication.</summary>
-    private long Generation { get; set; }
+    internal long Generation { get; set; }
     /// <summary>Highest published sequence, retained across generations to reject rewinds.</summary>
     private long lastSequence;
     /// <summary>Packets superseded by a newer publication before consumption.</summary>
-    private long Replaced { get; set; }
+    internal long Replaced { get; set; }
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>
     /// <param name="initialGeneration">Positive generation identity required on the first published packet.</param>

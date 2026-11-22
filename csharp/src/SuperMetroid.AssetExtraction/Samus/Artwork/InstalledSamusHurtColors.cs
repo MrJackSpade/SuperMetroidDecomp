@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>The installed hurt-flash and cinematic-restoration colours, both sixteen-colour sets kept as installed.</summary>
-public sealed class InstalledSamusHurtColors
+public sealed partial class InstalledSamusHurtColors
 {
     /// <summary>The installed hurt-flash colours.</summary>
     private readonly RgbColor[] hurt;

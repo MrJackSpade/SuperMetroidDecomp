@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>Where a save station's electricity shows (#2156) and where its band sweeps (#2557).</summary>
-internal static class SaveStationElectricityDefinitions
+internal static partial class SaveStationElectricityDefinitions
 {
     /// <summary>How far below the electricity's origin its band first shows on a sweep: 32 pixels above it.</summary>
     internal const int SweepStartPixelsBelow = -32;

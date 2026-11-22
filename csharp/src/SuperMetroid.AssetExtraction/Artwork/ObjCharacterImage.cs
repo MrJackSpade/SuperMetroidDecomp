@@ -6,10 +6,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Reads the OBJ characters a memory image holds through OBSEL's name base and name-select displacement (#1358), as the
 /// page a screen's sprite entries draw from when its characters come from its own transfers rather than one artwork sheet.
 /// </summary>
-internal static class ObjCharacterImage
+internal static partial class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
-    private const int NameSelectBit = 1 << 8;
+    internal const int NameSelectBit = 1 << 8;
 
     /// <summary>Characters in one OBJ name table.</summary>
     private const int NameTableCharacters = 256;
@@ -28,7 +28,7 @@ internal static class ObjCharacterImage
     /// <summary>Resolves a nine-bit OBJ character name through OBSEL into byte VRAM.</summary>
     /// <param name="tileNumber">The name, 0 through 511.</param>
     /// <param name="obsel">The OBSEL value.</param>
-    private static int ResolveTileByteAddress(int tileNumber, int obsel)
+    internal static int ResolveTileByteAddress(int tileNumber, int obsel)
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));

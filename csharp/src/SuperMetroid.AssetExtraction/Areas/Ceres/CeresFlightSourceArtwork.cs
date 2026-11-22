@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// packed sprite placements (#1638), are import data the installation never holds (<see cref="CeresFlightCharacters"/>);
 /// its colours are a palette document only the import reads (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>).
 /// </summary>
-public class CeresFlightSourceArtwork
+public partial class CeresFlightSourceArtwork
 {
     /// <summary>Retains the selected backdrop and actor placements.</summary>
     /// <param name="backdrop">The colour the Ceres scenes show behind every layer.</param>

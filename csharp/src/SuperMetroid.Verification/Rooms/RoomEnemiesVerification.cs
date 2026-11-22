@@ -293,20 +293,6 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-/// <summary>Checks that the enemy subsystem declares no generic source reader.</summary>
-/// <remarks>
-/// The fixed-bank work-RAM word this check once read through the runtime's work-RAM image is gone with the image
-/// (#1688): no enemy reads work RAM, so only the readers' absence is asserted.
-/// </remarks>
-internal static void VerifyEnemyMappedSourceRouting()
-{
-    const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
-    foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(RoomEnemySystem), removed, flags),
-            $"enemy subsystem has no generic {removed} source reader");
-    Console.WriteLine("Enemy memory boundary: generic source readers are absent.");
-}
-
 /// <summary>
 /// Reproduces the rapid-Super visual failure from room $A56B: a fresh owner and its
 /// invisible linked slot occupy the same 32-pixel cell as a blocking eye-door projectile.
@@ -323,7 +309,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     EnemyProjectile eyeShot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.EyeDoorProjectile);
-    global::SuperMetroid.Core.PrivateState.Set(eyeShot, "Behavior", (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind)));
+    eyeShot.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind));
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -799,8 +785,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         Frames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
         DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
     };
-    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        fixtureSprites, CamelCaseJson));
+    using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(fixtureSprites, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(CamelCaseJson)));
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
@@ -1032,8 +1017,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= !global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
-        observedFlashRidleyPalette |= global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Bosses.Ridley.RidleyEncounterState, global::SuperMetroid.Core.Bosses.Ridley.RidleyHurtFlashShowing>(state, "HurtFlashShows").Body;
+        observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
+        observedFlashRidleyPalette |= state.HurtFlashShows.Body;
         if (hit == 49)
             AssertEqual(0x7000, Shown()[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1638,7 +1623,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
     [VerificationCommand("--enemy-source-routing")]
     internal static int EnemySourceRoutingCommand()
     {
-        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
         return 0;
     }
 

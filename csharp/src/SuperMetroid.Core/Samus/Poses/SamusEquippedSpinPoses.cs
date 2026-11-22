@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="Generic">The generic spin jump.</param>
 /// <param name="ScrewAttack">The Screw Attack spin.</param>
 /// <param name="SpaceJump">The Space Jump spin.</param>
-internal readonly record struct SamusEquippedSpinPoses(SamusPoseId Generic, SamusPoseId ScrewAttack, SamusPoseId SpaceJump);
+internal readonly partial record struct SamusEquippedSpinPoses(SamusPoseId Generic, SamusPoseId ScrewAttack, SamusPoseId SpaceJump);

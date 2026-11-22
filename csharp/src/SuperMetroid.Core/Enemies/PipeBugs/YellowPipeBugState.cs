@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// A yellow Pipe Bug's state, the Geega's (#1845): it waits hidden for Samus ahead of it, flies straight, arcs once after
 /// passing her and flies on until it leaves the screen.
 /// </summary>
-public sealed class YellowPipeBugState
+public sealed partial class YellowPipeBugState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal YellowPipeBugState(YellowPipeBugAction action) => Action = action;

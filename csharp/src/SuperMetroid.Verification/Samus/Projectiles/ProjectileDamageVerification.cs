@@ -270,10 +270,10 @@ internal static class ProjectileDamageVerification
             PlasmaParticleState ring = first.KindStateAs<PlasmaParticleState>();
             // The cartridge stores the signed step; the typed turn is the same step taken round the circle.
             for (int place = 0; place < 4; place++)
-                AssertEqual(TrigonometryAngle.Wrapped(step), global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(projectiles.Shots[place].KindStateAs<PlasmaParticleState>(), "TurnPerUpdate"),
+                AssertEqual(TrigonometryAngle.Wrapped(step), projectiles.Shots[place].KindStateAs<PlasmaParticleState>().TurnPerUpdate,
                     $"{pose} Plasma special attack particle {place} orbit turn");
             for (int angle = 0; angle < 256; angle++)
-                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(ring, "TurnPerUpdate"),
+                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + ring.TurnPerUpdate,
                     $"{pose} orbit turn from angle {angle} matches the signed step {step}");
             ring.Angle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), first.KindStateAs<PlasmaParticleState>(), shared, Position16<RoomPixels>.Zero);

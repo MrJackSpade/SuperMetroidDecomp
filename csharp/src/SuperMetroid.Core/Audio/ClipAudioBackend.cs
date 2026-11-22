@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Audio;
 /// Clips mix at their own rate (<see cref="AudioSession.SampleRate"/>), whose frames are the sound clock's samples, and the
 /// host resamples the mix to its device. Audio output is presentation: nothing here reaches a gameplay update.
 /// </summary>
-public sealed class ClipAudioBackend
+public sealed partial class ClipAudioBackend
 {
     /// <summary>Frames a cut clip fades out over: eight milliseconds.</summary>
     internal const int ReleaseFrames = 256;
@@ -48,7 +48,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>The playback state this backend advances.</summary>
-    private ClipPlaybackState State { get; }
+    internal ClipPlaybackState State { get; }
 
     /// <summary>Applies one update's events in order and writes its interleaved stereo PCM at the clips' rate.</summary>
     /// <exception cref="InvalidDataException">
@@ -105,13 +105,13 @@ public sealed class ClipAudioBackend
     /// <summary>One update's render as its events' reactions read it: the backend rendering and its pass through the update.</summary>
     /// <param name="Backend">The backend rendering.</param>
     /// <param name="Pass">The backend's progress through the update's events.</param>
-    private readonly record struct Rendering(ClipAudioBackend Backend, RenderPass Pass);
+    private readonly partial record struct Rendering(ClipAudioBackend Backend, RenderPass Pass);
 
     /// <summary>
     /// How far one update's render has come through its events (#2553): where the update starts, how far it has mixed, and
     /// the clock step it met last. One pass is kept per backend and begun afresh each update.
     /// </summary>
-    private sealed class RenderPass
+    private sealed partial class RenderPass
     {
         /// <summary>The sample the update starts at.</summary>
         internal long FrameStart { get; private set; }
@@ -175,7 +175,7 @@ public sealed class ClipAudioBackend
     /// frames at the beat length in force. Reports whether the beat completed.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="steps"/> is negative.</exception>
-    private bool AdvanceMusicBeat(long now, int steps)
+    internal bool AdvanceMusicBeat(long now, int steps)
     {
         if (State.Song is MusicClipEntry song && song.LoopStart is null && now - State.SongStart >= song.Clip.Frames)
             State.EndSong(BeatLengthAt(song, song.Clip.Frames));
@@ -183,7 +183,7 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
-    private void OnBeat(long now)
+    internal void OnBeat(long now)
     {
         if (State.SongChange.Take() is not SongChange change)
             return;

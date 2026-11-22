@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Animation;
 /// <param name="Paused">A wait of its updates with no new frame.</param>
 /// <param name="Held">A rest on the frame shown last.</param>
 /// <param name="Ended">The animation's end.</param>
-internal sealed record AnimationShownCases<TSegment, TFrame, TContext, TResult>(
+internal sealed partial record AnimationShownCases<TSegment, TFrame, TContext, TResult>(
     Func<AnimationShown<TSegment, TFrame>.Frame, TContext, TResult> Frame,
     Func<AnimationShown<TSegment, TFrame>.HeldFrame, TContext, TResult> HeldFrame,
     Func<AnimationShown<TSegment, TFrame>.Paused, TContext, TResult> Paused,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The gunship's state, one for the whole ship, which its top hull keeps and runs: its phase, landing brakes, bob and
 /// engine timers, and its takeoff.
 /// </summary>
-internal sealed class GunshipState
+internal sealed partial class GunshipState
 {
     /// <summary>Starts the ship in <paramref name="phase"/>.</summary>
     internal GunshipState(GunshipPhase phase) => Phase = phase;

@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// three's 0x12, 0x18, 0x1a, 0x20 and 0x2f.
 /// </summary>
 [EncodingOwner("request numbers of the sound driver's three sound libraries")]
-internal static class SoundEffectCommandDefinitions
+internal static partial class SoundEffectCommandDefinitions
 {
     /// <summary>Each library-one sound's request number.</summary>
     internal static readonly FrozenDictionary<SamusSound, byte> Library1 = new Dictionary<SamusSound, byte>

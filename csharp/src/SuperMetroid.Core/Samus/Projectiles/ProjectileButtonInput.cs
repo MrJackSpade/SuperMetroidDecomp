@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The actions Samus's projectile producer reads: held actions, this frame's new presses, and the previous frame's new presses (#633).</summary>
-public readonly record struct ProjectileButtonInput
+public readonly partial record struct ProjectileButtonInput
 {
     /// <summary>The held actions.</summary>
     public required GameplayAction ControllerInput { get; init; }

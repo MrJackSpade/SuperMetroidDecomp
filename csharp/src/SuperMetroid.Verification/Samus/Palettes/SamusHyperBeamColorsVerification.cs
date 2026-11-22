@@ -125,9 +125,7 @@ internal static class SamusHyperBeamColorsVerification
     /// <summary>Checks that the Hyper Beam colour codec rejects out-of-range colours.</summary>
     internal static void VerifySamusHyperBeamColorsRejectMalformedDocuments(string stock)
     {
-        SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document with
         {

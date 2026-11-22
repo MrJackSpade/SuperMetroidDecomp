@@ -23,7 +23,7 @@ using SuperMetroid.Core.Enemies.YappingMaws;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Crateria rooms.</summary>
-internal static class CrateriaRoomEnemyPopulationDefinitions
+internal static partial class CrateriaRoomEnemyPopulationDefinitions
 {
     /// <summary>The face blocks of the Final Missile Bombway room, which it places alike in its default state and once Zebes is awake.</summary>
     private static readonly RoomEnemyPlacement[] FinalMissileBombwayFaceBlocks =

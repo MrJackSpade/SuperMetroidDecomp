@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// acceptance clock check compares these replies on every update with a recording of the emulated sound program's.
 /// </remarks>
 [CompatibilityService("what one sound library reports back as acknowledged")]
-public readonly record struct SoundAcknowledgement<TSound>
+public readonly partial record struct SoundAcknowledgement<TSound>
     where TSound : struct, IEquatable<TSound>
 {
 
@@ -25,10 +25,10 @@ public readonly record struct SoundAcknowledgement<TSound>
     public static SoundAcknowledgement<TSound> Of(TSound? sound) => sound is { } acknowledged ? new(new SoundReport(acknowledged)) : default;
 
     /// <summary>The acknowledged request, or none.</summary>
-    private TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
+    internal TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
 
     /// <summary>Whether the library reports new music loading.</summary>
-    private bool IsMusicLoading => reported is MusicLoadingReport;
+    internal bool IsMusicLoading => reported is MusicLoadingReport;
 
     /// <summary>What the library reports (#2560): an acknowledged sound or music loading; null when it reports nothing.</summary>
     private readonly Report? reported;
@@ -46,12 +46,12 @@ public readonly record struct SoundAcknowledgement<TSound>
     public override string ToString() => IsMusicLoading ? "music loading" : Sound?.ToString() ?? "none";
 
     /// <summary>What a library reports back (#2560): a closed choice of an acknowledged sound and music loading.</summary>
-    private abstract record Report;
+    private abstract partial record Report;
 
     /// <summary>The library acknowledges a sound.</summary>
     /// <param name="Sound">The sound acknowledged.</param>
-    private sealed record SoundReport(TSound Sound) : Report;
+    private sealed partial record SoundReport(TSound Sound) : Report;
 
     /// <summary>The sound driver is loading music, which acknowledges no sound.</summary>
-    private sealed record MusicLoadingReport : Report;
+    private sealed partial record MusicLoadingReport : Report;
 }

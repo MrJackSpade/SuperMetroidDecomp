@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <param name="carryover">The value the room mains share.</param>
 [CompatibilityService("an escape room's diagonal quake counts down from what the previous room's main left, unless one of the two quake-switching setups clears it")]
-public sealed class EscapeQuakeCarriedAcrossRooms(RoomMainCarryover carryover)
+public sealed partial class EscapeQuakeCarriedAcrossRooms(RoomMainCarryover carryover)
 {
     /// <summary>The value the room mains share.</summary>
     private readonly RoomMainCarryover _carryover = Ensure.NotNull(carryover);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Runtime;
 /// (#2542): main gameplay's own, or one that runs main gameplay's update behind its own work. Each owner states here, once,
 /// what its updates permit; the runtime reads those permissions and never which game state the game is in.
 /// </summary>
-public sealed class GameplayUpdateOwner
+public sealed partial class GameplayUpdateOwner
 {
     /// <summary>Owners exist only as the named instances below.</summary>
     private GameplayUpdateOwner()

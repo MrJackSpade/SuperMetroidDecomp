@@ -9,9 +9,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.Kraid] = (occupant, place, common) => EnemyOccupant.Of(new KraidBodyEntity(this, occupant, place, common)),
@@ -25,25 +26,25 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>
-    private KraidBodyLayer BodyLayer { get; }
+    internal KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
-    private KraidEncounterAccess Access { get; }
+    internal KraidEncounterAccess Access { get; }
 
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     internal KraidParts Parts { get; }
 
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-    private KraidBackground Background { get; }
+    internal KraidBackground Background { get; }
 
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
-    private KraidHead Head { get; }
+    internal KraidHead Head { get; }
 
     /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-    private KraidDeath Death { get; }
+    internal KraidDeath Death { get; }
 
     /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
     internal KraidLimbs Limbs { get; }
@@ -78,7 +79,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// killing mouth hit therefore reaches colour handling, which settles his hurt flash on his health band's colours,
     /// before the death setup runs in this same update.
     /// </summary>
-    private void RunKraidBodyMain(
+    internal void RunKraidBodyMain(
         RoomEnemyOccupant kraid,
         KraidEnemyState state,
         SamusState samus,
@@ -110,7 +111,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     /// <param name="projectiles">Samus's shots.</param>
     /// <param name="bombs">Samus's bombs.</param>
-    private static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
+    internal static IReadOnlyList<KraidPassProjectile> TestedByShotPasses(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem bombs)
     {
@@ -123,7 +124,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>One projectile one of Kraid's shot passes tests (#2400): a shot of Samus's, or her first bomb.</summary>
-    internal abstract record KraidPassProjectile
+    internal abstract partial record KraidPassProjectile
     {
         /// <summary>Closes the hierarchy to the shot and the bomb.</summary>
         private KraidPassProjectile()
@@ -142,7 +143,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         public abstract KraidHeldPassProjectile? Held { get; }
 
         /// <summary>A shot the passes test, in one of Samus's shot places.</summary>
-        internal sealed record Shot : KraidPassProjectile
+        internal sealed partial record Shot : KraidPassProjectile
         {
             /// <summary>The shot the passes test.</summary>
             private readonly SamusProjectile _shot;
@@ -158,7 +159,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>The bomb the passes test past the last shot place: Samus's first bomb.</summary>
-        internal sealed record Bomb : KraidPassProjectile
+        internal sealed partial record Bomb : KraidPassProjectile
         {
             /// <summary>The bomb the passes test.</summary>
             private readonly SamusBomb _bomb;
@@ -180,9 +181,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Type">The projectile's type: its family, beams and charge.</param>
     /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the place's non-negative damage.</param>
     /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
-    internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
+    internal readonly partial record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
     /// <summary>What <see cref="RunKraidBodyStage"/> does for each <see cref="KraidBodyStage"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidBodyStageForKraidBodyStage => field ??= new(new Dictionary<KraidBodyStage, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidBodyStage.Rising] = (body, state, cameraX, samus) => Rise.RunKraidRisePhase(body, state, samus),
@@ -193,11 +195,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The projectile holding a place one of Kraid's passes tests, and the marking of its collision with him.</summary>
     /// <param name="Shot">Its position, radius, type and damage.</param>
     /// <param name="MarkCollision">Marks the projectile holding the place as having collided with Kraid.</param>
-    internal readonly record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
+    internal readonly partial record struct KraidHeldPassProjectile(KraidCollisionShot Shot, Action MarkCollision);
 
 
     /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
-    private void RunKraidBodyStage(
+    internal void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,
@@ -207,6 +209,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunKraidFightPhase"/> does for each <see cref="KraidFightPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidFightPhaseForKraidFightPhase => field ??= new(new Dictionary<KraidFightPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidFightPhase.FirstPhaseThinking] = (body, state) =>

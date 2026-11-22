@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Ceres room state, named for their rooms.</summary>
-public static class CeresRoomStateDefinitions
+public static partial class CeresRoomStateDefinitions
 {
 
     /// <summary>The Ceres Elevator room's default state.</summary>

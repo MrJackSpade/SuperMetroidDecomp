@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Crocomire colour document.</summary>
-public static class CrocomireColorFile
+public static partial class CrocomireColorFile
 {
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -37,7 +37,7 @@ public static class CrocomireColorFile
 
     /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CrocomireColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.CrocomireColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates a band's length and RGB5 range before packing its color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int count, string name) =>

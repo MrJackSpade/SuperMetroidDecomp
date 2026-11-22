@@ -4,7 +4,7 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Bounded copy/clear row selection.</summary>
-internal static class FileSelectDataNavigation
+internal static partial class FileSelectDataNavigation
 {
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
     /// <remarks>

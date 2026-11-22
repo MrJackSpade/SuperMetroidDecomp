@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>JSON schema for complete pause, file-select, and area-map palettes.</summary>
-public sealed record MapStaticPalettesDocument
+public sealed partial record MapStaticPalettesDocument
 {
     /// <summary>Gets the schema version, which must equal <see cref="MapStaticPalettesFormat.Version"/>.</summary>
     public required int Version { get; init; }

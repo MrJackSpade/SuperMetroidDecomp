@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Exports all six contiguous bank-$8A room-FX BG3 pages as named tile cells.</summary>
-public static class RoomFxLayer3TilemapExtractor
+public static partial class RoomFxLayer3TilemapExtractor
 {
     /// <summary>Builds the six named room-FX BG3 pages after checking their native tilemap-pointer identities.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the FX pointer table and bank-$8A tilemap sources.</param>

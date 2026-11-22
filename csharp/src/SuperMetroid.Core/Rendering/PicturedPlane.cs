@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// order, a later picture covering an earlier one where it is opaque. The plane has no edges and does not repeat: a
 /// picture shows only at its own place, and where no picture lies the plane shows nothing.
 /// </summary>
-public sealed class PicturedPlane : IEquatable<PicturedPlane>
+public sealed partial class PicturedPlane : IEquatable<PicturedPlane>
 {
     /// <summary>Keeps the plane's pictures in drawing order.</summary>
     /// <param name="pictures">The placed pictures, earliest first.</param>

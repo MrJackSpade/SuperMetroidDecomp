@@ -8,9 +8,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.DraygonArms] = (occupant, place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork)),
@@ -27,10 +28,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DraygonParts Parts { get; }
 
     /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-    private DraygonTurrets Turrets { get; }
+    internal DraygonTurrets Turrets { get; }
 
     /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
-    private DraygonIntro Intro { get; }
+    internal DraygonIntro Intro { get; }
 
     /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
     internal DraygonSwoops Swoops { get; }
@@ -39,16 +40,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DraygonMovement Movement { get; }
 
     /// <summary>Draygon's goop passes.</summary>
-    private DraygonGoop Goop { get; }
+    internal DraygonGoop Goop { get; }
 
     /// <summary>The goop and turret shots as projectiles.</summary>
-    private DraygonShots Shots { get; }
+    internal DraygonShots Shots { get; }
 
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
-    private DraygonGrab Grab { get; }
+    internal DraygonGrab Grab { get; }
 
     /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
-    private DraygonDeath Death { get; }
+    internal DraygonDeath Death { get; }
 
     /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
     internal DraygonCombat Combat { get; }
@@ -81,6 +82,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunDraygonBodyMain"/> does for each <see cref="DraygonPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DraygonPhase, Action<SamusState, int, DraygonEnemyState>> RunDraygonBodyMainForDraygonPhase => field ??= new(new Dictionary<DraygonPhase, Action<SamusState, int, DraygonEnemyState>>
     {
         [DraygonPhase.IntroInitialDelay] = (samus, frameCounter, state) => Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter),
@@ -148,7 +150,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms animation started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms animation restored as the ascent passes the same point.</param>
-    internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
+    internal sealed partial record DraygonSwoopSide(HorizontalDirection Direction, DraygonSegment ArmsNearApex, DraygonSegment ArmsIdle);
 
     /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonSegment.ArmsFacingRightNearSwoopApex,

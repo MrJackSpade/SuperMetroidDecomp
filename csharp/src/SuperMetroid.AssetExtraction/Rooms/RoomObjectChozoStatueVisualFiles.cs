@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the three Chozo statue terrain frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectChozoStatueVisualFiles
+public static partial class RoomObjectChozoStatueVisualFiles
 {
     /// <summary>
     /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the
@@ -28,7 +28,7 @@ public static class RoomObjectChozoStatueVisualFiles
         };
 
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
-    private const string VisualFileName = "chozo-statues.json";
+    internal const string VisualFileName = "chozo-statues.json";
 
     /// <summary>The Chozo statue as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -56,7 +56,7 @@ public static class RoomObjectChozoStatueVisualFiles
     }
 
     /// <summary>The draw lists of the three statue draws.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {
@@ -77,7 +77,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// colliding as the game's block shape for the frame says (#1622). The run form is the cartridge's; the game draws
     /// the shape.
     /// </summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(ChozoStatueDraws.Family, request, out RoomBlockShape? described))
         {
@@ -90,6 +90,6 @@ public static class RoomObjectChozoStatueVisualFiles
     }
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
-    private static string VisualId(RoomObjectDraw request) =>
+    internal static string VisualId(RoomObjectDraw request) =>
         ChozoStatueDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID"));
 }

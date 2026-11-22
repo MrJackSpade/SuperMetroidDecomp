@@ -4,4 +4,4 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// <param name="First">The first.</param>
 /// <param name="Second">The second.</param>
 /// <param name="Voice">The voice.</param>
-internal readonly record struct ChannelLoop(long First, long Second, int Voice);
+internal readonly partial record struct ChannelLoop(long First, long Second, int Voice);

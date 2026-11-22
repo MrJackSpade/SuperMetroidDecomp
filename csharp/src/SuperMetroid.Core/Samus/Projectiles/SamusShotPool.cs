@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
 /// </remarks>
-internal sealed class SamusShotPool
+internal sealed partial class SamusShotPool
 {
     /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace <see cref="ShotCount"/>.</summary>
     private readonly SamusProjectile[] _places =

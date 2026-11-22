@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies;
 /// lights' glow as it is placed, and the glow keeps the gunship it shows on (#1783).
 /// </summary>
 /// <param name="Glow">The glow and the enemy it shows on.</param>
-public sealed record EnemyGlowStarted(EnemyGlowStart Glow) : EnemyPassEvent;
+public sealed partial record EnemyGlowStarted(EnemyGlowStart Glow) : EnemyPassEvent;

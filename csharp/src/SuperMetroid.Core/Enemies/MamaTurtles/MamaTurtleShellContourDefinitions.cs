@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// The physical contour of Mama Turtle's dormant shell (#2044): its surface's height above an actor beside her origin,
 /// by the actor's distance from it, on each side. The shell is not symmetric.
 /// </summary>
-internal static class MamaTurtleShellContourDefinitions
+internal static partial class MamaTurtleShellContourDefinitions
 {
     /// <summary>The distance from her origin, in pixels, either contour reaches; an actor this far or further is clear of the shell.</summary>
     internal const int HalfWidth = 24;

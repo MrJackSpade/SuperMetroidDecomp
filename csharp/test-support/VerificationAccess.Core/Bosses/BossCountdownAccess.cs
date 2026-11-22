@@ -7,7 +7,7 @@ internal static class BossCountdownAccess
     extension(BossCountdown self)
     {
         /// <summary>Gives the countdown <paramref name="updatesLeft"/> updates left: none for a countdown that has run out.</summary>
-        internal void SetUpdatesLeft(int updatesLeft) => PrivateState.SetField(self, "wait", UpdateCountdown.For(updatesLeft));
+        internal void SetUpdatesLeft(int updatesLeft) => self.Wait = UpdateCountdown.For(updatesLeft);
 
         /// <summary>
         /// The count the cartridge holds for the countdown: one less than its updates left, -1 once it has run out, as a
@@ -26,6 +26,6 @@ internal static class BossCountdownAccess
     extension(HeldBossCountdown self)
     {
         /// <summary>Gives the countdown <paramref name="updatesLeft"/> updates left: none for a countdown that holds run out.</summary>
-        internal void SetUpdatesLeft(int updatesLeft) => PrivateState.SetField(self, "wait", UpdateCountdown.For(updatesLeft));
+        internal void SetUpdatesLeft(int updatesLeft) => self.Wait = UpdateCountdown.For(updatesLeft);
     }
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>The geometry of the Yapping Maw's curved attack: how far it reaches and where it holds Samus.</summary>
-public static class YappingMawAttackGeometry
+public static partial class YappingMawAttackGeometry
 {
     /// <summary>
     /// The longest target length the neutral maw keeps: a shorter distance to Samus is used as it is, a longer one is

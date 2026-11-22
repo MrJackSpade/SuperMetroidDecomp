@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The state of one of Mother Brain's falling tubes: where it falls and its animation, which its setup starts afresh
 /// for each tube (#1476, #2319).
 /// </summary>
-internal sealed class MotherBrainFallingTubeState
+internal sealed partial class MotherBrainFallingTubeState
 {
     /// <summary>The falling tube's animation and where it stands (#641, #1600).</summary>
     public AnimationPlayback<MotherBrainTubePiece> Playback { get; internal set; }

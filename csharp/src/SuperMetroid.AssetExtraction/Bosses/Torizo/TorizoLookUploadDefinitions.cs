@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// every look's finished pictures over the looks before it. A look the player sees may be several copies the cartridge made
 /// in one update (#1942): the gut's four, the face's first four and its last five, and each chest stage's two halves.
 /// </summary>
-internal static class TorizoLookUploadDefinitions
+internal static partial class TorizoLookUploadDefinitions
 {
     /// <summary>The dark eyes' copy of the statue-crumble characters over the eyes, the first eye-glow stage.</summary>
     private static TorizoLookUpload EyesDarkUpload { get; } = new(TorizoTilePage.StatueCrumble, 0, 64, 472);

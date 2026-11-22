@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// Samus's phases of a gameplay frame: grounded movement, animation transitions, uninitialized-pose movement,
 /// the grapple beam, X-ray from the HUD, load appearance and showing the equipped beams' colours.
 /// </summary>
-internal sealed class SamusFramePhases
+internal sealed partial class SamusFramePhases
 {
     /// <summary>Opens the attract demo's Samus input window and selects the demo's new-input state.</summary>
     private readonly IAttractSamusInput _attractDemo;
@@ -134,7 +134,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>Shows the grapple's firing beam shade and its flare's shade as Samus's colours (#1512).</summary>
-    private void ShowGrappleShades()
+    internal void ShowGrappleShades()
     {
         _player.Colours.ShowBeams(SuperMetroid.Core.Samus.Colours.SamusShades.Beam(GrappleBeamDefinitions.BeamShades.FiringSelection));
         _player.Colours.ShowGrappleFlare(SuperMetroid.Core.Samus.Colours.SamusShades.GrappleFiringFlare);

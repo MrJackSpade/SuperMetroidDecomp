@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// The frames Mother Brain's head and neck show. These identities name artwork, not encounter timing.
 /// </summary>
-internal static class MotherBrainVisualDefinitions
+internal static partial class MotherBrainVisualDefinitions
 {
 
     /// <summary>

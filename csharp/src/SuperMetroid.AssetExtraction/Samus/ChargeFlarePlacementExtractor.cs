@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts the native visual offsets of the ten aiming directions and the standing turning placements.</summary>
-public static class ChargeFlarePlacementExtractor
+public static partial class ChargeFlarePlacementExtractor
 {
     /// <summary>JSON resource filename for beam-charge flare drawing offsets; editing these signed pixel placements does not change physical projectile origins or charge timing.</summary>
     public const string FileName = "charge-flare-placement.json";

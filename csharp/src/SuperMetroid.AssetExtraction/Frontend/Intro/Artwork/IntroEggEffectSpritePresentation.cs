@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
-public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled shell and slime OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -57,8 +57,7 @@ public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroEggEffectSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEggEffectSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

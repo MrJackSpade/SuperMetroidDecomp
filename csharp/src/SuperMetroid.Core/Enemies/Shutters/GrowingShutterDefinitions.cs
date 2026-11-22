@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>How a growing shutter's sections extend (#2156).</summary>
-internal static class GrowingShutterDefinitions
+internal static partial class GrowingShutterDefinitions
 {
     /// <summary>
     /// The growth sections in the order they grow, each by the artwork the shutter shows while it grows, a quarter, a half,

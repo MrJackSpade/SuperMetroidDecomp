@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// Cacatac's upright and inverted idle and spike-attack animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="CacatacCue"/> with the values it acts on.
 /// </summary>
-internal static class CacatacAnimations
+internal static partial class CacatacAnimations
 {
     /// <summary>The updates each of Cacatac's idle poses shows for.</summary>
     private const int IdlePoseUpdates = 8;
@@ -73,7 +73,7 @@ internal static class CacatacAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275). The upright idle restores the
     /// patrol on every cycle; the upside-down idle restores it once, its own entry cue, and then cycles its poses.
     /// </summary>
-    private static Dictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
+    internal static Dictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
         [P.OnFloorIdle] = Animation<CacatacSegment>.Looping([Segments.Whole(P.OnFloorIdle)]),
         [P.OnFloorAttack] = Animation<CacatacSegment>.LeadingInto([Segments.Whole(P.OnFloorAttack)], [Segments.Whole(P.OnFloorIdle)]),

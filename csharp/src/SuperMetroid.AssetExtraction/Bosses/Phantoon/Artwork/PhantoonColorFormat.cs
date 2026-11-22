@@ -2,7 +2,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 
 /// <summary>Defines the installed Phantoon color resource contract.</summary>
-public static class PhantoonColorFormat
+public static partial class PhantoonColorFormat
 {
     /// <summary>Canonical Phantoon color asset file name.</summary>
     public const string FileName = "phantoon-colors.json";

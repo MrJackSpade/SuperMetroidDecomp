@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// enemy, boss, projectile and screen effect computes them. These are engine math definitions, not editable
 /// presentation assets.
 /// </summary>
-public static class Trigonometry
+public static partial class Trigonometry
 {
 
     /// <summary>The fine sine's steps in each step of its coarse reading (<see cref="CoarseSizeOfFineSine"/>).</summary>
@@ -104,7 +104,7 @@ public static class Trigonometry
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>
     /// <remarks>The omitted term is below 5.2e-21, and a margin of 1e-19 covers rounding and the 28-place pi constant, so the integer outputs need no libm or correction tables.</remarks>
-    private static decimal UnitHalfWave(int step)
+    internal static decimal UnitHalfWave(int step)
     {
         if ((uint)step >= 128) throw new ArgumentOutOfRangeException(nameof(step));
         int phase = Math.Min(step, 128 - step);

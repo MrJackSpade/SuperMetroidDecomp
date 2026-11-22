@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Hud;
 
 /// <summary>One frame of HUD selection switching: HUD item cycling and availability.</summary>
-internal static class SamusHudSelection
+internal static partial class SamusHudSelection
 {
     /// <summary>
     /// Switches the HUD selection on the item-select and item-cancel actions.

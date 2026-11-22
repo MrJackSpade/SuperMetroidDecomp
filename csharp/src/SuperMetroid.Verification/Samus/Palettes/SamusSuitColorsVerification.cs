@@ -115,9 +115,7 @@ internal static class SamusSuitColorsVerification
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
-        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
@@ -179,7 +177,7 @@ internal static class SamusSuitColorsVerification
 
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => SamusSuitColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");

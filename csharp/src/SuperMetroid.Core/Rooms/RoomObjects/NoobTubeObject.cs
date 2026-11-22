@@ -14,16 +14,16 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's tube owner, which reaches Samus, the events, the water, the earthquake and the debris.</param>
 [RoomLifetime]
-internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoomObject<NoobTubeSegment, TerrainChangeFrame>(NoobTubeAnimations.Segments), IShootableRoomObject
+internal sealed partial class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoomObject<NoobTubeSegment, TerrainChangeFrame>(NoobTubeAnimations.Segments), IShootableRoomObject
 {
     /// <summary>The room's tube owner.</summary>
     private readonly NoobTubeObjects _owner = Ensure.NotNull(owner);
 
     /// <summary>Where the tube is in its course.</summary>
-    private NoobTubePhase Phase { get; set; } = NoobTubePhase.Starting;
+    internal NoobTubePhase Phase { get; set; } = NoobTubePhase.Starting;
 
     /// <summary>The strike on the tube's block it has yet to take (#2562).</summary>
-    private readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
+    internal readonly StrikeAwaitingRoomObject<ResidentObjectProjectileHit> strike = new();
 
     /// <inheritdoc/>
     public void Strike(ResidentObjectProjectileHit hit) => strike.Land(hit);
@@ -37,6 +37,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoo
     }
 
     /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [NoobTubePhase.Starting] = (place, context) =>
@@ -83,6 +84,7 @@ internal sealed class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoo
         context.Draw(place, frame.Draw);
 
     /// <summary>What <c>Wake</c> does for each <see cref="NoobTubePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>> WakeForNoobTubePhase => field ??= new(new Dictionary<NoobTubePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [NoobTubePhase.WaitingForPowerBomb] = (place, context) =>

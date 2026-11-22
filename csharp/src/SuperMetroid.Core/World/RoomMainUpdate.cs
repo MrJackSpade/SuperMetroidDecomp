@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>What a room's main runs against on one gameplay update (#2287).</summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record RoomMainUpdate
+internal sealed partial record RoomMainUpdate
 {
     /// <summary>The loaded room.</summary>
     public required RoomScope Room { get; init; }

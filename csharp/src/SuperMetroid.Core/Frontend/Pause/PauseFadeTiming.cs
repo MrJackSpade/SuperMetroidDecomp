@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>Definition data for the four pause fades.</summary>
-internal static class PauseFadeTiming
+internal static partial class PauseFadeTiming
 {
     /// <summary>
     /// The updates pausing, the pause fades and unpausing wait before each brightness step, the first included: the

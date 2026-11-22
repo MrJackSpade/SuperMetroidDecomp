@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Progression;
 /// <see cref="ItemLocationDefinitions"/>; the game keeps whether each location's pickup has been collected
 /// (<see cref="PersistentProgress.CollectedItems"/>), independently of Samus's equipment.
 /// </summary>
-public sealed class ItemLocation
+public sealed partial class ItemLocation
 {
     /// <summary>Creates the item location named <paramref name="name"/>.</summary>
     internal ItemLocation([InstalledKey] string name) => Name = Ensure.NotNull(name);

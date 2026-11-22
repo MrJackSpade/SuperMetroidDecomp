@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>How a Waver flies and waves (#2156).</summary>
-internal static class WaverMotionDefinitions
+internal static partial class WaverMotionDefinitions
 {
     /// <summary>How fast a Waver flies sideways, a pixel and a half an update.</summary>
     internal static SignedSixteenSixteen HorizontalSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(3, 2);

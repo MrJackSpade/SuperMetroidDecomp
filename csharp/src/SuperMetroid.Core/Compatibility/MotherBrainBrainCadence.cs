@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// update of her fight.
 /// </remarks>
 [CompatibilityService("Mother Brain's brain animation steps at her brain's draw, after every enemy's AI, and an animation her AI starts that opens with a picture counts its start as the picture's first update")]
-public static class MotherBrainBrainCadence
+public static partial class MotherBrainBrainCadence
 {
     /// <summary>
     /// Whether an animation her AI starts shows its opening picture at the start: one that opens with a picture does; one

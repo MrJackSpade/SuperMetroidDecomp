@@ -9,10 +9,10 @@ internal static class VramRegionAccess
     extension(VramRegion self)
     {
         /// <summary>The VRAM the region views, which only the region's own uploads otherwise reach.</summary>
-        internal SnesVram Vram => PrivateState.ValueField<VramRegion, SnesVram>(self, "vram");
+        internal SnesVram Vram => self.vram;
 
         /// <summary>The region's first physical VMADD word, which only the region's own uploads otherwise read.</summary>
-        internal int First => PrivateState.ValueField<VramRegion, int>(self, "first");
+        internal int First => self.first;
 
         /// <summary>
         /// Writes a word stream starting <paramref name="wordOffset"/> words in, advancing <paramref name="wordStep"/> words

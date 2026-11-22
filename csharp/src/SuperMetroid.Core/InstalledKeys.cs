@@ -9,7 +9,7 @@ namespace SuperMetroid.Core;
 /// disk (SME6460) and no document is read by a member's source name (SME6462).
 /// </summary>
 /// <typeparam name="TIdentity">The identity whose members are keyed.</typeparam>
-public sealed class InstalledKeys<TIdentity>
+public sealed partial class InstalledKeys<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>Each member's key.</summary>

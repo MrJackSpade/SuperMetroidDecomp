@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 [CompatibilityService("a crumbling plug's block shows what its spawn last held: block 416 mirrored both ways after a spawn at a fixed block, block zero after a spawn at a found block")]
-public static class CrumblePlugLeftBlock
+public static partial class CrumblePlugLeftBlock
 {
     /// <summary>How a crumbling plug was spawned, which decides the picture its setup leaves.</summary>
     public enum Spawn
@@ -49,7 +49,7 @@ public static class CrumblePlugLeftBlock
     /// <summary>The picture a plug's block is left showing: a block of the room's block set and how it is mirrored.</summary>
     /// <param name="Number">The block shown, in the room's block set.</param>
     /// <param name="Mirrored">How the block is mirrored.</param>
-    public readonly record struct Picture(int Number, Mirroring Mirrored);
+    public readonly partial record struct Picture(int Number, Mirroring Mirrored);
 
     /// <summary>The block an empty drawing reads as, which a spawn at a fixed block leaves.</summary>
     private const int FixedBlockSpawnLeftNumber = 416;

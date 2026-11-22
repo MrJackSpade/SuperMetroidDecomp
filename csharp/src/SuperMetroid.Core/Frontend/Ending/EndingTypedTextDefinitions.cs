@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's typed texts' spellings and typing cadence (#1513, #2195).</summary>
-internal static class EndingTypedTextDefinitions
+internal static partial class EndingTypedTextDefinitions
 {
     /// <summary>Each text as it is spelled, a single space between its parts.</summary>
     internal static IReadOnlyDictionary<EndingTypedText, string> Spellings { get; } = new Dictionary<EndingTypedText, string>

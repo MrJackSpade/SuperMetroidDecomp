@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// data (<see cref="FileSelectArtworkDocument"/>), as their cells are the original's packed tile placements.
 /// </summary>
 /// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries.</remarks>
-public sealed record FileSelectLayoutDocument
+public sealed partial record FileSelectLayoutDocument
 {
     /// <summary>Schema version; must equal <see cref="FileSelectPresentationFormat.Version"/>.</summary>
     [JsonPropertyOrder(1)]

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>How the escaping Etecoons and Dachora read the rising acid and how an escaping Etecoon moves (#2279).</summary>
-internal static class EscapeAnimalMotionDefinitions
+internal static partial class EscapeAnimalMotionDefinitions
 {
     /// <summary>
     /// The room row at or below which the escaping animals find the acid still low.

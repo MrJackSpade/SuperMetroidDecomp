@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>One cue of the ninja Space Pirates' animations: what it does, with the values it acts on.</summary>
-internal abstract record NinjaSpacePirateCue
+internal abstract partial record NinjaSpacePirateCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private NinjaSpacePirateCue()
@@ -19,7 +19,7 @@ internal abstract record NinjaSpacePirateCue
 
     /// <summary>Plays the cue's enemy-library sound.</summary>
     /// <param name="Sound">The enemy-library sound it plays.</param>
-    internal sealed record PlaySound(SoundEffectId Sound) : NinjaSpacePirateCue
+    internal sealed partial record PlaySound(SoundEffectId Sound) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).PlaySound(this, context);
@@ -27,7 +27,7 @@ internal abstract record NinjaSpacePirateCue
 
     /// <summary>Sets the look the Pirate draws in.</summary>
     /// <param name="Shading">The shading the Pirate is drawn in from then on (#1512).</param>
-    internal sealed record SetShading(PictureShading Shading) : NinjaSpacePirateCue
+    internal sealed partial record SetShading(PictureShading Shading) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).SetShading(this, context);
@@ -36,7 +36,7 @@ internal abstract record NinjaSpacePirateCue
     /// <summary>Throws a claw in the cue's direction from the given offset.</summary>
     /// <param name="Throw">For a claw cue: the way the claw flies.</param>
     /// <param name="Offset">The cue's signed pixel offset, horizontal and vertical.</param>
-    internal sealed record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue
+    internal sealed partial record ThrowClaw(HorizontalDirection Throw, Offset16<RoomPixels> Offset) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ThrowClaw(this, context);
@@ -48,7 +48,7 @@ internal abstract record NinjaSpacePirateCue
     /// steps or the walk back to its post.
     /// </summary>
     /// <param name="Action">The action main AI then runs.</param>
-    internal sealed record Begin(NinjaSpacePirateAction Action) : NinjaSpacePirateCue
+    internal sealed partial record Begin(NinjaSpacePirateAction Action) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Begin(this, context);
@@ -60,7 +60,7 @@ internal abstract record NinjaSpacePirateCue
     /// </summary>
     /// <param name="Action">The action main AI then runs.</param>
     /// <param name="Heading">The way the action goes.</param>
-    internal sealed record BeginHeading(NinjaSpacePirateAction Action, HorizontalDirection Heading) : NinjaSpacePirateCue
+    internal sealed partial record BeginHeading(NinjaSpacePirateAction Action, HorizontalDirection Heading) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginHeading(this, context);
@@ -68,7 +68,7 @@ internal abstract record NinjaSpacePirateCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue
+    internal sealed partial record Signal(NinjaSpacePirateCueKind Kind) : NinjaSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(NinjaSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);
@@ -84,4 +84,4 @@ internal abstract record NinjaSpacePirateCue
 /// <param name="BeginHeading">Makes a <see cref="NinjaSpacePirateCue.BeginHeading"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="NinjaSpacePirateCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record NinjaSpacePirateCueCases<TContext, TResult>(Func<NinjaSpacePirateCue.PlaySound, TContext, TResult> PlaySound, Func<NinjaSpacePirateCue.SetShading, TContext, TResult> SetShading, Func<NinjaSpacePirateCue.ThrowClaw, TContext, TResult> ThrowClaw, Func<NinjaSpacePirateCue.Begin, TContext, TResult> Begin, Func<NinjaSpacePirateCue.BeginHeading, TContext, TResult> BeginHeading, Func<NinjaSpacePirateCue.Signal, TContext, TResult> Signal);
+internal sealed partial record NinjaSpacePirateCueCases<TContext, TResult>(Func<NinjaSpacePirateCue.PlaySound, TContext, TResult> PlaySound, Func<NinjaSpacePirateCue.SetShading, TContext, TResult> SetShading, Func<NinjaSpacePirateCue.ThrowClaw, TContext, TResult> ThrowClaw, Func<NinjaSpacePirateCue.Begin, TContext, TResult> Begin, Func<NinjaSpacePirateCue.BeginHeading, TContext, TResult> BeginHeading, Func<NinjaSpacePirateCue.Signal, TContext, TResult> Signal);

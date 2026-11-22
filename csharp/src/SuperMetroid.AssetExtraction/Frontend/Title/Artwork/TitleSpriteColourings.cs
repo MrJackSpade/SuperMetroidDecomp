@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// colouring, the logo in the logo's and the copyright in the copyright's. The title sheet pictures each composition in
 /// that colouring's sprite set.
 /// </summary>
-internal static class TitleSpriteColourings
+internal static partial class TitleSpriteColourings
 {
     /// <summary>The title's four cards.</summary>
     private static IReadOnlyList<TitleTextSequenceDefinition> Cards => TitleSequenceDefinitions.TextSequences.All;

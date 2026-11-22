@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// hours are derived from that count, frames, seconds and minutes 0 through 59 and hours 0 through 99 (#1692), and a save
 /// keeps those four. The default reading is the clock at 0:00:00.00.
 /// </summary>
-public readonly record struct GameClockReading
+public readonly partial record struct GameClockReading
 {
     /// <summary>Updates in one second, and the rollover point of frames, seconds and minutes.</summary>
     internal const int UnitsPerNextUnit = 60;
@@ -37,7 +37,7 @@ public readonly record struct GameClockReading
     }
 
     /// <summary>The gameplay updates the clock has counted, from none through <see cref="MaximumUpdates"/>.</summary>
-    private int Updates { get; }
+    internal int Updates { get; }
 
     /// <summary>The sub-second counter: 0 through 59.</summary>
     public int Frames => Updates % UnitsPerNextUnit;

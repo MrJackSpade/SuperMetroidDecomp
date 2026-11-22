@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>File identity and limits of the installed equipment-selector presentation.</summary>
-public static class PauseSelectorFormat
+public static partial class PauseSelectorFormat
 {
     /// <summary>Supported revision of the equipment-selector anchor, composition, animation, and palette JSON schema.</summary>
     public const int Version = 1;

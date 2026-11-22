@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// the link; the whole count orders the swing limits and whip targets across the turn boundary, so a whip target a
 /// whole turn round still lies beyond a limit that points the same way, and a link swings the whole turn to reach it.
 /// </summary>
-public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
+public readonly partial record struct RidleyTailAngle : IComparable<RidleyTailAngle>
 {
     /// <summary>Holds the angle in steps from straight down.</summary>
     private RidleyTailAngle(int stepsFromStraightDown) => StepsFromStraightDown = stepsFromStraightDown;
 
     /// <summary>The angle in steps of the turn from straight down, counterclockwise positive, counted without
     /// wrapping.</summary>
-    private int StepsFromStraightDown { get; }
+    internal int StepsFromStraightDown { get; }
 
     /// <summary>The link pointing straight down from its anchor.</summary>
     public static RidleyTailAngle StraightDown => default;

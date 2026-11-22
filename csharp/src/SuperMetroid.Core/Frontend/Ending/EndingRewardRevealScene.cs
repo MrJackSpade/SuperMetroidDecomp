@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// share, the copyright's hold between them pausing it.
 /// </summary>
 /// <param name="fade">The reward's colour fade, started as the reveal starts.</param>
-internal sealed class EndingRewardRevealScene(PacedFadeSteps fade) : EndingActorScene
+internal sealed partial class EndingRewardRevealScene(PacedFadeSteps fade) : EndingActorScene
 {
     /// <summary>The reward's colour fade.</summary>
     internal PacedFadeSteps Fade { get; } = Ensure.NotNull(fade);

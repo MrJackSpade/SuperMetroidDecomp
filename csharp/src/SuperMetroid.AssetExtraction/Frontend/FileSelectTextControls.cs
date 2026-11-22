@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Reads a file-select text stream's control words.</summary>
-internal static class FileSelectTextControls
+internal static partial class FileSelectTextControls
 {
     /// <summary>The control each control word is.</summary>
     private static readonly Dictionary<int, FileSelectTextControl> Controls = new()

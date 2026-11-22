@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 /// <param name="image">The background's image.</param>
 /// <param name="sheet">The room tileset's block sheet, which holds the cells' pictures.</param>
-public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomBlockSheet sheet)
+public sealed partial class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomBlockSheet sheet)
 {
     /// <summary>Each changing cell with the value each of its inputs took when last resolved.</summary>
     private readonly ChangingCell[] changing = [.. image.Cells.Select(cell => new ChangingCell(cell, new string[cell.Inputs.Length]))];
@@ -56,5 +56,5 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     /// <summary>One changing cell of the image, with the value each of its inputs took when last resolved.</summary>
     /// <param name="Cell">The changing cell.</param>
     /// <param name="Values">The value each of its inputs took when last resolved, in the order of its inputs.</param>
-    private sealed record ChangingCell(RoomBackgroundCell Cell, string[] Values);
+    private sealed partial record ChangingCell(RoomBackgroundCell Cell, string[] Values);
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="DownwardGateProjectileSpawn"/>) or a wake of the one already spawned for the gate
 /// (<see cref="DownwardGateProjectileWake"/>). Applying the request belongs to the runtime's projectile owner.
 /// </summary>
-public abstract record DownwardGateProjectileRequest
+public abstract partial record DownwardGateProjectileRequest
 {
     /// <summary>Only the spawn and the wake derive from this.</summary>
     /// <param name="roomObjectBlock">The room block of the gate's top block, where its room object sits.</param>
@@ -26,4 +26,4 @@ public abstract record DownwardGateProjectileRequest
 /// <param name="DownwardGateProjectileSpawn">Reacts to a <see cref="DownwardGateProjectileSpawn"/>.</param>
 /// <param name="DownwardGateProjectileWake">Reacts to a <see cref="DownwardGateProjectileWake"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed record DownwardGateProjectileRequestReactions<TContext>(Action<DownwardGateProjectileSpawn, TContext> DownwardGateProjectileSpawn, Action<DownwardGateProjectileWake, TContext> DownwardGateProjectileWake);
+public sealed partial record DownwardGateProjectileRequestReactions<TContext>(Action<DownwardGateProjectileSpawn, TContext> DownwardGateProjectileSpawn, Action<DownwardGateProjectileWake, TContext> DownwardGateProjectileWake);

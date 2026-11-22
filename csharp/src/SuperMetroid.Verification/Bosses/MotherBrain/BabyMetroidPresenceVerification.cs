@@ -49,7 +49,7 @@ internal static class BabyMetroidPresenceVerification
             AssertEqual(processing, place.Processing, $"enemy frame {enemyFrame}: the Baby's processing stands");
         }
 
-        global::SuperMetroid.Core.PrivateState.Set(baby, "Phase", new BabyMetroidCutscenePhase.Flying.DeathSequence());
+        baby.Phase = new BabyMetroidCutscenePhase.Flying.DeathSequence();
         int frame = 0;
         while (baby.Phase is BabyMetroidCutscenePhase.Flying.DeathSequence)
         {

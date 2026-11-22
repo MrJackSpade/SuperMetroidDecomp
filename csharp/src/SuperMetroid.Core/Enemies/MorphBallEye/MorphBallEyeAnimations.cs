@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// The Morph Ball eye's eyelid and mount animations (#641), and the pose the open eye looks along as it tracks Samus
 /// (#2070). Each frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class MorphBallEyeAnimations
+internal static partial class MorphBallEyeAnimations
 {
     /// <summary>
     /// Every segment's beats. An opening ends on its half-open lid, held (#2376, #2439): the eye opens on the update the lid
@@ -48,7 +48,7 @@ internal static class MorphBallEyeAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
+    internal static Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
     {
         [P.FacingRightDeactivating] = new([Segments.Whole(P.FacingRightDeactivating), Segments.Whole(P.FacingRightClosed)], AnimationEnd.Holds),
         [P.FacingRightClosed] = new([Segments.Whole(P.FacingRightClosed)], AnimationEnd.Holds),

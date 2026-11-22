@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave
 /// combo steps with the Spacetime shot's change to saved progress.</summary>
-internal sealed class BeamCombos
+internal sealed partial class BeamCombos
 {
     /// <summary>Ends expired special attack particles through the same projectile lifecycle as ordinary beams.</summary>
     private readonly ProjectileAnimation _animation;
@@ -162,7 +162,7 @@ internal sealed class BeamCombos
         : BeamComboShotKind.Combo;
 
     /// <summary>Gives a particle the damage and animation of the charged beam, the special attack or the Spazer echo, and starts its first frame.</summary>
-    private static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
+    internal static void InitializeComboShot(SamusProjectileOccupant held, BeamComboShotKind shotKind)
     {
         held.Damage = SamusProjectileDamage.Read(ComboShotKind(held.Type, shotKind));
         StartComboShot(held, shotKind);
@@ -281,6 +281,7 @@ internal sealed class BeamCombos
     }
 
     /// <summary>What <see cref="StepPlasmaCombo"/> does for each <see cref="PlasmaRingPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>> StepPlasmaComboForPlasmaRingPhase => field ??= new(new Dictionary<PlasmaRingPhase, Action<SamusProjectileOccupant, Position16<RoomPixels>, PlasmaParticleState>>
     {
         [PlasmaRingPhase.Expanding] = (held, camera, ring) =>

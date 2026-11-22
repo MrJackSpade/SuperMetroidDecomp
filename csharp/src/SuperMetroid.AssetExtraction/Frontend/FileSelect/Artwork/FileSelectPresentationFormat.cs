@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>File identities, schema names and fixed dimensions of the installed <c>file-select.json</c> and its import-data artwork.</summary>
-public static class FileSelectPresentationFormat
+public static partial class FileSelectPresentationFormat
 {
     /// <summary>
     /// Supported file-select layout JSON schema version: 2 holds each slot field's and slot letter's anchor as the page pixel

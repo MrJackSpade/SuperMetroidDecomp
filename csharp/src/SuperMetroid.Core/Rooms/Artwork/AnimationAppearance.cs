@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// and cells it paints have a picture for each of its frames, and for the room's load before it selects one.
 /// </summary>
 /// <param name="Animation">The animation.</param>
-public sealed record AnimationAppearance(ArtworkAnimation Animation) : AppearanceInput
+public sealed partial record AnimationAppearance(ArtworkAnimation Animation) : AppearanceInput
 {
     /// <summary>The animation.</summary>
     public ArtworkAnimation Animation { get; } = Animation;

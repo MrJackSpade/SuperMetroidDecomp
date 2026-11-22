@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// near end (the Maw's root for the first link, the previous link's far end for the others), and the solved offset of its
 /// far end from the root. The last link's far end is the mouth.
 /// </summary>
-public sealed class YappingMawLink
+public sealed partial class YappingMawLink
 {
     /// <summary>Links the tongue to <paramref name="body"/>, its far end still at the root.</summary>
     /// <param name="body">The body projectile the Maw spawned for the link at its room load.</param>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <param name="Flight">
 /// How the Rinka flies once it starts moving: into Samus, knocking her back, or past her until it leaves the screen.
 /// </param>
-internal readonly record struct IntroRinkaLaunch(
+internal readonly partial record struct IntroRinkaLaunch(
     Offset16<ScreenPixels> Position,
     SignedSixteenSixteen Drift,
     IntroRinkaFlight Flight);

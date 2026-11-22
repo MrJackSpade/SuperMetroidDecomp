@@ -68,8 +68,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         string file = Path.Combine(stockDirectory, MotherBrainDeathColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         MotherBrainDeathColorDocument visual =
-            JsonSerializer.Deserialize<MotherBrainDeathColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<MotherBrainDeathColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainDeathColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Mother Brain death color JSON is null.");
         MotherBrainDeathColorCatalog colors = native;
 

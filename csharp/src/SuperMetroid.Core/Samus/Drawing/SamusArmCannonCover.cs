@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// The arm cannon's cover (#2560): a closed choice of closed, opening at a picture, open, and closing at a picture. Only an
 /// opening or a closing moves; a closed cover shows nothing and an open one its fully open picture.
 /// </summary>
-internal abstract record SamusArmCannonCover
+internal abstract partial record SamusArmCannonCover
 {
     /// <summary>Only the four states below are covers.</summary>
     private SamusArmCannonCover()
@@ -31,7 +31,7 @@ internal abstract record SamusArmCannonCover
         throw new InvalidOperationException($"A {GetType().Name} arm cannon cover does not move.");
 
     /// <summary>The closed cover, which shows nothing.</summary>
-    private sealed record ClosedCover : SamusArmCannonCover
+    private sealed partial record ClosedCover : SamusArmCannonCover
     {
         /// <inheritdoc/>
         internal override SamusArmCannonCoverFrame? Shown => null;
@@ -41,7 +41,7 @@ internal abstract record SamusArmCannonCover
     }
 
     /// <summary>The open cover, which shows its fully open picture.</summary>
-    private sealed record OpenCover : SamusArmCannonCover
+    private sealed partial record OpenCover : SamusArmCannonCover
     {
         /// <inheritdoc/>
         internal override SamusArmCannonCoverFrame? Shown => SamusArmCannonCoverFrame.FullyOpen;
@@ -52,7 +52,7 @@ internal abstract record SamusArmCannonCover
 
     /// <summary>A cover opening, at <paramref name="Frame"/>: each update shows the next picture until it is fully open.</summary>
     /// <param name="Frame">The picture shown.</param>
-    internal sealed record Opening(SamusArmCannonCoverFrame Frame) : SamusArmCannonCover
+    internal sealed partial record Opening(SamusArmCannonCoverFrame Frame) : SamusArmCannonCover
     {
         /// <inheritdoc/>
         internal override SamusArmCannonCoverFrame? Shown => Frame;
@@ -71,7 +71,7 @@ internal abstract record SamusArmCannonCover
 
     /// <summary>A cover closing, at <paramref name="Frame"/>: each update shows the previous picture until it is closed.</summary>
     /// <param name="Frame">The picture shown.</param>
-    internal sealed record Closing(SamusArmCannonCoverFrame Frame) : SamusArmCannonCover
+    internal sealed partial record Closing(SamusArmCannonCoverFrame Frame) : SamusArmCannonCover
     {
         /// <inheritdoc/>
         internal override SamusArmCannonCoverFrame? Shown => Frame;

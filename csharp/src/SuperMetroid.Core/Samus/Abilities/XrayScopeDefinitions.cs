@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
 /// visor shades, animation angle bands and cone widths used by every room.
 /// </remarks>
-public static class XrayScopeDefinitions
+public static partial class XrayScopeDefinitions
 {
 
     /// <summary>
     /// Angle bands selecting which of the X-ray pose's five aims (<see cref="Aims"/>) the standing and crouching scope shows:
     /// a right-facing scope turns from up to down as its angle grows, a left-facing one as it shrinks.
     /// </summary>
-    public static class AnimationAngles
+    public static partial class AnimationAngles
     {
         /// <summary>The angle from which a right-facing scope aims raised rather than up.</summary>
         public static RotationAngle RightRaisedFrom { get; } = RotationAngle.FromSteps(25);
@@ -35,7 +35,7 @@ public static class XrayScopeDefinitions
     }
 
     /// <summary>How long the X-ray pose's pictures the scope sets directly show for, in updates.</summary>
-    public static class Holds
+    public static partial class Holds
     {
         /// <summary>The activation picture, set as the scope takes Samus's pose.</summary>
         public const int Activation = 63;
@@ -45,7 +45,7 @@ public static class XrayScopeDefinitions
     }
 
     /// <summary>The X-ray pose's five aims, from up to down: the frames of its animation the scope's angle selects.</summary>
-    internal static class Aims
+    internal static partial class Aims
     {
         /// <summary>The scope aimed up.</summary>
         internal static SamusAnimationFrame Up { get; } = new(SamusAnimationSegmentName.Main, 0);
@@ -84,7 +84,7 @@ public static class XrayScopeDefinitions
     };
 
     /// <summary>How the X-ray scope's cone widens.</summary>
-    public static class Cone
+    public static partial class Cone
     {
         /// <summary>The widening speed's growth each widening update: a thirty-second of a step.</summary>
         public static readonly RotationAngle WideningStep = RotationAngle.FromStepFraction(1, 32);

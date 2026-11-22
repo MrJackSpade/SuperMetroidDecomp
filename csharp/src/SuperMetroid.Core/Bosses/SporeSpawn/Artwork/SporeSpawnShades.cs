@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 /// The shades the import pre-colours Spore Spawn's sheets and his room's pictures in (#1512): his spores' colours, his
 /// body's four health bands, and each step of his death fade over his body, the room's level and its background.
 /// </summary>
-public static class SporeSpawnShades
+public static partial class SporeSpawnShades
 {
     /// <summary>The spores' colours, which he loads as he initializes.</summary>
     public static PictureShade Spores { get; } = new("spore-spawn-spores", 0);

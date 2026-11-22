@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The room objects a room state places as it loads, in order. Construction reads only the decoded placements, each
 /// carrying its family's typed setup (#2383), which names the kind it places (#2557).
 /// </summary>
-public sealed class RoomObjectPopulation
+public sealed partial class RoomObjectPopulation
 {
     /// <summary>Owned placements, in the order the room's objects take their places.</summary>
     private readonly RoomObjectPlacement[] placements;
@@ -21,7 +21,7 @@ public sealed class RoomObjectPopulation
     /// it holds at once (<see cref="SuperMetroid.Core.Compatibility.RoomObjectPlaces"/>).
     /// </param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
-    private RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
+    internal RoomObjectPopulation(string name, IEnumerable<RoomObjectPlacement> placements)
     {
         Ensure.NotNull(placements);
         Name = Ensure.NotNull(name);

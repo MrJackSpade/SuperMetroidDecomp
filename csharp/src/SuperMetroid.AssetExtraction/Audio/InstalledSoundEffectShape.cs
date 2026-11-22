@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "shape")]
 [JsonDerivedType(typeof(InstalledOneShotSoundEffect), "oneShot")]
 [JsonDerivedType(typeof(InstalledLoopingSoundEffect), "looping")]
-public abstract record InstalledSoundEffectShape
+public abstract partial record InstalledSoundEffectShape
 {
     /// <summary>The shape the game plays; a method, so the manifest does not store it.</summary>
     public abstract SoundEffectClipShape PlayedShape();

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Decodes the cartridge's arm-cannon cover frame numbers: each direction's list holds a null entry at zero for the closed
 /// cover and the slightly, half and fully open pictures at one through three.
 /// </summary>
-internal static class SamusArmCannonCoverFrameCodec
+internal static partial class SamusArmCannonCoverFrameCodec
 {
     /// <summary>Every cover picture, in the order an opening shows them.</summary>
     internal static IReadOnlyList<SamusArmCannonCoverFrame> InOpeningOrder { get; } =

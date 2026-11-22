@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The graphics and physical origins of Mother Brain's glass shards.</summary>
-internal static class MotherBrainGlassShardDefinitions
+internal static partial class MotherBrainGlassShardDefinitions
 {
     /// <summary>The random sample's field a shard's launch angle is: a whole turn of 256 steps.</summary>
     internal static readonly RandomSampleField LaunchAngle = RandomSampleField.OneOf(256);

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// behaviour shows, coloured in the variant's colours. Identical sheets are installed once; the manifest names each
 /// variant's sheet and the variant each population places each of its enemies in.
 /// </summary>
-public static class EnemySheetDefinitions
+public static partial class EnemySheetDefinitions
 {
 
     /// <summary>The spawned-object sheet frame showing a frame an encounter draws itself (#1392).</summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// One frame of the AUTO reserve arrow's pulse (#2361): the pause screen's frame counter shows each in turn, one an update,
 /// the first following the last.
 /// </summary>
-public readonly record struct PauseReserveArrowPulseFrame
+public readonly partial record struct PauseReserveArrowPulseFrame
 {
     /// <summary>The frame at <paramref name="frame"/> of the pulse.</summary>
     private PauseReserveArrowPulseFrame(int frame) => Frame = frame;

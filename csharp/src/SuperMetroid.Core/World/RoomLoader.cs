@@ -34,7 +34,7 @@ namespace SuperMetroid.Core.World;
 /// enemies and room objects of the loaded room.
 /// </summary>
 [RoomScopeBoundary("Builds each room's scope in the game's load order.")]
-internal sealed class RoomLoader
+internal sealed partial class RoomLoader
 {
     /// <summary>Supplies decoded graphics and colour assets for the room being entered.</summary>
     private readonly RuntimeArtwork _artwork;
@@ -67,6 +67,9 @@ internal sealed class RoomLoader
     private readonly GameplayOptions _options;
     /// <summary>Holds Samus and her load-time presentation state.</summary>
     private readonly SamusFrameState _player;
+
+    /// <summary>Samus as the room's objects reach her when one acts: every room that steps its objects has her (#2486).</summary>
+    private SamusState IntroducedSamus() => _player.IntroducedSamus;
     /// <summary>The session's kept scroll cells; they outlive each room, so an implicit layout keeps the previous room's cells past its own.</summary>
     private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _scrollCells;
     /// <summary>The installed pictures of the room objects' blocks, which each room's room-object system draws with.</summary>
@@ -841,7 +844,7 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = scope.TourianStatueRoom,
-            RoomFx = new RoomObjectFx(roomFxOverlay, () => _player.IntroducedSamus),
+            RoomFx = new RoomObjectFx(roomFxOverlay, IntroducedSamus),
             Earthquake = roomObjectServices,
             Enemies = roomObjectServices,
         };

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// The way round each segment orbits the one before it, as seen on screen: an orbit angle that grows carries a segment
 /// clockwise, from above the segment before it to its right.
 /// </param>
-internal readonly record struct ShaktoolChainMotion(ShaktoolChainPhase Phase, ShaktoolWallResponse NextWall, RotationDirection OrbitDirection)
+internal readonly partial record struct ShaktoolChainMotion(ShaktoolChainPhase Phase, ShaktoolWallResponse NextWall, RotationDirection OrbitDirection)
 {
     /// <summary>The motion both Shaktool room states place their chain with: curling clockwise, the next wall turning it end for end.</summary>
     internal static ShaktoolChainMotion CurlingClockwise { get; } =

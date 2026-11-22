@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// the background's repeat (#1651): what the background shows repeats across with the area's width and down with its
 /// height, so an image that is one period of the background lies whole on an area of its own size.
 /// </summary>
-public sealed class RoomBackgroundImagePlacement
+public sealed partial class RoomBackgroundImagePlacement
 {
     /// <summary>Checks every rectangle lies inside the area and shows part of the image.</summary>
     /// <exception cref="ArgumentException">A rectangle is empty, lies past the area or shows past the image.</exception>

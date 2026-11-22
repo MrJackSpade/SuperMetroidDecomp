@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The Tourian dead Sidehopper's hops: the cycle of launches it takes after each landing, and its gravity.</summary>
-public static class DeadSidehopperLaunchDefinitions
+public static partial class DeadSidehopperLaunchDefinitions
 {
     /// <summary>
     /// The launches of the corpse's four-hop cycle, in the order it takes them after each landing, the first following the

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// that the door's scroll is placed from, the steps of the fade under way, the destination-setup wait and the stage it has
 /// reached.
 /// </summary>
-internal sealed class OrdinaryDoorTransition : DoorTransitionStage
+internal sealed partial class OrdinaryDoorTransition : DoorTransitionStage
 {
     /// <summary>Starts a transition at its sound drain, the source room's fade out over <paramref name="fadeOut"/>.</summary>
     /// <param name="door">The door being gone through.</param>

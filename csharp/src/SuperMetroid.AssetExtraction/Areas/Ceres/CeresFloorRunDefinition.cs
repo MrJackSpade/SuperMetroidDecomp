@@ -4,4 +4,4 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// <param name="Column">The floor column of the row's first cell.</param>
 /// <param name="Row">The floor row the run is drawn on.</param>
 /// <param name="Tiles">The character runs drawn left to right; their lengths add up to the row's width.</param>
-internal readonly record struct CeresFloorRunDefinition(int Column, int Row, IReadOnlyList<CeresFloorAtlasRun> Tiles);
+internal readonly partial record struct CeresFloorRunDefinition(int Column, int Row, IReadOnlyList<CeresFloorAtlasRun> Tiles);

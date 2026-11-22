@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and exact ending/credits artwork dimensions.</summary>
-public static class EndingObjectArtworkFormat
+public static partial class EndingObjectArtworkFormat
 {
     /// <summary>Required ending-artwork manifest schema revision, including all selected character, map, and sprite-composition resources; 14 is import data (#1693).</summary>
     public const int ManifestVersion = 14;

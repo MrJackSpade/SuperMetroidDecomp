@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: the room's, beside its door contacts.
 /// </remarks>
 [CompatibilityService("Samus's stand at the elevator's door reaches the elevator at the next update's enemies")]
-public sealed class ElevatorStandAtDoor
+public sealed partial class ElevatorStandAtDoor
 {
     /// <summary>Whether a stand waits for the elevator.</summary>
     public bool IsWaiting { get; private set; }

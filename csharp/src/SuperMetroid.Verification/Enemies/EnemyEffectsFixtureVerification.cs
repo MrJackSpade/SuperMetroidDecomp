@@ -138,7 +138,7 @@ internal static class EnemyEffectsFixtureVerification
                 TileIndex = (index + seed) % 512, Palette = seed % 8,
                 Priority = seed != 0, FlipX = seed != 0, FlipY = seed != 0,
             }).ToArray(),
-    }, CamelCaseJson);
+    }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingTilemapDocument>(CamelCaseJson));
 
     /// <summary>Compiles both Crocomire PNG passes and tilemap documents through the production loader.</summary>
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,

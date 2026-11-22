@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The planet explosion's shared colour and camera transition constants.</summary>
-internal static class EndingExplosionFadeDefinitions
+internal static partial class EndingExplosionFadeDefinitions
 {
     /// <summary>How far the explosion widens the turning floor's zoom each update.</summary>
     public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 64);

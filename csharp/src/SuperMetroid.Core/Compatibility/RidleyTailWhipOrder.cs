@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// action (#1940).
 /// </remarks>
 [CompatibilityService("Ridley's ordered tail whip waits for his tail's neutral control with all its links active")]
-public sealed class RidleyTailWhipOrder
+public sealed partial class RidleyTailWhipOrder
 {
     /// <summary>Whether an ordered whip waits for his tail's neutral control.</summary>
-    private bool IsWaiting { get; set; }
+    internal bool IsWaiting { get; set; }
 
     /// <summary>The fight orders a whip of his tail.</summary>
     internal void Give() => IsWaiting = true;

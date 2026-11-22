@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// by role (#1768); the installation is their only source (#1596). The front star field, actor animations, and physical
 /// motion are the game's own.
 /// </summary>
-public sealed class CeresFlightActorPlacements
+public sealed partial class CeresFlightActorPlacements
 {
     /// <summary>The installed placements, by role.</summary>
     internal readonly Dictionary<CeresRearViewActorRole, CeresFlightActorPlacement> placements;

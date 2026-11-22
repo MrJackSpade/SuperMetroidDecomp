@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The terrain changes of the scripted room objects (#1554): a block an enemy breaks, the
 /// critters' wall breaking open, Crateria's main-street escape passage and the Maridia elevatube's start.
 /// </summary>
-internal static class ScriptedTerrainChangeDefinitions
+internal static partial class ScriptedTerrainChangeDefinitions
 {
     /// <summary>How long each of the first three images of a block's breakup shows.</summary>
     internal const int BreakupFrameDuration = 4;

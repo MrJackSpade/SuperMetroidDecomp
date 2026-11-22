@@ -40,7 +40,7 @@ public static partial class RoomPlacementNumbers
         Index.Items.TryGetValue(Ensure.BetweenInclusive(0, NumberCount - 1, number), out location);
 
     /// <summary>The lookups built once from the generated numbering.</summary>
-    private static class Index
+    private static partial class Index
     {
         /// <summary>Each door by its number.</summary>
         internal static readonly Dictionary<int, LockedDoor> Doors = NumberedDoors.ToDictionary(entry => entry.Number, entry => entry.Placement);

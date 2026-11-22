@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>Owtch's patrol rules.</summary>
-internal static class OwtchMovementDefinitions
+internal static partial class OwtchMovementDefinitions
 {
     /// <summary>
     /// Whether a surfacing Owtch walks off right rather than left (#2479): an even choice, taken by half the random

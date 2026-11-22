@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Immutable ordinary beam colors, as installed (#1596); selection and charge/Hyper animation remain engine-owned.</summary>
-public sealed class InstalledBeamPalettes
+public sealed partial class InstalledBeamPalettes
 {
     /// <summary>Each equippable combination's installed colours.</summary>
     private readonly IReadOnlyDictionary<SamusBeamCombination, RgbColor[]> palettes;

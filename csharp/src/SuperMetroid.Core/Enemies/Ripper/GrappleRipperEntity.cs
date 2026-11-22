@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the grapple Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GrappleRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class GrappleRipperEntity(RipperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : RipperEntity(species, occupant, place, common)
 {
     /// <inheritdoc/>

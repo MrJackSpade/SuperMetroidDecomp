@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
 [RoomLifetime]
-internal sealed class KraidHead
+internal sealed partial class KraidHead
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -53,6 +53,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>What <see cref="UpdateKraidHealthColours"/> does for each <see cref="KraidHurtFlashShade"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>> UpdateKraidHealthColoursForKraidHurtFlashShade => field ??= new(new Dictionary<KraidHurtFlashShade, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidHurtFlashShade.HurtColours] = (body, state) => state.Colours.ShowHurtFlash(_background.EyeColours.Hurt, _background.EyeColours.Shaded),
@@ -67,7 +68,7 @@ internal sealed class KraidHead
     /// Shows Kraid in <paramref name="shown"/>, his hurt colours or his current health band's (#1512): his body and every
     /// sprite part take the shade, and his eyes its colours at once.
     /// </summary>
-    private void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
+    internal void UpdateKraidHealthColours(RoomEnemyPlace body, KraidEnemyState state, KraidHurtFlashShade shown)
     {
         UpdateKraidHealthColoursForKraidHurtFlashShade[shown](body, state);
         PictureShading parts = state.Colours.Parts;
@@ -136,7 +137,7 @@ internal sealed class KraidHead
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and the head shows the pose and holds
     /// it for its duration; at its segment's end the animation holds there.
     /// </summary>
-    private KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
+    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
     {
         if (PlayKraidHeadAnimation(state) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             return KraidHeadAnimationResult.AnimationEnded;
@@ -166,6 +167,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>What <see cref="PublishKraidHeadCue"/> does for each <see cref="KraidHeadCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidHeadCue, Action> PublishKraidHeadCueForKraidHeadCue => field ??= new(new Dictionary<KraidHeadCue, Action>
     {
         [KraidHeadCue.Roar] = () => _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar),
@@ -232,7 +234,7 @@ internal sealed class KraidHead
     }
 
     /// <summary>Emits a mouth rock when a projectile place is free.</summary>
-    private void SpawnKraidSpitRock(RoomEnemyPlace body)
+    internal void SpawnKraidSpitRock(RoomEnemyPlace body)
     {
         EnemyProjectile? rock = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KraidSpitRock, _spitRock, graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading), new KraidRockAnimation(_spitRock, KraidRockSegment.SharedPose));
         if (rock is null)

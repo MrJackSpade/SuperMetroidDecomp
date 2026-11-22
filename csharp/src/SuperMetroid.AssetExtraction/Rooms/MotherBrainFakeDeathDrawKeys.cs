@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each fake-death draw (<see cref="MotherBrainFakeDeathDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class MotherBrainFakeDeathDrawKeys
+internal static partial class MotherBrainFakeDeathDrawKeys
 {
     /// <summary>Each MotherBrainFakeDeathDraw member's installed key.</summary>
     internal static InstalledKeys<MotherBrainFakeDeathDraw> Installed { get; } = new(new Dictionary<MotherBrainFakeDeathDraw, string>

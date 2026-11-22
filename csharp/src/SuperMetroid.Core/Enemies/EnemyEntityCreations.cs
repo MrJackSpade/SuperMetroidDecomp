@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Builds a factory's creations (#2553).</summary>
-internal static class EnemyEntityCreations
+internal static partial class EnemyEntityCreations
 {
     /// <summary>The creations of a factory whose every definition's entity <paramref name="create"/> makes alike.</summary>
     /// <param name="definitions">The definitions the factory owns.</param>

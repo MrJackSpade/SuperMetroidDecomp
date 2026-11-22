@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// one of the path's steps and moves one step at a time only from a step, so no other position can be reached. Two
 /// positions are equal when they stand at the same step of the same path.
 /// </summary>
-internal sealed record BotwoonPathPosition
+internal sealed partial record BotwoonPathPosition
 {
     /// <summary>Stands at <paramref name="step"/> of <paramref name="path"/>, which lies in range.</summary>
     private BotwoonPathPosition(BotwoonPathDefinition path, int step)

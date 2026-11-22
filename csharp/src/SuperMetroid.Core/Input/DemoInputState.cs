@@ -11,13 +11,13 @@ namespace SuperMetroid.Core.Input;
 /// (an intro scene ends on it). The playback's own frame
 /// hold gates the recording, so each input lasts exactly as long as its recorded input.
 /// </remarks>
-public sealed class DemoInputState
+public sealed partial class DemoInputState
 {
     /// <summary>Whether the playback runs: set when a demo starts, cleared when its recording ends the demo's input.</summary>
     public bool Enabled { get; private set; }
 
     /// <summary>Where the recording resumes; null once the recording has ended.</summary>
-    private DemoPlaybackPosition? Position { get; set; }
+    internal DemoPlaybackPosition? Position { get; set; }
 
     /// <summary>Whether the next <see cref="Step"/> plays the recording: the playback runs and its recording has not ended.</summary>
     public bool IsPlaying => Enabled && Position is not null;

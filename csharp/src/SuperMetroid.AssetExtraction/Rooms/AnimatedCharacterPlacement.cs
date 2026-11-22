@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The frame's characters as artwork placed under the frame's identity, which pictures are composed over; held once, since
 /// a body's composition reads it for every character it places (#1573).
 /// </param>
-internal sealed record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterUpload Placement)
+internal sealed partial record AnimatedCharacterPlacement(ArtworkFrame Frame, BgCharacterUpload Placement)
 {
     /// <summary>The characters the frame paints.</summary>
     internal BgCharacterSet Set => Placement.Set;

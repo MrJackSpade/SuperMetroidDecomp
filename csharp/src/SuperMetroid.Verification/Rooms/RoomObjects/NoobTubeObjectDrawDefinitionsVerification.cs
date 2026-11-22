@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupNoobTubeStockVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupTubeDrawsVerification;

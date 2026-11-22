@@ -14,5 +14,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <param name="CinematicObjectCharacters">The intro's cinematic OBJ characters.</param>
 /// <param name="ZebesRevealCharacters">The Zebes reveal's characters, $4000 bytes.</param>
 /// <param name="CeresFlight">The Ceres approach's floor and OBJ characters, bound to its installed documents.</param>
-public sealed record IntroCinematicCharacters(RoomCharacterAtlas BackgroundCharacters, RoomCharacterAtlas IntroObjectCharacters,
+public sealed partial record IntroCinematicCharacters(RoomCharacterAtlas BackgroundCharacters, RoomCharacterAtlas IntroObjectCharacters,
     RoomCharacterAtlas CinematicObjectCharacters, RoomCharacterAtlas ZebesRevealCharacters, CeresFlightCharacters CeresFlight);

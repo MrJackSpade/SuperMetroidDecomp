@@ -26,7 +26,7 @@ internal static class DesktopTimerSoakTests
     internal static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
-        var results = new List<object>();
+        var results = new List<TimerSoakResult>();
         foreach (bool paused in new[] { false, true })
         {
             // The installed host path writes player data and debugger slots into its root, so
@@ -62,8 +62,8 @@ internal static class DesktopTimerSoakTests
                 var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");
                 string adapter = await worker.Ready;
                 var output = control.audioDevice ?? throw new InvalidOperationException("Host has no audio device.");
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "add_GameUpdateMeasured", [typeof(Action<long>)], Measure);
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "add_LateFramesRecorded", [typeof(Action<double>)], RecordDiscard);
+                counter.GameUpdateMeasured += Measure;
+                counter.LateFramesRecorded += RecordDiscard;
                 int startFrame = game.FrameNumber;
                 control.SetPlaying(true);
                 var clock = Stopwatch.StartNew();
@@ -94,39 +94,82 @@ internal static class DesktopTimerSoakTests
                 Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
                     && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
                 control.SetPlaying(false);
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "remove_GameUpdateMeasured", [typeof(Action<long>)], Measure);
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "remove_LateFramesRecorded", [typeof(Action<double>)], RecordDiscard);
+                counter.GameUpdateMeasured -= Measure;
+                counter.LateFramesRecorded -= RecordDiscard;
                 memory.Add(SoakMemorySample.Capture(process, elapsed));
                 Check(unchecked((ushort)(game.FrameNumber - startFrame)) == samples.Count, "desktop frame/timing count mismatch");
                 samples.Sort();
                 double Percentile(double p) => samples[(int)Math.Ceiling(samples.Count * p) - 1];
-                results.Add(new { Paused = paused, Seconds = elapsed, Frames = samples.Count, Fps = samples.Count / elapsed,
-                    ProducerP50Ms = Percentile(.5), ProducerP95Ms = Percentile(.95), ProducerP99Ms = Percentile(.99),
-                    ProducerMaximumMs = samples[^1],
-                    ProducerOverDeadlineFrames = samples.Count(sample => sample > 1000.0 / 60),
-                    DiscardedWallClockFrames = discardedWallClockFrames, Memory = memory,
-                    Adapter = adapter, Audio = health, Renderer = renderer,
-                    UploadCpu = worker.CaptureUploadTimings(), worker.SubmittedUploadBytes, worker.SubmittedUploadCalls,
-                    worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
+                results.Add(new TimerSoakResult(Paused: paused, Seconds: elapsed, Frames: samples.Count, Fps: samples.Count / elapsed,
+                    ProducerP50Ms: Percentile(.5), ProducerP95Ms: Percentile(.95), ProducerP99Ms: Percentile(.99),
+                    ProducerMaximumMs: samples[^1],
+                    ProducerOverDeadlineFrames: samples.Count(sample => sample > 1000.0 / 60),
+                    DiscardedWallClockFrames: discardedWallClockFrames, Memory: memory,
+                    Adapter: adapter, Audio: health, Renderer: renderer,
+                    UploadCpu: worker.CaptureUploadTimings(), SubmittedUploadBytes: worker.SubmittedUploadBytes, SubmittedUploadCalls: worker.SubmittedUploadCalls,
+                    PresentedFrames: worker.PresentedFrames, OccludedFrames: worker.OccludedFrames, MailboxMetrics: worker.MailboxMetrics));
                 Console.WriteLine($"Desktop timer paused={paused}: {samples.Count / elapsed:F3} fps, p95={Percentile(.95):F3}ms, drains={health.EmptyBeforeRefill}.");
             }
             finally
             {
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "remove_GameUpdateMeasured", [typeof(Action<long>)], Measure);
-                global::SuperMetroid.Core.PrivateState.Invoke(counter, "remove_LateFramesRecorded", [typeof(Action<double>)], RecordDiscard);
+                counter.GameUpdateMeasured -= Measure;
+                counter.LateFramesRecorded -= RecordDiscard;
                 await control.StopRendererAsync();
             }
             form.Dispose();
         }
-        Console.WriteLine("Desktop timer soak report: " + JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
+        Console.WriteLine("Desktop timer soak report: " + JsonSerializer.Serialize(new TimerSoakReport(Scope: "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
             "hidden HWND, not visible presentation.",
-            OperatingSystem = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
-            Runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
-            Processor = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
-            TimestampUtc = DateTimeOffset.UtcNow, CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
-            DesktopBuild = typeof(PlayableGameControl).Module.ModuleVersionId, Results = results },
-            new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
+            OperatingSystem: System.Runtime.InteropServices.RuntimeInformation.OSDescription,
+            Runtime: System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
+            Processor: Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+            TimestampUtc: DateTimeOffset.UtcNow, CoreBuild: global::SuperMetroid.Core.BuildIdentity.Version,
+            DesktopBuild: global::SuperMetroid.Desktop.BuildIdentity.Version, Results: results),
+            global::SuperMetroid.DesktopVerification.DesktopVerificationJson.Info<TimerSoakReport>(
+                new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals })));
     }
+
+    /// <summary>The desktop timer soak's report: what ran, on which machine and builds, and each run's result.</summary>
+    /// <param name="Scope">What the soak exercises.</param>
+    /// <param name="OperatingSystem">The operating system.</param>
+    /// <param name="Runtime">The .NET runtime.</param>
+    /// <param name="Processor">The processor, when the environment names it.</param>
+    /// <param name="TimestampUtc">When the report was written.</param>
+    /// <param name="CoreBuild">The simulation's build.</param>
+    /// <param name="DesktopBuild">The desktop host's build.</param>
+    /// <param name="Results">Each run's result.</param>
+    internal sealed record TimerSoakReport(string Scope, string OperatingSystem, string Runtime, string? Processor,
+        DateTimeOffset TimestampUtc, Guid CoreBuild, Guid DesktopBuild, List<TimerSoakResult> Results);
+
+    /// <summary>One desktop timer run's timing, memory, audio and renderer measurements.</summary>
+    /// <param name="Paused">Whether the run was paused.</param>
+    /// <param name="Seconds">The run's length.</param>
+    /// <param name="Frames">The frames it produced.</param>
+    /// <param name="Fps">Its frames per second.</param>
+    /// <param name="ProducerP50Ms">The producer's median frame time.</param>
+    /// <param name="ProducerP95Ms">The producer's 95th-percentile frame time.</param>
+    /// <param name="ProducerP99Ms">The producer's 99th-percentile frame time.</param>
+    /// <param name="ProducerMaximumMs">The producer's longest frame time.</param>
+    /// <param name="ProducerOverDeadlineFrames">The frames that took longer than a sixtieth of a second.</param>
+    /// <param name="DiscardedWallClockFrames">The late frames the timer discarded.</param>
+    /// <param name="Memory">The process's memory, sampled through the run.</param>
+    /// <param name="Adapter">The GPU adapter.</param>
+    /// <param name="Audio">The audio queue's health.</param>
+    /// <param name="Renderer">The renderer's timings.</param>
+    /// <param name="UploadCpu">The renderer's upload timings.</param>
+    /// <param name="SubmittedUploadBytes">The bytes the renderer uploaded.</param>
+    /// <param name="SubmittedUploadCalls">The uploads the renderer made.</param>
+    /// <param name="PresentedFrames">The frames presented.</param>
+    /// <param name="OccludedFrames">The frames the hidden window occluded.</param>
+    /// <param name="MailboxMetrics">The render mailbox's counters.</param>
+    internal sealed record TimerSoakResult(bool Paused, double Seconds, int Frames, double Fps, double ProducerP50Ms,
+        double ProducerP95Ms, double ProducerP99Ms, double ProducerMaximumMs, int ProducerOverDeadlineFrames,
+        double DiscardedWallClockFrames, List<SoakMemorySample> Memory, string Adapter,
+        global::SuperMetroid.Desktop.Audio.WaveOutQueueHealthSnapshot Audio,
+        global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderWorkerTimings Renderer,
+        global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderTimingDistribution UploadCpu, long SubmittedUploadBytes,
+        long SubmittedUploadCalls, long PresentedFrames, long OccludedFrames,
+        global::SuperMetroid.Rendering.Direct3D11.Frames.RenderMailboxMetrics MailboxMetrics);
 
     /// <summary>Creates a gameplay or paused debugger slot for the desktop timer run.</summary>
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.Installation.GameInstallation installation,

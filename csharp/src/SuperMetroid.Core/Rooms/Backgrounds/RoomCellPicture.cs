@@ -10,24 +10,24 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// all. A cell carries only what it shows (#2558): no block number where no block shows, and the default shows nothing
 /// of the three.
 /// </summary>
-public readonly record struct RoomCellPicture
+public readonly partial record struct RoomCellPicture
 {
     /// <summary>What the cell shows: a block, a collectible's picture or nothing.</summary>
     private readonly Shown shown;
 
     /// <summary>What a cell shows, each kind carrying only its own values.</summary>
-    private abstract record Shown;
+    private abstract partial record Shown;
 
     /// <summary>A block of the room tileset's block set.</summary>
     /// <param name="Block">The block's number in the tileset's block set.</param>
-    private sealed record ShownBlock(int Block) : Shown;
+    private sealed partial record ShownBlock(int Block) : Shown;
 
     /// <summary>A collectible's own picture.</summary>
     /// <param name="Picture">The picture shown.</param>
-    private sealed record ShownCollectible(CollectiblePicture Picture) : Shown;
+    private sealed partial record ShownCollectible(CollectiblePicture Picture) : Shown;
 
     /// <summary>Nothing at all.</summary>
-    private sealed record ShownNothing : Shown;
+    private sealed partial record ShownNothing : Shown;
 
     /// <summary>Keeps what the cell shows.</summary>
     private RoomCellPicture(Shown shown) => this.shown = shown;

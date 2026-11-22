@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Fake Kraid's action choice, step and spit animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FakeKraidCue"/> saying what it does.
 /// </summary>
-internal static class FakeKraidAnimations
+internal static partial class FakeKraidAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FakeKraidSegment, EnemyFrameId, FakeKraidCue> Segments { get; } = new(
@@ -30,7 +30,7 @@ internal static class FakeKraidAnimations
     /// The animation that starts at each step and spit (#2214): it plays, then chooses the next action, which always
     /// continues at the step or spit it picks, so no animation plays past its choice and none starts at the choice.
     /// </summary>
-    private static Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } =
+    internal static Dictionary<FakeKraidSegment, Animation<FakeKraidSegment>> StartingAt { get; } =
         new[]
         {
             P.StepForwardsFacingLeft, P.StepBackwardsFacingLeft, P.FireSpitFacingLeft,

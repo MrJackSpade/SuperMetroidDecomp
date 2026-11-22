@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// members never changes the picture: within the loads, the fades and the flashes the running scene shows, each shade lies
 /// over those listed before it.
 /// </summary>
-internal static class EndingShadeLayeringDefinitions
+internal static partial class EndingShadeLayeringDefinitions
 {
     /// <summary>The loads within a scene that restore some of its colours, from the lowest shade to the highest.</summary>
     internal static IReadOnlyList<EndingColourLoad> Loads { get; } =

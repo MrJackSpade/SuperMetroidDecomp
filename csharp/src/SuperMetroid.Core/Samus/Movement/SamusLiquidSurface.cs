@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// ignores it until a room object enables it, and a lava or acid surface. A room has at most one; a surface a tide carries
 /// above the room is none.
 /// </summary>
-public abstract record SamusLiquidSurface
+public abstract partial record SamusLiquidSurface
 {
     /// <summary>Only the three cases below are surfaces.</summary>
     private SamusLiquidSurface()
@@ -16,7 +16,7 @@ public abstract record SamusLiquidSurface
     public static SamusLiquidSurface None { get; } = new NoSurface();
 
     /// <summary>No liquid surface.</summary>
-    private sealed record NoSurface : SamusLiquidSurface;
+    private sealed partial record NoSurface : SamusLiquidSurface;
 
     /// <summary>A water surface at <paramref name="Line"/>.</summary>
     /// <param name="Line">The surface's room Y, a line of the room, zero or more.</param>
@@ -25,7 +25,7 @@ public abstract record SamusLiquidSurface
     /// of <see cref="Fx.RoomWater.IgnoresSurfaceUntilEnabled"/>. While set, water does not affect her even when the
     /// geometric surface comparison says she is below it.
     /// </param>
-    public sealed record Water(int Line, bool IgnoredUntilEnabled) : SamusLiquidSurface
+    public sealed partial record Water(int Line, bool IgnoredUntilEnabled) : SamusLiquidSurface
     {
         /// <summary>The surface's room Y, a line of the room, zero or more.</summary>
         public int Line { get; } = Ensure.AtLeastZero(Line);
@@ -33,7 +33,7 @@ public abstract record SamusLiquidSurface
 
     /// <summary>A lava or acid surface at <paramref name="Line"/>.</summary>
     /// <param name="Line">The surface's room Y, a line of the room, zero or more.</param>
-    public sealed record LavaOrAcid(int Line) : SamusLiquidSurface
+    public sealed partial record LavaOrAcid(int Line) : SamusLiquidSurface
     {
         /// <summary>The surface's room Y, a line of the room, zero or more.</summary>
         public int Line { get; } = Ensure.AtLeastZero(Line);

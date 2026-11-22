@@ -7,9 +7,10 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.GrappleRipper] = (occupant, place, common) => EnemyOccupant.Of(new GrappleRipperEntity(this, occupant, place, common)),
@@ -120,10 +121,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The horizontal displacement each update of a Ripper-family enemy flying <paramref name="speed"/>, the spawn speed
     /// its own main AI reads from its own settings (#2512), toward <paramref name="heading"/> (#2278, #2450).
     /// </summary>
-    private static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading) => speed.Toward(heading);
+    internal static SignedSixteenSixteen FlyingVelocity(SignedSixteenSixteen speed, HorizontalDirection heading) => speed.Toward(heading);
 
     /// <summary>Turns a Ripper-family enemy round: it flies its spawn speed the other way (#2278).</summary>
-    private static void Reverse(RipperEnemyState state) =>
+    internal static void Reverse(RipperEnemyState state) =>
         state.Heading = state.Heading == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
@@ -139,6 +140,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             : EnemyFrameId.RipperFrozenFacingRight;
     }
 
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyBombHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveGrappleRipperJetRipperShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private static void ResolveGrappleRipperJetRipperShotAfterCommon(EnemyShotHitContext context) => ResolveGrappleRipperJetRipperShotAfterCommon(context.Enemy);
+
     /// <summary>Starts a Ripper-family enemy's state on its place.</summary>
     private static RipperEnemyState CreateRipperState(RoomEnemyPlace place)
     {
@@ -151,7 +158,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns a grapple Ripper or jet Ripper round and restarts the grapple Ripper's flying loop facing its new heading,
     /// which both show (#1842).
     /// </summary>
-    private static void ReverseRipperVariant(RoomEnemyPlace place)
+    internal static void ReverseRipperVariant(RoomEnemyPlace place)
     {
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();
         Reverse(state);
@@ -179,7 +186,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves the direction-specific frozen frame after common bomb reactions.</summary>
     internal static EnemyBombReaction RipperBombReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
     };
 
     /// <summary>Runs grapple Ripper's main AI.</summary>
@@ -203,6 +210,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pins grapple Ripper and jet Ripper frozen visuals after accepted shot reactions.</summary>
     internal static EnemyShotReaction RipperShotReaction { get; } = new()
     {
-        AfterCommon = c => ResolveGrappleRipperJetRipperShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveGrappleRipperJetRipperShotAfterCommon,
     };
 }

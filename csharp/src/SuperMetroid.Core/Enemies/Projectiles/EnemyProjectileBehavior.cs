@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// typed motions (#1843).
 /// </para>
 /// </summary>
-internal class EnemyProjectileBehavior
+internal partial class EnemyProjectileBehavior
 {
     /// <summary>
     /// The kinds that do nothing of their own (#1760): they never move themselves, their animations publish only shared

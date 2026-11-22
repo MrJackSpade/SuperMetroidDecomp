@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// import composes and pre-colours each member's sheets as its graphics set loads it, in the sprite palette row the record
 /// loads the member's colours into, so a member names nothing else.
 /// </remarks>
-internal sealed record RoomEnemyGraphicsSetMember
+internal sealed partial record RoomEnemyGraphicsSetMember
 {
     /// <summary>The last sprite palette row a record loads colours into.</summary>
     private const int LastPaletteRow = 7;
@@ -42,7 +42,7 @@ internal sealed record RoomEnemyGraphicsSetMember
     internal int PaletteRow { get; }
 
     /// <summary>What the record loads: an enemy's artwork, or artwork for no enemy (#2560).</summary>
-    private RoomEnemyGraphicsSetSource Source { get; }
+    internal RoomEnemyGraphicsSetSource Source { get; }
 
     /// <summary>The member enemy; null for a record loading artwork for no enemy, which has none.</summary>
     internal EnemyDefinitionId? DefinitionId => Source is GraphicsSetEnemy enemy ? enemy.DefinitionId : null;

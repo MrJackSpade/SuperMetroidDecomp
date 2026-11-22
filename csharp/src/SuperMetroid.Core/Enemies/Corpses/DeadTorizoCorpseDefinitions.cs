@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>How the dead Torizo's corpse rots.</summary>
-internal static class DeadTorizoCorpseDefinitions
+internal static partial class DeadTorizoCorpseDefinitions
 {
     /// <summary>The corpse's height in pixel rows, each of which its rot schedule drops.</summary>
     internal const int RowCount = 96;

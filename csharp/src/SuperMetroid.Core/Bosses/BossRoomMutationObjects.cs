@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses;
 /// Baby Metroid wall and Mother Brain room mutations. Each spawner accepts only its own family's mutations, and all of them contend for the
 /// room's shared room-object places with ordinary room objects.
 /// </summary>
-internal sealed class BossRoomMutationObjects
+internal sealed partial class BossRoomMutationObjects
 {
     /// <summary>Gives every family spawner the room's room-object places.</summary>
     internal BossRoomMutationObjects(RoomObjectPlaceList places)

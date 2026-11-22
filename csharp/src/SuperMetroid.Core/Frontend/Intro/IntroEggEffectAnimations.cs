@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The animations of the hatched egg's shell pieces and slime (#641, #1600, #2196, #2197): each piece and falling drop is a
 /// still picture, listed once with its picture (#2557), and a drop's splash plays once.
 /// </summary>
-internal static class IntroEggEffectAnimations
+internal static partial class IntroEggEffectAnimations
 {
     /// <summary>Each shell piece's still picture, by the piece.</summary>
     internal static CinematicAnimations<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> ShellPieces { get; } = new(

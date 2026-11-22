@@ -9,9 +9,10 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>The Ki-Hunter species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.KihunterGreen] = (occupant, place, common) => EnemyOccupant.Of(new KiHunterBodyEntity(this, occupant, place, common)),
@@ -72,9 +73,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The place the cases read.</param>
     /// <param name="Owner">The <see cref="KiHunterBehavior"/> reacting.</param>
-    private readonly record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
+    private readonly partial record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBehavior Owner);
 
     /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
+    [field: NonSerialized]
     private IdentityTable<KiHunterCueKind, Func<RoomEnemyPlace, KiHunterSegment?>> KiHunterSignals => field ??=
         new(new Dictionary<KiHunterCueKind, Func<RoomEnemyPlace, KiHunterSegment?>>
         {
@@ -137,6 +139,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunKiHunterMain"/> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>> RunKiHunterMainForKiHunterAction => field ??= new(new Dictionary<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>>
     {
         [KiHunterAction.FlyingPatrol] = (actor, state, samus, level) => RunKiHunterFlyingPatrol(actor, state, samus, level),
@@ -166,6 +169,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunKiHunterWingMain"/> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunKiHunterWingMainForKiHunterWingAction => field ??= new(new Dictionary<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
     {
         [KiHunterWingAction.FollowBody] = (wings, state, level) => FollowKiHunterBody(wings),
@@ -449,6 +453,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunDetachedKiHunterWing"/> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunDetachedKiHunterWingForKiHunterWingMovement => field ??= new(new Dictionary<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
     {
         [KiHunterWingMovement.Orbit] = (wings, state, level) => RunDetachedKiHunterWingOrbit(wings, state),
@@ -468,7 +473,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Turns the detached wings back along their orbit by the coarse speed of their place on the speed curve
     /// (<see cref="DetachedWingTurn"/>).
     /// </summary>
-    private static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
+    internal static void RunDetachedKiHunterWingOrbit(RoomEnemyPlace wings, KiHunterWingState state)
     {
         state.WingArcAngle = state.WingArcAngle.TurnedBy(DetachedWingTurn(
             state.DetachedSpeedCurvePlace,
@@ -562,6 +567,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.HurtFlash.Restart(body.HurtFlash.UpdatesLeft);
     }
 
+    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a bomb's common damage.</summary>
+    private void ResolveKiHunterShotAfterCommon(EnemyBombHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
+
+    /// <summary>Runs <see cref="ResolveKiHunterShotAfterCommon(RoomEnemyPlace)"/> after a shot's common damage.</summary>
+    private void ResolveKiHunterShotAfterCommon(EnemyShotHitContext context) => ResolveKiHunterShotAfterCommon(context.Enemy);
+
     /// <summary>Detaches the wings: their first orbit is centred where they are, starting where their climb starts.</summary>
     private static void DetachKiHunterWings(RoomEnemyPlace wings, KiHunterWingState state)
     {
@@ -605,7 +616,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The detached wing's turn along its orbit each update (#2439): one step for each pixel of its curve mark's coarse
     /// speed toward <paramref name="direction"/>; clockwise turns the orbit back.
     /// </summary>
-    private static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
+    internal static AngularSpeed DetachedWingTurn(QuadraticSpeedCurvePlace place, RotationDirection direction) =>
         place.Speed.TurnOfAStepAPixelToward(direction);
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
@@ -704,17 +715,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveKiHunterShotAfterCommon,
     };
 
     /// <summary>Ki-Hunter acid, spat either way (#1760).</summary>
-    private AcidBehavior Acid { get; } = new();
+    internal AcidBehavior Acid { get; } = new();
 
     /// <summary>
     /// Ki-Hunter acid: it holds still in the Ki-Hunter's mouth until its animation launches it in its direction, then flies
     /// under gravity until it strikes the room, where its splash stops it.
     /// </summary>
-    internal sealed class AcidBehavior : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
+    internal sealed partial class AcidBehavior : EnemyProjectileMotionBehavior<KiHunterAcidMotion>, IEnemyProjectileCues<KiHunterAcidSpitCue>
     {
         /// <summary>The way each acid was spat, given as its Ki-Hunter spits it.</summary>
         internal EnemyProjectileStates<KiHunterAcidState> Spits { get; } = new();
@@ -749,9 +760,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
         /// <param name="Projectile">The <c>projectile</c> <see cref="RunCue"/> works with.</param>
         /// <param name="Owner">The <see cref="AcidBehavior"/> reacting.</param>
-        private readonly record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
+        private readonly partial record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
 
         /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>> MoveForKiHunterAcidMotion => field ??= new(new Dictionary<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>>
         {
             [KiHunterAcidMotion.Falling] = context => RunKiHunterAcidMovement(this, context.Projectile, context.Level),
@@ -790,14 +802,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     internal EnemyShotReaction KiHunterShotReaction => field ??= new()
     {
-        AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
+        AfterCommon = ResolveKiHunterShotAfterCommon,
     };
 
     /// <summary>
     /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    private void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyOccupant occupant, RoomEnemyPlace body, HorizontalDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KiHunterAcidSpit, Acid, SpriteGraphics.SpawnedBy(occupant, body.Shading), new KiHunterAcidSpitAnimation(Acid, direction == HorizontalDirection.Right
             ? KiHunterAcidSpitSegment.Right
@@ -830,7 +842,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Moves the falling acid vertically, then horizontally, then speeds its fall up to its cap. Meeting the floor
     /// splashes it; meeting a wall only stops it moving sideways.
     /// </summary>
-    private static void RunKiHunterAcidMovement(
+    internal static void RunKiHunterAcidMovement(
         AcidBehavior owner,
         EnemyProjectile projectile,
         RoomLevelData level)

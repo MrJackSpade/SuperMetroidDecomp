@@ -5,9 +5,10 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
     {
         [EnemyDefinitionId.KzanBottom] = (occupant, place, common) => EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common)),
@@ -71,6 +72,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunKzanTopMain"/> does for each <see cref="KzanAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KzanAction, Action<RoomEnemyOccupant, RoomEnemyPlace, KzanEnemyState, SamusState>> RunKzanTopMainForKzanAction => field ??= new(new Dictionary<KzanAction, Action<RoomEnemyOccupant, RoomEnemyPlace, KzanEnemyState, SamusState>>
     {
         [KzanAction.WaitingToFall] = (occupant, place, state, samus) => RunKzanWaitingToFall(occupant, state),

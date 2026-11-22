@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// colour row, depth and reflections. Null palette inherits its drawing owner's current palette.
 /// </summary>
 [SpatialComponents("External format: the enemy-projectile composition JSON stores each part's displacement as offsetX/offsetY.")]
-public sealed record EnemyProjectilePartDocument
+public sealed partial record EnemyProjectilePartDocument
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
     public required int OffsetX { get; init; }

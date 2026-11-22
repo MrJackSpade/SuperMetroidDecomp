@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts exactly the base CGRAM colors consumed by room graphics loading.</summary>
-public static class RoomStaticPaletteExtractor
+public static partial class RoomStaticPaletteExtractor
 {
     /// <summary>Imports the first 128 base BG colors from each distinct room graphics-set palette source.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed native room palettes.</param>

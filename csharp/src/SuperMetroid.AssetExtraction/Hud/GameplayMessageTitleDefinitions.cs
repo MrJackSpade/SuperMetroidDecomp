@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema and cartridge glyph identities for editable one-row gameplay messages.</summary>
-public static class GameplayMessageTitleDefinitions
+public static partial class GameplayMessageTitleDefinitions
 {
     /// <summary>Supported gameplay-message title document schema revision.</summary>
     public const int Version = 2;

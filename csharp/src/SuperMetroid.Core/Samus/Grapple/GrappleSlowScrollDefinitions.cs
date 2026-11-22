@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// Constants of the camera's slow scroll, which it follows while the grapple
 /// swings fast.
 /// </summary>
-internal static class GrappleSlowScrollDefinitions
+internal static partial class GrappleSlowScrollDefinitions
 {
     /// <summary>Pixels the camera moves per frame toward the dead zone.</summary>
     public const int Step = 3;

@@ -7,19 +7,19 @@ namespace SuperMetroid.Core.Spatial;
 /// the fraction lets grapple and neck motion turn at sub-step precision while whole-step callers share the same turns.
 /// </summary>
 [EncodingOwner("8.8 rotation angle word")]
-public readonly record struct RotationAngle : IComparable<RotationAngle>, System.Numerics.IUnaryNegationOperators<RotationAngle, RotationAngle>
+public readonly partial record struct RotationAngle : IComparable<RotationAngle>, System.Numerics.IUnaryNegationOperators<RotationAngle, RotationAngle>
 {
     /// <summary>Number of whole steps in one complete turn.</summary>
     public const int StepsPerTurn = 256;
 
     /// <summary>Number of fractions in one step.</summary>
-    private const int FractionsPerStep = 256;
+    internal const int FractionsPerStep = 256;
 
     /// <summary>Holds the angle in 256ths of a step, 0 through 65535: whole steps and their fraction.</summary>
-    private RotationAngle(ushort rawValue) => RawValue = rawValue;
+    internal RotationAngle(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The angle in 256ths of a step, 0 through 65535; a full turn wraps to zero.</summary>
-    private ushort RawValue { get; }
+    internal ushort RawValue { get; }
 
     /// <summary>The whole steps of the angle, 0 through 255.</summary>
     private int Steps => RawValue / FractionsPerStep;
@@ -55,7 +55,7 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>, System
     public static RotationAngle FromSteps(int steps) => FromSteps(steps, 0);
 
     /// <summary>The angle of <paramref name="steps"/> whole steps and <paramref name="fraction"/> 256ths of a step, each 0 through 255.</summary>
-    private static RotationAngle FromSteps(int steps, int fraction) =>
+    internal static RotationAngle FromSteps(int steps, int fraction) =>
         new(checked((ushort)(Ensure.BetweenInclusive(0, StepsPerTurn - 1, steps) * FractionsPerStep +
             Ensure.BetweenInclusive(0, FractionsPerStep - 1, fraction))));
 
@@ -80,13 +80,13 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>, System
     public static RotationAngle WrappedSteps(int steps) => NormalizeRaw(steps * FractionsPerStep);
 
     /// <summary>Turns the angle by <paramref name="delta"/> 256ths of a step, continuing around the circle.</summary>
-    private RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
+    internal RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);
 
     /// <summary>
     /// Turns the angle by <paramref name="fractionsOfStep"/> 256ths of a step, back when negative, continuing around the
     /// circle: the sub-step precision the game's turn rates are authored in.
     /// </summary>
-    private RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
+    internal RotationAngle TurnedByFractionsOfStep(int fractionsOfStep) => NormalizeRaw(RawValue + fractionsOfStep);
 
     /// <summary>
     /// The angle turned by <paramref name="speed"/>'s whole steps alone (#2555), keeping its own fraction, as a turn that

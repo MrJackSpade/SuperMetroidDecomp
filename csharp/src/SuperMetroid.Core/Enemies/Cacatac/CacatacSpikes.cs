@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>Chooses a Cacatac spike's launch velocity by its direction.</summary>
-internal static class CacatacSpikes
+internal static partial class CacatacSpikes
 {
     /// <summary>
     /// The velocity a spike launched in <paramref name="direction"/> flies at: its kind's speed toward the side or sides

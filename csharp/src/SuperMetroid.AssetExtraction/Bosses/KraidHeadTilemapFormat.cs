@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Supported JSON version and fixed head-frame dimensions matching the $0160-word native copy at $A7:AF3D.</summary>
-public static class KraidHeadTilemapFormat
+public static partial class KraidHeadTilemapFormat
 {
     /// <summary>Supported Kraid head tilemap schema revision one.</summary>
     public const int Version = 1;

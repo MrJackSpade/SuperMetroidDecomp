@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports drawing coordinates while verifying the native save-index validity map.</summary>
-public static class MapSaveMarkerExtractor
+public static partial class MapSaveMarkerExtractor
 {
     /// <summary>The marker records each Zebes area's list holds, one per number its station list can give a station.</summary>
     private const int SlotsPerArea = 16;

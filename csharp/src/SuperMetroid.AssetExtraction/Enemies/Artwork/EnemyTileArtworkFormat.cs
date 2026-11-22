@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Host-file geometry for four-bit enemy tile sheets.</summary>
-public static class EnemyTileArtworkFormat
+public static partial class EnemyTileArtworkFormat
 {
     /// <summary>File name of the versioned import-data manifest binding enemy-definition identities to artwork sheets (#1693).</summary>
     public const string ManifestFileName = "enemy-tiles.json";

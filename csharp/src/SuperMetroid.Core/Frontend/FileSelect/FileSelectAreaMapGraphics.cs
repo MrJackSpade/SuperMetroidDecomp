@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Picture and backdrop owners for the saved-game world map: each area's pictures are pre-coloured in its world-map colours
 /// by the import (#1512). Labels and transition windows are separate owners; this renders the unmasked map layers.
 /// </summary>
-public sealed class FileSelectAreaMapGraphics
+public sealed partial class FileSelectAreaMapGraphics
 {
     /// <summary>The map's menu screen: its artwork, backdrop and sprites.</summary>
-    private readonly MenuScreen screen;
+    internal readonly MenuScreen screen;
     /// <summary>The installed world-map backdrops, rebound when presentation content changes.</summary>
     private MenuBackdrops backdrops;
     /// <summary>Installed world-label positions used when placing the screen's sprites.</summary>
@@ -48,12 +48,12 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>The selected Zebes area, controlling the background, backdrop, and label highlight; this does not select a gameplay load station.</summary>
-    private AreaId SelectedArea { get; set; }
+    internal AreaId SelectedArea { get; set; }
 
     /// <summary>Shows the installed area's world-map backdrop before publishing its selection, without advancing menu input, windows, or transition timers.</summary>
     /// <param name="selectedArea">One of the six Zebes areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area is not one of the six Zebes areas.</exception>
-    private void SelectArea(AreaId selectedArea)
+    internal void SelectArea(AreaId selectedArea)
     {
         if (!AreaIds.IsZebes(selectedArea))
             throw new ArgumentOutOfRangeException(nameof(selectedArea), selectedArea, "Only the six Zebes areas have world-map selections.");
@@ -124,7 +124,7 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>The area map's foreground with its background glowing over it, without the labels (#1514).</summary>
     /// <param name="glow">Where the background glows: over the whole screen, or only over the foreground.</param>
-    private LayeredScene CaptureBackgrounds(AreaMapBackgroundGlow glow)
+    internal LayeredScene CaptureBackgrounds(AreaMapBackgroundGlow glow)
     {
         // The foreground and the area's background are their pictures in the area's world-map colours (#1467, #1512).
         InstalledSpriteSheets sheets = worldSheets;

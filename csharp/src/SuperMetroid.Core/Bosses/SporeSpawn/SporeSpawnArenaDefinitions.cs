@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// Where Spore Spawn's fight takes place in his room and how his sway grows (#2171): the arena's centre he descends to,
 /// hardens at and drifts back to as he dies, the ceiling his stalk hangs from, and the widths of his sway.
 /// </summary>
-internal static class SporeSpawnArenaDefinitions
+internal static partial class SporeSpawnArenaDefinitions
 {
     /// <summary>
     /// The arena centre's X in room pixels: where he hardens, where his death drift ends and where his stalk leaves the

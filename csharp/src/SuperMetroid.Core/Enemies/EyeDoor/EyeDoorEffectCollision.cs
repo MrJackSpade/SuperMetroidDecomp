@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// whose links lead nowhere further and grapple blocks, and every other block stops them flush against its face, slopes
 /// included. A first block outside the room's grid is a wall.
 /// </summary>
-internal sealed class EyeDoorEffectCollision : EnemyProjectileBlockCollision
+internal sealed partial class EyeDoorEffectCollision : EnemyProjectileBlockCollision
 {
     /// <summary>The collision the eye door's shots and sweat drops move with.</summary>
     internal static EyeDoorEffectCollision Rule { get; } = new();

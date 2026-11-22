@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// a sine wave down the whole screen, and Crocomire's melt stretches his. The bosses publish their effects in their own
 /// terms; the display describes them here.
 /// </summary>
-public static class BossLineScrolls
+public static partial class BossLineScrolls
 {
     /// <summary>
     /// Phantoon's wave as a ripple of his body over every screen line (#1858, #2031): his body ripples about where it is

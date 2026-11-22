@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class NoobTubeBehavior : IEnemyEntityFactory
+internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NoobTubeCrack], Create);
@@ -37,6 +37,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>> SpawnNoobTubeProjectileForNoobTubeProjectileDefinition => field ??= new(new Dictionary<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>>
     {
         [NoobTubeProjectileDefinition.Crack] = (piece, projectile, place) =>
@@ -123,7 +124,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Uses the sine of the debris's sway to advance its own horizontal position, then steps the sway.</summary>
-    private static void MoveNoobTubeProjectileHorizontallyAlongArc(
+    internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         NoobTubeProjectileBehavior owner,
         EnemyProjectile projectile,
         int swaySteps)
@@ -146,7 +147,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    private NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+    internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
 
     /// <summary>The enemy projectile each n00b-tube piece spawns as (#2553): its crack, a glass shard or a released bubble.</summary>
     private static IdentityTable<NoobTubeProjectileDefinition, RoomEnemyProjectileKind> PieceKinds { get; } = new(new Dictionary<NoobTubeProjectileDefinition, RoomEnemyProjectileKind>
@@ -163,7 +164,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
 
     /// <summary>A crack, shard or bubble: the crack's, shards' and bubbles' movers, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers set a falling piece's sway.</param>
-    internal sealed class NoobTubeProjectileBehavior(EnemyRoomBinding room)
+    internal sealed partial class NoobTubeProjectileBehavior(EnemyRoomBinding room)
         : EnemyProjectileMotionBehavior<NoobTubePieceMotion>(StartingMotions)
     {
         /// <summary>What each of the tube's pieces keeps: its column, its flicker and its sway, given as the tube breaks.</summary>
@@ -181,6 +182,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="NoobTubePieceMotion"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForNoobTubePieceMotion => field ??= new(new Dictionary<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [NoobTubePieceMotion.CrackFlickering] = (context, projectile) => FlickerNoobTubeCrack(projectile, context.ShortCounter),
@@ -217,6 +219,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
         /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
+        [field: NonSerialized]
         private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
         {
             [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>

@@ -19,7 +19,12 @@ internal enum DebuggerStateVersion
     /// values) written as one packed run of a schema, member tables and back-to-back values instead of a framed object per
     /// element (#1696); a type value, such as a key of the room-object visuals' catalog store, written as the identity of
     /// the type it names instead of refused (#2060); the references a packed run's struct elements hold written as places in
-    /// the run's table of the objects held, each object written once, instead of every such element framed (#2609).
+    /// the run's table of the objects held, each object written once, instead of every such element framed (#2609); every
+    /// object written and restored through the members generated for its type, each level of its fields after their count and
+    /// each field after its name, a primary-constructor type's arguments first, delegates by the name of the method each call
+    /// makes, and an immutable array of values that pack written as one packed run, as an array of them is (#2602); every
+    /// name, of a type, a field, an enum member, a packed run's schema or a method a delegate calls, stored as text the first
+    /// time a state names it and by its number every later time, rather than as text at every use (#2602).
     /// </summary>
-    Current = 18,
+    Current = 21,
 }

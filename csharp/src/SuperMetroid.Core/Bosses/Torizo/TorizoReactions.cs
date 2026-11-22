@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The reactions of the Torizos's own that its frames' hitboxes name (#1759). Only the Torizos's handlers tell them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class TorizoReactions
+internal static partial class TorizoReactions
 {
     /// <summary>The Torizos' touch reaction.</summary>
     internal static EnemyReaction Touch => SpeciesOwnReactions.TorizoTouch;

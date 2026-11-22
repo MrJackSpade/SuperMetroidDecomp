@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// screen's brightness, which dims that frame until the next scene publishes, and the backend draws the published
 /// display packet.
 /// </summary>
-internal sealed class FrontendDisplay
+internal sealed partial class FrontendDisplay
 {
     /// <summary>How gameplay updates become the published display.</summary>
     private readonly IGameplayFramePublication gameplayFrames;

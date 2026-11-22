@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>How Samus's suits divide the damage she takes (<see cref="SamusSuitDamage"/>).</summary>
-internal static class SamusSuitDamageDefinitions
+internal static partial class SamusSuitDamageDefinitions
 {
     /// <summary>The Gravity Suit divides the damage Samus takes by this: she takes a quarter of it.</summary>
     internal const int GravityDivisor = 4;

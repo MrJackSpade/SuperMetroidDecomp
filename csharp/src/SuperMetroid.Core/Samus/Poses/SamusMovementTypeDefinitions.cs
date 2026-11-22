@@ -32,7 +32,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// the normal jump takes its fallback's aim and slows down; every other movement sets nothing up.</item>
 /// </list>
 /// </summary>
-internal static class SamusMovementTypeDefinitions
+internal static partial class SamusMovementTypeDefinitions
 {
     /// <summary>Each movement type's definition.</summary>
     internal static IdentityTable<Move, SamusMovementTypeDefinition> Movements { get; } = new(new Dictionary<Move, SamusMovementTypeDefinition>

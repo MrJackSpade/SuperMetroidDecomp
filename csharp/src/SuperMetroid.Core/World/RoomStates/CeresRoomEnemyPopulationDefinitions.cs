@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The enemy placement lists of the Ceres rooms.</summary>
-internal static class CeresRoomEnemyPopulationDefinitions
+internal static partial class CeresRoomEnemyPopulationDefinitions
 {
     /// <summary>The Ceres doors of the rooms with a door at each end: the left one facing right and the right one facing left.</summary>
     private static readonly RoomEnemyPlacement[] HallwayDoors =

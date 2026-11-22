@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Compiles native-size indexed artwork into the PPU's 2/4-bpp character format, not a CPU memory image.</summary>
-public static class SnesPlanarTileEncoder
+public static partial class SnesPlanarTileEncoder
 {
     /// <summary>Compiles row-major palette indices into consecutive SNES characters in left-to-right, top-to-bottom tile order; each bitplane pair interleaves its eight row bytes, with the leftmost pixel in bit 7.</summary>
     /// <param name="pixels">Exactly <paramref name="size"/>'s area in indices, each 0..3 for two-bit encoding or 0..15 for four-bit encoding; no RGB conversion or index remapping is performed.</param>

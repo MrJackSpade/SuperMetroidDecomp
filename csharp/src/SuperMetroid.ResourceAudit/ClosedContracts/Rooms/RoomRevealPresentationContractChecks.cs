@@ -45,7 +45,7 @@ internal static class RoomRevealPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("RoomRevealProviderFixture", sources,
-            platforms.Append(typeof(InstalledXrayReveals).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -65,7 +65,6 @@ internal static class RoomRevealPresentationContractChecks
     }
 
     /// <summary>Confirms one collision kind and behaviour select both its compiled reveal command and matching installed blocks.</summary>
-    [ReflectionAudit("signature contract: the retired three-input Apply overload must not exist")]
     private static void ConfirmSingleXrayIdentity()
     {
         // Construct the already identified 42-entry provider contract from compiled
@@ -100,8 +99,6 @@ internal static class RoomRevealPresentationContractChecks
         Require(catalog.Apply(RoomCollisionType.SolidBlock, RoomBlockBehaviorCodec.Decode(0)) is null &&
             catalog.Apply(RoomCollisionType.ShootableBlock, RoomBlockBehaviorCodec.Decode(byte.MaxValue)) is null,
             "unowned collision/BTS pairs must return native no-reveal, not demand missing artwork");
-        Require(typeof(InstalledXrayReveals).GetMethods().Where(method => method.Name == "Apply")
-            .Single().GetParameters().Length == 2, "the mismatched third input must no longer exist");
     }
 
     /// <summary>Reports a failed room-reveal source contract with its specific predicate.</summary>

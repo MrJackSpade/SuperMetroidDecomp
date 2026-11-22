@@ -7,16 +7,16 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The tilemap geometry the import pictures a library room background from (#1502): the two BG2 pages it reads, the one
 /// period of them it installs (#1651), and the tiles of one changing cell. The game only shows the installed picture.
 /// </summary>
-internal static class RoomBackgroundImageGeometry
+internal static partial class RoomBackgroundImageGeometry
 {
     /// <summary>The tilemap pages a library background's list leaves on BG2.</summary>
-    private const int Pages = 2;
+    internal const int Pages = 2;
 
     /// <summary>Tiles along a tilemap page's side.</summary>
     internal const int PageTiles = 32;
 
     /// <summary>Tiles in one tilemap page.</summary>
-    private const int PageWords = PageTiles * PageTiles;
+    internal const int PageWords = PageTiles * PageTiles;
 
     /// <summary>Tiles in a library background's two pages.</summary>
     internal const int Words = Pages * PageWords;

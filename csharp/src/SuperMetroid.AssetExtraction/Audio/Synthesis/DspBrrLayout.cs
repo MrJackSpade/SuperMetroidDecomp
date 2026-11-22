@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Hardware BRR directory and block-header layout, including retired voice bookkeeping.</summary>
 [EncodingOwner("BRR sample directory entries and block header bits")]
-internal static class DspBrrLayout
+internal static partial class DspBrrLayout
 {
     /// <summary>DIR entries contain two little-endian pointers: start, then loop.</summary>
     internal const int DirectoryEntryBytes = 4;

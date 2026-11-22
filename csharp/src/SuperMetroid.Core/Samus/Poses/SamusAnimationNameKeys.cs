@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The installed key of each <see cref="SamusAnimationName"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusAnimationNameKeys
+internal static partial class SamusAnimationNameKeys
 {
     /// <summary>Each SamusAnimationName member's installed key.</summary>
     internal static InstalledKeys<SamusAnimationName> Installed { get; } = new(new Dictionary<SamusAnimationName, string>

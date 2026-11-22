@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Start">Where the run starts, in blocks from the frame's origin.</param>
 /// <param name="Direction">The direction the run writes its cells in.</param>
 /// <param name="Count">How many cells the run writes.</param>
-internal readonly record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, RoomObjectRunDirection Direction, int Count)
+internal readonly partial record struct RoomObjectShapeRun(Offset16<RoomBlocks> Start, RoomObjectRunDirection Direction, int Count)
 {
     /// <summary>A run writing <paramref name="count"/> cells along a row from <paramref name="start"/>.</summary>
     internal static RoomObjectShapeRun Row(Offset16<RoomBlocks> start, int count) => new(start, RoomObjectRunDirection.Horizontal, count);

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye's beam's colour and width, as its behaviour writes them.</summary>
-internal static class MorphBallEyeBeamDefinitions
+internal static partial class MorphBallEyeBeamDefinitions
 {
     /// <summary>The colour the beam adds when it appears: red and green at intensity 16, without blue.</summary>
     internal static RgbColor InitialColor { get; } = new FadeLevelColour(16, 16, 0).ToColour();

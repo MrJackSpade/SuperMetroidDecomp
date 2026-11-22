@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's gates, which reach Samus and the gate projectiles.</param>
 [RoomLifetime]
-internal sealed class DownwardGateObject(GateObjects owner) : SilentSequencedRoomObject<DownwardGateSegment, DownwardGateImage>(DownwardGateAnimations.Segments)
+internal sealed partial class DownwardGateObject(GateObjects owner) : SilentSequencedRoomObject<DownwardGateSegment, DownwardGateImage>(DownwardGateAnimations.Segments)
 {
     /// <summary>The room's gates.</summary>
     private readonly GateObjects _owner = Ensure.NotNull(owner);
@@ -20,13 +20,13 @@ internal sealed class DownwardGateObject(GateObjects owner) : SilentSequencedRoo
     /// Where the gate is in its course; a gate that rests (<see cref="SequencedRoomObject{TSegment, TFrame, TEvent}.Resting"/>)
     /// stands closed or open as the gate it last showed.
     /// </summary>
-    private DownwardGatePhase Phase { get; set; } = DownwardGatePhase.Starting;
+    internal DownwardGatePhase Phase { get; set; } = DownwardGatePhase.Starting;
 
     /// <summary>
     /// Whether an accepted shot on one of its triggers has set the gate off since it last rested. A shot can come at any
     /// point of the gate's course and is kept until the gate next rests, so it is a fact of its own beside the phase.
     /// </summary>
-    private bool Triggered { get; set; }
+    internal bool Triggered { get; set; }
 
     /// <summary>An accepted shot on one of the gate's triggers sets it off; further shots before it rests change nothing.</summary>
     internal void Trigger() => Triggered = true;
@@ -71,6 +71,7 @@ internal sealed class DownwardGateObject(GateObjects owner) : SilentSequencedRoo
     }
 
     /// <summary>What <c>Show</c> does for each <see cref="DownwardGateMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>> ShowForDownwardGateMovement => field ??= new(new Dictionary<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [DownwardGateMovement.None] = (place, context) =>

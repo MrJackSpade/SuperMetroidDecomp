@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Editable RGB5 inks for the eight native room-FX blend selections, which only the import reads (#1544): the Ceres haze's
 /// tints, which the game reads, are scene colours (<see cref="Frontend.Map.SceneColourFiles"/>).
 /// </summary>
-public sealed record RoomFxPaletteBlendDocument
+public sealed partial record RoomFxPaletteBlendDocument
 {
     /// <summary>Schema revision, required to equal <see cref="RoomFxPaletteBlendDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

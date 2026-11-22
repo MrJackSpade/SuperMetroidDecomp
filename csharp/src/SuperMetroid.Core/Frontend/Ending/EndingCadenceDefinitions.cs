@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The cadences of the ending (#1606): the turning floor's and the departing planet's counter cadences, and the paces of the
 /// explosion's crossfade and the reward's colours (#2488).
 /// </summary>
-internal static class EndingCadenceDefinitions
+internal static partial class EndingCadenceDefinitions
 {
     /// <summary>Updates each step of the escape scenes' and the credits' fades takes.</summary>
     internal const int FastFadeUpdatesPerStep = 2;

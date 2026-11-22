@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>File identity and schema versions for editable room/cinematic palette-FX color assets.</summary>
-public static class RoomPaletteFxPresentationFormat
+public static partial class RoomPaletteFxPresentationFormat
 {
     /// <summary>The presentation filename resolved for the room and cinematic palette-FX color catalog.</summary>
     public const string FileName = "room-palette-effects.json";

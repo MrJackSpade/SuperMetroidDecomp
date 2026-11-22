@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>What each <see cref="MagdolliteRiseStage"/> shows and which stages it steps to (#2343).</summary>
-public static class MagdolliteRiseStages
+public static partial class MagdolliteRiseStages
 {
     /// <summary>A stage's phase, from <see cref="MagdollitePhaseDefinitions.Phases"/>, and its neighbours in <see cref="MagdollitePhaseDefinitions.RiseOrder"/>.</summary>
     extension(MagdolliteRiseStage stage)

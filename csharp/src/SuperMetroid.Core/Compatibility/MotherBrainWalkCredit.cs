@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// encoding-domain check (<c>MotherBrainEncodingDomainsVerification</c>) exercises both rules at the count's ends and on both sides of the point where a remainder reads below zero.
 /// </remarks>
 [CompatibilityService("Mother Brain's walk credit wraps past its top when earned, and a hit that leaves it reading below zero empties it")]
-public readonly record struct MotherBrainWalkCredit
+public readonly partial record struct MotherBrainWalkCredit
 {
     /// <summary>Credit for one walking step: earning reaches it to step forward, and an ordinary hit costs it.</summary>
     public const int StepCredit = 256;
@@ -27,10 +27,10 @@ public readonly record struct MotherBrainWalkCredit
     public const int HyperBeamShotCost = 266;
 
     /// <summary>Stores the credit, 0 through <see cref="WrappingCounter.LargestCount"/>; callers use <see cref="Of"/>.</summary>
-    private MotherBrainWalkCredit(int credit) => Credit = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, credit);
+    internal MotherBrainWalkCredit(int credit) => Credit = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, credit);
 
     /// <summary>The credit, 0 through <see cref="WrappingCounter.LargestCount"/>, for the snapshot codec and parity checks.</summary>
-    private int Credit { get; }
+    internal int Credit { get; }
 
     /// <summary>No credit at all.</summary>
     public static MotherBrainWalkCredit Empty => default;

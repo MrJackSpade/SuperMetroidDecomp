@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// which holds no block that reacts (<see cref="PlainTerrain"/>). These two are the only terrains.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal abstract class SamusTerrain
+internal abstract partial class SamusTerrain
 {
     /// <summary>Creates the terrain of <paramref name="level"/>.</summary>
     /// <param name="level">The collision level the scans probe.</param>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// Samus and her state across frames: the actor, movement mode, prospective poses, colours and load appearance. What one
 /// frame's movement, grapple, X-ray and death steps did is that frame's own (<see cref="SamusControlFrame"/>).
 /// </summary>
-internal sealed class SamusFrameState : IRoomSamusAccess
+internal sealed partial class SamusFrameState : IRoomSamusAccess
 {
     /// <summary>Samus's colours, which outlive each Samus (#1405).</summary>
     public SamusColours Colours { get; }
@@ -18,7 +18,7 @@ internal sealed class SamusFrameState : IRoomSamusAccess
     internal SamusFrameState() => Colours = new SamusColours();
 
     /// <summary>The saved-game load appearance, before ordinary Samus drawing resumes.</summary>
-    private UpdateCountdown LoadAppearance { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown LoadAppearance { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether Samus's saved-game load appearance is still running.</summary>
     internal bool LoadAppearanceActive => LoadAppearance.IsRunning;

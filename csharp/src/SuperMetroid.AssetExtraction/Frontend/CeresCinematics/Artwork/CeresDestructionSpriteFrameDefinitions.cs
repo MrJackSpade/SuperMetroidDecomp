@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Named Ceres destruction backdrops and bounded blast-frame catalogs the import reads and writes (#1502).</summary>
-public static class CeresDestructionSpriteFrameDefinitions
+public static partial class CeresDestructionSpriteFrameDefinitions
 {
     /// <summary>
     /// The 24 published compositions, each naming the destruction pose it shows: the seven backdrops in their

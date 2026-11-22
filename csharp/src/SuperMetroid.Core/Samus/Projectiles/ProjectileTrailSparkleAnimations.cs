@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// for their durations, a move cue nudges a sparkle a pixel down before the next frame shows, and each animation plays its
 /// runs once and ends.
 /// </summary>
-internal static class ProjectileTrailSparkleAnimations
+internal static partial class ProjectileTrailSparkleAnimations
 {
     /// <summary>The times an ice sparkle shows its clustered frame before it starts to twinkle.</summary>
     internal const int IceClusteredShows = 4;
@@ -25,7 +25,7 @@ internal static class ProjectileTrailSparkleAnimations
     /// pixel before every scattered frame and once more before its fading frame, which holds for its beat; the left and
     /// right ice sparkles run alike, each falling on its own side.
     /// </summary>
-    private static AnimationSegments<R, F, ProjectileTrailCue> Segments { get; } = new(
+    internal static AnimationSegments<R, F, ProjectileTrailCue> Segments { get; } = new(
         new Dictionary<R, AnimationBeat<F, ProjectileTrailCue>[]>
         {
             [R.IceClustered] = [Show(F.IceSparkleClustered, 1)],
@@ -52,7 +52,7 @@ internal static class ProjectileTrailSparkleAnimations
         });
 
     /// <summary>The animation of each sparkle: its runs played once, after which the sparkle is gone.</summary>
-    private static Dictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
+    internal static Dictionary<ProjectileTrailSegment, Animation<R>> StartingAt { get; } = new Dictionary<ProjectileTrailSegment, Animation<R>>
     {
         [ProjectileTrailSegment.EndsWithoutSparkle] = new([], AnimationEnd.Stops),
         [ProjectileTrailSegment.LeftIce] = IceSparkle(R.LeftIceFall, R.LeftIceScatteredFall),

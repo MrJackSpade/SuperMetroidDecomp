@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>The scroll data room states select: 159 explicit tables and two implicit layouts.</summary>
 [NumberedIdentities("Each numbered member is the scroll layout of a distinct numbered room (Metroids1-4, TourianEscape1-4), named for that room.")]
-public static class RoomScrollDefinitions
+public static partial class RoomScrollDefinitions
 {
     /// <summary>A screen closed to the camera.</summary>
     private const RoomScrollState Closed = RoomScrollState.Closed;

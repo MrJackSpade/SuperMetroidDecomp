@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// colours and named by <see cref="RoomBlockPictureNames"/>; with the inputs each of its blocks depends on, which choose
 /// among them. A room that shows a block the sheet has no picture of fails, naming the sheet and the block.
 /// </summary>
-public sealed class RoomBlockSheet
+public sealed partial class RoomBlockSheet
 {
     /// <summary>Pixels along each side of a block picture.</summary>
     public const int BlockPixels = RoomGridConversions.BlockPixels;

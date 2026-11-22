@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The grapple's launch velocity, angle and hand origin for each firing direction.</summary>
-internal static class GrappleFiring
+internal static partial class GrappleFiring
 {
     /// <summary>The launch velocity and angle of a beam fired in <paramref name="direction"/>.</summary>
     internal static GrappleLaunchDefinition Launch(SamusProjectileDirection direction) =>

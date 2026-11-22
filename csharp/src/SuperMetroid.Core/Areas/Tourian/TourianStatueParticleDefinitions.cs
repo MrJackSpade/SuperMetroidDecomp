@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// How the particles the Tourian statue scene throws off choose their direction, how they fall and splash, and where they
 /// end (#1548).
 /// </summary>
-internal static class TourianStatueParticleDefinitions
+internal static partial class TourianStatueParticleDefinitions
 {
     /// <summary>
     /// The random selection of a particle's launch angle, before it is centred on the zero angle: 64 angles, a quarter

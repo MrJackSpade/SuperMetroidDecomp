@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.World;
 /// interruptions, the collision transitions, the input transition the input phase selected or the momentum response
 /// chosen when her input chooses no new pose, and the pose-history commit.
 /// </summary>
-internal sealed class SamusPoseTransitionPhase
+internal sealed partial class SamusPoseTransitionPhase
 {
 
     /// <summary>Supplies the held and newly pressed controller buttons to Samus's frame phases.</summary>
@@ -37,8 +37,11 @@ internal sealed class SamusPoseTransitionPhase
         _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _setups = new SamusPoseSetupSteps(_playerActions, _clock, () => _options.MoonwalkEnabled);
+        _setups = new SamusPoseSetupSteps(_playerActions, _clock, MoonwalkEnabled);
     }
+
+    /// <summary>Whether the player's options let her moonwalk.</summary>
+    private bool MoonwalkEnabled() => _options.MoonwalkEnabled;
 
     /// <summary>Applies post-movement pose and animation transitions after the frame's selected movement mode.</summary>
     internal void Apply(SamusControlFrame frame, SamusState samus, SamusTerrain terrain)

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema, layout and closed identities for editable large gameplay-message panels.</summary>
-public static class GameplayMessagePanelDefinitions
+public static partial class GameplayMessagePanelDefinitions
 {
     /// <summary>Supported large-panel JSON schema version.</summary>
     public const int Version = 2;

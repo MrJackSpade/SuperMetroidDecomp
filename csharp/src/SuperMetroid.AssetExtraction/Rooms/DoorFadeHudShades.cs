@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// two common rooms the HUD's item and minimap backgrounds too, as <c>GameState_A_LoadingNextRoom</c> copies them into its
 /// fade's target.
 /// </summary>
-internal static class DoorFadeHudShades
+internal static partial class DoorFadeHudShades
 {
     /// <summary>The HUD's inks: its two colour sets of sixteen, as a layer-3 picture inks them.</summary>
     private const int HudInks = 32;

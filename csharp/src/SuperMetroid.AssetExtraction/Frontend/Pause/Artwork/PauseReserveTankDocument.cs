@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable JSON schema for the pause screen's reserve-energy strip artwork and placement.</summary>
-public sealed record PauseReserveTankDocument
+public sealed partial record PauseReserveTankDocument
 {
     /// <summary>Gets the reserve-tank presentation schema version.</summary>
     public required int Version { get; init; }

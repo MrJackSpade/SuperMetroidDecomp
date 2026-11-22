@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Magdollite's four-color glow artwork.</summary>
-public static class MagdollitePaletteCycleFormat
+public static partial class MagdollitePaletteCycleFormat
 {
     /// <summary>JSON resource filename containing the four editable glow-cycle rows.</summary>
     public const string FileName = "magdollite-palette-cycle.json";

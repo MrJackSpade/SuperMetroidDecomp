@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The installed key of each <see cref="StoryEvent"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class StoryEventKeys
+internal static partial class StoryEventKeys
 {
     /// <summary>Each StoryEvent member's installed key.</summary>
     internal static InstalledKeys<StoryEvent> Installed { get; } = new(new Dictionary<StoryEvent, string>

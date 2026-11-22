@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <param name="Card">The card the phase types.</param>
 /// <param name="Origin">Drawing origin in screen pixels.</param>
 /// <param name="Colouring">What the title shows the card's compositions as (#1512).</param>
-public readonly record struct TitleTextSequenceDefinition(
+public readonly partial record struct TitleTextSequenceDefinition(
     TitleSequencePhase Phase,
     TitleCardDefinition Card,
     Offset16<ScreenPixels> Origin,

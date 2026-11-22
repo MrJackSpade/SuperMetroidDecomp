@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed cinematic-actor definitions for the SR388 egg and baby-Metroid scenes.</summary>
-internal static class IntroBabyActorDefinitions
+internal static partial class IntroBabyActorDefinitions
 {
 
     /// <summary>The intact Metroid egg in its place on the floor.</summary>

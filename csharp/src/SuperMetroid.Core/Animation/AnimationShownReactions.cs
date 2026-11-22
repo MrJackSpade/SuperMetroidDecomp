@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Animation;
 /// <param name="Held">Rests on the frame shown last.</param>
 /// <param name="Ended">Ends the animation.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record AnimationShownReactions<TSegment, TFrame, TContext>(
+internal sealed partial record AnimationShownReactions<TSegment, TFrame, TContext>(
     Action<AnimationShown<TSegment, TFrame>.Frame, TContext> Frame,
     Action<AnimationShown<TSegment, TFrame>.HeldFrame, TContext> HeldFrame,
     Action<AnimationShown<TSegment, TFrame>.Paused, TContext> Paused,

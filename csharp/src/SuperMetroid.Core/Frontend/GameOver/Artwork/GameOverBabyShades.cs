@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// The shades the import pre-colours the game-over Baby in (#1512): its idle colours and each phase of its cry. Which inks
 /// each recolours, and to what, is the import's.
 /// </summary>
-public static class GameOverBabyShades
+public static partial class GameOverBabyShades
 {
     /// <summary>
     /// The installed name of each colouring's shade (#2511), written out so renaming a colouring's identity never changes a

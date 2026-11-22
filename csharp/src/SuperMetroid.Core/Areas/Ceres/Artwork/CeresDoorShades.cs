@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// which the falling tiles of the escape also show, and each of the eight steps of the elevator room's glow. The import
 /// colours them from the installed Ceres door colours.
 /// </summary>
-internal static class CeresDoorShades
+internal static partial class CeresDoorShades
 {
     /// <summary>The doors' normal colours.</summary>
     internal static PictureShade Normal { get; } = new("ceres-door-normal", 0);

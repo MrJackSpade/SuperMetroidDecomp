@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// <param name="ShownAbove">
 /// The row, reckoned down from the body's placement, above which alone the body shows, or null when the whole body shows.
 /// </param>
-public sealed record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? ShownAbove = null)
+public sealed partial record BossBodyLayer(ImmutableArray<BossBodyFrame> Frames, int? ShownAbove = null)
 {
     /// <summary>A body showing nothing.</summary>
     public static BossBodyLayer Empty { get; } = new([]);

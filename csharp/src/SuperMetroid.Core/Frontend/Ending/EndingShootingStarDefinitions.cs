@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Frontend.Ending.EndingShootingStarDefinition;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Post-credits star motion and animation data.</summary>
-internal static class EndingShootingStarDefinitions
+internal static partial class EndingShootingStarDefinitions
 {
     /// <summary>The looks whose stars accelerate at their definition's rate; a star in any other look accelerates at twice it.</summary>
     internal static readonly EndingShootingStarLook[] SteadyLooks = [EndingShootingStarLook.LeadIn, EndingShootingStarLook.FaintSpeck];

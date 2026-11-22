@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// The door transition's wait before destination loading: an ordinary door or an upward elevator goes straight on, and a
 /// downward elevator waits out a delay before destination loading resumes.
 /// </summary>
-internal sealed class DownwardsElevatorWait
+internal sealed partial class DownwardsElevatorWait
 {
     /// <summary>
     /// The delay loading stays paused for, over once its frames have passed: a delay of <c>n</c> pauses <c>n</c> frames and

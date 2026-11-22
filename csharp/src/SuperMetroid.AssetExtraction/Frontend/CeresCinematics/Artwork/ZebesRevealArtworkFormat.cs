@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Files and exact native transfer sizes of the Zebes reveal's tilemap and characters (#1467).</summary>
-public static class ZebesRevealArtworkFormat
+public static partial class ZebesRevealArtworkFormat
 {
     /// <summary>Installed JSON filename for the ordinary 32-by-32 BG tilemap page shown during the Zebes reveal.</summary>
     public const string MapFileName = "zebes-reveal-tilemap.json";

@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// bindings and animation uploads would leave it. Extraction pictures each block, background cell and written word for
 /// every assignment and names the picture by it, so the room chooses a picture by the inputs alone.
 /// </summary>
-internal static class RoomAppearanceComposition
+internal static partial class RoomAppearanceComposition
 {
     /// <summary>
     /// Which input's artwork shows where several reach the same characters, first to last (#2567): an animation's frame, then

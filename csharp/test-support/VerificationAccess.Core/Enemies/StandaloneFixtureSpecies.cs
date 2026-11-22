@@ -7,13 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class StandaloneFixtureSpecies : IEnemyEntityFactory
 {
     /// <summary>The registry of standalone places a check binds an enemy in.</summary>
-    internal static EnemySpeciesRegistry Registry { get; } = PrivateState.New<EnemySpeciesRegistry>(
-        [typeof(EnemyCommonParticipation), typeof(IEnumerable<IEnemyEntityFactory>)],
-        new object?[]
-        {
-            new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")),
-            (IEnumerable<IEnemyEntityFactory>)[new StandaloneFixtureSpecies()],
-        });
+    internal static EnemySpeciesRegistry Registry { get; } = new EnemySpeciesRegistry(new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")), (IEnumerable<IEnemyEntityFactory>)[new StandaloneFixtureSpecies()]);
 
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each(

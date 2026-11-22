@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Where Botwoon's wall object is spawned, and the terrain change of each wall mutation.</summary>
-internal static class BotwoonWallMutationDefinitions
+internal static partial class BotwoonWallMutationDefinitions
 {
     /// <summary>The room block both wall mutations are spawned at: the wall's top block.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);
@@ -21,7 +21,7 @@ internal static class BotwoonWallMutationDefinitions
     internal const int CrumbleFrameDuration = 4;
 
     /// <summary>The sound each crumbling row starts with.</summary>
-    private static SoundEffectId CrumbleSound { get; } = EnemySound.BlockCrumble;
+    internal static SoundEffectId CrumbleSound { get; } = EnemySound.BlockCrumble;
 
     /// <summary>One block down: the crumble's step to its next row.</summary>
     private static readonly Offset16<RoomBlocks> NextRow = new(0, 1);

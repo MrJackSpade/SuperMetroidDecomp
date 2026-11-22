@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// installation is the anchors' only source (#1596): imported artwork changes never feed back into load targets or
 /// scrolling.
 /// </summary>
-public sealed class MapSaveMarkerPositions
+public sealed partial class MapSaveMarkerPositions
 {
     /// <summary>The installed drawing anchor of each marker, keyed by stable marker identity.</summary>
     internal readonly Dictionary<string, Position16<MapPixels>> anchors;

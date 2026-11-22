@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The counter cadences and phases of Mother Brain's fight, the Baby Metroid's rescue and the Baby Metroid's drain (#1606):
 /// their shakes, flashes, sounds, rise, posture changes and the rainbow beam's colours and ammunition drain.
 /// </summary>
-internal static class MotherBrainCadenceDefinitions
+internal static partial class MotherBrainCadenceDefinitions
 {
     /// <summary>
     /// The phase of the Baby Metroid's own update count that steps its shake: four steps, each held in turn,

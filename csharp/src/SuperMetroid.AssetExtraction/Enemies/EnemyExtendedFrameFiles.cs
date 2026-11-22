@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Extracts supported extended enemy visual components without exporting their
 /// native hitbox pointers or any instruction/callback words.
 /// </summary>
-internal static class EnemyExtendedFrameFiles
+internal static partial class EnemyExtendedFrameFiles
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -28,13 +28,12 @@ internal static class EnemyExtendedFrameFiles
             if (!frames.TryAdd(definition.Name, ExtractComponents(bus, definition)))
                 throw new InvalidDataException($"Extended enemy frame {definition.Name} repeats an identity.");
         }
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new EnemyExtendedFrameDocument
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new EnemyExtendedFrameDocument
             {
                 Version = EnemyExtendedFrameSchema.Revision,
                 Frames = frames,
                 DisplayFrames = EnemyFrameBindingRules.Identity(EnemyExtendedFrameDefinitions.Frames),
-            }, CamelCaseIndentedJson);
+            }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument>(CamelCaseIndentedJson));
         return json;
     }
 

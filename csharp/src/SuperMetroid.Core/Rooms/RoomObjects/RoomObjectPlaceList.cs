@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// is taken. Which place a spawn takes, the order the places update in and the loss of a spawn into a full room are the
 /// room's <see cref="RoomObjectPlaces"/> (#1622); this list holds the places, each of which holds its object.
 /// </summary>
-internal sealed class RoomObjectPlaceList
+internal sealed partial class RoomObjectPlaceList
 {
     /// <summary>The room's places, in update order; each keeps its identity for the room's lifetime.</summary>
     private readonly RoomObjectPlace[] _places;

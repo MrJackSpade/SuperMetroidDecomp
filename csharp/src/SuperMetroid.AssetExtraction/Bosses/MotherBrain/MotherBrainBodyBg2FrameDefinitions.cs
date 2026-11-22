@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// The installed document of Mother Brain's body-layer poses (#1466): its schema, file name and the name each pose is
 /// stored under. Native roots interleave sprite limbs and BG2 body streams; their hitboxes never enter the document.
 /// </summary>
-internal static class MotherBrainBodyBg2FrameDefinitions
+internal static partial class MotherBrainBodyBg2FrameDefinitions
 {
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
     internal const int MaximumComponents = EnemyBg2FrameLayout.MaximumComponents;

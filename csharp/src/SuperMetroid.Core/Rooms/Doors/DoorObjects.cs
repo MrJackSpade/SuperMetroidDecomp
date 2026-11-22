@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// good, and the closing behind Samus after a door transition.
 /// </summary>
 [RoomLifetime]
-internal sealed class DoorObjects
+internal sealed partial class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState _system;

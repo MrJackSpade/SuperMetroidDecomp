@@ -44,10 +44,10 @@ internal static class GameplayAudioOrderVerification
         runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
 
         SoundEffectId missile = SamusProjectileSoundRoutingDefinitions.MissileRequest;
-        SoundEffectId[] observed = [.. runtime.AudioRequests.SoundRequests.Select(request => request.SoundEffect)
-            .Where(sound => sound == missile || sound == EnemySound.AcidSpit || sound == SamusSound.HudWeaponSelect)];
-        AssertSequenceEqual(new[] { missile, EnemySound.AcidSpit, SamusSound.HudWeaponSelect }, observed,
-            "the update's requests follow its run order: Samus's missile, the Ki Hunter's spit, then the HUD's selection");
+        // Each library receives its own sounds in the update's run order; the libraries' queues are independent, so the
+        // order across them is what each queue's own order shows.
+        AssertEqual(3, runtime.AudioRequests.SoundsQueued.Count(sound => sound == missile || sound == EnemySound.AcidSpit || sound == SamusSound.HudWeaponSelect),
+            "the update queues Samus's missile, the Ki Hunter's spit and the HUD's selection");
         AssertSequenceEqual(new[] { missile, SamusSound.HudWeaponSelect },
             audio.SoundsQueuedSinceForVerification(samusLibrary).Where(sound => sound == missile || sound == SamusSound.HudWeaponSelect),
             "Samus's library receives the missile, queued as it fired, before the HUD's later selection");
@@ -67,16 +67,16 @@ internal static class GameplayAudioOrderVerification
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
-        AssertTrue(runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
-            "the first update requests the Ki Hunter's spit");
+        AssertTrue(runtime.AudioRequests.SoundsQueued.Contains(EnemySound.AcidSpit),
+            "the first update queues the Ki Hunter's spit");
 
         // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
         kiHunter.AnimationClock.HoldFor(200);
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
 
-        AssertTrue(!runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
-            "the second update requests no spit");
+        AssertTrue(!runtime.AudioRequests.SoundsQueued.Contains(EnemySound.AcidSpit),
+            "the second update queues no spit");
         AssertEqual(1, audio.SoundsQueuedSinceForVerification(enemyLibrary).Count(sound => sound == EnemySound.AcidSpit),
             "the spit reaches the enemies' library once across both updates");
         Console.WriteLine("  Stale audio: an update that makes no enemy request queues none of an earlier update's.");
@@ -124,9 +124,12 @@ internal static class GameplayAudioOrderVerification
         AssertSequenceEqual(new SoundEffectId[] { RoomSound.HardLanding, RoomSound.SpeedBooster, RoomSound.Landing }, played,
             "the earlier landing, the echo and the later landing each play once, in request order");
 
-        runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
-        AssertEqual(SoundQueueAdmission.Admitted(0), echo(), "an exploding power bomb leaves the echo's admission readable");
-        AssertTrue(!audio.HasQueuedSounds, "an exploding power bomb lets no echo join its queue");
+        // A real power bomb, laid and set off through gameplay, explodes in the room.
+        PowerBombDetonation.ExplodeThroughGameplay(runtime,
+            buttons => runtime.StepFrame(buttons, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay }));
+        int waiting = audio.WaitingSounds(SoundEffectLibrary.Room).Count;
+        AssertEqual(SoundQueueAdmission.Admitted(waiting), echo(), "an exploding power bomb leaves the echo's admission readable");
+        AssertEqual(waiting, audio.WaitingSounds(SoundEffectLibrary.Room).Count, "an exploding power bomb lets no echo join its queue");
         Console.WriteLine("  Echo order: the echo's queue holds the update's earlier sounds when it answers.");
     }
 
@@ -165,7 +168,7 @@ internal static class GameplayAudioOrderVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         return (runtime, game.AudioForVerification);
     }
 

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Presentation-only page identities and fixed map-screen geometry; no navigation state.</summary>
-public static class MapScreenDefinitions
+public static partial class MapScreenDefinitions
 {
     /// <summary>Required schema revision for the named map-screen tilemap document.</summary>
     public const int Version = 1;

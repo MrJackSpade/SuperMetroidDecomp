@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// built before consuming its door.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal abstract record RoomEntry
+internal abstract partial record RoomEntry
 {
     /// <summary>Only the three entries below are room entries.</summary>
     private RoomEntry()
@@ -34,12 +34,12 @@ internal abstract record RoomEntry
     internal virtual LoadStation? LoadStation => null;
 
     /// <summary>A room entered neither at a load station nor through a door's transition.</summary>
-    private sealed record PlainEntry : RoomEntry;
+    private sealed partial record PlainEntry : RoomEntry;
 
     /// <summary>A room entered at <paramref name="Station"/>.</summary>
     /// <param name="Station">The load station the room is entered at.</param>
     /// <param name="Gunship">The Landing Site gunship scenario the room's enemies load with.</param>
-    internal sealed record AtStation(LoadStation Station, GunshipLoadScenario Gunship = GunshipLoadScenario.Ordinary) : RoomEntry
+    internal sealed partial record AtStation(LoadStation Station, GunshipLoadScenario Gunship = GunshipLoadScenario.Ordinary) : RoomEntry
     {
         /// <inheritdoc/>
         internal override GunshipLoadScenario GunshipScenario => Gunship;
@@ -50,7 +50,7 @@ internal abstract record RoomEntry
 
     /// <summary>A room entered through a door's transition, whose closing room object spawns after the room's.</summary>
     /// <param name="Preloaded">The destination assets the transition built before consuming its door; none to load them here.</param>
-    internal sealed record ThroughDoor(LoadedRoomAssets? Preloaded) : RoomEntry
+    internal sealed partial record ThroughDoor(LoadedRoomAssets? Preloaded) : RoomEntry
     {
         /// <inheritdoc/>
         internal override bool RunsDoorClosingObject => true;
@@ -68,7 +68,7 @@ internal abstract record RoomEntry
     /// </summary>
     /// <param name="Station">The Ceres start's load station.</param>
     /// <param name="Arrival">The elevator's arrival, starting under Samus.</param>
-    internal sealed record AtCeresStart(LoadStation Station, SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState Arrival) : RoomEntry
+    internal sealed partial record AtCeresStart(LoadStation Station, SuperMetroid.Core.Areas.Ceres.CeresElevatorArrivalState Arrival) : RoomEntry
     {
         /// <inheritdoc/>
         internal override LoadStation? LoadStation => Station;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// The installed pictures of the eleven frames of Mother Brain's glass (#1557), by frame. The glass's geometry,
 /// collision, hits, shards and timing stay with its typed object and draws.
 /// </summary>
-public sealed class InstalledMotherBrainGlassFrames : IRoomObjectFamilyPictures
+public sealed partial class InstalledMotherBrainGlassFrames : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every glass frame.</summary>
     /// <param name="images">Every glass frame's picture.</param>

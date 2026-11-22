@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="owner">The room's escape owner, which reaches Samus, the lava, the earthquake and the events.</param>
 [RoomLifetime]
-internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
+internal sealed partial class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's escape owner.</summary>
     private readonly SpeedBoosterEscapeObjects _owner = Ensure.NotNull(owner);
@@ -25,6 +25,7 @@ internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) 
     internal bool IsEscaped => RisesPassed == SpeedBoosterEscapeStageDefinitions.Stages.Length;
 
     /// <summary>What <c>Update</c> does for each <see cref="SpeedBoosterEscapePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SpeedBoosterEscapePhase, Action<RoomObjectPlace>> UpdateForSpeedBoosterEscapePhase => field ??= new(new Dictionary<SpeedBoosterEscapePhase, Action<RoomObjectPlace>>
     {
         [SpeedBoosterEscapePhase.Starting] = place => Phase = SpeedBoosterEscapePhase.WaitingForSpeedBooster,

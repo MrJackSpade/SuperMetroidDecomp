@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The turrets' placement, rotation and bullet-physics definitions.</summary>
-internal static class MotherBrainTurretDefinitions
+internal static partial class MotherBrainTurretDefinitions
 {
     /// <summary>
     /// The pictures both turrets and their bullets show: the shared sheet in the standard colours (#1464, #1512). The

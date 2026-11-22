@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// sheet must hold, and a picture moved to another sheet keeps every shade it could be drawn in.
 /// </para>
 /// </summary>
-internal sealed class SheetPictureColouring
+internal sealed partial class SheetPictureColouring
 {
     /// <summary>Colours in one colour group.</summary>
     private const int GroupColours = ImageColourGroup.Colours;

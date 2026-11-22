@@ -8,26 +8,26 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// frames select them. The body sheets are composed from these at installation; gameplay draws the sheets and never reads
 /// these characters.
 /// </summary>
-public sealed class SamusBodyCharacterArtwork
+public sealed partial class SamusBodyCharacterArtwork
 {
     /// <summary>Maximum tile count represented by one definition slot.</summary>
     public const int TilesPerDefinition = 16;
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
     /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    private const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    internal const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
     /// <summary>Characters in one half row, filled by one transfer.</summary>
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
     /// <summary>The tile transfers each half picture makes, by picture.</summary>
-    private readonly Dictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures;
+    internal readonly Dictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures;
     /// <summary>Composed body characters per selected pair, built once.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<BodyHalvesVariant, SpriteArtwork> bodyArtwork = new();
 
     /// <summary>A composed body sheet, distinguished by the top and bottom half pictures it composes.</summary>
     /// <param name="Top">The top half picture, or none.</param>
     /// <param name="Bottom">The bottom half picture, or none.</param>
-    private sealed record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
+    private sealed partial record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
 
     /// <summary>The body whose frames select these characters.</summary>
     public SamusBodySources Body { get; }
@@ -36,7 +36,7 @@ public sealed class SamusBodyCharacterArtwork
     /// <param name="body">The body catalog whose frames select these characters.</param>
     /// <param name="pictures">The tile transfers each half picture makes.</param>
     /// <exception cref="InvalidDataException">A transfer is malformed, or a frame selects a picture with none.</exception>
-    private SamusBodyCharacterArtwork(SamusBodySources body, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
+    internal SamusBodyCharacterArtwork(SamusBodySources body, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
     {
         Body = Ensure.NotNull(body);
         this.pictures = Ensure.NotNull(pictures).ToDictionary();
@@ -83,7 +83,7 @@ public sealed class SamusBodyCharacterArtwork
 
     /// <summary>The tile transfers <paramref name="picture"/> makes.</summary>
     /// <exception cref="InvalidDataException">The picture is absent from installed art.</exception>
-    private SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
+    internal SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
         pictures.TryGetValue(picture, out SamusBodyTileTransfer? transfer)
             ? transfer
             : throw new InvalidDataException($"Samus body picture {picture.Name} is absent from installed art.");

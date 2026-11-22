@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="FileName">The installed file holding the frames' pictures.</param>
 /// <param name="Name">The object's name in diagnostics.</param>
 /// <param name="Frames">Every frame with the geometry its picture covers exactly and its published name, in the installed file's order.</param>
-internal sealed record RoomObjectFrameFamily<TFrame>(
+internal sealed partial record RoomObjectFrameFamily<TFrame>(
     string FileName,
     string Name,
     IReadOnlyList<RoomObjectFamilyFrame<TFrame>> Frames) where TFrame : notnull

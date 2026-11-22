@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Abilities.ShinesparkEchoDefinitions;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The angles a Shinespark crash sends its echoes out at.</summary>
-public static class ShinesparkEchoDepartures
+public static partial class ShinesparkEchoDepartures
 {
     /// <summary>
     /// The crash's two echo angles for the pose Samus holds when it finishes: one of the six crash poses, or a drained pose

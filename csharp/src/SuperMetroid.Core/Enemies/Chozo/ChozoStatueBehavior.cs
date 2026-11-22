@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Chozo], Create);
@@ -135,6 +135,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyChozoStatueCue"/> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ChozoStatueCueKind, Action<ChozoStatueState>> ApplyChozoStatueCueForChozoStatueCueKind => field ??= new(new Dictionary<ChozoStatueCueKind, Action<ChozoStatueState>>
     {
         [ChozoStatueCueKind.AwaitHand] = state => state.AwaitHand(),
@@ -193,10 +194,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="State">The statue's state <see cref="ApplyChozoStatueCue"/> works with.</param>
     /// <param name="Owner">The <see cref="ChozoStatueBehavior"/> reacting.</param>
-    private readonly record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
+    private readonly partial record struct ApplyChozoStatueCueContext(RoomEnemyPlace Statue, RoomLevelData Level, SamusState Samus, ChozoStatueState State, ChozoStatueBehavior Owner);
 
     /// <summary>Moves the statue through terrain, then places Samus at the authored carry offset from its accepted position.</summary>
-    private void ProcessChozoStatueMovement(
+    internal void ProcessChozoStatueMovement(
         RoomEnemyPlace statue,
         SamusState samus,
         RoomLevelData level,

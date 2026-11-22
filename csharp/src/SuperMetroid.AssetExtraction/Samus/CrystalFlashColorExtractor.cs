@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts Crystal Flash display colors; native duration words are not editable.</summary>
-public static class CrystalFlashColorExtractor
+public static partial class CrystalFlashColorExtractor
 {
     /// <summary>The bytes of one body record: its colour pointer and its timer word.</summary>
     private const int BodyRecordBytes = 4;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// the body draws its picture by pose and picture frame from the pre-coloured sheet. The tables, compositions,
 /// source artwork and appearances the import composed the sheets from stay in the import.
 /// </remarks>
-public sealed class InstalledSamusBodyArtwork
+public sealed partial class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     private readonly Dictionary<SamusPoseId, int> artOrigins;
@@ -74,7 +74,7 @@ public sealed class InstalledSamusBodyArtwork
     /// frame is installed; false for any other pair, which <see cref="OriginRise"/> rejects.
     /// </summary>
     /// <remarks>The installation holds each pose's frames by the named frame of the pose's animation (#2048).</remarks>
-    private bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
+    internal bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
     {
         rise = 0;
         return originRises.TryGetValue(pose, out IReadOnlyDictionary<SamusAnimationFrame, int>? frames) &&

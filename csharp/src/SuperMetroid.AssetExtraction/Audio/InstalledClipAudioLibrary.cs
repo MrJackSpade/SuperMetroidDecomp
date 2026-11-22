@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// acceptance policies the game plays, which the game receives alone, beside the validated clip manifest they came from
 /// and the identity of the selected audio.
 /// </summary>
-public sealed class InstalledClipAudioLibrary
+public sealed partial class InstalledClipAudioLibrary
 {
     /// <summary>
     /// Creates a catalog over <paramref name="manifest"/>, whose clips <paramref name="source"/> supplies;

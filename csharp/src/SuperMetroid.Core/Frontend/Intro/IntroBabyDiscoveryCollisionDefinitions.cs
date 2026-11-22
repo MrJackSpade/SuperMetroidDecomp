@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The terrain of the SR388 discovery room, distinct from the room's picture (#2204): open air down to a full-width row
 /// of slope blocks lying on a full-width solid floor, with open air below the floor to the room's bottom.
 /// </summary>
-internal static class IntroBabyDiscoveryCollisionDefinitions
+internal static partial class IntroBabyDiscoveryCollisionDefinitions
 {
     /// <summary>The room's width in blocks.</summary>
     internal const int Columns = 32;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>One cue of the Ki-Hunter acid's animations (#1843): what it does, with the values it acts on.</summary>
-internal abstract record KiHunterAcidSpitCue
+internal abstract partial record KiHunterAcidSpitCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private KiHunterAcidSpitCue()
@@ -17,7 +17,7 @@ internal abstract record KiHunterAcidSpitCue
 
     /// <summary>Launches the acid out of the mouth the cue's way (#2163).</summary>
     /// <param name="Direction">The way the acid leaves.</param>
-    internal sealed record Launch(HorizontalDirection Direction) : KiHunterAcidSpitCue
+    internal sealed partial record Launch(HorizontalDirection Direction) : KiHunterAcidSpitCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(KiHunterAcidSpitCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Launch(this, context);
@@ -25,7 +25,7 @@ internal abstract record KiHunterAcidSpitCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(KiHunterAcidSpitCueKind Kind) : KiHunterAcidSpitCue
+    internal sealed partial record Signal(KiHunterAcidSpitCueKind Kind) : KiHunterAcidSpitCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(KiHunterAcidSpitCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -36,4 +36,4 @@ internal abstract record KiHunterAcidSpitCue
 /// <param name="Launch">Reacts to a <see cref="KiHunterAcidSpitCue.Launch"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="KiHunterAcidSpitCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record KiHunterAcidSpitCueReactions<TContext>(Action<KiHunterAcidSpitCue.Launch, TContext> Launch, Action<KiHunterAcidSpitCue.Signal, TContext> Signal);
+internal sealed partial record KiHunterAcidSpitCueReactions<TContext>(Action<KiHunterAcidSpitCue.Launch, TContext> Launch, Action<KiHunterAcidSpitCue.Signal, TContext> Signal);

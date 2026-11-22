@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Schema, layout, and native extraction identities for post-credit text.</summary>
-public static class EndingTextDefinitions
+public static partial class EndingTextDefinitions
 {
     /// <summary>Current ending-text asset schema version.</summary>
     public const int Version = 2;

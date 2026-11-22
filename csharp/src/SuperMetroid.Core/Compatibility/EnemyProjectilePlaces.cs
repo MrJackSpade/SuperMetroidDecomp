@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// down, reading each slot when they reach it.
 /// </remarks>
 [CompatibilityService("the room's enemy projectiles take eighteen places, searched and run from the last down, and a spawn leaves the place it took for a death explosion to read")]
-public sealed class EnemyProjectilePlaces
+public sealed partial class EnemyProjectilePlaces
 {
     /// <summary>How many enemy projectiles the room holds at once.</summary>
     public const int Capacity = 18;

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the part of its picture a split sheet installs it in (#1634) and is not installed itself.
 /// </summary>
 /// <param name="size">The sheet's size.</param>
-internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
+internal sealed partial class RoomTileCanvas(Extent16<ImagePixels> size)
 {
     /// <summary>Colours in one palette row.</summary>
     internal const int RowColours = 16;
@@ -364,13 +364,13 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
     /// <param name="Name">The frame's composed name, which its behind part keeps.</param>
     /// <param name="Frame">The frame's composed document.</param>
     /// <param name="Installation">How the frame is installed: whole, by the one part it inks, or split with its in-front part moved (#2560).</param>
-    private sealed record FramePart(string Name, SpriteSheetFrameDocument Frame, FrameInstallation Installation);
+    private sealed partial record FramePart(string Name, SpriteSheetFrameDocument Frame, FrameInstallation Installation);
 
     /// <summary>How a frame of a split sheet is installed (#2560): a closed choice whose split case carries its in-front part's corner.</summary>
-    private abstract record FrameInstallation;
+    private abstract partial record FrameInstallation;
 
     /// <summary>A frame installed whole, as a sheet that splits none of its frames installs it.</summary>
-    private sealed record WholeFrame : FrameInstallation
+    private sealed partial record WholeFrame : FrameInstallation
     {
         /// <summary>The one whole installation.</summary>
         internal static WholeFrame Instance { get; } = new();
@@ -378,9 +378,9 @@ internal sealed class RoomTileCanvas(Extent16<ImagePixels> size)
 
     /// <summary>A split frame of which at most one part inks an opaque pixel: installed as that part, or as nothing.</summary>
     /// <param name="Parts">Which of its parts ink an opaque pixel: none, the part behind, or the part in front.</param>
-    private sealed record InkedFrame(InkedParts Parts) : FrameInstallation;
+    private sealed partial record InkedFrame(InkedParts Parts) : FrameInstallation;
 
     /// <summary>A split frame whose parts both ink a pixel: its in-front part is laid below the painted planes.</summary>
     /// <param name="Corner">The corner its in-front part is laid at.</param>
-    private sealed record SplitFrame(Position16<ImagePixels> Corner) : FrameInstallation;
+    private sealed partial record SplitFrame(Position16<ImagePixels> Corner) : FrameInstallation;
 }

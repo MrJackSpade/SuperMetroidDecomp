@@ -7,7 +7,7 @@ using SuperMetroid.Core.Bosses.Botwoon;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Botwoon colour document.</summary>
-public static class BotwoonColorFile
+public static partial class BotwoonColorFile
 {
     /// <summary>Loads and validates all eight complete Botwoon health palettes from editable RGB5 JSON.</summary>
     /// <param name="json">The caller-owned stream containing the color document.</param>
@@ -28,5 +28,5 @@ public static class BotwoonColorFile
     /// <param name="document">The eight complete RGB5 health palettes to serialize.</param>
     /// <returns>UTF-8 JSON bytes.</returns>
     public static byte[] Write(BotwoonColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BotwoonColorDocument>(ArtworkJson.Options));
 }

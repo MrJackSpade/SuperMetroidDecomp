@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// installed options sheet, whose compositions belong to the import pipeline that reads the installed presentation and
 /// never reach the game (#1463, #1616). Navigation, binding swaps, toggles and fades remain application mechanics.
 /// </summary>
-public sealed class GameOptionsPresentation
+public sealed partial class GameOptionsPresentation
 {
     /// <summary>The installed heading anchors by menu layout.</summary>
     private readonly Dictionary<GameOptionsPage, Offset16<ScreenPixels>> headingAnchors;

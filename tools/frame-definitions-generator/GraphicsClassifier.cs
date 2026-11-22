@@ -197,7 +197,7 @@ internal sealed class GraphicsClassifier(CoreModel model)
     /// <summary>The values <paramref name="owner"/>'s constructors assign to <paramref name="member"/>.</summary>
     private IEnumerable<ExpressionSyntax> ConstructorAssignments(INamedTypeSymbol owner, ISymbol member)
     {
-        foreach (IMethodSymbol constructor in owner.InstanceConstructors)
+        foreach (IMethodSymbol constructor in GameConstructors.Of(owner))
         {
             foreach (SyntaxReference reference in constructor.DeclaringSyntaxReferences)
             {

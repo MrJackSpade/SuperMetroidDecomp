@@ -18,19 +18,19 @@ internal static class AnimationPlayerAccess
         internal void ResumeOn(int beat, int updatesLeft)
         {
             AnimationSegments<TSegment, TFrame, TEvent> segments =
-                PrivateState.Field<AnimationPlayer<TSegment, TFrame, TEvent>, AnimationSegments<TSegment, TFrame, TEvent>>(self, "segments");
+                self.Segments;
             AnimationPhase<TSegment> phase = self.Playback.Animation.Phases[0];
             TFrame shown = segments.Beats(phase.Segment)[phase.FirstBeat + beat].ShownFrame
                 ?? throw new ArgumentException($"Beat {beat} of {phase.Segment} shows no frame.", nameof(beat));
-            PrivateState.Set(self, nameof(self.Playback), self.Playback with { Place = new AnimationPlace(0, beat + 1) });
-            PrivateState.Set(self, nameof(self.Shown), (TFrame?)shown);
-            PrivateState.Set(self, nameof(self.UpdatesLeft), updatesLeft);
+            self.Playback = self.Playback with { Place = new AnimationPlace(0, beat + 1) };
+            self.Shown = (TFrame?)shown;
+            self.UpdatesLeft = updatesLeft;
         }
 
         /// <summary>The frames one play of the player's animation shows, in the order it shows them, from its start.</summary>
         internal IReadOnlyList<TFrame> PlayedFrames =>
         [
-            .. PrivateState.Field<AnimationPlayer<TSegment, TFrame, TEvent>, AnimationSegments<TSegment, TFrame, TEvent>>(self, "segments")
+            .. self.Segments
                 .PlayedBeats(self.Playback.Animation).Select(beat => beat.ShownFrame).OfType<TFrame>(),
         ];
     }

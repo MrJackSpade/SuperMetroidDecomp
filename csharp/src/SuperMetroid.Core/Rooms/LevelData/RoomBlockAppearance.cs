@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// the room never shows it. A block is bounded by its tileset's installed block set, which the room's block sheet checks
 /// as it pictures the block. The default shows the block set's first block, unmirrored.
 /// </summary>
-public readonly record struct RoomBlockAppearance
+public readonly partial record struct RoomBlockAppearance
 {
     /// <summary>The block shown, by its number in the room tileset's block set; zero where no block is shown.</summary>
     private readonly int block;

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// manifest spells a music channel command by, written out so renaming a member never changes it. An effect command is
 /// spelled by its effect's key (<see cref="SpcMusicEffectKeys"/>), so the manifest never holds the effect kind's own key.
 /// </summary>
-internal static class AudioMusicInstructionKindKeys
+internal static partial class AudioMusicInstructionKindKeys
 {
     /// <summary>Each AudioMusicInstructionKind member's installed key.</summary>
     internal static InstalledKeys<AudioMusicInstructionKind> Installed { get; } = new(new Dictionary<AudioMusicInstructionKind, string>

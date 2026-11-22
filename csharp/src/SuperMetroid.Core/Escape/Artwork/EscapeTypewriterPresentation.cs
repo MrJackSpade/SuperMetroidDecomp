@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>The installed escape warnings (#2422): each message's lines as the installation holds them, wording and placement.</summary>
-public sealed class EscapeTypewriterPresentation
+public sealed partial class EscapeTypewriterPresentation
 {
     /// <summary>Loaded Ceres warning lines and where each starts.</summary>
     private readonly EscapeTypewriterMessage ceres;

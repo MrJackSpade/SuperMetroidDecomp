@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 /// Spore Spawn's installed RGB5 images, each kept as installed. Health thresholds, death timing, and target/current
 /// palette ownership remain compiled behavior.
 /// </summary>
-public sealed class SporeSpawnColorCatalog
+public sealed partial class SporeSpawnColorCatalog
 {
     /// <summary>The installed spore colours.</summary>
     private readonly InstalledColourRows spores;

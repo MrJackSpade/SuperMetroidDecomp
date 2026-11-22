@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable OAM compositions unique to the station blast and Zebes reveal.</summary>
-public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class CeresDestructionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated destruction and reveal compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -55,8 +55,7 @@ public sealed class CeresDestructionSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, CeresDestructionSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

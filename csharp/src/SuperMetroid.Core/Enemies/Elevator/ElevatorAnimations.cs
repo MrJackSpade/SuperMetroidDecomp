@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// The elevator's two-frame animation loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class ElevatorAnimations
+internal static partial class ElevatorAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ElevatorSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -22,7 +22,7 @@ internal static class ElevatorAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
+    internal static Dictionary<ElevatorSegment, Animation<ElevatorSegment>> StartingAt { get; } = new Dictionary<ElevatorSegment, Animation<ElevatorSegment>>
     {
         [P.Idle] = Animation<ElevatorSegment>.Looping([Segments.Whole(P.Idle)]),
     };

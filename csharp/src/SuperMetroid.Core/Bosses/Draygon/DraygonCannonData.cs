@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Draygon's wall cannons that the wall-turret firing can fire from, and where each launches its shot.
 /// </summary>
-public static class DraygonCannonData
+public static partial class DraygonCannonData
 {
     /// <summary>
     /// The cannon a wall-turret firing fires from, one for each value of

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>
 /// Samus's death sequence: the post-music-wait start, the fatal frame, and each death-sequence frame.
 /// </summary>
-internal sealed class DeathSequenceRunner
+internal sealed partial class DeathSequenceRunner
 {
     /// <summary>Supplies the active Samus turning-floor transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;

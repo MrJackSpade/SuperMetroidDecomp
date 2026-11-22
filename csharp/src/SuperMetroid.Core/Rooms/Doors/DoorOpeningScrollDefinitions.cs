@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// move per update, where each starts from its endpoint, how many updates move them, and the upward scroll's own camera
 /// snap, parallax basis and delayed recalculation of the layer scrolls.
 /// </summary>
-internal static class DoorOpeningScrollDefinitions
+internal static partial class DoorOpeningScrollDefinitions
 {
     /// <summary>Pixels the camera and the background move per scroll update along the travel axis.</summary>
     internal const int LayerStepPixels = 4;

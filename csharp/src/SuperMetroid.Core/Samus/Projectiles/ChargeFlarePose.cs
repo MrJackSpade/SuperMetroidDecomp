@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Samus's flare aim, running state, pose Y offset and facing as the charge flare reads them (#633).</summary>
-internal readonly record struct ChargeFlarePose
+internal readonly partial record struct ChargeFlarePose
 {
     /// <summary>Where the pose places the flare: at the muzzle of one of the ten aims, or at a turning placement.</summary>
     public required SamusFlareAim Aim { get; init; }

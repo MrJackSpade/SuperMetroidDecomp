@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>The Ceres destruction blasts' actors and where each wave places them.</summary>
-internal static class CeresExplosionDefinitions
+internal static partial class CeresExplosionDefinitions
 {
     /// <summary>
     /// The invisible actor whose animation (<see cref="CeresAnimations.ExplosionSpawner"/>) spawns the station's three

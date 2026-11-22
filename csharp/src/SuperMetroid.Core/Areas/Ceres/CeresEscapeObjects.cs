@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres escape's room objects: the seal that shuts the elevator room's door once Ceres Ridley is dead (#2494).</summary>
 [RoomLifetime]
-internal sealed class CeresEscapeObjects
+internal sealed partial class CeresEscapeObjects
 {
     /// <summary>The room's room objects, which the door's seal joins.</summary>
     private readonly RoomObjectPlaceList _places;

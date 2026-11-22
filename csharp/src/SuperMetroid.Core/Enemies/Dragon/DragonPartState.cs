@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// The body keeps the rest of its own state (<see cref="DragonEnemyState"/>); the wing keeps nothing more
 /// (<see cref="DragonWingState"/>).
 /// </summary>
-public abstract class DragonPartState
+public abstract partial class DragonPartState
 {
     /// <summary>Only the body and the wing are Dragon parts.</summary>
     private protected DragonPartState()

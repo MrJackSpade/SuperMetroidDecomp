@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TShot">The shot handed: its direction and the pose it was fired from.</typeparam>
 [CompatibilityService("a pose transition hands a shot to the next update's weapon firing")]
-public sealed class TransitionShot<TShot>
+public sealed partial class TransitionShot<TShot>
     where TShot : struct
 {
     /// <summary>The handed shot, or null when no transition handed one.</summary>

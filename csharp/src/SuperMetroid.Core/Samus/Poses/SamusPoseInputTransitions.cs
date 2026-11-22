@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// returned lookup states which input transition won for a precise
 /// held/newly-pressed input chord.
 /// </remarks>
-public static class SamusPoseInputTransitions
+public static partial class SamusPoseInputTransitions
 {
     /// <summary>The gameplay actions in the order a transition lists those it reads (#2567).</summary>
     private static readonly IReadOnlyList<GameplayAction> ActionOrder = Ensure.EveryMemberOnce<GameplayAction>(

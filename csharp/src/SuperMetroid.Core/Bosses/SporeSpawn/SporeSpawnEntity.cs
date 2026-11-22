@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
@@ -27,7 +27,15 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccu
     private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);
 
     /// <summary>His own stages around common bomb damage, which resolve the rest of a bomb on this encounter.</summary>
-    private EnemyBombReaction OwnBombReaction => field ??= species.SporeSpawnBombReactionOf(this);
+    private EnemyBombReaction OwnBombReaction => field ??= SporeSpawnBehavior.SporeSpawnBombReactionOf(this);
+
+    /// <summary>Resolves the rest of a bomb on this encounter after its common damage.</summary>
+    internal void ResolveShotAfterCommon(EnemyBombHitContext context) =>
+        species.ResolveSporeSpawnShotAfterCommon(Ensure.NotNull(context).Enemy, Encounter);
+
+    /// <summary>Resolves the rest of a shot on this encounter after its common damage.</summary>
+    internal void ResolveShotAfterCommon(EnemyShotHitContext context) =>
+        species.ResolveSporeSpawnShotAfterCommon(Ensure.NotNull(context).Enemy, Encounter);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)

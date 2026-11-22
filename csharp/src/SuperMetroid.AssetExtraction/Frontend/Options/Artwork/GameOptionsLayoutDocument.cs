@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// options sheet is composed from (#1463); each member keeps its place in the document.
 /// </summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries. The stream loader parses its own document before compiling the runtime presentation.</remarks>
-public record GameOptionsLayoutDocument
+public partial record GameOptionsLayoutDocument
 {
     /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]

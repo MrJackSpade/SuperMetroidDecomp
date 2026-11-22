@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Stable filenames of Kraid's body and head layouts and room background. All are import data (#1636, #1638): only the
 /// import composes Kraid's body sheet from them, and the installation holds the pictures it composes.
 /// </summary>
-public static class KraidBackgroundArtworkFormat
+public static partial class KraidBackgroundArtworkFormat
 {
     /// <summary>Import-data JSON filename for the upper-body BG2 source, not the engine's composed live tilemap.</summary>
     public const string UpperFileName = "kraid-upper-bg2.json";

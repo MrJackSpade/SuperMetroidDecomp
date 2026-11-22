@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
-public sealed class SamusHorizontalSpeedState
+public sealed partial class SamusHorizontalSpeedState
 {
     /// <summary>The water speeds Draygon's hold and special movement take in air, which have no speeds of their own there.</summary>
     private readonly WaterSpeedsInAir<SamusMovementType, SamusHorizontalSpeeds> _waterSpeedsInAir;
@@ -69,7 +69,7 @@ public sealed class SamusHorizontalSpeedState
     /// its shown shade: the first boosted running frame moves it on, then each shade holds for its own beat; a Screw
     /// Attack spin moves the shared place on and leaves the hold where it stood.
     /// </summary>
-    private AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =
+    internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> FullBodyGlow { get; } =
         SamusGlowPlay.Starting(FullBodyGlowStart);
 
     /// <summary>The glow the shared place starts in, before its first shade.</summary>
@@ -95,13 +95,13 @@ public sealed class SamusHorizontalSpeedState
     /// Whether cancelling a speed boost asked for the suit's shade back at once. Movement cancels the boost and the
     /// colour step, later in the same frame, shows the suit.
     /// </summary>
-    private SuitShadeAtColourStep SuitShade { get; } = new();
+    internal SuitShadeAtColourStep SuitShade { get; } = new();
 
     /// <summary>
     /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
     /// echoes; cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
-    private SpeedEchoPhase SpeedEchoPhase { get; set; }
+    internal SpeedEchoPhase SpeedEchoPhase { get; set; }
 
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
     public bool SpeedEchoesDeparting => SpeedEchoPhase == SpeedEchoPhase.Departing;
@@ -114,7 +114,7 @@ public sealed class SamusHorizontalSpeedState
     };
 
     /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
-    public UnsignedSixteenSixteen TotalSpeed { get; private set; }
+    public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
 
     /// <summary>
     /// How slowed Samus is (#2286), 0 through <see cref="LargestSlowdownLevel"/>: total speed is halved this many times,
@@ -139,7 +139,7 @@ public sealed class SamusHorizontalSpeedState
     /// The medium whose speeds Samus moves by, as the update's inside-block reaction or movement last chose it:
     /// air, water or lava and acid. Each movement takes its speeds from it (<see cref="Speeds"/>).
     /// </summary>
-    private SamusLiquidMedium SpeedMedium { get; set; } = SamusLiquidMedium.Air;
+    internal SamusLiquidMedium SpeedMedium { get; set; } = SamusLiquidMedium.Air;
 
     /// <summary>
     /// Has Samus move by air's speeds, as the inside-block reaction does before movement in ordinary air.
@@ -610,7 +610,7 @@ public sealed class SamusHorizontalSpeedState
     /// Advances one departing echo one update: Y approaches the live Samus center by its vertical approach, X advances by
     /// the signed departure speed, and the echo is gone on the exact update it crosses Samus. An echo already gone stays gone.
     /// </summary>
-    private void AdvanceDepartingSpeedEcho(
+    internal void AdvanceDepartingSpeedEcho(
         SpeedEcho echo,
         Position16<RoomPixels> samusPosition)
     {
@@ -644,7 +644,7 @@ public sealed class SamusHorizontalSpeedState
     /// Clears the departure state after both departing echoes have been considered.
     /// Once neither echo remains, the next capture fills the first echo again.
     /// </summary>
-    private void FinishDepartingSpeedEchoFrame()
+    internal void FinishDepartingSpeedEchoFrame()
     {
         if (SpeedEchoesDeparting && SpeedEchoes.Values.All(echo => echo.Position is null))
         {
@@ -658,7 +658,7 @@ public sealed class SamusHorizontalSpeedState
     /// its whole pixels and its fraction exactly as authored instead of becoming a floating-point value.
     /// </summary>
     /// <param name="movementType">Samus's movement.</param>
-    private SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
+    internal SamusHorizontalSpeeds Speeds(SamusMovementType movementType) =>
         SpeedMedium == SamusLiquidMedium.Air && _waterSpeedsInAir.TryRead(movementType, out SamusHorizontalSpeeds waterSpeeds)
             ? waterSpeeds
             : Ensure.Listed(SamusHorizontalSpeedDefinitions.ByMedium[SpeedMedium], movementType);
@@ -755,7 +755,7 @@ public sealed class SamusHorizontalSpeedState
     /// <see cref="SamusHorizontalSpeedDefinitions.LargestSpeedHalvings"/>, and publishes the total speed animation and
     /// collision use.
     /// </summary>
-    private UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
+    internal UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {
         TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SlowdownLevel, SamusHorizontalSpeedDefinitions.LargestSpeedHalvings));
         return TotalSpeed;

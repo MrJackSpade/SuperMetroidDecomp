@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// whether it is one of the Spazer attack's trailing pair, and which particles voice the attack's sounds. Each attack
 /// reads only its own parts.
 /// </summary>
-internal sealed record SpecialAttackParticle
+internal sealed partial record SpecialAttackParticle
 {
     /// <summary>The shot place, among Samus's first places, the particle takes when the attack starts (#2565).</summary>
     public required int ShotPlace { get; init; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Trail tile ownership within $82:8318's standard sprite transfer from Tiles_Standard_Sprite_0.</summary>
-public static class ProjectileTrailAtlasDefinitions
+public static partial class ProjectileTrailAtlasDefinitions
 {
     /// <summary>Editable indexed-PNG filename containing only the twelve standard-object projectile-trail characters, not the intervening native tile gap.</summary>
     public const string FileName = "projectile-trails.png";

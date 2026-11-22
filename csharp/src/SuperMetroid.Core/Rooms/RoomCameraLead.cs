@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 /// <param name="FallingOffset">How many pixels above Samus the camera aims its top while she moves any way but up; zero or more.</param>
 /// <param name="RisingOffset">How many pixels above Samus the camera aims its top while she moves up; zero or more.</param>
-public readonly record struct RoomCameraLead(int FallingOffset, int RisingOffset);
+public readonly partial record struct RoomCameraLead(int FallingOffset, int RisingOffset);

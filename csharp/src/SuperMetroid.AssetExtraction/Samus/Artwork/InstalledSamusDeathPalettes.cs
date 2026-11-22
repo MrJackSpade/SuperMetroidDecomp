@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The installed suit, suitless, and whiteout colours of Samus's death sequence and its explosion's step order, every
 /// colour and step kept as installed. Explosion durations have their own owner.
 /// </summary>
-public sealed class InstalledSamusDeathPalettes
+public sealed partial class InstalledSamusDeathPalettes
 {
     /// <summary>Three suited families in pointer-table order: Power, Varia, then Gravity.</summary>
     public const int SuitCount = 3;

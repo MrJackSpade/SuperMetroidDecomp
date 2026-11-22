@@ -40,8 +40,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         string file = Path.Combine(stockDirectory, ChozoAndTubeColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         ChozoAndTubeColorDocument visual =
-            JsonSerializer.Deserialize<ChozoAndTubeColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<ChozoAndTubeColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.ChozoAndTubeColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Chozo/tube color JSON is null.");
         ChozoAndTubeColorCatalog colors = native;
 

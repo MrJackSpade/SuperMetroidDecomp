@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 /// them, to pre-colour the sheets that show them, so the document goes to the component's import-data directory
 /// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of it.
 /// </summary>
-public static class GameplayBasePaletteFiles
+public static partial class GameplayBasePaletteFiles
 {
     /// <summary>
     /// Where the sprite colours begin in the gameplay colours: the upper half, whose first row receives the common
@@ -61,7 +61,7 @@ public static class GameplayBasePaletteFiles
     /// <param name="json">The caller-owned stream holding the gameplay base-palette document.</param>
     /// <returns>The selected colours, detached from the document.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, palette lengths or RGB5 channels are invalid.</exception>
-    private static GameplayBasePalette Read(Stream json)
+    internal static GameplayBasePalette Read(Stream json)
     {
         GameplayBasePaletteDocument document = JsonAssetDocument.Read<GameplayBasePaletteDocument>(
             json, GameplayBasePaletteFormat.JsonOptions, "gameplay base palette");
@@ -73,10 +73,9 @@ public static class GameplayBasePaletteFiles
     }
 
     /// <summary>Serializes a gameplay base-palette document as JSON.</summary>
-    private static byte[] Write(GameplayBasePaletteDocument document)
+    internal static byte[] Write(GameplayBasePaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            GameplayBasePaletteFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.GameplayBasePaletteDocument>(GameplayBasePaletteFormat.JsonOptions));
         return bytes;
     }
 

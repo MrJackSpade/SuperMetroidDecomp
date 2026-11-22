@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// One of the Speed Booster's two echoes (#2557): where it stands and how fast it departs toward Samus once her boost is
 /// cancelled. The speed state keeps one per <see cref="SpeedEcho"/>.
 /// </summary>
-public sealed class SamusSpeedEcho
+public sealed partial class SamusSpeedEcho
 {
     /// <summary>Where the echo stands, or none while there is no echo.</summary>
     public Position16<RoomPixels>? Position { get; internal set; }

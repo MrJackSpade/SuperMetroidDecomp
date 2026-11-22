@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// How the enemy sheet manifest names each spawned-object sheet's owner (#1513): "Shared" for the room's shared sheet,
 /// "MotherBrainTankGlass" for the sheet of her tank glass's pieces, and the spawner enemy's name for its own sheet.
 /// </summary>
-internal static class SpawnedObjectOwnerNames
+internal static partial class SpawnedObjectOwnerNames
 {
     /// <summary>The name of the shared sheet's owner.</summary>
     private const string SharedName = "Shared";

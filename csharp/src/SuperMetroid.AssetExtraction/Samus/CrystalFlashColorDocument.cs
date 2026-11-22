@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable JSON payload containing Crystal Flash body and bubble RGB5 frames; native playback timing is not part of this schema.</summary>
-public sealed record CrystalFlashColorDocument
+public sealed partial record CrystalFlashColorDocument
 {
     /// <summary>Schema revision, required to equal <see cref="CrystalFlashColorFile.Version"/> during loading.</summary>
     public required int Version { get; init; }

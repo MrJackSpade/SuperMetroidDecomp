@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Installed visual-composition file for the approach-to-Ceres actor set.</summary>
-public static class CeresFlightSpriteFormat
+public static partial class CeresFlightSpriteFormat
 {
     /// <summary>Supported revision of the six-composition Ceres flight sprite JSON schema.</summary>
     public const int Version = 1;

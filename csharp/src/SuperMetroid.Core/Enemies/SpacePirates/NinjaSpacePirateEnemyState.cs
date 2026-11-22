@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>
 /// The state of one ninja Pirate: its speeds and where it spawned.
 /// </summary>
-public sealed class NinjaSpacePirateEnemyState
+public sealed partial class NinjaSpacePirateEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal NinjaSpacePirateEnemyState(NinjaSpacePirateAction action) => Action = action;

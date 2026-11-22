@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileSoundRoutingDefi
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Which sound each projectile event plays.</summary>
-public static class SamusProjectileSoundRouting
+public static partial class SamusProjectileSoundRouting
 {
     /// <summary>
     /// The Samus-library sound a shot of <paramref name="combination"/> fires with, or none. Each Spazer and Plasma

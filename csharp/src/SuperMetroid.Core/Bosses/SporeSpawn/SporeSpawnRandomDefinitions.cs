@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The random choices of Spore Spawn's fight and death: its dust, explosions, drops and spore releases.</summary>
-internal static class SporeSpawnRandomDefinitions
+internal static partial class SporeSpawnRandomDefinitions
 {
     /// <summary>An idle dust cloud's X across its 64-pixel strip from X 96.</summary>
     internal static readonly RandomSampleField IdleDustX = RandomSampleField.OneOf(64);

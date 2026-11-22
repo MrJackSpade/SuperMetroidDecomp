@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// pipeline's private knowledge of the cartridge, decoded once into the installed background tilemaps and images.
 /// </summary>
 [EncodingOwner("cartridge addresses of the library background tilemaps and their transfer destinations")]
-internal static class RoomBackgroundSourceDefinitions
+internal static partial class RoomBackgroundSourceDefinitions
 {
     /// <summary>Where each compressed background tilemap is stored, as the disassembly labels it.</summary>
     internal static readonly FrozenDictionary<RoomBackgroundTilemap, int> Tilemaps =

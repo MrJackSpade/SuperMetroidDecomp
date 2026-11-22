@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// (#1402), keyed by each frame's name (#2556). The listing is the authored one the document is written in; no reader
 /// takes a frame by its place in it, and the document's readers find each frame by name.
 /// </summary>
-internal static class EnemySpritemapComposedFrames
+internal static partial class EnemySpritemapComposedFrames
 {
     /// <summary>Every frame of the document.</summary>
     internal static IReadOnlyCollection<EnemyFrameId> Frames { get; } =

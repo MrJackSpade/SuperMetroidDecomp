@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
 /// separate while one owner serves the two.
 /// </summary>
-public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacedAt;
@@ -215,7 +215,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    private Position16<RoomPixels>? BodyPlacedAt => BodyPlacements[BodyPlacement](this);
+    internal Position16<RoomPixels>? BodyPlacedAt => BodyPlacements[BodyPlacement](this);
 
     /// <summary>Where each body placement places her body's frames from.</summary>
     private static IdentityTable<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>> BodyPlacements => field ??= new(new Dictionary<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>>

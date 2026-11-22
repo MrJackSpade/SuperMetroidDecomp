@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Converts the retail credits row program into bounded, editable UTF-8 content.
 /// </summary>
 [EncodingOwner("cartridge credits instruction words")]
-public static class CreditsPresentationExtractor
+public static partial class CreditsPresentationExtractor
 {
     /// <summary>The bank-$8B instruction word naming each credits row command.</summary>
     private static readonly Dictionary<int, CreditsInstruction> instructions = new()
@@ -55,7 +55,7 @@ public static class CreditsPresentationExtractor
     }
 
     /// <summary>Interprets bank 8C row instructions into bounded 32-word tilemap rows.</summary>
-    private static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
+    internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingSourceDefinitions.Credits.Tilemap);

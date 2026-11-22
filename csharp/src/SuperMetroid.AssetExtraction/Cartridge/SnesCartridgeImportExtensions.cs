@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// <summary>
 /// Import-only cartridge access for extractors that also pass a mutable address space.
 /// </summary>
-public static class SnesCartridgeImportExtensions
+public static partial class SnesCartridgeImportExtensions
 {
     /// <summary>Reads one cartridge byte through an address space's import-only capability.</summary>
     /// <param name="bus">Address space that must also expose an import cartridge source.</param>

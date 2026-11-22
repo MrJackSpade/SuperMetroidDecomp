@@ -8,20 +8,20 @@ namespace SuperMetroid.Core.Input;
 /// Lifetime: the gameplay runtime, so a button still held when the pause screen opens again carries on from where the
 /// last pause left it.
 /// </summary>
-public sealed class HeldButtonRepeat
+public sealed partial class HeldButtonRepeat
 {
     /// <summary>The held buttons the previous update saw, newly pressed buttons excluded.</summary>
-    private ControllerButton _previousHeld;
+    internal ControllerButton PreviousHeld { get; private set; }
 
     /// <summary>
     /// The repeat delay, counted on each update the held buttons stay unchanged and lasting the delay and the update after
     /// it; none until such an update and again whenever the held buttons change. Once it is over the held buttons repeat on
     /// every further update.
     /// </summary>
-    private UpdateCountdown? _repeatWait;
+    internal UpdateCountdown? RepeatWait { get; set; }
 
     /// <summary>The held buttons that repeat on this update; none until the delay has passed.</summary>
-    public ControllerButton Repeating { get; private set; }
+    public ControllerButton Repeating { get; internal set; }
 
     /// <summary>Takes one update's buttons and decides which of them repeat.</summary>
     /// <param name="repeatDelay">The unchanged updates a held button waits through; it repeats on the next one.</param>
@@ -31,15 +31,15 @@ public sealed class HeldButtonRepeat
     {
         int delay = Ensure.AtLeastZero(repeatDelay);
         ControllerButton held = buttonsDown & ~newlyPressed;
-        bool unchanged = held == _previousHeld;
-        _previousHeld = held;
+        bool unchanged = held == PreviousHeld;
+        PreviousHeld = held;
         if (unchanged)
         {
-            _repeatWait ??= UpdateCountdown.Lasting(delay + 1);
-            _repeatWait.Step();
+            RepeatWait ??= UpdateCountdown.Lasting(delay + 1);
+            RepeatWait.Step();
         }
         else
-            _repeatWait = null;
-        Repeating = _repeatWait is { IsOver: true } ? held : ControllerButton.None;
+            RepeatWait = null;
+        Repeating = RepeatWait is { IsOver: true } ? held : ControllerButton.None;
     }
 }

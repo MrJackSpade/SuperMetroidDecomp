@@ -3,7 +3,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Wall-impact request made when Ridley slams into a wall.</summary>
-internal static class RidleyWallImpactDefinitions
+internal static partial class RidleyWallImpactDefinitions
 {
     /// <summary>The wall impact compares the faster of Ridley's two speeds against two and a half pixels an update.</summary>
     public static readonly SignedEightEight MinimumSpeed = SignedEightEight.FromPixelFraction(5, 2);

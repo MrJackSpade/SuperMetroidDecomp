@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The Flies species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly], Create);
@@ -134,7 +134,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The dive toward Samus along <paramref name="angle"/>, her aim: the dive's speed across along its cosine and its speed
     /// down along its negative sine (the sine a half turn ahead), since the aim counts up and rooms count down.
     /// </summary>
-    private static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
+    internal static PixelVelocity<RoomPixels> DiveVelocity(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle + TrigonometryAngle.QuarterTurn, FlyMotionDefinitions.DiveAcrossSpeed),
         EnemyMath.SineVelocity(angle + TrigonometryAngle.HalfTurn, FlyMotionDefinitions.DiveDownSpeed));
 
@@ -142,7 +142,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// One update's step around the circle at <paramref name="angle"/>: one pixel along its sine across and one along its
     /// sine a quarter turn behind (the negative cosine) down.
     /// </summary>
-    private static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
+    internal static PixelVelocity<RoomPixels> CircleStep(TrigonometryAngle angle) => new(
         EnemyMath.SineVelocity(angle, 1),
         EnemyMath.SineVelocity(angle - TrigonometryAngle.QuarterTurn, 1));
 

@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Reads and writes the installed title gradient: sixteen zoom variants, each described by its stops (#1468).</summary>
-public static class TitleGradientFile
+public static partial class TitleGradientFile
 {
     /// <summary>Installed JSON filename selected by the title presentation catalog.</summary>
     public const string FileName = "title-gradient.json";
@@ -107,7 +107,7 @@ public static class TitleGradientFile
     /// <param name="document">Authored gradient whose mutable arrays are read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, TitleGradientDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

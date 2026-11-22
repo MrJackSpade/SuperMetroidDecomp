@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// Maps the room-FX atlas's picture identities to where the cartridge stores their characters (#1415): the only place
 /// the import knows the bank-$87 artwork addresses the runtime atlas used to be keyed by.
 /// </summary>
-internal static class RoomFxBlockAnimationSources
+internal static partial class RoomFxBlockAnimationSources
 {
     /// <summary>Where the cartridge stores <paramref name="segment"/>'s characters.</summary>
     internal static SnesAddress Of(RoomFxAtlasSegment segment) => segment switch
@@ -20,7 +20,7 @@ internal static class RoomFxBlockAnimationSources
 
     /// <summary>Where the cartridge stores <paramref name="image"/>'s characters: its object's first picture, then one frame transfer further per picture.</summary>
     /// <exception cref="InvalidDataException">The object has no pictures in the atlas.</exception>
-    private static SnesAddress Of(AnimatedTileImage image)
+    internal static SnesAddress Of(AnimatedTileImage image)
     {
         (SnesAddress first, int byteCount) = image.Object switch
         {
@@ -45,5 +45,5 @@ internal static class RoomFxBlockAnimationSources
     }
 
     /// <summary>An object's first picture and the bytes between consecutive pictures.</summary>
-    private readonly record struct PictureRun(SnesAddress First, int ByteCount);
+    private readonly partial record struct PictureRun(SnesAddress First, int ByteCount);
 }

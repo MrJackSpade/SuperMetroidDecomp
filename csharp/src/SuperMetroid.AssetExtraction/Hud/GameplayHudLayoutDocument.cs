@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// row, and which item icons the template leaves room for. The cells the images are pictured from are import data
 /// (<see cref="GameplayHudPresentationDocument"/>), as they are the original's packed tile placements.
 /// </summary>
-public sealed record GameplayHudLayoutDocument
+public sealed partial record GameplayHudLayoutDocument
 {
     /// <summary>Schema version; must equal <see cref="GameplayHudDocumentDefinitions.LayoutVersion"/>.</summary>
     public required int Version { get; init; }

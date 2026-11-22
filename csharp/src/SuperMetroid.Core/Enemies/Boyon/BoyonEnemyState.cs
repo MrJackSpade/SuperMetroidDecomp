@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// bounces as high as their jump height, which it reads where it uses them (#2476); each update's speed is the product
 /// it moves by on that update (#2531).
 /// </summary>
-public sealed class BoyonEnemyState
+public sealed partial class BoyonEnemyState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }

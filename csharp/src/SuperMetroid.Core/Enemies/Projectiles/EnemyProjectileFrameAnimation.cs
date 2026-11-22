@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TEvent">The family's events.</typeparam>
-internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyProjectileTypedAnimation<TSegment, EnemyProjectileFrameId, TEvent>
+internal abstract partial class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyProjectileTypedAnimation<TSegment, EnemyProjectileFrameId, TEvent>
     where TSegment : struct
     where TEvent : notnull
 {

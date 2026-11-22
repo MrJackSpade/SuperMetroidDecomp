@@ -160,7 +160,7 @@ internal static class CeresSaveStartupVerification
         // Layer-one fractions $090F/$0913 are written only by camera movement, so they
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;
-        global::SuperMetroid.Core.PrivateState.Set(deathCamera, "Position", deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00));
+        deathCamera.Position = deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00);
         gameOverProbe.Session.DeathFade.Restart(DisplayBrightness.Black.Brighter(1), 0);
         gameOverProbe.Session.Enter(DeathSequenceStep.FinalBlackOut);
         gameOverProbe.Step(0);

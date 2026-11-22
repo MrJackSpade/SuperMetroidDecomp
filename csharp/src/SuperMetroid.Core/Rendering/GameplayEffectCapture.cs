@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Ceres haze, the X-ray's cone, and the
 /// room effects' own blends (#1545). The backend draws these descriptions; nothing here draws.
 /// </summary>
-public static class GameplayEffectCapture
+public static partial class GameplayEffectCapture
 {
     /// <summary>The screen's width in pixels.</summary>
     private const int Width = ScreenGeometry.ScreenWidthPixels;
@@ -151,7 +151,7 @@ public static class GameplayEffectCapture
         Ensure.NotNull(overlay).Map(OverlayLayers.Instance);
 
     /// <summary>Each kind of effect overlay as the effect overlay's blend: none for an overlay showing nothing.</summary>
-    private sealed class OverlayLayers : IRoomEffectOverlayMapping<OverlayBlendLayer?>
+    private sealed partial class OverlayLayers : IRoomEffectOverlayMapping<OverlayBlendLayer?>
     {
         /// <summary>The one mapping.</summary>
         internal static OverlayLayers Instance { get; } = new();

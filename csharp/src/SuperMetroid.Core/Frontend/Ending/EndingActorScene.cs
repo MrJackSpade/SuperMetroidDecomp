@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// A scene of the ending with actors of its own to draw (#2553): every scene but the final logo's item-percentage drop and
 /// its typed texts, which show their screen alone.
 /// </summary>
-internal abstract class EndingActorScene : EndingScene
+internal abstract partial class EndingActorScene : EndingScene
 {
     /// <summary>Only the ending's scenes with actors derive from it.</summary>
     private protected EndingActorScene()

@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="LaserSpeed">How fast its lasers fly.</param>
 /// <param name="ShotWatch">Whether it looks out for Samus's shots and flinches from them.</param>
 /// <param name="PatrolReach">The pixels it patrols either side of its placement.</param>
-internal sealed record WalkingSpacePirateSpawnSettings(
+internal sealed partial record WalkingSpacePirateSpawnSettings(
     HorizontalDirection Facing, PirateLaserSpeed LaserSpeed, WalkingSpacePirateShotWatch ShotWatch, int PatrolReach) : EnemySpawnSettings;

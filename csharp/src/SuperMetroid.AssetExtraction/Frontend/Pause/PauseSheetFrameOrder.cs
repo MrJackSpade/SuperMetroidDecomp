@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// The order the pause sheet holds the pictures of each kind (#2567), written out so reordering a kind's members never
 /// reorders the installed sheet: the pictures and the names the game checks the sheet by both follow these lists.
 /// </summary>
-internal static class PauseSheetFrameOrder
+internal static partial class PauseSheetFrameOrder
 {
     /// <summary>Each equipment label's states: blank, enabled, disabled.</summary>
     internal static readonly IReadOnlyList<PauseEquipmentLabelState> LabelStates = Ensure.EveryMemberOnce<PauseEquipmentLabelState>(

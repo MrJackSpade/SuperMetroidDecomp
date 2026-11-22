@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.World;
 /// lifetime its state shares (the liquid and the statues live in the loaded room scope it is handed).
 /// </para>
 /// </remarks>
-internal sealed class LiquidWaveAndStatueDescent
+internal sealed partial class LiquidWaveAndStatueDescent
 {
     /// <summary>Supplies the authored freeze gate to the shared room liquid update.</summary>
     private readonly GameplayTimeFreeze _freeze;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// outside the emulation scope limit (#1500), so the shot is refused as it is fired, after its muzzle collision.
 /// </summary>
 /// <param name="runs">What the shot runs, completing "The shot runs ...".</param>
-internal sealed class ShotRefusedWhenFired(string runs) : SamusShotFiring
+internal sealed partial class ShotRefusedWhenFired(string runs) : SamusShotFiring
 {
     /// <summary>What the shot runs, completing "The shot runs ...".</summary>
     internal string Runs { get; } = Ensure.NotNull(runs);

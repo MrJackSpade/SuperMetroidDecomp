@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>How Norfair Ridley accelerates and moves toward a target.</summary>
-internal static class NorfairRidleyMovement
+internal static partial class NorfairRidleyMovement
 {
     /// <summary>Accelerates both axes of his velocity toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(

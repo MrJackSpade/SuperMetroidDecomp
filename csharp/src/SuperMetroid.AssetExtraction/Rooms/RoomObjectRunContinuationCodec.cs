@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// import checks against the cartridge's draw lists.
 /// </summary>
 [EncodingOwner("PLM block-run continuation word")]
-internal static class RoomObjectRunContinuationCodec
+internal static partial class RoomObjectRunContinuationCodec
 {
     /// <summary>The offset word the cartridge stores after run <paramref name="run"/> of a pictured frame's <paramref name="layout"/> (#1557).</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="run"/> is not one of the layout's runs, or an axis does not fit a signed byte.</exception>

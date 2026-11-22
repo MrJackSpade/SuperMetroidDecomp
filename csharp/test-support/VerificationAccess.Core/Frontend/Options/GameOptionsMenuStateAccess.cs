@@ -12,7 +12,7 @@ internal static class GameOptionsMenuStateAccess
     {
         /// <summary>Puts the menu at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
         internal void SkipToPhase(GameOptionsPhase phase) =>
-            PrivateFrontendState.Set(self, nameof(GameOptionsMenuState.Phase), phase);
+            self.Phase = phase;
 
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's little-endian tilemap words from the import's sources of the
@@ -31,7 +31,7 @@ internal static class GameOptionsMenuStateAccess
                     break;
                 case GameOptionsPage.Controller:
                     for (int row = 0; row < GameOptionsPageRows.ControllerActions.Count; row++)
-                        presentation.ApplyControllerLabel(tiles, row, shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
+                        presentation.ApplyControllerLabel(tiles, GameOptionsPageRows.ControllerActions[row], shown.Bindings[GameOptionsPageRows.ControllerActions[row]]);
                     break;
                 case GameOptionsPage.Special:
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.IconCancel, shown.IconCancelEnabled);

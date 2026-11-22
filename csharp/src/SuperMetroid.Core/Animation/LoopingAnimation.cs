@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Animation;
 /// its cycle and no reader asks an animation that does not loop where its cycle starts.
 /// </summary>
 /// <typeparam name="TSegment">The segment identity the phases play.</typeparam>
-internal sealed record LoopingAnimation<TSegment>
+internal sealed partial record LoopingAnimation<TSegment>
     where TSegment : struct
 {
     /// <summary>Keeps <paramref name="animation"/>, whose cycle starts at <paramref name="cyclePhase"/>.</summary>

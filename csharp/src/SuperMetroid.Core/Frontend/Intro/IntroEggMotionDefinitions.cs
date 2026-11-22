@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>How the hatching egg's shell pieces and the Baby's slime drops fly, independent of their pictures.</summary>
-internal static class IntroEggMotionDefinitions
+internal static partial class IntroEggMotionDefinitions
 {
     /// <summary>
     /// Each piece of the shell: where it starts and its horizontal launch speed, which
@@ -68,10 +68,10 @@ internal static class IntroEggMotionDefinitions
     internal static IntroEggFallCurve ShellFall { get; } = new(TwoSpellRise, Updates: FragmentCurveFrames);
 
     /// <summary>How the steeper slime drops fly: three spells rising, then falling.</summary>
-    private static IntroEggFallCurve SteepSlimeFall { get; } = new(ThreeSpellRise, Updates: 69);
+    internal static IntroEggFallCurve SteepSlimeFall { get; } = new(ThreeSpellRise, Updates: 69);
 
     /// <summary>How the shallower slime drops fly: two spells rising, then falling.</summary>
-    private static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
+    internal static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
 
     /// <summary>
     /// The slime drops the hatched Baby sheds, in the order it sheds them: a steep drop and a shallow one to the left, then

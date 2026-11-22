@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Collision">How the block collides.</param>
 /// <param name="Behavior">The block's behaviour, whose reading for <paramref name="Collision"/> selects its reaction.</param>
-internal readonly record struct RoomTerrainReaction(RoomCollisionType Collision, RoomBlockBehavior Behavior);
+internal readonly partial record struct RoomTerrainReaction(RoomCollisionType Collision, RoomBlockBehavior Behavior);

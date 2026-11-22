@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>Where a crawler starts and how fast it crawls, whichever placement settings carry them (#1471, #1472, #1519).</summary>
-internal abstract record CrawlerStartSettings : EnemySpawnSettings
+internal abstract partial record CrawlerStartSettings : EnemySpawnSettings
 {
     /// <summary>The surface the crawler starts on.</summary>
     internal abstract CrawlerSurfaceOrientation StartingSurface { get; }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Animation;
 /// Where an animation stands (#1600): its phase; whether the play has not entered the phase yet, plays it, or holds in it;
 /// the beats of the phase it has passed; and, in a repeated phase, the plays the phase has left (#2006).
 /// </summary>
-internal readonly record struct AnimationPlace
+internal readonly partial record struct AnimationPlace
 {
     /// <summary>
     /// Playing phase <paramref name="phase"/>, its next beat <paramref name="beat"/>, counted from the phase's first; past

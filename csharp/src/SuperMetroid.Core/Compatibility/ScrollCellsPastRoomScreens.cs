@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TCell">A scroll cell's state.</typeparam>
 [CompatibilityService("a room's explicit scroll layout fills the kept cells past its own screens with what follows them in the game's data")]
-public sealed class ScrollCellsPastRoomScreens<TCell>
+public sealed partial class ScrollCellsPastRoomScreens<TCell>
 {
     /// <summary>The cells each explicit layout's load writes past the room's screens, by the layout's name.</summary>
     private readonly IReadOnlyDictionary<string, IReadOnlyList<TCell>> _byLayout;

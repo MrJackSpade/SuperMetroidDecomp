@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// shines, each picture for the installed hold (#1615), and rests on its last. The turn starts on its first picture, one
 /// update from its second.
 /// </summary>
-internal sealed class FileSelectHelmetAnimation
+internal sealed partial class FileSelectHelmetAnimation
 {
     /// <summary>The pictures of the turn, in the order it shows them; it rests on the last.</summary>
     internal static IReadOnlyList<FileSelectHelmetFrame> Turn { get; } =

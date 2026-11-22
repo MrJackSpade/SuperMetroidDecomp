@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Brinstar plants that catch Samus: their spawn, and what they do to the held Samus.</summary>
 [RoomLifetime]
-internal sealed class SamusEaterObjects
+internal sealed partial class SamusEaterObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;

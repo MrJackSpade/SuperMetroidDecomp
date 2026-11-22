@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The access rules of the map, energy and missile stations.</summary>
-internal static class StationAccessRuleDefinitions
+internal static partial class StationAccessRuleDefinitions
 {
     /// <summary>The map station: access blocks one to the right and two to the left, and an acquired animation once the area map is held.</summary>
     internal static StationAccessRule Map { get; } = new(StationKind.Map, 1, -2,

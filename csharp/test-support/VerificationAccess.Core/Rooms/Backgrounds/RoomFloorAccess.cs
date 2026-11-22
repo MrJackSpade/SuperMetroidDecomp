@@ -9,6 +9,6 @@ internal static class RoomFloorAccess
     {
         /// <summary>The floor animation frames drawn over the floor, in drawing order.</summary>
         public IReadOnlyDictionary<CeresFloorActor, CeresFloorActorPicture> Shown =>
-            PrivateState.Field<RoomFloor, Dictionary<CeresFloorActor, CeresFloorActorPicture>>(self, "shown");
+            self.shown;
     }
 }

@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// moves it; the picture's rows above and below the corpse show themselves.
 /// </summary>
 /// <param name="Top">The picture row the corpse's first pixel row lies at, which may lie above the picture.</param>
-public sealed record CorpsePicturePlacement(int Top);
+public sealed partial record CorpsePicturePlacement(int Top);

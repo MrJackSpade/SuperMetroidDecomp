@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// its resting and expressive cutscene loops. The baby squishes through horizontal, round and vertical poses;
 /// while it moves, the expressive loop also pulses its colours and cries.
 /// </summary>
-internal static class CeresBabyAnimations
+internal static partial class CeresBabyAnimations
 {
     /// <summary>How many times the resting loop checks for motion and squishes before the expressive loop.</summary>
     private const int IdleSquishPlays = 2;
@@ -40,7 +40,7 @@ internal static class CeresBabyAnimations
     /// The animation that starts at each segment: the resting loop runs on into the expressive loop, which goes back to the
     /// resting loop.
     /// </summary>
-    private static Dictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
+    internal static Dictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
         [P.IdleSquish] = Animation<P>.Looping([Segments.Repeated(P.IdleSquish, IdleSquishPlays), Segments.Whole(P.ExpressiveLoop)]),
         [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Repeated(P.IdleSquish, IdleSquishPlays)]),

@@ -4,7 +4,7 @@ using static SuperMetroid.AssetExtraction.Rooms.RoomObjectDynamicCollectibleGrap
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Which graphics and palette offsets each dynamic collectible loads.</summary>
-internal static class DynamicCollectibleGraphics
+internal static partial class DynamicCollectibleGraphics
 {
     /// <summary>Whether <paramref name="kind"/> has a dynamic graphics upload: whether <see cref="RoomObjectDynamicCollectibleGraphicsDefinitions.Kinds"/> lists it.</summary>
     internal static bool HasUpload(InWorldCollectibleKind kind) => Kinds.Contains(kind);
@@ -29,7 +29,7 @@ internal static class DynamicCollectibleGraphics
 
 
     /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
-    private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
+    internal static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => ItemGraphic.Bombs,
         InWorldCollectibleKind.GravitySuit => ItemGraphic.GravitySuit,
@@ -60,7 +60,7 @@ internal static class DynamicCollectibleGraphics
     /// select their accent palette in the top-right tile of each frame; X-ray
     /// uses its top row with different palettes between the two frames.
     /// </summary>
-    private static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
+    internal static byte PaletteOffset(InWorldCollectibleKind kind, int tile)
     {
         if (!HasUpload(kind))
             throw new InvalidDataException(

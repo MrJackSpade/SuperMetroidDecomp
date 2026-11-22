@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// the door's room event as <see cref="IDoorEventRoom"/>.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed class DoorSetupRoom : IDoorEventRoom
+internal sealed partial class DoorSetupRoom : IDoorEventRoom
 {
     /// <summary>The destination's level, which the setup's room objects edit.</summary>
     internal required RoomLevelData Level { get; init; }

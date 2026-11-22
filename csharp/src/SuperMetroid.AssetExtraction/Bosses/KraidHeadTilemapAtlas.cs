@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>One editable 32-by-11 Kraid head frame of placed BG2 tiles.</summary>
-public sealed class KraidHeadTilemapAtlas
+public sealed partial class KraidHeadTilemapAtlas
 {
     /// <summary>Owned 32-column BG2 tiles the Kraid head-copy operation places.</summary>
     private readonly BackgroundTile[] tiles;

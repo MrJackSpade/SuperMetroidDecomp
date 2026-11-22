@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// program shows while its scene draws from that sheet, in the colourings the actor draws it in. A sheet pictures exactly
 /// these poses, so no frame is composed over characters its scene never loads for it.
 /// </summary>
-internal static class EndingSceneActors
+internal static partial class EndingSceneActors
 {
     /// <summary>Each ending sheet's recording of what its scene's actors draw from it.</summary>
     private static readonly Dictionary<SpriteSheetId, Action<EndingSheetDraws>> Scenes = new()

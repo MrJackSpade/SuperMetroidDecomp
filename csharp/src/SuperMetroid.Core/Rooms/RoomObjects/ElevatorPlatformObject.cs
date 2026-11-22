@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// An elevator platform (#1554): from its first update it plays its loop
 /// (<see cref="ElevatorPlatformObjectDefinitions.Cycle"/>) for as long as the room holds it.
 /// </summary>
-internal sealed class ElevatorPlatformObject()
+internal sealed partial class ElevatorPlatformObject()
     : SilentSequencedRoomObject<RoomObjectFrameRun, ElevatorPlatformFrame>(CycleSegments)
 {
     /// <summary>The platform's loop, each layout for its own updates (#2480).</summary>

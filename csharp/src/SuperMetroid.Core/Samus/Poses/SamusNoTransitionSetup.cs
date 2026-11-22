@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// own, and the ground turn and the normal jump name theirs on their movement (<see cref="SamusNoTransitionSetups"/>).
 /// Each setup runs itself through the pose phase (#2571), so no switch over setup identities picks the response.
 /// </summary>
-internal sealed class SamusNoTransitionSetup
+internal sealed partial class SamusNoTransitionSetup
 {
     /// <summary>The setup's name, for diagnostics.</summary>
     private readonly string _name;

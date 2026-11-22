@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>What each room-object setup block's level words carry (<see cref="RoomObjectSetupBlockFiles"/>).</summary>
-internal static class RoomObjectSetupBlockDefinitions
+internal static partial class RoomObjectSetupBlockDefinitions
 {
     /// <summary>A setup that combines the block it substitutes with the struck block's collision, so its word carries none of its own.</summary>
     private static readonly RoomObjectSetupBlockDefinition Substitute = new(RoomCollisionType.Air, KeepsStruckMirroring: false);

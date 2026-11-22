@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// phase as it shows that phase's look, and Samus's heat shimmer follows the published phase, restarting her suit's pulse
 /// at the same phase's look. Phases run from <see cref="First"/> up and round again (<see cref="InOrder"/>).
 /// </summary>
-public readonly record struct HeatPhase
+public readonly partial record struct HeatPhase
 {
     /// <summary>The phases the heat pulse has.</summary>
     public const int Count = 16;

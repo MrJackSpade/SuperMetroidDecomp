@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// next ceiling rock and the rocks' wait of his rise through the floor.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidBodyState : KraidPartState
+public sealed partial class KraidBodyState : KraidPartState
 {
     /// <summary>Makes the body of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the body is part of.</param>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// actions and the enemy projectiles the room objects threw, each in the order the step made them. Every step builds its
 /// own outcome and returns it; nothing in it outlives the update that acts on it.
 /// </summary>
-public sealed class RoomObjectStepOutcome
+public sealed partial class RoomObjectStepOutcome
 {
     /// <summary>The items the step collected, in the order their places updated.</summary>
     private readonly List<CollectiblePickupEvent> _pickups = [];

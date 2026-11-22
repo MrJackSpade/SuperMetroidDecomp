@@ -13,7 +13,7 @@ using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondA
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Validates an installed overread document and builds the Samus overread services from it (#1474).</summary>
-internal static class SamusOverreadServicesReader
+internal static partial class SamusOverreadServicesReader
 {
     /// <summary>Every story event by its name.</summary>
     private static readonly IReadOnlyDictionary<string, StoryEvent> StoryEventsByName =

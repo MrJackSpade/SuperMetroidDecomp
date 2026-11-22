@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
@@ -20,11 +19,9 @@ internal static class PaletteFxContractTests
         VerifyPaletteCall("conditions only", "fx.Step(frame);");
         VerifyPaletteCall("removed optional binding", "fx.BindPresentationColors(frame);", "CS1061");
 
-        // Guard against a compatibility overload that would bring colour writing back: the one Step takes the conditions
-        // alone. Core declares no colour source at all; the palette-effect colours are the import's (#1583).
-        MethodInfo[] steps = typeof(ColourEffectSystem).GetMethods().Where(method => method.Name == "Step").ToArray();
-        if (steps.Length != 1 || steps[0].GetParameters() is not [{ ParameterType: var conditions }] || conditions != typeof(ColourEffectInputs))
-            throw new InvalidOperationException("Palette FX must expose exactly one Step, which takes the conditions alone.");
+        // Guard against a compatibility overload that would bring colour writing back: Step takes the conditions alone, and
+        // no overload takes a colour source besides. Core declares no colour source at all; the colours are the import's (#1583).
+        VerifyPaletteCall("no overload takes colours with the conditions", "fx.Step(frame, null);", "CS1501");
 
         // A frontend screen's step writes no colours either: each effect holds the record it shows, which the screen
         // shades its pictures with (#1597). The gunship engine flickers on the Ceres destruction cinematic, so its first
@@ -37,7 +34,7 @@ internal static class PaletteFxContractTests
         if (shown.Count != 1 || shown[0] != new ShownColourEffectFrame(ColourEffectColours.CutsceneGunshipEngine, first)
             || fx.FrameOf(ColourEffectColours.CutsceneGunshipEngine) != first || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first screen step did not show the gunship engine's first record.");
-        Console.WriteLine("#1512: two compiler contracts, the colourless step shape and the screen step pass; no gameplay search.");
+        Console.WriteLine("#1512: three compiler contracts, the colourless step shape and the screen step pass; no gameplay search.");
     }
 
     /// <summary>Compiles one caller statement and checks its expected diagnostic.</summary>

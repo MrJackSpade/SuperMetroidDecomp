@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// The game-over Baby's four installed sixteen-colour phases, kept as installed: the animation shows one phase's colours
 /// with one of the three fixed Baby images, and the import pre-colours the Baby's shades in them (#1512).
 /// </summary>
-internal sealed class GameOverBabyPaint
+internal sealed partial class GameOverBabyPaint
 {
     /// <summary>The colours the Baby shows in each phase.</summary>
     private readonly Dictionary<GameOverBabyColouring, RgbColor[]> palettes;
@@ -37,7 +37,7 @@ internal sealed class GameOverBabyPaint
 
     /// <summary>The installed colour <paramref name="color"/> of phase <paramref name="palette"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The phase or colour is outside the Baby's colours.</exception>
-    private RgbColor Read(GameOverBabyColouring palette, int color)
+    internal RgbColor Read(GameOverBabyColouring palette, int color)
     {
         if (!palettes.TryGetValue(palette, out RgbColor[]? colours)) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= GameOverPresentationFormat.BabyPaletteColorCount) throw new ArgumentOutOfRangeException(nameof(color));

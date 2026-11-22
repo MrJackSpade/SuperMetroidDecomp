@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// is the one place a number becomes its pose; <see cref="SamusPoseNumbers"/> turns a pose back into its number.
 /// </summary>
 [EncodingOwner("pose numbers of the cartridge's Samus pose tables")]
-internal static class SamusPoseNumbering
+internal static partial class SamusPoseNumbering
 {
     /// <summary>The number of records in the cartridge's pose tables, including the records of poses no path reaches.</summary>
     internal const int RecordCount = 253;

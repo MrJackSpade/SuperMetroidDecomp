@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable RGB5 schema for the six shared X-ray and animated-room visor colors, excluding their native timing and byte-offset state.</summary>
-public sealed record SamusVisorColorDocument
+public sealed partial record SamusVisorColorDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="SamusVisorColorFile.Version"/>.</summary>
     public required int Version { get; init; }

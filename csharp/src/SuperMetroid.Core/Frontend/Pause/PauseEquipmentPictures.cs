@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// page's corner, and no picture shows a part another part shows: the base leaves out every part that changes, and each
 /// part's picture covers its bounding rectangle with the template around the part itself.
 /// </summary>
-internal static class PauseEquipmentPictures
+internal static partial class PauseEquipmentPictures
 {
     /// <summary>The template without any label, the wireframe or the reserve display.</summary>
     internal const string BaseFrame = "Pause.Equipment.Base";

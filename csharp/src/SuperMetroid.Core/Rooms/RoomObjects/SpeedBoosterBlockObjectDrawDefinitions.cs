@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The one-block reveal used by bomb-special Speed Booster terrain: a special block. What it shows is its installed
 /// picture (#1557).
 /// </summary>
-internal static class SpeedBoosterBlockObjectDrawDefinitions
+internal static partial class SpeedBoosterBlockObjectDrawDefinitions
 {
     /// <summary>The Speed Booster block's own draw; its crumble frames are the single shot-block breakup draws.</summary>
     internal enum Draw

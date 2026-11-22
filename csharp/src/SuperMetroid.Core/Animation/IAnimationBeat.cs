@@ -48,7 +48,7 @@ internal interface IUnpausedHidingAnimationBeat<TFrame, TEvent> : IAnimationBeat
 /// <typeparam name="TResult">What a beat comes to.</typeparam>
 /// <param name="Beat">Passes any beat but a hidden stretch.</param>
 /// <param name="Hidden">Passes a hidden stretch.</param>
-internal sealed record HidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record HidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>, TPlay, TResult> Beat,
     PlayCase<AnimationHiddenBeat<TFrame, TEvent>, TPlay, TResult> Hidden)
     where TFrame : struct
@@ -61,7 +61,7 @@ internal sealed record HidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
 /// <typeparam name="TResult">What a beat comes to.</typeparam>
 /// <param name="Unpaused">Passes a beat that is no pause.</param>
 /// <param name="Hidden">Passes a hidden stretch.</param>
-internal sealed record UnpausedHidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record UnpausedHidingAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>.Unpaused, TPlay, TResult> Unpaused,
     PlayCase<AnimationHiddenBeat<TFrame, TEvent>, TPlay, TResult> Hidden)
     where TFrame : struct

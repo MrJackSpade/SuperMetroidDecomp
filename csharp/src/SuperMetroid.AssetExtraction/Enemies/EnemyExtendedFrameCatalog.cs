@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// display bindings, which gameplay reads with every other installed frame's (<see cref="InstalledEnemyFrameDisplays"/>).
 /// Hitbox records and callback pointers remain application-owned and never come from this JSON.
 /// </summary>
-public sealed class EnemyExtendedFrameCatalog
+public sealed partial class EnemyExtendedFrameCatalog
 {
 
     /// <summary>The compiled frame components and display bindings.</summary>

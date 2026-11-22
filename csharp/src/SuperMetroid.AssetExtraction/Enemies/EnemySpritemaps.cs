@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>
 /// The installed enemy OAM compositions: the composition displayed for the frame gameplay shows, and their identity.
 /// </summary>
-internal static class EnemySpritemaps
+internal static partial class EnemySpritemaps
 {
 
     /// <summary>Resolves an editable presentation binding, or <see cref="EnemySpritemapParts.Empty"/> when no bound frame is installed.</summary>

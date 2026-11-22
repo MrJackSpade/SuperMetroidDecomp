@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 /// shows, starts from and fades back to under the hurt flash and under each of his eight health bands. The rest of his
 /// colours are import data, which only pre-colours his pictures. Each colour is written as <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record KraidEyeColourDocument
+public sealed partial record KraidEyeColourDocument
 {
     /// <summary>Schema revision; loading requires <see cref="KraidEyeColourFile.Version"/>.</summary>
     public required int Version { get; init; }

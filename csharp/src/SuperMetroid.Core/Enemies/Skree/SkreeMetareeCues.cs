@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The cues Skree and Metaree share in their common animations.</summary>
-internal static class SkreeMetareeCues
+internal static partial class SkreeMetareeCues
 {
     /// <summary>What <c>Apply</c> does for each <see cref="SkreeMetareeCueKind"/> member, each member's own arm.</summary>
     private static IdentityTable<SkreeMetareeCueKind, Action<RoomEnemyPlace, Action>> ApplyForSkreeMetareeCueKind => field ??= new(new Dictionary<SkreeMetareeCueKind, Action<RoomEnemyPlace, Action>>

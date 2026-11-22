@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="FacingLeftOffset">Where it starts while he faces left; facing right mirrors its X.</param>
 /// <param name="FacingLeftFrame">The pose it shows while he faces left.</param>
 /// <param name="FacingRightFrame">The pose it shows while he faces right.</param>
-internal readonly record struct RidleyExplosionBodyPartDefinition(
+internal readonly partial record struct RidleyExplosionBodyPartDefinition(
     Offset16<RoomPixels> FacingLeftOffset,
     EnemyFrameId FacingLeftFrame,
     EnemyFrameId FacingRightFrame);

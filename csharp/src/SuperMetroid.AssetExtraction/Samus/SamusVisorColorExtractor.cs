@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports authored visor RGB5 colors without exposing their phase selectors.</summary>
-public static class SamusVisorColorExtractor
+public static partial class SamusVisorColorExtractor
 {
     /// <summary>Exports the six consecutive authored visor colors at $9B:A3C0 used by normal-room animation and X-ray Scope presentation.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the twelve-byte visor color band.</param>

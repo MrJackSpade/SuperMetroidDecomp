@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// (<see cref="Trigonometry"/>); <see cref="RotationAngle"/> is the form with a fraction, whose whole steps are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
-public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
+public readonly partial record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 {
     /// <summary>Orders angles by how far they lie through the turn from zero.</summary>
     public int CompareTo(TrigonometryAngle other) => RawValue.CompareTo(other.RawValue);
@@ -130,7 +130,7 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// This angle carried into the half turn from <see cref="HalfTurn"/> up to a full turn, keeping its position within
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
-    private TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
+    internal TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn on <paramref name="side"/> (#2555): on the right from just past straight down

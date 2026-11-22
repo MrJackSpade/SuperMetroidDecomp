@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// picture changes is named by the image and the cell's place in it (#1717); its pictures add the values of the inputs it
 /// depends on, and the image's manifest records the name, which the room reads.
 /// </summary>
-public static class RoomBlockPictureNames
+public static partial class RoomBlockPictureNames
 {
     /// <summary>The name of the picture of block <paramref name="block"/> while <paramref name="inputs"/> take <paramref name="values"/>.</summary>
     /// <param name="block">The block's index among those its room loads.</param>

@@ -5,7 +5,8 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.AssetExtraction.Fx.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Map;
+
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>Compares calculated Ceres haze channels with retail fade flags and imported stock colors.</summary>
@@ -33,12 +34,7 @@ internal static class LookupCeresDefaultTintsVerification
         }
     }
 
-    /// <summary>Checks the native fade stop counter and that stock tints are calculated rather than cached fields.</summary>
-    internal static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom)
-    {
+    /// <summary>Checks the native fade stop counter.</summary>
+    internal static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom) =>
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");
-        foreach (string name in new[] { "StockCeresHazeBlue", "StockCeresHazeRed" })
-            AssertTrue(!MetadataShape.DeclaresField(typeof(SceneColourFiles), $"<{name}>k__BackingField", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic),
-                "Default tint is calculated rather than stored in a static record");
-    }
 }

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Samus's pose, equipment and submersion as the Speed Booster glow reads them, and whether another special colouring owns her colours this frame (#633).</summary>
-public readonly record struct SpeedBoosterGlowFrame
+public readonly partial record struct SpeedBoosterGlowFrame
 {
     /// <summary>How Samus is moving, which decides whether her glow shows.</summary>
     public required SamusMovementType MovementType { get; init; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Defines the installed world-map label resource contract.</summary>
-public static class WorldMapLabelFormat
+public static partial class WorldMapLabelFormat
 {
     /// <summary>Supported world-map label schema version.</summary>
     public const int Version = 1;

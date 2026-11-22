@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Each ending reward's post-credits presentation (#1513).</summary>
-internal static class EndingRewardDefinitions
+internal static partial class EndingRewardDefinitions
 {
     /// <summary>
     /// Each reward's presentation: the suitless Samus fades in her own colours; the helmetless Samus her suitless colours and

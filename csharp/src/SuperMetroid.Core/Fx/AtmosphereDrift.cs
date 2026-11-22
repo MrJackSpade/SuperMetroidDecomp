@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The rain's sideways drift under its randomly chosen wind (#1415, <see cref="AtmosphereDriftDefinitions.RainWindDraw"/>).</summary>
-public static class AtmosphereDrift
+public static partial class AtmosphereDrift
 {
     /// <summary>The rain's sideways velocity a frame under <paramref name="wind"/>: negative blows it left.</summary>
     public static SignedEightEight RainHorizontalVelocity(RainWind wind) => wind switch

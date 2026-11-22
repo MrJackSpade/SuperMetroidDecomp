@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rendering;
 /// scene); what a layer shows, and so which of the screen's pictures and sprites lie in front of which, is the producer's
 /// decision, made by the order of its layers. The frame's brightness applies last.
 /// </summary>
-public sealed class LayeredScene : DisplayScene
+public sealed partial class LayeredScene : DisplayScene
 {
     /// <summary>The scene's own copy of the layer order, unchanged by later edits to the order it was given.</summary>
-    private readonly DisplayLayer[] layers;
+    internal readonly DisplayLayer[] layers;
     /// <summary>The frame's backdrop, shading and the sprite draws its gameplay layer composes, retained by reference, not copied again.</summary>
     public FramePaint Paint { get; }
     /// <summary>The layers, drawn in this order from back to front.</summary>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>How the Mama Turtle and her babies move, wait and touch Samus (#2043).</summary>
-internal static class MamaTurtleMotionDefinitions
+internal static partial class MamaTurtleMotionDefinitions
 {
     /// <summary>Half the Mama Turtle's height once she has left her shell, in pixels.</summary>
     internal const int AwakeHalfHeight = 16;

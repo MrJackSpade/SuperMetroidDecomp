@@ -10,12 +10,13 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 [RoomLifetime]
-internal sealed class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFactory
+internal sealed partial class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFactory
 {
     /// <summary>The room's owner of the Ceres doors and walls.</summary>
     private readonly CeresDoorBehavior _doors = Ensure.NotNull(doors);
 
     /// <inheritdoc/>
+    [field: NonSerialized]
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
         {
             [EnemyDefinitionId.CeresDoor] = (occupant, place, common) =>

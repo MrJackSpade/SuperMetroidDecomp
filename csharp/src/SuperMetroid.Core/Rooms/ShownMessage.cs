@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms;
 /// when its action is bound to no button the glyph can show, or null for a message that names no button.
 /// </param>
 /// <param name="Choice">The answer a save confirmation highlights, or null for a message that offers no choice.</param>
-public readonly record struct ShownMessage(GameplayMessageId Message, ControllerButton? Button, SaveChoice? Choice)
+public readonly partial record struct ShownMessage(GameplayMessageId Message, ControllerButton? Button, SaveChoice? Choice)
 {
     /// <summary>The name of the installed image of this form.</summary>
     [InstalledKey]

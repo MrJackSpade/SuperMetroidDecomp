@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The game, power-bomb, projectile and bomb state that can block X-ray activation (#633).</summary>
-public sealed record XrayBeginConditions
+public sealed partial record XrayBeginConditions
 {
     /// <summary>Live game state; setup rejects every state but main gameplay.</summary>
     public required SuperMetroidGameState GameState { get; init; }

@@ -5,6 +5,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Target">The waypoint the Baby steers toward.</param>
 /// <param name="WrongWayOffScreenXSpeed">The extra speed a reversal adds while the Baby is off screen on this leg.</param>
-internal readonly record struct BabyMetroidRouteLeg(
+internal readonly partial record struct BabyMetroidRouteLeg(
     Position16<RoomPixels> Target,
     SignedEightEight WrongWayOffScreenXSpeed);

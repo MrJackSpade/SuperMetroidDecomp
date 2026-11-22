@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// for a right-facing Torizo; a left-facing Torizo places them mirrored (#2029). Each swipe cue carries its own hand
 /// placement.
 /// </summary>
-internal static class BombTorizoAttackDefinitions
+internal static partial class BombTorizoAttackDefinitions
 {
     /// <summary>The gut's explosions: twelve pixels ahead and eight up.</summary>
     internal static readonly Offset16<RoomPixels> GutExplosion = new(12, -8);

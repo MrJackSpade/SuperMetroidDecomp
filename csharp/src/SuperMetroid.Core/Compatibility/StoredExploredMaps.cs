@@ -33,7 +33,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TArea">An area of the game.</typeparam>
 [CompatibilityService("a camera scroll check past the room's scroll cells reads the explored maps the game last stored")]
-public sealed class StoredExploredMaps<TArea>
+public sealed partial class StoredExploredMaps<TArea>
     where TArea : struct, Enum
 {
     /// <summary>The camera's reading of a run of eight cells of a stored map.</summary>

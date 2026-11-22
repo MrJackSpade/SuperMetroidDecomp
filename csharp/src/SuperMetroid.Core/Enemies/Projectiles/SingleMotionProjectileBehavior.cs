@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// spawner or a cue starts it, and moves by its one motion until a shot, a cue or its deletion stops it. A family whose
 /// animations publish cues of its own derives from it to handle them.
 /// </summary>
-internal class SingleMotionProjectileBehavior : EnemyProjectileMotionBehavior<SingleMotion>
+internal partial class SingleMotionProjectileBehavior : EnemyProjectileMotionBehavior<SingleMotion>
 {
     /// <summary>Moves the projectile one pass by the kind's one motion.</summary>
     private readonly Action<EnemyProjectileMotionContext> _move;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// An atmosphere on the effect overlay (#1706, #2505): the rain's, the fog's or the spores' picture, repeating across and
 /// down at its scroll.
 /// </summary>
-public sealed record AtmosphereEffectOverlay : ShownRoomEffectOverlay
+public sealed partial record AtmosphereEffectOverlay : ShownRoomEffectOverlay
 {
     /// <summary>Keeps the atmosphere's artwork, scroll and blend.</summary>
     /// <param name="artwork">The repeating picture.</param>

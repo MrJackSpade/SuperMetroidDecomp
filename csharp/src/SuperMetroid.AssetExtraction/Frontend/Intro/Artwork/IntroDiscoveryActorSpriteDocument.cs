@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable JSON schema for the SR388 egg, remnants, and baby Metroid compositions.</summary>
-public sealed record IntroDiscoveryActorSpriteDocument
+public sealed partial record IntroDiscoveryActorSpriteDocument
 {
     /// <summary>Must match <see cref="IntroDiscoveryActorSpriteFormat.Version"/> before any frame is accepted.</summary>
     public required int Version { get; init; }

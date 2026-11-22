@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Separates selector artwork/timing/positions from the fixed low-byte category dispatcher.</summary>
-public static class PauseSelectorExtractor
+public static partial class PauseSelectorExtractor
 {
     /// <summary>The visual animation role of each equipment category; suit/miscellaneous items and boots share Equipment.</summary>
     private static readonly Dictionary<PauseEquipmentCategory, string> Groups = new()

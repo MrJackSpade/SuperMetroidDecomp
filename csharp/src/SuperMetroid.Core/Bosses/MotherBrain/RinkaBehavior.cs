@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Rinka species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Rinka], Create);
@@ -58,7 +58,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A special Rinka whose spawn choice waits for the door loader's camera.</summary>
     /// <param name="Place">The Rinka's place.</param>
     /// <param name="State">The state its setup gave it.</param>
-    private readonly record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State);
+    private readonly partial record struct DeferredRinkaSpawn(RoomEnemyPlace Place, RinkaEnemyState State);
 
     /// <summary>
     /// Captures camera coordinates used by the Rinka's flight and spawn checks. <see cref="BeginEnemyFrame"/> refreshes
@@ -161,6 +161,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunRinkaMain"/> does for each <see cref="RinkaAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>> RunRinkaMainForRinkaAction => field ??= new(new Dictionary<RinkaAction, Action<RoomEnemyOccupant, RoomEnemyPlace, RinkaEnemyState, SamusState>>
     {
         [RinkaAction.WatchForLeavingViewport] = (occupant, place, state, samus) =>
@@ -225,7 +226,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Finishes a Rinka's reaction to a touch, a shot or a power bomb after the common damage: a killed Rinka either
     /// dies, or, one of Mother Brain's, hides and waits to respawn.
     /// </summary>
-    private void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    internal void ResolveRinkaCombatAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         if (place.Health != 0)
             return;
@@ -356,12 +357,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rinka's reaction to a bomb: the common damage without the generic death, then, when the hit kills it, Rinka's own death.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    internal EnemyBombReaction RinkaBombReaction(RoomEnemyOccupant rinka) => new()
+    internal static EnemyBombReaction RinkaBombReaction(RinkaEntity rinka) => new()
     {
         RunsGenericDeath = false,
         // The bomb's common damage shows no hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
     };
 
     /// <summary>Runs Rinka's main AI.</summary>
@@ -382,26 +383,25 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    internal EnemyPowerBombReaction RinkaPowerBombReaction(RoomEnemyOccupant rinka) => new()
+    internal static EnemyPowerBombReaction RinkaPowerBombReaction(RinkaEntity rinka) => new()
     {
-        SkipsEnemy = enemy => enemy.Presence.HasAny(EnemyPresence.Hidden),
+        SkipsEnemy = IsHidden,
         Lethal = EnemyPowerBombLethal.SpeciesOwned,
-        AfterCommon = c => ResolveRinkaCombatAfterCommon(rinka, c.Enemy),
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
     };
+
+    /// <summary>Whether a Rinka is hidden, which a Power Bomb skips.</summary>
+    private static bool IsHidden(RoomEnemyPlace enemy) => enemy.Presence.HasAny(EnemyPresence.Hidden);
 
     /// <summary>Rinka's reaction to a shot: its own death follows the damage, but not a shot that freezes it at once.</summary>
     /// <param name="rinka">The Rinka the reaction is built for.</param>
-    internal EnemyShotReaction RinkaShotReaction(RoomEnemyOccupant rinka) => new()
+    internal static EnemyShotReaction RinkaShotReaction(RinkaEntity rinka) => new()
     {
         // Rinka's own death follows damage only; a shot that freezes it at once skips it.
         Lethal = EnemyShotLethal.SpeciesOwned,
         // Rinka's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
-        AfterCommon = c =>
-        {
-            if (!c.Froze)
-                ResolveRinkaCombatAfterCommon(rinka, c.Enemy);
-        },
+        AfterCommon = Ensure.NotNull(rinka).ResolveCombatAfterCommon,
     };
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>

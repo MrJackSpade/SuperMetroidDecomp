@@ -53,8 +53,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
 
         string file = Path.Combine(stockDirectory, DraygonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.DraygonColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Draygon color JSON is null.");
         DraygonColorCatalog colors = native;
 

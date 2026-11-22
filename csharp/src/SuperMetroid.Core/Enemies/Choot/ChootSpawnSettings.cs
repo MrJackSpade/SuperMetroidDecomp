@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// zero, and the fall goes through that many loops, at least one, so zero falls through it once, as one does.
 /// </param>
 /// <param name="JumpDelay">Updates before its first jump.</param>
-internal sealed record ChootSpawnSettings(ChootFallingPath FallingPath, int PatternLoops, int JumpDelay) : EnemySpawnSettings;
+internal sealed partial record ChootSpawnSettings(ChootFallingPath FallingPath, int PatternLoops, int JumpDelay) : EnemySpawnSettings;

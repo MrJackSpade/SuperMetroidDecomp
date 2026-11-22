@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// left, and how far ahead of her the camera sits.
 /// </summary>
 [IndependentFlag("independent facts about Samus the camera target reads")]
-public readonly record struct HorizontalCameraContext
+public readonly partial record struct HorizontalCameraContext
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="knockedBack">Whether a knockback is carrying Samus, which reverses the facing target.</param>
@@ -17,7 +17,7 @@ public readonly record struct HorizontalCameraContext
     /// <param name="facesLeft">Whether Samus's pose faces left. Every other pose facing, front-view included, selects the right-facing target.</param>
     /// <param name="cameraDistance">How far ahead of Samus the camera target sits.</param>
     [IndependentFlag("independent facts about Samus the camera target reads")]
-    private HorizontalCameraContext(
+    internal HorizontalCameraContext(
         bool knockedBack,
         SamusMovementType movementType,
         bool turningAgainstMomentum,

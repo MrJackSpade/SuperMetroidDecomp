@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// in front of it (<see cref="FloorScene"/>), or one colour filling the screen (<see cref="SolidColourScene"/>), each at
 /// the brightness it shows at. These are the only kinds of scene; a backend draws each through <see cref="DrawWith"/>.
 /// </summary>
-public abstract class DisplayScene
+public abstract partial class DisplayScene
 {
     /// <summary>Keeps the scene's brightness; only the three kinds of scene derive from this.</summary>
     /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>.</param>

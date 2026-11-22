@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>Named combinations of <see cref="GameplayAction"/> and the action each configurable binding asks for.</summary>
-public static class GameplayActions
+public static partial class GameplayActions
 {
     /// <summary>The four directions.</summary>
     public const GameplayAction Directions =

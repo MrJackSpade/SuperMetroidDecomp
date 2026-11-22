@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// each flash and each logo crossfade step, over every ending picture and floor, and each of those authored for an actor
 /// (#1544) under the colouring it draws in, over its pictures. Which inks each recolours, and to what, is the import's.
 /// </summary>
-public static class EndingShades
+public static partial class EndingShades
 {
     /// <summary>The levels every faded group moves through: a group at level L shows its colours scaled by L over this.</summary>
     public const int FadeLevels = EndingExplosionFadeDefinitions.Steps;

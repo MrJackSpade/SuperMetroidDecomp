@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>The paths a Choot follows down from its jump's apex, one sample after another.</summary>
-internal static class ChootFallingPathDefinitions
+internal static partial class ChootFallingPathDefinitions
 {
     /// <summary>The normal path's swing out to the right, from the falling origin to just before its rightmost sample.</summary>
     private static readonly ChootFallSample[] NormalSwingOut =

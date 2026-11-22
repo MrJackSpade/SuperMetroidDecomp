@@ -7,4 +7,4 @@ namespace SuperMetroid.Core;
 /// of it that hands a species' behaviour out, so no phase reaches a species through it by name.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
-internal sealed class SpeciesCompositionAttribute : Attribute;
+internal sealed partial class SpeciesCompositionAttribute : Attribute;

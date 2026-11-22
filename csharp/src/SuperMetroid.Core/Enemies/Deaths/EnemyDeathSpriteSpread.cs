@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 /// <param name="HorizontalScatter">The random sample's field that places the actor right of the explosion before centring.</param>
 /// <param name="VerticalScatter">The random sample's field that places the actor below the explosion before centring.</param>
 /// <param name="Radius">The pixels both offsets are centred back by.</param>
-internal readonly record struct EnemyDeathSpriteSpread(RandomSampleField HorizontalScatter, RandomSampleField VerticalScatter, int Radius);
+internal readonly partial record struct EnemyDeathSpriteSpread(RandomSampleField HorizontalScatter, RandomSampleField VerticalScatter, int Radius);

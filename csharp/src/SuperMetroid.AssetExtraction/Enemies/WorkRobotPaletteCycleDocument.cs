@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>JSON schema for the six ordered Work Robot RGB5 palette records.</summary>
-public sealed record WorkRobotPaletteCycleDocument
+public sealed partial record WorkRobotPaletteCycleDocument
 {
     /// <summary>Schema revision; loading requires <see cref="WorkRobotPaletteCycleFormat.Version"/>.</summary>
     public required int Version { get; init; }

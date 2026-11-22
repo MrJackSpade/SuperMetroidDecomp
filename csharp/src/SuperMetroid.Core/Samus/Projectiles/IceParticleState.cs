@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
 /// <param name="turnPerUpdate">The attack's turn round Samus each update, set by the way Samus faces as it starts.</param>
-internal sealed class IceParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate)
+internal sealed partial class IceParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate)
     : OrbitingParticleState(part, part.OrbitStart, BeamComboDefinitions.IceOrbitRadius, turnPerUpdate)
 {
     /// <summary>

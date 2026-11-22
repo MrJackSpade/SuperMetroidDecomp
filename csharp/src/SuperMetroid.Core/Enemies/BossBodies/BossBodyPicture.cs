@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// </summary>
 /// <param name="Picture">The frame's whole picture.</param>
 /// <param name="Depth">The depth the picture is drawn at, as the import decided it from where the game draws the frame.</param>
-public sealed record BossBodyPicture(SpriteSheetFrame Picture, BossBodyDepth Depth);
+public sealed partial record BossBodyPicture(SpriteSheetFrame Picture, BossBodyDepth Depth);

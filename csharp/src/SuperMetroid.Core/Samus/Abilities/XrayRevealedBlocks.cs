@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <param name="Origin">The foreground pixel the first block's top-left corner lies on.</param>
 /// <param name="Grid">The blocks by place; null where a block lies beyond the room.</param>
-public readonly record struct XrayRevealedBlocks(Position16<RoomPixels> Origin, XrayRevealGrid Grid);
+public readonly partial record struct XrayRevealedBlocks(Position16<RoomPixels> Origin, XrayRevealGrid Grid);

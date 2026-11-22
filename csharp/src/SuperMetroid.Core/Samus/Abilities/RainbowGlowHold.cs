@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// How long the drained Samus's rainbow holds each of its shades (#2387): one update as the rainbow starts, one update
 /// longer each time the Baby slows it, up to the longest hold the Baby allows; a rainbow that does not glow has none.
 /// </summary>
-public readonly record struct RainbowGlowHold
+public readonly partial record struct RainbowGlowHold
 {
     /// <summary>A hold of <paramref name="updates"/> updates.</summary>
     private RainbowGlowHold(int updates) => Updates = updates;

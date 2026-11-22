@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// The horizontal speeds of a Zoa's launch: at rest before the shooting animation's first cue, then each speed its
 /// cues select in turn; how near Samus brings a hidden Zoa up and how fast it rises (#2156).
 /// </summary>
-public static class ZoaSpeedDefinitions
+public static partial class ZoaSpeedDefinitions
 {
     /// <summary>The launch's first speed, half a pixel per frame.</summary>
     public static SignedSixteenSixteen SlowLaunchSpeed { get; } = SignedSixteenSixteen.FromPixelFraction(1, 2);

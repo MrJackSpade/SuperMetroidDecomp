@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Metroid], Create);
@@ -49,6 +49,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="ApplyMetroidCue"/> does for each <see cref="MetroidCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MetroidCueKind, Action> ApplyMetroidCueForMetroidCueKind => field ??= new(new Dictionary<MetroidCueKind, Action>
     {
         [MetroidCueKind.PlayDrainingSound] = () =>
@@ -93,6 +94,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunMetroidMain"/> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>> RunMetroidMainForMetroidMovement => field ??= new(new Dictionary<MetroidMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, MetroidEnemyState, int>>
     {
         [MetroidMovement.Homing] = (place, samus, level, state, targetY) => RunMetroidHoming(place, state, samus, targetY, level),
@@ -181,7 +183,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Makes the escaping Metroid's next move; after its last it chases Samus.</summary>
-    private static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
+    internal static void RunMetroidPowerBombEscape(RoomEnemyPlace place, MetroidEnemyState state)
     {
         place.Position += MetroidReactions.EscapeDisplacement(state.EscapeMovesLeft.UpdatesLeft);
         StoreMetroidXVelocity(state, SignedSixteenSixteen.Zero);
@@ -447,8 +449,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
     internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
     {
-        Lethal = new EnemyPowerBombLethal.AfterStage(c => FinishMetroidDeath(c.Enemy, c.Samus)),
+        Lethal = new EnemyPowerBombLethal.AfterStage(FinishMetroidDeath),
     };
+
+    /// <summary>Clears a Metroid's outer body before a lethal Power Bomb's generic death.</summary>
+    private static void FinishMetroidDeath(EnemyPowerBombContext context) => FinishMetroidDeath(context.Enemy, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
     /// hit.</summary>

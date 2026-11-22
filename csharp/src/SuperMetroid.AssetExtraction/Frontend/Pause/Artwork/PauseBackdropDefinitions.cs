@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Pause BG2 presentation geometry and import-only native sources.</summary>
-public static class PauseBackdropDefinitions
+public static partial class PauseBackdropDefinitions
 {
     /// <summary>Supported pause-backdrop JSON schema revision one, required by <see cref="PauseBackdropPresentation.Load"/>.</summary>
     public const int Version = 1;

@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// and moves her, spends Samus's energy, times her waits, plays her animations and holds Samus itself.
 /// </remarks>
 [ArchitectureReview("back-reference", "Mother Brain's late fight (#2471): her encounter begins and owns it for the rest of the room once her phase-two health runs out, and its phases read and write that encounter in place (#2209), so the two share one lifetime.")]
-public sealed class MotherBrainRainbowBeamAttackSequence
+public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
@@ -31,13 +31,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainFinishSamusOffPhases FinishSamusOff { get; }
 
     /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
-    private MotherBrainDrainedByBabyPhases DrainedByBaby { get; }
+    internal MotherBrainDrainedByBabyPhases DrainedByBaby { get; }
 
     /// <summary>Mother Brain reviving and killing the Baby Metroid: signs of life, waking, walking up and the attacks on the baby.</summary>
     internal MotherBrainRevivalPhases Revival { get; }
 
     /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
-    private MotherBrainThirdPhaseFight ThirdPhaseFight { get; }
+    internal MotherBrainThirdPhaseFight ThirdPhaseFight { get; }
 
     /// <summary>Mother Brain's final death and the escape it starts: explosions, the fades, the corpse, the escape text, timer and door.</summary>
     internal MotherBrainThirdPhaseDeath ThirdPhaseDeath { get; }

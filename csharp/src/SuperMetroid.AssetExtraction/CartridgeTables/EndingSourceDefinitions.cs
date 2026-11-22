@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers ending codecs resolve.</summary>
 [EncodingOwner("cartridge regions and addresses of the ending's artwork, credits and palettes")]
-internal static class EndingSourceDefinitions
+internal static partial class EndingSourceDefinitions
 {
     /// <summary>
     /// $8C:8000-$8C:FFFF: cinematic data including the ending logo crossfade palettes. Logo palette
@@ -15,7 +15,7 @@ internal static class EndingSourceDefinitions
         "BGR555 palette rows (u16 little-endian)");
 
     /// <summary>The ending's compressed artwork sources (#1416: moved from Core's ending catalogs).</summary>
-    internal static class Artwork
+    internal static partial class Artwork
     {
         /// <summary>The largest decompressed length permitted when importing the ending's compressed artwork.</summary>
         internal const int DecompressionLimit = 0x8000;
@@ -88,7 +88,7 @@ internal static class EndingSourceDefinitions
     }
 
     /// <summary>The scrolling credits' row program and tilemap (#1416: moved from Core's credits presentation definitions).</summary>
-    internal static class Credits
+    internal static partial class Credits
     {
         /// <summary>$97:EEFF, the compressed 128-row credits source tilemap.</summary>
         internal const int Tilemap = 0x97eeff;
@@ -110,7 +110,7 @@ internal static class EndingSourceDefinitions
     }
 
     /// <summary>The ending's palette sources (#1416: moved from Core's ending catalogs).</summary>
-    internal static class Palettes
+    internal static partial class Palettes
     {
         /// <summary>$8C:EDE9, Palettes_CloudSpritesInZebesExplosionScene: the escape scenes' full palette image.</summary>
         internal const int Escape = 0x8cede9;

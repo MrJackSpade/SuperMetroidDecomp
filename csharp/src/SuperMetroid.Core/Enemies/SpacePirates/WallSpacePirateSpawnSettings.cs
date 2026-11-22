@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="LaserSpeed">How fast its lasers fly.</param>
 /// <param name="JumpSpeed">How fast its jumps between its walls turn.</param>
 /// <param name="JumpSpan">The pixels between its walls.</param>
-internal sealed record WallSpacePirateSpawnSettings(
+internal sealed partial record WallSpacePirateSpawnSettings(
     HorizontalDirection Wall, PirateLaserSpeed LaserSpeed, WallSpacePirateJumpSpeed JumpSpeed, int JumpSpan) : EnemySpawnSettings;

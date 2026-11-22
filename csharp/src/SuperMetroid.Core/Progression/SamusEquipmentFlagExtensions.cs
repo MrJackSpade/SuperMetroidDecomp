@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>Queries over Samus's equipment and beam flags.</summary>
-public static class SamusEquipmentFlagExtensions
+public static partial class SamusEquipmentFlagExtensions
 {
     /// <summary>Tests whether an item set contains at least one requested equipment flag.</summary>
     /// <param name="items">Collected or equipped items.</param>

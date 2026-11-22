@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 /// The counter cadences and phases of Samus's movement, abilities, sounds and drawing (#1606): her block scans' order,
 /// Crystal Flash's drain, her liquid damage sounds and bubbles, her reserve refill sound, and her flickers and echoes.
 /// </summary>
-internal static class SamusCadenceDefinitions
+internal static partial class SamusCadenceDefinitions
 {
     /// <summary>
     /// The updates on which Samus's vertical block moves and pose-change probes scan the blocks beside her from left to

@@ -30,7 +30,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="HighlightColours">
 /// The map highlight cycle's colours, which the map sprite sheet's highlight shades are pre-coloured from (#1512, #1693).
 /// </param>
-internal sealed record ImportPresentationColours(
+internal sealed partial record ImportPresentationColours(
     SamusMapColourTables SamusColours,
     TitlePalettePresentation TitlePalette,
     MapStaticPalettes Palettes,

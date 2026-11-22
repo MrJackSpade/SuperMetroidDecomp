@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>One gameplay cue of Botwoon's head animations: what it does, with the values it acts on.</summary>
-internal abstract record BotwoonHeadCue
+internal abstract partial record BotwoonHeadCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private BotwoonHeadCue()
@@ -17,7 +17,7 @@ internal abstract record BotwoonHeadCue
 
     /// <summary>Sets the head's collision radius for the cue's facing (#2175): the facing of the animation that raises it.</summary>
     /// <param name="Facing">The way the head faces.</param>
-    internal sealed record ApplyFacingRadius(CompassDirection Facing) : BotwoonHeadCue
+    internal sealed partial record ApplyFacingRadius(CompassDirection Facing) : BotwoonHeadCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(BotwoonHeadCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ApplyFacingRadius(this, context);
@@ -25,7 +25,7 @@ internal abstract record BotwoonHeadCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(BotwoonHeadCueKind Kind) : BotwoonHeadCue
+    internal sealed partial record Signal(BotwoonHeadCueKind Kind) : BotwoonHeadCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(BotwoonHeadCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -36,4 +36,4 @@ internal abstract record BotwoonHeadCue
 /// <param name="ApplyFacingRadius">Reacts to a <see cref="BotwoonHeadCue.ApplyFacingRadius"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="BotwoonHeadCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record BotwoonHeadCueReactions<TContext>(Action<BotwoonHeadCue.ApplyFacingRadius, TContext> ApplyFacingRadius, Action<BotwoonHeadCue.Signal, TContext> Signal);
+internal sealed partial record BotwoonHeadCueReactions<TContext>(Action<BotwoonHeadCue.ApplyFacingRadius, TContext> ApplyFacingRadius, Action<BotwoonHeadCue.Signal, TContext> Signal);

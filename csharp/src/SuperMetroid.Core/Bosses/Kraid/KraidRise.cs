@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
 [RoomLifetime]
-internal sealed class KraidRise
+internal sealed partial class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -117,7 +117,7 @@ internal sealed class KraidRise
     /// Shows the fixed room backdrop over the room's blocks (#1352, #1406, #1466): the blocks and cells it shows over show
     /// their pictures with it from here.
     /// </summary>
-    private void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
+    internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
     /// Brings Kraid's grown body in front of the room's sprites before his second phase, whatever it showed before, as the
@@ -135,6 +135,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>What <see cref="RunKraidGrowthPhase"/> does for each <see cref="KraidGrowthPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>> RunKraidGrowthPhaseForKraidGrowthPhase => field ??= new(new Dictionary<KraidGrowthPhase, Action<RoomEnemyPlace, KraidEnemyState>>
     {
         [KraidGrowthPhase.ReleaseCamera] = (body, state) =>
@@ -200,7 +201,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Installs the grown body pose, room scrolls, and second-phase behavior.</summary>
-    private void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
+    internal void FinishKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
 
@@ -226,7 +227,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
-    private void RequestKraidRisingRock(RoomEnemyPlace body)
+    internal void RequestKraidRisingRock(RoomEnemyPlace body)
     {
         int random = _access.ReadKraidRandomNumber();
         // The random sample's side chooses the rock's pose (#2278).
@@ -246,6 +247,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>What <see cref="RunKraidRisePhase"/> does for each <see cref="KraidRisePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>> RunKraidRisePhaseForKraidRisePhase => field ??= new(new Dictionary<KraidRisePhase, Action<RoomEnemyPlace, KraidEnemyState, SamusState>>
     {
         [KraidRisePhase.RestrictSamusToFirstScreen] = (body, state, samus) =>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The placements of a scroll trigger and the extensions that give it its reach (#2557).</summary>
-internal static class ScrollTriggerPlacements
+internal static partial class ScrollTriggerPlacements
 {
     /// <summary>
     /// A scroll trigger placed once with the reach its extensions give it: the trigger, then each block of each run in

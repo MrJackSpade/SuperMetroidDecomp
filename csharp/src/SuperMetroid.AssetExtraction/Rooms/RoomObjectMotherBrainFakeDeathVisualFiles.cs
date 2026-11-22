@@ -10,10 +10,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed pictures of the room changes of Mother Brain's fake death (#1557): the wall fill, the escape door, the
 /// twelve mural rows and the six tube clears.
 /// </summary>
-public static class RoomObjectMotherBrainFakeDeathVisualFiles
+public static partial class RoomObjectMotherBrainFakeDeathVisualFiles
 {
     /// <summary>The installed file holding the fake-death room frames' pictures.</summary>
-    private const string VisualFileName = "mother-brain-fake-death.json";
+    internal const string VisualFileName = "mother-brain-fake-death.json";
 
     /// <summary>
     /// The tube clears in the installed file's order after the wall, the door and the mural rows (#2567): the ceiling's,

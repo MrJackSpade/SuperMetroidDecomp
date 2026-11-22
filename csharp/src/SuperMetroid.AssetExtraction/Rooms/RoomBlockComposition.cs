@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// set makes may begin or end, so one artwork shows over each whole run in every room. A collectible is pictured as its
 /// kind alone (#1538), over no block's characters.
 /// </summary>
-internal sealed class RoomBlockComposition
+internal sealed partial class RoomBlockComposition
 {
     /// <summary>Keeps the tiles of every block and the characters each reads.</summary>
     private RoomBlockComposition(BackgroundTile[] tiles, RoomBlockCharacters characters)
@@ -68,7 +68,7 @@ internal sealed class RoomBlockComposition
     /// tables compose them.
     /// </summary>
     /// <exception cref="InvalidDataException">The compositions are not whole blocks.</exception>
-    private static BackgroundTile[] StockTiles(RoomMetatileCatalog metatiles, RoomBlockSet set, bool ceres)
+    internal static BackgroundTile[] StockTiles(RoomMetatileCatalog metatiles, RoomBlockSet set, bool ceres)
     {
         Ensure.NotNull(metatiles);
         // $82:E7D3 installs a Ceres tileset directly at the start of the block table: unlike Zebes rooms, area six does

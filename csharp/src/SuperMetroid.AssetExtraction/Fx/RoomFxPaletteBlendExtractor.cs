@@ -11,7 +11,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Exports the eight retail room-FX palette blends without exposing selector mechanics.</summary>
-public static class RoomFxPaletteBlendExtractor
+public static partial class RoomFxPaletteBlendExtractor
 {
     /// <summary>Imports the eight three-color room-FX blends.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the independent native blend-color words.</param>

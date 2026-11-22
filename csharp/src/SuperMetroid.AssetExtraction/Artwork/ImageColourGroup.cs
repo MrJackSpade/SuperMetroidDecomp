@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// it names its own colours (#1544).
 /// </summary>
 /// <remarks>A group is known by its place in its half of the colour table.</remarks>
-public readonly record struct ImageColourGroup
+public readonly partial record struct ImageColourGroup
 {
     /// <summary>The colour groups of one half of the colour table.</summary>
     public const int Count = 8;

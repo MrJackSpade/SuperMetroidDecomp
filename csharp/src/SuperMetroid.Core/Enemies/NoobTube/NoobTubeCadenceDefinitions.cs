@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The counter phases on which the broken glass tube's crack and falling debris flicker (#1606).</summary>
-internal static class NoobTubeCadenceDefinitions
+internal static partial class NoobTubeCadenceDefinitions
 {
     /// <summary>
     /// The phase of the enemy projectiles' frame counter on which the tube's crack is hidden: on

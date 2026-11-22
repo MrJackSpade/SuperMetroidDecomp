@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>The title demonstrations' timing and the literal staging values their setups apply.</summary>
-public static class AttractDemoDefinitions
+public static partial class AttractDemoDefinitions
 {
     /// <summary>Frames a completed demo holds its final image before the title resumes.</summary>
     public const int FinalImageHoldFrames = 90;

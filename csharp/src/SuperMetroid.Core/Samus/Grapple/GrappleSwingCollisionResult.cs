@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// The first swept body point that struck terrain, counted from the hand: 0 is the point
 /// <see cref="GrappleBeamDefinitions.Swing.BodyPointSpacing"/> pixels beyond it. Null when no point struck.
 /// </param>
-internal readonly record struct GrappleSwingCollisionResult(
+internal readonly partial record struct GrappleSwingCollisionResult(
     [property: IntegerQuantity("the swept body point that struck terrain, counted from the hand")] int? StruckPointFromHand)
 {
     /// <summary>A sweep in which no body point struck terrain.</summary>

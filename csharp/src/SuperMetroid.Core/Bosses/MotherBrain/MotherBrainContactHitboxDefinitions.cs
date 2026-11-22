@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The hit areas of Mother Brain's body, brain, and three tested neck joints (#2211): each part's areas around it, in
 /// the order her contact tests them, stopping at the first hit.
 /// </summary>
-internal static class MotherBrainContactHitboxDefinitions
+internal static partial class MotherBrainContactHitboxDefinitions
 {
     /// <summary>
     /// The ordered collision rectangles of each physical component: the body's lower body, then its narrower upper body;

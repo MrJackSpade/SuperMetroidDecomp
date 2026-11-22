@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number each of Kraid's random choices reads, exactly as the game read it")]
-internal static class KraidRandomRolls
+internal static partial class KraidRandomRolls
 {
     /// <summary>
     /// The roll of eight the second-phase walk is chosen by: the number's third through fifth places.

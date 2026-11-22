@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// pose animation and its height in pixel rows, the Skree taller than the Zoomer and Ripper. Corpses
 /// that lie the same way are one corpse.
 /// </summary>
-internal static class DeadTourianCorpseDefinitions
+internal static partial class DeadTourianCorpseDefinitions
 {
     /// <summary>A dead Zoomer lying on its back.</summary>
     internal static readonly DeadTourianCorpseDefinition ZoomerOnItsBack =

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The wall space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.PirateGoldWall, EnemyDefinitionId.PirateGreyWall, EnemyDefinitionId.PirateMagentaWall, EnemyDefinitionId.PirateSilverWall], Create);
@@ -258,7 +258,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <param name="State">The pirate's state <see cref="ApplyWallSpacePirateCue"/> works with.</param>
     /// <param name="Level">The level the cases read.</param>
     /// <param name="Owner">The <see cref="WallSpacePirateBehavior"/> reacting.</param>
-    private readonly record struct ApplyWallSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyWallSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, WallSpacePirateEnemyState State, RoomLevelData Level, WallSpacePirateBehavior Owner);
 
     /// <summary>Runs the wall Space Pirate's main AI.</summary>
     internal static void RunWallSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)

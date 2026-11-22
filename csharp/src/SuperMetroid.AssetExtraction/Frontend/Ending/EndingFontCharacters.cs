@@ -7,14 +7,14 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed ending font as the import pipeline reads it (#1409): its selected glyph pixels, compiled to SNES 4-bpp
 /// characters for the ending's sheets and kept as installed.
 /// </summary>
-public sealed class EndingFontCharacters
+public sealed partial class EndingFontCharacters
 {
     /// <summary>The installed font's 4-bpp characters.</summary>
     private readonly byte[] characters;
 
     /// <summary>Retains the installed font's 4-bpp characters.</summary>
     /// <param name="characters">The $1400-byte transfer of all 160 font and subtitle tiles in atlas order.</param>
-    private EndingFontCharacters(byte[] characters) => this.characters = characters;
+    internal EndingFontCharacters(byte[] characters) => this.characters = characters;
 
     /// <summary>The $1400-byte SNES 4-bpp transfer containing all 160 selected font/subtitle tiles in atlas order.</summary>
     public ReadOnlyMemory<byte> Characters => characters;

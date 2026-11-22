@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// installer deletes before it publishes. Every extraction component that decodes pages writes them here, and every
 /// composition component reads them from here; nothing the game loads reads it.
 /// </summary>
-public static class ImportDataDirectory
+public static partial class ImportDataDirectory
 {
     /// <summary>
     /// The import-data directory of the component whose directory is <paramref name="componentDirectory"/>:

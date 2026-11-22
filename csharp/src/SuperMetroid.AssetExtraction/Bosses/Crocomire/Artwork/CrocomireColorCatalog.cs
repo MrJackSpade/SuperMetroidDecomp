@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 /// Crocomire's installed fight, wall, projectile, skeleton-arm, and wall-spike RGB5 colors, each transfer kept as installed.
 /// Phase transitions and the white hurt-flash decision remain engine-owned.
 /// </summary>
-public sealed class CrocomireColorCatalog
+public sealed partial class CrocomireColorCatalog
 {
     /// <summary>Five transfer roles whose overlapping stock sources stay independently editable.</summary>
     internal enum Band

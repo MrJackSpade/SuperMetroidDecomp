@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus;
 /// it, and a knockback lets a stored shine stay stored. Her pose, the grapple and a knockback take her movement by their
 /// own state, ending no other hold, so they have no operation here.
 /// </summary>
-internal static class SamusMovementHandOver
+internal static partial class SamusMovementHandOver
 {
     /// <summary>
     /// The shinespark's windup takes Samus's movement from Crystal Flash. The new owner then starts its own state: this

@@ -7,11 +7,11 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// Editable indexed characters for the native Torizo instruction uploads.
 /// Address and destination ownership remain in compiled control data.
 /// </summary>
-public sealed class TorizoSwapArtwork
+public sealed partial class TorizoSwapArtwork
 {
 
     /// <summary>Validated selected character transfers, by the tile page each holds.</summary>
-    private readonly Dictionary<TorizoTilePage, RoomCharacterAtlas> pages;
+    internal readonly Dictionary<TorizoTilePage, RoomCharacterAtlas> pages;
 
     /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
     /// <exception cref="InvalidDataException">A page is missing, extra or of the wrong size.</exception>

@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="Admit"/>, which admits it by <see cref="SoundQueueAdmission.For"/> from the queue's own count, and every
 /// priority turns a request away once that many wait, so no request ever arrives at a queue with no room.
 /// </remarks>
-internal sealed class SoundQueue
+internal sealed partial class SoundQueue
 {
     /// <summary>The waiting requests, oldest first.</summary>
-    private readonly List<SoundEffectId> Waiting = [];
+    internal readonly List<SoundEffectId> Waiting = [];
 
     /// <summary>The waiting requests, 0 through <see cref="SoundQueueAdmission.MaximumOccupancy"/>.</summary>
     internal int Count => Waiting.Count;

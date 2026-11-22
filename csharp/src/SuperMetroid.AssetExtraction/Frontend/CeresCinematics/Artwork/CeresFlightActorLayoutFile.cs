@@ -5,7 +5,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Reads and writes the installed rear-view Ceres approach actor layout.</summary>
-public static class CeresFlightActorLayoutFile
+public static partial class CeresFlightActorLayoutFile
 {
     /// <summary>Loads the supported layout schema, requiring one placement for each of the five rear-view roles at signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
@@ -18,8 +18,7 @@ public static class CeresFlightActorLayoutFile
         CeresFlightActorLayoutDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres flight actor layout is null.");
         }
         catch (JsonException error)
@@ -47,8 +46,7 @@ public static class CeresFlightActorLayoutFile
     public static void Write(Stream json, CeresFlightActorLayoutDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

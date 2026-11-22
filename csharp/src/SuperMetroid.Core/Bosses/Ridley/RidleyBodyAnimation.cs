@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Runs both Ridleys' body animation and his breakup pieces' animations, and applies their cues (#2229).</summary>
 [RoomLifetime]
-internal sealed class RidleyBodyAnimation
+internal sealed partial class RidleyBodyAnimation
 {
     /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -43,6 +43,7 @@ internal sealed class RidleyBodyAnimation
     }
 
     /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="RidleyBodyCueKind"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>> ApplyCueForRidleyBodyCueKind => field ??= new(new Dictionary<RidleyBodyCueKind, Func<RoomEnemyPlace, SamusState, IRidleyBodyOwner, RidleyFlightState, RidleyBodySegment?>>
     {
         [RidleyBodyCueKind.MayCutFireballingShort] = (place, samus, owner, flight) => owner.CutFireballingShort(samus),
@@ -128,7 +129,7 @@ internal sealed class RidleyBodyAnimation
     /// <param name="Samus">Samus.</param>
     /// <param name="Owner">The encounter that owns the body, which handles the lift-off and the fireball cut (#2230).</param>
     /// <param name="Animation">The <see cref="RidleyBodyAnimation"/> reacting.</param>
-    private readonly record struct ApplyCueContext(RoomEnemyPlace Place, RidleyFlightState Flight, RidleyEncounterState Ridley, SamusState Samus, IRidleyBodyOwner Owner, RidleyBodyAnimation Animation);
+    private readonly partial record struct ApplyCueContext(RoomEnemyPlace Place, RidleyFlightState Flight, RidleyEncounterState Ridley, SamusState Samus, IRidleyBodyOwner Owner, RidleyBodyAnimation Animation);
 
     /// <summary>
     /// Shows a breakup fragment's picture where the shared enemy animation runs (#2235): a still picture, which the

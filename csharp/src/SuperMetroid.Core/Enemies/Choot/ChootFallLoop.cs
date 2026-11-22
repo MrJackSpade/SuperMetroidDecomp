@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// One loop of a falling Choot's path: the offsets from the falling origin it has still to show, one per update. Each
 /// falling update shows the next, and the update that finds none left ends the loop, so no update lies past the path.
 /// </summary>
-public sealed class ChootFallLoop
+public sealed partial class ChootFallLoop
 {
     /// <summary>The offsets of the whole loop.</summary>
     private readonly ReadOnlyMemory<Offset16<RoomPixels>> _loop;

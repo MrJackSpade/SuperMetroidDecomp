@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The steps Torizo's body animations are written in, and the runs of steps both Torizos' animations share, each written once
 /// over the poses of a side, a stance or an arm (#2411).
 /// </summary>
-internal static class TorizoAnimationSteps
+internal static partial class TorizoAnimationSteps
 {
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     internal static AnimationBeat<EnemyFrameId, TorizoCue> Show(EnemyFrameId frame, int duration) =>

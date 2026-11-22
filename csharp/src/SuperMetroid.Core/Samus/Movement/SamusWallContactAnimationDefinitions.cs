@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Spin-jump animation frames that wall contact rewinds to.</summary>
-internal static class SamusWallContactAnimationDefinitions
+internal static partial class SamusWallContactAnimationDefinitions
 {
     /// <summary>
     /// Screw Attack's rewind frame: the end of its longer spin, whose next frame is its first wall-jump-ready frame

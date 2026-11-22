@@ -15,13 +15,13 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// rotting corpse's frame is pictured once per look, with where the corpse lies in it, and the game draws the whole picture
 /// through the corpse's own rows as its rot leaves them (#1539).
 /// </summary>
-internal sealed class SetCharacters
+internal sealed partial class SetCharacters
 {
     /// <summary>The OBJ character table as the room load leaves it.</summary>
     private readonly byte[] table;
 
     /// <summary>The encounters the set's members play, and what each of their looks copies.</summary>
-    private IReadOnlyList<EncounterLookSteps> Encounters { get; }
+    internal IReadOnlyList<EncounterLookSteps> Encounters { get; }
 
     /// <summary>Each encounter's characters as each of its looks leaves them, from the loaded table.</summary>
     private readonly Dictionary<ComposedEncounter, Dictionary<ComposedLook, byte[]>> afterLook = [];
@@ -175,7 +175,7 @@ internal sealed class SetCharacters
     }
 
     /// <summary>The characters with every look of each part up to the one <paramref name="combination"/> names copied in order.</summary>
-    private SpriteArtwork Page(PartLook[] combination)
+    internal SpriteArtwork Page(PartLook[] combination)
     {
         var key = new EncounterLookCombination(combination.Select(choice => choice.Look));
         if (pages.TryGetValue(key, out SpriteArtwork? page))
@@ -229,10 +229,10 @@ internal sealed class SetCharacters
     /// <param name="Encounter">The encounter and what its looks copy.</param>
     /// <param name="Looks">The looks the frame is pictured in.</param>
     /// <param name="ShownAs">The encounter gameplay shows, whose looks name the frame's pictures; none for a part that pictures the frame in one look.</param>
-    internal sealed record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
+    internal sealed partial record FrameLookPart(EncounterLookSteps Encounter, IReadOnlyList<ComposedLook> Looks, EncounterArtwork? ShownAs);
 
     /// <summary>One part of a frame with the look a combination shows it in.</summary>
     /// <param name="Part">The part.</param>
     /// <param name="Look">The look of the part's encounter shown.</param>
-    private readonly record struct PartLook(FrameLookPart Part, ComposedLook Look);
+    internal readonly partial record struct PartLook(FrameLookPart Part, ComposedLook Look);
 }

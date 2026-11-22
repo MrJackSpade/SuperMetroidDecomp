@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines the complete ordered set of opening portrait eye frames.</summary>
-public sealed record IntroEyeTilemapDocument
+public sealed partial record IntroEyeTilemapDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// member's tiles, where in the enemy tile area they upload to and the character index its pictures count from. The
 /// import composes every sheet from this layout; the game draws each enemy from its own sheet and never sees it.
 /// </summary>
-internal sealed class GraphicsSetCharacterLayout
+internal sealed partial class GraphicsSetCharacterLayout
 {
     /// <summary>The most members a room's enemy graphics can hold.</summary>
     internal const int MaximumMembers = 4;

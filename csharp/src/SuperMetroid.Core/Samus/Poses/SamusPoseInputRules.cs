@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Samus.Poses.SamusPoseTransitionSetup;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Ordered pose-input decisions; the first satisfied chord wins, and each names the setup that installs its pose.</summary>
-internal static class SamusPoseInputRules
+internal static partial class SamusPoseInputRules
 {
     /// <summary>Selects the first satisfied input chord in <paramref name="inputList"/>, in the order the list authors them.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) =>

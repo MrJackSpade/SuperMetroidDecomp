@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Squeept species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Squeept], Create);
@@ -72,6 +72,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunSqueeptMain"/> does for each <see cref="SqueeptAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>> RunSqueeptMainForSqueeptAction => field ??= new(new Dictionary<SqueeptAction, Action<RoomEnemyPlace, SqueeptState, int>>
     {
         [SqueeptAction.BeginJump] = (place, state, random) =>
@@ -132,7 +133,7 @@ internal sealed class SqueeptBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs the jumping parent's main behaviour: its rising, flipping and falling actions. Main advances the shared
     /// random numbers once each update.
     /// </summary>
-    private void RunSqueeptMain(
+    internal void RunSqueeptMain(
         RoomEnemyPlace place,
         SqueeptState state)
     {

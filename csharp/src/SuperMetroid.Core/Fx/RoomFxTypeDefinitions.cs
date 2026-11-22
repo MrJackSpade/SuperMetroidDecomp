@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Each kind of room effect (<see cref="RoomFxType"/>).</summary>
-internal static class RoomFxTypeDefinitions
+internal static partial class RoomFxTypeDefinitions
 {
     /// <summary>
     /// Each kind: lava and acid, water and the Tourian entrance statue's water (whose second motion moves the statue rather

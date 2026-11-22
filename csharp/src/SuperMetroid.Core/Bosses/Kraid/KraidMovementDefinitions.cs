@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Where Kraid's grown body walks between attacks and how long he thinks after each walk (#2300): from each of his
 /// destinations, the walk each random choice sends him on and the pause that follows it.
 /// </summary>
-internal static class KraidMovementDefinitions
+internal static partial class KraidMovementDefinitions
 {
     /// <summary>The leftmost destination.</summary>
     private const int LeftmostX = 208;

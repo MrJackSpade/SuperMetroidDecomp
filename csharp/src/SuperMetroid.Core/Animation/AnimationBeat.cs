@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TFrame, TEvent>
+internal abstract partial record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TFrame, TEvent>
     where TFrame : struct
     where TEvent : notnull
 {
@@ -33,7 +33,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
     /// <summary>
     /// A beat that is no pause: a frame, a held frame, an event or a marker, what an animation that never pauses plays (#2553).
     /// </summary>
-    internal abstract record Unpaused : AnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
+    internal abstract partial record Unpaused : AnimationBeat<TFrame, TEvent>, IUnpausedHidingAnimationBeat<TFrame, TEvent>
     {
         /// <summary>Allows only the beats below that are no pause.</summary>
         private protected Unpaused()
@@ -59,7 +59,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
     /// <summary>A frame shown for <paramref name="Duration"/> updates.</summary>
     /// <param name="Shown">The frame.</param>
     /// <param name="Duration">The updates it shows for.</param>
-    internal sealed record Frame(TFrame Shown, int Duration) : Unpaused
+    internal sealed partial record Frame(TFrame Shown, int Duration) : Unpaused
     {
         /// <inheritdoc/>
         internal override TResult Match<TPlay, TResult>(UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
@@ -70,7 +70,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
     /// A frame shown from now on (#1607): the animation rests on it until its owner plays another, so it ends its segment.
     /// </summary>
     /// <param name="Shown">The frame.</param>
-    internal sealed record HeldFrame(TFrame Shown) : Unpaused
+    internal sealed partial record HeldFrame(TFrame Shown) : Unpaused
     {
         /// <inheritdoc/>
         internal override TResult Match<TPlay, TResult>(UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
@@ -79,7 +79,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
 
     /// <summary>A pause of <paramref name="Duration"/> updates that shows no new frame: the last one stays.</summary>
     /// <param name="Duration">The updates it lasts.</param>
-    internal sealed record Pause(int Duration) : AnimationBeat<TFrame, TEvent>
+    internal sealed partial record Pause(int Duration) : AnimationBeat<TFrame, TEvent>
     {
         /// <inheritdoc/>
         internal override TResult Match<TPlay, TResult>(AnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
@@ -88,7 +88,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
 
     /// <summary>An event the owner reacts to as the animation reaches it, before the next frame shows.</summary>
     /// <param name="Raised">The event.</param>
-    internal sealed record Event(TEvent Raised) : Unpaused
+    internal sealed partial record Event(TEvent Raised) : Unpaused
     {
         /// <inheritdoc/>
         internal override TResult Match<TPlay, TResult>(UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
@@ -102,7 +102,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
     /// frames shown and their timing are the beats' around it.
     /// </summary>
     /// <param name="Raised">The moment, raised as the owner's event.</param>
-    internal sealed record Marker(TEvent Raised) : Unpaused
+    internal sealed partial record Marker(TEvent Raised) : Unpaused
     {
         /// <inheritdoc/>
         internal override TResult Match<TPlay, TResult>(UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult> cases, ref TPlay play) =>
@@ -125,7 +125,7 @@ internal abstract record AnimationBeat<TFrame, TEvent> : IHidingAnimationBeat<TF
 /// <typeparam name="TResult">What a beat comes to.</typeparam>
 /// <param name="Unpaused">Passes a beat that is no pause.</param>
 /// <param name="Pause">Passes a pause.</param>
-internal sealed record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>.Unpaused, TPlay, TResult> Unpaused,
     PlayCase<AnimationBeat<TFrame, TEvent>.Pause, TPlay, TResult> Pause)
     where TFrame : struct
@@ -140,7 +140,7 @@ internal sealed record AnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
 /// <param name="HeldFrame">Passes a frame held for good.</param>
 /// <param name="Event">Passes an event.</param>
 /// <param name="Marker">Passes a marker.</param>
-internal sealed record UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
+internal sealed partial record UnpausedAnimationBeatCases<TFrame, TEvent, TPlay, TResult>(
     PlayCase<AnimationBeat<TFrame, TEvent>.Frame, TPlay, TResult> Frame,
     PlayCase<AnimationBeat<TFrame, TEvent>.HeldFrame, TPlay, TResult> HeldFrame,
     PlayCase<AnimationBeat<TFrame, TEvent>.Event, TPlay, TResult> Event,

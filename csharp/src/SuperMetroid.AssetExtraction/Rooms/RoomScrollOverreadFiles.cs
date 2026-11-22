@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// camera reads a cell: zero closed, one open with the camera aligned to the screen's top, and any other value open.
 /// </remarks>
 [EncodingOwner("room scroll cell bytes past a room's screens")]
-public static class RoomScrollOverreadFiles
+public static partial class RoomScrollOverreadFiles
 {
     /// <summary>
     /// Decodes every explicit layout's cells past its screens and writes them as JSON. No manifest is written: the
@@ -39,8 +39,7 @@ public static class RoomScrollOverreadFiles
                 past[cell] = CellOf(cartridge.ReadCartridgeByte(table + layout.Cells.Count + cell));
             cells.Add(layout.Name, past);
         }
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            new RoomScrollOverreadDocument(RoomScrollOverreadFormat.Version, cells), RoomScrollOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(new RoomScrollOverreadDocument(RoomScrollOverreadFormat.Version, cells), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomScrollOverreadDocument>(RoomScrollOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, RoomScrollOverreadFormat.FileName), bytes);
     }
 

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Timing and the traced path of Draygon's opening Evir dance.</summary>
-internal static class DraygonIntroDanceDefinitions
+internal static partial class DraygonIntroDanceDefinitions
 {
 
     /// <summary>How many updates the dance lasts before Draygon starts its first swoop.</summary>

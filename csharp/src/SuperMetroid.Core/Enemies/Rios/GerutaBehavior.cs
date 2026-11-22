@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Geruta], Create);
@@ -65,6 +65,7 @@ internal sealed class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunGerutaMain"/> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>> RunGerutaMainForGerutaAction => field ??= new(new Dictionary<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>>
     {
         [GerutaAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>

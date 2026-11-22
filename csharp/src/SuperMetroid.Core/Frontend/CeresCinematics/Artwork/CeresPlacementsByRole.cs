@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Keys a Ceres scene's installed actor placements by the role each places (#1768).</summary>
-internal static class CeresPlacementsByRole
+internal static partial class CeresPlacementsByRole
 {
     /// <summary>
     /// The placements keyed by role, requiring exactly one placement for every role of <typeparamref name="TRole"/> and

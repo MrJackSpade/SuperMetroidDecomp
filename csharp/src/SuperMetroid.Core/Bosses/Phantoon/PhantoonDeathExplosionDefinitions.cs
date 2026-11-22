@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Authored explosion choreography for Phantoon's death: the opening explosions, burst once, then the repeated explosions,
 /// burst <see cref="PassCount"/> times over (#2258).
 /// </summary>
-public static class PhantoonDeathExplosionDefinitions
+public static partial class PhantoonDeathExplosionDefinitions
 {
     /// <summary>How many times the repeated explosions burst after the opening explosions.</summary>
     public const int PassCount = 3;

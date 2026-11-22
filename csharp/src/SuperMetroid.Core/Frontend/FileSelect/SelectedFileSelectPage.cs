@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// pages name the copy's two slots, the copy-destination and clear pages name the slot they act on, and every other page
 /// names none, so a page holds a slot only where it shows one.
 /// </summary>
-internal abstract class SelectedFileSelectPage
+internal abstract partial class SelectedFileSelectPage
 {
     /// <summary>Allows only the pages below.</summary>
     private SelectedFileSelectPage(FileSelectPage page) => Page = page;
@@ -50,27 +50,48 @@ internal abstract class SelectedFileSelectPage
     internal static SelectedFileSelectPage CopyCompleted(FileCopyRoute route) => new NamingCopy(FileSelectPage.CopyCompleted, route);
 
     /// <summary>A page whose prompt names no slot.</summary>
-    private sealed class NamingNoSlot(FileSelectPage page) : SelectedFileSelectPage(page)
+    private sealed partial class NamingNoSlot : SelectedFileSelectPage
     {
+        /// <summary>Creates <paramref name="page"/>, naming no slot.</summary>
+        /// <param name="page">The page.</param>
+        internal NamingNoSlot(FileSelectPage page)
+            : base(page)
+        {
+        }
+
         /// <inheritdoc/>
         internal override IReadOnlyList<FileSelectPromptLetter> Letters => [];
     }
 
-    /// <summary>A page whose prompt names the slot it acts on at <paramref name="anchor"/>.</summary>
-    private sealed class NamingSource(FileSelectPage page, FileSelectAnchor anchor, SaveSlot slot) : SelectedFileSelectPage(page)
+    /// <summary>A page whose prompt names the slot it acts on.</summary>
+    private sealed partial class NamingSource : SelectedFileSelectPage
     {
+        /// <summary>Creates <paramref name="page"/>, naming <paramref name="slot"/> at <paramref name="anchor"/>.</summary>
+        /// <param name="page">The page.</param>
+        /// <param name="anchor">Where the prompt shows the slot's letter.</param>
+        /// <param name="slot">The slot the page acts on.</param>
+        internal NamingSource(FileSelectPage page, FileSelectAnchor anchor, SaveSlot slot)
+            : base(page) => Letters = [new(anchor, slot)];
+
         /// <inheritdoc/>
-        internal override IReadOnlyList<FileSelectPromptLetter> Letters { get; } = [new(anchor, slot)];
+        internal override IReadOnlyList<FileSelectPromptLetter> Letters { get; }
     }
 
     /// <summary>A page whose prompt names a copy's source and destination.</summary>
-    private sealed class NamingCopy(FileSelectPage page, FileCopyRoute route) : SelectedFileSelectPage(page)
+    private sealed partial class NamingCopy : SelectedFileSelectPage
     {
+        /// <summary>Creates <paramref name="page"/>, naming the two slots of <paramref name="route"/>.</summary>
+        /// <param name="page">The page.</param>
+        /// <param name="route">The copy whose source and destination the prompt names.</param>
+        internal NamingCopy(FileSelectPage page, FileCopyRoute route)
+            : base(page) =>
+            Letters =
+            [
+                new(FileSelectAnchor.CopyConfirmSource, FileCopyRoutes.SourceOf(route)),
+                new(FileSelectAnchor.CopyConfirmDestination, FileCopyRoutes.DestinationOf(route)),
+            ];
+
         /// <inheritdoc/>
-        internal override IReadOnlyList<FileSelectPromptLetter> Letters { get; } =
-        [
-            new(FileSelectAnchor.CopyConfirmSource, FileCopyRoutes.SourceOf(route)),
-            new(FileSelectAnchor.CopyConfirmDestination, FileCopyRoutes.DestinationOf(route)),
-        ];
+        internal override IReadOnlyList<FileSelectPromptLetter> Letters { get; }
     }
 }

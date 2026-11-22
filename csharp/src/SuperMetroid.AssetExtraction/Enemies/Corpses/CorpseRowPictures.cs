@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// characters the corpse's rows show in: each holds one band of eight of the corpse's rows, so every part that draws the
 /// corpse lies unflipped top to bottom, each of its characters at the row of the picture its band lies at.
 /// </summary>
-internal static class CorpseRowPictures
+internal static partial class CorpseRowPictures
 {
     /// <summary>The corpse among <paramref name="corpses"/> whose rows frame <paramref name="frame"/> reads, or none.</summary>
     /// <exception cref="InvalidDataException">The frame reads two corpses' rows.</exception>
@@ -71,5 +71,5 @@ internal static class CorpseRowPictures
     /// <param name="Character">The character.</param>
     /// <param name="Place">Where its top-left corner lies in the frame.</param>
     /// <param name="FlippedTopToBottom">Whether its part flips it top to bottom.</param>
-    private readonly record struct DrawnCharacter(int Character, Offset16<ScreenPixels> Place, bool FlippedTopToBottom);
+    private readonly partial record struct DrawnCharacter(int Character, Offset16<ScreenPixels> Place, bool FlippedTopToBottom);
 }

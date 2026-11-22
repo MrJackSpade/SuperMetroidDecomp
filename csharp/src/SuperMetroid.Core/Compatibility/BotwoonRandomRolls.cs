@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
 [CompatibilityService("which part of the shared random number Botwoon's walk reads to choose its destination, exactly as the game read it")]
-internal static class BotwoonRandomRolls
+internal static partial class BotwoonRandomRolls
 {
     /// <summary>
     /// The roll of four a walk's random draw makes to choose where the walk leads: the draw's fourth and fifth places, so

@@ -8,11 +8,11 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// <remarks>
 /// The two effects share these records.
 /// </remarks>
-public static class WreckedShipGreenLightPaletteFxColorDefinitions
+public static partial class WreckedShipGreenLightPaletteFxColorDefinitions
 {
 
     /// <summary>Two BGR555 colors are presentation-owned by each record.</summary>
-    private const int ColorsPerFrame = 2;
+    internal const int ColorsPerFrame = 2;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public static PaletteFxColorFrames ColorFrames { get; } = PaletteFxColorFrames.Of(ColourEffectId.WreckedShipGreenLights, ColorsPerFrame);

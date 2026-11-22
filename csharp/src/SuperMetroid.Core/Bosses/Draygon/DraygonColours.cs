@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// shades of them, and his sprites show his opening's colours and his sprite shades. His room and the Evirs he spawns show
 /// their own colours, which his hurt updates do not change.
 /// </summary>
-internal sealed class DraygonColours : IGameplayShadingSource
+internal sealed partial class DraygonColours : IGameplayShadingSource
 {
     /// <summary>What his last hurt update showed (#2560): his room's colours before any, then his material colours or their white flash.</summary>
     private DraygonBodyColours shown;

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// names each blend's colours by, as the blend's identity names it, never the cartridge's colour-table offset. The untinted
 /// look's key names no blend: the document holds none for it.
 /// </summary>
-internal static class RoomEffectTintKeys
+internal static partial class RoomEffectTintKeys
 {
     /// <summary>Each RoomEffectTint member's installed key.</summary>
     internal static InstalledKeys<RoomEffectTint> Installed { get; } = new(new Dictionary<RoomEffectTint, string>

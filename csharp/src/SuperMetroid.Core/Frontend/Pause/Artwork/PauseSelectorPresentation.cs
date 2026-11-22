@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// the frame of the installed pause sheet it shows, and how long it holds (#2359). The frames' compositions belong to the
 /// import pipeline that reads the installed presentation and never reach the game (#1463, #1616).
 /// </summary>
-public sealed class PauseSelectorPresentation
+public sealed partial class PauseSelectorPresentation
 {
     /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
     internal readonly Dictionary<string, Offset16<ScreenPixels>> anchors;
@@ -44,7 +44,7 @@ public sealed class PauseSelectorPresentation
 
     /// <summary>The installed screen-pixel anchor of <paramref name="control"/>.</summary>
     /// <exception cref="InvalidDataException">The installation has no anchor for the control.</exception>
-    private Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
+    internal Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
     {
         string name = Ensure.NotNull(control).Anchor;
         return anchors.TryGetValue(name, out Offset16<ScreenPixels> anchor) ? anchor
@@ -63,7 +63,7 @@ public sealed class PauseSelectorPresentation
     }
 
     /// <summary>Validated selector parts passed into the installed representation.</summary>
-    internal sealed record PauseSelectorParts
+    internal sealed partial record PauseSelectorParts
     {
         /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
         public required IReadOnlyDictionary<string, Offset16<ScreenPixels>> Anchors { get; init; }
@@ -78,5 +78,5 @@ public sealed class PauseSelectorPresentation
     /// <summary>One step of the selector's animation (#2565): its look and how many updates it holds.</summary>
     /// <param name="Look">The step's reserve, beam and equipment frames.</param>
     /// <param name="Duration">The step's hold in updates.</param>
-    internal sealed record PauseSelectorStep(PauseSelectorLook Look, int Duration);
+    internal sealed partial record PauseSelectorStep(PauseSelectorLook Look, int Duration);
 }

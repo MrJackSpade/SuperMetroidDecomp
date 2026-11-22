@@ -27,7 +27,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// objects they spawn. Gameplay names each shade by the boss's typed colour state; where each lies among the inks is the
 /// import's.
 /// </summary>
-internal static class BossSheetShades
+internal static partial class BossSheetShades
 {
     /// <summary>The first ink of a body picture's sixth tile colour group, which Kraid's body colours recolour.</summary>
     private const int KraidBodyFirstInk = 112;
@@ -268,7 +268,7 @@ internal static class BossSheetShades
     /// colours, their white flash and his eight health bands.
     /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
-    private static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
+    internal static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
     {
         DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
         var shades = new List<SheetShade>

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The installed RGB5 colors for Magdollite's four-frame OBJ palette cycle, every frame kept as installed.
 /// The enemy hook owns frame order, eight-tick cadence, and destination selection.
 /// </summary>
-public sealed class MagdollitePaletteCycle
+public sealed partial class MagdollitePaletteCycle
 {
     /// <summary>The installed frames.</summary>
     private readonly InstalledColourRows frames;

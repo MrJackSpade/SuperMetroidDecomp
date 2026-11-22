@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.World;
 
 /// <summary>Door transitions: the door sound-wait frames with their actor drawing.</summary>
-internal sealed class DoorTransitionRunner
+internal sealed partial class DoorTransitionRunner
 {
     /// <summary>Draws Samus and room actors during door waits and fades.</summary>
     private readonly GameplayActorDrawing _actorDrawing;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// once over a facing's poses (#2465): his whips and his fake whip lash out shifting his body's picture, his flail lashes
 /// with it still, and every lash recoils and swings back the same way.
 /// </summary>
-internal static class DraygonAnimations
+internal static partial class DraygonAnimations
 {
     /// <summary>Every body, eye, tail and arms segment's beats.</summary>
     internal static AnimationSegments<DraygonSegment, EnemyFrameId, DraygonCue> Segments { get; } = new(
@@ -156,7 +156,7 @@ internal static class DraygonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
+    internal static Dictionary<DraygonSegment, Animation<DraygonSegment>> StartingAt { get; } = new Dictionary<DraygonSegment, Animation<DraygonSegment>>
     {
         [P.Rest] = new([], AnimationEnd.Holds),
         [P.BodyFacingLeftReset] = new([Segments.Whole(P.BodyFacingLeftReset)], AnimationEnd.Holds),

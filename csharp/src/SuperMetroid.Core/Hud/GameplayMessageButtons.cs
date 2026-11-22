@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Hud.GameplayMessageBoxDefinitions;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>Chooses the button a message panel's glyph shows for the action it names (#1416, #1466).</summary>
-public static class GameplayMessageButtons
+public static partial class GameplayMessageButtons
 {
     /// <summary>
     /// The button the glyph shows for <paramref name="binding"/>: the first of <see cref="Buttons.GlyphOrder"/> the binding

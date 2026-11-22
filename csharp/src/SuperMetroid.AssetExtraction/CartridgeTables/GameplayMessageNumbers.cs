@@ -8,10 +8,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// box is opened with and, less one, the message's entry in the bank-$85 definition table, which the message extractors
 /// translate once at import. The gunship's confirmation lies past the table's terminator. Core's values are arbitrary.
 /// </summary>
-internal static class GameplayMessageNumbers
+internal static partial class GameplayMessageNumbers
 {
     /// <summary>The message number of each gameplay message.</summary>
-    private static readonly NativeWordIdentities<GameplayMessageId> Numbers = new(new Dictionary<GameplayMessageId, ushort>
+    internal static readonly NativeWordIdentities<GameplayMessageId> Numbers = new(new Dictionary<GameplayMessageId, ushort>
     {
         [GameplayMessageId.EnergyTank] = 1,
         [GameplayMessageId.MissileTank] = 2,

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The three installed full-body normal suit palettes, every suit's colours kept as installed; suit selection
 /// remains gameplay code.
 /// </summary>
-public sealed class InstalledSamusSuitColors
+public sealed partial class InstalledSamusSuitColors
 {
     /// <summary>The installed Power Suit colours, including its transparent-slot payload.</summary>
     private readonly RgbColor[] power;

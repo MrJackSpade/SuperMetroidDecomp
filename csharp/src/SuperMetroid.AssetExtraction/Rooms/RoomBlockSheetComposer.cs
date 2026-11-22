@@ -23,7 +23,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// background picture is installed as its two parts (#1634): the pixels of its back tiles under its own name and those of its
 /// front tiles under <see cref="PictureParts.InFront"/>'s, so the room's passes choose pictures rather than pixels.
 /// </summary>
-internal static class RoomBlockSheetComposer
+internal static partial class RoomBlockSheetComposer
 {
     /// <summary>Pictures across one row of a sheet.</summary>
     private const int SheetColumns = 32;
@@ -342,13 +342,13 @@ internal static class RoomBlockSheetComposer
     /// <summary>One block or cell to picture: its four tile words and what shows at each tile's character.</summary>
     /// <param name="Tiles">The tiles: top left, top right, bottom left, bottom right.</param>
     /// <param name="Shown">What shows at each tile's character.</param>
-    private sealed record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
+    private sealed partial record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
 
     /// <summary>One tileset's composed sheet, the inputs each block depends on, and each background's changing cells.</summary>
     /// <param name="Sheet">The sheet.</param>
     /// <param name="Appearances">The inputs each block depends on.</param>
     /// <param name="Cells">Each background's changing cells, by its installed name.</param>
-    private sealed record ComposedBlocks(ComposedSpriteSheet Sheet, RoomBlockAppearances Appearances, IReadOnlyDictionary<string, IReadOnlyList<RoomBackgroundCell>> Cells);
+    private sealed partial record ComposedBlocks(ComposedSpriteSheet Sheet, RoomBlockAppearances Appearances, IReadOnlyDictionary<string, IReadOnlyList<RoomBackgroundCell>> Cells);
 
     /// <summary>One tileset's composed pictures.</summary>
     /// <param name="Blocks">Its block sheet.</param>
@@ -359,7 +359,7 @@ internal static class RoomBlockSheetComposer
     /// <param name="Hud">Its pictures of the HUD.</param>
     /// <param name="MessageBox">Its message box sheet.</param>
     /// <param name="Floor">Its Ceres floor sheet, or null outside Ceres.</param>
-    private sealed record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
+    private sealed partial record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
         KeyValuePair<string, ComposedRoomBackground>[] Backgrounds, ComposedWrittenPictureSheet? Written, ComposedWrittenPictureSheet RoomEffects, ComposedSpriteSheet Hud,
         ComposedSpriteSheet MessageBox, ComposedSpriteSheet? Floor);
 }

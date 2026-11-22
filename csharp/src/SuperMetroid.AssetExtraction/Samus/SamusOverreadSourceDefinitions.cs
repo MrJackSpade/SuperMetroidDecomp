@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// decodes once into the Samus overread services (#1474).
 /// </summary>
 [EncodingOwner("cartridge regions Samus's glitch paths read past their data")]
-internal static class SamusOverreadSourceDefinitions
+internal static partial class SamusOverreadSourceDefinitions
 {
     /// <summary>Bank $80, whose upper half the SpaceTime palette copy reads through its bank-$00 mirror.</summary>
     internal const int SpacetimeCopySourceBank = 0x800000;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed program frames: the first program-frame catalog's frames and every later catalog's additions, in publishing order.</summary>
-internal static class EnemyProjectilePresentationFrameSets
+internal static partial class EnemyProjectilePresentationFrameSets
 {
     /// <summary>Each catalog's additions, in publishing order.</summary>
     private static readonly IReadOnlyList<EnemyProjectilePresentationFrameDefinition>[] Additions =

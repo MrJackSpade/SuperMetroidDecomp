@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// acknowledgements the next update's sound queues read. The game session and the session that records clips offline
 /// (#1305) share it, so both drive a backend with identical event streams.
 /// </summary>
-internal sealed class AudioEventSource
+internal sealed partial class AudioEventSource
 {
     /// <summary>Turns updates' requests into events on <paramref name="clock"/>, which its owner created with the state's lifetime.</summary>
     /// <param name="clock">The clock that decides when each library accepts and acknowledges a request: the game session's, or the offline clip recording's own.</param>
@@ -64,7 +64,7 @@ internal sealed class AudioEventSource
     /// <summary>An update applying its requests (#2553): the clock they reach and the events it publishes.</summary>
     /// <param name="Clock">The sound acceptance clock.</param>
     /// <param name="Events">The update's events so far.</param>
-    private readonly record struct RequestApplying(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> Clock, List<AudioEvent> Events);
+    private readonly partial record struct RequestApplying(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> Clock, List<AudioEvent> Events);
 
     /// <summary>A library starts a sound only for a changed request, other than none, taken at the previous check.</summary>
     private static void AddStart(List<AudioEvent> events, SoundClockStep<SoundEffectLibrary, SoundEffectId> step, SoundRequestCheck<SoundEffectId> check)

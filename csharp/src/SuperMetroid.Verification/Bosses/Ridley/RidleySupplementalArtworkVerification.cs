@@ -90,7 +90,7 @@ internal static class RidleySupplementalArtworkVerification
             Motion = RidleyMotion.Running,
             Flight = { FacingDirection = facing },
         };
-        global::SuperMetroid.Core.PrivateState.Set(state.Flight.Wings, "Pose", ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame));
+        state.Flight.Wings.Pose = ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame);
         if (tailDirection is { } direction)
         {
             RidleyTailFixtures.BlankLinks(state.Tail);

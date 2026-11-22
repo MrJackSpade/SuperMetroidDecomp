@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// The movement, pose, ability and drawing systems share it. The Landing Site cinematic actor is not part of it.
 /// </remarks>
-public sealed class SamusState
+public sealed partial class SamusState
 {
     /// <summary>The installed input and movement modes and the control setups that replace them.</summary>
     internal SamusControl Control { get; } = new();
@@ -341,7 +341,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    private PeriodicDamageEnergyFraction EnergyFraction { get; set; }
+    internal PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -672,7 +672,7 @@ public sealed class SamusState
     /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
     /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
-    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; private set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; internal set; }
 
     /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
     internal void LeaveDownwardMoveResult(bool landed)

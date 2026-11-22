@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Installed file identity for the six scientist-scene baby sprite frames.</summary>
-public static class IntroScientistSpriteFormat
+public static partial class IntroScientistSpriteFormat
 {
     /// <summary>
     /// The supported scientist-scene sprite JSON schema version; 2 holds only the poses the scientist scenes' babies show,

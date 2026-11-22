@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 
 /// <summary>Reads of what the enemy-projectile frames are drawn from (<see cref="EnemyProjectileRoomPictureDefinitions"/>).</summary>
-internal static class EnemyProjectileFrames
+internal static partial class EnemyProjectileFrames
 {
     /// <summary>Where an enemy-projectile frame is drawn from.</summary>
     extension(EnemyProjectileFrameId frame)

@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Finds the collision components of the Phantoon frame shown.</summary>
-internal static class PhantoonCollision
+internal static partial class PhantoonCollision
 {
     /// <summary>
     /// The collision components of Phantoon frame <paramref name="frame"/>: his body's picture has the components of

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Where the opening cinematic's artwork sits among each of its layers' tile numbers (#1404).</summary>
-internal static class IntroTileSetDefinitions
+internal static partial class IntroTileSetDefinitions
 {
 
     /// <summary>The tile number of the narration font's first character on the narration plane.</summary>

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Map;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Defines the map sprite document and atlas geometry.</summary>
-public static class MapSpriteFormat
+public static partial class MapSpriteFormat
 {
     /// <summary>Supported map sprite schema revision.</summary>
     public const int Version = 1;

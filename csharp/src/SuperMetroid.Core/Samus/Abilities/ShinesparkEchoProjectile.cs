@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// (<see cref="ReleasedEchoStartsAtReplacedShot"/>), and only the first echo's height carries into the next crash's orbit
 /// (<see cref="CrashOrbitTravelCarryover"/>).
 /// </remarks>
-internal sealed class ShinesparkEchoProjectile
+internal sealed partial class ShinesparkEchoProjectile
 {
     /// <summary>Animation owner that clears an echo's shot when the echo leaves the screen.</summary>
     private readonly ProjectileAnimation _animation;

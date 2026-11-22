@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// colour group, and the room's powered colours over every other colour group. His fades and the power coming on are
 /// typed fades between them, published by the simulation.
 /// </summary>
-internal static class PhantoonSheetShades
+internal static partial class PhantoonSheetShades
 {
     /// <summary>The first ink of his body's colours on a body picture.</summary>
     private const int BodyFirstInk = 112;

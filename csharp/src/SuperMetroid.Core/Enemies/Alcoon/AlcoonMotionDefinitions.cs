@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>How an Alcoon waits underground, jumps out, walks and jumps back in (#2149).</summary>
-internal static class AlcoonMotionDefinitions
+internal static partial class AlcoonMotionDefinitions
 {
     /// <summary>
     /// How close Samus comes vertically to the Alcoon's landing point, in pixels and exclusive, before it can jump out.

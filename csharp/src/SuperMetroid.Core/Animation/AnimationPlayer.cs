@@ -10,29 +10,29 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
+internal sealed partial class AnimationPlayer<TSegment, TFrame, TEvent>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
 {
     /// <summary>The segments the animation plays.</summary>
-    private AnimationSegments<TSegment, TFrame, TEvent> segments;
+    internal AnimationSegments<TSegment, TFrame, TEvent> Segments { get; private set; }
 
     /// <summary>Starts <paramref name="animation"/> of <paramref name="segments"/>, showing nothing until its first update.</summary>
     private AnimationPlayer(AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation)
     {
-        this.segments = Ensure.NotNull(segments);
+        Segments = Ensure.NotNull(segments);
         Playback = new(Ensure.NotNull(animation), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>The animation playing and where its play stands.</summary>
-    internal AnimationPlayback<TSegment> Playback { get; private set; }
+    internal AnimationPlayback<TSegment> Playback { get; set; }
 
     /// <summary>The frame shown, or null before the animation shows its first.</summary>
-    internal TFrame? Shown { get; private set; }
+    internal TFrame? Shown { get; set; }
 
     /// <summary>The updates the shown frame, or the pause, has left before the play moves on.</summary>
-    internal int UpdatesLeft { get; private set; } = 1;
+    internal int UpdatesLeft { get; set; } = 1;
 
     /// <summary>Whether the animation plays on, rests for good on a held frame or past its end, or has stopped (#2560).</summary>
     private AnimationMotion Motion { get; set; }
@@ -279,7 +279,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// where the play stands, the shown frame keeping its updates left, so the frames after it take their timing from the
     /// new animation, as the Baby Metroid's membrane pulse changes its pace.
     /// </summary>
-    internal void GoOnIn(Animation<TSegment> animation) => Rebind(segments, animation);
+    internal void GoOnIn(Animation<TSegment> animation) => Rebind(Segments, animation);
 
     /// <summary>
     /// Plays the animation's segments as <paramref name="rebound"/> holds them from now on, keeping where the play stands,
@@ -289,7 +289,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     /// </summary>
     internal void Rebind(AnimationSegments<TSegment, TFrame, TEvent> rebound, Animation<TSegment> animation)
     {
-        segments = Ensure.NotNull(rebound);
+        Segments = Ensure.NotNull(rebound);
         Ensure.NotNull(animation);
         AnimationPlace place = Playback.Place;
         if (IsResting || animation.Phases.Count == 0)
@@ -334,7 +334,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
     {
         Animation<TSegment> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TSegment, TFrame> next = segments.PlayToNextFrame(ref animation, ref place, react);
+        AnimationShown<TSegment, TFrame> next = Segments.PlayToNextFrame(ref animation, ref place, react);
         Playback = new(animation, place);
         return next.Match(PlayOnCases, this);
     }
@@ -446,7 +446,7 @@ internal sealed class AnimationPlayer<TSegment, TFrame, TEvent>
             beat = before.BeatCount - 1;
         }
         AnimationPhase<TSegment> stepped = phases[phase];
-        Shown = segments.Beats(stepped.Segment)[stepped.FirstBeat + beat].ShownFrame
+        Shown = Segments.Beats(stepped.Segment)[stepped.FirstBeat + beat].ShownFrame
             ?? throw new InvalidOperationException($"The animation steps back onto a beat of {stepped.Segment} that shows no frame.");
         Playback = Playback with { Place = new AnimationPlace(phase, beat + 1).WithPlaysLeft(playsLeft) };
         bool first = beat == 0 && (!stepped.IsRepeated || playsLeft == stepped.Plays) &&

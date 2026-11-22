@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Polyp], Create);
@@ -44,6 +44,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>> RunPolypMainForPolypAction => field ??= new(new Dictionary<PolypAction, Action<RoomEnemyOccupant, RoomEnemyPlace, PolypEnemyState, SamusState>>
     {
         [PolypAction.WaitingForSamus] = (_, place, state, samus) =>
@@ -95,8 +96,10 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>A Polyp rock (#1760): it rises and falls quadratically until it leaves the camera.</summary>
-    private StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(
-        context => FlyPolypRock(context.Projectile, context.Camera));
+    internal StatefulSingleMotionProjectileBehavior<PolypRockState> Rock => field ??= new(FlyPolypRock);
+
+    /// <summary>Moves a Polyp rock (<see cref="Rock"/>).</summary>
+    private void FlyPolypRock(EnemyProjectileMotionContext context) => FlyPolypRock(context.Projectile, context.Camera);
 
     /// <summary>Advances Polyp's typed animation.</summary>
     internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place) =>
@@ -113,7 +116,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns a lava rock from the Polyp and initializes it.
     /// The rock draws from the Polyp's spawned-object sheet in its colours and starts at the Polyp's position, fractions included.
     /// </summary>
-    private void SpawnPolypRock(
+    internal void SpawnPolypRock(
         RoomEnemyOccupant occupant, RoomEnemyPlace source,
         QuadraticSpeedCurvePlace launchPlace,
         SignedEightEight xVelocity)
@@ -128,6 +131,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>What <see cref="FlyPolypRock"/> does for each <see cref="PolypRockMovement"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<PolypRockMovement, Action<EnemyProjectile>> FlyPolypRockForPolypRockMovement => field ??= new(new Dictionary<PolypRockMovement, Action<EnemyProjectile>>
     {
         [PolypRockMovement.Rising] = projectile => StepRisingPolypRock(projectile),
@@ -183,7 +187,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// Adds one curve mark's speed toward <paramref name="direction"/>, the fraction first and then the whole pixels.
     /// </summary>
-    private static void AddPolypRockQuadraticStep(
+    internal static void AddPolypRockQuadraticStep(
         EnemyProjectile projectile,
         QuadraticSpeedCurvePlace place,
         VerticalDirection direction)

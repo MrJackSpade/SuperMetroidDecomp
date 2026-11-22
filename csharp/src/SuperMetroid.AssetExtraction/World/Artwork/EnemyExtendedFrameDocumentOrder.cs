@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// them (#1402), run by run of one enemy family each (<see cref="EnemyExtendedFrameDefinitions.FamilyRuns"/>): each run
 /// names its own frames, so no position assigns a frame its family (#2565).
 /// </summary>
-internal static class EnemyExtendedFrameDocumentOrder
+internal static partial class EnemyExtendedFrameDocumentOrder
 {
     /// <summary>The walking Pirates' frames, in the document's order.</summary>
     internal static ImmutableArray<EnemyFrameId> WalkingPirate { get; } =

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// sparks spark again while its eye keeps their explosions disabled, and the Super Missile its hand catches and holds.
 /// </summary>
 /// <param name="owner">The Torizo that fired or caught the projectile.</param>
-internal sealed class TorizoOwnedProjectileState(RoomEnemyPlace owner) : EnemyProjectileState
+internal sealed partial class TorizoOwnedProjectileState(RoomEnemyPlace owner) : EnemyProjectileState
 {
     /// <summary>The Torizo that fired or caught the projectile.</summary>
     internal RoomEnemyPlace Owner { get; } = Ensure.NotNull(owner);

@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts trail OBJ appearance without exposing native timing or movement commands.</summary>
-public static class ProjectileTrailExtractor
+public static partial class ProjectileTrailExtractor
 {
     /// <summary>Imports OBJ appearance words from the catalogued bank-$90 projectile-trail frame records.</summary>
     /// <param name="bus">Cartridge-import-capable address space supplying each native frame's visual operand.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's attack selection after a hover.</summary>
-internal static class CeresRidleyAttackDefinitions
+internal static partial class CeresRidleyAttackDefinitions
 {
     /// <summary>
     /// The attack the room's current random number chooses after a hover (#2510): runs of rolls choose a fireball route, a

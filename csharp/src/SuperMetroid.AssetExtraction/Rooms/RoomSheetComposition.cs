@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Hud">The sheets of the HUD's pictures, by tileset (#1731).</param>
 /// <param name="MessageBoxes">The message box images, by tileset.</param>
 /// <param name="Floors">The turning floors and the pictures drawn over them, by Ceres tileset (#1467).</param>
-internal sealed record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
+internal sealed partial record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
     IReadOnlyDictionary<TilesetDefinition, RoomBlockAppearances> BlockAppearances,
     IReadOnlyDictionary<string, ComposedRoomBackground> Backgrounds, IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> Written,
     IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> RoomEffects, IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> Hud,

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Crocomire arena draw (<see cref="CrocomireArenaMutation"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class CrocomireArenaDrawKeys
+internal static partial class CrocomireArenaDrawKeys
 {
     /// <summary>Each CrocomireArenaMutation member's installed key.</summary>
     internal static InstalledKeys<CrocomireArenaMutation> Installed { get; } = new(new Dictionary<CrocomireArenaMutation, string>

@@ -324,6 +324,19 @@ internal static class GraphDigestVerification
         definitionsDeclared = true;
     }
 
+    /// <summary>
+    /// Declares the process's definition index as a shared fixture unless it was before, for a check that captures through
+    /// the serializer directly rather than through <see cref="Bound"/>.
+    /// </summary>
+    internal static void DeclareDefinitionIndex()
+    {
+        lock (boundGraphs)
+        {
+            if (!definitionsDeclared)
+                DeclareDefinitions();
+        }
+    }
+
     /// <summary>Whether the process's definition index was declared as a shared fixture.</summary>
     private static bool definitionsDeclared;
 
@@ -456,127 +469,11 @@ internal static class GraphDigestVerification
         }
     }
     /// <summary>
-    /// True when every instance field of two objects of one type holds equal state: arrays of
-    /// unmanaged elements by content, arrays of other value types element by element, arrays of records (a level's door
-    /// exits) element by element by their value equality, an owned Core object by its own
-    /// fields, everything else by <see cref="object.Equals(object?, object?)"/>.
-    /// Reflection covers fields added later, so a restore that forgets one fails here.
+    /// True when two objects of one type hold equal state: every value they reach through the members the compiler gave every
+    /// type of the game (#2602) is the same, compared side by side (<see cref="PublishedGraphs"/>), so a restore that forgets
+    /// a field added later fails here. Nothing is serialized and no shared index is written, so workers compare at once.
     /// </summary>
-    [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
-    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class =>
-        FieldsEqual(typeof(T), actual, expected);
-
-    /// <summary>Compares every instance field <paramref name="declared"/> and its bases declare.</summary>
-    [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
-    private static bool FieldsEqual(Type declared, object actual, object expected)
-    {
-        foreach (var field in InstanceFields(declared))
-        {
-            Type type = field.DeclaringType ?? throw new InvalidOperationException($"{field.Name} has no declaring type.");
-            object? left = field.GetValue(actual), right = field.GetValue(expected);
-            if (left is Array leftArray && right is Array rightArray)
-            {
-                Type element = leftArray.GetType().GetElementType()
-                    ?? throw new InvalidOperationException("Verification requires leftArray.GetType().GetElementType().");
-                bool recordElements = !element.IsValueType && element.GetMethod("<Clone>$") is not null;
-                if (leftArray.GetType() != rightArray.GetType() || !element.IsValueType && !recordElements)
-                    throw new InvalidOperationException($"{type.Name}.{field.Name} needs an element comparison.");
-                if (leftArray.Length != rightArray.Length)
-                    return false;
-                if (recordElements)
-                {
-                    if (!leftArray.Cast<object?>().SequenceEqual(rightArray.Cast<object?>()))
-                        return false;
-                }
-                else if (element.IsPrimitive)
-                {
-                    if (!System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
-                            ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(leftArray), Buffer.ByteLength(leftArray))
-                        .SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
-                            ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(rightArray), Buffer.ByteLength(rightArray))))
-                        return false;
-                }
-                else if (!ValueArrayComparer(element)(leftArray, rightArray))
-                {
-                    // Value elements (typed blocks, behaviours) compare by their own equality, one by one.
-                    return false;
-                }
-            }
-            else if (left is System.Collections.IDictionary leftMap && right is System.Collections.IDictionary rightMap)
-            {
-                // A map the state owns (the collectible pictures a room shows) compares by its entries (#1538).
-                if (leftMap.Count != rightMap.Count)
-                    return false;
-                foreach (System.Collections.DictionaryEntry entry in leftMap)
-                {
-                    if (!rightMap.Contains(entry.Key) || !Equals(entry.Value, rightMap[entry.Key]))
-                        return false;
-                }
-            }
-            else if (left is not null && right is not null && !Equals(left, right) && left.GetType() == right.GetType() &&
-                     !left.GetType().IsValueType && left.GetType().Assembly == typeof(Ensure).Assembly)
-            {
-                // An object the state owns (the terrain past a room's grid) is compared by its own fields.
-                if (!FieldsEqual(left.GetType(), left, right))
-                    return false;
-            }
-            else if (!Equals(left, right)) return false;
-        }
-        return true;
-    }
-
-    /// <summary>
-    /// Every instance field <paramref name="declared"/> and its bases declare, the declared type's first and each type's in
-    /// declaration order, read once per type: a check comparing a restored room per case read them per case (#1757).
-    /// </summary>
-    [ReflectionAudit("structural equality: every instance field is compared, so a restore that forgets a field added later fails")]
-    private static System.Reflection.FieldInfo[] InstanceFields(Type declared) => instanceFields.GetOrAdd(declared, static type =>
-    {
-        var fields = new List<System.Reflection.FieldInfo>();
-        for (Type? level = type; level is not null; level = level.BaseType)
-            fields.AddRange(level.GetFields(System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
-                System.Reflection.BindingFlags.DeclaredOnly));
-        return [.. fields];
-    });
-
-    /// <summary>Each compared type's instance fields, read once.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, System.Reflection.FieldInfo[]> instanceFields = new();
-
-    /// <summary>
-    /// Compares two arrays of one value element type element by element with that type's own equality, as
-    /// <see cref="object.Equals(object?, object?)"/> compares each pair, without boxing every element (#1532): a room's
-    /// block arrays hold thousands of elements, and a check restoring a room per case compares them per case.
-    /// </summary>
-    [ReflectionAudit("structural equality: each value element type's arrays compare through that type's own equality")]
-    private static Func<Array, Array, bool> ValueArrayComparer(Type element) => valueArrayComparers.GetOrAdd(element, static type =>
-        (typeof(GraphDigestVerification).GetMethod(nameof(ValueArraysEqual), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
-            ?? throw new InvalidOperationException("The value-array comparison is missing."))
-            .MakeGenericMethod(type).CreateDelegate<Func<Array, Array, bool>>());
-
-    /// <summary>Each value element type's array comparison, made once.</summary>
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, Func<Array, Array, bool>> valueArrayComparers = new();
-
-    /// <summary>
-    /// Whether two arrays of <typeparamref name="T"/> hold equal elements by <typeparamref name="T"/>'s equality. Arrays of
-    /// an element holding no references whose bytes are equal hold equal elements, as every element equals itself, so only
-    /// arrays whose bytes differ are compared element by element (#1757).
-    /// </summary>
-    private static bool ValueArraysEqual<T>(Array left, Array right)
-    {
-        var leftElements = (T[])left;
-        var rightElements = (T[])right;
-        if (!System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<T>() &&
-            ElementBytes(leftElements).SequenceEqual(ElementBytes(rightElements)))
-            return true;
-        return new ReadOnlySpan<T>(leftElements).SequenceEqual(rightElements, EqualityComparer<T>.Default);
-    }
-
-    /// <summary>The bytes of an array whose element holds no references.</summary>
-    private static ReadOnlySpan<byte> ElementBytes<T>(T[] elements) =>
-        System.Runtime.InteropServices.MemoryMarshal.CreateReadOnlySpan(
-            ref System.Runtime.CompilerServices.Unsafe.As<T, byte>(ref System.Runtime.InteropServices.MemoryMarshal.GetArrayDataReference(elements)),
-            checked(elements.Length * System.Runtime.CompilerServices.Unsafe.SizeOf<T>()));
+    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class => PublishedGraphs.Same(actual, expected);
 
     /// <summary>The pixels a packet shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>

@@ -11,9 +11,9 @@ namespace SuperMetroid.Desktop.Timing;
 public sealed class FrameTimingCounter
 {
     /// <summary>Optional owner-thread diagnostic observer; the normal host has no subscriber.</summary>
-    private event Action<long>? GameUpdateMeasured;
+    internal event Action<long>? GameUpdateMeasured;
     /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
-    private event Action<double>? LateFramesRecorded;
+    internal event Action<double>? LateFramesRecorded;
     /// <summary>Stopwatch ticks per second for converting observations to wall time.</summary>
     private readonly long timestampFrequency;
     /// <summary>Minimum Stopwatch ticks between published snapshots.</summary>
@@ -36,7 +36,7 @@ public sealed class FrameTimingCounter
     }
 
     /// <summary>Injectable clock geometry used by the deterministic timing smoke test.</summary>
-    private FrameTimingCounter(long timestampFrequency, TimeSpan reportingInterval)
+    internal FrameTimingCounter(long timestampFrequency, TimeSpan reportingInterval)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timestampFrequency);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(reportingInterval, TimeSpan.Zero);

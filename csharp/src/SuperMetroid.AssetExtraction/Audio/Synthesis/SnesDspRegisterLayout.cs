@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// register it is handling instead of scattering raw addresses through control flow.
 /// </summary>
 [EncodingOwner("S-DSP register file addresses and field masks")]
-internal static class SnesDspRegisterLayout
+internal static partial class SnesDspRegisterLayout
 {
     /// <summary>The S-DSP exposes 128 byte-addressed registers.</summary>
     internal const int RegisterFileSize = 0x80;
@@ -20,7 +20,7 @@ internal static class SnesDspRegisterLayout
     internal const int VoiceIndexMask = 7;
 
     /// <summary>Voice register offsets for address arithmetic (voice block + offset).</summary>
-    internal static class Voice
+    internal static partial class Voice
     {
         /// <summary>Attack, decay, and ADSR enable bits within each voice block.</summary>
         internal const int Adsr1 = 0x05;
@@ -96,7 +96,7 @@ internal static class SnesDspRegisterLayout
         globalRegistersByAddress.TryGetValue(address, out DspGlobalRegister register) ? register : null;
 
     /// <summary>Bit masks and shifts for pitch, envelopes, gain, DSP flags, and echo delay.</summary>
-    internal static class Fields
+    internal static partial class Fields
     {
         /// <summary>Pitch is fourteen bits across its low and high voice registers.</summary>
         internal const int PitchMask = 0x3fff;

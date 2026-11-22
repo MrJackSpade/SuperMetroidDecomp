@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the installed file holds every frame's picture, cell by cell, which the player edits in place. The game reads the
 /// pictures as installed: there is no compiled copy and no override.
 /// </summary>
-internal static class RoomObjectFrameImageFiles
+internal static partial class RoomObjectFrameImageFiles
 {
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
     /// <remarks>
@@ -79,7 +79,7 @@ internal static class RoomObjectFrameImageFiles
                     cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions));
         using var output = new FileStream(Path.Combine(directory, family.FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -114,7 +114,7 @@ internal static class RoomObjectFrameImageFiles
     /// writes last, as the room does.
     /// </summary>
     /// <exception cref="InvalidDataException">The draw list differs from the layout.</exception>
-    private static RoomObjectFrameImage Picture(ISnesAddressSpace bus, string family, RoomObjectFrameLayout layout)
+    internal static RoomObjectFrameImage Picture(ISnesAddressSpace bus, string family, RoomObjectFrameLayout layout)
     {
         Ensure.NotNull(bus);
         int pointer = RoomObjectDrawAddressCodec.Of(layout.Draw);
@@ -198,7 +198,7 @@ internal static class RoomObjectFrameImageFiles
     {
         try
         {
-            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), JsonOptions)
+            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions))
                 ?? throw new InvalidDataException($"{family} pictures {path} are empty.");
         }
         catch (JsonException error)
@@ -214,15 +214,15 @@ internal static class RoomObjectFrameImageFiles
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
 
     /// <summary>The installed document: its format and every frame's picture.</summary>
-    private sealed record FrameDocument(int Version, FrameEntry[] Frames);
+    internal sealed partial record FrameDocument(int Version, FrameEntry[] Frames);
 
     /// <summary>One frame's picture: its published name and every cell it shows.</summary>
-    private sealed record FrameEntry(string Id, FrameCell[] Cells);
+    internal sealed partial record FrameEntry(string Id, FrameCell[] Cells);
 
     /// <summary>
     /// One pictured cell: its place from the object's origin, the block it shows, or null where it shows nothing, and how it
     /// is mirrored.
     /// </summary>
     [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
-    private sealed record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
+    internal sealed partial record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
 }

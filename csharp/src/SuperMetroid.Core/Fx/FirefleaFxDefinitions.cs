@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 /// its looks (<see cref="FirefleaFlashAnimations"/>); the flash it shows and the darkness the Firefleas killed bring are
 /// mutable state in <see cref="FirefleaFxState"/>.
 /// </summary>
-internal static class FirefleaFxDefinitions
+internal static partial class FirefleaFxDefinitions
 {
     /// <summary>
     /// The darkness fade level each count of Firefleas killed shows, from none killed through the deepest darkness of

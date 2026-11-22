@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// own identity, and the Zebetite count is a count (#1527). Lifetime: the
 /// session's <see cref="SharedGameState"/> owns the live progress; every save slot and save snapshot owns a detached copy.
 /// </summary>
-public sealed class PersistentProgress
+public sealed partial class PersistentProgress
 {
     /// <summary>The Zebetites barring the way to Mother Brain, destroyed one after another.</summary>
     public const int ZebetiteCount = 4;

@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the twenty station frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectStationVisualFiles
+public static partial class RoomObjectStationVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for twenty map, refill, save, and station-access draw layouts.</summary>
-    private const string VisualFileName = "stations.json";
+    internal const string VisualFileName = "stations.json";
 
     /// <summary>The station as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -37,7 +37,7 @@ public static class RoomObjectStationVisualFiles
     /// its second block beside or above the first, a save pod its six two-block rows upward, and a retracted map arm its
     /// second block three across.
     /// </summary>
-    private static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
+    internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         if (!RoomObjectDrawIdentity.TryShape(StationObjectDraws.Family, request, out RoomBlockShape? shape))
         {
@@ -53,11 +53,11 @@ public static class RoomObjectStationVisualFiles
     /// Published artwork IDs (#1994): each display's dim, lit and bright glow, and the save pod's and the access
     /// arms' states. These are identity selections, independent of the terrain. Only complete lists have IDs.
     /// </summary>
-    private static string VisualId(RoomObjectDraw request) =>
+    internal static string VisualId(RoomObjectDraw request) =>
         StationDrawKeys.Installed.Of(RoomObjectDrawIdentity.FrameOf<StationDraw>(request, "station draw list"));
 
     /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> All
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
     {
         get
         {

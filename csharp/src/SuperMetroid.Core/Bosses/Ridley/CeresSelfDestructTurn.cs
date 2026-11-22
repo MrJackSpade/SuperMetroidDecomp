@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="Escape">The station's escape, whose warning the phase runs.</param>
 /// <param name="RidleyFrameCounter">Ridley's body's update count, which paces the alarm.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct CeresSelfDestructTurn(CeresEscape Escape, int RidleyFrameCounter);
+internal readonly partial record struct CeresSelfDestructTurn(CeresEscape Escape, int RidleyFrameCounter);

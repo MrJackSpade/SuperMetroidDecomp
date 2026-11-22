@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Window">The pixels the colour is added to.</param>
 /// <param name="Colour">The colour added, whole on every line unless <paramref name="Steps"/> strengthens it down the screen.</param>
 /// <param name="Steps">How the colour strengthens down the screen, or null for the whole colour on every line.</param>
-public sealed record ColourAddWindowLayer(ScreenWindow Window, RgbColor Colour, LineColourSteps? Steps = null) : DisplayLayer
+public sealed partial record ColourAddWindowLayer(ScreenWindow Window, RgbColor Colour, LineColourSteps? Steps = null) : DisplayLayer
 {
     /// <summary>The pixels the colour is added to.</summary>
     public ScreenWindow Window { get; } = Ensure.NotNull(Window);

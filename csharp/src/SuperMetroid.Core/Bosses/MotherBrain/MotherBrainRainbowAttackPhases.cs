@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
-internal sealed class MotherBrainRainbowAttackPhases
+internal sealed partial class MotherBrainRainbowAttackPhases
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement ;
@@ -26,12 +26,12 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Rainbow-beam angular width: its narrowest when the beam starts, widening a step at a time up to its widest and
     /// narrowing back to its narrowest as it shuts down.
     /// </summary>
-    public RotationAngle AngularWidth { get; private set; }
+    public RotationAngle AngularWidth { get; internal set; }
 
     /// <summary>
     /// The beam's sound attempts (#2253): each continuing beam step makes one and counts it, until none are left.
     /// </summary>
-    public UpdateCountdown SoundAttempts { get; private set; } = UpdateCountdown.Ended();
+    public UpdateCountdown SoundAttempts { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>Rainbow-beam explosion timer.</summary>
     public BossCountdown ExplosionTimer { get; } = new();
@@ -58,7 +58,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>
     /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
-    private void StartActiveBeam(SamusState samus)
+    internal void StartActiveBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
 

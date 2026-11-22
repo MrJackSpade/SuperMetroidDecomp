@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The updates on which a ninja Space Pirate considers its claw attack (#1606).</summary>
-internal static class NinjaSpacePirateCadenceDefinitions
+internal static partial class NinjaSpacePirateCadenceDefinitions
 {
     /// <summary>
     /// The updates on which a ninja Space Pirate considers a claw attack, counted on its own update count at the period's

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Runs the title's scenes in order, showing the installed pictures, colours and gradient.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
+public sealed partial class TitleSequenceState : IFrontendScreen, IComposedFrontendScene<FloorScene>
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -35,7 +35,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
 
     /// <summary>Binds the installed sprite sheets the title's compositions draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    private void BindSpriteSheets(InstalledSpriteSheets sheets)
+    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
         spriteSheets = Ensure.NotNull(sheets);
     }
@@ -51,7 +51,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// </summary>
     private ColourEffectSystem colourEffects = ColourEffectSystem.ForScreen();
     /// <summary>The title's sprites this frame, the active composition and the copyright, in drawing order (#1358).</summary>
-    private readonly ScreenSprites screenSprites;
+    internal readonly ScreenSprites screenSprites;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
@@ -64,35 +64,35 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// <summary>The copyright's hold before the title screen opens.</summary>
     private UpdateCountdown copyrightHold = UpdateCountdown.Ended();
     /// <summary>The idle title screen's wait before the attract demo starts.</summary>
-    private UpdateCountdown IdleTimeout { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown IdleTimeout { get; set; } = UpdateCountdown.Ended();
     /// <summary>The running title card's typing (#2359): it shows nothing until its first update reads its first beat.</summary>
     private readonly AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue> textCard =
         AnimationPlayer<TitleCard, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleCardDefinitions.Year));
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
-    internal TitleSprite? ActiveSprite { get; private set; }
+    internal TitleSprite? ActiveSprite { get; set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
-    internal TitleCardTyping? ActiveCard { get; private set; }
+    internal TitleCardTyping? ActiveCard { get; set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
-    internal Offset16<ScreenPixels> ActiveOrigin { get; private set; }
+    internal Offset16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
-    internal TitleSpriteColouring ActiveColouring { get; private set; }
+    internal TitleSpriteColouring ActiveColouring { get; set; }
     /// <summary>
     /// Whether the title screen's rebuild after a skip, or on the return from the demo, has restored the copyright's
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.
     /// </summary>
-    private bool CopyrightRestored { get; set; }
+    internal bool CopyrightRestored { get; set; }
     /// <summary>The floor's pan position, whose whole pixels may lie left of zero.</summary>
     private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom, animated from the close-up scene to the floor's own size.</summary>
-    private TitleFloorZoom Zoom { get; set; }
+    internal TitleFloorZoom Zoom { get; set; }
     /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
-    private DisplayBrightness Brightness => fade.Level;
+    internal DisplayBrightness Brightness => fade.Level;
     /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
     private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
     /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
-    private TitleBabyPose BabyPose => baby.Showing;
+    internal TitleBabyPose BabyPose => baby.Showing;
     /// <summary>
     /// Whether the title shows its perspective floor behind its sprites in <paramref name="phase"/>: every step but the
     /// title cards, whose sprites show alone, also while the skip's fade-out runs alongside a card (#1719).
@@ -184,10 +184,10 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     }
 
     /// <summary>The title's running step; the skip's fade-out runs alongside it (#1719).</summary>
-    public TitleSequencePhase Phase { get; private set; }
+    public TitleSequencePhase Phase { get; internal set; }
 
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
-    private TitleSkipStage SkipStage { get; set; }
+    internal TitleSkipStage SkipStage { get; set; }
 
     /// <summary>
     /// How the title hands off to the frontend (#2562): file select or the demo, kept once it reaches one; absent while
@@ -215,11 +215,11 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     }
 
     /// <summary>Binds the installed row gradient when the game is bound to its installed content.</summary>
-    private void BindTitleGradient(TitleGradientPresentation presentation) =>
+    internal void BindTitleGradient(TitleGradientPresentation presentation) =>
         titleGradientPresentation = Ensure.NotNull(presentation);
 
     /// <summary>Binds the installed title backdrop when the game is bound to its installed content.</summary>
-    private void BindTitleBackdrop(RgbColor backdrop)
+    internal void BindTitleBackdrop(RgbColor backdrop)
     {
         // The restored copyright is a shade of the installed title sheet (#1512), so a new installation's glyph colours
         // show with its sheet; only the backdrop is bound here.
@@ -272,6 +272,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     }
 
     /// <summary>What <see cref="StepRunningStep"/> does for each <see cref="TitleSequencePhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleSequencePhase, Action<bool>> StepRunningStepForTitleSequencePhase => field ??= new(new Dictionary<TitleSequencePhase, Action<bool>>
     {
         [TitleSequencePhase.YearText] = confirmPressed => StepTextSequence(),
@@ -449,7 +450,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     /// the displays', which recolour different colours of the floor. Lights the skip has just restarted show the floor's
     /// own colours until they show their first shade.
     /// </summary>
-    private PictureShading FloorShading
+    internal PictureShading FloorShading
     {
         get
         {
@@ -492,7 +493,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     }
 
     /// <summary>Places the active title frame and stage-dependent copyright as the frame's sprites.</summary>
-    private void PrepareRenderSprites()
+    internal void PrepareRenderSprites()
     {
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.Title);
         screenSprites.BeginFrame();
@@ -534,6 +535,7 @@ public sealed class TitleSequenceState : IFrontendScreen, IComposedFrontendScene
     }
 
     /// <summary>What <see cref="RunCardCue"/> does for each <see cref="TitleCardCue"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<TitleCardCue, Action> RunCardCueForTitleCardCue => field ??= new(new Dictionary<TitleCardCue, Action>
     {
         [TitleCardCue.StartLowerPan] = () => ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan),

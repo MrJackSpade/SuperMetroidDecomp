@@ -10,4 +10,4 @@ namespace SuperMetroid.Core;
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Method,
     Inherited = false)]
-public sealed class InstalledKeyAttribute : Attribute;
+public sealed partial class InstalledKeyAttribute : Attribute;

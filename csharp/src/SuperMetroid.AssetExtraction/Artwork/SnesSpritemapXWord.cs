@@ -8,10 +8,10 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Raw">The complete native X word, including any unused upper bits.</param>
 [EncodingOwner("spritemap part X word")]
-public readonly record struct SnesSpritemapXWord(ushort Raw)
+public readonly partial record struct SnesSpritemapXWord(ushort Raw)
 {
     /// <summary>The low nine bits encode the sprite's modular horizontal displacement.</summary>
-    private const ushort OffsetMask = 0x01ff;
+    internal const ushort OffsetMask = 0x01ff;
     /// <summary>The top bit carries the spritemap's large-object selector.</summary>
     private const ushort LargeObjectMask = 0x8000;
 

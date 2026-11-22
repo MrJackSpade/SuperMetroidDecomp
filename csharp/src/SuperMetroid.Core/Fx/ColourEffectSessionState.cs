@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// The colour-effect state room loading never clears: whether the effects run, and the heat phases. Each room's
 /// <see cref="ColourEffectSystem"/> reads and writes them here.
 /// </summary>
-public sealed class ColourEffectSessionState
+public sealed partial class ColourEffectSessionState
 {
     /// <summary>
     /// Whether the colour effects run, checked first each update. Loading a game turns them on; the escape timer's

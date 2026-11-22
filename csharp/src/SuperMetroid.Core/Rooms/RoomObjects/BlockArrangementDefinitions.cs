@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The blocks each <see cref="BlockArrangement"/> covers (#2484).</summary>
-internal static class BlockArrangementDefinitions
+internal static partial class BlockArrangementDefinitions
 {
     /// <summary>
     /// The blocks an arrangement covers besides its first, top-left one: none, the one right of it, the one below it, or

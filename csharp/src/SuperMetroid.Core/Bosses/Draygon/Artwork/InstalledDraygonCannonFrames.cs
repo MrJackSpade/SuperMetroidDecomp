@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// The installed pictures of Draygon's wall cannons' twelve frames (#1557), by frame. The cannons' shapes, collision
 /// and hit counts stay with their typed objects and draws.
 /// </summary>
-public sealed class InstalledDraygonCannonFrames : IRoomObjectFamilyPictures
+public sealed partial class InstalledDraygonCannonFrames : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every cannon frame.</summary>
     /// <param name="images">Every cannon frame's picture.</param>

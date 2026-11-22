@@ -17,4 +17,4 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// a frozen balloon shares its body's freeze and thaws as the body's next update begins, and every Powamp is processed
 /// off screen (#2553).
 /// </remarks>
-public readonly record struct PowampBalloonInflation(PowampBalloonSequence Sequence, PowampBalloonPose Pose);
+public readonly partial record struct PowampBalloonInflation(PowampBalloonSequence Sequence, PowampBalloonPose Pose);

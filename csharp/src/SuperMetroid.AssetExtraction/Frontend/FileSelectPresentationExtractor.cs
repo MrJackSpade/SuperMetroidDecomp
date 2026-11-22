@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Imports file-select page templates, dynamic slot-field artwork and menu actors.
 /// Save validation and copy/clear behavior are deliberately not asset data.
 /// </summary>
-public static class FileSelectPresentationExtractor
+public static partial class FileSelectPresentationExtractor
 {
     /// <summary>Builds file-select page templates and imports dynamic slot artwork, borders, cursor frames, and helmet frames.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying native menu tilemaps, text patches, and spritemaps.</param>
@@ -327,7 +327,7 @@ public static class FileSelectPresentationExtractor
     private static Position16<PlanePixels> Shown(int byteOffset) => Point(byteOffset).CornerPixel<PlanePixels>();
 
     /// <summary>Decoded relative tile cells from one native file-select text patch.</summary>
-    private sealed record RawPatch(RawPatchCell[] Cells);
+    private sealed partial record RawPatch(RawPatchCell[] Cells);
     /// <summary>One patch tile word and its row/column offset from the destination anchor.</summary>
-    private readonly record struct RawPatchCell(Offset16<CharacterCells> Offset, SnesBgTilemapWord Word);
+    private readonly partial record struct RawPatchCell(Offset16<CharacterCells> Offset, SnesBgTilemapWord Word);
 }

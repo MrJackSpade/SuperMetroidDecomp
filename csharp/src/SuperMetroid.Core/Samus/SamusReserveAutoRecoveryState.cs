@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Samus;
 /// energy unit per frame, and publishes the room-library refill sound at the
 /// refill sound's cadence of the frame counter.
 /// </remarks>
-public sealed class SamusReserveAutoRecoveryState
+public sealed partial class SamusReserveAutoRecoveryState
 {
     /// <summary>True between the control setup that locks her for reserve recovery and the one that restores control.</summary>
-    private bool IsActive { get; set; }
+    internal bool IsActive { get; set; }
 
     /// <summary>Starts only the game's automatic-mode path, which only the AUTO reserve mode selects.</summary>
     public void Begin(SamusState samus)

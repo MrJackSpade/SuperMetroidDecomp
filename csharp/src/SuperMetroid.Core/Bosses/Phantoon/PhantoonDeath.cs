@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy pixelation, and Wrecked Ship's power returning.</summary>
 [RoomLifetime]
-internal sealed class PhantoonDeath
+internal sealed partial class PhantoonDeath
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -224,7 +224,7 @@ internal sealed class PhantoonDeath
     /// progress: every colour but Phantoon's body's fades toward its powered colour, a typed fade the room shows.
     /// </summary>
     /// <returns>Whether the power had finished coming on.</returns>
-    private static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
+    internal static bool AdvanceWreckedShipPowerOn(PhantoonEnemyState state)
     {
         if (state.ShipPowerOn.TakeStep(PhantoonColorDefinitions.PowerOnSteps) is { } step)
         {

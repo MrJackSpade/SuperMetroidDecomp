@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// The state of one Namihe, which spits each time Samus comes within its spawn settings' vertical wake distance, which it
 /// reads where it tests it (#2476).
 /// </summary>
-public sealed class NamiheEnemyState : FuneNamiheEnemyState
+public sealed partial class NamiheEnemyState : FuneNamiheEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal NamiheEnemyState(NamiheAction action) => Action = action;

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>What music and sound effects share on the DSP: instruments, pitch and volume writes, the key-on, key-off, noise and echo flags, and memory reads.</summary>
-internal sealed class SpcVoices
+internal sealed partial class SpcVoices
 {
     /// <summary>
     /// The stereo sides in the order the driver writes a voice's volume (#2567): the left from the pan, then the right from
@@ -128,10 +128,10 @@ internal sealed class SpcVoices
     internal ushort ReadPointerEntry(int table, int index) => ReadWord(table + index * 2);
 
     /// <summary>The pan-volume table pair (this entry and the next) at <paramref name="address"/>.</summary>
-    private PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
+    internal PanVolumePair ReadPanVolumePair(int address) => new PanVolumePair(ram[address], ram[address + 1]);
 
     /// <summary>The instrument record at <paramref name="address"/> (pitch base big-endian).</summary>
-    private SpcInstrumentRecord ReadInstrument(int address) => new(
+    internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
         unchecked(LittleEndianBytes.Word(ram[address + 5], ram[address + 4])));
 

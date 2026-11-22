@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// Zoa's shooting and rising animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ZoaCue"/> naming what it does.
 /// </summary>
-internal static class ZoaAnimations
+internal static partial class ZoaAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ZoaSegment, EnemyFrameId, ZoaCue> Segments { get; } = new(
@@ -21,7 +21,7 @@ internal static class ZoaAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<ZoaSegment, Animation<ZoaSegment>> StartingAt { get; } = new Dictionary<ZoaSegment, Animation<ZoaSegment>>
+    internal static Dictionary<ZoaSegment, Animation<ZoaSegment>> StartingAt { get; } = new Dictionary<ZoaSegment, Animation<ZoaSegment>>
     {
         [P.FacingLeftShooting] = Animation<ZoaSegment>.Looping([Segments.Whole(P.FacingLeftShooting)]),
         [P.FacingLeftRising] = Animation<ZoaSegment>.Looping([Segments.Whole(P.FacingLeftRising)]),

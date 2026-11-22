@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Projectiles.ProjectileTrailSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The trail animations the trail spawner selects for each projectile that leaves a trail.</summary>
-public static class ProjectileTrailDefinitions
+public static partial class ProjectileTrailDefinitions
 {
     /// <summary>The trail a missile or Super Missile leaves: the missile animation on the left, none on the right.</summary>
     internal static readonly ProjectileTrailAnimations MissileTrail = new(Missile, EndsWithoutSparkle);

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Per-music-voice state from Super Metroid's SPC driver work RAM.</summary>
-internal sealed class ManagedSpcMusicChannel
+internal sealed partial class ManagedSpcMusicChannel
 {
     /// <summary>Current byte cursor in this voice's SPC pattern instruction stream.</summary>
     internal int PatternOrderPointer;

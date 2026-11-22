@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Rendering and fades are separate owners. Requests stay pending until the frontend
 /// completes the requested transition; calling Step again never implicitly skips it.
 /// </remarks>
-public sealed class FileSelectMapNavigation
+public sealed partial class FileSelectMapNavigation
 {
     /// <summary>The saved Zebes area, which the area map shows: without the game's debug mode its directions never change areas.</summary>
     private readonly ZebesArea area;

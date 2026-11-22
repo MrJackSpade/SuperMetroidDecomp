@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
 [RoomLifetime]
-internal sealed class KraidDeath
+internal sealed partial class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -61,6 +61,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>What <see cref="RunKraidDeathPhase"/> does for each <see cref="KraidDeathPhase"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>> RunKraidDeathPhaseForKraidDeathPhase => field ??= new(new Dictionary<KraidDeathPhase, Action<RoomEnemyPlace, KraidEnemyState, int, SamusState>>
     {
         [KraidDeathPhase.Initialize] = (body, state, cameraX, samus) => InitializeKraidDeath(state, samus),
@@ -137,7 +138,7 @@ internal sealed class KraidDeath
     /// Starts the death animation and prepares its room mutation schedule. His health has run out, so the update's colour
     /// handling, which runs before it, has already cut his hurt flash short.
     /// </summary>
-    private void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
+    internal void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
     {
         state.Colours.ShowDeathArm();
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
@@ -197,7 +198,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Takes the sink step the body has reached as it descends, if any: its ceiling block goes and a rock falls from it.</summary>
-    private void TakeKraidSinkStep(RoomEnemyPlace body)
+    internal void TakeKraidSinkStep(RoomEnemyPlace body)
     {
         if (KraidSinkSchedule.StepAt(body.Position.Y.Whole) is not KraidSinkStep step)
             return;

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The order in which the drop roll weighs an enemy's drop chances, and the random roll compared with them.</summary>
-internal static class EnemyDropSelectionDefinitions
+internal static partial class EnemyDropSelectionDefinitions
 {
     /// <summary>
     /// The minor drops, in the order the roll weighs them: their chances share the budget the offered major drops leave.

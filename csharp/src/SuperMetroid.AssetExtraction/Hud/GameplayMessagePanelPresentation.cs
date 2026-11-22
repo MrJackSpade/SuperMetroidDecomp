@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Editable UTF-8 titles and visual tile templates for the seven large item-instruction
 /// panels. Controller substitution, timing and item behavior remain compiled.
 /// </summary>
-public sealed class GameplayMessagePanelPresentation
+public sealed partial class GameplayMessagePanelPresentation
 {
     /// <summary>Validated titles and four-row templates for the seven large item-instruction messages.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledPanel> panels;
@@ -152,13 +152,12 @@ public sealed class GameplayMessagePanelPresentation
     /// <param name="document">Authored titles and tile arrays read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, GameplayMessagePanelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessagePanelDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
     /// <summary>Immutable title, palette, placement, and owned tiles for one large instruction panel.</summary>
-    private sealed record CompiledPanel(
+    private sealed partial record CompiledPanel(
         string Title,
         int Palette,
         int Column,

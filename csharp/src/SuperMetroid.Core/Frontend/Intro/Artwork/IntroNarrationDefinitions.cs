@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Fixed layout limits and typing cadence of the opening narration.</summary>
-public static class IntroNarrationDefinitions
+public static partial class IntroNarrationDefinitions
 {
     /// <summary>Zero-based page column at which every narration line begins.</summary>
     public const int FirstColumn = 1;

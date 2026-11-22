@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// The Skree's and Metaree's idling, wind-up, diving and stop animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SkreeMetareeCue"/> naming what it does.
 /// </summary>
-internal static class SkreeMetareeAnimations
+internal static partial class SkreeMetareeAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SkreeMetareeSegment, EnemyFrameId, SkreeMetareeCue> Segments { get; } = new(
@@ -29,7 +29,7 @@ internal static class SkreeMetareeAnimations
     /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a dive's
     /// spin loops on from its entry cue (#2276).
     /// </summary>
-    private static Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } =
+    internal static Dictionary<SkreeMetareeSegment, Animation<SkreeMetareeSegment>> StartingAt { get; } =
         SpeciesStarts(P.MetareeIdling, P.MetareePreparingAttack, P.MetareeDiving, P.MetareeDivingSpin)
             .Concat(SpeciesStarts(P.SkreeIdling, P.SkreePreparingAttack, P.SkreeDiving, P.SkreeDivingSpin)).ToDictionary();
 

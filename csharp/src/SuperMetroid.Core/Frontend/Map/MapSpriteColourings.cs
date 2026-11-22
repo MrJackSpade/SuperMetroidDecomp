@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// lit when selected and dim otherwise. The map sprite sheet pictures each sprite once, in its standard colouring, and a
 /// draw names one of these.
 /// </summary>
-internal static class MapSpriteColourings
+internal static partial class MapSpriteColourings
 {
     /// <summary>Each map sprite's colourings, its standard one named.</summary>
     internal static readonly IReadOnlyDictionary<MapSpriteId, MapSpriteDrawnColourings> Drawn = new Dictionary<MapSpriteId, MapSpriteDrawnColourings>

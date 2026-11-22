@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
-internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShown<TSegment, TFrame>
+internal abstract partial record AnimationShown<TSegment, TFrame> : IHidingAnimationShown<TSegment, TFrame>
     where TSegment : struct
     where TFrame : struct
 {
@@ -33,7 +33,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
     internal abstract TResult Match<TContext, TResult>(AnimationShownCases<TSegment, TFrame, TContext, TResult> cases, TContext context);
 
     /// <summary>An outcome that is no pause: a frame, a held frame, a rest or the end (#2553).</summary>
-    internal abstract record Unpaused : AnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
+    internal abstract partial record Unpaused : AnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
     {
         /// <summary>Allows only the outcomes below that are no pause.</summary>
         private protected Unpaused()
@@ -62,7 +62,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
     /// <param name="Segment">The segment the frame belongs to.</param>
     /// <param name="Shown">The frame.</param>
     /// <param name="Duration">The updates it shows for.</param>
-    internal sealed record Frame(TSegment Segment, TFrame Shown, int Duration) : Unpaused
+    internal sealed partial record Frame(TSegment Segment, TFrame Shown, int Duration) : Unpaused
     {
         /// <inheritdoc/>
         internal override void React<TContext>(UnpausedAnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Frame(this, context);
@@ -83,7 +83,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
     /// The animation shows <paramref name="Shown"/> and rests on it for good (#1607), until its owner plays another.
     /// </summary>
     /// <param name="Shown">The frame.</param>
-    internal sealed record HeldFrame(TFrame Shown) : Unpaused
+    internal sealed partial record HeldFrame(TFrame Shown) : Unpaused
     {
         /// <inheritdoc/>
         internal override void React<TContext>(UnpausedAnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).HeldFrame(this, context);
@@ -102,7 +102,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
 
     /// <summary>The animation pauses for <paramref name="Duration"/> updates, showing no new frame.</summary>
     /// <param name="Duration">The updates the pause lasts.</param>
-    internal sealed record Paused(int Duration) : AnimationShown<TSegment, TFrame>
+    internal sealed partial record Paused(int Duration) : AnimationShown<TSegment, TFrame>
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Paused(this, context);
@@ -113,7 +113,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
     }
 
     /// <summary>The animation rests on its last frame until its owner plays another.</summary>
-    internal sealed record Held : Unpaused
+    internal sealed partial record Held : Unpaused
     {
         /// <inheritdoc/>
         internal override void React<TContext>(UnpausedAnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Held(this, context);
@@ -134,7 +134,7 @@ internal abstract record AnimationShown<TSegment, TFrame> : IHidingAnimationShow
     }
 
     /// <summary>The animation has ended.</summary>
-    internal sealed record Ended : Unpaused
+    internal sealed partial record Ended : Unpaused
     {
         /// <inheritdoc/>
         internal override void React<TContext>(UnpausedAnimationShownReactions<TSegment, TFrame, TContext> reactions, TContext context) => Ensure.NotNull(reactions).Ended(this, context);

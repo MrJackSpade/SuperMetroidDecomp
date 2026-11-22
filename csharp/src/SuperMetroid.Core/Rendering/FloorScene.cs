@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// It is the frame for a screen that shows only a floor and sprites; gameplay with several layers,
 /// bands or blends is a layered scene.
 /// </summary>
-public sealed class FloorScene : DisplayScene
+public sealed partial class FloorScene : DisplayScene
 {
     /// <summary>The frame's backdrop, shading and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts timed-projectile visual parts only; physical fields and instruction programs stay compiled.</summary>
-public static class ProjectileSpriteExtractor
+public static partial class ProjectileSpriteExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -92,8 +92,7 @@ public static class ProjectileSpriteExtractor
             }
             frames.Add(id.Name, parts);
         }
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
-            CamelCaseIndentedJson);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(CamelCaseIndentedJson));
         return json;
     }
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// or a definition instance, such as a door setup (#1721), compared as itself.
 /// </summary>
 /// <typeparam name="TIdentity">The identity.</typeparam>
-internal sealed class NativeWordIdentities<TIdentity>
+internal sealed partial class NativeWordIdentities<TIdentity>
     where TIdentity : notnull
 {
     /// <summary>Each word's identity.</summary>

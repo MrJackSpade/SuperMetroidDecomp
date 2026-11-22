@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The counter cadences and phases of the intro (#1606): the dancing baby's cries, Mother Brain's flash and shake, and the laboratory's pan.</summary>
-internal static class IntroCadenceDefinitions
+internal static partial class IntroCadenceDefinitions
 {
     /// <summary>
     /// The counts of updates danced on which the discovered baby Metroid cries: each period's first place, the last as its

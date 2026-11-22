@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// How the escape warnings are typed (#2422): the key clicks, the typing cadence and how far each character moves the typing
 /// on. The warnings' wording and where each line starts are installed content, which the import reads from the game.
 /// </summary>
-public static class EscapeTypewriterDefinitions
+public static partial class EscapeTypewriterDefinitions
 {
     /// <summary>The key click the Zebes typewriter plays.</summary>
     public static readonly SoundEffectId ZebesClick = RoomSound.Typewriter;

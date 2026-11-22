@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What touching a damaging spike costs Samus: the energy, the invulnerability and the knockback.</summary>
-public static class SpikeHazardDefinitions
+public static partial class SpikeHazardDefinitions
 {
     /// <summary>The spike-air block behaviour whose interior damages Samus like a light spike.</summary>
     public static readonly RoomBlockBehavior DamagingSpikeAirBehavior = RoomBlockBehavior.Reacting(SpikeReaction.DamagingSpikeAir);

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>A Ki-Hunter's wings' state: following the body, then, once detached, their orbit and falling arc.</summary>
-public sealed class KiHunterWingState
+public sealed partial class KiHunterWingState
 {
     /// <summary>Starts the wings in <paramref name="action"/>.</summary>
     internal KiHunterWingState(KiHunterWingAction action) => Action = action;

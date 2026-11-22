@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>How Draygon's room lists his parts (#2298, #2556): his eye, tail and arms with his body.</summary>
-internal static class DraygonPartListingDefinitions
+internal static partial class DraygonPartListingDefinitions
 {
     /// <summary>His body, then his eye, his tail and his arms.</summary>
     internal static EnemyComposite<EnemyDefinitionId> Listing { get; } =

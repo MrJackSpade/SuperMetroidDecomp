@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Areas.Maridia;
 
 /// <summary>The Maridia elevatube's room object: the spawn a ride's door setup makes to start the ride's sound.</summary>
-internal sealed class MaridiaElevatubeObjects
+internal sealed partial class MaridiaElevatubeObjects
 {
     /// <summary>The room's room objects, which the elevatube joins.</summary>
     private readonly RoomObjectPlaceList _places;

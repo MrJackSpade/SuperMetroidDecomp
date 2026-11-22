@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// on every sheet holding them, so its pictures show the colours the game draws them in rather than rows the room's load
 /// leaves empty.
 /// </summary>
-internal static class FrameColouringDefinitions
+internal static partial class FrameColouringDefinitions
 {
     /// <summary>
     /// The Tourian statue scene's entrance colours, in which its statues' souls, glows and fragments draw: the scene's

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud;
 /// What the HUD's minimap shows (#1985): the area map's cells around Samus's, each place named by its offset in map cells
 /// from her cell, two columns either side of it and one row above and below.
 /// </summary>
-public sealed class MinimapGrid
+public sealed partial class MinimapGrid
 {
     /// <summary>What each place shows, by its offset from Samus's cell.</summary>
     private readonly ImmutableDictionary<Offset16<MapTiles>, MinimapCell> cells;

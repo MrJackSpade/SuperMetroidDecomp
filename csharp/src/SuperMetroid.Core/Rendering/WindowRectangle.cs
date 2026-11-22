@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>A rectangle of screen pixels (#1468), both corners included; its corners may lie off the screen.</summary>
-public sealed record WindowRectangle : WindowShape
+public sealed partial record WindowRectangle : WindowShape
 {
     /// <summary>The rectangle's top-left pixel.</summary>
     public Offset16<ScreenPixels> TopLeft { get; }

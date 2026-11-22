@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TStage">A suit pickup stage.</typeparam>
 [CompatibilityService("Crystal Flash's ammunition countdown, Draygon's escape presses and the suit pickup's stage are one count")]
-public sealed class SharedEscapeAndDrainCount<TStage>
+public sealed partial class SharedEscapeAndDrainCount<TStage>
     where TStage : notnull
 {
     /// <summary>The order of the suit pickup's stages, whose place the pickup leaves on the count.</summary>
@@ -40,7 +40,7 @@ public sealed class SharedEscapeAndDrainCount<TStage>
     private int Count { get; set; }
 
     /// <summary>The count as Crystal Flash's ammunition countdown reads it.</summary>
-    private WrappingCountdown AmmoCountdown => WrappingCountdown.Start(Count);
+    internal WrappingCountdown AmmoCountdown => WrappingCountdown.Start(Count);
 
     /// <summary>Restarts Crystal Flash's ammunition countdown.</summary>
     /// <param name="updates">The updates until the next unit is drained.</param>

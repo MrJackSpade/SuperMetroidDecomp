@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// (<see cref="AttractDemoStep"/>).
 /// </summary>
 /// <param name="playlist">The sets the title cycles through, in order, the first set first.</param>
-internal sealed class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> playlist)
+internal sealed partial class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> playlist)
 {
     /// <summary>The sets the title cycles through, in order.</summary>
     private readonly IReadOnlyList<AttractDemoSet> playlist = Ensure.NotNull(playlist);
@@ -17,13 +17,13 @@ internal sealed class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> playlist
     private int setPlace;
 
     /// <summary>The demo set the title plays.</summary>
-    private AttractDemoSet Set => playlist[setPlace];
+    internal AttractDemoSet Set => playlist[setPlace];
 
     /// <summary>
     /// How many of <see cref="Set"/>'s demonstrations have begun since the set last started from its first; the next
     /// one plays from this place in the set's list.
     /// </summary>
-    internal int ScenesBegun { get; private set; }
+    internal int ScenesBegun { get; set; }
 
     /// <summary>A soft reset returns to the first scene of the first set.</summary>
     internal void Reset()

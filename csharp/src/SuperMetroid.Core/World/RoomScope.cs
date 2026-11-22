@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.World;
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329).
 /// </summary>
 [RoomLifetime]
-internal sealed record RoomScope
+internal sealed partial record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
     public required DoorDefinition Door { get; init; }
@@ -106,7 +106,7 @@ internal sealed record RoomScope
     public required CeresHazeState? CeresHaze { get; init; }
 
     /// <summary>The room's block animations: those its effect lists and the Wrecked Ship entrance treadmill a door's setup may start.</summary>
-    public required RoomBlockAnimations BlockAnimations { private get; init; }
+    public required RoomBlockAnimations BlockAnimations { internal get; init; }
 
     /// <summary>The room's Tourian statue animations and descent, or null for a room whose setup does not unlock the statues (#2287).</summary>
     public required TourianStatueSequence? TourianStatues { get; init; }

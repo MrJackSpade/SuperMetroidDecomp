@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The reach of Ridley's tail: its swing limits by facing and the directions a whip may not aim through his body.</summary>
-internal static class RidleyTailReach
+internal static partial class RidleyTailReach
 {
     /// <summary>The tail's minimum clockwise angle for left/front/right facing.</summary>
     internal static RidleyTailAngle MinimumClockwise(RidleyFacing facing) => RidleyTailDefinitions.MinimumClockwiseAngles[facing];

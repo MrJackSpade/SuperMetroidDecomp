@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>The colours file select's entry fade holds black (#1404).</summary>
-internal static class FileSelectEntryColourDefinitions
+internal static partial class FileSelectEntryColourDefinitions
 {
     /// <summary>The colour, within each of the first background colour sets, that stays black.</summary>
     public const int BlackColour = 14;

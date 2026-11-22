@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="AccessStationObject"/>, #2484). What a station does in a room-object step joins that step's outcome (#2514).
 /// </summary>
 [RoomLifetime]
-internal sealed class StationObjects
+internal sealed partial class StationObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
@@ -33,7 +33,7 @@ internal sealed class StationObjects
     /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
     private readonly List<AccessStationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
-    private bool SaveStationLockedOut { get; set; }
+    internal bool SaveStationLockedOut { get; set; }
 
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does

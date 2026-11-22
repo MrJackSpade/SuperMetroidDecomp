@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The block's behaviour parameter. Its collision kind determines which of its named views applies; it is not a universal
 /// terrain identifier.
 /// </param>
-public readonly record struct RoomCollisionBlock(Position16<RoomBlocks>? Position, RoomTerrainBlock Terrain, RoomBlockBehavior Behavior)
+public readonly partial record struct RoomCollisionBlock(Position16<RoomBlocks>? Position, RoomTerrainBlock Terrain, RoomBlockBehavior Behavior)
 {
     /// <summary>How the block collides.</summary>
     public RoomCollisionType CollisionType => Terrain.Collision;

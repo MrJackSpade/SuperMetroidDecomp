@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="Firing">Firing.</param>
 /// <param name="LookingAtViewer">Looking out at the viewer.</param>
 /// <param name="LookingAway">Looking away.</param>
-internal sealed record WalkingSpacePirateSide(
+internal sealed partial record WalkingSpacePirateSide(
     HorizontalDirection Facing, F Flinch, F[] Striding, F Standing, F ClawsLifting, F ClawsForward, F ClawsRaised, F ClawsRaisedLeaning,
     F Firing, F LookingAtViewer, F LookingAway)
 {

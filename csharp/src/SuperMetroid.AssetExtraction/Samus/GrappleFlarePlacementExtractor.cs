@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts Grapple visual offsets for the ten aiming directions, not physical hand origins.</summary>
-public static class GrappleFlarePlacementExtractor
+public static partial class GrappleFlarePlacementExtractor
 {
     /// <summary>Exports Grapple's standing and running visual flare offsets for the ten aiming directions.</summary>
     /// <param name="bus">Import-capable cartridge source for $9B:C14A/C15E and $9B:C19A/C1AE.</param>

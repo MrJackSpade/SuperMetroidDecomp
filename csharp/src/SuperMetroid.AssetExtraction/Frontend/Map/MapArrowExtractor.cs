@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports the visual portion of map arrow records without exporting controller masks.</summary>
-public static class MapArrowExtractor
+public static partial class MapArrowExtractor
 {
     /// <summary>The scroll direction of each cartridge arrow record, in record order.</summary>
     private static readonly MapScrollDirection[] ArrowDirections =

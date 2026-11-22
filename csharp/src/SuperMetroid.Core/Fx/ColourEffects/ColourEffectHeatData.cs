@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// <summary>
 /// Definitions shared by Norfair's heat glow and Samus's heat shimmer.
 /// </summary>
-public static class ColourEffectHeatData
+public static partial class ColourEffectHeatData
 {
     /// <summary>The damage the heat deals unprotected Samus every update: a quarter of one energy, no whole energy.</summary>
     public static readonly EnergyAmount DamagePerUpdate = EnergyAmount.FromEnergyFraction(1, 4);

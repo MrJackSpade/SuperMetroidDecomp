@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// bombable parent. What it shows is its installed picture (#1557).
 /// </summary>
 /// <param name="Layout">The blocks' arrangement, never a single block.</param>
-internal readonly record struct BombBlockRestoreDraw(BlockArrangement Layout)
+internal readonly partial record struct BombBlockRestoreDraw(BlockArrangement Layout)
 {
     /// <summary>The blocks the draw rebuilds around its bombable parent.</summary>
     internal RoomBlockShape Blocks => LinkedRestoreObjectFamily.BombBlockRestored[Layout];

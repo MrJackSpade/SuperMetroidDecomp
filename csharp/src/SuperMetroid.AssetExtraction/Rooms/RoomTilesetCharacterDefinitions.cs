@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The room character sheet each retail graphics set uploads after the common room elements (#1466): the import's
 /// knowledge, which the rooms' pictures are composed from. Gameplay names a tileset by its graphics set alone.
 /// </summary>
-internal static class RoomTilesetCharacterDefinitions
+internal static partial class RoomTilesetCharacterDefinitions
 {
     /// <summary>The character sheet each graphics set uploads for its rooms' backgrounds.</summary>
     internal static readonly Dictionary<RoomGraphicsSet, RoomCharacterSet> CharacterSources = new()

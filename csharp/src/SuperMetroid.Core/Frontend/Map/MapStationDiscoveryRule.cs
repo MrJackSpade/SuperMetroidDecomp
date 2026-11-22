@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// </param>
 /// <param name="Area">The area whose exploration shows the marker.</param>
 /// <param name="Cell">The map cell whose exploration shows the marker: the cell its map position lies in.</param>
-public readonly record struct MapStationDiscoveryRule([InstalledKey] string Id, AreaId Area, Position16<MapTiles> Cell);
+public readonly partial record struct MapStationDiscoveryRule([InstalledKey] string Id, AreaId Area, Position16<MapTiles> Cell);

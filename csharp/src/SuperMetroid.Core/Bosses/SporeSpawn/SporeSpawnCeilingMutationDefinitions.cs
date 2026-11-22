@@ -3,13 +3,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Where Spore Spawn's ceiling object is spawned, and the terrain change each ceiling mutation makes.</summary>
-internal static class SporeSpawnCeilingMutationDefinitions
+internal static partial class SporeSpawnCeilingMutationDefinitions
 {
     /// <summary>The room block both ceiling mutations are spawned at: the top-left block of the 2x2 ceiling.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(7, 30);
 
     /// <summary>The sound the crumble starts with.</summary>
-    private static readonly SoundEffectId CrumbleSoundId = EnemySound.BlockCrumble;
+    internal static readonly SoundEffectId CrumbleSoundId = EnemySound.BlockCrumble;
 
     /// <summary>How long each image of the ceiling shows.</summary>
     internal const int FrameDuration = 4;

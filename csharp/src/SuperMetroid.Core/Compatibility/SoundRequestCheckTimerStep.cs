@@ -13,4 +13,4 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Next">The timer after the step, holding the remainder past a full period.</param>
 /// <param name="ChecksRequests">Whether the step reached a full period, which is when the libraries check the requests.</param>
 [CompatibilityService("the request-check timer after one clock step, and whether the step checks the sound requests")]
-public readonly record struct SoundRequestCheckTimerStep(SoundRequestCheckTimer Next, bool ChecksRequests);
+public readonly partial record struct SoundRequestCheckTimerStep(SoundRequestCheckTimer Next, bool ChecksRequests);

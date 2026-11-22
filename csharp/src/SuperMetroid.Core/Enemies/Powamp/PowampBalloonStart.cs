@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// </summary>
 /// <param name="Segment">The balloon segment the animation plays from.</param>
 /// <param name="Inflation">Where the start puts the balloon's inflate or sink sequence.</param>
-internal sealed record PowampBalloonStart(PowampBalloonSegment Segment, PowampBalloonInflation Inflation);
+internal sealed partial record PowampBalloonStart(PowampBalloonSegment Segment, PowampBalloonInflation Inflation);

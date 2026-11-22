@@ -13,5 +13,5 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Tileset">The tileset whose rooms the pictures are written in.</param>
 /// <param name="Sheet">The pictures.</param>
 /// <param name="Inputs">The inputs each picture depends on, by the name its pictures begin with.</param>
-internal sealed record ComposedWrittenPictureSheet(WrittenPictureLayer Layer, TilesetDefinition Tileset, ComposedSpriteSheet Sheet,
+internal sealed partial record ComposedWrittenPictureSheet(WrittenPictureLayer Layer, TilesetDefinition Tileset, ComposedSpriteSheet Sheet,
     IReadOnlyDictionary<string, ImmutableArray<AppearanceInput>> Inputs);

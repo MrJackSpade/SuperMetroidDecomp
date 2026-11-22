@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// that initializes again, as a respawned fingernail does, joins the same enemy again.
 /// </summary>
 /// <param name="name">The part's name, for the failures that name it.</param>
-internal sealed class KraidPartReference(string name)
+internal sealed partial class KraidPartReference(string name)
 {
     /// <summary>The enemy that joined as the part, or none before it initialized.</summary>
     private PopulatedEnemyPlace? _joined;

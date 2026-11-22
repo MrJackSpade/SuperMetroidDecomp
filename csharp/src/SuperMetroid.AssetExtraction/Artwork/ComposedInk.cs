@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// lies at its place in that list (<see cref="PlaceIn(SpriteImageColours)"/>). The default ink, the first group's clear
 /// colour, is the one a pixel nothing painted holds.
 /// </summary>
-internal readonly record struct ComposedInk
+internal readonly partial record struct ComposedInk
 {
     /// <summary>Names colour <paramref name="colour"/> of colour group <paramref name="group"/>.</summary>
     /// <param name="group">The group's place among the sheet's groups, from zero.</param>

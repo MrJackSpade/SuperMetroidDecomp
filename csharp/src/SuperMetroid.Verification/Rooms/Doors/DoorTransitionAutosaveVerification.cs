@@ -56,7 +56,7 @@ internal static class DoorTransitionAutosaveVerification
             var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
-                typeof(SuperMetroidGame).Module.ModuleVersionId);
+                BuildIdentity.Version);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity,
                 new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, assets));
             string storeDirectory = (Path.GetDirectoryName(store.GetSlotPath(0)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(store.GetSlotPath(0))."));
@@ -168,7 +168,7 @@ internal static class DoorTransitionAutosaveVerification
                 samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                 SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
                 runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
-                global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+                game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
                 game.Session.Enter(DoorTransitionStep.EnteringDoor);
             }
             // The door block leading from a source room to a destination, found in the room's cartridge level the first

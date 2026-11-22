@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// its allocations alias the whole store.
 /// </summary>
 [EncodingOwner("ending VRAM allocations")]
-internal static class EndingVramLayout
+internal static partial class EndingVramLayout
 {
     /// <summary>VMADD $4000-$6FFF: the escape/explosion OBJ sheet <c>$8B:D8C1</c> uploads from <c>$7F:8000</c>.</summary>
     public static readonly PpuLayoutCell ExplosionObjects = Vram(nameof(ExplosionObjects), 0x4000, 0x3000, "4-bpp OBJ characters");

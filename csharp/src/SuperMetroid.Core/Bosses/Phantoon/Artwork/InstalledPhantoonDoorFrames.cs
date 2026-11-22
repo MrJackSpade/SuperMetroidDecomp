@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 /// The installed pictures of Phantoon's door frames (#1678), by frame: the fight's door and the restored door frame. The
 /// frames' block shapes and the changes' timing stay with their draws and terrain changes.
 /// </summary>
-public sealed class InstalledPhantoonDoorFrames : IRoomObjectFamilyPictures
+public sealed partial class InstalledPhantoonDoorFrames : IRoomObjectFamilyPictures
 {
     /// <summary>Holds the pictures the import made of every door frame.</summary>
     /// <param name="images">Every door frame's picture.</param>

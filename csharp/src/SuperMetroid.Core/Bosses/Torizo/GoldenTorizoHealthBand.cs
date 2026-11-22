@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// He is in the highest band whose <see cref="MinimumHealth"/> his health reaches, and in
 /// <see cref="GoldenTorizoHealthBandDefinitions.NearlyDead"/> below them all.
 /// </summary>
-public sealed class GoldenTorizoHealthBand
+public sealed partial class GoldenTorizoHealthBand
 {
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>

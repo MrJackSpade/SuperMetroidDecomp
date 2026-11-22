@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// One of Samus's particles: what it shows, where, and its animation (#2388), played once through the shared animation
 /// player after any hidden wait.
 /// </summary>
-public sealed class SamusParticle
+public sealed partial class SamusParticle
 {
     /// <summary>Starts a particle at <paramref name="from"/> in its animation.</summary>
     /// <param name="kind">What it shows.</param>
@@ -54,13 +54,13 @@ public sealed class SamusParticle
     public SamusParticleKind Kind { get; }
 
     /// <summary>The particle's animation: nothing shown while it waits hidden, then its pictures in turn.</summary>
-    private AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
+    internal AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
 
     /// <summary>The picture it shows, or null while it waits hidden.</summary>
     public SamusAtmosphereFrame? Shown => IsHidden ? null : Animation.Shown;
 
     /// <summary>The wait before it shows, counting the update it first shows on; over once shown.</summary>
-    private UpdateCountdown Hidden { get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown Hidden { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.

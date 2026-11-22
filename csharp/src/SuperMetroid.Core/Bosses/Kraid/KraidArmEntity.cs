@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arm occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal sealed partial class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : KraidLimbEntity(species, occupant, place, common, species.Parts.ArmReference), IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>

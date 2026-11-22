@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// those enemies' encounters spawn, and the variant of the pictures of each owner's spawned objects. A room that places no
 /// enemies draws from the standard artwork.
 /// </summary>
-public sealed class PopulationArtwork
+public sealed partial class PopulationArtwork
 {
     /// <summary>The variant each enemy draws in, by enemy.</summary>
     internal readonly Dictionary<EnemyDefinitionId, EnemyArtworkVariant<SpriteSheet>> enemies;

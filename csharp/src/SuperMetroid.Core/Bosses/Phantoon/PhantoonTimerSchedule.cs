@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// One of Phantoon's eight-way random phase timers (#2262): its short, medium and long durations, and which of them
 /// each of its eight picks takes.
 /// </summary>
-public sealed class PhantoonTimerSchedule
+public sealed partial class PhantoonTimerSchedule
 {
     /// <summary>Keeps a timer's durations and its picks.</summary>
     /// <param name="durations">The timer's short, medium and long durations, in updates.</param>

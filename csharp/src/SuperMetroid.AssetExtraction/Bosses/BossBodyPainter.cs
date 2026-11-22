@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="owner">The boss.</param>
 /// <param name="room">What the boss's room shows at its characters.</param>
 /// <param name="colours">The room's standard palette.</param>
-internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters room, RgbColor[] colours)
+internal sealed partial class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters room, RgbColor[] colours)
 {
     /// <summary>The bytes of every artwork a cell can show, by identity.</summary>
     private readonly Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = Ensure.NotNull(room).Loaded

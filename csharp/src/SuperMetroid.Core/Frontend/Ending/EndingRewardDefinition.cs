@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <param name="Gesture">The gesture actors, in the order they spawn, step and draw: a suited head first, then body and arm.</param>
 /// <param name="JumpHead">The jump's head and where it is readied and launched; none when the body carries the head.</param>
 /// <param name="JumpBody">The jump's body actor.</param>
-internal sealed record EndingRewardDefinition(
+internal sealed partial record EndingRewardDefinition(
     EndingRewardDress Dress,
     SpriteSheetId Sheet,
     IReadOnlyList<EndingFade> RevealFades,

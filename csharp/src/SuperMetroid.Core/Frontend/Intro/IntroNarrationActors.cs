@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// animation, the typewriter narration typing the installed text's letters, the text caret, and the Japanese text's
 /// next-page arrow at each page's input wait.
 /// </summary>
-internal sealed class IntroNarrationActors
+internal sealed partial class IntroNarrationActors
 {
     /// <summary>Queues the alternating non-space typewriter sounds.</summary>
     private readonly AudioQueues audio;
@@ -100,6 +100,7 @@ internal sealed class IntroNarrationActors
     public void HideCaret() => caretHidden = true;
 
     /// <summary>What <see cref="StartPage"/> does for each <see cref="IntroNarrationPageOpening"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroNarrationPageOpening, Action> StartPageForIntroNarrationPageOpening => field ??= new(new Dictionary<IntroNarrationPageOpening, Action>
     {
         [IntroNarrationPageOpening.KeepsSetupCaret] = () => { },
@@ -165,6 +166,7 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>What the typing does at each <see cref="IntroNarrationTypingCue"/> it raises, each cue's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<IntroNarrationTypingCue, Action<IntroNarrationPageId>> CarryOutForIntroNarrationTypingCue => field ??= new(new Dictionary<IntroNarrationTypingCue, Action<IntroNarrationPageId>>
     {
         [IntroNarrationTypingCue.ShowSubtitle] = page =>
@@ -274,7 +276,7 @@ internal sealed class IntroNarrationActors
     }
 
     /// <summary>Starts the existing caret sprite's blinking animation, whose first frame it shows on this update.</summary>
-    private void SetCaretBlinking()
+    internal void SetCaretBlinking()
     {
         // The caret-blink cue starts the existing caret sprite's blinking animation, and the sprite's update that follows
         // shows its first frame at once.

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="FlipVertically">Whether the tile is mirrored top to bottom.</param>
 /// <param name="HighPriority">Whether the tile is in the layer's upper priority tier.</param>
 [IndependentFlag("a tile's two mirrorings and its priority tier are independent settings of the placement")]
-public readonly record struct BackgroundTile(int Tile, int ColourVariant, bool FlipHorizontally, bool FlipVertically, bool HighPriority)
+public readonly partial record struct BackgroundTile(int Tile, int ColourVariant, bool FlipHorizontally, bool FlipVertically, bool HighPriority)
 {
     /// <summary>The tiles a layer's tile set holds: a placement shows one of them.</summary>
     public const int TileCount = 1024;

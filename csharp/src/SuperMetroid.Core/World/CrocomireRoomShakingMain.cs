@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The Crocomire room's main (#2287): the rumble while his death uncovers the hidden wall.</summary>
 /// <param name="crocomire">The room's Crocomire, whom the room's enemies set up as the room loaded (#2486).</param>
-internal sealed class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : IRoomMain
+internal sealed partial class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : IRoomMain
 {
     /// <summary>The room's Crocomire.</summary>
     private readonly CrocomireEnemyState _crocomire = Ensure.NotNull(crocomire);
@@ -21,7 +21,7 @@ internal sealed class CrocomireRoomShakingMain(CrocomireEnemyState crocomire) : 
     /// <summary>Crocomire's room shaking while his comeback hides the wall.</summary>
     /// <param name="crocomire">The room's Crocomire.</param>
     /// <param name="layers">Where the layers stand, whose foreground view the rumble shakes.</param>
-    private static void Rumble(CrocomireEnemyState crocomire, BackgroundScrollState layers)
+    internal static void Rumble(CrocomireEnemyState crocomire, BackgroundScrollState layers)
     {
         Ensure.NotNull(crocomire);
         Ensure.NotNull(layers);

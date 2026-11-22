@@ -84,7 +84,7 @@ internal static class XrayNoFxDarkeningVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "fixture enters X-ray");
-        PrivateState.Set(samus.Xray, nameof(SamusXrayState.WarmUp), XrayWarmUp.Started.Spend().Spend());
+        samus.Xray.WarmUp = XrayWarmUp.Started.Spend().Spend();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         return runtime;
     }

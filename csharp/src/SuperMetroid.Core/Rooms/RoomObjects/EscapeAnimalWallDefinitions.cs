@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The animal-rescue wall of the Zebes escape: where it stands and the blocks its setup and reaction write.</summary>
-public static class EscapeAnimalWallDefinitions
+public static partial class EscapeAnimalWallDefinitions
 {
     /// <summary>The block column the room's setup spawns the rescue wall at.</summary>
     public const int WallX = 15;

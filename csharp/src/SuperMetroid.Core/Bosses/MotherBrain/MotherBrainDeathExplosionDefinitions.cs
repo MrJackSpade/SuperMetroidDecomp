@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Where and how often Mother Brain's body-relative death explosions burst.</summary>
-internal static class MotherBrainDeathExplosionDefinitions
+internal static partial class MotherBrainDeathExplosionDefinitions
 {
     /// <summary>The updates after a burst of smoky explosions before the next.</summary>
     internal const int SmokyIntervalUpdates = 16;

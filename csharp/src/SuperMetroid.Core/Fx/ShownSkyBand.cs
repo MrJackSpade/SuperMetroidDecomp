@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="FirstRow">The first room row the band covers.</param>
 /// <param name="EndRow">The room row below the band's last.</param>
 /// <param name="Offset">How many whole pixels the band has drifted sideways.</param>
-public readonly record struct ShownSkyBand(int FirstRow, int EndRow, int Offset)
+public readonly partial record struct ShownSkyBand(int FirstRow, int EndRow, int Offset)
 {
     /// <summary>The room row below the band's last, below its first row.</summary>
     public int EndRow { get; init; } = Ensure.BetweenInclusive(FirstRow + 1, int.MaxValue, EndRow);

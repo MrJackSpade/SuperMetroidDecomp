@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The state of one Ceres steam vent.</summary>
-internal sealed class CeresSteamEnemyState
+internal sealed partial class CeresSteamEnemyState
 {
     /// <summary>Starts the state with the <paramref name="way"/> the vent blows and its <paramref name="motion"/>.</summary>
     internal CeresSteamEnemyState(CeresSteamWay way, CeresSteamMotion motion)

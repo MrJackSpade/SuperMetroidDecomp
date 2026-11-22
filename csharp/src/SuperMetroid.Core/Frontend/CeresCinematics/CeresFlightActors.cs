@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightActorDefiniti
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Selects each rear-view actor of Samus's flight toward Ceres (<see cref="CeresFlightActorDefinitions"/>) by role.</summary>
-internal static class CeresFlightActors
+internal static partial class CeresFlightActors
 {
     /// <summary>Selects the definition of the rear-view actor that shows <paramref name="role"/>.</summary>
     /// <remarks>

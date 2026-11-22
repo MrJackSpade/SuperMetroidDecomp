@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="common">The shared participation.</param>
 /// <param name="reference">Kraid's reference to the lint, which it joins as it initializes.</param>
 /// <param name="lint">Which of his lints it is, which sets where it buds.</param>
-internal sealed class KraidLintEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidLintPart lint)
+internal sealed partial class KraidLintEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference, KraidLintPart lint)
     : KraidEntity(species, occupant, place, common, reference), IEnemyTypedAnimation
 {
     /// <inheritdoc/>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// placement gives it, decoded at import. Each family's setup is its own type, so a placement cannot carry an argument its
 /// family does not read, nor lack one its family requires; the population loader hands it the room's family setups.
 /// </summary>
-internal abstract record RoomObjectPlacementSetup
+internal abstract partial record RoomObjectPlacementSetup
 {
     /// <summary>Only the family setups below derive from this.</summary>
     private protected RoomObjectPlacementSetup()

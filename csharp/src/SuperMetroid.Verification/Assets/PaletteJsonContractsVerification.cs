@@ -96,8 +96,7 @@ internal static class PaletteJsonContractsVerification
         bool CaseInsensitive = false);
 
     /// <summary>Serializes a typed palette fixture into a mutable camel-case JSON document.</summary>
-    internal static JsonObject PaletteContractDocument(object document) => (JsonObject)(JsonSerializer.SerializeToNode(
-        document, document.GetType(), CamelCaseJson) ?? throw new InvalidOperationException("Verification requires JsonSerializer.SerializeToNode( document, document.GetType(), new JsonSerializerOptions...."));
+    internal static JsonObject PaletteContractDocument(object document) => (JsonObject)(JsonSerializer.SerializeToNode(document, global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), CamelCaseJson)) ?? throw new InvalidOperationException("Verification requires JsonSerializer.SerializeToNode( document, document.GetType(), new JsonSerializerOptions...."));
 
     /// <summary>Runs a schema's production loader on supplied UTF-8 JSON text.</summary>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)

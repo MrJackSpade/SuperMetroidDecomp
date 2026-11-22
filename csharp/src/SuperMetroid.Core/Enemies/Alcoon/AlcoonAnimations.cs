@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// The Alcoon's walking, fireball and airborne animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="AlcoonCue"/> naming what it does.
 /// </summary>
-internal static class AlcoonAnimations
+internal static partial class AlcoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<AlcoonSegment, EnemyFrameId, AlcoonCue> Segments { get; } = new(
@@ -42,7 +42,7 @@ internal static class AlcoonAnimations
     /// its four strides, played for good (#2275). A fire animation ends at its start-walking cue, which always continues at
     /// the walk for the Alcoon's facing (#2061).
     /// </summary>
-    private static Dictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
+    internal static Dictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
         [P.WalkingLeft] = Animation<AlcoonSegment>.Looping([Segments.Whole(P.WalkingLeft)]),
         [P.FireLeft] = new([Segments.Whole(P.FireLeft)], AnimationEnd.Holds),

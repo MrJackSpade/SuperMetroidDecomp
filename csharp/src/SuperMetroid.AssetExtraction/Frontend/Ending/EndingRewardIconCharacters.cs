@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed post-credits reward icon as the import pipeline reads it (#1409): the native $8000-byte reward-jump
 /// stream, one tilemap byte followed by one Mode 7 character byte per word, which the reward icon sheet composes from.
 /// </summary>
-public sealed class EndingRewardIconCharacters : EndingRewardIconArtwork
+public sealed partial class EndingRewardIconCharacters : EndingRewardIconArtwork
 {
     /// <summary>Retains the interleaved full-map and character transfer for reward landing.</summary>
     /// <param name="map">The row-ordered tile indices of the full 128x128 map.</param>

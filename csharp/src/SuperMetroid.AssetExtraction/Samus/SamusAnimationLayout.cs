@@ -13,27 +13,27 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// by the animation's own name (<see cref="DocumentCueValueSteps"/>, <see cref="ReadsPast"/>, <see cref="PlaceLandings"/>),
 /// and the analysis of the frames Samus's body can show follows it here.
 /// </summary>
-internal sealed class SamusAnimationLayout
+internal sealed partial class SamusAnimationLayout
 {
     /// <summary>A step read for an animation: the step, the animation it was read in, its frame there and how far that animation lies after the one read.</summary>
     /// <param name="Step">The step read.</param>
     /// <param name="Animation">The animation the step was read in.</param>
     /// <param name="Frame">The frame of that animation the step lies at, counted from its start.</param>
     /// <param name="Shift">How many frames after the read animation that animation starts; zero for the read animation itself.</param>
-    internal readonly record struct StepRead(SamusPoseAnimationStep Step, SamusPoseAnimation Animation, int Frame, int Shift);
+    internal readonly partial record struct StepRead(SamusPoseAnimationStep Step, SamusPoseAnimation Animation, int Frame, int Shift);
 
     /// <summary>A place of an animation's layout: the animation and how far into the game's layout of it the place lies.</summary>
     /// <param name="Animation">The animation.</param>
     /// <param name="Offset">How far into the layout of the animation the place lies.</param>
-    private readonly record struct LayoutPlace(SamusPoseAnimation Animation, int Offset);
+    private readonly partial record struct LayoutPlace(SamusPoseAnimation Animation, int Offset);
 
     /// <summary>A place of an animation's layout Samus's animation can reach and the step it reads there.</summary>
     /// <param name="At">The place.</param>
     /// <param name="Read">The step read there.</param>
-    private readonly record struct ReachedPlace(LayoutPlace At, StepRead Read);
+    private readonly partial record struct ReachedPlace(LayoutPlace At, StepRead Read);
 
     /// <summary>A program laid out after another: its animation and how many frames later it starts.</summary>
-    private readonly record struct Successor(SamusPoseAnimation Animation, int Shift);
+    private readonly partial record struct Successor(SamusPoseAnimation Animation, int Shift);
 
     /// <summary>Every program's animation, in the order of their names: the installation holds each animation's outcomes once, under its name.</summary>
     private readonly SamusPoseAnimation[] programs;

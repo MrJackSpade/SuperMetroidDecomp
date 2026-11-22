@@ -7,10 +7,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
-public sealed class InstalledProjectileSprites
+public sealed partial class InstalledProjectileSprites
 {
     /// <summary>Compiled OAM compositions keyed by composition.</summary>
-    private readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
+    internal readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
     /// <summary>Accepts the complete validated set of compositions.</summary>
     private InstalledProjectileSprites(Dictionary<ProjectileSpriteId, SpriteComposition> frames) => this.frames = frames;
 
@@ -53,11 +53,11 @@ public sealed class InstalledProjectileSprites
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ProjectileSpriteDocument>(new JsonSerializerOptions
+            document = parsed.RootElement.Deserialize<ProjectileSpriteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-            }) ?? throw new InvalidDataException("Projectile composition document is null.");
+            })) ?? throw new InvalidDataException("Projectile composition document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
         if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredCount)

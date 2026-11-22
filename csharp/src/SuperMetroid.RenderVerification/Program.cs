@@ -33,11 +33,6 @@ internal static class Program
             NativeConsoleErrors.DisableDialogs();
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.RenderVerification " + string.Join(' ', args));
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
-            if (args is ["--packet-input"])
-            {
-                DisplayPacketInputTests.Run();
-                return;
-            }
             if (args is ["--ending-shooting-stars"])
             {
                 foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
@@ -207,7 +202,7 @@ internal static class Program
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
                     samples++;
-                    var frame = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Rendering.DisplayPacket>([typeof(int), typeof(global::SuperMetroid.Core.Assets.RgbaPixel), typeof(global::SuperMetroid.Core.Rendering.DisplayBrightness)], new object?[] { 0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(brightness), DisplayBrightness.Black.Brighter(11)) });
+                    var frame = new global::SuperMetroid.Core.Rendering.DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(brightness), DisplayBrightness.Black.Brighter(11)));
                     RgbaPixel[] expected = DisplayRendering.Render(frame);
                     RgbaPixel[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

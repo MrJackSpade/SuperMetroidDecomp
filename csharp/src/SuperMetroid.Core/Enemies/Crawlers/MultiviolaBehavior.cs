@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Multiviola], Create);

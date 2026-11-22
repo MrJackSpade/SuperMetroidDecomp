@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The beam speeds and beam/missile acceleration definitions.</summary>
-internal static class SamusProjectileMotionDefinitions
+internal static partial class SamusProjectileMotionDefinitions
 {
     /// <summary>
     /// The horizontal and vertical speed every beam combination launches at: four pixels an update.

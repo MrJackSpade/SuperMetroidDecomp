@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 /// The shape of one frame of the cartridge's map highlight colours, which only the import reads (#1637): it installs each
 /// frame's highlight colour by purpose.
 /// </summary>
-public static class MapPaletteCycleFormat
+public static partial class MapPaletteCycleFormat
 {
     /// <summary>Number of colors the cartridge writes per frame, equal to one sixteen-color colour set.</summary>
     public const int ColorCount = 16;

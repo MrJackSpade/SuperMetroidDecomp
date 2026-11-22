@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The Fireflea room's flash (#2367): its looks, each shown for a flash's updates, which it loops.</summary>
-internal static class FirefleaFlashAnimations
+internal static partial class FirefleaFlashAnimations
 {
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<FirefleaFlashSegment, FirefleaFlashShade, NoAnimationCue> Segments { get; } = new(

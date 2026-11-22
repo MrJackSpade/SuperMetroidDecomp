@@ -3,6 +3,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>One station side's access arm: the draws of its retracted and extended poses.</summary>
 /// <param name="Retracted">The retracted arm.</param>
 /// <param name="Extended">The extended arm.</param>
-internal readonly record struct StationAccessObjectDefinition(
+internal readonly partial record struct StationAccessObjectDefinition(
     StationDraw Retracted,
     StationDraw Extended);

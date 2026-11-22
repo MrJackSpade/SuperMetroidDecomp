@@ -17,9 +17,10 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Keeping each surface here lets each liquid check reproduce its own
 /// comparison instead of sharing a convenient but incorrect single boolean.
 /// </remarks>
-public sealed class SamusLiquidPhysicsState
+public sealed partial class SamusLiquidPhysicsState
 {
     /// <summary>What <see cref="ConfigureFor"/> does for each <see cref="RoomFxType"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<RoomFxType, Action<RoomLiquidReading>> ConfigureForForRoomFxType => field ??= new(new Dictionary<RoomFxType, Action<RoomLiquidReading>>
     {
         [RoomFxType.Water] = liquid => ConfigureWater(liquid.Surface, liquid.IgnoresSurfaceUntilEnabled, WaterRoomFx.Water),
@@ -41,7 +42,7 @@ public sealed class SamusLiquidPhysicsState
     /// <param name="Surface">The liquid's surface as her physics sees it (<see cref="LiveSurface"/>), or null when none shows.</param>
     /// <param name="IgnoresSurfaceUntilEnabled">Whether the effect's water ignores its surface until the surface is enabled.</param>
     [IndependentFlag("Whether the water ignores its surface until it is enabled is the effect's own property, read as it is applied.")]
-    private readonly record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
+    private readonly partial record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
 
     /// <summary>The two water effects, each as its room effect type.</summary>
     private static IdentityTable<WaterRoomFx, RoomFxType> WaterRoomFxTypes => field ??= new(new Dictionary<WaterRoomFx, RoomFxType>
@@ -122,15 +123,15 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>
     /// The update's audio requests her liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
-    private GameplaySoundRequests AudioRequests { get; }
+    internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
     /// The room's effect: lava, acid or water, which Samus moves in, or one of the effects that are no liquid, or none.
     /// </summary>
-    public RoomFxType FxType { get; private set; }
+    public RoomFxType FxType { get; internal set; }
 
     /// <summary>The room's liquid surface: none, water with whether Samus ignores it, or lava or acid (#2560).</summary>
-    private SamusLiquidSurface Surface { get; set; } = SamusLiquidSurface.None;
+    internal SamusLiquidSurface Surface { get; set; } = SamusLiquidSurface.None;
 
     /// <summary>
     /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement behaviours then
@@ -151,20 +152,20 @@ public sealed class SamusLiquidPhysicsState
     /// Remembered medium. This is intentionally stateful:
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
-    public SamusLiquidMedium MediumLastEntered { get; private set; }
+    public SamusLiquidMedium MediumLastEntered { get; internal set; }
 
     /// <summary>
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    private void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
+    internal void ConfigureWater(int? surfaceY, bool ignoresSurface, WaterRoomFx type)
     {
         FxType = WaterRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.Water(line, ignoresSurface) : SamusLiquidSurface.None;
     }
 
     /// <summary>Configures a lava or acid surface, or none; the room has no water surface.</summary>
-    private void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
+    internal void ConfigureLavaAcid(int? surfaceY, LavaAcidRoomFx type)
     {
         FxType = LavaAcidRoomFxTypes[type];
         Surface = surfaceY is int line ? new SamusLiquidSurface.LavaOrAcid(line) : SamusLiquidSurface.None;
@@ -175,7 +176,7 @@ public sealed class SamusLiquidPhysicsState
     /// Rain and other atmospheric owners still need their FX type,
     /// so clearing the entire state would discard observable animation behavior.
     /// </summary>
-    private void ConfigureNonLiquidRoomFx(DryRoomFx type)
+    internal void ConfigureNonLiquidRoomFx(DryRoomFx type)
     {
         Clear();
         FxType = DryRoomFxTypes[type];
@@ -430,6 +431,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Whether the ground of each wetness is wet under Samus.</summary>
+    [field: NonSerialized]
     private IdentityTable<RoomGroundWetness, Func<SamusState, bool>> WetnessTests => field ??= new(new Dictionary<RoomGroundWetness, Func<SamusState, bool>>
     {
         [RoomGroundWetness.Dry] = samus => false,
@@ -486,7 +488,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>
-    private void SpawnWaterSplash(
+    internal void SpawnWaterSplash(
         SamusState samus,
         SamusMovementType movementType,
         int bottom)
@@ -625,7 +627,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Applies whether Samus ignores the water's surface before comparing a boundary with it.</summary>
-    private bool WaterAffectsBoundary(int boundary) =>
+    internal bool WaterAffectsBoundary(int boundary) =>
         Surface is SamusLiquidSurface.Water { IgnoredUntilEnabled: false, Line: var line } &&
         IsBelowSurface(line, boundary);
 
@@ -635,7 +637,7 @@ public sealed class SamusLiquidPhysicsState
     /// up-elevator leaves, and her top's line is less than zero where it lies above the room (<see cref="TopLine"/>), so
     /// the two compare plainly.
     /// </summary>
-    private static bool IsBelowSurface(int? surface, int boundary) =>
+    internal static bool IsBelowSurface(int? surface, int boundary) =>
         surface is int y &&
         y < boundary;
 

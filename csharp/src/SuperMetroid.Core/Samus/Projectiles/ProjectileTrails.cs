@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The trails Samus's shots leave (#1625): presentation particles, each a pair of sparkles running its own animations until
 /// both end. A new trail never displaces one already shown, and nothing in gameplay reads a trail.
 /// </summary>
-internal sealed class ProjectileTrails
+internal sealed partial class ProjectileTrails
 {
     /// <summary>
     /// The trail lists a shot picks by its beam's charge (#2560): the one declared map between the projectile type's charge
@@ -22,13 +22,13 @@ internal sealed class ProjectileTrails
         });
 
     /// <summary>The live trails, oldest first.</summary>
-    private readonly List<SamusProjectileTrail> trails = [];
+    internal readonly List<SamusProjectileTrail> trails = [];
 
     /// <summary>Removes every trail, as clearing Samus's shots does.</summary>
     internal void Clear() => trails.Clear();
 
     /// <summary>Adds a trail already under way, as a restored game does; a spawned trail is added the same way.</summary>
-    private void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
+    internal void Add(SamusProjectileTrail trail) => trails.Add(Ensure.NotNull(trail));
 
     /// <summary>Whether a projectile of each family leaves a trail (#2553): beams and missiles do; the other families leave none.</summary>
     private static IdentityTable<SamusProjectileFamily, bool> LeavesTrail => field ??= new(new Dictionary<SamusProjectileFamily, bool>
@@ -93,7 +93,7 @@ internal sealed class ProjectileTrails
     /// The frame a trail starts from <paramref name="projectile"/> at: the frame its animation last showed, or null before
     /// its animation has shown one.
     /// </summary>
-    private static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
+    internal static SamusProjectileFrameId? GetTrailFrame(SamusProjectile projectile) =>
         (projectile.Animation ?? throw new InvalidOperationException("A trail read the frame of an inactive projectile.")).Shown;
 
     /// <summary>

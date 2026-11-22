@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Translation between <see cref="EnemyDefinitionId"/> and the bank-$A0 header pointers the cartridge names enemy
 /// definitions by (#1412). The identity's values are arbitrary; <see cref="EnemyHeaderWords.Headers"/> is the mapping.
 /// </summary>
-internal static class EnemyDefinitionIds
+internal static partial class EnemyDefinitionIds
 {
 
     /// <summary>

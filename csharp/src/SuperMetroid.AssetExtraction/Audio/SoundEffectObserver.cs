@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="soundLibrary">The library the sound belongs to.</param>
 /// <param name="command">The request byte.</param>
-internal sealed class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
+internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
 
     /// <summary>Most channels any library allocates (library 1).</summary>

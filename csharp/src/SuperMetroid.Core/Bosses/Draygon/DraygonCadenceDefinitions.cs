@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The counter cadences and phases of Draygon's fight and death (#1606): his shocks, turrets, bubbles, foam, smoke and flash.</summary>
-internal static class DraygonCadenceDefinitions
+internal static partial class DraygonCadenceDefinitions
 {
     /// <summary>
     /// The updates on which a hurt Draygon holding Samus's connected grapple takes its shock, counted on his body's own

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/> and each card's typing step.
 /// </summary>
 [EncodingOwner("cartridge title sprite instruction words")]
-internal static class TitleSpriteExtractor
+internal static partial class TitleSpriteExtractor
 {
     /// <summary>Decodes the logo's and the copyright's ordered OAM parts, keyed by their semantic names.</summary>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
@@ -45,7 +45,7 @@ internal static class TitleSpriteExtractor
     /// logo pointer and the copyright from its fixed spritemap.
     /// </summary>
     /// <exception cref="InvalidDataException">A native list disagrees with its typed card, or two compositions share a spritemap.</exception>
-    private static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
+    internal static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);

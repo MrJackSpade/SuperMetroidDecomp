@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable baby-Metroid OAM art for the two scientist scenes only.</summary>
-public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroScientistSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated baby-Metroid compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -54,8 +54,7 @@ public sealed class IntroScientistSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroScientistSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroScientistSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

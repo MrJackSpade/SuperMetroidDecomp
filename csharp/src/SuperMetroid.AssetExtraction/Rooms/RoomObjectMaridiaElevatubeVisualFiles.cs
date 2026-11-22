@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Maridia elevatube PLM visual block, and the editable identity that names it.</summary>
-public static class RoomObjectMaridiaElevatubeVisualFiles
+public static partial class RoomObjectMaridiaElevatubeVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the Maridia elevatube's single visual block, separate from Kraid's use of the same native draw.</summary>
-    private const string VisualFileName = "maridia-elevatube.json";
+    internal const string VisualFileName = "maridia-elevatube.json";
 
     /// <summary>The Maridia elevatube as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -30,12 +30,12 @@ public static class RoomObjectMaridiaElevatubeVisualFiles
     internal const string VisualId = "elevatube-block";
 
     /// <summary>The elevatube's one-block draw list, built from the block the game writes.</summary>
-    private static RoomObjectDrawLists.DrawList BlockDrawList =>
+    internal static RoomObjectDrawLists.DrawList BlockDrawList =>
         RoomObjectShapeRun.DrawList(MaridiaElevatubeObjectDefinitions.BlockDraw, MaridiaElevatubeObjectDefinitions.Shape,
             RoomObjectShapeRun.Row(new(0, 0), 1));
 
     /// <summary>The sole elevatube draw list.</summary>
-    private static IEnumerable<RoomObjectDrawLists.DrawList> AllDraws => [BlockDrawList];
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> AllDraws => [BlockDrawList];
 
     /// <summary>Maps the elevatube draw to its asset identity and rejects unrelated draws.</summary>
     internal static string DrawVisualId(RoomObjectDraw request) => request == MaridiaElevatubeObjectDefinitions.BlockDraw

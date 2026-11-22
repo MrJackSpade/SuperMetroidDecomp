@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// How the import builds and reads an ending colour resource (#1464, #1512): the logo crossfade's colours by step and
 /// layer, and a whole screen's or a run's colours, which it pre-colours the ending's sheets in.
 /// </summary>
-internal static class EndingPaletteReading
+internal static partial class EndingPaletteReading
 {
     /// <summary>Building the logo crossfade's resource.</summary>
     extension(EndingPalette)

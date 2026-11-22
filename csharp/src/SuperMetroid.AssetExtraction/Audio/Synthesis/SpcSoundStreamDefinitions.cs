@@ -4,10 +4,10 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Native SPC instruction-list sets selected by one-based sound commands.</summary>
 [EncodingOwner("audio RAM addresses of the sound driver's sound-effect instruction lists")]
-internal static class SpcSoundStreamDefinitions
+internal static partial class SpcSoundStreamDefinitions
 {
     /// <summary>SPC library 1 instruction-list identities.</summary>
-    internal static class Library1
+    internal static partial class Library1
     {
         /// <summary>SPC $2B71, sound1AnimationScripts_sound1; ROM pointer entry $CF96F5. Power bomb explosion</summary>
         internal const ushort Sound01PowerBombExplosion = 0x2b71;
@@ -144,7 +144,7 @@ internal static class SpcSoundStreamDefinitions
     }
 
     /// <summary>SPC library 2 instruction-list identities.</summary>
-    internal static class Library2
+    internal static partial class Library2
     {
         /// <summary>SPC $3AB1, sound2AnimationScripts_sound1; ROM pointer entry $CFA5BB. Collected small health drop</summary>
         internal const ushort Sound01CollectedSmallHealthDrop = 0x3ab1;
@@ -403,7 +403,7 @@ internal static class SpcSoundStreamDefinitions
     }
 
     /// <summary>SPC library 3 instruction-list identities.</summary>
-    internal static class Library3
+    internal static partial class Library3
     {
         /// <summary>SPC $4EED, sound3AnimationScripts_sound1; ROM pointer entry $CFBA97. Silence</summary>
         internal const ushort Sound01Silence = 0x4eed;

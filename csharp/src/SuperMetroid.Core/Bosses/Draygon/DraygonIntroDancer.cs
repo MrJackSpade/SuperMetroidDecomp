@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 /// <param name="sprite">The effect actor the Evir was spawned into; the dance moves it while it is active.</param>
 /// <param name="startDelay">How many dance updates the Evir waits before it takes the traced path's first step.</param>
-internal sealed class DraygonIntroDancer(RoomEffectActor sprite, int startDelay)
+internal sealed partial class DraygonIntroDancer(RoomEffectActor sprite, int startDelay)
 {
     /// <summary>The moves of the traced path the Evir has not yet taken.</summary>
     private ReadOnlyMemory<Offset16<RoomPixels>> _untaken = TracedPath;

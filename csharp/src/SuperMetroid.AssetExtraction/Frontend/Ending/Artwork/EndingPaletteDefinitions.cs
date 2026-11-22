@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Ending;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The kinds and colour counts of the ending's colour resources the import decodes (#1544).</summary>
-internal static class EndingPaletteDefinitions
+internal static partial class EndingPaletteDefinitions
 {
     /// <summary>The colours of one sixteen-colour run, which the final gunship and the logo's first colours are.</summary>
     private const int RunColorCount = 16;

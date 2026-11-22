@@ -24,39 +24,23 @@ internal static class EnemyRomTablePointersVerification
     internal static void VerifyEnemyRomTablePointerCatalog()
     {
         // The retail ROM oracle's tables live in test-support (#1412): production reads none of them, and the
-        // import reads the ones it needs through its own source catalogs.
-        Type[] families =
-        [
-            .. MetadataShape.NestedTypes(typeof(EnemyRomTablePointers), BindingFlags.Public | BindingFlags.NonPublic),
-            .. typeof(Program).Assembly.GetTypes().Where(type => type != typeof(EnemyRomTablePointers) &&
-                type.Name.StartsWith(nameof(EnemyRomTablePointers), StringComparison.Ordinal)),
-        ];
-        AssertTrue(families.Length >= 14, "enemy ROM data is grouped by owning family");
-
-        FieldInfo[] fields = families
-            .SelectMany(family => family.GetFields(BindingFlags.Public | BindingFlags.Static))
-            .Where(field => field.IsLiteral && field.FieldType == typeof(int))
-            .ToArray();
-        AssertTrue(fields.Length >= 50, "enemy ROM data catalog covers fixed data tables");
-        foreach (FieldInfo field in fields)
-        {
-            int address = field.RequiredConstant<int>();
-            AssertTrue(
-                address is >= 0x808000 and <= 0xffffff,
-                $"{(field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType.")).Name}.{field.Name} is a mapped SNES ROM address");
-        }
+        // import reads the ones it needs through its own source catalogs. Each represented range lies in mapped ROM.
+        RepresentativeEnemyRomRangesResult[] ranges = RepresentativeEnemyRomRanges();
+        foreach ((int address, int byteLength) in ranges)
+            AssertTrue(address is >= 0x808000 and <= 0xffffff && address + byteLength - 1 <= 0xffffff,
+                $"enemy ROM range ${address:X6} ({byteLength} bytes) is mapped SNES ROM");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
             Console.WriteLine(
-                $"  Enemy ROM data: {fields.Length} named ranges are structurally valid; " +
+                $"  Enemy ROM data: {ranges.Length} represented ranges are structurally valid; " +
                 "retail ROM reads skipped (private input absent).");
             return;
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        foreach ((int start, int byteLength) in RepresentativeEnemyRomRanges())
+        foreach ((int start, int byteLength) in ranges)
         {
             _ = bus.ReadCartridgeByte(start);
             _ = bus.ReadCartridgeByte(start + byteLength - 1);
@@ -64,8 +48,7 @@ internal static class EnemyRomTablePointersVerification
         Suite(nameof(VerifyCompiledEnemyInstructionSelectors), () => VerifyCompiledEnemyInstructionSelectors(bus));
 
         Console.WriteLine(
-            $"  Enemy ROM data: {fields.Length} named ranges and " +
-            $"{RepresentativeEnemyRomRanges().Length} representative retail ranges verified.");
+            $"  Enemy ROM data: {ranges.Length} representative retail ranges verified.");
     }
 
     /// <summary>

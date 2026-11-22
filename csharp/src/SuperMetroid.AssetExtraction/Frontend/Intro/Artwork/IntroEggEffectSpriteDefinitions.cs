@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Six shell fragments and five slime-drop OAM frames from the SR388 scene.</summary>
-internal static class IntroEggEffectSpriteDefinitions
+internal static partial class IntroEggEffectSpriteDefinitions
 {
     /// <summary>Ordered six shell fragments, one moving slime frame, and four impact frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

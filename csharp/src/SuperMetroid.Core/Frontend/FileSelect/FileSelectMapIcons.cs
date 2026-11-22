@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="stationLayout">The installed station positions for explored map tiles.</param>
 /// <param name="landmarkLayout">The installed boss, gunship and elevator landmark positions.</param>
 /// <param name="mapSheet">The installed map sprite sheet every icon draws from.</param>
-public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapStationPositions stationLayout,
+public sealed partial class FileSelectMapIcons(SharedGameState system, AreaId area, MapStationPositions stationLayout,
     MapLandmarkPositions landmarkLayout, SpriteSheet mapSheet)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>

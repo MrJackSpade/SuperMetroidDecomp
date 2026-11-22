@@ -47,8 +47,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
 
     /// <summary>Loads an in-memory document through the production catalog parser.</summary>
     internal static EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument document) => EnemyExtendedFrameDocuments.Load(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
 
     /// <summary>Checks a selected frame resolves to its expected component offset and single OAM part.</summary>
     private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemyFrameName frame)

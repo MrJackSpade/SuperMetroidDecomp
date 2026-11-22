@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <param name="MouthOpening">Its mouth opening, before and after its throat glows.</param>
 /// <param name="ThroatGlowing">Its throat glowing with the fireball.</param>
 /// <param name="MouthWide">Its mouth wide as the fireball leaves.</param>
-internal sealed record AlcoonSpitPoses(F MouthClosed, F MouthOpening, F ThroatGlowing, F MouthWide)
+internal sealed partial record AlcoonSpitPoses(F MouthClosed, F MouthOpening, F ThroatGlowing, F MouthWide)
 {
     /// <summary>The poses facing left.</summary>
     internal static AlcoonSpitPoses Left { get; } = new(

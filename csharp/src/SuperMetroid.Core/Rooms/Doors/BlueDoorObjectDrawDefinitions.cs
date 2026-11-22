@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// How the four cells of each blue-door cap draw collide (#1994). What each frame shows is its installed picture (#1557); the
 /// room-object sequences still own sound, frame timing, and deletion.
 /// </summary>
-internal static class BlueDoorObjectDrawDefinitions
+internal static partial class BlueDoorObjectDrawDefinitions
 {
     /// <summary>
     /// How the four blocks of each of the twenty blue-cap draws collide, from the cap's first block down its column or along its row. The solid closed cap makes only its

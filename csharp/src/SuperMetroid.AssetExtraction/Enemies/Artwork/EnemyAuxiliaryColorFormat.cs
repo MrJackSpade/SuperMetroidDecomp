@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed auxiliary-palette document identity, separate from its consumer.</summary>
-public static class EnemyAuxiliaryColorFormat
+public static partial class EnemyAuxiliaryColorFormat
 {
     /// <summary>Asset filename for the four editable face-block, sidehopper, and Golden Torizo auxiliary palette families.</summary>
     public const string FileName = "enemy-auxiliary-colors.json";

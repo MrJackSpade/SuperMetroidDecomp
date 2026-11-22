@@ -47,7 +47,7 @@ internal static class KraidBodyPublicationVerification
         // position (#1515, #1540, #2031).
         RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
         state.ShowBody();
-        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", null);
+        state.DisplayedHeadFrame = null;
         body.Position = body.Position.WithWhole(new(320, 88));
         GameplayLatchedBossBody risen = Published(runtime);
         AssertTrue(risen.Body.Frames.Select(frame => frame.Name).SequenceEqual(["Body", "RestingHead"]),
@@ -59,7 +59,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the published body on the background");
 
         // Mouth open: his head's current pose shows over his body (#1515).
-        global::SuperMetroid.Core.PrivateState.Set(state, "DisplayedHeadFrame", (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(KraidHeadFrame.Open));
+        state.DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(KraidHeadFrame.Open);
         body.Position = body.Position.WithWhole(new(300, 96));
         GameplayLatchedBossBody roaring = Published(runtime);
         ReadOnlySpan<ushort> head = (art.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))

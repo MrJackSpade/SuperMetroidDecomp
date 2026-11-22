@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Only the appearance of a native eight-pixel OBJ; no simulation fields.</summary>
-public sealed record GrappleSpriteStyle
+public sealed partial record GrappleSpriteStyle
 {
     /// <summary>Zero-based column 0..15 in the gameplay OBJ tile layout, not a position in the grapple atlas or on screen.</summary>
     public required int TileColumn { get; init; }

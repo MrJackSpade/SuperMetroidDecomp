@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// installed on its sheets. A look such an enemy's sheets would take from its graphics set's colours, which differ from set
 /// to set, would otherwise keep apart sheets whose pictures and shown looks are the same.
 /// </summary>
-internal static class EnemyUnselectedShadeDefinitions
+internal static partial class EnemyUnselectedShadeDefinitions
 {
     /// <summary>
     /// The shared looks each enemy's draws never select. The common enemy draw selects the frozen colours ($0C00) only while

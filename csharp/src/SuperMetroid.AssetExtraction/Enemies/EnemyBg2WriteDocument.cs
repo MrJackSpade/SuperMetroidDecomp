@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// data only the import composes the frame's picture from (#1638).
 /// </summary>
 [SpatialComponents("External format: the BG2 frame JSON stores each write destination as x/y tilemap cells.")]
-public sealed record EnemyBg2WriteDocument
+public sealed partial record EnemyBg2WriteDocument
 {
     /// <summary>Gets the zero-based destination column in the 32-tile-wide BG2 map.</summary>
     public required int X { get; init; }

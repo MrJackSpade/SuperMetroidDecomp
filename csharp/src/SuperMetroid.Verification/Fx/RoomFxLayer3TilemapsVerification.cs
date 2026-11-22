@@ -56,8 +56,7 @@ internal static class RoomFxLayer3TilemapsVerification
     /// <summary>Checks that the room-FX BG3 tilemap codec rejects malformed documents.</summary>
     internal static void VerifyRoomFxLayer3TilemapsRejectMalformedDocuments(string extracted)
     {
-        RoomFxLayer3TilemapDocument document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(
-            File.ReadAllBytes(Path.Combine(extracted, RoomFxLayer3TilemapFormat.FileName)), CamelCaseCaseInsensitiveJson) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
+        RoomFxLayer3TilemapDocument document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(File.ReadAllBytes(Path.Combine(extracted, RoomFxLayer3TilemapFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapDocument>(CamelCaseCaseInsensitiveJson)) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
         AssertThrows<InvalidDataException>(() =>
         {
             document.Pages[nameof(RoomFxType.Lava)][0] = document.Pages[nameof(RoomFxType.Lava)][0] with { TileColumn = 32 };

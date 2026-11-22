@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// instruction programs. These identities select BG2 tilemap writes, not OAM.
 /// Component hitbox pointers and collision rectangles are engine definitions.
 /// </summary>
-internal static class PhantoonBg2FrameDefinitions
+internal static partial class PhantoonBg2FrameDefinitions
 {
     /// <summary>
     /// Schema version of the extracted BG2 frame artwork file; 3 names each frame for the animation that first shows it

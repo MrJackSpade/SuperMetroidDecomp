@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// Extraction-only data; the simulation never reads it.
 /// </summary>
 [EncodingOwner("bank-$8C opening narration script records")]
-internal static class IntroNarrationScriptDefinitions
+internal static partial class IntroNarrationScriptDefinitions
 {
     /// <summary>Bank containing the intro background-object streams and glyph records.</summary>
     internal const byte ScriptBank = 0x8c;

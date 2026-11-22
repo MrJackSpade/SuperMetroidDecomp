@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies;
 /// the room's places, which reach it from their creation, and the room's species, composed over those places, add
 /// their factories to it, covering every definition the room can bind (<see cref="AddRoomSpecies"/>).
 /// </summary>
-internal sealed class EnemySpeciesRegistry : IEnemySpeciesSource
+internal sealed partial class EnemySpeciesRegistry : IEnemySpeciesSource
 {
     /// <inheritdoc/>
     EnemySpeciesRegistry IEnemySpeciesSource.Species => this;
 
     /// <summary>The factory of every definition added.</summary>
-    private Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
+    internal Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
 
     /// <summary>The shared participation the entities of every definition added compose.</summary>
     private Dictionary<EnemyDefinitionId, EnemyCommonParticipation> Participations { get; } = [];
@@ -25,7 +25,7 @@ internal sealed class EnemySpeciesRegistry : IEnemySpeciesSource
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    private EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories) => AddFactories(common, factories);
+    internal EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories) => AddFactories(common, factories);
 
     /// <summary>Indexes <paramref name="factories"/> by definition, rejecting a definition owned twice.</summary>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>

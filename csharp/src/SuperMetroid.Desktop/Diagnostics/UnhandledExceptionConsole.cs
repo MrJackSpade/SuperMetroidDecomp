@@ -68,7 +68,7 @@ public static class UnhandledExceptionConsole
     /// Keeping this in the desktop assembly lets the smoke test prove the contract without
     /// blocking an automated verification run on real console input.
     /// </summary>
-    private static void ReportAndWait(
+    internal static void ReportAndWait(
         Exception exception,
         TextWriter error,
         Action waitForAcknowledgment)

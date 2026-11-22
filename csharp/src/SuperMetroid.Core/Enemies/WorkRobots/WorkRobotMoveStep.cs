@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>One Work Robot walk step: distance, facing, and the wall and ledge continuations (#633).</summary>
-internal sealed record WorkRobotMoveStep
+internal sealed partial record WorkRobotMoveStep
 {
     /// <summary>The whole pixels the step moves the robot, and Samus standing on it: negative left, positive right.</summary>
     public required int HorizontalPixels { get; init; }

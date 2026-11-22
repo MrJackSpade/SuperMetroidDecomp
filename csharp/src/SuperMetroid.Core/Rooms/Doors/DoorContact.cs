@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// elevator's door and so arms the elevator, or she only brushes the elevator's door. The elevator's door leads to no room,
 /// so it stops her as a solid block does whatever her pose; a door she enters lets her into the doorway.
 /// </summary>
-internal abstract record DoorContact
+internal abstract partial record DoorContact
 {
     /// <summary>Only this type's own cases exist.</summary>
     private DoorContact()
@@ -42,7 +42,7 @@ internal abstract record DoorContact
 
     /// <summary>Samus enters <paramref name="Door"/>, which the door transition then goes through.</summary>
     /// <param name="Door">The door the block leads through.</param>
-    internal sealed record EntersDoor(DoorDefinition Door) : DoorContact
+    internal sealed partial record EntersDoor(DoorDefinition Door) : DoorContact
     {
         /// <inheritdoc/>
         internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EntersDoor(this, context);
@@ -52,7 +52,7 @@ internal abstract record DoorContact
     }
 
     /// <summary>Samus stands at the elevator's door, which arms the elevator.</summary>
-    internal sealed record StandsAtElevator : DoorContact
+    internal sealed partial record StandsAtElevator : DoorContact
     {
         /// <inheritdoc/>
         internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).StandsAtElevator(this, context);
@@ -65,7 +65,7 @@ internal abstract record DoorContact
     }
 
     /// <summary>Samus meets the elevator's door in a pose other than standing, which stops her and arms nothing.</summary>
-    internal sealed record BrushesElevator : DoorContact
+    internal sealed partial record BrushesElevator : DoorContact
     {
         /// <inheritdoc/>
         internal override void React<TContext>(DoorContactReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BrushesElevator(this, context);
@@ -83,4 +83,4 @@ internal abstract record DoorContact
 /// <param name="StandsAtElevator">Reacts to a <see cref="DoorContact.StandsAtElevator"/>.</param>
 /// <param name="BrushesElevator">Reacts to a <see cref="DoorContact.BrushesElevator"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record DoorContactReactions<TContext>(Action<DoorContact.EntersDoor, TContext> EntersDoor, Action<DoorContact.StandsAtElevator, TContext> StandsAtElevator, Action<DoorContact.BrushesElevator, TContext> BrushesElevator);
+internal sealed partial record DoorContactReactions<TContext>(Action<DoorContact.EntersDoor, TContext> EntersDoor, Action<DoorContact.StandsAtElevator, TContext> StandsAtElevator, Action<DoorContact.BrushesElevator, TContext> BrushesElevator);

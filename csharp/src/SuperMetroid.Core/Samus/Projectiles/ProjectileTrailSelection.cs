@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The trail animations a trailing projectile's two sides run.</summary>
-public static class ProjectileTrailSelection
+public static partial class ProjectileTrailSelection
 {
     /// <summary>The animations the left and right trails behind <paramref name="trailing"/> run.</summary>
     /// <remarks>

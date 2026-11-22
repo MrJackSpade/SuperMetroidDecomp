@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="FastestSpeed">The piece's fastest sideways speed, in whole pixels an update.</param>
 /// <param name="Depth">How far below the wall's top the piece stands as the wall breaks, in pixels.</param>
 /// <param name="CrumbleSound">The crumble the piece queues as it lands, before its big explosion; none for a piece that lands without one.</param>
-internal sealed record CrocomireSpikeWallPiece(SignedSixteenSixteen AccelerationGrowth, int FastestSpeed, int Depth, SoundEffectId? CrumbleSound)
+internal sealed partial record CrocomireSpikeWallPiece(SignedSixteenSixteen AccelerationGrowth, int FastestSpeed, int Depth, SoundEffectId? CrumbleSound)
 {
     /// <summary>
     /// The piece's greatest sideways acceleration, in pixels per update per update:

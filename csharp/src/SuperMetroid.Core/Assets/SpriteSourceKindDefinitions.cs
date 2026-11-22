@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>How the draws of each kind of sprite source are shaded (<see cref="SpriteSourceKind"/>).</summary>
-public static class SpriteSourceKindDefinitions
+public static partial class SpriteSourceKindDefinitions
 {
     /// <summary>
     /// The sources whose draws show their pictures' group's shading over their own, each with its group: the escape

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Image">What the hand shows.</param>
 /// <param name="Updates">How many updates the image stays before the next step.</param>
 /// <param name="FragmentBefore">The statue piece that drops just before the image shows; null for none.</param>
-internal sealed record BombTorizoHandCrumbleStep(BombTorizoHandDraw Image, int Updates, BombTorizoStatueFragment? FragmentBefore);
+internal sealed partial record BombTorizoHandCrumbleStep(BombTorizoHandDraw Image, int Updates, BombTorizoStatueFragment? FragmentBefore);

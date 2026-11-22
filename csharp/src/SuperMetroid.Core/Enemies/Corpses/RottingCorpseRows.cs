@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// shows, or none once a move has cleared it. Each corpse owns one, which only its own rot moves, and its frames are
 /// drawn whole through it. It decides nothing about the rot's timing, its dust or its collisions.
 /// </summary>
-internal sealed class RottingCorpseRows
+internal sealed partial class RottingCorpseRows
 {
     /// <summary>The corpse row each corpse row shows, or none where a move has cleared it.</summary>
     private readonly int?[] rows;

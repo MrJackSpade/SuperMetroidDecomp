@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// show, named by their sheet frames. Record numbers, selector indexes and table entries stay inside this decoding.
 /// </summary>
 [EncodingOwner("Samus's bank-$92 body definition, frame selector and spritemap tables")]
-internal static class SamusBodyTableDecoding
+internal static partial class SamusBodyTableDecoding
 {
     /// <summary>Number of records in the cartridge's pose tables.</summary>
     internal const int PoseCount = SamusPoseNumbering.RecordCount;

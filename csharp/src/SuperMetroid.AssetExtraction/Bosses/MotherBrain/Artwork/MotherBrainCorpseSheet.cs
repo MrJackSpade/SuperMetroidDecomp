@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Lays out Mother Brain's corpse sheet: where each page begins, and which part of each corpse row rots where it shows.</summary>
-public static class MotherBrainCorpseSheet
+public static partial class MotherBrainCorpseSheet
 {
     /// <summary>3072 bytes, covering every corpse page.</summary>
     public const int ByteCount = 3072;
@@ -21,13 +21,13 @@ public static class MotherBrainCorpseSheet
     public const int PageByteCount = 448;
 
     /// <summary>One 4bpp 8-by-8 tile occupies 32 bytes.</summary>
-    private const int TileBytes = 32;
+    internal const int TileBytes = 32;
 
     /// <summary>The column of each corpse page the corpse's right-hand frame, which rots, begins at.</summary>
-    private const int RightFrameColumn = 6;
+    internal const int RightFrameColumn = 6;
 
     /// <summary>The corpse's source artwork advances one sixteen-tile (512-byte) page per row.</summary>
-    private const int SourcePageBytes = 16 * TileBytes;
+    internal const int SourcePageBytes = 16 * TileBytes;
 
     /// <summary>The sprite character the first corpse page shows from; each later page follows the one before.</summary>
     public const int FirstPageCharacter = 416;

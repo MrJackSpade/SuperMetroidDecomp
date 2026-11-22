@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// The reactions of Kraid's own that its frames' hitboxes and its parts' definitions name (#1759, #2558). Only Kraid's
 /// own behaviour tells them apart.
 /// </summary>
-internal static class KraidReactions
+internal static partial class KraidReactions
 {
     /// <summary>The touch reaction of Kraid's body and feet: the hitboxes his arm's part and his foot hold over his body (#2221).</summary>
     internal static EnemyReaction BodyTouch => SpeciesOwnReactions.KraidBodyTouch;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 /// The background scroll phase: scroll offsets from the camera. Backgrounds render from
 /// level data through these offsets, so nothing streams into the backgrounds (#1346).
 /// </summary>
-internal sealed class BackgroundScrollPhase
+internal sealed partial class BackgroundScrollPhase
 {
     /// <summary>Layer scroll owner driven by the camera.</summary>
     private readonly BackgroundScrollState _backgroundScroll;

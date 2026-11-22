@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// the sixteen-bit sample arithmetic whose clamps and wraps the output reproduces live here at the chip's widths.
 /// </summary>
 [EncodingOwner("S-DSP register file and its signed sample arithmetic")]
-public sealed class ManagedSnesDsp
+public sealed partial class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>
     public const int NativeStereoFramesPerVideoFrame = SoundClockTiming.SamplesPerUpdate;
@@ -26,7 +26,7 @@ public sealed class ManagedSnesDsp
     /// <summary>Shared 64-KiB audio RAM holding BRR directories and the echo ring.</summary>
     private readonly SpcRam apuRam;
     /// <summary>Mirrored DSP registers, including values published by each sample cycle.</summary>
-    private readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
+    internal readonly byte[] registers = new byte[SnesDspRegisterLayout.RegisterFileSize];
     /// <summary>Eight independent pitch, envelope, and PCM windows mixed each cycle.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
@@ -695,7 +695,7 @@ public sealed class ManagedSnesDsp
     }
 
     /// <summary>One hardware voice's interpolation window, pitch, envelope, and routing state.</summary>
-    private sealed class Voice
+    private sealed partial class Voice
     {
         /// <summary>Fourteen-bit playback pitch written through the two voice registers.</summary>
         public int Pitch;

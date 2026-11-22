@@ -10,6 +10,6 @@ internal static class PaletteFxAccess
     extension(ColourEffectSystem fx)
     {
         /// <summary>Counts the running effects.</summary>
-        internal int ActiveCount => PrivateState.Field<ColourEffectSystem, List<RoomColourEffect>>(fx, "effects").Count;
+        internal int ActiveCount => fx.effects.Count;
     }
 }

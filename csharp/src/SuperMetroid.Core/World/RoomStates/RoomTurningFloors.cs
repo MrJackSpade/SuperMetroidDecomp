@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Reads what a turning floor does to its room's screen (<see cref="RoomTurningFloorDefinitions"/>).</summary>
-public static class RoomTurningFloors
+public static partial class RoomTurningFloors
 {
     /// <summary>What a turning floor does to its room's screen.</summary>
     extension(RoomTurningFloor floor)

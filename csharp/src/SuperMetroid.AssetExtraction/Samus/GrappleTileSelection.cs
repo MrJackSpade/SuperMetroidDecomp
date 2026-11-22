@@ -5,7 +5,7 @@ using static SuperMetroid.AssetExtraction.Samus.GrappleTileDefinitions;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The installed rope and endpoint characters, and their transfer, each rope orientation and endpoint frame selects.</summary>
-public static class GrappleTileSelection
+public static partial class GrappleTileSelection
 {
     /// <summary>The transfer of each orientation's installed rope characters, one of <see cref="GrappleTileDefinitions.Transfers"/>.</summary>
     private static readonly IdentityTable<GrappleRopeOrientation, GrappleTileTransfer> SegmentTransfers = new(new Dictionary<GrappleRopeOrientation, GrappleTileTransfer>

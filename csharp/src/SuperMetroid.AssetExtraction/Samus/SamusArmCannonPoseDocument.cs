@@ -5,7 +5,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One pose's installed arm-cannon placement in <c>samus-arm-cannon.json</c> (#1638).</summary>
-public sealed record SamusArmCannonPoseDocument
+public sealed partial record SamusArmCannonPoseDocument
 {
     /// <summary>Whether the pose draws the cover, and before or after Samus's body: <c>Hidden</c>, <c>BeforeBody</c> or <c>AfterBody</c>.</summary>
     public required SamusArmCannonDrawOrder DrawOrder { get; init; }

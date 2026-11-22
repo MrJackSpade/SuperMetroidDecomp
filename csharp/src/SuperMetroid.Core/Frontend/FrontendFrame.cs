@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// The update's ordered semantic audio events after sound acceptance. The session has already rendered them into the
 /// update's PCM (<see cref="SuperMetroidGame.CopyAudioFrame"/>); a host that plays audio itself plays these instead.
 /// </param>
-public readonly record struct FrontendFrame(
+public readonly partial record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
     int FrameNumber,

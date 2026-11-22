@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -44,7 +45,7 @@ internal static class RoomFxWidenedInputsVerification
         const int deepest = CoordinateAxis.LastNonNegative;
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
-        var liquid = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var liquid = global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertTrue(liquid.BaseY is null && liquid.TargetSurface is null && liquid.Surface is null,
             "a room with no effect has no liquid surface or target (#1987)");
         liquid.SetLiquidLevel(deepest);
@@ -66,7 +67,7 @@ internal static class RoomFxWidenedInputsVerification
         static ColourEffectInputs Conditions(int samusY) =>
             new() { Samus = FixtureRoomSamus.Uninstalled, SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.FirefleaDarkness>([typeof(int)], new object?[] { darkness }) };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new global::SuperMetroid.Core.Fx.FirefleaDarkness(darkness) };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// cover-appearance, and tile-selection tables; pixels are supplied separately by <c>samus-arm-cannon-tiles.png</c>, and
 /// opening/closing mechanics remain runtime-owned. The installation holds only its layout (<see cref="SamusArmCannonLayoutDocument"/>).
 /// </summary>
-public sealed record SamusArmCannonArtworkDocument
+public sealed partial record SamusArmCannonArtworkDocument
 {
     /// <summary>Document schema revision; loading requires <see cref="SamusArmCannonArtworkFormat.Version"/>.</summary>
     public required int Version { get; init; }

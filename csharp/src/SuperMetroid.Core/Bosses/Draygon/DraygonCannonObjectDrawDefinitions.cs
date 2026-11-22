@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// frame covers around the cannon's core block, and how each cell collides. What each frame shows is its installed
 /// picture (#1557).
 /// </summary>
-internal static class DraygonCannonObjectDrawDefinitions
+internal static partial class DraygonCannonObjectDrawDefinitions
 {
     /// <summary>A right shield frame: the shootable core with the rim to its right, over the core's extension and the lower rim.</summary>
     private static readonly RoomBlockShape RightShield = new(

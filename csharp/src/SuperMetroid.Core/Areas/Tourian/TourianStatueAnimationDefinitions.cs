@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The four Tourian entrance statues' background animations: the values their shared typed animation
 /// (<see cref="TourianStatueBlockAnimations"/>) acts on.
 /// </summary>
-public static class TourianStatueAnimationDefinitions
+public static partial class TourianStatueAnimationDefinitions
 {
     /// <summary>Each statue's event, first-frame duration, boss test, shades, eye and colour effect, by statue.</summary>
     internal static readonly IdentityTable<TourianStatue, TourianStatueAnimationDefinition> Statues = new(new Dictionary<TourianStatue, TourianStatueAnimationDefinition>

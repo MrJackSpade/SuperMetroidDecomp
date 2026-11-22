@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Samus's death, from the final gameplay pass to the final black-out before the game-over menu.</summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class DeathGameSequence(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DeathSequence;
@@ -47,6 +47,7 @@ internal sealed class DeathGameSequence(FrontendSession session) : IGamePhase
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <summary>What <c>Step</c> does for each <see cref="DeathSequenceStep"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DeathSequenceStep, Action<ControllerButton>> StepForDeathSequenceStep => field ??= new(new Dictionary<DeathSequenceStep, Action<ControllerButton>>
     {
         [DeathSequenceStep.FinalGameplayPass] = controllerInput => RunFinalGameplayPass(controllerInput),

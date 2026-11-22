@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Visible main-menu navigation.</summary>
-internal static class FileSelectMainNavigation
+internal static partial class FileSelectMainNavigation
 {
     /// <summary>Moves one row through the main page's shown rows, wrapping from either end to the other.</summary>
     /// <remarks>

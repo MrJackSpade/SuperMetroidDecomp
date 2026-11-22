@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TChange">The song change.</typeparam>
 [CompatibilityService("a song change waits for the music's next beat")]
-public sealed class SongChangeAtBeat<TChange>
+public sealed partial class SongChangeAtBeat<TChange>
     where TChange : class
 {
     /// <summary>The change waiting for the beat, or null when none waits.</summary>

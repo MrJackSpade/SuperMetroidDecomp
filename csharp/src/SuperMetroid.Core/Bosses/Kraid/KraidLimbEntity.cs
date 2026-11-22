@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="place">The place the limb occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="reference">Kraid's reference to the limb, which it joins as it initializes.</param>
-internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
+internal abstract partial class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
     : KraidEntity(species, occupant, place, common, reference), IEnemyTypedAnimation, IPlacedEnemyPicture
 {
     /// <summary>Where the limb's pose places its picture: the foot's step along its walk (#2210).</summary>

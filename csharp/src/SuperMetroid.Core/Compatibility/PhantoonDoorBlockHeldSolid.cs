@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// animations draw the door on their first update and end on the next.
 /// </remarks>
 [CompatibilityService("each of Phantoon's door changes makes the door's top transition block solid from its spawn until its first update draws the door")]
-public static class PhantoonDoorBlockHeldSolid
+public static partial class PhantoonDoorBlockHeldSolid
 {
     /// <summary>The room-object updates the door's top block stays solid: from the change's spawn to its first update.</summary>
     public const int HeldUpdates = 1;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// a move left from the displacement's sign (zero is not negative, so it moves
 /// right), while their unconditional solid-enemy probe reads the side it was calculated toward.
 /// </remarks>
-public readonly record struct SamusHorizontalDisplacement(SignedSixteenSixteen Displacement, HorizontalDirection CollisionDirection)
+public readonly partial record struct SamusHorizontalDisplacement(SignedSixteenSixteen Displacement, HorizontalDirection CollisionDirection)
 {
     /// <summary>
     /// Displacement from a base speed plus the extra X displacement, calculated toward <paramref name="side"/>, the side

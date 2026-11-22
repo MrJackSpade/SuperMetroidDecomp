@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="Sheets">The context's projectile sheets.</param>
 /// <param name="EquippedBeams">The beam combination she has equipped as the burst is drawn.</param>
-public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Sheets, SamusBeamCombination EquippedBeams)
+public readonly partial record struct SamusHitBurstArtwork(ProjectileDrawArtwork Sheets, SamusBeamCombination EquippedBeams)
 {
     /// <summary>Publishes the burst's composition <paramref name="picture"/> centred on <paramref name="origin"/>.</summary>
     /// <param name="sprites">The frame's sprite description.</param>

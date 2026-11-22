@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The suit pickup's light beam: when it starts, the order of its stages, its authored edges, the speeds its edges move
 /// at, and its rounded sides.
 /// </summary>
-public static class SuitPickupBeamDefinitions
+public static partial class SuitPickupBeamDefinitions
 {
     /// <summary>The updates the pickup waits before the light beam's first stage runs: the beam starts on its third update.</summary>
     public const int UpdatesBeforeLightBeam = 2;

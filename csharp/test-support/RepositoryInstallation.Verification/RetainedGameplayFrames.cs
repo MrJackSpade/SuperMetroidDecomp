@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Keeps the prior display through gameplay updates, for verification hosts that inspect cartridge state rather than
 /// frame pixels. No display packet is materialized for an update that only steps the simulation.
 /// </summary>
-internal sealed class RetainedGameplayFrames : IGameplayFramePublication
+internal sealed partial class RetainedGameplayFrames : IGameplayFramePublication
 {
     /// <summary>The single retaining policy.</summary>
     public static RetainedGameplayFrames Instance { get; } = new();

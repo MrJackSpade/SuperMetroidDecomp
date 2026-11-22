@@ -109,10 +109,22 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="owner"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Construction is attempted off the device's owner thread.</exception>
     public D3D11FrameRenderer(D3D11RenderDevice owner)
-        : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
+        : this(owner, OpenShaderFile) { }
+
+    /// <summary>
+    /// Opens the compiled shader <paramref name="name"/> (<c>SuperMetroid.Shaders.X.cso</c>) from the <c>Shaders</c> folder the
+    /// build copies beside the assembly (#2602), or null when the build left it out.
+    /// </summary>
+    internal static FileStream? OpenShaderFile(string name)
+    {
+        const string prefix = "SuperMetroid.Shaders.";
+        string path = Path.Combine(AppContext.BaseDirectory, "Shaders",
+            name.StartsWith(prefix, StringComparison.Ordinal) ? name[prefix.Length..] : name);
+        return File.Exists(path) ? File.OpenRead(path) : null;
+    }
 
     /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
-    private D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
+    internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
     {
         this.owner = Ensure.NotNull(owner);
         this.openShaderResource = Ensure.NotNull(openShaderResource);

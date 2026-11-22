@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// sheet key (<see cref="EnemyFrameSheetKeys"/>).
 /// </summary>
 [ArchitectureReview("large", "Data only: every installed enemy frame's install key, one entry per frame, kept apart from the identities so renaming a frame never changes an installed key; the sheet-key map reads it whole, and splitting it by family would only scatter one table.")]
-internal static class EnemyFrameNameDefinitions
+internal static partial class EnemyFrameNameDefinitions
 {
     /// <summary>Each installed frame's document name.</summary>
     internal static FrozenDictionary<EnemyFrameId, string> Names { get; } = new Dictionary<EnemyFrameId, string>

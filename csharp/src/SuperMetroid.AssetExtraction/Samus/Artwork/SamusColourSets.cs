@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The sizes of Samus's colour sets as the import reads, stores and pre-colours them (#1405, #1512). Which inks of her
 /// sheets each colouring recolours is the import's too.
 /// </summary>
-public static class SamusColourSets
+public static partial class SamusColourSets
 {
     /// <summary>
     /// The colours in each of Samus's colour sets: one colouring of her suit or her beams, and every palette her effects

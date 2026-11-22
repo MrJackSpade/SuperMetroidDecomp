@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>Where a Dragon spits its fireball from and how the fireball flies (#2149).</summary>
-internal static class DragonFireballDefinitions
+internal static partial class DragonFireballDefinitions
 {
     /// <summary>
     /// Where a fireball leaves a Dragon facing right: twelve pixels ahead of its body's middle and 28 above; one facing

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What falls, and whether a tube follows it, is the drop's own kind.
 /// </summary>
 /// <param name="Clears">The room mutation clearing the tube's place, and the block it is spawned at.</param>
-internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears)
+internal abstract partial record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears)
 {
     /// <summary>
     /// Whether the tube falls once enough enemy projectiles are free, as the collapse's first does, rather than once the
@@ -27,7 +27,7 @@ internal abstract record MotherBrainTubeDrop(RoomObjectSpawnRequest<MotherBrainR
 /// <param name="Bottom">Drops a bottom tube.</param>
 /// <param name="Top">Drops a top tube.</param>
 /// <param name="Main">Drops the main tube.</param>
-internal sealed record MotherBrainTubeDropReactions<TContext>(
+internal sealed partial record MotherBrainTubeDropReactions<TContext>(
     Action<MotherBrainBottomTubeDrop, TContext> Bottom,
     Action<MotherBrainTopTubeDrop, TContext> Top,
     Action<MotherBrainMainTubeDrop, TContext> Main);

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// Drives the attract demo: sets up its room and Samus, then substitutes the scripted input each frame and
 /// restores the player's controller afterwards.
 /// </summary>
-internal sealed class AttractDemoDriver : IAttractSamusInput
+internal sealed partial class AttractDemoDriver : IAttractSamusInput
 {
     /// <summary>Owns the scripted input and the temporary controller substitution scope.</summary>
     private readonly AttractDemoSession _attractSession;
@@ -130,6 +130,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>What <see cref="ApplyAttractRoomSetup"/> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<AttractDemoRoomSetup, Action> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action>
     {
         [AttractDemoRoomSetup.ChargeBeamScroll] = () => _room.LoadedCamera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>What firing a beam produced (#2560): the sound request to queue, the sound with its priority, or none.</summary>
 /// <param name="Request">The sound to queue with its priority, or null for none.</param>
-internal readonly record struct BeamFiringResult(SoundRequest? Request)
+internal readonly partial record struct BeamFiringResult(SoundRequest? Request)
 {
     /// <summary>No sound to queue.</summary>
     internal static BeamFiringResult Silent => default;

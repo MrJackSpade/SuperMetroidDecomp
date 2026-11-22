@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="FirstInk">The first ink the run writes.</param>
 /// <param name="Colours">The colour of each ink of the run, in order.</param>
-internal readonly record struct ColourRun(int FirstInk, RgbColor[] Colours);
+internal readonly partial record struct ColourRun(int FirstInk, RgbColor[] Colours);

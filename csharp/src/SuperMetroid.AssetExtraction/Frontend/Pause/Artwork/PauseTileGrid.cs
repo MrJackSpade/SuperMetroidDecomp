@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Compiles shared pause-art atlas cells into the tiles they place, without interpreting controls or inventory.</summary>
-internal static class PauseTileGrid
+internal static partial class PauseTileGrid
 {
     /// <summary>Validates atlas cells and places the tile each selects.</summary>
     public static BackgroundTile[] Compile(PauseBackdropCell[] cells, string name)

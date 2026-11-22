@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// steers the tail its own way each update, so the pogo's steps are reached only from a pogo action, and nothing steers a
 /// resting tail.
 /// </summary>
-public abstract class RidleyTailAction
+public abstract partial class RidleyTailAction
 {
     /// <summary>The action's name, for diagnostics.</summary>
     private readonly string _name;

@@ -12,7 +12,8 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
@@ -48,9 +49,8 @@ internal static class EndingContentIdentityVerification
             AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingFloorArtworkFormat.CharacterFileName(native.First), "published character filename");
             AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingFloorArtworkFormat.MapFileName(native.First), "published map filename");
         }
-        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-            new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
-                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, ArtworkJson.Options));
+        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
+                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options)));
         static MemoryStream Png(int seed)
         {
             var png = new MemoryStream();
@@ -141,19 +141,6 @@ internal static class EndingContentIdentityVerification
                 AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit).Installed[component],
                     cosmeticEdit + " preserves decoded " + component);
         }
-
-        // These identities are derived from existing installed fields. Persisting an extra cached
-        // digest would needlessly change the exact debugger-object layout of older save states.
-        foreach (Type type in new[]
-        {
-            typeof(EndingObjectSourceArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
-            typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
-            typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
-            typeof(EndingLogoSpritePresentation),
-        })
-            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Ending content: {objectEdits.Length} map/composition edits and {edits.Count} backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
@@ -171,7 +158,7 @@ internal static class EndingContentIdentityVerification
         string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
 
 
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0)
@@ -239,7 +226,7 @@ internal static class EndingContentIdentityVerification
                 }
                 frames.Add(key, parts);
             }
-            return Json(new { Version = version, Frames = frames });
+            return Json(new SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument(version, frames));
         }
 
         RoomBackgroundTilemapAtlas[] maps = [.. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)

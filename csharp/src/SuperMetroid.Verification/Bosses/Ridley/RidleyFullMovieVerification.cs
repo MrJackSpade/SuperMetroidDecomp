@@ -450,24 +450,31 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks the tail's impact response against the recorded contact geometry.</summary>
     internal static void VerifyRidleyTailImpact()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = CreateRetailRuntimeFixture();
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
-        var state = runtime.Enemies.NorfairRidley();
-        var body = runtime.Enemies.Places.InUpdateOrder[0];
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.PogoFall;
-        state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
-        runtime.AudioRequests.BeginRecordedUpdate();
-        runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
-        var dust = runtime.Enemies.Projectiles.SpawnedInPlace(17);
-        AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
-        AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
-        AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.BigExplosion && request.Priority.Requests == 6), "native impact queues the quake sound");
-        Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
+        // The impact's quake sound is requested at normal priority: behind five library-two requests made earlier in the
+        // update its library's queue admits it, and behind six turns it away.
+        foreach ((int competing, bool joins) in new[] { (5, true), (6, false) })
+        {
+            var runtime = CreateRetailRuntimeFixture();
+            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
+            var state = runtime.Enemies.NorfairRidley();
+            var body = runtime.Enemies.Places.InUpdateOrder[0];
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = NorfairRidleyPhase.PogoFall;
+            state.Tail.Tip.Position = new Position16<RoomPixels>(4, 118);
+            runtime.AudioRequests.BeginRecordedUpdate();
+            runtime.AudioRequests.FillQueueAhead(EnemySound.Beacon, competing);
+            runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
+            var dust = runtime.Enemies.Projectiles.SpawnedInPlace(17);
+            AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
+            AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
+            AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
+            AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
+            AssertEqual(joins, runtime.AudioRequests.SoundsQueued.Contains(EnemySound.BigExplosion),
+                $"behind {competing} waiting library-two requests the impact's normal-priority quake sound {(joins ? "joins" : "is turned away")}");
+        }
+
+        Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and normal-priority quake sound pass.");
     }
 
     /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>
@@ -640,17 +647,17 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
-                AssertEqual(15 - update, menu.TransitionBrightness, "native zero-delay fade-out brightness");
+                AssertEqual(15 - update, menu.TransitionBrightness.StepsAboveBlack, "native zero-delay fade-out brightness");
             }
             AssertEqual(new PausePageTransition(destination, PausePageTransitionStage.Load),
                 menu.Transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
-            AssertEqual(0, menu.TransitionBrightness, "load dispatch remains black");
+            AssertEqual(0, menu.TransitionBrightness.StepsAboveBlack, "load dispatch remains black");
             for (int update = 1; update <= 30; update++)
             {
                 menu.Step(0, 0);
-                AssertEqual(update / 2, menu.TransitionBrightness, "native delay-one fade-in brightness");
+                AssertEqual(update / 2, menu.TransitionBrightness.StepsAboveBlack, "native delay-one fade-in brightness");
                 AssertEqual(update == 30, menu.Transition is null,
                     "input returns only after the thirtieth fade-in update");
             }
@@ -750,7 +757,7 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         FixedCoordinate xFixed = samus.Kinematics.Position.X, yFixed = samus.Kinematics.Position.Y;
         game.AdoptRuntime(runtime);
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");

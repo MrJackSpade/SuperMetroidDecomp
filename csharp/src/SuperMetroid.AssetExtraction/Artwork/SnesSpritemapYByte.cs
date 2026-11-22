@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Raw">The encoded Y byte, the displacement modulo 256.</param>
 [EncodingOwner("spritemap part Y byte")]
-public readonly record struct SnesSpritemapYByte(byte Raw)
+public readonly partial record struct SnesSpritemapYByte(byte Raw)
 {
     /// <summary>The smallest displacement the byte encodes.</summary>
     public const int MinimumOffset = sbyte.MinValue;

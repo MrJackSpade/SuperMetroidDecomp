@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Body-overlap scroll, conveyor and sand reactions from Samus's inside-block detection.</summary>
-public static class SamusInsideBlockReactions
+public static partial class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in order.</summary>
     /// <param name="terrain">The room's terrain: its level and the room objects its scroll, sand and plant blocks reach.</param>

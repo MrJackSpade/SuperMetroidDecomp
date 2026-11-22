@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where a room's load and Kraid's backdrop bind among the tile characters its blocks name (#1406).</summary>
-public static class RoomTileCharacters
+public static partial class RoomTileCharacters
 {
     /// <summary>The first of the room tileset's characters.</summary>
     public const int TilesetFirst = 0;

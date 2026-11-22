@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// rectangle about the vent, or to none while the plume is hidden. The rectangles are fixed: installed sprite edits
 /// cannot change the damaging plume.
 /// </summary>
-internal static class CeresSteamCollisionDefinitions
+internal static partial class CeresSteamCollisionDefinitions
 {
     /// <summary>Every plume rectangle's touch reaction: the steam scalds Samus.</summary>
     internal static readonly EnemyReaction TouchReaction = CeresSteamReactions.Touch;

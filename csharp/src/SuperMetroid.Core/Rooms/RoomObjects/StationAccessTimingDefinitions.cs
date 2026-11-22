@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// arm shows retracted, extends and holds, the station activates, the arm holds, sounds as it disengages, retracts and
 /// holds again before the access ends.
 /// </summary>
-internal static class StationAccessTimingDefinitions
+internal static partial class StationAccessTimingDefinitions
 {
     /// <summary>The updates the arm takes to extend or retract, and each hold around the station's activation.</summary>
     internal const int MovementUpdates = 6;

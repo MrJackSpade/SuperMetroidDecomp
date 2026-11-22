@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// <param name="EndsWithBlinkingCaret">
 /// Whether the page's text ends by setting the caret blinking and holding the finished page, as the last page does.
 /// </param>
-internal readonly record struct IntroNarrationScriptPage(
+internal readonly partial record struct IntroNarrationScriptPage(
     IntroNarrationPageId Id,
     int InstructionPointer,
     int BeginOpcode,

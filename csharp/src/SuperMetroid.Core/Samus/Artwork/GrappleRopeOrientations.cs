@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>Which rope pictures each grapple angle shows.</summary>
-public static class GrappleRopeOrientations
+public static partial class GrappleRopeOrientations
 {
     /// <summary>
     /// How far either side of upright the rope shows the vertical pictures: from twelve whole steps before it up to, but

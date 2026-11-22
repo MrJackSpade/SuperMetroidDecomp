@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// saves by name (#1709). Neither the game nor the installation it loads knows the word.
 /// </summary>
 [EncodingOwner("save slot loading-state word")]
-public static class SaveStartupRouteCodec
+public static partial class SaveStartupRouteCodec
 {
     /// <summary>The saved dispatcher word that selects <paramref name="route"/>.</summary>
     /// <remarks>

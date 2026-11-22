@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// native word encoding and bit-15 masking stay behind the view. A struct over the backend, so
 /// palette fades and render lookups allocate nothing.
 /// </summary>
-public readonly struct CgramPalette
+public readonly partial struct CgramPalette
 {
     /// <summary>Underlying colour table to which writes must propagate: CGRAM or a screen palette.</summary>
     private readonly IPaletteColors cgram;
@@ -33,7 +33,7 @@ public readonly struct CgramPalette
     }
 
     /// <summary>The number of colours in the range.</summary>
-    private int Count { get; }
+    internal int Count { get; }
 
     /// <summary>The range's colours, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Colors => cgram.Colors.Slice(first, Count);

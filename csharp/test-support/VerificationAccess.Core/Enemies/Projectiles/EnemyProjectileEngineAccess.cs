@@ -23,6 +23,6 @@ internal static class EnemyProjectileEngineAccess
         /// </summary>
         internal bool HoldsForPrePhantoonRoom(int place) =>
             engine.LatestInPlace(place) is not { IsActive: true } &&
-            !PrivateState.Invoke<EnemyProjectileEngine, bool>(engine, "IsFree", [typeof(int)], place);
+            !engine.IsFree(place);
     }
 }

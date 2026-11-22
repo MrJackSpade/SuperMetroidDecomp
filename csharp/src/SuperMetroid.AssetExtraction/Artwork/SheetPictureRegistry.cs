@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// a frame showing written pixels with other maps names the written picture and its own maps. The store shares a picture
 /// between the frames that show it before it writes it, so the guard proves no second copy is written.
 /// </summary>
-internal sealed class SheetPictureRegistry
+internal sealed partial class SheetPictureRegistry
 {
     /// <summary>Every picture written so far, by its pixels, with where it was first shown.</summary>
     private readonly Dictionary<InstalledPictureContent, WrittenPicture> written = new();
@@ -39,5 +39,5 @@ internal sealed class SheetPictureRegistry
     /// <param name="Sheet">The sheet.</param>
     /// <param name="Frames">The frames that show it there.</param>
     /// <param name="Rectangle">Its rectangle on that sheet.</param>
-    private sealed record WrittenPicture(string Sheet, string Frames, FrameRectangle Rectangle);
+    private sealed partial record WrittenPicture(string Sheet, string Frames, FrameRectangle Rectangle);
 }

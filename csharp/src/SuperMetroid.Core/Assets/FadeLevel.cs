@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// where it ends (every step). A fade, a crossfade or a colour shown partway between black and itself names its level so;
 /// the backend shows it, in the steps the game shows (<see cref="IColourBlend"/>).
 /// </summary>
-public readonly record struct FadeLevel
+public readonly partial record struct FadeLevel
 {
     /// <summary>A fade <paramref name="step"/> steps of <paramref name="steps"/> along.</summary>
     /// <param name="step">How many of its steps the fade has taken, zero through <paramref name="steps"/>.</param>

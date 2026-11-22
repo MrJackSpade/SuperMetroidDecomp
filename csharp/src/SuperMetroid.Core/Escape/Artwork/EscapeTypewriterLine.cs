@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Escape.Artwork;
 /// line types rightward from it, one glyph's width per character.
 /// </param>
 /// <param name="Text">One through 32 supported characters in a loaded message. Spaces advance the typing position without writing a glyph; every other character types its own glyph.</param>
-public sealed record EscapeTypewriterLine(Position16<PlanePixels> Start, string Text);
+public sealed partial record EscapeTypewriterLine(Position16<PlanePixels> Start, string Text);

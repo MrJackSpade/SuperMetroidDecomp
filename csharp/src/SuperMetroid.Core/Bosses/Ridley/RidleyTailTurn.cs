@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// each update, how far a link swings before it starts the next one, and how far apart the tail's links are kept. It counts
 /// without wrapping, as the swings it measures stay far inside a turn.
 /// </summary>
-public readonly record struct RidleyTailTurn : IComparable<RidleyTailTurn>
+public readonly partial record struct RidleyTailTurn : IComparable<RidleyTailTurn>
 {
     /// <summary>A turn of <paramref name="steps"/> steps of the turn.</summary>
     private RidleyTailTurn(int steps) => Steps = Ensure.AtLeastZero(steps);

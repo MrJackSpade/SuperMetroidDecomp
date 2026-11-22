@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// escape's shutters, a glowing enemy, or a lit Torizo whose defeat the effect watches). Each target accepts only an
 /// effect whose colours it shows, so a frame is shown on its target with no choice left to make.
 /// </summary>
-internal abstract record ColourEffectTarget
+internal abstract partial record ColourEffectTarget
 {
     /// <summary>Only the targets below derive.</summary>
     private ColourEffectTarget()
@@ -70,7 +70,7 @@ internal abstract record ColourEffectTarget
     }
 
     /// <summary>The room's pictures, which take the shade of the frame the effect holds.</summary>
-    private sealed record OnRoomPictures : ColourEffectTarget
+    private sealed partial record OnRoomPictures : ColourEffectTarget
     {
         /// <inheritdoc/>
         internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition) =>
@@ -78,7 +78,7 @@ internal abstract record ColourEffectTarget
     }
 
     /// <summary>A frontend screen's pictures, which take the shade of the frame the effect holds.</summary>
-    private sealed record OnScreenPictures : ColourEffectTarget
+    private sealed partial record OnScreenPictures : ColourEffectTarget
     {
         /// <inheritdoc/>
         internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition) =>
@@ -89,7 +89,7 @@ internal abstract record ColourEffectTarget
     /// An owner that shows the shade of each frame the effect shows over its own draws: Samus's suit, the escape's
     /// shutters, or an enemy.
     /// </summary>
-    internal abstract record OnOwner : ColourEffectTarget
+    internal abstract partial record OnOwner : ColourEffectTarget
     {
         /// <summary>Only the owners below derive.</summary>
         private protected OnOwner()
@@ -101,7 +101,7 @@ internal abstract record ColourEffectTarget
     }
 
     /// <summary>Samus's suit, which lays the shade of each frame over her draws.</summary>
-    private sealed record OnSamusSuit : OnOwner
+    private sealed partial record OnSamusSuit : OnOwner
     {
         /// <inheritdoc/>
         internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition) =>
@@ -112,7 +112,7 @@ internal abstract record ColourEffectTarget
     }
 
     /// <summary>The escape's shutters, which lay the shade of each frame of the flash over their draws.</summary>
-    private sealed record OnEscapeShutters : OnOwner
+    private sealed partial record OnEscapeShutters : OnOwner
     {
         /// <inheritdoc/>
         internal override void Accept(ColourEffectId effect, ColourEffectDefinition definition)
@@ -131,7 +131,7 @@ internal abstract record ColourEffectTarget
     /// draws for as long as the effect runs (#1783).
     /// </summary>
     /// <param name="Enemy">The enemy that shows the effect's frames.</param>
-    internal sealed record OnGlowingEnemy(IGlowingEnemy Enemy) : OnOwner
+    internal sealed partial record OnGlowingEnemy(IGlowingEnemy Enemy) : OnOwner
     {
         /// <summary>The enemy that shows the effect's frames.</summary>
         public IGlowingEnemy Enemy { get; } = Ensure.NotNull(Enemy);
@@ -155,7 +155,7 @@ internal abstract record ColourEffectTarget
     /// (<see cref="ColourEffectCondition.EndsWhenTorizoDies"/>).
     /// </summary>
     /// <param name="Torizo">The Torizo the effect lights and watches.</param>
-    internal sealed record OnLitTorizo(ILitTorizo Torizo) : OnOwner
+    internal sealed partial record OnLitTorizo(ILitTorizo Torizo) : OnOwner
     {
         /// <summary>The Torizo the effect lights and watches.</summary>
         public ILitTorizo Torizo { get; } = Ensure.NotNull(Torizo);

@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identity and dimensions of the final-line map: the four rows of the opening's Japanese subtitle line.</summary>
-public static class IntroFinalLineTilemapFormat
+public static partial class IntroFinalLineTilemapFormat
 {
     /// <summary>Supported revision of the ordered editable subtitle-map schema.</summary>
     public const int Version = 1;

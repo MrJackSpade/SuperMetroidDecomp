@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// drop, its open chest) is the segment its animation loops on, whose mark tells the owner to start the next animation
 /// once that change has come.
 /// </summary>
-internal static class TorizoAnimations
+internal static partial class TorizoAnimations
 {
     /// <summary>Every segment's steps.</summary>
     internal static AnimationSegments<TorizoBodySegment, EnemyFrameId, TorizoCue> Segments { get; } = new(
@@ -39,7 +39,7 @@ internal static class TorizoAnimations
     /// Each animation (#2235, #2411): the segments it plays whole, once or a number of times, and whether it then stops,
     /// loops or holds.
     /// </summary>
-    private static IReadOnlyDictionary<TorizoAnimation, Animation<TorizoBodySegment>> StartingAt { get; } = new Dictionary<TorizoAnimation, Animation<TorizoBodySegment>>
+    internal static IReadOnlyDictionary<TorizoAnimation, Animation<TorizoBodySegment>> StartingAt { get; } = new Dictionary<TorizoAnimation, Animation<TorizoBodySegment>>
     {
         [A.BombTorizoGutBlowingUp] = new([Segments.Whole(S.BombTorizoGutBlowingUp)], AnimationEnd.Holds),
         [A.BombTorizoFaceBlowingUp] = new([Segments.Whole(S.BombTorizoFaceBlowingUp)], AnimationEnd.Holds),
@@ -162,7 +162,7 @@ internal static class TorizoAnimations
         Animation<TorizoBodySegment>.LeadingInto([Segments.Whole(start)], [Segments.Whole(pose)]);
 
     /// <summary>How <paramref name="animation"/> plays.</summary>
-    private static Animation<TorizoBodySegment> StartingWith(TorizoAnimation animation) => StartingAt[animation];
+    internal static Animation<TorizoBodySegment> StartingWith(TorizoAnimation animation) => StartingAt[animation];
 
     /// <summary>A playback of <paramref name="animation"/>, before its first play.</summary>
     internal static AnimationPlayback<TorizoBodySegment> Start(TorizoAnimation animation) => new(StartingWith(animation), AnimationPlace.StartOfAnimation);

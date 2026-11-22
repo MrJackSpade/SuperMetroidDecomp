@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// an encounter shows only its room's load under it. Ceres Ridley's escape warning shows through his room's backgrounds
 /// alone, so no frame is listed for it.
 /// </summary>
-internal static class EncounterArtworkDrawingDefinitions
+internal static partial class EncounterArtworkDrawingDefinitions
 {
     /// <summary>The frames Mother Brain's dead brain shows as a corpse, the only frames the game shows her corpse's rot in.</summary>
     internal static readonly EnemyFrameId[] MotherBrainCorpseFrames =

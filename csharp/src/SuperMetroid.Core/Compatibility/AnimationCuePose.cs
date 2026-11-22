@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TPose">Samus's pose.</typeparam>
 [CompatibilityService("an animation's pose-transition cue names the pose her pose handling installs")]
-public sealed class AnimationCuePose<TPose>
+public sealed partial class AnimationCuePose<TPose>
     where TPose : struct
 {
     /// <summary>The pose the cue named, or null when no cue named one.</summary>

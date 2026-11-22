@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's typed tongue and projectile animations (#641, #1600, #2011).</summary>
-internal static class CrocomireAnimations
+internal static partial class CrocomireAnimations
 {
     /// <summary>The shot's flare burst pictures (#2557).</summary>
     private static FlareBurst ShotBurst { get; } = new(EnemyProjectileFrameId.CrocomireShotSpark, EnemyProjectileFrameId.CrocomireShotFlareBall, EnemyProjectileFrameId.CrocomireShotFlareRingCored,

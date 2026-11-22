@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The ending logo's animations (#641, #1600, #2196, #2197): the S halves hold still as they move in, and each circle draws
 /// round after a wait and rests on its whole picture, the upper one greying the icon out first.
 /// </summary>
-internal static class EndingLogoAnimations
+internal static partial class EndingLogoAnimations
 {
     /// <summary>The logo's halves' animations.</summary>
     internal static CinematicAnimations<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> Logo { get; } = new(

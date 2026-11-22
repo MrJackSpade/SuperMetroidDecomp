@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>JSON schema for the six named Zebes world-map label anchors.</summary>
-public sealed record WorldMapLabelDocument
+public sealed partial record WorldMapLabelDocument
 {
     /// <summary>Gets the schema version required by <see cref="WorldMapLabelFormat.Version"/>.</summary>
     public required int Version { get; init; }

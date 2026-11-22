@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
-internal sealed class MotherBrainThirdPhaseFight
+internal sealed partial class MotherBrainThirdPhaseFight
 {
     /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
@@ -43,7 +43,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public int Phase3TargetXPosition { get; private set; }
 
     /// <summary>Mother Brain's phase-three neck movement.</summary>
-    internal MotherBrainPhase3NeckPhase Phase3NeckPhase { private get; set; } =
+    internal MotherBrainPhase3NeckPhase Phase3NeckPhase { get; set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>The wait of her neck's recoil from a Hyper Beam hit (#2469), which its recoil phase runs out.</summary>

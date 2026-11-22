@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines one bounded text field in a gameplay-message notice.</summary>
-public sealed record GameplayMessageTextRegion
+public sealed partial record GameplayMessageTextRegion
 {
     /// <summary>Gets the zero-based content-row index.</summary>
     public required int Row { get; init; }

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="DataSetDiffers">Whether the room changes the music data set.</param>
 /// <param name="Playing">The track that plays, or null when none does.</param>
 /// <param name="Loaded">The music data set loaded, or null when none is.</param>
-internal readonly record struct RoomMusicEntry(bool DataSetDiffers, MusicTrack? Playing, MusicDataSet? Loaded);
+internal readonly partial record struct RoomMusicEntry(bool DataSetDiffers, MusicTrack? Playing, MusicDataSet? Loaded);

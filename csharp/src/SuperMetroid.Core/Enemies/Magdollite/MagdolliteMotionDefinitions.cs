@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// Where Magdollite's parts hide and surface, how long it waits between throws (#2043), how fast its lava flies and how
 /// long each frame of its glow shows (#2156).
 /// </summary>
-internal static class MagdolliteMotionDefinitions
+internal static partial class MagdolliteMotionDefinitions
 {
     /// <summary>How far below its origin a dormant arm or the hidden overlay waits, in pixels.</summary>
     internal const int HiddenDepth = 32;

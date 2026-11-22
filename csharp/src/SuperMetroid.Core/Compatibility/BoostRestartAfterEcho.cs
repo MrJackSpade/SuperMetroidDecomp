@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the Ridley full movie's and the 13% movie's running cadences depend on the occupancy.
 /// </remarks>
 [CompatibilityService("the Speed Booster's boost restarts on the cadence its echo's sound request picks by how many requests it found waiting, and a run counted off an empty countdown takes the boost down a stage")]
-public sealed class BoostRestartAfterEcho
+public sealed partial class BoostRestartAfterEcho
 {
     /// <summary>The runs a boost taken down a stage counts down before it climbs back.</summary>
     public const int CountdownAfterBorrow = 255;

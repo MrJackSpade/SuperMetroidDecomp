@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>How a fly circles, dives at Samus and retreats (#2149).</summary>
-internal static class FlyMotionDefinitions
+internal static partial class FlyMotionDefinitions
 {
     /// <summary>How close Samus comes horizontally, in pixels and exclusive, before a circling fly dives at her.</summary>
     internal const int AttackHorizontalRange = 112;

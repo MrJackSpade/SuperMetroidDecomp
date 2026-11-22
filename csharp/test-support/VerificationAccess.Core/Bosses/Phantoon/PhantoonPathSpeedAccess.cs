@@ -10,7 +10,7 @@ internal static class PhantoonPathSpeedAccess
     extension(PhantoonPathSpeed speed)
     {
         /// <summary>The speed in places an update, fraction included, as its fixed-point form holds it.</summary>
-        internal SignedSixteenSixteen InFixedPoint => PrivateState.ValueField<PhantoonPathSpeed, SignedSixteenSixteen>(speed, "_places");
+        internal SignedSixteenSixteen InFixedPoint => speed.Places;
 
         /// <summary>The fraction word.</summary>
         internal ushort Fraction => speed.InFixedPoint.Fraction;

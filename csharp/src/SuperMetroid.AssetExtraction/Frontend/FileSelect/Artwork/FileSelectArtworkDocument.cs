@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// holds them; it holds the pictures, and the layout the game binds (<see cref="FileSelectLayoutDocument"/>).
 /// </summary>
 /// <remarks>Init-only properties hold caller-owned mutable arrays and dictionaries.</remarks>
-public sealed record FileSelectArtworkDocument
+public sealed partial record FileSelectArtworkDocument
 {
     /// <summary>Schema version; must equal <see cref="FileSelectPresentationFormat.ArtworkVersion"/>.</summary>
     [JsonPropertyOrder(1)]

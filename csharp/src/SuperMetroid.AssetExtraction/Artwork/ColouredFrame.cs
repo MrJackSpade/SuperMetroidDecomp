@@ -9,5 +9,5 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Frame">The frame, its palette row the standard colouring's sprite set.</param>
 /// <param name="Standard">The colouring whose sprite set the frame is pictured in.</param>
 /// <param name="Colourings">The colourings it is drawn in, the standard one among them, each once.</param>
-internal sealed record ColouredFrame<TColouring>(SheetFrameSource Frame, TColouring Standard, IReadOnlyList<TColouring> Colourings)
+internal sealed partial record ColouredFrame<TColouring>(SheetFrameSource Frame, TColouring Standard, IReadOnlyList<TColouring> Colourings)
     where TColouring : struct, Enum;

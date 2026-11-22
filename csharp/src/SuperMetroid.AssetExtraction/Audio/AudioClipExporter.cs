@@ -16,10 +16,10 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// content-addressed 16-bit stereo WAV files at the native S-DSP rate with an <see cref="AudioClipManifest"/>. Tracks and
 /// effects render in parallel. Identical PCM is written once.
 /// </summary>
-internal static class AudioClipExporter
+internal static partial class AudioClipExporter
 {
     /// <summary>Directory of every clip file beneath the audio root, which holds it beside the clip index alone.</summary>
-    private const string ClipDirectory = "clips";
+    internal const string ClipDirectory = "clips";
 
     /// <summary>Directory of music clip files beneath the audio root.</summary>
     internal const string MusicDirectory = ClipDirectory + "/music";
@@ -30,12 +30,12 @@ internal static class AudioClipExporter
     /// <summary>One music track to export.</summary>
     /// <param name="Bank">The track's bank.</param>
     /// <param name="Track">The track number.</param>
-    internal sealed record MusicKey(AudioBank Bank, int Track);
+    internal sealed partial record MusicKey(AudioBank Bank, int Track);
 
     /// <summary>One sound effect to export, rendered once in its <see cref="RenderContext"/>.</summary>
     /// <param name="Library">The effect's library.</param>
     /// <param name="Command">The effect's request byte.</param>
-    internal sealed record SoundEffectKey(SoundEffectLibrary Library, int Command)
+    internal sealed partial record SoundEffectKey(SoundEffectLibrary Library, int Command)
     {
         /// <summary>The effect's request byte, 0 through 255.</summary>
         public int Command { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Command);
@@ -80,7 +80,7 @@ internal static class AudioClipExporter
             select new SoundEffectKey(sounds, effect.Command)];
 
     /// <summary>Renders the given tracks and effects into <paramref name="audioDirectory"/> and writes the manifest.</summary>
-    private static void Export(
+    internal static void Export(
         ExtractedAudioAssetCatalog catalog,
         string audioDirectory,
         IReadOnlyList<MusicKey> tracks,
@@ -106,7 +106,7 @@ internal static class AudioClipExporter
             soundEffects);
         File.WriteAllText(
             Path.Combine(root, InstalledAudioClips.ManifestFileName),
-            JsonSerializer.Serialize(manifest, InstalledAudioClips.ManifestOptions));
+            JsonSerializer.Serialize(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
     }
 
     /// <summary>Analyzes and renders one track and records its loop and tempo timeline.</summary>

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Assets;
 /// (#2563). Each colour key's colour under a shading is worked out once per picture and blend, keyed by the colour key
 /// (#2565).
 /// </summary>
-public sealed record PictureShading
+public sealed partial record PictureShading
 {
     /// <summary>
     /// Each colour key's colour under this shading, by blend and picture, worked out once for each picture it colours with
@@ -63,13 +63,13 @@ public sealed record PictureShading
     public ImmutableArray<PictureShade> Shades { get; }
 
     /// <summary>The fades shown over the shades, in order (#2215).</summary>
-    private ImmutableArray<PictureShadeFade> Fades { get; }
+    internal ImmutableArray<PictureShadeFade> Fades { get; }
 
     /// <summary>The colour effects applied after the fades, in order.</summary>
     public ImmutableArray<ColourEffect> Effects { get; }
 
     /// <summary>The installed shades laid over what the effects show, in order.</summary>
-    private ImmutableArray<PictureShade> OverEffects { get; }
+    internal ImmutableArray<PictureShade> OverEffects { get; }
 
     /// <summary>Whether both name the same shades and effects in the same order, so show a picture alike.</summary>
     public bool Equals(PictureShading? other) =>

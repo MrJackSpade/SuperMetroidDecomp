@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>Facings, facing animations and activation actions for Sbug movement.</summary>
-internal static class SbugMovementDefinitions
+internal static partial class SbugMovementDefinitions
 {
     /// <summary>
     /// The facing a heading shows for each eighth of the turn it lies in: counter-clockwise from right, the first eighth

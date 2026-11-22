@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The rocks Kraid's growth knocks from the ceiling, in the order they fall, one at a time; after the last no
 /// more fall (#2400, #1473).</summary>
-public static class KraidCeilingRockDefinitions
+public static partial class KraidCeilingRockDefinitions
 {
     /// <summary>
     /// The nine rocks. They alternate between the gaps at block columns 2 to 6 and 10 to 13, taking each gap's right

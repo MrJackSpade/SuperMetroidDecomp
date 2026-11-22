@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Yard's eight-direction crawling sign selection and its aggressive crawl speed.</summary>
-public static class YardVelocityDefinitions
+public static partial class YardVelocityDefinitions
 {
     /// <summary>
     /// The speed a kicked Yard crawls at after it lands, two and a quarter pixels per update.

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// floor moves by, one per update, in the order the escape plays them. Each sequence repeats until its leg ends, and
 /// each full pass moves the ship exactly two pixels to the right.
 /// </summary>
-public static class EndingShipShake
+public static partial class EndingShipShake
 {
     /// <summary>Half a pixel to the right.</summary>
     private static readonly SignedSixteenSixteen HalfRight = SignedSixteenSixteen.FromPixelFraction(1, 2);

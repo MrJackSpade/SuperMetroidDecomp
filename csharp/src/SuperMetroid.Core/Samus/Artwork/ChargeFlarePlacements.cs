@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// the beam flare's with its turning placements (<see cref="BeamFlarePlacements"/>); never used for projectile physics or
 /// Grapple connection.
 /// </summary>
-public class ChargeFlarePlacements
+public partial class ChargeFlarePlacements
 {
     /// <summary>The projectile directions in the order the flare placements are listed (#2567).</summary>
     private static readonly IReadOnlyList<SamusProjectileDirection> DirectionOrder = Ensure.EveryMemberOnce<SamusProjectileDirection>(
@@ -34,7 +34,7 @@ public class ChargeFlarePlacements
     ]);
 
     /// <summary>The installed offset of every placement the flare's source holds, each checked present as it is built.</summary>
-    private protected readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets;
+    internal readonly Dictionary<ChargeFlarePlacement, Offset16<RoomPixels>> offsets;
 
     /// <summary>Takes the offset of every placement <paramref name="source"/> holds, as the import pipeline validated them.</summary>
     /// <param name="supplied">The offset of each placement; it must hold every placement of the source and nothing else.</param>

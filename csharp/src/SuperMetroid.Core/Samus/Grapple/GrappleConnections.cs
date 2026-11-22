@@ -7,7 +7,7 @@ using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple connects at each special angle: the stop or its reflection, firing cancellation and the pose a release drops into.</summary>
-internal static class GrappleConnections
+internal static partial class GrappleConnections
 {
     /// <summary>
     /// The special connections in the order a swing compares them: each authored stop followed by its left/right
@@ -20,7 +20,7 @@ internal static class GrappleConnections
     /// The mirror of <paramref name="stop"/> on the other side: its angle reflected as <see cref="ReflectionTurn"/>
     /// less its own, its X offset negated and its pose facing the other way; its Y offset and connection kind are shared.
     /// </summary>
-    private static SpecialConnection Reflection(SpecialConnection stop) =>
+    internal static SpecialConnection Reflection(SpecialConnection stop) =>
         new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Phase);
 
     /// <summary>Whether <paramref name="movement"/> cancels firing the Grapple (<see cref="SamusMovementTypeDefinitions"/>).</summary>

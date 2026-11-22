@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// wall, and both normal tracking again once they are done.
 /// </summary>
 [RoomLifetime]
-public sealed class RoomCameraDistance
+public sealed partial class RoomCameraDistance
 {
     /// <summary>The distance mode the camera aims by.</summary>
     public CameraDistanceMode Mode { get; private set; } = CameraDistanceMode.NormalTracking;

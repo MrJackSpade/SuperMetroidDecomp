@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>Directional mounting for the Morph Ball surveillance eye: each mount is eight pixels from the eye's centre.</summary>
-internal static class MorphBallEyeGeometryDefinitions
+internal static partial class MorphBallEyeGeometryDefinitions
 {
     /// <summary>The mount eight pixels to the left of the eye's centre, facing left.</summary>
     internal static readonly MorphBallEyeMountDefinition LeftMount = new(new(-8, 0), MorphBallEyeSegment.MountFacingLeft);

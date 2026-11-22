@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="WaitAfterUpdates">
 /// The updates the collapse waits after the clear before the next tube falls, the last being the update it falls on.
 /// </param>
-internal abstract record MotherBrainFollowedTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears, int WaitAfterUpdates)
+internal abstract partial record MotherBrainFollowedTubeDrop(RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears, int WaitAfterUpdates)
     : MotherBrainTubeDrop(Clears);

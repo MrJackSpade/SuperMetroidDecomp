@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// frames on (#2544), and the animation it plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
 /// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
-internal sealed class RoomColourEffect
+internal sealed partial class RoomColourEffect
 {
     /// <summary>
     /// Starts <paramref name="effect"/> playing the animation of <paramref name="framesOf"/> in that effect's frames, due on
@@ -33,7 +33,7 @@ internal sealed class RoomColourEffect
     }
 
     /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
-    private readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
+    internal readonly AnimationPlayer<ColourEffectSegment, int, ColourEffectCue> play;
 
     /// <summary>What the effect shows.</summary>
     internal ColourEffectId Effect { get; }
@@ -42,7 +42,7 @@ internal sealed class RoomColourEffect
     /// The effect whose frames the effect shows (#2366): its own, or, for Samus's heat shimmer, the pulse of the suit she
     /// wears, which it plays.
     /// </summary>
-    private ColourEffectId FramesOf { get; set; }
+    internal ColourEffectId FramesOf { get; set; }
 
     /// <summary>
     /// What the effect shows its frames on (#2544): the room's pictures, Samus's suit, the escape's shutters, the enemy whose
@@ -68,13 +68,13 @@ internal sealed class RoomColourEffect
     internal bool AnimatesColours => !Ended && Frame is not null;
 
     /// <summary>The animation the effect plays: that of the effect whose frames it shows.</summary>
-    private Animation<ColourEffectSegment> Animation => play.Playback.Animation;
+    internal Animation<ColourEffectSegment> Animation => play.Playback.Animation;
 
     /// <summary>
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
     /// until its next one; none before its first.
     /// </summary>
-    internal ColourEffectFrame? Frame { get; private set; }
+    internal ColourEffectFrame? Frame { get; set; }
 
     /// <summary>Where the effect stands (#2560): running, ended, or settled on its final frame.</summary>
     private RoomColourEffectProgress progress;

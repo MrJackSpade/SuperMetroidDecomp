@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
 /// <typeparam name="TBeat">The beats the family's segments hold.</typeparam>
 /// <typeparam name="TShown">What a play of the family's animations comes to.</typeparam>
-internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown>
+internal abstract partial class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
@@ -44,7 +44,8 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
             if (segment.Value.SkipLast(1).Any(beat => beat is AnimationBeat<TFrame, TEvent>.HeldFrame))
                 throw new ArgumentException($"Animation segment {segment.Key} plays on past its held frame.", nameof(segments));
         }
-        beats = segments.ToDictionary(pair => pair.Key, pair => pair.Value);
+        // Each segment keeps its own array of exactly its beat type, whatever array of a narrower beat it was handed.
+        beats = segments.ToDictionary(pair => pair.Key, pair => (TBeat[])[.. pair.Value]);
     }
 
     /// <summary>Every member of the enum segment identity <typeparamref name="TSegment"/>, which the segments must all hold.</summary>
@@ -310,7 +311,7 @@ internal abstract class AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TS
     /// <param name="place">Where the play stands.</param>
     /// <param name="phase">The phase it is in.</param>
     /// <param name="react">The owner's reaction to an event, and where the play goes on, if anywhere.</param>
-    private protected struct Play(
+    private protected partial struct Play(
         Animation<TSegment> animation, AnimationPlace place, AnimationPhase<TSegment> phase,
         Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
     {

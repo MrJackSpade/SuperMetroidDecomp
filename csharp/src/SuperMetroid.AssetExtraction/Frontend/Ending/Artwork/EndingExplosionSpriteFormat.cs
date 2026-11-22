@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Defines the ending-explosion sprite document contract.</summary>
-public static class EndingExplosionSpriteFormat
+public static partial class EndingExplosionSpriteFormat
 {
     /// <summary>Current ending-explosion sprite schema version.</summary>
     public const int Version = 1;

@@ -12,4 +12,4 @@ namespace SuperMetroid.Core.Audio;
 /// samples run.
 /// </remarks>
 /// <param name="Events">The update's ordered events.</param>
-public readonly record struct AudioFrameEvents(IReadOnlyList<AudioEvent> Events);
+public readonly partial record struct AudioFrameEvents(IReadOnlyList<AudioEvent> Events);

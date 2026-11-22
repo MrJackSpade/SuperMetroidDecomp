@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// segments twelve history entries divided by its movement speed apart, so a faster head pulls its body along in the
 /// same time.
 /// </summary>
-public static class BotwoonSpeedStageDefinitions
+public static partial class BotwoonSpeedStageDefinitions
 {
     /// <summary>Botwoon at half his starting health or more, or at none: his slowest movement and spits.</summary>
     public static BotwoonSpeedStage Full { get; } = new(2, 6, 2, "full");

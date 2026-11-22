@@ -4,4 +4,4 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// <param name="Page">The page.</param>
 /// <param name="ByteCount">The page's length in bytes.</param>
 /// <param name="FileName">The installed file that holds the page.</param>
-internal readonly record struct TorizoTileSheet(TorizoTilePage Page, int ByteCount, string FileName);
+internal readonly partial record struct TorizoTileSheet(TorizoTilePage Page, int ByteCount, string FileName);

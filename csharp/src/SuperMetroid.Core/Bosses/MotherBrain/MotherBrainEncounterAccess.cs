@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainEncounterAccess
+internal sealed partial class MotherBrainEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;

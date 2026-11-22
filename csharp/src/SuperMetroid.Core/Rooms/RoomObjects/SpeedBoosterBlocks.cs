@@ -5,7 +5,7 @@ using static SuperMetroid.Core.Rooms.RoomObjects.SpeedBoosterBlockObjectDefiniti
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Which Speed Booster block a behaviour and area select.</summary>
-internal static class SpeedBoosterBlocks
+internal static partial class SpeedBoosterBlocks
 {
     /// <summary>
     /// Resolves precisely the two common and four Brinstar reactions that select the Speed Booster block setup, giving the

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <param name="Palette">The part's OBJ palette row 0..7, or null to use the draw's palette; <see cref="SpriteFrame"/>
 /// rejects a row outside that range.</param>
 /// <param name="Depth">Where the part draws among the room's layers, or null to draw at the draw's depth.</param>
-public readonly record struct SpriteFramePart(
+public readonly partial record struct SpriteFramePart(
     Offset16<ScreenPixels> Offset,
     Extent16<ScreenPixels> Size,
     int Character,

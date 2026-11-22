@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared responses.</param>
-internal abstract class CommonParticipationEnemyEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract partial class CommonParticipationEnemyEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : IEnemyHurtReaction, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
     /// <summary>The occupant the entity is created for, which carries its identity (#2558).</summary>

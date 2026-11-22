@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// between two named segments, so the import counts their frames in the layout it decodes; no read reaches them, so the
 /// game holds nothing of them.
 /// </summary>
-internal static class SamusAnimationUnnamedRunDefinitions
+internal static partial class SamusAnimationUnnamedRunDefinitions
 {
     /// <summary>
     /// Every unnamed run, in layout order: the knockback program's slow recoil after the knockback's own frames and before

@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="EasingForward">The foot easing forward.</param>
 /// <param name="LeanForward">The foot leaning forward.</param>
 /// <param name="Settling">The foot settling once it is down.</param>
-internal sealed record WorkRobotFoot(F LeanBack, F EasingUp, F Upright, F EasingForward, F LeanForward, F Settling)
+internal sealed partial record WorkRobotFoot(F LeanBack, F EasingUp, F Upright, F EasingForward, F LeanForward, F Settling)
 {
     /// <summary>The near foot facing left.</summary>
     internal static WorkRobotFoot LeftNear { get; } = new(

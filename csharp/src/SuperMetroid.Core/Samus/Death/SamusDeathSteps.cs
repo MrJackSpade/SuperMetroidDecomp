@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Death;
 /// both from the installed death artwork; the colours of her death shades are pre-coloured on her sheets, so only the
 /// room's whiteout colour, which the room still shows through its own colours, remains a colour here.
 /// </summary>
-public sealed class SamusDeathSteps
+public sealed partial class SamusDeathSteps
 {
     /// <summary>The death shade each explosion picture shows.</summary>
     private readonly Dictionary<SamusDeathExplosionFrame, SamusDeathShade> explosionShades;

@@ -17,10 +17,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// confirmations in the SMV recordings consume their inputs on exactly these updates.
 /// </remarks>
 [CompatibilityService("the save confirmation reads the controller every second update, and a moved choice delays the next read by one update")]
-public sealed class SaveChoiceInputCadence
+public sealed partial class SaveChoiceInputCadence
 {
     /// <summary>The updates an opened confirmation waits before its first read.</summary>
-    private const int UpdatesBeforeFirstRead = 2;
+    internal const int UpdatesBeforeFirstRead = 2;
 
     /// <summary>The updates the confirmation waits between one read and the next.</summary>
     private const int UpdatesBetweenReads = 1;

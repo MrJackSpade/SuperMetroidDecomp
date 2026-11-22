@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// departure because its main-gameplay predicate no longer succeeds. Each departure is a new instance, begun holding on
 /// the elevator (#2553).
 /// </remarks>
-public sealed class CeresDepartureState
+public sealed partial class CeresDepartureState
 {
 
     /// <summary>Begins the departure when Samus reaches the elevator, as the Ceres room asks: the elevator hold starts.</summary>

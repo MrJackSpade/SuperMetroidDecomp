@@ -42,7 +42,7 @@ internal static class MapSpriteCasesVerification
             new(0, 0), MapSpriteScreen.FileSelect, (MapSpriteColouring)ushort.MaxValue), "undefined identity precedes an undefined colouring");
         MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(ArtworkJson.Options));
             return MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(png));
         }
     }

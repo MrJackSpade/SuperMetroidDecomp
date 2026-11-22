@@ -45,7 +45,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 [CompatibilityService("a countdown that keeps the value it wrapped to, so a timer decremented past zero reads as a large or negative count")]
 [EncodingOwner("wrapping countdown of 0 through 65535")]
-public readonly record struct WrappingCountdown
+public readonly partial record struct WrappingCountdown
 {
     /// <summary>The frames at which a countdown reads as negative: it has run past zero.</summary>
     private const int NegativeFrom = 1 << 15;

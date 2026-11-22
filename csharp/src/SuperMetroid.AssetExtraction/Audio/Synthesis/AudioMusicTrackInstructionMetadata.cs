@@ -13,4 +13,4 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 [JsonDerivedType(typeof(AudioMusicFastForwardOff), "fastForwardOff")]
 [JsonDerivedType(typeof(AudioMusicRepeat), "repeat")]
 [JsonDerivedType(typeof(AudioMusicTrackEnd), "end")]
-public abstract record AudioMusicTrackInstructionMetadata;
+public abstract partial record AudioMusicTrackInstructionMetadata;

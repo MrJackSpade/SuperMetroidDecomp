@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// and the speed-limit check compares both tests with those part-wise sign tests at every boundary of the range.
 /// </remarks>
 [CompatibilityService("Samus's speed parts compare with a threshold by the sign of their wrapped difference, so a part more than half its range above a threshold reads as below it, and a speed slowed past zero reads as past it")]
-internal static class SamusSpeedMagnitude
+internal static partial class SamusSpeedMagnitude
 {
     /// <summary>The steps one speed part counts through before it continues from zero.</summary>
     private const int PartRange = 65536;

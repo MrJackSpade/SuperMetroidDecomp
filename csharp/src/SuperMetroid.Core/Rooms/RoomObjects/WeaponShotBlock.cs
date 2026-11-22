@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Break">The change a weapon that breaks the block sets off.</param>
 /// <param name="Reveal">The one-update reveal a weapon that shows it sets off, leaving the live block untouched.</param>
 /// <param name="Weapons">What each weapon family the block yields to does; any other family leaves the block as it is.</param>
-internal sealed record WeaponShotBlock(
+internal sealed partial record WeaponShotBlock(
     RoomObjectSetupBlock Parent,
     BlockReactionChange Break,
     BlockReactionChange Reveal,

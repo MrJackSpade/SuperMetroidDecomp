@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>How the ninja, walking and wall Space Pirates move, sense Samus and fire (#2156).</summary>
-internal static class SpacePirateMotionDefinitions
+internal static partial class SpacePirateMotionDefinitions
 {
     /// <summary>A slow wall Space Pirate's jump: two steps an update, landing at steps 190 and 66 of the turn (#2182).</summary>
     internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), RotationAngle.FromSteps(2));

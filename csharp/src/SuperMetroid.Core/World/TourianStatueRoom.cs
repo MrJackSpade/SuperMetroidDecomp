@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// to finish (#2486), and before its enemies, which take it as theirs, and its statue sequence lowers the statue.
 /// </summary>
 [RoomLifetime]
-public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
+public sealed partial class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
 {
     /// <summary>The room's effect, whose water surface the liquid step moves.</summary>
     private readonly RoomFxOverlayState _roomFxOverlay;

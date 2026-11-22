@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// Builds the ending's colour resources from the colours the import decoded (#1502, #1512): a whole screen's by owner, a
 /// run of colours, or the logo crossfade's, each kept as decoded.
 /// </summary>
-public static class EndingPaletteResources
+public static partial class EndingPaletteResources
 {
     /// <summary>Keeps a whole ending screen's selected colours, which the import pipeline decoded (#1512).</summary>
     /// <param name="colours">The screen's background colours, then its sprite colours.</param>

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The Hyper Beam's own colour cycle (#1464): for each of its frames, the eight beam colours it shows. The import pipeline
 /// decodes them from an installed document; the palette effect that steps through the frames is the beam's.
 /// </summary>
-public sealed class HyperBeamFxColours
+public sealed partial class HyperBeamFxColours
 {
     /// <summary>Each cycle frame's beam colours, in cycle order.</summary>
     private readonly ImmutableArray<ImmutableArray<RgbColor>> frames;

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Audio;
 /// closed value (#2560), so no identity names sounds of two libraries. The default identity holds no sound of any library,
 /// and asking it for its library fails (#1897).
 /// </remarks>
-public readonly record struct SoundEffectId
+public readonly partial record struct SoundEffectId
 {
     /// <summary>The library's sound; null only in the default identity, which holds none.</summary>
     private readonly LibrarySound? sound;
@@ -60,7 +60,7 @@ public readonly record struct SoundEffectId
     public override string ToString() => Key;
 
     /// <summary>A sound or stop of one library (#2560): a closed choice with one case per library's sounds and per its stops.</summary>
-    private abstract record LibrarySound
+    private abstract partial record LibrarySound
     {
         /// <summary>The library whose queue plays the sound.</summary>
         internal abstract SoundEffectLibrary Library { get; }
@@ -71,7 +71,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A sound of Samus's library.</summary>
     /// <param name="Sound">The sound.</param>
-    private sealed record SamusLibrarySound(SamusSound Sound) : LibrarySound
+    private sealed partial record SamusLibrarySound(SamusSound Sound) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
@@ -82,7 +82,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A sound of the enemies' library.</summary>
     /// <param name="Sound">The sound.</param>
-    private sealed record EnemyLibrarySound(EnemySound Sound) : LibrarySound
+    private sealed partial record EnemyLibrarySound(EnemySound Sound) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
@@ -93,7 +93,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A sound of the room's library.</summary>
     /// <param name="Sound">The sound.</param>
-    private sealed record RoomLibrarySound(RoomSound Sound) : LibrarySound
+    private sealed partial record RoomLibrarySound(RoomSound Sound) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Room;
@@ -104,7 +104,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A stop of Samus's library.</summary>
     /// <param name="Stop">The stop.</param>
-    private sealed record SamusLibraryStop(SamusSoundStop Stop) : LibrarySound
+    private sealed partial record SamusLibraryStop(SamusSoundStop Stop) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
@@ -115,7 +115,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A stop of the enemies' library.</summary>
     /// <param name="Stop">The stop.</param>
-    private sealed record EnemyLibraryStop(EnemySoundStop Stop) : LibrarySound
+    private sealed partial record EnemyLibraryStop(EnemySoundStop Stop) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
@@ -126,7 +126,7 @@ public readonly record struct SoundEffectId
 
     /// <summary>A stop of the room's library.</summary>
     /// <param name="Stop">The stop.</param>
-    private sealed record RoomLibraryStop(RoomSoundStop Stop) : LibrarySound
+    private sealed partial record RoomLibraryStop(RoomSoundStop Stop) : LibrarySound
     {
         /// <inheritdoc/>
         internal override SoundEffectLibrary Library => SoundEffectLibrary.Room;

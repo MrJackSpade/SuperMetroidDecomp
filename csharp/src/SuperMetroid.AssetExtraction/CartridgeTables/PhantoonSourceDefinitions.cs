@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the cartridge, decoded once into the installed Phantoon colour document.
 /// </summary>
 [EncodingOwner("cartridge addresses of Phantoon's colour tables")]
-internal static class PhantoonSourceDefinitions
+internal static partial class PhantoonSourceDefinitions
 {
     /// <summary>$A7:CB41, the eight consecutive sixteen-colour health palettes $A7:DC0F selects from.</summary>
     internal const int HealthBandColors = 0xa7cb41;

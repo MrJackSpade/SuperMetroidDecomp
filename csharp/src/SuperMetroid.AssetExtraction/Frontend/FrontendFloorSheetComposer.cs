@@ -24,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// character transfers leave for that shot, pictured under the palette of the screen that shows it; the screens select
 /// the pictures by scene state.
 /// </summary>
-internal static class FrontendFloorSheetComposer
+internal static partial class FrontendFloorSheetComposer
 {
     /// <summary>
     /// Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read, shown whole where
@@ -70,7 +70,7 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">
     /// The installed map or characters are shorter than the title loads, or the map shows no cell of the Baby.
     /// </exception>
-    private static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
+    internal static ComposedSpriteSheet Title(TitleGraphicsCharacters graphics, TitlePalettePresentation palette)
     {
         TitleGraphicsCharacters title = Ensure.NotNull(graphics);
         if (title.FloorMap.Length < TitleFloorTileDefinitions.FloorMapByteCount)
@@ -139,7 +139,7 @@ internal static class FrontendFloorSheetComposer
     /// <param name="Top">The topmost cell's row.</param>
     /// <param name="Columns">The rectangle's width in cells.</param>
     /// <param name="Rows">The rectangle's height in cells.</param>
-    private readonly record struct BabyCellRectangle(int Left, int Top, int Columns, int Rows);
+    private readonly partial record struct BabyCellRectangle(int Left, int Top, int Columns, int Rows);
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot, under the flight's palette: each shot's views over the start of a floor of
@@ -148,7 +148,7 @@ internal static class FrontendFloorSheetComposer
     /// <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    private static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
+    internal static ComposedSpriteSheet Ceres(ImportIntroCinematicArtwork intro, IPaletteFxColorSource paletteFx) =>
         Ceres(Ensure.NotNull(intro).FlightCharacters, intro.CeresDestructionMaps,
             intro.FlightPalette, paletteFx);
 
@@ -158,7 +158,7 @@ internal static class FrontendFloorSheetComposer
     /// from <paramref name="paletteFx"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    private static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
+    internal static ComposedSpriteSheet Ceres(CeresFlightCharacters flight, CeresDestructionMaps destruction, CeresFlightPalette colours,
         IPaletteFxColorSource paletteFx)
     {
         Ensure.NotNull(flight);

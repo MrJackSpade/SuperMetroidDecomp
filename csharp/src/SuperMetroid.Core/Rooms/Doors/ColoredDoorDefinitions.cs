@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// taken (#1907). Every cap plays the same shape; the yellow downward cap waits on its closed image longer, the yellow left
 /// cap opens fast and lingers open, and the red cap sounds each hit.
 /// </summary>
-internal static class ColoredDoorDefinitions
+internal static partial class ColoredDoorDefinitions
 {
     /// <summary>
     /// Each colour's rules: a yellow cap counts a Power Bomb's hit and opens on it, a green cap counts a Super Missile's and

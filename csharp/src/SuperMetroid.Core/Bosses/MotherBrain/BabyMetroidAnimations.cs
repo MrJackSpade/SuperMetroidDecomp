@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid's typed animations (#641, #1600), its pulses the Baby Metroid's (<see cref="BabyMetroidPulses"/>).</summary>
-internal static class BabyMetroidAnimations
+internal static partial class BabyMetroidAnimations
 {
     /// <summary>How long each pose of the remorse's calm pulse shows.</summary>
     private const int RemorseCalmPose = 10;

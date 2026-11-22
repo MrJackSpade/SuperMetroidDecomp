@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// A Magdollite's tracking overlay's state, the hand that rides the arm's cap and throws the lava: what it is doing, its
 /// throw and the cooldown before the head attacks again.
 /// </summary>
-public sealed class MagdolliteOverlayState : MagdollitePartState
+public sealed partial class MagdolliteOverlayState : MagdollitePartState
 {
     /// <summary>Creates the overlay's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteOverlayState(MagdolliteOverlayAction action)

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="RepeatsForever">The program ends in a forever repeat and never ends by itself.</param>
 /// <param name="Instruments">Every distinct instrument byte its note packets select.</param>
-internal sealed record SoundEffectProgramScan(bool RepeatsForever, IReadOnlyList<byte> Instruments)
+internal sealed partial record SoundEffectProgramScan(bool RepeatsForever, IReadOnlyList<byte> Instruments)
 {
     /// <summary>Scans <paramref name="program"/>'s instructions.</summary>
     internal static SoundEffectProgramScan Scan(AudioSoundProgramMetadata program)

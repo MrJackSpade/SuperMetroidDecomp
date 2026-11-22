@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The byte the sound driver's music port holds for each control (#2556): the one place the port's control bytes are known.</summary>
 [EncodingOwner("sound driver music port control bytes")]
-internal static class MusicPortCommands
+internal static partial class MusicPortCommands
 {
     /// <summary>The port byte of each control.</summary>
     private static readonly Dictionary<int, MusicPortCommand> commands = new()

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// The colour effects' colour groups that recolour an enemy's own colours (#1512): the enemy lays the shade of each frame its
 /// group shows over its draws through its colour state, in the order the frames and its own colour changes came.
 /// </summary>
-internal static class ColourEffectEnemyColourDefinitions
+internal static partial class ColourEffectEnemyColourDefinitions
 {
     /// <summary>
     /// The groups one enemy shows, each on the enemy its effect's start hands it (#2288): the Torizos' glowing belly, the

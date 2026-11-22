@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Imports gameplay-HUD artwork references and positions while excluding counter mechanics.</summary>
-public static class GameplayHudPresentationExtractor
+public static partial class GameplayHudPresentationExtractor
 {
     /// <summary>Imports HUD tilemap templates, item icons, digit cells, energy-tank artwork, and automatic-reserve indicators.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying native HUD BG-cell tables.</param>

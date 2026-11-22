@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// with its room maps, the options screens and the game-over screen, which share one) and each Zebes area's world map's. The import reads them from each screen's colours; the screens' pictures carry the
 /// rest of their colours as shades the import pre-colours.
 /// </summary>
-public sealed class MenuBackdrops
+public sealed partial class MenuBackdrops
 {
     /// <summary>Each Zebes area's world-map backdrop, keyed by area identity.</summary>
     private readonly Dictionary<AreaId, RgbColor> world;

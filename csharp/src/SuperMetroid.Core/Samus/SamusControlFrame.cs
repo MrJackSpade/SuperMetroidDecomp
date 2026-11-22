@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus;
 /// <see cref="SamusFramePhases"/>. Each value changes only through the sampling operation that names its point in
 /// the frame's input and movement phases.
 /// </summary>
-internal sealed class SamusControlFrame
+internal sealed partial class SamusControlFrame
 {
     /// <summary>Samus's camera point from the update before; her movement and the end of her update advance
     /// it.</summary>

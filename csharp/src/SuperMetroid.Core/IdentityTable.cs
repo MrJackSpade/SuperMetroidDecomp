@@ -9,7 +9,7 @@ namespace SuperMetroid.Core;
 /// </summary>
 /// <typeparam name="TIdentity">The identity whose members each have a value.</typeparam>
 /// <typeparam name="TValue">The value each member has.</typeparam>
-public sealed class IdentityTable<TIdentity, TValue> : IEnumerable<KeyValuePair<TIdentity, TValue>>
+public sealed partial class IdentityTable<TIdentity, TValue> : IEnumerable<KeyValuePair<TIdentity, TValue>>
     where TIdentity : struct, Enum
 {
     /// <summary>Each member's value.</summary>

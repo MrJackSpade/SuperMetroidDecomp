@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>The size of one area's map: 64 map tiles across and 32 down.</summary>
-public static class AreaMapSize
+public static partial class AreaMapSize
 {
     /// <summary>Map tiles across one area's map.</summary>
     public const int WidthInMapTiles = 64;

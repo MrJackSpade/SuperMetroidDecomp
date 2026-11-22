@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// first melt and three hops showing it, his second melt and a last sink, then his skeleton's return through the wall, his
 /// defeat and his corpse.
 /// </summary>
-internal static class CrocomireDeathStageDefinitions
+internal static partial class CrocomireDeathStageDefinitions
 {
     /// <summary>
     /// The stages in the order he goes through them, the fight first and his inert corpse last. The bridge gives way and he

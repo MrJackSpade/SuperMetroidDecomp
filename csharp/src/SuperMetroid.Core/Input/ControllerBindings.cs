@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Input;
 /// these configurable bindings before each comparison: it reads the buttons as actions once per accepted update, so no
 /// gameplay behaviour owns a binding table or names a button.
 /// </remarks>
-public readonly struct ControllerBindings : IEquatable<ControllerBindings>
+public readonly partial struct ControllerBindings : IEquatable<ControllerBindings>
 {
     /// <summary>Every configurable action, in the order the bindings are checked and listed (#2567).</summary>
     private static readonly ControllerAction[] Actions = [.. Ensure.EveryMemberOnce<ControllerAction>(
@@ -152,7 +152,7 @@ public readonly struct ControllerBindings : IEquatable<ControllerBindings>
     }
 
     /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
-    private bool IsUniquePermutation
+    internal bool IsUniquePermutation
     {
         get
         {

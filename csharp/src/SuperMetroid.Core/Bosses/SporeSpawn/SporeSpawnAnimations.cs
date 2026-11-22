@@ -7,7 +7,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodySegment;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Spore Spawn's typed body animations (#641), each beat naming the installed frame it shows (#1885).</summary>
-internal static class SporeSpawnAnimations
+internal static partial class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>
     private const int DescentWait = 256;
@@ -137,7 +137,7 @@ internal static class SporeSpawnAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    private static Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
+    internal static Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>> StartingAt { get; } = new Dictionary<SporeSpawnBodySegment, Animation<SporeSpawnBodySegment>>
     {
         [P.Husk] = new([Segments.Whole(P.Husk)], AnimationEnd.Holds),
         [P.AwaitingDescent] = new([Segments.Whole(P.AwaitingDescent)], AnimationEnd.Holds),

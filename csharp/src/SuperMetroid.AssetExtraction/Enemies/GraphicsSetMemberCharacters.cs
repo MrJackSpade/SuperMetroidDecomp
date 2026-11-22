@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="TileIndexBase">The sheet character the member's graphics start at, advancing by each earlier member's characters.</param>
 /// <param name="StagingOffset">Byte offset into the enemy tile area, following the previous member or at the member's fixed block.</param>
 /// <param name="TileByteCount">The bytes of the member's tile set.</param>
-internal readonly record struct GraphicsSetMemberCharacters(
+internal readonly partial record struct GraphicsSetMemberCharacters(
     RoomEnemyGraphicsSetMember Member,
     int TileIndexBase,
     int StagingOffset,

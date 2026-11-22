@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The new game's narrated introduction, which sets up the new game once its last fade has gone black.</summary>
 /// <param name="session">The frontend session the introduction runs against.</param>
-internal sealed class IntroCinematicGamePhase(FrontendSession session) : IGamePhase
+internal sealed partial class IntroCinematicGamePhase(FrontendSession session) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.IntroCinematic;

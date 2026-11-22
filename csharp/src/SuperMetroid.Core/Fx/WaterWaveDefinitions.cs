@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How a water surface's waves and drift move (#1415).</summary>
-public static class WaterWaveDefinitions
+public static partial class WaterWaveDefinitions
 {
     /// <summary>Frames between the effect-overlay wave's steps.</summary>
     public const int OverlayWavePhaseDuration = 10;

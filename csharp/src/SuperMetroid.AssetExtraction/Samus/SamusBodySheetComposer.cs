@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// it inks (<see cref="SamusBodyColouringDefinitions"/>); the other suits, like palette effects, draw through the sheet's
 /// shades.
 /// </summary>
-internal static class SamusBodySheetComposer
+internal static partial class SamusBodySheetComposer
 {
     /// <summary>
     /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
@@ -197,12 +197,12 @@ internal static class SamusBodySheetComposer
     /// <summary>One pose and picture frame the sheet names, and the picture it shows, or none for one that shows nothing.</summary>
     /// <param name="Name">The body's name on the sheet.</param>
     /// <param name="Picture">The picture the body shows, or null when it has no composition and no chest cover.</param>
-    private sealed record SheetBody(string Name, SheetPicture? Picture);
+    private sealed partial record SheetBody(string Name, SheetPicture? Picture);
 
     /// <summary>One distinct whole picture the sheet holds, and the colouring the poses showing it are always drawn in.</summary>
     /// <param name="key">What the picture is composed of.</param>
     /// <param name="frame">The picture as one whole frame.</param>
-    private sealed class SheetPicture(SamusBodyPictureKey key, SpriteFrame frame)
+    private sealed partial class SheetPicture(SamusBodyPictureKey key, SpriteFrame frame)
     {
         /// <summary>What the picture is composed of.</summary>
         internal SamusBodyPictureKey Key { get; } = key;

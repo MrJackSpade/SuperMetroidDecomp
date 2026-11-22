@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// File-copy arrow compositions $82:CDCD/CE15/CE5D/CECD, which the file-select sheet pictures: each upward arrow is its
 /// downward arrow mirrored top to bottom.
 /// </summary>
-internal static class FileCopyArrowPartDefinitions
+internal static partial class FileCopyArrowPartDefinitions
 {
     /// <summary>The short downward arrow's native sprite order, interleaving shaft and arrowhead tiles.</summary>
     private static readonly CompiledSpritePart[] ShortDown =

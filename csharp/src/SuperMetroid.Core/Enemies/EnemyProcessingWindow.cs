@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// interactive enemies, each in <see cref="EnemyPlaceOrder"/>.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyProcessingWindow
+internal sealed partial class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>
     private readonly EnemyFrameContext _frameContext;

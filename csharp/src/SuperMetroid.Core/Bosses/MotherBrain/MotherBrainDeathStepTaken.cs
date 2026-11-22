@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// room-level effects the step asked for (<see cref="MotherBrainStepEffect"/>).
 /// </summary>
 /// <param name="Step">What the step asked of the room.</param>
-public sealed record MotherBrainDeathStepTaken(MotherBrainRainbowBeamAttackStepResult Step) : EnemyPassEvent;
+public sealed partial record MotherBrainDeathStepTaken(MotherBrainRainbowBeamAttackStepResult Step) : EnemyPassEvent;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// occupant, so nothing of a bomb stands for an empty place: a bomb that ends takes all it holds with it.
 /// </summary>
 [ArchitectureReview("back-reference", "The bomb holding a place and the place it holds (#2558): the place's taking creates the occupant, and the place's queries read the occupant, so the two share the bomb's lifetime.")]
-public sealed class SamusBombOccupant
+public sealed partial class SamusBombOccupant
 {
     /// <summary>The bomb of <paramref name="kind"/> dealing <paramref name="damage"/> taking <paramref name="bomb"/>'s place.</summary>
     /// <param name="bomb">The place the bomb holds, with its position, fuse and animation.</param>

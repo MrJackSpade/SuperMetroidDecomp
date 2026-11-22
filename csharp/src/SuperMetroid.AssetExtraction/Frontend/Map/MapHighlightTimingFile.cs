@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// Each frame's highlight colour, which the import pre-colours the map sprite sheet's highlight shades from, is import data
 /// (<see cref="MapPaletteCycleFile"/>).
 /// </summary>
-public static class MapHighlightTimingFile
+public static partial class MapHighlightTimingFile
 {
     /// <summary>JSON filename of the installed cycle, which pause and file-select map highlight animation step through.</summary>
     public const string FileName = "map-highlight-cycle.json";
@@ -29,7 +29,7 @@ public static class MapHighlightTimingFile
         {
             Version = Version,
             DurationTicks = [.. Enumerable.Range(0, cycle.Timing.FrameCount).Select(frame => cycle.Timing.Duration(MapHighlightFrame.At(frame)))],
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapHighlightTimingDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed cycle: the frame count and each frame's hold the game steps the highlight through.</summary>

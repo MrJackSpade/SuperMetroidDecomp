@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// Powamp's body pulses and balloon inflate and sink animations (#641), one family each (#2553): the body's frames show
 /// a <see cref="EnemyFrameId"/>, the balloon's a <see cref="PowampBalloonPose"/>, and no beat raises a cue for its owner.
 /// </summary>
-internal static class PowampAnimations
+internal static partial class PowampAnimations
 {
     /// <summary>The body's segments' beats.</summary>
     internal static AnimationSegments<B, EnemyFrameId, NoAnimationCue> BodySegments { get; } = new(

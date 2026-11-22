@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The collision the game defines for all three ordinary Pirate families. Editable component offsets in the installed visual
 /// asset cannot move these rectangles or replace their touch/shot reactions.
 /// </summary>
-internal static class SpacePirateHitboxes
+internal static partial class SpacePirateHitboxes
 {
     /// <summary>
     /// The Pirates' frames' hitboxes, checked once (#2553) to name only the touches and shots the Pirates answer: the

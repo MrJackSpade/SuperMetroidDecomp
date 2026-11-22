@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The definition data of Mother Brain's hand beam: the arena a fired beam explodes on leaving.</summary>
-internal static class MotherBrainHandBeamDefinitions
+internal static partial class MotherBrainHandBeamDefinitions
 {
     /// <summary>The speed the hand's beam flies at toward Samus: twelve pixels an update.</summary>
     internal static readonly SignedEightEight Speed = SignedEightEight.FromPixels(12);

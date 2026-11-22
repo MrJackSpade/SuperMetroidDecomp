@@ -9,3 +9,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.AssetExtraction")]
 [assembly: InternalsVisibleTo("SuperMetroid.ResourceAudit")]
 [assembly: InternalsVisibleTo("SuperMetroid.Tooling")]
+
+[assembly: SuperMetroid.Core.StateGraphAssembly(Catalogs = true)]

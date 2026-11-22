@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// The shades the import pre-colours Draygon's sheets in (#1512): his opening's look, his body's colours and their
 /// white hurt flash on his body and his sprites, and his health bands.
 /// </summary>
-public static class DraygonShades
+public static partial class DraygonShades
 {
     /// <summary>The look his goop and his room's sprites show during his opening.</summary>
     public static PictureShade Intro { get; } = new("draygon-intro", 0);

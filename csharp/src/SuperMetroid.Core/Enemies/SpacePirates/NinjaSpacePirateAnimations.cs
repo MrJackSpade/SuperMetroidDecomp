@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// The ninja Space Pirates' stance, kick, claw, spin-jump and divekick animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="NinjaSpacePirateCue"/> with the values it acts on.
 /// </summary>
-internal static class NinjaSpacePirateAnimations
+internal static partial class NinjaSpacePirateAnimations
 {
     /// <summary>The updates each of the ninja's ready poses shows for.</summary>
     private const int ReadyPoseUpdates = 10;
@@ -53,14 +53,14 @@ internal static class NinjaSpacePirateAnimations
     /// The animation that starts at each segment an owner can start or restart at, each segment played whole; a loop plays on
     /// from the entry before it (#2276). Each facing starts alike.
     /// </summary>
-    private static Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } =
+    internal static Dictionary<NinjaSpacePirateSegment, Animation<NinjaSpacePirateSegment>> StartingAt { get; } =
         FacedStarts(LeftSegments).Concat(FacedStarts(RightSegments)).ToDictionary();
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NinjaSpacePirateSegment> StartingWith(NinjaSpacePirateSegment segment) => StartingAt[segment];
 
     /// <summary>The segments a ninja plays facing one way.</summary>
-    private sealed record FacedSegments(
+    private sealed partial record FacedSegments(
         P ClawAttack, P SpinJump, P SpinJumpSpinning, P Active, P ActiveStance, P Flinch, P DivekickJump, P DivekickJumpFlash,
         P DivekickDive, P WalkToPost, P RunningToPost, P AwaitingSamus, P LookingAround, P Land, P LandReady, P Kick);
 

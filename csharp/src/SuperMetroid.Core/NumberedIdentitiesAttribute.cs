@@ -7,7 +7,7 @@ namespace SuperMetroid.Core;
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface | AttributeTargets.Field |
     AttributeTargets.Property, Inherited = false)]
-public sealed class NumberedIdentitiesAttribute : Attribute
+public sealed partial class NumberedIdentitiesAttribute : Attribute
 {
     /// <summary>Marks numbered identities; SME6415, SME6416 and SME6417 read the reason from the attribute argument.</summary>
     /// <param name="reason">What makes each numbered member a distinct identity.</param>

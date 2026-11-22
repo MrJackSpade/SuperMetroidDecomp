@@ -31,7 +31,7 @@ internal sealed partial class WindowsGamepadInput
     public string? DeviceName { get; private set; }
 
     /// <summary>Most recent normalized state, exposed for debugger/CLI device diagnostics.</summary>
-    private GenericGamepadSnapshot LastSnapshot { get; set; }
+    internal GenericGamepadSnapshot LastSnapshot { get; set; }
 
     /// <summary>
     /// Polls the active controller and returns the game controller buttons it holds. A disconnected controller
@@ -67,7 +67,7 @@ internal sealed partial class WindowsGamepadInput
     /// would hold the adapter on a device that never reports input while a usable joystick
     /// sits in a later slot.
     /// </summary>
-    private static bool CanProduceInput(JoystickCapabilities capabilities) =>
+    internal static bool CanProduceInput(JoystickCapabilities capabilities) =>
         capabilities.ButtonCount > 0 || capabilities.AxisCount > 0;
 
     /// <summary>Selects the first WinMM joystick with readable capabilities and position that can produce input.</summary>
@@ -146,7 +146,7 @@ internal sealed partial class WindowsGamepadInput
             capabilities.ProductId);
 
     /// <summary>Normalizes present axes and ignores a zero-filled POV field when no hat is advertised.</summary>
-    private static GenericGamepadSnapshot CreateSnapshot(
+    internal static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
         JoystickCapabilities capabilities)
     {

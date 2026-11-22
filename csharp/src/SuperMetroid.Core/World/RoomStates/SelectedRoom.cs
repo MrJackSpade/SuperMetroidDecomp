@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours
 /// of the door, item and block pictures every room shares while the source room fades.
 /// </remarks>
-public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
+public sealed partial record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
 {
     /// <summary>The room's validated world area.</summary>
     public AreaId Area => Definition.Area;

@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Input;
 /// Where a demo's playback stands (#1600, #2553): the recording, the input it plays next, and the action it runs as its
 /// inputs run out (a signalling recording's owner's, or none).
 /// </summary>
-public readonly record struct DemoPlaybackPosition
+public readonly partial record struct DemoPlaybackPosition
 {
     /// <summary>A value of its parts; only its own operations make one.</summary>
     /// <param name="recording">The recording playing.</param>
     /// <param name="nextInput">The input it plays when the current one runs out; past the last, the recording ends.</param>
     /// <param name="ends">The action the recording runs as its inputs run out, before it ends as it says.</param>
-    private DemoPlaybackPosition(DemoRecording recording, int nextInput, Action ends)
+    internal DemoPlaybackPosition(DemoRecording recording, int nextInput, Action ends)
     {
         Recording = recording;
         NextInput = nextInput;

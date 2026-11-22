@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// <summary>
 /// Mother Brain's body frames (#2210): her walking, posture, initial and hand-beam frames. Their hitboxes are not artwork.
 /// </summary>
-internal static class MotherBrainBodyVisualDefinitions
+internal static partial class MotherBrainBodyVisualDefinitions
 {
     /// <summary>
     /// Every body frame her animations show (#2210), each showing a picture of her body beside her limbs (#1466, #1949)

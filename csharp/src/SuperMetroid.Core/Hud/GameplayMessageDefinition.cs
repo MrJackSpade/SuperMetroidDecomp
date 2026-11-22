@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hud;
 /// </param>
 /// <param name="Confirmation">What the message asks the player to confirm.</param>
 /// <param name="PanelBinding">The binding whose button the message's panel names, or none for a panel that names no button.</param>
-public sealed record GameplayMessageDefinition(
+public sealed partial record GameplayMessageDefinition(
     int? MinimumDisplayFrames,
     GameplayMessageConfirmation Confirmation,
     GameplayMessagePanelButtonBinding? PanelBinding);

@@ -19,7 +19,7 @@ internal static class EnemyDefinitionFramesFile
             "/// </summary>",
             "[ArchitectureReview(\"large\", \"Generated data: the two thousand frames the enemy definitions show; it holds no logic, "
                 + "and splitting it by family would only scatter one table the sheet composer reads as a whole.\")]",
-            "internal static class EnemyDefinitionFrameDefinitions",
+            "internal static partial class EnemyDefinitionFrameDefinitions",
             "{",
         ]);
         var arrayOf = new Dictionary<string, string>(StringComparer.Ordinal);

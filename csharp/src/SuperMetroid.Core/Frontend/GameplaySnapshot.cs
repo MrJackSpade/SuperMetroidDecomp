@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// A copy of where the game is and what Samus is doing at one moment, read without running the game. A host takes one
 /// before an update and another when the update fails, to report what the update started from and how far it got.
 /// </summary>
-public sealed class GameplaySnapshot
+public sealed partial class GameplaySnapshot
 {
     /// <summary>The number of the last update the game ran.</summary>
     public required int FrameNumber { get; init; }

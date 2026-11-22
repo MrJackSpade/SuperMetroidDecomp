@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// effect's frames in one colour group is a step of one shade effect, a colour animation named for the group and the
 /// effect (#1712, #1982).
 /// </summary>
-public static class ColourEffectShades
+public static partial class ColourEffectShades
 {
     /// <summary>
     /// Each colour group's name in its colour animations' installed names (#2511), written out so renaming a group's

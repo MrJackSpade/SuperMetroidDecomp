@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The collision runs the door caps' and eye doors' draws share, each stated once (#2557): a cap's blocks from its first
 /// block down its column or along its row, and an eye's two blocks down its column.
 /// </summary>
-internal static class DoorCapCollisionDefinitions
+internal static partial class DoorCapCollisionDefinitions
 {
     /// <summary>A cap whose four blocks are all solid.</summary>
     internal static IReadOnlyList<RoomCollisionType> SolidCap { get; } = Repeated(RoomCollisionType.SolidBlock, 4);

@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>One suit's heat-pulse records and the colours each writes.</summary>
 /// <remarks>Each suit shows one record for each heat shimmer phase.</remarks>
-public sealed class PaletteFxHeatProgramDefinition
+public sealed partial class PaletteFxHeatProgramDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>
     internal PaletteFxHeatProgramDefinition()

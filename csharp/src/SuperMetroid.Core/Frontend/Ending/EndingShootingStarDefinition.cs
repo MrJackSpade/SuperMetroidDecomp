@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// flight and so never doubling its acceleration (#1983).
 /// </param>
 /// <param name="Delay">Initial invisible delay; zero starts immediately.</param>
-internal readonly record struct EndingShootingStarDefinition(
+internal readonly partial record struct EndingShootingStarDefinition(
     PixelVelocity<ScreenPixels> Acceleration, EndingShootingStarPace Pace, int Delay)
 {
     /// <summary>A star whose picture animates, each frame lasting <paramref name="period"/> updates.</summary>

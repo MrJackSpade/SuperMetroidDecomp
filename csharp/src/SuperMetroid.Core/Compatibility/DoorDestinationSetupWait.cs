@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// The transition holds the wait as an <see cref="UpdateCountdown"/> of <see cref="Updates"/>.
 /// </remarks>
 [CompatibilityService("a door transition spends two updates between aligning its camera and moving Samus to the scroll's start, each a whole update of the transition with its own random draw")]
-public static class DoorDestinationSetupWait
+public static partial class DoorDestinationSetupWait
 {
     /// <summary>The updates the wait lasts.</summary>
     public const int Updates = 2;

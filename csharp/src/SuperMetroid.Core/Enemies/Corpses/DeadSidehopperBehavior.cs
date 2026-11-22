@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead sidehopper species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CorpseSidehopper], Create);
@@ -64,6 +64,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>What <see cref="InitializeDeadSidehopper"/> does for each <see cref="DeadSidehopperLayout"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DeadSidehopperLayout, Action<RoomEnemyPlace>> InitializeDeadSidehopperForDeadSidehopperLayout => field ??= new(new Dictionary<DeadSidehopperLayout, Action<RoomEnemyPlace>>
     {
         [DeadSidehopperLayout.BabyMetroidVictim] = place => InitializeBabyMetroidVictimSidehopper(place),
@@ -126,6 +127,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RunDeadSidehopperState(place, place.RequireSpeciesState<DeadSidehopperEnemyState>(), samus, level, camera);
 
     /// <summary>What <see cref="RunDeadSidehopperState"/> does for each <see cref="DeadSidehopperAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunDeadSidehopperStateForDeadSidehopperAction => field ??= new(new Dictionary<DeadSidehopperAction, Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
     {
         [DeadSidehopperAction.AliveWaitForCamera] = (place, state, samus, level, camera) =>
@@ -177,7 +179,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     });
 
     /// <summary>Advances the authored hop, post-landing delay, drain, or collision-triggered decay state.</summary>
-    private void RunDeadSidehopperState(
+    internal void RunDeadSidehopperState(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state,
         SamusState samus,
@@ -374,7 +376,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         _rowDust.Spawn(place, _room.Random.Read(), _projectiles, _frameContext.EnemyPassCount);
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both animation clocks before its first step runs.</summary>
-    private static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
+    internal static void SetDeadSidehopperAnimation(RoomEnemyPlace place, DeadSidehopperEnemyState state, DeadTourianSegment segment) =>
         state.Playback = StartDeadTourianAnimation(place, segment);
 
     /// <summary>Resets <paramref name="place"/>'s animation clocks and returns the playback of <paramref name="segment"/>'s animation from its start.</summary>
@@ -417,13 +419,18 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// starts rotting without taking damage or an impact.</remarks>
     internal static EnemyShotReaction DeadSidehopperShotReaction { get; } = new()
     {
-        BeforeSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-            ResolveDeadSidehopperShot(c.Enemy);
-            return true;
-        },
+        BeforeSuperMissileQuake = MarkShotWithoutDamage,
     };
+
+    /// <summary>Marks a shot's hit on the corpse, which ignores it until drained and then starts rotting.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the corpse takes no damage or impact.</returns>
+    private static bool MarkShotWithoutDamage(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        ResolveDeadSidehopperShot(c.Enemy);
+        return true;
+    }
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>

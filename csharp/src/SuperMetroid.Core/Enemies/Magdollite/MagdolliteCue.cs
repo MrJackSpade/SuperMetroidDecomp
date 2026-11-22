@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>One cue of the Magdollite's animations: what it does, with the values it acts on (#2071).</summary>
-internal abstract record MagdolliteCue
+internal abstract partial record MagdolliteCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private MagdolliteCue()
@@ -17,7 +17,7 @@ internal abstract record MagdolliteCue
 
     /// <summary>Records an enemy-library sound while the Magdollite is on screen.</summary>
     /// <param name="Sound">The sound the cue plays.</param>
-    internal sealed record PlaySoundIfOnScreen(SoundEffectId Sound) : MagdolliteCue
+    internal sealed partial record PlaySoundIfOnScreen(SoundEffectId Sound) : MagdolliteCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MagdolliteCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).PlaySoundIfOnScreen(this, context);
@@ -25,7 +25,7 @@ internal abstract record MagdolliteCue
 
     /// <summary>Moves the part.</summary>
     /// <param name="Offset">How far the part moves.</param>
-    internal sealed record Move(Offset16<RoomPixels> Offset) : MagdolliteCue
+    internal sealed partial record Move(Offset16<RoomPixels> Offset) : MagdolliteCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MagdolliteCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Move(this, context);
@@ -33,7 +33,7 @@ internal abstract record MagdolliteCue
 
     /// <summary>Moves the part and the one following it, the pillar it stands on.</summary>
     /// <param name="Offset">How far both parts move.</param>
-    internal sealed record MoveWithPillar(Offset16<RoomPixels> Offset) : MagdolliteCue
+    internal sealed partial record MoveWithPillar(Offset16<RoomPixels> Offset) : MagdolliteCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MagdolliteCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).MoveWithPillar(this, context);
@@ -41,7 +41,7 @@ internal abstract record MagdolliteCue
 
     /// <summary>Places the part at the throw origin shifted by the cue's offset.</summary>
     /// <param name="Offset">Where from the throw origin the part is placed.</param>
-    internal sealed record ShiftFromThrowOrigin(Offset16<RoomPixels> Offset) : MagdolliteCue
+    internal sealed partial record ShiftFromThrowOrigin(Offset16<RoomPixels> Offset) : MagdolliteCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MagdolliteCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ShiftFromThrowOrigin(this, context);
@@ -49,7 +49,7 @@ internal abstract record MagdolliteCue
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
-    internal sealed record Signal(MagdolliteCueKind Kind) : MagdolliteCue
+    internal sealed partial record Signal(MagdolliteCueKind Kind) : MagdolliteCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(MagdolliteCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
@@ -63,4 +63,4 @@ internal abstract record MagdolliteCue
 /// <param name="ShiftFromThrowOrigin">Reacts to a <see cref="MagdolliteCue.ShiftFromThrowOrigin"/>.</param>
 /// <param name="Signal">Reacts to a <see cref="MagdolliteCue.Signal"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record MagdolliteCueReactions<TContext>(Action<MagdolliteCue.PlaySoundIfOnScreen, TContext> PlaySoundIfOnScreen, Action<MagdolliteCue.Move, TContext> Move, Action<MagdolliteCue.MoveWithPillar, TContext> MoveWithPillar, Action<MagdolliteCue.ShiftFromThrowOrigin, TContext> ShiftFromThrowOrigin, Action<MagdolliteCue.Signal, TContext> Signal);
+internal sealed partial record MagdolliteCueReactions<TContext>(Action<MagdolliteCue.PlaySoundIfOnScreen, TContext> PlaySoundIfOnScreen, Action<MagdolliteCue.Move, TContext> Move, Action<MagdolliteCue.MoveWithPillar, TContext> MoveWithPillar, Action<MagdolliteCue.ShiftFromThrowOrigin, TContext> ShiftFromThrowOrigin, Action<MagdolliteCue.Signal, TContext> Signal);

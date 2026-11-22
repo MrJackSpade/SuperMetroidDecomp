@@ -6,14 +6,14 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// The records of Maridia's sand-pit, sand-fall and background-waterfall effects and the colours each writes, for the
 /// import.
 /// </summary>
-public static class MaridiaEnvironmentalPaletteFxColorDefinitions
+public static partial class MaridiaEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Four-color sand rotation group.</summary>
-    private const int SandRotationColors = 4;
+    internal const int SandRotationColors = 4;
     /// <summary>Pair of separately rotating sand-pit color bands.</summary>
-    private const int SandPitBandCount = 2;
+    internal const int SandPitBandCount = 2;
     /// <summary>Eight-color waterfall rotation group.</summary>
-    private const int WaterfallRotationColors = 8;
+    internal const int WaterfallRotationColors = 8;
 
     /// <summary>The sand pits' two separately rotating bands.</summary>
     internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaSandPits { get; } = new(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount);

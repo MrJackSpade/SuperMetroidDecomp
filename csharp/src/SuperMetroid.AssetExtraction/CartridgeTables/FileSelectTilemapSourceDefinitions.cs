@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// knowledge, decoded once into the installed file-select presentation.
 /// </summary>
 [EncodingOwner("bank-$81 addresses of the file-select tilemap text streams")]
-internal static class FileSelectTilemapSourceDefinitions
+internal static partial class FileSelectTilemapSourceDefinitions
 {
     /// <summary>SAMUS DATA heading at $81:B40A.</summary>
     internal const ushort SamusData = 0xb40a;

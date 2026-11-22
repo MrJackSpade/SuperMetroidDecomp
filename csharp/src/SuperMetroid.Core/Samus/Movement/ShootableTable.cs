@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// alike (#2553): each reaction sets off its own room object, the gate triggers, blue door caps,
 /// resident and item triggers and the escape animals' wall theirs, and every other reaction its shot block.
 /// </summary>
-internal static class ShootableTable
+internal static partial class ShootableTable
 {
     /// <summary>
     /// The reactions that set off a room object of their own, neither a gate trigger, a blue door cap nor a shot block: the

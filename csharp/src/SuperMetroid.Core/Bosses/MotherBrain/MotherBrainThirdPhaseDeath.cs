@@ -6,7 +6,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's final death and the escape it starts: explosions, the fades, the corpse, the escape text, timer and door.</summary>
-internal sealed class MotherBrainThirdPhaseDeath
+internal sealed partial class MotherBrainThirdPhaseDeath
 {
     /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
@@ -39,7 +39,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Emits the death-phase explosions at the timer cadence, consuming one global
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
-    private void GenerateDeathExplosions(
+    internal void GenerateDeathExplosions(
         MotherBrainDeathExplosionStyle style,
         Func<int> nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)

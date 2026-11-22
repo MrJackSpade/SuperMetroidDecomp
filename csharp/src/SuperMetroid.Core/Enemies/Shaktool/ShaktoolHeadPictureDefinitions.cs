@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The pictures Shaktool's head shows as its chain orients it (#2284).</summary>
-internal static class ShaktoolHeadPictureDefinitions
+internal static partial class ShaktoolHeadPictureDefinitions
 {
     /// <summary>The picture of the head aiming each of the eight directions, an eighth of a turn apart.</summary>
     internal static readonly IdentityTable<CompassDirection, EnemyFrameId> AimedPictures = new(new Dictionary<CompassDirection, EnemyFrameId>

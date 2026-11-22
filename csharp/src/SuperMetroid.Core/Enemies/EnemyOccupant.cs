@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the entity's own type, so the lifecycle runs the steps each occupant has without asking the entity what it is, and an
 /// enemy with none takes no part in setup or main AI.
 /// </summary>
-internal sealed class EnemyOccupant
+internal sealed partial class EnemyOccupant
 {
     /// <summary>An occupant held by <paramref name="entity"/> with the steps it runs.</summary>
     /// <param name="entity">The entity the place binds.</param>

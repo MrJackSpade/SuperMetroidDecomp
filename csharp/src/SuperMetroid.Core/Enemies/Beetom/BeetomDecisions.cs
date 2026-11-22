@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The random choice and chance a Beetom far from Samus reads to choose what it does next.</summary>
-internal static class BeetomDecisions
+internal static partial class BeetomDecisions
 {
     /// <summary>
     /// What a distant Beetom does next, chosen by eight rolls of its sample's lowest field (#2369, #2510): idles for two,

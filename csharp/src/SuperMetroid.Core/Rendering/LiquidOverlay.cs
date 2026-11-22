@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Artwork">The liquid's surface strip and body.</param>
 /// <param name="SurfaceLine">The screen line the liquid's surface lies on; negative above the screen.</param>
-public sealed record LiquidOverlay(LiquidArtwork Artwork, int SurfaceLine) : OverlayPicture
+public sealed partial record LiquidOverlay(LiquidArtwork Artwork, int SurfaceLine) : OverlayPicture
 {
     /// <summary>The liquid's surface strip and body.</summary>
     public LiquidArtwork Artwork { get; } = Ensure.NotNull(Artwork);

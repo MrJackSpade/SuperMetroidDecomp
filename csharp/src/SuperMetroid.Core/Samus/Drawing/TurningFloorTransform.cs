@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </remarks>
 /// <param name="Angle">How far the floor is turned clockwise on the screen, in radians; the sprites over it turn with it.</param>
 /// <param name="Center">The room point the shaft's turning floor turns about.</param>
-public readonly record struct TurningFloorTransform(double Angle, Position16<RoomPixels> Center)
+public readonly partial record struct TurningFloorTransform(double Angle, Position16<RoomPixels> Center)
 {
     /// <summary>The floor of a shaft that has not turned.</summary>
     /// <param name="center">The room point the shaft's turning floor turns about.</param>

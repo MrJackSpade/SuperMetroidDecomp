@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// list alone. Right-facing frames name lists fitted separately to their
 /// drawings, not mirrors of the left-facing ones; the jump-back frames of the two facings are drawn differently.
 /// </remarks>
-internal static class TorizoCollisionDefinitions
+internal static partial class TorizoCollisionDefinitions
 {
     /// <summary>The list of a frame without collision.</summary>
-    private static readonly TorizoHitboxList Empty = new([]);
+    internal static readonly TorizoHitboxList Empty = new([]);
 
     /// <summary>The seated right-facing body, narrower on the left than the left-facing one.</summary>
     private static readonly TorizoHitboxList SeatedBodyRight = new([new(-15, -27, 13, 27, TorizoReactions.Touch, TorizoReactions.StandUpSitDownShot)]);

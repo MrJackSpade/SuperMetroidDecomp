@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// the import reads them, to pre-colour her pictures, and the installation holds none of them. Her beam backdrop's colours,
 /// which the game works with, are installed by purpose (<see cref="MotherBrainBeamColourDocument"/>).
 /// </summary>
-public sealed record MotherBrainRainbowPaletteDocument
+public sealed partial record MotherBrainRainbowPaletteDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="MotherBrainRainbowPaletteFile.Version"/>.</summary>
     public required int Version { get; init; }

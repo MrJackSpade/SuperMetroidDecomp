@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The post-shot transition's timing, motion and sound.</summary>
-internal static class EndingPostShotDefinitions
+internal static partial class EndingPostShotDefinitions
 {
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
     public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasma;

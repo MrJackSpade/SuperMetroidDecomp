@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Selects a block reaction by the block's reaction or crumble block from <see cref="BlockReactionChangeDefinitions"/>.</summary>
-internal static class BlockReactionChanges
+internal static partial class BlockReactionChanges
 {
     /// <summary>The collision bomb block a bomb block's break sets off when Samus's contact breaks it.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a break.</exception>
@@ -38,7 +38,7 @@ internal static class BlockReactionChanges
 
     /// <summary>The change <paramref name="changes"/> gives <paramref name="reaction"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is none, or not among the selection.</exception>
-    private static BlockReactionChange From<TReaction>(IReadOnlyDictionary<TReaction, BlockReactionChange> changes, TReaction? reaction)
+    internal static BlockReactionChange From<TReaction>(IReadOnlyDictionary<TReaction, BlockReactionChange> changes, TReaction? reaction)
         where TReaction : struct, Enum =>
         reaction is { } read && changes.TryGetValue(read, out BlockReactionChange? change)
             ? change

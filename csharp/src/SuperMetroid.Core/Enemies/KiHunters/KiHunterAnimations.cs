@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="KiHunterCue"/> naming what it does.
 /// </summary>
-internal static class KiHunterAnimations
+internal static partial class KiHunterAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KiHunterSegment, EnemyFrameId, KiHunterCue> Segments { get; } = new(
@@ -38,7 +38,7 @@ internal static class KiHunterAnimations
     /// cue, which always restarts the flight for the body's direction (#2061). A hop, a landing and a spit end on their
     /// last pose held (#2439): the cue before it hands the body to its next behaviour, which shows its own picture.
     /// </summary>
-    private static Dictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
+    internal static Dictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
         [P.FlyingLeft] = new([Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),
         [P.SwoopLeft] = new([Segments.Whole(P.SwoopLeft), Segments.Whole(P.FlyingLeft)], AnimationEnd.Holds),

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>When a Yapping Maw may grab, how far its tongue curls and how long it holds after retracting (#2156).</summary>
-internal static class YappingMawAttackDefinitions
+internal static partial class YappingMawAttackDefinitions
 {
     /// <summary>How near Samus may be, in pixels and exclusive, for the Maw to hold off its attack and keep refreshing its grab cooldown.</summary>
     internal const int GrabSafetyDistance = 32;

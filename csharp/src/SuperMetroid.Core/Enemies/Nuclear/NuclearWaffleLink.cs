@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// effect.
 /// </summary>
 /// <typeparam name="TActor">The link's actor: an enemy projectile or an effect actor.</typeparam>
-public sealed class NuclearWaffleLink<TActor>
+public sealed partial class NuclearWaffleLink<TActor>
     where TActor : class
 {
     /// <summary>Links the waffle's body to <paramref name="actor"/>, before either turn.</summary>

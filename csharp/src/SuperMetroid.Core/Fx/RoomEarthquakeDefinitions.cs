@@ -4,7 +4,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How the room's earthquake shakes and how rising lava and acid rumble (#1415).</summary>
-public static class RoomEarthquakeDefinitions
+public static partial class RoomEarthquakeDefinitions
 {
     /// <summary>
     /// The sides a shaking room shows in turn, one each frame (#2421): two frames on the far side, then two on its shake's

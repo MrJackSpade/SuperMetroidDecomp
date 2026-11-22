@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Checked OAM compilation shared by the opening cinematic's editable actors.</summary>
-internal static class IntroCinematicSpriteCompiler
+internal static partial class IntroCinematicSpriteCompiler
 {
     /// <summary>Sixteen character columns in the opening cinematic's OBJ tile sheet.</summary>
     internal const int TileColumns = 16;

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Defines every named map-screen sprite composition.</summary>
-public sealed record MapSpriteDocument
+public sealed partial record MapSpriteDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

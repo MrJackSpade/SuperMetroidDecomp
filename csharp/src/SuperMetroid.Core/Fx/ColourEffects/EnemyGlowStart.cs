@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 /// <param name="Glow">The glow's colour effect.</param>
 /// <param name="Enemy">The enemy that started the glow and shows its frames.</param>
-public sealed record EnemyGlowStart(ColourEffectId Glow, IGlowingEnemy Enemy);
+public sealed partial record EnemyGlowStart(ColourEffectId Glow, IGlowingEnemy Enemy);

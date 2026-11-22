@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The S-DSP's global registers.</summary>
-internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
+internal readonly partial struct SnesDspGlobalControls(ManagedSnesDsp dsp)
 {
     /// <summary>MVOLL ($0C) / MVOLR ($1C): signed master volume.</summary>
     public void WriteMasterVolume(DspStereoSide side, int volume) => Write(

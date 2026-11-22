@@ -5,7 +5,7 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>What the extraction uploads into the SPC's memory: instruments, sound effects, music and raw blocks.</summary>
-internal sealed class SpcDefinitionUploads
+internal sealed partial class SpcDefinitionUploads
 {
     /// <summary>Owned 64-KiB APU RAM shared by the driver views and DSP sample decoder.</summary>
     private readonly SpcRam ram;
@@ -23,7 +23,7 @@ internal sealed class SpcDefinitionUploads
     }
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
-    private void WriteInstrument(int address, SpcInstrumentRecord record)
+    internal void WriteInstrument(int address, SpcInstrumentRecord record)
     {
         int pitchBase = checked((ushort)record.PitchBase);
         ram[address] = checked((byte)record.SourceOrNoiseRate);

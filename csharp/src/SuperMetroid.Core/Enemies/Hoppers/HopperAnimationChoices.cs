@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>Chooses a Sidehopper's or Dessgeega's animation for its kind, surface and movement phase.</summary>
-internal static class HopperAnimationChoices
+internal static partial class HopperAnimationChoices
 {
     /// <summary>
     /// Each kind's animation on each surface in each phase, read once from <see cref="HopperAnimationDefinitions.Animations"/>

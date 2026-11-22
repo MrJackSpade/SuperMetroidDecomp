@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The measures of Samus's collision body shared by every pose; each pose's own vertical radius is its definition's
 /// (<see cref="SamusPoseDefinitions"/>).
 /// </summary>
-internal static class SamusPoseCollisionDefinitions
+internal static partial class SamusPoseCollisionDefinitions
 {
     /// <summary>
     /// The smallest vertical radius of a body that is not a ball, in pixels: a body that cannot grow into a larger pose

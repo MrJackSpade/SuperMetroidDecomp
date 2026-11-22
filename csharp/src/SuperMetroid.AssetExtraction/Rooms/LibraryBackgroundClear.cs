@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="ByteCount">The bytes filled and transferred.</param>
 /// <param name="FillValue">The tilemap word the fill repeats.</param>
 /// <param name="VramDestination">Where in VRAM the transfer starts.</param>
-internal readonly record struct LibraryBackgroundClear(
+internal readonly partial record struct LibraryBackgroundClear(
     int WorkRamSourceAddress,
     int WorkRamDestination,
     int ByteCount,

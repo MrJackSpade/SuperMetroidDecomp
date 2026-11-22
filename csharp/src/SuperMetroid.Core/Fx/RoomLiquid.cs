@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Fx;
 /// statue's water, <see cref="RoomLavaOrAcid"/> for lava and acid. Every liquid's surface follows its <see cref="Tide"/>.
 /// </summary>
 /// <param name="Tide">How the surface rises and falls about its base line.</param>
-public abstract record RoomLiquid(LiquidTide Tide);
+public abstract partial record RoomLiquid(LiquidTide Tide);

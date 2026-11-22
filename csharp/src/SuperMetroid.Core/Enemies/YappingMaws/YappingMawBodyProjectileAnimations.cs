@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// The Yapping Maw's body-link animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class YappingMawBodyProjectileAnimations
+internal static partial class YappingMawBodyProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static UnpausedAnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

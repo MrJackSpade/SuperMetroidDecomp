@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
-internal static class IntroMotherBrainDefinitions
+internal static partial class IntroMotherBrainDefinitions
 {
     /// <summary>The intro Mother Brain's first animation.</summary>
     public static CinematicActorDefinition<IntroMotherBrainAnimation> MotherBrain =>

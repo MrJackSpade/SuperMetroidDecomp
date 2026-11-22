@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// which only full memory emulation could reproduce, and stay refused under #1500.
 /// </remarks>
 [CompatibilityService("A same-frame equipment toggle into the first reserve row sets part of the last spread bomb's whole vertical speed")]
-public static class ReserveRowToggleSpreadBombSpeed
+public static partial class ReserveRowToggleSpreadBombSpeed
 {
     /// <summary>The whole pixels below which the speed keeps its own part.</summary>
     private const int KeptBelow = 1024;

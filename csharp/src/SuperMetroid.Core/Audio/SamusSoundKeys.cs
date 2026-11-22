@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// The installed key of each <see cref="SamusSound"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusSoundKeys
+internal static partial class SamusSoundKeys
 {
     /// <summary>Each SamusSound member's installed key.</summary>
     internal static InstalledKeys<SamusSound> Installed { get; } = new(new Dictionary<SamusSound, string>

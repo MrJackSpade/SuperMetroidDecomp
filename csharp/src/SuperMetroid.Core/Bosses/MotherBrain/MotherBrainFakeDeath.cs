@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's false death: the fade to gray, the tubes collapsing and falling, the room rows and the fade back.</summary>
 [RoomLifetime]
-internal sealed class MotherBrainFakeDeath
+internal sealed partial class MotherBrainFakeDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -45,7 +45,7 @@ internal sealed class MotherBrainFakeDeath
     /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    private static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
+    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(MotherBrainTubePiece piece) =>
         MotherBrainFallingTubePopulationDefinitions.Bodies[piece];
 
     /// <summary>Steps Mother Brain's fake-death grey fade and moves on once the fade is over.</summary>
@@ -68,7 +68,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Stops her room's flash and shows its steady grey.</summary>
-    private static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
+    internal static void StopMotherBrainRoomFlash(MotherBrainEnemyState state)
     {
         state.RoomFlash = null;
         state.Colours.ShowRoomGrey();
@@ -137,10 +137,10 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>A tube the collapse drops (#2553): the fake death dropping it and Mother Brain's state.</summary>
     /// <param name="Owner">The fake death dropping the tube.</param>
     /// <param name="State">Mother Brain's state.</param>
-    private readonly record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
+    private readonly partial record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
-    private void SpawnMotherBrainTopTube(
+    internal void SpawnMotherBrainTopTube(
         RoomEnemyProjectileKind kind,
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
@@ -155,7 +155,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
-    private void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
+    internal void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
     {
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
@@ -183,6 +183,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>What <see cref="RunMotherBrainFallingTubeMain"/> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState>>
     {
         [MotherBrainTubeAction.NonMainTube] = (tube, tubeState) => FallMotherBrainSideTube(tube),

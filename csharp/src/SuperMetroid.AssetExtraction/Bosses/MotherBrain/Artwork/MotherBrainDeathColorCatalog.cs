@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Mother Brain's installed body, leg and corpse death fades, every frame kept as installed.</summary>
-public sealed class MotherBrainDeathColorCatalog
+public sealed partial class MotherBrainDeathColorCatalog
 {
     /// <summary>The installed body fade.</summary>
     private readonly InstalledColourRows bodyFade;

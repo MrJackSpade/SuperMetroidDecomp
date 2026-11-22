@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TEvent">The family's events.</typeparam>
-internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
+internal abstract partial class EnemyProjectileCueRunner<TSegment, TEvent>
     where TSegment : struct
     where TEvent : notnull
 {
@@ -37,7 +37,7 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
 
     /// <summary>Hands each event to a cue owner that runs on.</summary>
     /// <param name="owner">The family's cue owner.</param>
-    private sealed class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
+    private sealed partial class ByOwner(IEnemyProjectileCues<TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
         internal override IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(IUnpausedAnimationPlay<TSegment, TFrame, TEvent> segments,
@@ -51,7 +51,7 @@ internal abstract class EnemyProjectileCueRunner<TSegment, TEvent>
 
     /// <summary>Hands each event to a cue owner that may continue the play elsewhere.</summary>
     /// <param name="owner">The family's cue owner.</param>
-    private sealed class ByBranchingOwner(IEnemyProjectileBranchingCues<TSegment, TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
+    private sealed partial class ByBranchingOwner(IEnemyProjectileBranchingCues<TSegment, TEvent> owner) : EnemyProjectileCueRunner<TSegment, TEvent>
     {
         /// <inheritdoc/>
         internal override IUnpausedHidingAnimationShown<TSegment, TFrame> PlayToNextFrame<TFrame>(IUnpausedAnimationPlay<TSegment, TFrame, TEvent> segments,

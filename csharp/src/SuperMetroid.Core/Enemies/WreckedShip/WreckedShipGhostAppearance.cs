@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostAppearanceDef
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>A Wrecked Ship ghost appearance's spawn position.</summary>
-public static class WreckedShipGhostAppearance
+public static partial class WreckedShipGhostAppearance
 {
     /// <summary>Where the ghost appears around Samus when she has been moving as <paramref name="motion"/> says.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="motion"/> names no way of moving.</exception>

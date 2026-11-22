@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// coloured with the tileset's standard palette and, where a pixel names a sprite colour, the sprite half as a room load
 /// leaves it: the initial gameplay palette with the common sprite and enemy-projectile rows restored.
 /// </summary>
-internal static class RoomFloorSheetComposer
+internal static partial class RoomFloorSheetComposer
 {
     /// <summary>
     /// Composes <paramref name="tileset"/>'s floor sheet over the room as it has loaded, shown whole where a room of the
@@ -46,7 +46,7 @@ internal static class RoomFloorSheetComposer
     /// 16384 words holds a floor cell in its low byte and a tile pixel in its high byte.
     /// </summary>
     /// <exception cref="InvalidDataException">The memory holds less than the whole floor, no cell of it shows anything, or the floor's pictures overlap.</exception>
-    private static ComposedSpriteSheet ComposeFloor(ReadOnlySpan<byte> words, ReadOnlySpan<RgbColor> colours)
+    internal static ComposedSpriteSheet ComposeFloor(ReadOnlySpan<byte> words, ReadOnlySpan<RgbColor> colours)
     {
         if (words.Length < FloorSheetComposer.CellCount * sizeof(ushort))
             throw new InvalidDataException($"Floor memory holds {words.Length} bytes, less than the {FloorSheetComposer.CellCount * sizeof(ushort)} of a whole floor.");

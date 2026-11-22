@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// through each update's own context (#2159).
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyFrameContext
+internal sealed partial class EnemyFrameContext
 {
     /// <summary>Binds the enemy pass to the session that holds the count of enemy passes that outlives each room.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>

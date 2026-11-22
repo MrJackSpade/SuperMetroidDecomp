@@ -8,17 +8,17 @@ namespace SuperMetroid.Core.Hud;
 /// The gameplay message box's definitions (#1416, #1466, #2542): where its window shows, its waits, the window's opening
 /// steps and display durations, what each message asks the player to confirm, and which button its item panels name.
 /// </summary>
-public static class GameplayMessageBoxDefinitions
+public static partial class GameplayMessageBoxDefinitions
 {
     /// <summary>Where the message box shows on the screen.</summary>
-    public static class Layout
+    public static partial class Layout
     {
         /// <summary>The screen line the message's picture is centred on, and around which the message window expands.</summary>
         public const int WindowCenterY = 124;
     }
 
     /// <summary>Authored waits, window-animation steps, and minimum display durations.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>The wait the gunship's saving sound plays for.</summary>
         public const int GunshipSavingSoundFrames = 160;
@@ -73,7 +73,7 @@ public static class GameplayMessageBoxDefinitions
     public static GameplayMessageDefinition Message(GameplayMessageId messageId) => Messages[messageId];
 
     /// <summary>Which button an item panel names for its action.</summary>
-    public static class Buttons
+    public static partial class Buttons
     {
         /// <summary>The buttons a panel's glyph can show, in the order a binding is tested for them.</summary>
         public static ImmutableArray<ControllerButton> GlyphOrder { get; } =

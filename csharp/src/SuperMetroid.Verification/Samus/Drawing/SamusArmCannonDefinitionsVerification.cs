@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
@@ -57,8 +58,7 @@ internal static class SamusArmCannonDefinitionsVerification
         // the closed Beam selection starts no transition.
         var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SelectedHudItem = HudItem.Beam }.InPose(SamusPoseId.FacingRightNormalPose);
         holding.Artwork.ArmCannon = artwork;
-        SuperMetroid.Core.PrivateState.SetField(holding.ArmCannon, "stability",
-            SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
+        holding.ArmCannon.stability.PlaceAt(SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
         holding.ArmCannon.Update(holding);
         AssertEqual(2, holding.ArmCannon.StableSelectionUpdates, "a stable selection holds the count at two");
         AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, null), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),

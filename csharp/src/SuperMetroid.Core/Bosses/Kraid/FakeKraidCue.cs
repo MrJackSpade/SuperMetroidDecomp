@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One cue of Fake Kraid's animations: what it does, with the values it acts on.</summary>
-internal abstract record FakeKraidCue
+internal abstract partial record FakeKraidCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
     private FakeKraidCue()
@@ -17,28 +17,28 @@ internal abstract record FakeKraidCue
 
     /// <summary>Spits a pair of projectiles the cue's way (#2163).</summary>
     /// <param name="Direction">The way the spit flies.</param>
-    internal sealed record Spit(HorizontalDirection Direction) : FakeKraidCue
+    internal sealed partial record Spit(HorizontalDirection Direction) : FakeKraidCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(FakeKraidCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Spit(this, context);
     }
 
     /// <summary>Continues at the step or spit animation his wait between spits and his facing select.</summary>
-    internal sealed record ChooseAction : FakeKraidCue
+    internal sealed partial record ChooseAction : FakeKraidCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(FakeKraidCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ChooseAction(this, context);
     }
 
     /// <summary>Walks one step (<see cref="FakeKraidProjectileDefinitions.StepPixels"/>) unless the walk's last step turns him round, then faces Samus.</summary>
-    internal sealed record Move : FakeKraidCue
+    internal sealed partial record Move : FakeKraidCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(FakeKraidCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Move(this, context);
     }
 
     /// <summary>Queues Fake Kraid's cry while he is on screen.</summary>
-    internal sealed record PlayCrySound : FakeKraidCue
+    internal sealed partial record PlayCrySound : FakeKraidCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(FakeKraidCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).PlayCrySound(this, context);
@@ -52,4 +52,4 @@ internal abstract record FakeKraidCue
 /// <param name="Move">Makes a <see cref="FakeKraidCue.Move"/> into the result.</param>
 /// <param name="PlayCrySound">Makes a <see cref="FakeKraidCue.PlayCrySound"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed record FakeKraidCueCases<TContext, TResult>(Func<FakeKraidCue.Spit, TContext, TResult> Spit, Func<FakeKraidCue.ChooseAction, TContext, TResult> ChooseAction, Func<FakeKraidCue.Move, TContext, TResult> Move, Func<FakeKraidCue.PlayCrySound, TContext, TResult> PlayCrySound);
+internal sealed partial record FakeKraidCueCases<TContext, TResult>(Func<FakeKraidCue.Spit, TContext, TResult> Spit, Func<FakeKraidCue.ChooseAction, TContext, TResult> ChooseAction, Func<FakeKraidCue.Move, TContext, TResult> Move, Func<FakeKraidCue.PlayCrySound, TContext, TResult> PlayCrySound);

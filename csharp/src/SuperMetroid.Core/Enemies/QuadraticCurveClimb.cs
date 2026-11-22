@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Height">How high the climb rises, none or more: 16 to 64 pixels for the climbs the game plans.</param>
 /// <param name="StepPerPass">How far along the curve each pass of the search steps.</param>
-internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
+internal readonly partial record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
 {
     /// <summary>
     /// The most passes a search can make before its place leaves the curve: the finest step leaves it after this many.

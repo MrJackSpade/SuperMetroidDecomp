@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>
 /// The ending's floor zoom and angle thresholds, the gunship's motion and the credits' scroll (#1416).
 /// </summary>
-public static class EndingMotionDefinitions
+public static partial class EndingMotionDefinitions
 {
     /// <summary>The floor point, in floor pixels, the flyaway's perspective floor turns about.</summary>
     public static Offset16<FloorPixels> FloorCenter => new(56, 24);

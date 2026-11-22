@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 /// layout and colours in the import's documents. The game names a record only by the <see cref="ColourEffectFrame"/> that shows it.
 /// </summary>
 /// <param name="Record">The record's place in the cartridge's order.</param>
-public readonly record struct PaletteFxRecord(int Record)
+public readonly partial record struct PaletteFxRecord(int Record)
 {
     /// <summary>The frame of a colour effect's animation that shows the record.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No animation shows the record.</exception>

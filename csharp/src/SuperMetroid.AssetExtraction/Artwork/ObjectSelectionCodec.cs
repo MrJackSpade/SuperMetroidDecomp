@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Decodes OBSEL's object size selection into the sizes a screen's objects draw at (#1358).</summary>
-internal static class ObjectSelectionCodec
+internal static partial class ObjectSelectionCodec
 {
     /// <summary>The eight size pairs, by OBSEL bits 5-7.</summary>
     private static readonly ScreenObjectSizes[] SizePairs =

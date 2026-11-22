@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 /// sheets each record shows from them. Every record colour is kept as extracted. Timing, destinations, instructions, and
 /// side effects remain compiled engine mechanics.
 /// </summary>
-public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
+public sealed partial class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
     /// <summary>Every record colour the import read, by the record colour it is.</summary>
     internal readonly Dictionary<PaletteFxColorKey, RgbColor> colors;

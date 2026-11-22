@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// room; a level rooms share (the save, refill and map station rooms') is named for what it is.
 /// </summary>
 [NumberedIdentities("Each numbered level is a different room's, numbered as the room's own name is (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes them.")]
-public static class RoomLevelDefinitions
+public static partial class RoomLevelDefinitions
 {
     /// <summary>The level the Crateria state <see cref="CrateriaRoomStateDefinitions.LandingSiteDefault"/> uses first.</summary>
     public static RoomLevelId LandingSite { get; } = new("LandingSite");

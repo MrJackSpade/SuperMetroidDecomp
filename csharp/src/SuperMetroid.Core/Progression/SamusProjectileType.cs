@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// place in Samus's projectiles holds no projectile and so no type (#2558), and the grapple beam's touch is its own
 /// strike (<see cref="BlockStrike"/>).
 /// </summary>
-public readonly record struct SamusProjectileType
+public readonly partial record struct SamusProjectileType
 {
     /// <summary>Creates a projectile identity.</summary>
     private SamusProjectileType(SamusProjectileFamily family, SamusBeamCombination beams, bool charged, SamusBeamEcho? echo)

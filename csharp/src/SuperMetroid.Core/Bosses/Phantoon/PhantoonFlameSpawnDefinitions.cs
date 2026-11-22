@@ -2,7 +2,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Authored Phantoon flame starts and rain columns.</summary>
-public static class PhantoonFlameSpawnDefinitions
+public static partial class PhantoonFlameSpawnDefinitions
 {
     /// <summary>
     /// The chances of what a shot-down flame drops: mostly missiles or nothing, sometimes energy or a Super Missile, never

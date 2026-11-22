@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// activation distance and activated behaviour from its spawn settings where it uses them, and the straight legs they give
 /// it (<see cref="SbugLeg"/>) with them (#2450).
 /// </summary>
-public sealed class SbugEnemyState
+public sealed partial class SbugEnemyState
 {
     /// <summary>Creates the state of an Sbug starting in <paramref name="action"/>.</summary>
     internal SbugEnemyState(SbugAction action) => Action = action;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="fx">The room's effect.</param>
 /// <param name="samus">Samus as the room's objects reach her when one acts: every room that steps its objects has her (#2486).</param>
-internal sealed class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState> samus) : IRoomObjectFx
+internal sealed partial class RoomObjectFx(RoomFxOverlayState fx, Func<SamusState> samus) : IRoomObjectFx
 {
     /// <inheritdoc/>
     public FixedCoordinate? BaseY => fx.BaseY;

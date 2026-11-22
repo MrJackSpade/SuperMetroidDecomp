@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's posture transitions: crouching and standing, crouch jumps, morphing and unmorphing, and the morph ball's landings, bounces, spring-ball jumps and walk-offs.</summary>
-internal static class SamusPosturePoseTransitions
+internal static partial class SamusPosturePoseTransitions
 {
     /// <summary>Applies the crouch input transitions' direct same-facing exits (right-facing crouches to right-facing standing, or left-facing to left-facing) after larger-pose collision admits the standing body.</summary>
     /// <param name="samus">The Samus this reads.</param>

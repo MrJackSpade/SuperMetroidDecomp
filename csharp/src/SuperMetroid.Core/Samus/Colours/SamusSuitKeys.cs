@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The installed key of each <see cref="SamusSuit"/> (#2520, #2565), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusSuitKeys
+internal static partial class SamusSuitKeys
 {
     /// <summary>Each SamusSuit member's installed key.</summary>
     internal static InstalledKeys<SamusSuit> Installed { get; } = new(new Dictionary<SamusSuit, string>

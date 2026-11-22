@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <see cref="RoomObjectDrawSourceDefinitions"/>; families whose draws the cartridge lays out at a fixed stride compute it from the
 /// family's first draw.
 /// </summary>
-internal static class RoomObjectDrawAddressCodec
+internal static partial class RoomObjectDrawAddressCodec
 {
     /// <summary>Bytes between successive one-block draws (shot-block single frames, collectibles, Grapple blocks).</summary>
     private const int OneBlockStride = 6;

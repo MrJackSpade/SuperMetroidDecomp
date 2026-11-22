@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer, and the charged and combo launch paths.</summary>
 [RoomLifetime]
-internal sealed class BeamFiring
+internal sealed partial class BeamFiring
 {
     /// <summary>Tracks held Shoot duration, charge effects, the charge flare and Hyper Beam glow.</summary>
     private readonly BeamChargeState _charge;
@@ -194,7 +194,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
-    private BeamShot? TryFireBeam(
+    internal BeamShot? TryFireBeam(
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerNewInput,
@@ -296,7 +296,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and the Hyper Beam's cooldown (<see cref="SamusProjectileCooldownDefinitions.HyperBeamShot"/>).</summary>
-    private BeamShot? TryFireHyperBeam(
+    internal BeamShot? TryFireHyperBeam(
         SamusTerrain terrain,
         SamusState samus,
         SamusBombProjectileSystem samusBombs)
@@ -503,7 +503,7 @@ internal sealed class BeamFiring
     /// The launch velocity of a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/>, in pixels
     /// per update: the base speed along the direction plus the motion it inherits from Samus.
     /// </summary>
-    private static PixelVelocity<RoomPixels> LaunchVelocity(
+    internal static PixelVelocity<RoomPixels> LaunchVelocity(
         ProjectileLaunchInheritance inheritance,
         SamusProjectileDirection direction,
         SignedEightEight baseSpeed)
@@ -533,7 +533,7 @@ internal sealed class BeamFiring
     /// firing a beam or a missile sets it, and it is counted down to none once each gameplay update, after Samus and the
     /// enemies have moved.
     /// </summary>
-    internal UpdateCountdown InteractionImmunity { private get; set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown InteractionImmunity { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether a shot just fired keeps Samus from interacting with her own projectiles.</summary>
     public bool SuppressesInteraction => InteractionImmunity.IsRunning;

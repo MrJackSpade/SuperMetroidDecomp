@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Defines the ending-reward sprite document identity.</summary>
-public static class EndingRewardSpriteFormat
+public static partial class EndingRewardSpriteFormat
 {
     /// <summary>Supported ending-reward sprite schema revision.</summary>
     public const int Version = 1;

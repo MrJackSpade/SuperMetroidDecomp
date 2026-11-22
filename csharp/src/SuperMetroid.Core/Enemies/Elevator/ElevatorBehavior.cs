@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
+internal sealed partial class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
     /// <inheritdoc/>
     public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Elevator], Create);
@@ -109,7 +109,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Initializes the Elevator.</summary>
-    private void InitializeElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
+    internal void InitializeElevator(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus)
     {
         var state = new ElevatorEnemyState();
         place.SetSpeciesState(state);
@@ -133,6 +133,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>What <see cref="RunElevatorMain"/> does for each <see cref="ElevatorActorStatus"/> member, each member's own arm.</summary>
+    [field: NonSerialized]
     private IdentityTable<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>> RunElevatorMainForElevatorActorStatus => field ??= new(new Dictionary<ElevatorActorStatus, Action<RoomEnemyOccupant, RoomEnemyPlace, ElevatorEnemyState, SamusState, GameplayAction, SamusProjectileSystem>>
     {
         [ElevatorActorStatus.Inactive] = (occupant, place, state, samus, newlyPressedControllerInput, samusProjectiles) =>
@@ -171,7 +172,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Waits for the travel direction input.</summary>
-    private void WaitForElevatorDirectionInput(
+    internal void WaitForElevatorDirectionInput(
         RoomEnemyOccupant occupant, RoomEnemyPlace place,
         SamusState samus,
         GameplayAction newlyPressedControllerInput,

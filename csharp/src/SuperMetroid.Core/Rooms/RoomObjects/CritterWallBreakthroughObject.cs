@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <see cref="ScriptedTerrainChangeDefinitions.CritterWallBreakthrough"/>): on the update after its last image it
 /// marks the critters escaped, as it leaves the room.
 /// </summary>
-internal sealed class CritterWallBreakthroughObject() : TerrainChangeObject(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough)
+internal sealed partial class CritterWallBreakthroughObject() : TerrainChangeObject(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough)
 {
     /// <inheritdoc/>
     private protected override void End(RoomObjectStepContext context) =>

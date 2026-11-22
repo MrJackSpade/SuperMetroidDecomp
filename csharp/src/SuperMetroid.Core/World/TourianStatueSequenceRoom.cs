@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.World;
 /// sequence reads the room it is built for, never the active room's views.
 /// </summary>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record TourianStatueSequenceRoom
+internal sealed partial record TourianStatueSequenceRoom
 {
     /// <summary>The statue room, whose statue the sequence lowers.</summary>
     public required TourianStatueRoom StatueRoom { get; init; }

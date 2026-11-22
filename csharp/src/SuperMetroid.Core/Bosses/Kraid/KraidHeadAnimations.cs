@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// growth resumes the roar on one of its poses so (#2399). Collision takes its mouth shapes from the step the head has just
 /// passed (<see cref="KraidMouthTrailsHead"/>), growth chooses where the roar resumes by the step the head shows next.
 /// </summary>
-internal static class KraidHeadAnimations
+internal static partial class KraidHeadAnimations
 {
     /// <summary>How long each of the attack roar's opening and closing poses lasts, in updates.</summary>
     private const int RoarPoseDuration = 10;
@@ -68,7 +68,7 @@ internal static class KraidHeadAnimations
     });
 
     /// <summary>Each head animation, by the segment it starts at: its segments played once each, then a hold on its last pose.</summary>
-    private static Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>> StartingAt { get; } = new Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>>
+    internal static Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>> StartingAt { get; } = new Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>>
     {
         [P.Roar] = new([Segments.Whole(P.Roar), Segments.Whole(P.RoarOpenHold), Segments.Whole(P.RoarClosing)], AnimationEnd.Holds),
         [P.EyeGlow] = new([Segments.Whole(P.EyeGlow)], AnimationEnd.Holds),
@@ -76,7 +76,7 @@ internal static class KraidHeadAnimations
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    private static Animation<KraidHeadSegment> StartingWith(KraidHeadSegment segment) => StartingAt[segment];
+    internal static Animation<KraidHeadSegment> StartingWith(KraidHeadSegment segment) => StartingAt[segment];
 
     /// <summary>
     /// The head starting the animation that starts at <paramref name="animation"/>, as his fight and death install it: it
@@ -125,7 +125,7 @@ internal static class KraidHeadAnimations
     /// the step its play reaches next, counted through its segments, the animation's end standing for a play that is done or
     /// holds there.
     /// </summary>
-    private static KraidHeadPlace PlaceOf(AnimationPlayback<KraidHeadSegment> playback)
+    internal static KraidHeadPlace PlaceOf(AnimationPlayback<KraidHeadSegment> playback)
     {
         IReadOnlyList<AnimationPhase<KraidHeadSegment>> phases = playback.Animation.Phases;
         AnimationPhase<KraidHeadSegment> phase = phases[playback.Place.Phase];

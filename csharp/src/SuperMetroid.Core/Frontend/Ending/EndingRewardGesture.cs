@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Runs the reward gesture actors until their jumping-actor handoff.</summary>
-internal sealed class EndingRewardGesture
+internal sealed partial class EndingRewardGesture
 {
     /// <summary>Reward actor set in spawn order, advanced before inactive actors are removed.</summary>
     private readonly List<CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardGestureCue>> actors = [];

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// straight-down directions of either facing move along Y only, left and right along X only, and the four diagonals
 /// along both.
 /// </summary>
-internal static class SamusProjectileDirectionDefinitions
+internal static partial class SamusProjectileDirectionDefinitions
 {
     /// <summary>Each direction's movement.</summary>
     private static readonly SamusProjectileDirectionMap<SamusProjectileDirectionAxes> AxesByDirection = new(

@@ -16,8 +16,7 @@ internal static class SamusDraygonGrabbedStateAccess
         /// (<see cref="SharedEscapeAndDrainCount{TStage}.EscapePressesReach"/>, #2604): the one target it reaches whose next
         /// it does not.
         /// </summary>
-        public int EscapeButtonCounter => PressesReached(
-            PrivateState.Field<SamusDraygonGrabbedState, SharedEscapeAndDrainCount<Abilities.SamusSuitPickupStage>>(self, "escapePresses"));
+        public int EscapeButtonCounter => PressesReached(self.escapePresses);
     }
 
     /// <summary>

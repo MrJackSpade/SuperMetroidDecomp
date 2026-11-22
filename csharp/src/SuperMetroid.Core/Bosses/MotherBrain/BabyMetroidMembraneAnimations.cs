@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// eight phases in a loop, each held for its pace's updates, the pulse telling its owner as it reaches its cry phase. A
 /// change of pace goes on from the phase showing, which keeps the updates it has left.
 /// </summary>
-internal static class BabyMetroidMembraneAnimations
+internal static partial class BabyMetroidMembraneAnimations
 {
     /// <summary>The pulse's phases at each pace.</summary>
     internal static AnimationSegments<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Segments { get; } = new(

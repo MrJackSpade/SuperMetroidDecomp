@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite's rising body's state, the arm that grows out of the lava: what it is doing and how far it has grown.</summary>
-public sealed class MagdolliteBodyState : MagdollitePartState
+public sealed partial class MagdolliteBodyState : MagdollitePartState
 {
     /// <summary>Creates the body's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteBodyState(MagdolliteBodyAction action)

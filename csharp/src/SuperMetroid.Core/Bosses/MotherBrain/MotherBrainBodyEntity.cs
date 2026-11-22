@@ -20,7 +20,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="encounter">What the enemy's setup built (#2554).</param>
 internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
     EnemyCommonParticipation common, BossArtworkBinding bossArtwork, MotherBrainEnemyState encounter)
-    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction, IEnemyDrawHooks
+    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction, IEnemyDrawHooks,
+        IEnemySecondPicture
 {
     /// <summary>
     /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
@@ -78,6 +79,15 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
     /// beam, her greying and her phase two change, as it draws her brain, so they show her damage with the rest of her.
     /// </summary>
     public PictureShading? CommonDrawShading() => Encounter.Colours.OwnShading;
+
+    /// <summary>
+    /// Her far leg, which every body frame shows as a picture of its own after her near leg's (#2633, #2634): the game draws it
+    /// behind the room's front tiles and her body, so it passes behind the wall as she backs up to it and behind her body as
+    /// she walks.
+    /// </summary>
+    /// <param name="frame">The frame her body shows.</param>
+    public string? SecondPictureOf(EnemyFrameId frame) =>
+        MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(frame) ? MotherBrainBodyVisualDefinitions.SecondPictureName(frame) : null;
 
     /// <summary>The body draws nothing before its legs.</summary>
     /// <param name="sprites">The frame's sprite description.</param>

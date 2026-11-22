@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -96,8 +97,10 @@ public static partial class EnemySheetFiles
             EnemyDefinitionId enemy = Enemy(entry.Enemy, $"variant {name}");
             SpriteSheet sheet = loaded[entry.Sheet];
             Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(entry.LookChanges, name);
-            HashSet<string> pictures = [.. bindings.Value.FrameNames(enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
-            // The sheet holds each of the frames' finished pictures, or names it among those that show nothing (#1538).
+            HashSet<string> pictures = [.. bindings.Value.FrameNames(enemy).SelectMany(frame => PictureNames(frame, frameChanges)),
+                .. MotherBrainBodyVisualDefinitions.SecondPictureNamesOf(enemy)];
+            // The sheet holds each of the frames' finished pictures and their second pictures (#2633), or names it among those
+            // that show nothing (#1538).
             if (!sheet.HoldsExactly(pictures))
                 throw new InvalidDataException($"Enemy sheet {entry.Sheet} of variant {name} does not hold exactly the pictures of the frames {enemy} shows.");
             variants.Add(name, new EnemyArtworkVariant<SpriteSheet>(name, sheet, Encounters(frameChanges), CorpsePictures(entry.CorpsePictures, name, pictures)));

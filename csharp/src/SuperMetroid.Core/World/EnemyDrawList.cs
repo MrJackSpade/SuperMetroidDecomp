@@ -200,6 +200,13 @@ internal sealed partial class EnemyDrawList
                     RotRows = (place.Entity as IShowsCorpseRotRows)?.ShownRotRows,
                     Depth = draw.Depth,
                 });
+            // A frame's second picture follows its own, at the second picture's own depth (#2633, #2634).
+            if (place.Entity is IEnemySecondPicture second && second.SecondPictureOf(draw.Frame) is { } secondFrame)
+                _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(draw.Occupant.DefinitionId, secondFrame, draw.Origin)
+                {
+                    Shading = draw.Shading,
+                    RotRows = (place.Entity as IShowsCorpseRotRows)?.ShownRotRows,
+                });
         }
     }
 

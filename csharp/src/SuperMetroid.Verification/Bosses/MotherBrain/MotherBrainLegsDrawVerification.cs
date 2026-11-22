@@ -32,11 +32,36 @@ internal static class MotherBrainLegsDrawVerification
         }
     }
 
-    /// <summary>Runs the Mother Brain legs draw check.</summary>
+    /// <summary>
+    /// Checks every body frame's draws (#2633, #2634): her near leg's picture in front of the room's front tiles, then her far
+    /// leg's own picture behind them and her body, in her shading, at her picture's place.
+    /// </summary>
+    internal static void VerifyMotherBrainFarLegStandsBehindTheFrontTiles()
+    {
+        var fixture = new MotherBrainPresentationFixture(InstalledFixtures.EnemyArtwork);
+        foreach (EnemyFrameId frame in MotherBrainBodyVisualDefinitions.AnimationFrames)
+        {
+            fixture.Body.Frame = frame;
+            var sprites = new SpriteFrameBuffer();
+            sprites.BeginFrame();
+            fixture.DrawInto(sprites);
+            sprites.FinalizeFrame();
+            ImageSpriteDraw[] body = [.. sprites.Draws.OfType<ImageSpriteDraw>()
+                .Where(draw => draw.Image.Sheet.Name.StartsWith(nameof(EnemyDefinitionId.MotherBrainBody), StringComparison.Ordinal))];
+            AssertEqual(2, body.Length, $"{frame} draws her near leg's picture and her far leg's");
+            AssertEqual(ActorDepth.InFront, body[0].Image.Depth, $"{frame}'s near leg stands in front of the room's front tiles");
+            AssertEqual(ActorDepth.BehindFrontParts, body[1].Image.Depth, $"{frame}'s far leg stands behind the room's front tiles");
+            AssertEqual(body[0].Origin, body[1].Origin, $"{frame}'s far leg lies where her picture lies");
+            AssertEqual(body[0].Shading, body[1].Shading, $"{frame}'s far leg shows her shading");
+        }
+    }
+
+    /// <summary>Runs the Mother Brain legs draw checks.</summary>
     [VerificationCommand("--mother-brain-legs-draw")]
     internal static int MotherBrainLegsDrawCommand()
     {
         Suite(nameof(VerifyMotherBrainLegsShowHerColouring), VerifyMotherBrainLegsShowHerColouring);
+        Suite(nameof(VerifyMotherBrainFarLegStandsBehindTheFrontTiles), VerifyMotherBrainFarLegStandsBehindTheFrontTiles);
         return 0;
     }
 }

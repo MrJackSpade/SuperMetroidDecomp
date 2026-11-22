@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -507,8 +508,37 @@ internal static partial class EnemySheetComposer
         GraphicsSetCharacterLayout layout, SetCharacters characters) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
         // frames name where the corpse lies in them (#1539).
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(layout.TileBaseOf(enemy, frame.Frame)),
-            FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
+        Composed(enemies, shown).SelectMany(frame => WithSecondPictures(enemy, frame)).Select(frame => characters.Pictures(frame.Name,
+            frame.Picture(layout.TileBaseOf(enemy, frame.Frame)), FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
+
+    /// <summary>
+    /// <paramref name="frame"/>, or for Mother Brain's body its picture without her far leg and her far leg as a picture of its
+    /// own (#2633, #2634): the game draws her far leg behind the room's front tiles and her body, her near leg in front of
+    /// them, so each is a picture at its own depth. The far leg is every piece the game draws behind the room's front tiles.
+    /// </summary>
+    /// <exception cref="InvalidDataException">One of her body frames has no far leg, or nothing but one.</exception>
+    private static IEnumerable<ComposedFrame> WithSecondPictures(EnemyDefinitionId enemy, ComposedFrame frame)
+    {
+        if (enemy != EnemyDefinitionId.MotherBrainBody)
+        {
+            yield return frame;
+            yield break;
+        }
+        EnemyExtendedDrawComponent[] near = PiecesWhere(frame.Pieces, part => part.Depth != ActorDepth.BehindFrontParts);
+        EnemyExtendedDrawComponent[] far = PiecesWhere(frame.Pieces, part => part.Depth == ActorDepth.BehindFrontParts);
+        if (near.Length == 0 || far.Length == 0)
+            throw new InvalidDataException($"Mother Brain's body frame {frame.Frame} does not show both her near and her far leg.");
+        yield return frame with { Pieces = near };
+        yield return frame with { Name = MotherBrainBodyVisualDefinitions.SecondPictureName(frame.Frame), Pieces = far };
+    }
+
+    /// <summary>The pieces of <paramref name="pieces"/> with only their parts <paramref name="kept"/> keeps; a piece left with none is dropped.</summary>
+    private static EnemyExtendedDrawComponent[] PiecesWhere(ReadOnlyMemory<EnemyExtendedDrawComponent> pieces, Func<SpritePart, bool> kept) =>
+    [
+        .. pieces.ToArray()
+            .Select(piece => piece with { Parts = EnemySpritemapParts.FromOwnedArray([.. piece.Parts.Where(kept)]) })
+            .Where(piece => piece.Parts.Count > 0),
+    ];
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame as one piece at the frame's origin, an

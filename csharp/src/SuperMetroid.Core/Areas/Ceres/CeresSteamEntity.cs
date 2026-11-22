@@ -7,10 +7,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, CeresSteamSpawnSettings settings, CeresSteamEnemyState state)
+    EnemyCommonParticipation common, CeresSteamEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
     /// <summary>
@@ -25,12 +24,9 @@ internal sealed partial class CeresSteamEntity(CeresSteamBehavior species, RoomE
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
-        : this(species, occupant, place, common, settings, species.InitializeCeresSteam(settings, place, motions))
+        : this(species, occupant, place, common, species.InitializeCeresSteam(settings, place, motions))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal CeresSteamSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly CeresSteamEnemyState state = state;

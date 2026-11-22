@@ -27,9 +27,6 @@ internal sealed partial class MagdolliteOverlayEntity(MagdolliteBehavior species
     {
     }
 
-    /// <inheritdoc/>
-    internal override MagdollitePartState State => overlay;
-
     /// <summary>The overlay's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly MagdolliteOverlayState overlay = overlay;
 

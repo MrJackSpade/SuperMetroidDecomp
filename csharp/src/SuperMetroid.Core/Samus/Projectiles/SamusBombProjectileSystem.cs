@@ -31,9 +31,6 @@ public sealed partial class SamusBombProjectileSystem
     /// <summary>A placed Morph Ball bomb.</summary>
     public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
 
-    /// <summary>A placed Power Bomb.</summary>
-    internal static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
-
     /// <summary>Each bomb place's bomb, live or the last one that ended there, in place order.</summary>
     private readonly SamusBomb[] _bombs =
         Enumerable.Range(0, PlaceCount).Select(place => new SamusBomb(place)).ToArray();

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Kraid;
+﻿namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
 /// The stage Kraid's body is in, each running phases of its own type (#2208): his rise through the floor

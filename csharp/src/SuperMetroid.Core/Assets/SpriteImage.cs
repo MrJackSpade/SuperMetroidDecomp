@@ -134,9 +134,6 @@ public sealed partial class SpriteImage
         return KeyAt(decoded.Source, pixel);
     }
 
-    /// <summary>The place of <paramref name="key"/> among <see cref="ColourKeys"/>, or null where the image holds no pixel of it.</summary>
-    public int? PlaceOf(ColourKey key) => TryGetPlace(key, out int place) ? place : null;
-
     /// <summary>Finds the place of <paramref name="key"/> among <see cref="ColourKeys"/>: false where the image holds no pixel of it.</summary>
     public bool TryGetPlace(ColourKey key, out int place) => content.Value.Places.TryGetValue(key, out place);
 

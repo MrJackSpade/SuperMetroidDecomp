@@ -13,9 +13,6 @@ public abstract partial class KraidStageRun
     {
     }
 
-    /// <summary>The stage's name.</summary>
-    public abstract KraidBodyStage Stage { get; }
-
     /// <summary>Hands the stage to the method <paramref name="runner"/> has for its case.</summary>
     /// <param name="runner">What runs one update of the stage.</param>
     internal abstract void RunWith(IKraidStageRunner runner);
@@ -26,9 +23,6 @@ public abstract partial class KraidStageRun
     {
         /// <summary>The phase of his rise the body runs.</summary>
         public KraidRisePhase Phase { get; internal set; } = phase;
-
-        /// <inheritdoc/>
-        public override KraidBodyStage Stage => KraidBodyStage.Rising;
 
         /// <inheritdoc/>
         internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
@@ -63,9 +57,6 @@ public abstract partial class KraidStageRun
         public KraidFightPhase Phase { get; internal set; } = phase;
 
         /// <inheritdoc/>
-        public override KraidBodyStage Stage => KraidBodyStage.Fighting;
-
-        /// <inheritdoc/>
         internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
 
         /// <inheritdoc/>
@@ -82,9 +73,6 @@ public abstract partial class KraidStageRun
 
         /// <summary>The phase of his growth the body runs.</summary>
         public KraidGrowthPhase Phase { get; internal set; } = phase;
-
-        /// <inheritdoc/>
-        public override KraidBodyStage Stage => KraidBodyStage.Growing;
 
         /// <inheritdoc/>
         internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
@@ -105,9 +93,6 @@ public abstract partial class KraidStageRun
         public KraidDeathPhase Phase { get; internal set; } = phase;
 
         /// <inheritdoc/>
-        public override KraidBodyStage Stage => KraidBodyStage.Dying;
-
-        /// <inheritdoc/>
         internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);
 
         /// <inheritdoc/>
@@ -123,9 +108,6 @@ public abstract partial class KraidStageRun
     {
         /// <summary>The phase of the sunk body's death the body runs.</summary>
         public KraidSunkPhase Phase { get; internal set; } = phase;
-
-        /// <inheritdoc/>
-        public override KraidBodyStage Stage => KraidBodyStage.Dying;
 
         /// <inheritdoc/>
         internal override void RunWith(IKraidStageRunner runner) => runner.Run(this);

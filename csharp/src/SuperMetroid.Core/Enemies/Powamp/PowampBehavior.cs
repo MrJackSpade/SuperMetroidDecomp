@@ -423,7 +423,7 @@ internal sealed partial class PowampBehavior : IEnemySpecies, IEnemySpawnFactory
             : throw new InvalidDataException($"Powamp body place {body.Ordinal} is not preceded by its balloon half.");
 
     /// <summary>The balloon a body holds: its place, the state it holds and its occupant.</summary>
-    private static PowampBalloon BalloonOf(PowampBalloonEntity balloon) => new(balloon.Place, balloon.State, balloon.Occupant);
+    private static PowampBalloon BalloonOf(PowampBalloonEntity balloon) => new(balloon.Place, balloon.State);
 
     /// <summary>Routes bomb hits on a body through common shot logic and mirrors damage state to its balloon.</summary>
     /// <param name="body">The body the reaction is built for, whose own method carries the hit on to its balloon.</param>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend;
+﻿namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Which screen of choosing a game (<see cref="Progression.SuperMetroidGameState.FileSelect"/>) runs.</summary>
 internal enum FileSelectStep

@@ -20,9 +20,6 @@ internal sealed partial class PauseGameSequence(FrontendSession session, Gamepla
     /// <summary>The step that runs, with the pause screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);
 
-    /// <summary>The name of the step that runs.</summary>
-    internal PauseStep CurrentStep => Current.Step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Pause;
 

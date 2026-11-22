@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, CorpseSpawnSettings settings, DeadTourianCorpseEnemyState state)
+    EnemyCommonParticipation common, DeadTourianCorpseEnemyState state)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>
@@ -22,7 +21,7 @@ internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, Roo
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         CorpseSpawnSettings settings)
-        : this(species, occupant, place, common, settings, DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings))
+        : this(species, occupant, place, common, DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings))
     {
     }
 
@@ -31,9 +30,6 @@ internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, Roo
 
     /// <summary>The species' DeadTourianPowerBombReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyPowerBombReaction OwnDeadTourianPowerBombReaction => field ??= DeadTourianBehavior.DeadTourianPowerBombReaction(StartRot);
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal CorpseSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(state);

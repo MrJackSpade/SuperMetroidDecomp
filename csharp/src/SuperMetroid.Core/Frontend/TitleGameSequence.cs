@@ -13,9 +13,6 @@ internal sealed partial class TitleGameSequence(FrontendSession session, TitleGa
     /// <summary>The step that runs, with the screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);
 
-    /// <summary>The name of the step that runs.</summary>
-    internal TitleStep CurrentStep => Current.Step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.Title;
 

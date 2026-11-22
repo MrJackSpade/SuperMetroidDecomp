@@ -33,15 +33,6 @@ internal sealed partial class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpa
     {
     }
 
-    /// <summary>Binds <paramref name="placement"/>, whose settings are <paramref name="settings"/>, to <paramref name="factory"/>.</summary>
-    /// <param name="placement">The entry.</param>
-    /// <param name="settings">The entry's settings, as the species takes them.</param>
-    /// <param name="factory">The species.</param>
-    internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, IEnemySpawnFactory<TSettings> factory)
-        : this(placement, settings, new FactorySpawnCreation<TSettings>(factory))
-    {
-    }
-
     /// <inheritdoc/>
     internal override IEnemyBuild Respawn => this;
 

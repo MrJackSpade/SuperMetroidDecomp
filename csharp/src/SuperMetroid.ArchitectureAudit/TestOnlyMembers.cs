@@ -430,9 +430,6 @@ internal static class TestOnlyMembers
         _ => Read,
     };
 
-    /// <summary>Whether a name stands where it is written: assigned, incremented or passed by reference.</summary>
-    internal static bool IsWrite(SimpleNameSyntax name) => Access(AccessExpression(name)) is Write or ReadWrite;
-
     /// <summary>Whether a tuple is the target of a deconstructing assignment, however deeply nested.</summary>
     private static bool IsAssignedTuple(TupleExpressionSyntax tuple) => tuple.Parent switch
     {

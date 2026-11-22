@@ -574,13 +574,6 @@ public sealed partial class SamusState
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
-
-    /// <summary>
-    /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a
-    /// direction yet.
-    /// </summary>
-    public bool KnockbackPending => KnockbackHold.IsRunning && Knockback == Movement.SamusKnockback.None;
-
     /// <summary>The step of the animation of <see cref="Pose"/> that Samus's animation frame is on.</summary>
     internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(Pose, AnimationFrame, FramesBeyondAnimation);
 

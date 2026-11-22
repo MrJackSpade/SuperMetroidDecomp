@@ -24,12 +24,6 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
 
     private static readonly Lazy<DefinitionObjects> process = new(static () => new DefinitionObjects(StateGraphTypes.Shared));
 
-    /// <summary>An index of the process's registry's catalogs, none indexed yet.</summary>
-    internal DefinitionObjects()
-        : this(StateGraphTypes.Shared)
-    {
-    }
-
     /// <summary>Guards the catalogs' indexes, whose path and resolution caches every capture and restore share.</summary>
     internal readonly Lock gate = new();
 

@@ -72,8 +72,7 @@ internal abstract partial record WallSpacePirateCue
     }
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
-    /// <param name="Kind">What the cue does.</param>
-    internal sealed partial record Signal(WallSpacePirateCueKind Kind) : WallSpacePirateCue
+    internal sealed partial record Signal() : WallSpacePirateCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(WallSpacePirateCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Signal(this, context);

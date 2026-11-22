@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings, DeadSidehopperEnemyState state)
+    EnemyCommonParticipation common, DeadSidehopperEnemyState state)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
     /// <summary>
@@ -22,15 +21,12 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         DeadSidehopperSpawnSettings settings)
-        : this(species, occupant, place, common, settings, species.InitializeDeadSidehopper(settings, place))
+        : this(species, occupant, place, common, species.InitializeDeadSidehopper(settings, place))
     {
     }
 
     /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(MarkShotWithoutDamage);
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal DeadSidehopperSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);

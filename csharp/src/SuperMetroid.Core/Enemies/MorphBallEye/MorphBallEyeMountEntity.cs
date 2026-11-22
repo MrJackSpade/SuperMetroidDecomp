@@ -10,11 +10,9 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 [RoomLifetime]
-internal sealed partial class MorphBallEyeMountEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    MorphBallEyeMountSpawnSettings settings, MorphBallEyeMountState state)
+internal sealed partial class MorphBallEyeMountEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
     /// <summary>
@@ -28,12 +26,9 @@ internal sealed partial class MorphBallEyeMountEntity(RoomEnemyOccupant occupant
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         MorphBallEyeMountSpawnSettings settings)
-        : this(occupant, place, common, settings, species.InitializeMorphBallEyeMount(settings, place))
+        : this(occupant, place, common, species.InitializeMorphBallEyeMount(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal MorphBallEyeMountSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly MorphBallEyeMountState state = state;

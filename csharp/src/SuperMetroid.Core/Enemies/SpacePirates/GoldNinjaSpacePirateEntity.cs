@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="state">What the enemy's setup built, which its base holds (#2554).</param>
 internal sealed partial class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     NinjaSpacePirateSpawnSettings settings, NinjaSpacePirateEnemyState state)
-    : NinjaSpacePirateEntity(species, occupant, place, common, settings, state)
+    : NinjaSpacePirateEntity(species, occupant, place, common, state)
 {
     /// <summary>
     /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the

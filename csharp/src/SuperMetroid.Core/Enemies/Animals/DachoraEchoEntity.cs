@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the echo occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
-internal sealed partial class DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    DachoraSpawnSettings settings, DachoraEchoState state)
+internal sealed partial class DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, DachoraEchoState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>
@@ -22,12 +20,9 @@ internal sealed partial class DachoraEchoEntity(RoomEnemyOccupant occupant, Room
     /// <param name="common">The shared participation.</param>
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal DachoraEchoEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, DachoraSpawnSettings settings)
-        : this(occupant, place, common, settings, DachoraBehavior.InitializeDachoraEcho(settings, place))
+        : this(occupant, place, common, DachoraBehavior.InitializeDachoraEcho(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal DachoraSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal DachoraEchoState State { get; } = state;

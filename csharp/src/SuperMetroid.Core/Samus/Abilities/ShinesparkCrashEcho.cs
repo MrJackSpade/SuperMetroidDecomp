@@ -30,10 +30,6 @@ public sealed partial class ShinesparkCrashEcho(ShinesparkCrashEchoRelease relea
     public Position16<RoomPixels>? ShownPosition =>
         _carrier is { } carrier && carrier.Shot.Occupant is { } held && ReferenceEquals(held.KindState, carrier.Flight) ? _position : null;
 
-    /// <summary>Whether <paramref name="shot"/> is the shot that carries this echo.</summary>
-    /// <param name="shot">A shot running the echo's update.</param>
-    internal bool IsCarriedBy(SamusProjectile shot) => _carrier is { } carrier && ReferenceEquals(carrier.Shot, shot);
-
     /// <summary>The echo departs on <paramref name="shot"/>, flying <paramref name="flight"/>, from where the crash finished.</summary>
     /// <param name="shot">The shot that now carries the echo.</param>
     /// <param name="flight">The flight the shot's place holds for the echo.</param>

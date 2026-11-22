@@ -17,9 +17,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
     /// <summary>The step that runs, with the screen it shows (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);
 
-    /// <summary>The name of the step that runs.</summary>
-    internal FileSelectStep CurrentStep => Current.Step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.FileSelect;
 
@@ -283,9 +280,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
         {
         }
 
-        /// <summary>The step's name.</summary>
-        internal abstract FileSelectStep Step { get; }
-
         /// <summary>The step's name, for diagnostics.</summary>
         internal abstract string Name { get; }
 
@@ -305,9 +299,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
             internal FileSelectMenuState Screen { get; } = Ensure.NotNull(screen);
 
             /// <inheritdoc/>
-            internal override FileSelectStep Step => FileSelectStep.SaveSlots;
-
-            /// <inheritdoc/>
             internal override string Name => Screen.Phase.Name;
 
             /// <inheritdoc/>
@@ -324,9 +315,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
         {
             /// <summary>The options' screen.</summary>
             internal GameOptionsMenuState Screen { get; } = Ensure.NotNull(screen);
-
-            /// <inheritdoc/>
-            internal override FileSelectStep Step => FileSelectStep.Options;
 
             /// <inheritdoc/>
             internal override string Name => Screen.Phase.ToString();
@@ -351,9 +339,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
             internal static PreparingMap Instance { get; } = new();
 
             /// <inheritdoc/>
-            internal override FileSelectStep Step => FileSelectStep.AreaMap;
-
-            /// <inheritdoc/>
             internal override string Name => "Preparing saved-game map";
 
             /// <inheritdoc/>
@@ -370,9 +355,6 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
         {
             /// <summary>The map's screen.</summary>
             internal FileSelectMapMenuState Screen { get; } = Ensure.NotNull(screen);
-
-            /// <inheritdoc/>
-            internal override FileSelectStep Step => FileSelectStep.AreaMap;
 
             /// <inheritdoc/>
             internal override string Name => Screen.IsEnteringArea ? "Entering the area map" : Screen.Phase.ToString();

@@ -27,9 +27,6 @@ internal sealed partial class MagdolliteBodyEntity(MagdolliteBehavior species, R
     {
     }
 
-    /// <inheritdoc/>
-    internal override MagdollitePartState State => body;
-
     /// <summary>The body's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly MagdolliteBodyState body = body;
 

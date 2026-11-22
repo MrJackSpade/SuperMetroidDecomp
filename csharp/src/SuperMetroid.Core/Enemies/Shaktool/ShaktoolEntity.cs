@@ -6,12 +6,11 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="chain">The chain the segment is in, which its leading saw started (#2452, #2554).</param>
 /// <param name="course">How the segment moves, holding the state its setup built (#2554).</param>
 [RoomLifetime]
 internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, ShaktoolSpawnSettings settings, ShaktoolChain chain, IShaktoolCourse course)
+    EnemyCommonParticipation common, ShaktoolChain chain, IShaktoolCourse course)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>
@@ -26,13 +25,10 @@ internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemy
     /// <param name="chain">The chain the segment is in, which its leading saw started (#2452, #2554).</param>
     internal ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         ShaktoolSpawnSettings settings, ShaktoolChain chain)
-        : this(species, occupant, place, common, settings, chain,
+        : this(species, occupant, place, common, chain,
             species.CourseOf(place, ShaktoolBehavior.InitializeShaktool(settings, place, chain), settings.Segment, chain))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal ShaktoolSpawnSettings Settings { get; } = settings;
 
     /// <summary>The chain the segment is in: its seven segments and their shared motion and target.</summary>
     private ShaktoolChain Chain { get; } = chain;

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The phase Kraid's body runs while he fights (<see cref="KraidBodyStage.Fighting"/>), before and after his growth.</summary>
+/// <summary>The phase Kraid's body runs while he fights (<c>KraidBodyStage.Fighting</c>), before and after his growth.</summary>
 public enum KraidFightPhase
 {
     /// <summary>The first-phase body thinker counting down to its next mouth attack.</summary>

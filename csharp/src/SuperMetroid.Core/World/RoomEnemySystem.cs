@@ -38,7 +38,7 @@ namespace SuperMetroid.Core.World;
 /// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
 [RoomLifetime]
-public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
+public sealed partial class RoomEnemySystem : IEnemyDisplaySources
 {
     /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>
     internal EnemyDrawList Drawing { get; }

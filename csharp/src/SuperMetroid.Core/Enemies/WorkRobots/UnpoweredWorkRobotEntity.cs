@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the robot occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">What the enemy's population entry tells its species.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 internal sealed partial class UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
-    EnemyCommonParticipation common, WorkRobotSpawnSettings settings, UnpoweredWorkRobotEnemyState state)
+    EnemyCommonParticipation common, UnpoweredWorkRobotEnemyState state)
     : WorkRobotEntity(species, occupant, place, common)
 {
     /// <summary>
@@ -22,12 +21,9 @@ internal sealed partial class UnpoweredWorkRobotEntity(WorkRobotBehavior species
     /// <param name="settings">What the enemy's population entry tells its species.</param>
     internal UnpoweredWorkRobotEntity(WorkRobotBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
         WorkRobotSpawnSettings settings)
-        : this(species, occupant, place, common, settings, species.InitializeUnpoweredWorkRobot(settings, place))
+        : this(species, occupant, place, common, species.InitializeUnpoweredWorkRobot(settings, place))
     {
     }
-
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal WorkRobotSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly UnpoweredWorkRobotEnemyState state = state;

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <param name="scroll">The door's opening scroll, begun as the destination loaded.</param>
 /// <param name="fadeIn">The steps of the destination's fade in.</param>
-internal sealed class OpeningDoorTransition(DoorOpeningScrollState scroll, GradualFadeSteps fadeIn) : DoorTransitionStage
+internal sealed partial class OpeningDoorTransition(DoorOpeningScrollState scroll, GradualFadeSteps fadeIn) : DoorTransitionStage
 {
     /// <summary>The door's opening scroll, begun as the destination loaded.</summary>
     internal DoorOpeningScrollState Scroll { get; } = Ensure.NotNull(scroll);

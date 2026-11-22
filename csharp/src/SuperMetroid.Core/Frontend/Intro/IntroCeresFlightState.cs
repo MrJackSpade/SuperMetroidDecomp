@@ -322,7 +322,7 @@ internal sealed partial class IntroCeresFlightState
     }
 
     /// <summary>A stage of the flight, named by the phase it is.</summary>
-    private abstract class FlightStage
+    private abstract partial class FlightStage
     {
         /// <summary>The phase the stage is.</summary>
         internal abstract IntroCeresFlightPhase Phase { get; }
@@ -333,7 +333,7 @@ internal sealed partial class IntroCeresFlightState
     }
 
     /// <summary>The flight's first update, which queues its music.</summary>
-    private sealed class InitialStage : FlightStage
+    private sealed partial class InitialStage : FlightStage
     {
         /// <summary>The stage's only value.</summary>
         internal static InitialStage Instance { get; } = new();
@@ -354,7 +354,7 @@ internal sealed partial class IntroCeresFlightState
     }
 
     /// <summary>The wait for the music queue to empty, before the display shows.</summary>
-    private sealed class WaitingForMusicStage : FlightStage
+    private sealed partial class WaitingForMusicStage : FlightStage
     {
         /// <summary>The stage's only value.</summary>
         internal static WaitingForMusicStage Instance { get; } = new();
@@ -374,7 +374,7 @@ internal sealed partial class IntroCeresFlightState
     }
 
     /// <summary>The gunship's rush into the camera, the front stars streaming past.</summary>
-    private sealed class FlyingIntoCameraStage : FlightStage
+    private sealed partial class FlyingIntoCameraStage : FlightStage
     {
         /// <summary>The stage's only value.</summary>
         internal static FlyingIntoCameraStage Instance { get; } = new();
@@ -399,7 +399,7 @@ internal sealed partial class IntroCeresFlightState
     /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
     /// update, stopping at none.
     /// </param>
-    private sealed class RearViewStage(WhiteWash flash) : FlightStage
+    private sealed partial class RearViewStage(WhiteWash flash) : FlightStage
     {
         /// <summary>The rear-view flash's white wash, fading a step each update.</summary>
         internal WhiteWash Flash { get; } = flash;
@@ -418,7 +418,7 @@ internal sealed partial class IntroCeresFlightState
     /// The caption's typing, played by the shared player: its letters, with Japanese text its katakana caption, its hold and
     /// the fade-out cue.
     /// </param>
-    private abstract class CaptionedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : FlightStage
+    private abstract partial class CaptionedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : FlightStage
     {
         /// <summary>The caption's typing.</summary>
         internal AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> Caption { get; } = caption;
@@ -426,7 +426,7 @@ internal sealed partial class IntroCeresFlightState
 
     /// <summary>The title, typing the caption and holding it.</summary>
     /// <param name="caption">The caption the title types.</param>
-    private sealed class TitleStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    private sealed partial class TitleStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.SpaceColonyTitle;
@@ -437,7 +437,7 @@ internal sealed partial class IntroCeresFlightState
 
     /// <summary>The fade to black under the caption.</summary>
     /// <param name="caption">The caption shown.</param>
-    private sealed class FadeOutStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    private sealed partial class FadeOutStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FadeOut;
@@ -448,7 +448,7 @@ internal sealed partial class IntroCeresFlightState
 
     /// <summary>The update after the screen goes black, which hands over to Ceres.</summary>
     /// <param name="caption">The caption shown.</param>
-    private sealed class StartGameStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    private sealed partial class StartGameStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.StartGameAtCeres;
@@ -463,7 +463,7 @@ internal sealed partial class IntroCeresFlightState
 
     /// <summary>The flight has ended.</summary>
     /// <param name="caption">The caption shown.</param>
-    private sealed class FinishedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    private sealed partial class FinishedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
     {
         /// <inheritdoc/>
         internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.Finished;

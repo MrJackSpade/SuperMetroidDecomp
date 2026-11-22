@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 /// <param name="phase">The phase the step runs.</param>
 /// <param name="exit">The swoop setup the pass leads into.</param>
-internal abstract class DraygonGoopStep(DraygonPhase phase, DraygonPhaseStep exit) : DraygonPhaseStep(phase)
+internal abstract partial class DraygonGoopStep(DraygonPhase phase, DraygonPhaseStep exit) : DraygonPhaseStep(phase)
 {
     /// <summary>The swoop setup the pass leads into once it leaves the screen.</summary>
     internal DraygonPhaseStep Exit { get; } = exit;

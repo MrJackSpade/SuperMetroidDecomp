@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <param name="Block">The block reached, where a reaction to it takes place.</param>
 /// <param name="Kind">How the block collides, with the reaction a reacting kind carries.</param>
-internal readonly record struct StoodForBlock(RoomCollisionBlock Block, RoomBlockKind.Whole Kind);
+internal readonly partial record struct StoodForBlock(RoomCollisionBlock Block, RoomBlockKind.Whole Kind);

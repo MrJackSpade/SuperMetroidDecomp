@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="Mama">Her place, whose position her babies' crawl over her shell reads.</param>
 /// <param name="State">Her state, which her babies wake and read as they crawl.</param>
 /// <param name="Babies">Her babies' places, in the order her room lists them.</param>
-internal sealed record MamaTurtleFamily(RoomEnemyPlace Mama, MamaTurtleEnemyState State, IReadOnlyList<RoomEnemyPlace> Babies);
+internal sealed partial record MamaTurtleFamily(RoomEnemyPlace Mama, MamaTurtleEnemyState State, IReadOnlyList<RoomEnemyPlace> Babies);

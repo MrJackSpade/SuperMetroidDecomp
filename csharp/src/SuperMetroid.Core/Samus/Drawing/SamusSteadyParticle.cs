@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 /// <param name="Kind">What the particle shows.</param>
 /// <param name="Drift">The pixels the particle moves by on each update it shows.</param>
-internal sealed record SamusSteadyParticle(SamusParticleKind Kind, Offset16<RoomPixels> Drift);
+internal sealed partial record SamusSteadyParticle(SamusParticleKind Kind, Offset16<RoomPixels> Drift);

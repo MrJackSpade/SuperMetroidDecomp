@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="Request">The hand and the block it spawns at.</param>
 /// <param name="Hand">The statue the hand belongs to, which triggering it wakes.</param>
 [RoomLifetime]
-internal sealed record ChozoStatueHandAsked(RoomObjectSpawnRequest<ChozoStatueHandObject> Request, ChozoStatueHandTrigger Hand) : EnemyPassEvent;
+internal sealed partial record ChozoStatueHandAsked(RoomObjectSpawnRequest<ChozoStatueHandObject> Request, ChozoStatueHandTrigger Hand) : EnemyPassEvent;

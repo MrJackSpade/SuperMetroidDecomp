@@ -424,10 +424,10 @@ public static partial class MapPresentationFiles
         }
 
         /// <summary>Whose read a session is.</summary>
-        private abstract record MapRead
+        private abstract partial record MapRead
         {
             /// <summary>The game's read, which reads the installed documents alone: no import data and no manifest (#1693).</summary>
-            internal sealed record Game : MapRead
+            internal sealed partial record Game : MapRead
             {
                 /// <summary>The game's one read.</summary>
                 internal static Game Instance { get; } = new();
@@ -436,7 +436,7 @@ public static partial class MapPresentationFiles
             /// <summary>The import's read, of the component's import data, bound to its extraction manifest.</summary>
             /// <param name="ImportData">The component's import-data directory holding its pages and import colours.</param>
             /// <param name="Manifest">The extraction manifest, which lists every file the import's read reads.</param>
-            internal sealed record Import(string ImportData, AreaMapCatalogManifest Manifest) : MapRead;
+            internal sealed partial record Import(string ImportData, AreaMapCatalogManifest Manifest) : MapRead;
         }
     }
 }

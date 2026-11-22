@@ -98,7 +98,7 @@ internal sealed partial class FirefleaBehavior : IEnemySpecies, IEnemySpawnFacto
     /// <summary>What the flight reactions read besides the flight: the Fireflea's settings and its place.</summary>
     /// <param name="Settings">The settings its placement gives it.</param>
     /// <param name="Place">The place it moves.</param>
-    private readonly record struct FirefleaMainContext(FirefleaSpawnSettings Settings, RoomEnemyPlace Place);
+    private readonly partial record struct FirefleaMainContext(FirefleaSpawnSettings Settings, RoomEnemyPlace Place);
 
     /// <summary>
     /// Runs the Fireflea's reaction to Samus's touch, including its double death. The

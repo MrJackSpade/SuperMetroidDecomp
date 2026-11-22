@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// An entry of a room's population bound to its species where the population is loaded (#2554): the population load builds
 /// its enemy seeing the load's surroundings, which a species built the same way everywhere does not read.
 /// </summary>
-internal abstract class PopulationEnemySpawn : EnemySpawn
+internal abstract partial class PopulationEnemySpawn : EnemySpawn
 {
     /// <summary>Binds <paramref name="placement"/>.</summary>
     /// <param name="placement">The population entry.</param>

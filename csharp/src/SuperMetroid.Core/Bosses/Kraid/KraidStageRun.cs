@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// phases, which a room he was found defeated in starts at. The stages after his rise hold his head's animation
 /// (<see cref="Risen"/>), which his rise's last update starts; his rise and his sunk body hold none.
 /// </summary>
-public abstract class KraidStageRun
+public abstract partial class KraidStageRun
 {
     /// <summary>Only the stages below derive from it.</summary>
     private protected KraidStageRun()
@@ -22,7 +22,7 @@ public abstract class KraidStageRun
 
     /// <summary>His rise through the floor at the start of the encounter, outside the fight.</summary>
     /// <param name="phase">The phase of the rise he starts at.</param>
-    public sealed class Rising(KraidRisePhase phase) : KraidStageRun
+    public sealed partial class Rising(KraidRisePhase phase) : KraidStageRun
     {
         /// <summary>The phase of his rise the body runs.</summary>
         public KraidRisePhase Phase { get; internal set; } = phase;
@@ -35,7 +35,7 @@ public abstract class KraidStageRun
     }
 
     /// <summary>A stage after his rise, which holds his head's animation.</summary>
-    public abstract class Risen : KraidStageRun
+    public abstract partial class Risen : KraidStageRun
     {
         /// <summary>A stage holding <paramref name="head"/>.</summary>
         /// <param name="head">His head's animation, which the stage before handed on.</param>
@@ -54,7 +54,7 @@ public abstract class KraidStageRun
     /// <summary>His fight: thinking, attacking with his mouth open and reacting to hits.</summary>
     /// <param name="phase">The phase of the fight he enters.</param>
     /// <param name="head">His head's animation.</param>
-    public sealed class Fighting(KraidFightPhase phase, KraidRisenHead head) : Risen(head)
+    public sealed partial class Fighting(KraidFightPhase phase, KraidRisenHead head) : Risen(head)
     {
         /// <summary>The phase of his fight the body runs.</summary>
         public KraidFightPhase Phase { get; internal set; } = phase;
@@ -72,7 +72,7 @@ public abstract class KraidStageRun
     /// <summary>His growth into his second phase, which is part of the fight.</summary>
     /// <param name="phase">The phase of the growth he enters.</param>
     /// <param name="head">His head's animation.</param>
-    public sealed class Growing(KraidGrowthPhase phase, KraidRisenHead head) : Risen(head)
+    public sealed partial class Growing(KraidGrowthPhase phase, KraidRisenHead head) : Risen(head)
     {
         /// <summary>The phase of his growth the body runs.</summary>
         public KraidGrowthPhase Phase { get; internal set; } = phase;
@@ -90,7 +90,7 @@ public abstract class KraidStageRun
     /// <summary>His death from the fight up to his sinking through the floor.</summary>
     /// <param name="phase">The phase of the death he enters.</param>
     /// <param name="head">His head's animation, which plays his dying cry.</param>
-    public sealed class Dying(KraidDeathPhase phase, KraidRisenHead head) : Risen(head)
+    public sealed partial class Dying(KraidDeathPhase phase, KraidRisenHead head) : Risen(head)
     {
         /// <summary>The phase of his death the body runs.</summary>
         public KraidDeathPhase Phase { get; internal set; } = phase;
@@ -110,7 +110,7 @@ public abstract class KraidStageRun
     /// the finished death.
     /// </summary>
     /// <param name="phase">The phase of the sunk body he enters.</param>
-    public sealed class Sunk(KraidSunkPhase phase) : KraidStageRun
+    public sealed partial class Sunk(KraidSunkPhase phase) : KraidStageRun
     {
         /// <summary>The phase of the sunk body's death the body runs.</summary>
         public KraidSunkPhase Phase { get; internal set; } = phase;

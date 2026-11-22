@@ -25,17 +25,17 @@ public sealed partial class SamusCeresRidleyEjectionState
     private ShoveStage stage = ShoveStage.Idle.Instance;
 
     /// <summary>The stages of the shove, each holding what it needs.</summary>
-    private abstract record ShoveStage
+    private abstract partial record ShoveStage
     {
         /// <summary>No shove holds Samus.</summary>
-        internal sealed record Idle : ShoveStage
+        internal sealed partial record Idle : ShoveStage
         {
             /// <summary>The one idle stage.</summary>
             internal static Idle Instance { get; } = new();
         }
 
         /// <summary>The shove was requested; its first update installs her pose and velocity and chooses its wall.</summary>
-        internal sealed record Starting : ShoveStage
+        internal sealed partial record Starting : ShoveStage
         {
             /// <summary>The one starting stage.</summary>
             internal static Starting Instance { get; } = new();
@@ -43,7 +43,7 @@ public sealed partial class SamusCeresRidleyEjectionState
 
         /// <summary>The shove carries Samus toward <paramref name="Toward"/> until she meets it.</summary>
         /// <param name="Toward">The wall the shove carries her toward.</param>
-        internal sealed record Pushing(HorizontalDirection Toward) : ShoveStage;
+        internal sealed partial record Pushing(HorizontalDirection Toward) : ShoveStage;
     }
 
     /// <summary>

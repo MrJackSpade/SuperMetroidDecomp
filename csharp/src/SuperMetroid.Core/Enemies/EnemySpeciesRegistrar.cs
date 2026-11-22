@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Composes a room's species registry (#2554): each species registers the creations it supports for the definitions it
 /// owns, typed by the settings each takes, so binding a population entry checks its settings against that type once.
 /// </summary>
-internal sealed class EnemySpeciesRegistrar
+internal sealed partial class EnemySpeciesRegistrar
 {
     /// <summary>How each definition a population places binds its entries, by the creation its species registered.</summary>
     internal Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> Placed { get; } = [];

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <see cref="EnemyFrameId"/> and each cue is a <see cref="MagdolliteOverlayCue"/> with the values it acts on, which only the
 /// overlay carries out.
 /// </summary>
-internal static class MagdolliteOverlayAnimations
+internal static partial class MagdolliteOverlayAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MagdolliteOverlaySegment, EnemyFrameId, MagdolliteOverlayCue> Segments { get; } = new(

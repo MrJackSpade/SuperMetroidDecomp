@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The Magdollite rising body's pillar stacks (#641, #2554). Each frame shows a <see cref="EnemyFrameId"/> and no beat raises a
 /// cue for its owner.
 /// </summary>
-internal static class MagdolliteBodyAnimations
+internal static partial class MagdolliteBodyAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MagdolliteBodySegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(

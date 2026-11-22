@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// the document is read rather than where the piece is first drawn.
 /// </summary>
 [SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
-public sealed record SpriteVisualPiece
+public sealed partial record SpriteVisualPiece
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
     public required int OffsetX { get; init; }

@@ -38,7 +38,7 @@ public abstract partial record AudioEvent
     /// Installs only the shared sounds before the update's clock steps run, as at power-on: the song stops and the waiting
     /// song change is dropped.
     /// </summary>
-    public sealed record InstallSharedSounds : AudioEvent
+    public sealed partial record InstallSharedSounds : AudioEvent
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).InstallSharedSounds(this, context);

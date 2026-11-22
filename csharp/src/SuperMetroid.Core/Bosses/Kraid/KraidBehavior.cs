@@ -240,7 +240,7 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<
     /// <param name="state">His encounter's state.</param>
     /// <param name="cameraX">The camera's horizontal room position, which the sunk body's repair reads.</param>
     /// <param name="samus">Samus, whom his rise and death restrict.</param>
-    private sealed class StageRunner(KraidBehavior behavior, RoomEnemyPlace body, KraidEnemyState state, int cameraX, SamusState samus)
+    private sealed partial class StageRunner(KraidBehavior behavior, RoomEnemyPlace body, KraidEnemyState state, int cameraX, SamusState samus)
         : IKraidStageRunner
     {
         /// <inheritdoc/>

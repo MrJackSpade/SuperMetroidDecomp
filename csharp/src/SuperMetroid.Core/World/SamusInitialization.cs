@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="beamCharge">The beam charge every Samus of the runtime shares.</param>
 /// <param name="artwork">The installed Samus artwork every Samus draws from.</param>
 /// <param name="yardKickDistance">The camera's measure of Samus's horizontal movement, which a new Samus resets.</param>
-internal sealed class SamusInitialization(GameplayAudioRequests audioRequests, SamusOverreadServices overreads,
+internal sealed partial class SamusInitialization(GameplayAudioRequests audioRequests, SamusOverreadServices overreads,
     UnauthoredBoostCadence unauthoredBoostCadence, BeamChargeState beamCharge, SamusArtworkBinding artwork,
     YardKickTrackingDistance yardKickDistance)
 {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// Where a live eye beam stands in its lifetime (#2554), with the step the beam takes there on each update: only the
 /// four stages below exist, so the beam's update has a step for every stage it can be in.
 /// </summary>
-internal abstract class MorphBallEyeBeamStage
+internal abstract partial class MorphBallEyeBeamStage
 {
     /// <summary>Only the four stages below derive from this.</summary>
     private MorphBallEyeBeamStage() { }
@@ -28,7 +28,7 @@ internal abstract class MorphBallEyeBeamStage
     internal static MorphBallEyeBeamStage Deactivating { get; } = new Fade();
 
     /// <summary>The requested beam, which its first update starts.</summary>
-    private sealed class Requested : MorphBallEyeBeamStage
+    private sealed partial class Requested : MorphBallEyeBeamStage
     {
         /// <inheritdoc/>
         internal override MorphBallEyeBeamPhase Phase => MorphBallEyeBeamPhase.PendingInitialization;
@@ -38,7 +38,7 @@ internal abstract class MorphBallEyeBeamStage
     }
 
     /// <summary>The widening beam.</summary>
-    private sealed class Widen : MorphBallEyeBeamStage
+    private sealed partial class Widen : MorphBallEyeBeamStage
     {
         /// <inheritdoc/>
         internal override MorphBallEyeBeamPhase Phase => MorphBallEyeBeamPhase.Widening;
@@ -48,7 +48,7 @@ internal abstract class MorphBallEyeBeamStage
     }
 
     /// <summary>The full beam.</summary>
-    private sealed class Spread : MorphBallEyeBeamStage
+    private sealed partial class Spread : MorphBallEyeBeamStage
     {
         /// <inheritdoc/>
         internal override MorphBallEyeBeamPhase Phase => MorphBallEyeBeamPhase.Full;
@@ -58,7 +58,7 @@ internal abstract class MorphBallEyeBeamStage
     }
 
     /// <summary>The fading beam.</summary>
-    private sealed class Fade : MorphBallEyeBeamStage
+    private sealed partial class Fade : MorphBallEyeBeamStage
     {
         /// <inheritdoc/>
         internal override MorphBallEyeBeamPhase Phase => MorphBallEyeBeamPhase.Deactivating;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// A boss body frame a dissolve erases step by step (#1652, #2478), as the import found it: Crocomire's melt images. Its
 /// sheet finds it as it is loaded, among the frames that show a picture and have a dissolve of that picture's size.
 /// </summary>
-public sealed class DissolvingBossBodyFrame
+public sealed partial class DissolvingBossBodyFrame
 {
     /// <summary>The frame the dissolve erases.</summary>
     private readonly BossBodyFrame _frame;

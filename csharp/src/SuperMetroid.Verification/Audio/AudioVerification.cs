@@ -268,28 +268,6 @@ internal static class AudioVerification
         AssertThrows<InvalidDataException>(
             () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, 0x0100),
             "word-sized sound values outside a request byte fail loudly");
-<<<<<<< HEAD
-        AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority)]),
-            "QueueSound accepts one indivisible sound identity");
-        AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),
-            "QueueSound exposes no reversible library-and-ID argument list");
-||||||| 418ca79935
-        AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority)]),
-            "QueueSound accepts one indivisible sound identity");
-        AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),
-            "QueueSound exposes no reversible library-and-ID argument list");
-        AssertThrows<InvalidOperationException>(
-            () => sfx.QueueSound(default, priority: SoundRequestPriority.WhenIdle),
-            "default sound identity cannot silently select a queue");
-=======
-        AssertThrows<InvalidOperationException>(
-            () => sfx.QueueSound(default, priority: SoundRequestPriority.WhenIdle),
-            "default sound identity cannot silently select a queue");
->>>>>>> origin/main
         AssertEqual<SoundEffectId>(SamusSound.MenuCursor,
             SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x37),
             "the import decodes library one's request $37 to the menu cursor");

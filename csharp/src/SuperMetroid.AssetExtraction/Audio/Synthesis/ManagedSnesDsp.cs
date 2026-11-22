@@ -695,10 +695,10 @@ public sealed partial class ManagedSnesDsp
     }
 
     /// <summary>What a voice plays: nothing since reset, or the decoded source its last key-on or loop bound.</summary>
-    private abstract record VoiceSource
+    private abstract partial record VoiceSource
     {
         /// <summary>No source since reset: the voice outputs silence and has no block to decode.</summary>
-        internal sealed record Silent : VoiceSource
+        internal sealed partial record Silent : VoiceSource
         {
             /// <summary>The one silent source.</summary>
             internal static Silent Instance { get; } = new();
@@ -706,7 +706,7 @@ public sealed partial class ManagedSnesDsp
 
         /// <summary>The decoded source a key-on or loop bound.</summary>
         /// <param name="Sample">The decoded PCM.</param>
-        internal sealed record Keyed(ManagedPcmSample Sample) : VoiceSource;
+        internal sealed partial record Keyed(ManagedPcmSample Sample) : VoiceSource;
     }
 
     /// <summary>One hardware voice's interpolation window, pitch, envelope, and routing state.</summary>

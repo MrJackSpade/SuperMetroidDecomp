@@ -32,38 +32,10 @@ internal static class KiHunterSpitAudioVerification
         AssertSequenceEqual(nativeQueueCall, Enumerable.Range(0, nativeQueueCall.Length)
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
             "the spit instruction requests the acid-spit sound once");
-<<<<<<< HEAD
         // The Attic after Phantoon, whose wingless Ki-Hunter spits at Samus on its left as its own AI and animation lead it to.
         (SuperMetroidGame game, SuperMetroidRuntime runtime) = KiHunterSpitStaging.AtticGame(
             global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(soundAcceptance: NextUpdateSoundAcceptance.Instance));
         var samus = runtime.Player.Samus;
-||||||| 418ca79935
-        var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false,
-            hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(soundAcceptance: NextUpdateSoundAcceptance.Instance), random: random);
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
-        var samus = runtime.Player.IntroducedSamus;
-        samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.Position = samus.Position.WithWhole(new(64, 128));
-        samus.Control.LockOutPlayer();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
-        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
-        body.Position = body.Position.WithWhole(new(128, 128));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
-        // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
-        // The spit cue, four poses into the right spit animation.
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
-        body.AnimationClock.StepOnNextUpdate();
-        game.EnterMainGameplay(runtime);
-=======
-        (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus, RoomEnemyPlace body, KiHunterBodyState state) = StageSpit();
->>>>>>> origin/main
         var spit = EnemySound.AcidSpit;
         int requests = 0, starts = 0;
         void Step()

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// the shared animation player (#2480).
 /// </summary>
 /// <param name="change">The reaction's authored timing.</param>
-internal sealed class LastingBlockReactionObject(LastingBlockReactionChange change) : RoomObjectBehaviour
+internal sealed partial class LastingBlockReactionObject(LastingBlockReactionChange change) : RoomObjectBehaviour
 {
     /// <summary>The reaction's authored timing.</summary>
     internal LastingBlockReactionChange Change { get; } = Ensure.NotNull(change);

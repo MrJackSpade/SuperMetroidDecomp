@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// its kind keeps (<see cref="SamusProjectileOccupant.Install{TState}"/>), so each run receives that state.
 /// </summary>
 /// <typeparam name="TState">The state the shot's kind keeps.</typeparam>
-internal abstract class SamusShotBehavior<TState>
+internal abstract partial class SamusShotBehavior<TState>
     where TState : SamusShotKindState
 {
     /// <summary>Runs the shot's update.</summary>
@@ -21,7 +21,7 @@ internal abstract class SamusShotBehavior<TState>
     /// <summary>A behaviour bound to the state its shot's kind keeps.</summary>
     /// <param name="behavior">The behaviour.</param>
     /// <param name="state">The state it runs with.</param>
-    private sealed class Bound(SamusShotBehavior<TState> behavior, TState state) : SamusShotBehavior
+    private sealed partial class Bound(SamusShotBehavior<TState> behavior, TState state) : SamusShotBehavior
     {
         /// <inheritdoc/>
         internal override void Run(SamusShotUpdate update) => behavior.Run(update, state);

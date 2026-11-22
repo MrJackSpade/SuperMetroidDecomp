@@ -326,5 +326,5 @@ public sealed partial class GameplayMessageBoxState(SaveChoiceInputCadence saveC
     /// <summary>A message the box shows, with the controller bindings it began under.</summary>
     /// <param name="Id">The message.</param>
     /// <param name="Bindings">The controller bindings when the message began, whose Shoot or Dash button a panel's glyph shows.</param>
-    private sealed record BegunMessage(GameplayMessageId Id, ControllerBindings Bindings);
+    private sealed partial record BegunMessage(GameplayMessageId Id, ControllerBindings Bindings);
 }

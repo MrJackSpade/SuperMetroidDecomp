@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// (<see cref="KraidStageRun.Risen"/>). Before his rise ends his head holds its pose without an animation
 /// (<see cref="KraidEnemyState.HoldHeadUntilRise"/>), and a room he was found defeated in never shows his head.
 /// </summary>
-public sealed class KraidRisenHead
+public sealed partial class KraidRisenHead
 {
     /// <summary>A head standing at <paramref name="playback"/>.</summary>
     /// <param name="playback">The head animation and where it stands.</param>

@@ -167,7 +167,7 @@ public static partial class SamusInsideBlockReactions
     /// The special-air reaction Samus's inside-block sample reacts to (#2554): only special air reacts to her body's
     /// overlap; every other kind of block carries no inside reaction.
     /// </summary>
-    private sealed class SpecialAirInside : IWholeBlockReader<SpecialAirReaction?>
+    private sealed partial class SpecialAirInside : IWholeBlockReader<SpecialAirReaction?>
     {
         /// <summary>Only <see cref="Reader"/> is made.</summary>
         private SpecialAirInside()

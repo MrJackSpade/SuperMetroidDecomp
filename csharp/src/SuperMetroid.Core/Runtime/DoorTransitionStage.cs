@@ -24,7 +24,7 @@ internal abstract partial class DoorTransitionStage
     /// </summary>
     /// <param name="door">The door Samus entered, which the transition goes through.</param>
     /// <param name="resting">The rest the door was entered from.</param>
-    internal sealed class DoorEntered(DoorDefinition door, DoorTransitionStage resting) : DoorTransitionStage
+    internal sealed partial class DoorEntered(DoorDefinition door, DoorTransitionStage resting) : DoorTransitionStage
     {
         /// <summary>The door Samus entered, which the transition goes through.</summary>
         internal DoorDefinition Door { get; } = door;

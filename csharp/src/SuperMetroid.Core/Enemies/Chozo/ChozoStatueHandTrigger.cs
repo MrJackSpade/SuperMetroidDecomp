@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="statue">The Chozo statue species owner, which runs the hand's activation.</param>
 /// <param name="state">The state of the statue the hand belongs to.</param>
 [RoomLifetime]
-internal sealed class ChozoStatueHandTrigger(ChozoStatueBehavior statue, ChozoStatueState state)
+internal sealed partial class ChozoStatueHandTrigger(ChozoStatueBehavior statue, ChozoStatueState state)
 {
     /// <summary>The site of the statue the hand belongs to.</summary>
     internal ChozoStatueSite Site => state.Site;

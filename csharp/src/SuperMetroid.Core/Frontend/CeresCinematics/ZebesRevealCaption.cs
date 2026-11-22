@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// are deleted before the scene slides away.
 /// </summary>
 /// <param name="sprite">The cinematic sprite showing the caption: its position and animation.</param>
-internal sealed class ZebesRevealCaption(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
+internal sealed partial class ZebesRevealCaption(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite)
 {
     /// <summary>The cinematic sprite showing the caption: its position and animation.</summary>
     internal CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> Sprite { get; } = Ensure.NotNull(sprite);

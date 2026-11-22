@@ -18,13 +18,5 @@ internal static class EnemyPlaceFixtures
     /// A registry with no species and no enemy system, for a slot a check never binds: binding any definition fails,
     /// since no species owns it, and any shared reaction the slot is asked for fails loudly.
     /// </summary>
-<<<<<<< HEAD
     internal static EnemySpeciesRegistry Registry { get; } = EnemyPlaceRegistries.Of();
-||||||| 418ca79935
-    internal static EnemySpeciesRegistry Registry { get; } = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Enemies.EnemySpeciesRegistry>([typeof(global::SuperMetroid.Core.Enemies.EnemyCommonParticipation), typeof(global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Enemies.IEnemyEntityFactory>)], new object?[] { new EnemyCommonParticipation(() => throw new InvalidOperationException(
-            "A standalone fixture slot has no enemy system to share reactions with.")), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Enemies.IEnemyEntityFactory>)([]) });
-=======
-    internal static EnemySpeciesRegistry Registry { get; } = new global::SuperMetroid.Core.Enemies.EnemySpeciesRegistry(new EnemyCommonParticipation(() => throw new InvalidOperationException(
-            "A standalone fixture slot has no enemy system to share reactions with.")), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Enemies.IEnemyEntityFactory>)([]));
->>>>>>> origin/main
 }

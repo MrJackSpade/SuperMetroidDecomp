@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// Where one of Samus's particles stands (#2554): waiting hidden before it shows, or showing its animation, which always
 /// shows a picture, so a shown particle draws the picture its stage holds and a hidden one is its own case.
 /// </summary>
-internal abstract class SamusParticleStage
+internal abstract partial class SamusParticleStage
 {
     /// <summary>Only the two stages below derive from it.</summary>
     private SamusParticleStage()
@@ -17,7 +17,7 @@ internal abstract class SamusParticleStage
     /// <summary>The particle waits hidden, its animation not yet started.</summary>
     /// <param name="wait">The wait before it shows, counting the update it first shows on.</param>
     /// <param name="animation">The animation it shows once the wait ends, from its first picture.</param>
-    internal sealed class Waiting(UpdateCountdown wait, Animation<SamusParticleKind> animation) : SamusParticleStage
+    internal sealed partial class Waiting(UpdateCountdown wait, Animation<SamusParticleKind> animation) : SamusParticleStage
     {
         /// <summary>The wait before it shows, counting the update it first shows on.</summary>
         internal UpdateCountdown Wait { get; } = wait;
@@ -28,7 +28,7 @@ internal abstract class SamusParticleStage
 
     /// <summary>The particle shows its animation's pictures in turn.</summary>
     /// <param name="animation">The play of its animation, which always shows a picture.</param>
-    internal sealed class Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> animation) : SamusParticleStage
+    internal sealed partial class Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> animation) : SamusParticleStage
     {
         /// <summary>The play of its animation, which always shows a picture.</summary>
         internal ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; } = animation;

@@ -25,7 +25,6 @@ internal static class SamusProjectileVelocityWords
     /// <summary>The native Y velocity word of <paramref name="slot"/>.</summary>
     internal static ushort Y(SamusProjectile slot)
     {
-<<<<<<< HEAD
         if (slot.KindStateOrNone() is IceParticleState ice)
             return checked((ushort)ice.Lifetime.UpdatesLeft);
         if (slot.KindStateOrNone() is WaveParticleState wave)
@@ -34,25 +33,6 @@ internal static class SamusProjectileVelocityWords
             return PlasmaPhaseWord(plasma.Phase);
         if (slot.KindStateOrNone() is SpazerParticleState spazer)
             return SignedStepWord(spazer.TurnPerUpdate);
-||||||| 418ca79935
-        if (slot.Behavior is IceSpecialAttackOrbit or IceSpecialAttackSpread)
-            return checked((ushort)slot.KindStateAs<IceParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is WaveSpecialAttackHoming)
-            return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is PlasmaSpecialAttackRing)
-            return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
-        if (slot.Behavior is SpazerSpecialAttackFlight)
-            return SignedStepWord(global::SuperMetroid.Core.PrivateState.Get<global::SuperMetroid.Core.Samus.Projectiles.OrbitingParticleState, global::SuperMetroid.Core.Spatial.TrigonometryAngle>(slot.KindStateAs<SpazerParticleState>(), "TurnPerUpdate"));
-=======
-        if (slot.Behavior is IceSpecialAttackOrbit or IceSpecialAttackSpread)
-            return checked((ushort)slot.KindStateAs<IceParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is WaveSpecialAttackHoming)
-            return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is PlasmaSpecialAttackRing)
-            return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
-        if (slot.Behavior is SpazerSpecialAttackFlight)
-            return SignedStepWord(slot.KindStateAs<SpazerParticleState>().TurnPerUpdate);
->>>>>>> origin/main
         return slot.Velocity.Y.RawValue;
     }
 

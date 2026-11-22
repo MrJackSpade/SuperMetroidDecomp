@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// as it is built, after the body, so the body places and times every echo it trails through the echo itself; an echo
 /// built again in its place takes the place of the one it replaces.
 /// </summary>
-internal sealed class DachoraEchoTrail
+internal sealed partial class DachoraEchoTrail
 {
     /// <summary>The joined echoes, in the order the room lists them.</summary>
     private readonly List<DachoraEchoEntity> _joined = [];

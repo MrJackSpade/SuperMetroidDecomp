@@ -564,17 +564,7 @@ internal static class InstalledFixtures
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
-<<<<<<< HEAD
         return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(), audioOutput, fixtureGameArtwork.Value);
-||||||| 418ca79935
-        var game = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.SuperMetroidGame>([typeof(global::SuperMetroid.Core.Saves.SaveSlotStore), typeof(global::SuperMetroid.Core.Gameplay.GameplayAssists), typeof(global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServices), typeof(global::SuperMetroid.Core.Compatibility.SharedRandom)], new object?[] { saves, assists, services, random ?? new SharedRandom() });
-        gameBindings.Value(game);
-        return game;
-=======
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(saves, assists, services, random ?? new SharedRandom());
-        gameBindings.Value(game);
-        return game;
->>>>>>> origin/main
     }
 
     /// <summary>

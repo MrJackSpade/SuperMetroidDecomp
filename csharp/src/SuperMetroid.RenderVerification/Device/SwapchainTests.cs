@@ -359,19 +359,7 @@ internal static partial class SwapchainTests
         var headless = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
-<<<<<<< HEAD
-||||||| 418ca79935
-        var audioAssets = DesktopAccess.LoadAudioClips();
-        legacy.BindAudio(audioAssets);
-        captured.BindAudio(audioAssets);
-        headless.BindAudio(audioAssets);
-=======
-        var audioAssets = DesktopAccess.LoadAudioClips();
-        legacy.BindAudio(audioAssets);
-        captured.BindAudio(audioAssets);
-        headless.BindAudio(audioAssets);
         var bound = new BoundObjectGraph([.. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent, audioAssets]);
->>>>>>> origin/main
         var left = new short[AudioSession.PcmSamplesPerFrame];
         var right = new short[AudioSession.PcmSamplesPerFrame];
         var silentDisplay = new short[AudioSession.PcmSamplesPerFrame];

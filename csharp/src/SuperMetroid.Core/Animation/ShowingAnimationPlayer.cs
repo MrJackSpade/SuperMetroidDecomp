@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
-internal sealed class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
+internal sealed partial class ShowingAnimationPlayer<TSegment, TFrame, TEvent>
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull

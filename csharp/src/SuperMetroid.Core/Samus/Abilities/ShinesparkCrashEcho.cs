@@ -54,5 +54,5 @@ public sealed partial class ShinesparkCrashEcho(ShinesparkCrashEchoRelease relea
     /// <summary>The shot carrying the echo and the flight its place holds for it.</summary>
     /// <param name="Shot">The shot.</param>
     /// <param name="Flight">The flight.</param>
-    private sealed record Carrier(SamusProjectile Shot, ShinesparkEchoShotState Flight);
+    private sealed partial record Carrier(SamusProjectile Shot, ShinesparkEchoShotState Flight);
 }

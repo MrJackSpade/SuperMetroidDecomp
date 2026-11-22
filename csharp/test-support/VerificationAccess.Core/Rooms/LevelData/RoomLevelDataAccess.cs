@@ -88,17 +88,8 @@ internal static class RoomLevelDataAccess
     /// <summary>The grid's behaviour array of <paramref name="level"/>, which a restore writes.</summary>
     private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => Ensure.NotNull(level).behaviors;
 
-<<<<<<< HEAD
     /// <summary>The grid's door exits of <paramref name="level"/> by row-major place, which a restore writes.</summary>
-    private static Dictionary<int, Doors.DoorBlockExit> ExitsOf(RoomLevelData level) =>
-        (Dictionary<int, Doors.DoorBlockExit>)ExitsField.GetValue(Ensure.NotNull(level))!;
-||||||| 418ca79935
-    /// <summary>The grid's door-exit array of <paramref name="level"/>, which a restore writes.</summary>
-    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => (Doors.DoorBlockExit?[])ExitsField.GetValue(Ensure.NotNull(level))!;
-=======
-    /// <summary>The grid's door-exit array of <paramref name="level"/>, which a restore writes.</summary>
-    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => Ensure.NotNull(level).exits;
->>>>>>> origin/main
+    private static Dictionary<int, Doors.DoorBlockExit> ExitsOf(RoomLevelData level) => Ensure.NotNull(level).exits;
 
     /// <summary>The grid's shown-foreground array of <paramref name="level"/>.</summary>
     private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) => Ensure.NotNull(level).shownForeground;

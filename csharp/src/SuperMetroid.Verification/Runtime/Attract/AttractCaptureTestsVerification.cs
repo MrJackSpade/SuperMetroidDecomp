@@ -119,7 +119,7 @@ internal static class AttractCaptureTestsVerification
                 foreach (var game in new[] { legacy, captured })
                 {
                     game.Session.Enter(new AttractDemoGameSequence.Starting(game.Session, duration: 16));
-                    PrivateState.Set(game.Session.Demo, nameof(AttractDemoSchedule.ScenesBegun), game.Session.Demo.Set.Scenes.Count);
+                    game.Session.Demo.ScenesBegun = game.Session.Demo.Set.Scenes.Count;
                 }
                 bounded = true;
             }

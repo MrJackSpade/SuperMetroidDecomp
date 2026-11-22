@@ -79,7 +79,7 @@ internal sealed partial class TitleGameSequence(FrontendSession session, TitleGa
     }
 
     /// <summary>A step of the title (#2554): its name and what it runs.</summary>
-    internal abstract class Stage
+    internal abstract partial class Stage
     {
         /// <summary>Only the steps below derive from it.</summary>
         private protected Stage()
@@ -98,7 +98,7 @@ internal sealed partial class TitleGameSequence(FrontendSession session, TitleGa
         internal abstract void Run(TitleGameSequence title, ControllerButton controllerInput);
 
         /// <summary>Power-on or a soft reset, which shows the title opening.</summary>
-        internal sealed class Starting : Stage
+        internal sealed partial class Starting : Stage
         {
             /// <summary>Only <see cref="Instance"/> is made.</summary>
             private Starting()
@@ -120,7 +120,7 @@ internal sealed partial class TitleGameSequence(FrontendSession session, TitleGa
 
         /// <summary>The title opening and title screen showing <paramref name="screen"/>.</summary>
         /// <param name="screen">The title's screen.</param>
-        internal sealed class Showing(TitleSequenceState screen) : Stage
+        internal sealed partial class Showing(TitleSequenceState screen) : Stage
         {
             /// <summary>The title's screen.</summary>
             internal TitleSequenceState Screen { get; } = Ensure.NotNull(screen);

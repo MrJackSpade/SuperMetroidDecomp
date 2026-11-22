@@ -310,7 +310,7 @@ internal sealed partial class EnemyTerrain
     /// <param name="level">The room's terrain.</param>
     /// <param name="reached">The block the probe's extension links lead to, where a reaction to it takes place.</param>
     /// <param name="slope">The probe's own test of a slope block.</param>
-    private sealed class ProbeReader(EnemyTerrain terrain, RoomLevelData level, Position16<RoomBlocks> reached,
+    private sealed partial class ProbeReader(EnemyTerrain terrain, RoomLevelData level, Position16<RoomBlocks> reached,
         Func<bool> slope) : IRoomBlockReader<bool>
     {
         /// <inheritdoc/>

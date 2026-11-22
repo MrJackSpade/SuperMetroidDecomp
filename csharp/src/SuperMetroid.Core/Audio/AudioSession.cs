@@ -78,7 +78,7 @@ public sealed partial class AudioSession
     }
 
     /// <summary>How a session turns each update's events into PCM: mixed from the installed clips, or silence.</summary>
-    private abstract class SessionAudioMix
+    private abstract partial class SessionAudioMix
     {
         /// <summary>Renders one update's <paramref name="frame"/>.</summary>
         internal abstract void Render(in AudioFrameEvents frame);
@@ -89,7 +89,7 @@ public sealed partial class AudioSession
 
     /// <summary>The PCM of a session that mixes the installed clips (#1305).</summary>
     /// <param name="clips">The installed clips the session mixes.</param>
-    private sealed class ClipMix(ClipAudioLibrary clips) : SessionAudioMix
+    private sealed partial class ClipMix(ClipAudioLibrary clips) : SessionAudioMix
     {
         /// <summary>The installed clips the session mixes.</summary>
         private readonly ClipAudioLibrary clips = Ensure.NotNull(clips);
@@ -127,7 +127,7 @@ public sealed partial class AudioSession
     }
 
     /// <summary>The PCM of a muted session: silence on every update.</summary>
-    private sealed class MutedMix : SessionAudioMix
+    private sealed partial class MutedMix : SessionAudioMix
     {
         /// <summary>The one muted mix, which keeps no state.</summary>
         internal static MutedMix Instance { get; } = new();

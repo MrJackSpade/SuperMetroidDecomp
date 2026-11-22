@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="session">The frontend session the credits run against.</param>
 /// <param name="credits">The credits' screen.</param>
-internal sealed class EndingCreditsGamePhase(FrontendSession session, EndingCreditsState credits) : IUnattendedPhase
+internal sealed partial class EndingCreditsGamePhase(FrontendSession session, EndingCreditsState credits) : IUnattendedPhase
 {
     /// <summary>The credits' screen.</summary>
     internal EndingCreditsState Screen { get; } = Ensure.NotNull(credits);

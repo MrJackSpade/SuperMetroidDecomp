@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>How a hit on one part of a two-part enemy reaches the part that follows it (#2375, #2476).</summary>
-internal static class EnemyPartnerHits
+internal static partial class EnemyPartnerHits
 {
     /// <summary>
     /// Runs after a hit's common reaction on <paramref name="struck"/>: a dead struck part deletes

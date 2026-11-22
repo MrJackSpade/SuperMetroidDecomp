@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// (#1305), or silence for a host that plays no audio. Gameplay is identical either way: the sound acceptance clock and
 /// its acknowledgements run whatever the output.
 /// </summary>
-public abstract record GameAudioOutput
+public abstract partial record GameAudioOutput
 {
     /// <summary>Closes the hierarchy to the outputs declared here.</summary>
     private GameAudioOutput()
@@ -14,10 +14,10 @@ public abstract record GameAudioOutput
 
     /// <summary>PCM mixed from <paramref name="Clips"/>, which the host copies after each update.</summary>
     /// <param name="Clips">The installed clips the session mixes.</param>
-    public sealed record Mixed(ClipAudioLibrary Clips) : GameAudioOutput;
+    public sealed partial record Mixed(ClipAudioLibrary Clips) : GameAudioOutput;
 
     /// <summary>No mixing: the PCM the host copies is silence.</summary>
-    public sealed record Muted : GameAudioOutput;
+    public sealed partial record Muted : GameAudioOutput;
 
     /// <summary>The output of a session that plays no audio.</summary>
     public static GameAudioOutput Silent { get; } = new Muted();

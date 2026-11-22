@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// (<see cref="AlongPath"/>, which holds the walk he chose), or has finished and stands still until his next update
 /// chooses what follows.
 /// </summary>
-public abstract class BotwoonMovement
+public abstract partial class BotwoonMovement
 {
     /// <summary>Closes the movements to the ones declared here.</summary>
     private BotwoonMovement()
@@ -22,14 +22,14 @@ public abstract class BotwoonMovement
     public static BotwoonMovement Finished { get; } = new Standing();
 
     /// <summary>A movement that holds nothing beyond which one it is.</summary>
-    private sealed class Standing : BotwoonMovement
+    private sealed partial class Standing : BotwoonMovement
     {
     }
 
     /// <summary>
     /// Walks his authored path, as many steps an update as his speed stage takes, until he walks off its end.
     /// </summary>
-    public sealed class AlongPath : BotwoonMovement
+    public sealed partial class AlongPath : BotwoonMovement
     {
         /// <summary>Starts walking <paramref name="walk"/> from its first step.</summary>
         /// <param name="walk">The walk he chose: its path, the way he walks it and the step he starts at.</param>

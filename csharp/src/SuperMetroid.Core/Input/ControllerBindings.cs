@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Input;
 /// gameplay behaviour owns a binding table or names a button. A binding set binds every action from its construction, so no
 /// value of it binds nothing.
 /// </remarks>
-public sealed class ControllerBindings : IEquatable<ControllerBindings>
+public sealed partial class ControllerBindings : IEquatable<ControllerBindings>
 {
     /// <summary>Every configurable action, in the order the bindings are checked and listed (#2567).</summary>
     private static readonly ControllerAction[] Actions = [.. Ensure.EveryMemberOnce<ControllerAction>(

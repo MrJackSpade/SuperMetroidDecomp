@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="Orientation">The surface it starts on.</param>
 /// <param name="BlockSide">The side of its block it holds, which signs its crawl velocity.</param>
 /// <param name="CrawlSpeed">Its crawl speed per update on both axes.</param>
-internal sealed record OrangeZoomerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight CrawlSpeed) : EnemySpawnSettings;
+internal sealed partial record OrangeZoomerSpawnSettings(CrawlerSurfaceOrientation Orientation, CrawlerSurfaceOrientation BlockSide, SignedEightEight CrawlSpeed) : EnemySpawnSettings;

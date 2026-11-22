@@ -178,12 +178,6 @@ internal static class GameplayAudioOrderVerification
         samus.Control.Unlock();
         runtime.Player.GroundedSamusMovementEnabled = true;
         game.AdoptRuntime(runtime);
-<<<<<<< HEAD
-||||||| 418ca79935
-        global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
-=======
-        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
->>>>>>> origin/main
         return (runtime, game.AudioForVerification);
     }
 }

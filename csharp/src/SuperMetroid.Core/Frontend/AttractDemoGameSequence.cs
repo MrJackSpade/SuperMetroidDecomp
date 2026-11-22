@@ -60,7 +60,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The next demo's scene, already begun in its set, whose runtime has yet to be created.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="scene">The scene the demo plays.</param>
-    internal sealed class AwaitingScene(FrontendSession session, AttractDemoScene scene) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
+    internal sealed partial class AwaitingScene(FrontendSession session, AttractDemoScene scene) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Loading;
@@ -82,7 +82,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="waits">The blank enemy-setup waits (<see cref="GameLoadingDefinitions.EnemySetupWaits"/>) left before the scene shows.</param>
     /// <param name="duration">How long the scene's scripted input lasts once it plays.</param>
-    internal sealed class LoadingScene(FrontendSession session, UpdateCountdown waits, int duration)
+    internal sealed partial class LoadingScene(FrontendSession session, UpdateCountdown waits, int duration)
         : AttractDemoGameSequence(session), IStepPhase, IRuntimePhase
     {
         /// <inheritdoc/>
@@ -102,7 +102,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The demo's first gameplay pass, after which the room is shown fully bright and playback begins.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="duration">How long the scene's scripted input lasts once it plays.</param>
-    internal sealed class Starting(FrontendSession session, int duration) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
+    internal sealed partial class Starting(FrontendSession session, int duration) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Starting;
@@ -122,7 +122,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The recording plays until its timer or a newly pressed real button ends it.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="playback">The scripted input left, counted once each scripted update.</param>
-    internal sealed class Playing(FrontendSession session, UpdateCountdown playback) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
+    internal sealed partial class Playing(FrontendSession session, UpdateCountdown playback) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Playing;
@@ -143,7 +143,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The recording has run out and its final image holds.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="hold">The still-frame hold left.</param>
-    internal sealed class Holding(FrontendSession session, UpdateCountdown hold) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
+    internal sealed partial class Holding(FrontendSession session, UpdateCountdown hold) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Holding;
@@ -164,7 +164,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The demo's gameplay is released while the schedule decides whether another demo plays.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="end">How the scene ended: played to its end, or cancelled by a press (#2560).</param>
-    internal sealed class Unloading(FrontendSession session, AttractPlaybackEnd end) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
+    internal sealed partial class Unloading(FrontendSession session, AttractPlaybackEnd end) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Unloading;
@@ -182,7 +182,7 @@ internal abstract partial class AttractDemoGameSequence
     /// <summary>The next demo loads, or the title returns: from its beginning, or at its title screen when a button ended the demo.</summary>
     /// <param name="session">The frontend session the demo runs against.</param>
     /// <param name="route">Where the attract mode goes after the scene.</param>
-    internal sealed class Routing(FrontendSession session, AttractDemoRoute route) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
+    internal sealed partial class Routing(FrontendSession session, AttractDemoRoute route) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Routing;

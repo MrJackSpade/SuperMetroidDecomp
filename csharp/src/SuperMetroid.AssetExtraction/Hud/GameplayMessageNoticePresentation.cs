@@ -217,7 +217,7 @@ public sealed partial class GameplayMessageNoticePresentation
     /// <summary>A save confirmation's fixed selection rows.</summary>
     /// <param name="Yes">The row showing YES selected.</param>
     /// <param name="No">The row showing NO selected.</param>
-    private sealed record SaveSelectionRows(BackgroundTile[] Yes, BackgroundTile[] No);
+    private sealed partial record SaveSelectionRows(BackgroundTile[] Yes, BackgroundTile[] No);
 
     /// <summary>A nonoverlapping text span whose position, width, glyphs, palette, and alignment have been checked.</summary>
     private sealed partial record CompiledTextRegion(

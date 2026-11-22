@@ -143,7 +143,7 @@ internal sealed partial class DeathGameSequence(FrontendSession session, DeathGa
         live.Runtime.FadeOut.Begin(RgbColor.Black, SamusDeathDefinitions.FadeParts, GameplayFadeSpares.Samus);
 
     /// <summary>A step of the death sequence (#2554): its name and what it runs.</summary>
-    internal abstract class Stage
+    internal abstract partial class Stage
     {
         /// <summary>Only the steps below derive from it.</summary>
         private protected Stage()
@@ -165,7 +165,7 @@ internal sealed partial class DeathGameSequence(FrontendSession session, DeathGa
         /// step completes the fade.
         /// </summary>
         /// <param name="fade">The death fade the final gameplay pass began.</param>
-        internal sealed class BlackingOutSurroundings(RunningGameplayFade fade) : Stage
+        internal sealed partial class BlackingOutSurroundings(RunningGameplayFade fade) : Stage
         {
             /// <inheritdoc/>
             internal override DeathSequenceStep Step => DeathSequenceStep.BlackingOutSurroundings;
@@ -176,7 +176,7 @@ internal sealed partial class DeathGameSequence(FrontendSession session, DeathGa
         }
 
         /// <summary>A step that holds nothing: the final gameplay pass, Samus's death and the final black-out.</summary>
-        internal sealed class Stateless : Stage
+        internal sealed partial class Stateless : Stage
         {
             /// <summary>Runs the step.</summary>
             private readonly Action<DeathGameSequence, ControllerButton, LoadedGameplay> _run;

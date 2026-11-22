@@ -13,5 +13,5 @@ namespace SuperMetroid.Core.Compatibility;
 /// nothing, which the sound acceptance clock check compares with a recording of the emulated sound program.
 /// </remarks>
 [CompatibilityService("a sound one library is asked for")]
-public readonly record struct RequestedSound<TSound>(TSound Sound)
+public readonly partial record struct RequestedSound<TSound>(TSound Sound)
     where TSound : notnull, IEquatable<TSound>;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <param name="Shape">The solid quarters of the block's square shape, before its reflections.</param>
 /// <param name="Behavior">The block's behaviour, which holds its reflections.</param>
-internal readonly record struct SquareSlopeBlock(SquareSlopeShape Shape, RoomBlockBehavior Behavior)
+internal readonly partial record struct SquareSlopeBlock(SquareSlopeShape Shape, RoomBlockBehavior Behavior)
 {
     /// <summary>The square slope <paramref name="behavior"/> selects, or none for a slope shape read as a height profile.</summary>
     /// <param name="behavior">The slope block's behaviour.</param>

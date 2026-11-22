@@ -99,30 +99,17 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = place.Position.WithWhole(new(0x0200, 0x0200));
             place.Radius = new(8, 8);
-<<<<<<< HEAD
             var state = new YardEnemyState
-||||||| 418ca79935
-            var state = global::SuperMetroid.Core.PrivateState.With<YardEnemyState>(new YardEnemyState(YardMovement.HoldingStill)
-=======
-            var state = (new YardEnemyState(YardMovement.HoldingStill)
->>>>>>> origin/main
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation),
                 Motion = YardMotion.Crawling,
                 Crawl = movement,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
-<<<<<<< HEAD
             };
             // A landing suppresses turns for a whole run of passes, as production starts them; otherwise none are suppressed.
             if (suppressed)
                 state.SuppressTurns();
-||||||| 418ca79935
-            }, "TurnSuppressionPassesLeft", UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0));
-=======
-                TurnSuppressionPassesLeft = UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0)
-            });
->>>>>>> origin/main
 
             run(place, state, level);
 

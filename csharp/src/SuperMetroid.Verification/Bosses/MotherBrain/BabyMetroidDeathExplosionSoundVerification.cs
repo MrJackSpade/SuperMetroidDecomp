@@ -29,7 +29,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         // Her late fight brings in the Baby, whose death sequence's first update sets off its first explosion.
         BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus));
-        global::SuperMetroid.Core.PrivateState.Set(baby.Baby, "Phase", new BabyMetroidCutscenePhase.Flying.DeathSequence());
+        baby.Baby.Phase = new BabyMetroidCutscenePhase.Flying.DeathSequence();
 
         runtime.Enemies.Audio.BeginFrame();
         baby.Place.RunMainAi(runtime.Player.Samus);

@@ -34,7 +34,6 @@ internal static class NativeSnapshotPauseImport
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, ScreenContent = game.Artwork.ScreenContent, SpriteSheets = game.Artwork.SpriteSheets });
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
-<<<<<<< HEAD
         // The highlight and the indicator are brought where the native menu's updates left them as the menu's own updates
         // bring them, each update stepping each once. The highlight's native timer counts the updates its frame has left, as
         // the highlight's does.
@@ -43,32 +42,13 @@ internal static class NativeSnapshotPauseImport
             memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
         for (int update = 0; update < highlightUpdates; update++)
             _ = menu.mapHighlight.Step();
-||||||| 418ca79935
-        // The highlight's native timer counts the updates its frame has left, as the player's does.
-        PrivateState.Field<MapHighlightAnimation, AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>>(menu.mapHighlight, "player")
-            .ResumeOn(memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
-=======
-        // The highlight's native timer counts the updates its frame has left, as the player's does.
-        menu.mapHighlight.player
-            .ResumeOn(memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
->>>>>>> origin/main
         // $0776 is a byte offset into $82:BA25's word tables; the native marker counts its timer down after its frame's
-<<<<<<< HEAD
         // update and moves on at zero, one update short of the indicator's count.
         int indicatorUpdates = UpdatesToShow(
             [.. PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse).OfType<AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame>().Select(frame => frame.Duration)],
             W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
         for (int update = 0; update < indicatorUpdates; update++)
             menu.mapIndicator.Step(_ => { });
-||||||| 418ca79935
-        // update and moves on at zero, one update short of the player's count.
-        PrivateState.Field<MapIndicatorPulse, AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>>(menu.mapIndicator, "player")
-            .ResumeOn(W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
-=======
-        // update and moves on at zero, one update short of the player's count.
-        menu.mapIndicator.player
-            .ResumeOn(W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
->>>>>>> origin/main
         game.Session.Show(menu);
     }
 

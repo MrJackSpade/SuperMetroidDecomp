@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// matches this closed set of cases exhaustively, so no collision kind is read apart from the reaction it carries and no
 /// block of a reacting kind can be met without its reaction.
 /// </summary>
-public abstract record RoomBlockKind
+public abstract partial record RoomBlockKind
 {
     /// <summary>Only the kinds below derive from it.</summary>
     private protected RoomBlockKind()
@@ -33,7 +33,7 @@ public abstract record RoomBlockKind
     /// The kind of a whole block, one that stands for itself rather than continuing another (#2554): every kind but the two
     /// extensions. A read that has reached the block a cell stands for meets only these.
     /// </summary>
-    public abstract record Whole : RoomBlockKind
+    public abstract partial record Whole : RoomBlockKind
     {
         /// <summary>Only the whole kinds below derive from it.</summary>
         private protected Whole()
@@ -86,7 +86,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>Empty air.</summary>
-    public sealed record Air : Whole
+    public sealed partial record Air : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Air()
@@ -104,7 +104,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>A slope, whose geometry the block's behaviour selects.</summary>
-    public sealed record Slope : Whole
+    public sealed partial record Slope : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private Slope()
@@ -122,7 +122,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>A horizontal extension, colliding as the block its behaviour's displacement names.</summary>
-    public sealed record HorizontalExtension : RoomBlockKind
+    public sealed partial record HorizontalExtension : RoomBlockKind
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private HorizontalExtension()
@@ -143,7 +143,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>A vertical extension, colliding as the block its behaviour's displacement names.</summary>
-    public sealed record VerticalExtension : RoomBlockKind
+    public sealed partial record VerticalExtension : RoomBlockKind
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private VerticalExtension()
@@ -164,7 +164,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>Air that reacts to nothing and that the X-ray scope does not reveal.</summary>
-    public sealed record UnrevealedAir : Whole
+    public sealed partial record UnrevealedAir : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private UnrevealedAir()
@@ -182,7 +182,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>An ordinary solid block.</summary>
-    public sealed record SolidBlock : Whole
+    public sealed partial record SolidBlock : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private SolidBlock()
@@ -200,7 +200,7 @@ public abstract record RoomBlockKind
     }
 
     /// <summary>A door block.</summary>
-    public sealed record DoorBlock : Whole
+    public sealed partial record DoorBlock : Whole
     {
         /// <summary>Only <see cref="Instance"/> is made.</summary>
         private DoorBlock()
@@ -219,7 +219,7 @@ public abstract record RoomBlockKind
 
     /// <summary>Spike air, with its spike reaction.</summary>
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
-    public sealed record SpikeAir(SpikeReaction Reaction) : Whole
+    public sealed partial record SpikeAir(SpikeReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpikeAir;
@@ -230,7 +230,7 @@ public abstract record RoomBlockKind
 
     /// <summary>A solid spike block, with its spike reaction.</summary>
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
-    public sealed record SpikeBlock(SpikeReaction Reaction) : Whole
+    public sealed partial record SpikeBlock(SpikeReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpikeBlock;
@@ -241,7 +241,7 @@ public abstract record RoomBlockKind
 
     /// <summary>Special air, with its special-air reaction.</summary>
     /// <param name="Reaction">The special-air reaction the block's behaviour gives it.</param>
-    public sealed record SpecialAir(SpecialAirReaction Reaction) : Whole
+    public sealed partial record SpecialAir(SpecialAirReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpecialAir;
@@ -252,7 +252,7 @@ public abstract record RoomBlockKind
 
     /// <summary>A solid special block, with its special-block reaction.</summary>
     /// <param name="Reaction">The special-block reaction the block's behaviour gives it.</param>
-    public sealed record SpecialBlock(SpecialBlockReaction Reaction) : Whole
+    public sealed partial record SpecialBlock(SpecialBlockReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.SpecialBlock;
@@ -263,7 +263,7 @@ public abstract record RoomBlockKind
 
     /// <summary>Shootable air, with its shootable reaction.</summary>
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
-    public sealed record ShootableAir(ShootableReaction Reaction) : Whole
+    public sealed partial record ShootableAir(ShootableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.ShootableAir;
@@ -274,7 +274,7 @@ public abstract record RoomBlockKind
 
     /// <summary>A solid shootable block, with its shootable reaction.</summary>
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
-    public sealed record ShootableBlock(ShootableReaction Reaction) : Whole
+    public sealed partial record ShootableBlock(ShootableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.ShootableBlock;
@@ -285,7 +285,7 @@ public abstract record RoomBlockKind
 
     /// <summary>Bombable air, with its bombable reaction.</summary>
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
-    public sealed record BombableAir(BombableReaction Reaction) : Whole
+    public sealed partial record BombableAir(BombableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.BombableAir;
@@ -296,7 +296,7 @@ public abstract record RoomBlockKind
 
     /// <summary>A solid bombable block, with its bombable reaction.</summary>
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
-    public sealed record BombableBlock(BombableReaction Reaction) : Whole
+    public sealed partial record BombableBlock(BombableReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.BombableBlock;
@@ -307,7 +307,7 @@ public abstract record RoomBlockKind
 
     /// <summary>A grapple block, with its grapple reaction.</summary>
     /// <param name="Reaction">The grapple reaction the block's behaviour gives it.</param>
-    public sealed record GrappleBlock(GrappleReaction Reaction) : Whole
+    public sealed partial record GrappleBlock(GrappleReaction Reaction) : Whole
     {
         /// <inheritdoc/>
         public override RoomCollisionType Collision => RoomCollisionType.GrappleBlock;

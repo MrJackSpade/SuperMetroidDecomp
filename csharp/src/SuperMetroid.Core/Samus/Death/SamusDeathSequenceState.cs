@@ -254,14 +254,14 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>A stage of the death sequence, named by the phase it is.</summary>
-    private abstract class DeathStage
+    private abstract partial class DeathStage
     {
         /// <summary>The phase the stage is.</summary>
         internal abstract SamusDeathSequencePhase Phase { get; }
     }
 
     /// <summary>A stage that plays on each update: the wait before the flash, the flash and the explosion.</summary>
-    private abstract class SteppingDeathStage : DeathStage
+    private abstract partial class SteppingDeathStage : DeathStage
     {
         /// <summary>Runs one update of the stage, returning what it draws of Samus.</summary>
         /// <param name="update">The sequence, Samus, her colours and the death's shades this update.</param>
@@ -273,10 +273,10 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     /// <param name="Samus">Samus, dying.</param>
     /// <param name="Colours">Her colours, which the stage shades.</param>
     /// <param name="Artwork">The death's shades and whiteout colours.</param>
-    private readonly record struct DeathUpdate(SamusDeathSequenceState Sequence, SamusState Samus, SamusColours Colours, SamusDeathSteps Artwork);
+    private readonly partial record struct DeathUpdate(SamusDeathSequenceState Sequence, SamusState Samus, SamusColours Colours, SamusDeathSteps Artwork);
 
     /// <summary>Samus is not dying.</summary>
-    private sealed class NotDyingStage : DeathStage
+    private sealed partial class NotDyingStage : DeathStage
     {
         /// <summary>The stage's only value.</summary>
         internal static NotDyingStage Instance { get; } = new();
@@ -286,7 +286,7 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>The wait before the flash, while the death pose animates.</summary>
-    private sealed class PreFlashStage : SteppingDeathStage
+    private sealed partial class PreFlashStage : SteppingDeathStage
     {
         /// <summary>The stage's only value.</summary>
         internal static PreFlashStage Instance { get; } = new();
@@ -307,7 +307,7 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>The flash, alternating the death shades until the suit explodes.</summary>
-    private sealed class FlashStage : SteppingDeathStage
+    private sealed partial class FlashStage : SteppingDeathStage
     {
         /// <summary>The stage's only value.</summary>
         internal static FlashStage Instance { get; } = new();
@@ -341,7 +341,7 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     /// the sequence completing once its last picture has shown.
     /// </summary>
     /// <param name="explosion">The explosion's pictures, from its first.</param>
-    private sealed class ExplosionStage(AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion)
+    private sealed partial class ExplosionStage(AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion)
         : SteppingDeathStage
     {
         /// <summary>The explosion's pictures as they play.</summary>
@@ -361,7 +361,7 @@ public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
     }
 
     /// <summary>The terminal white frame has shown; the sequence stays the owner until the room fades.</summary>
-    private sealed class CompleteStage : DeathStage
+    private sealed partial class CompleteStage : DeathStage
     {
         /// <summary>The stage's only value.</summary>
         internal static CompleteStage Instance { get; } = new();

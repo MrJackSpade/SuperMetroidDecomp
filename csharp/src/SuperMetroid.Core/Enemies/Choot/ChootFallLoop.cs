@@ -17,7 +17,7 @@ internal abstract partial class ChootFallLoop
     internal static AtSample Starting(ChootFallingPath fallingPath) => new(ChootFallingPathDefinitions.Paths[fallingPath].Samples, sample: 0, updatesIntoSample: 0, age: 0);
 
     /// <summary>A loop at one of its path's samples.</summary>
-    internal sealed class AtSample : ChootFallLoop
+    internal sealed partial class AtSample : ChootFallLoop
     {
         /// <summary>The samples of the path the loop follows, each one or more updates long.</summary>
         private readonly ChootFallSample[] _samples;
@@ -54,7 +54,7 @@ internal abstract partial class ChootFallLoop
     }
 
     /// <summary>A loop past its last update: the next falling update ends it.</summary>
-    internal sealed class Over : ChootFallLoop
+    internal sealed partial class Over : ChootFallLoop
     {
         /// <summary>The one loop past its end.</summary>
         internal static Over Instance { get; } = new();

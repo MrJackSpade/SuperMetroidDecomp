@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// its species as the type that creation takes, checked once where the entry is bound. An occupant holds the spawn it was
 /// set up from, so its entity is built, and a respawn rebuilt, with no further check.
 /// </summary>
-internal abstract class EnemySpawn
+internal abstract partial class EnemySpawn
 {
     /// <summary>Binds <paramref name="placement"/>.</summary>
     /// <param name="placement">The population entry.</param>

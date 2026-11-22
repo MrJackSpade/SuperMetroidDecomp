@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>An entry whose species only the population load builds, seeing the load's surroundings (#2554).</summary>
 /// <typeparam name="TSettings">The settings the species' creation takes.</typeparam>
-internal sealed class LoadedEnemySpawn<TSettings> : PopulationEnemySpawn where TSettings : EnemySpawnSettings
+internal sealed partial class LoadedEnemySpawn<TSettings> : PopulationEnemySpawn where TSettings : EnemySpawnSettings
 {
     /// <summary>The settings the entry gives its species.</summary>
     private readonly TSettings _settings;
@@ -31,7 +31,7 @@ internal sealed class LoadedEnemySpawn<TSettings> : PopulationEnemySpawn where T
     /// <summary>The entry's build in the population load's surroundings.</summary>
     /// <param name="spawn">The entry.</param>
     /// <param name="surroundings">The load's surroundings.</param>
-    private sealed class InSurroundings(LoadedEnemySpawn<TSettings> spawn, EnemyPopulationSurroundings surroundings) : IEnemyBuild
+    private sealed partial class InSurroundings(LoadedEnemySpawn<TSettings> spawn, EnemyPopulationSurroundings surroundings) : IEnemyBuild
     {
         /// <inheritdoc/>
         public EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>

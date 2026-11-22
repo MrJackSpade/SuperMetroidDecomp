@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// load-time snapshot, so a room object sees her after a room transition too.
 /// </summary>
 /// <param name="player">The runtime's player.</param>
-internal sealed class RoomObjectSamusAccess(SamusFrameState player) : IRoomSamusAccess
+internal sealed partial class RoomObjectSamusAccess(SamusFrameState player) : IRoomSamusAccess
 {
     /// <summary>The runtime's player.</summary>
     private readonly SamusFrameState _player = Ensure.NotNull(player);

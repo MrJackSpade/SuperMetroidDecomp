@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// the prompt's message box, which carries <paramref name="Prompt"/> to the answer.
 /// </summary>
 /// <param name="Prompt">The prompt, which resumes the ship that asked.</param>
-internal sealed record GunshipSavePromptRequested(GunshipSavePrompt Prompt) : EnemyPassEvent;
+internal sealed partial record GunshipSavePromptRequested(GunshipSavePrompt Prompt) : EnemyPassEvent;

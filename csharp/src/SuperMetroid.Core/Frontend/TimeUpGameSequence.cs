@@ -89,7 +89,7 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
     }
 
     /// <summary>A step of the time-up (#2554): what it answers of the phase and what it runs.</summary>
-    internal abstract class Stage
+    internal abstract partial class Stage
     {
         /// <summary>Only the steps below derive from it.</summary>
         private protected Stage()
@@ -113,7 +113,7 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
 
         /// <summary>Gameplay runs while every colour whitens through <paramref name="whiteOut"/>.</summary>
         /// <param name="whiteOut">The running white-out, which a reserve refill's interruption leaves where it stood (#2518).</param>
-        internal sealed class WhiteningOut(RunningGameplayFade whiteOut) : Stage
+        internal sealed partial class WhiteningOut(RunningGameplayFade whiteOut) : Stage
         {
             /// <inheritdoc/>
             internal override TimeUpStep Step => TimeUpStep.WhiteningOut;
@@ -130,7 +130,7 @@ internal sealed partial class TimeUpGameSequence(FrontendSession session, Gamepl
         }
 
         /// <summary>The whitened screen fades to black.</summary>
-        internal sealed class FadingToBlack : Stage
+        internal sealed partial class FadingToBlack : Stage
         {
             /// <summary>Only <see cref="Instance"/> is made.</summary>
             private FadingToBlack()

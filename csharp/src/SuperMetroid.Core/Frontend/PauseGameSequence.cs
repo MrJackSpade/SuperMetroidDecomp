@@ -224,7 +224,7 @@ internal sealed partial class PauseGameSequence(FrontendSession session, Gamepla
     }
 
     /// <summary>A step of the pause (#2554): its name and what it runs, with the pause screen the steps that show it hold.</summary>
-    internal abstract class Stage
+    internal abstract partial class Stage
     {
         /// <summary>Only the steps below derive from it.</summary>
         private protected Stage()
@@ -245,7 +245,7 @@ internal sealed partial class PauseGameSequence(FrontendSession session, Gamepla
         internal abstract void Run(PauseGameSequence pause, ControllerButton controllerInput, LoadedGameplay live);
 
         /// <summary>A step that shows no pause screen: gameplay's darkening, the screen's preparation, gameplay's restoration and brightening.</summary>
-        internal sealed class Stateless : Stage
+        internal sealed partial class Stateless : Stage
         {
             /// <summary>Names the step.</summary>
             private readonly Func<FrontendSession, string> _name;
@@ -289,7 +289,7 @@ internal sealed partial class PauseGameSequence(FrontendSession session, Gamepla
         }
 
         /// <summary>A step that shows the pause screen: its fade in, its map and equipment screens, its fade out.</summary>
-        internal sealed class OnScreen : Stage
+        internal sealed partial class OnScreen : Stage
         {
             /// <summary>Names the step.</summary>
             private readonly Func<FrontendSession, PauseMenuState, string> _name;

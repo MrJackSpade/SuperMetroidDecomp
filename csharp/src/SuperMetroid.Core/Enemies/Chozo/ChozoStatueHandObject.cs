@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The room object a Chozo statue's setup spawns as its hand (#2554): each carries the room object it becomes and the
 /// setup its spawn runs, as <see cref="ChozoStatueRoomObject"/> does, and is spawned only with the statue it belongs to.
 /// </summary>
-public sealed class ChozoStatueHandObject
+public sealed partial class ChozoStatueHandObject
 {
     /// <summary>The object's name, for diagnostics.</summary>
     private readonly string _name;

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species: its speed.</param>
-internal sealed class NorfairPipeBugFollowerEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class NorfairPipeBugFollowerEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     NorfairPipeBugSpawnSettings settings)
     : NorfairPipeBugEntity(species, occupant, place, common)
 {

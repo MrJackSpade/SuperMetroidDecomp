@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// The five phases are the only ones (#2554), and each names its successor for the hand's trigger and for the start of the
 /// wait: the hand's trigger is never undone, and the wait's start makes the statue wait for its hand whatever it did before.
 /// </remarks>
-public abstract class ChozoStatuePhase
+public abstract partial class ChozoStatuePhase
 {
     /// <summary>Only the five phases below derive from this.</summary>
     private ChozoStatuePhase() { }
@@ -43,7 +43,7 @@ public abstract class ChozoStatuePhase
     internal abstract ChozoStatuePhase AfterWaitStarts { get; }
 
     /// <summary>The placed statue.</summary>
-    private sealed class PlacedPhase : ChozoStatuePhase
+    private sealed partial class PlacedPhase : ChozoStatuePhase
     {
         /// <inheritdoc/>
         internal override ChozoStatuePhase AfterHandTriggered => HandTriggeredBeforeWaiting;
@@ -53,7 +53,7 @@ public abstract class ChozoStatuePhase
     }
 
     /// <summary>The placed statue whose hand Samus has already triggered.</summary>
-    private sealed class TriggeredBeforeWaitingPhase : ChozoStatuePhase
+    private sealed partial class TriggeredBeforeWaitingPhase : ChozoStatuePhase
     {
         /// <inheritdoc/>
         internal override ChozoStatuePhase AfterHandTriggered => this;
@@ -63,7 +63,7 @@ public abstract class ChozoStatuePhase
     }
 
     /// <summary>The statue waiting for Samus at its hand.</summary>
-    private sealed class AwaitingHandPhase : ChozoStatuePhase
+    private sealed partial class AwaitingHandPhase : ChozoStatuePhase
     {
         /// <inheritdoc/>
         internal override ChozoStatuePhase AfterHandTriggered => HandTriggered;
@@ -73,7 +73,7 @@ public abstract class ChozoStatuePhase
     }
 
     /// <summary>The waiting statue whose hand Samus has triggered.</summary>
-    private sealed class HandTriggeredPhase : ChozoStatuePhase
+    private sealed partial class HandTriggeredPhase : ChozoStatuePhase
     {
         /// <inheritdoc/>
         internal override ChozoStatuePhase AfterHandTriggered => this;
@@ -83,7 +83,7 @@ public abstract class ChozoStatuePhase
     }
 
     /// <summary>The activated statue.</summary>
-    private sealed class ActivatedPhase : ChozoStatuePhase
+    private sealed partial class ActivatedPhase : ChozoStatuePhase
     {
         /// <inheritdoc/>
         internal override ChozoStatuePhase AfterHandTriggered => this;

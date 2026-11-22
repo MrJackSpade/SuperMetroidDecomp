@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// the narration pages exist; every page step carries the pages' narration actors; the crossfade into the discovery
 /// carries its scene, and the flight to Ceres its flight.
 /// </summary>
-internal abstract record IntroCinematicStep
+internal abstract partial record IntroCinematicStep
 {
     /// <summary>Closes the hierarchy to the steps declared here.</summary>
     private IntroCinematicStep()
@@ -17,70 +17,70 @@ internal abstract record IntroCinematicStep
 
     /// <summary>A step of the narration pages, run with their narration actors.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal abstract record Narrated(IntroNarrationActors Narration) : IntroCinematicStep
+    internal abstract partial record Narrated(IntroNarrationActors Narration) : IntroCinematicStep
     {
         /// <summary>The narration actors the pages run with.</summary>
         internal IntroNarrationActors Narration { get; } = Ensure.NotNull(Narration);
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.Initial"/> step, before the narration pages exist.</summary>
-    internal sealed record Initial : IntroCinematicStep
+    internal sealed partial record Initial : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.Initial;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.WaitForInitialMusicQueue"/> step, before the narration pages exist.</summary>
-    internal sealed record WaitForInitialMusicQueue : IntroCinematicStep
+    internal sealed partial record WaitForInitialMusicQueue : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.WaitForInitialMusicQueue;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.FadeInFirstNarration"/> step, before the narration pages exist.</summary>
-    internal sealed record FadeInFirstNarration : IntroCinematicStep
+    internal sealed partial record FadeInFirstNarration : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.FadeInFirstNarration;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.LastMetroidIsInCaptivity"/> step, before the narration pages exist.</summary>
-    internal sealed record LastMetroidIsInCaptivity : IntroCinematicStep
+    internal sealed partial record LastMetroidIsInCaptivity : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.LastMetroidIsInCaptivity;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.GalaxyIsAtPeace"/> step, before the narration pages exist.</summary>
-    internal sealed record GalaxyIsAtPeace : IntroCinematicStep
+    internal sealed partial record GalaxyIsAtPeace : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.GalaxyIsAtPeace;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.WaitForSecondMusicQueue"/> step, before the narration pages exist.</summary>
-    internal sealed record WaitForSecondMusicQueue : IntroCinematicStep
+    internal sealed partial record WaitForSecondMusicQueue : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.WaitForSecondMusicQueue;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.HoldFirstNarration"/> step, before the narration pages exist.</summary>
-    internal sealed record HoldFirstNarration : IntroCinematicStep
+    internal sealed partial record HoldFirstNarration : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.HoldFirstNarration;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.FadeOutFirstNarration"/> step, before the narration pages exist.</summary>
-    internal sealed record FadeOutFirstNarration : IntroCinematicStep
+    internal sealed partial record FadeOutFirstNarration : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.FadeOutFirstNarration;
     }
 
     /// <summary>The opening's <see cref="IntroCinematicPhase.SetupFirstPage"/> step, before the narration pages exist.</summary>
-    internal sealed record SetupFirstPage : IntroCinematicStep
+    internal sealed partial record SetupFirstPage : IntroCinematicStep
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.SetupFirstPage;
@@ -88,7 +88,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.WaitForFirstPageMusicQueue"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record WaitForFirstPageMusicQueue(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record WaitForFirstPageMusicQueue(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.WaitForFirstPageMusicQueue;
@@ -96,7 +96,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.FadeInFirstPage"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record FadeInFirstPage(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record FadeInFirstPage(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.FadeInFirstPage;
@@ -104,7 +104,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.PageText"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record PageText(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record PageText(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.PageText;
@@ -112,7 +112,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.PageAwaitingInput"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record PageAwaitingInput(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record PageAwaitingInput(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.PageAwaitingInput;
@@ -120,7 +120,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.MotherBrainCrossfade"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record MotherBrainCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record MotherBrainCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.MotherBrainCrossfade;
@@ -128,7 +128,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.MotherBrainFlashback"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record MotherBrainFlashback(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record MotherBrainFlashback(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.MotherBrainFlashback;
@@ -136,7 +136,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.PageCrossfade"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record PageCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record PageCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.PageCrossfade;
@@ -144,7 +144,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.BabyDiscovery"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record BabyDiscovery(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record BabyDiscovery(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.BabyDiscovery;
@@ -152,7 +152,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.BabyMetroidDeliveryCrossfade"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record BabyMetroidDeliveryCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record BabyMetroidDeliveryCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
@@ -160,7 +160,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.BabyMetroidDelivery"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record BabyMetroidDelivery(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record BabyMetroidDelivery(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.BabyMetroidDelivery;
@@ -168,7 +168,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.BabyMetroidExaminationCrossfade"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record BabyMetroidExaminationCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record BabyMetroidExaminationCrossfade(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.BabyMetroidExaminationCrossfade;
@@ -176,7 +176,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.BabyMetroidExamination"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record BabyMetroidExamination(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record BabyMetroidExamination(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.BabyMetroidExamination;
@@ -184,7 +184,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.StartFinalPage"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record StartFinalPage(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record StartFinalPage(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.StartFinalPage;
@@ -192,7 +192,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The pages' <see cref="IntroCinematicPhase.IntroFadeOut"/> step, run with the pages' <paramref name="Narration"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
-    internal sealed record IntroFadeOut(IntroNarrationActors Narration) : Narrated(Narration)
+    internal sealed partial record IntroFadeOut(IntroNarrationActors Narration) : Narrated(Narration)
     {
         /// <inheritdoc/>
         internal override IntroCinematicPhase Phase => IntroCinematicPhase.IntroFadeOut;
@@ -201,7 +201,7 @@ internal abstract record IntroCinematicStep
     /// <summary>The crossfade from the narration into the SR388 discovery, showing <paramref name="Discovery"/>.</summary>
     /// <param name="Narration">The narration actors the pages run with.</param>
     /// <param name="Discovery">The discovery scene the crossfade shows.</param>
-    internal sealed record BabyDiscoveryCrossfade(IntroNarrationActors Narration, IntroBabyDiscoveryState Discovery) : Narrated(Narration)
+    internal sealed partial record BabyDiscoveryCrossfade(IntroNarrationActors Narration, IntroBabyDiscoveryState Discovery) : Narrated(Narration)
     {
         /// <summary>The discovery scene the crossfade shows.</summary>
         internal IntroBabyDiscoveryState Discovery { get; } = Ensure.NotNull(Discovery);
@@ -212,7 +212,7 @@ internal abstract record IntroCinematicStep
 
     /// <summary>The flight to the space colony after the narrated pages, running <paramref name="Flight"/>.</summary>
     /// <param name="Flight">The flight scene.</param>
-    internal sealed record CeresFlight(IntroCeresFlightState Flight) : IntroCinematicStep
+    internal sealed partial record CeresFlight(IntroCeresFlightState Flight) : IntroCinematicStep
     {
         /// <summary>The flight scene.</summary>
         internal IntroCeresFlightState Flight { get; } = Ensure.NotNull(Flight);

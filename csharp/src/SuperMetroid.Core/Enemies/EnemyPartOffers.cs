@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// respawn rebuilds it the same way; the latest offer for a definition stands for the rest of the room.
 /// </summary>
 [RoomLifetime]
-internal sealed class EnemyPartOffers
+internal sealed partial class EnemyPartOffers
 {
     /// <summary>How each offered definition's entries bind, by the creation the offer carries.</summary>
     private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _offered = [];

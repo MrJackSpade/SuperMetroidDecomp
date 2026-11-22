@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// that holds one always has a surface to read.
 /// </summary>
 [RoomLifetime]
-public sealed class RoomLiquidSurfaceLine
+public sealed partial class RoomLiquidSurfaceLine
 {
     /// <summary>Publishes a liquid's first surface on room line <paramref name="line"/>.</summary>
     /// <param name="line">The surface's room line, negative once a tide carries it above the room's top.</param>

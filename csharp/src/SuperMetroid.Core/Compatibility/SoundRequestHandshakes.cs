@@ -56,14 +56,14 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary>One library's handshake: where its queue is, with what that place holds (#2554).</summary>
     /// <param name="Awaited">The sound the queue last requested and has not withdrawn, or none.</param>
-    internal abstract record Handshake(RequestedSound<TSound>? Awaited)
+    internal abstract partial record Handshake(RequestedSound<TSound>? Awaited)
     {
         /// <summary>Where the queue is.</summary>
         internal abstract Phase Phase { get; }
     }
 
     /// <summary>Ready to request the library's next queued sound, awaiting nothing.</summary>
-    internal sealed record ReadyHandshake() : Handshake(Awaited: default)
+    internal sealed partial record ReadyHandshake() : Handshake(Awaited: default)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.ReadyToRequest;
@@ -71,7 +71,7 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
 
     /// <summary>Repeating the requested sound until the library reports it accepted.</summary>
     /// <param name="Awaited">The sound requested, or none once a music change's downtime dropped it.</param>
-    internal sealed record AwaitingHandshake(RequestedSound<TSound>? Awaited) : Handshake(Awaited)
+    internal sealed partial record AwaitingHandshake(RequestedSound<TSound>? Awaited) : Handshake(Awaited)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.AwaitingAcceptance;
@@ -83,14 +83,14 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     /// The sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the pass that
     /// withdraws it.
     /// </param>
-    internal sealed record HoldingHandshake(RequestedSound<TSound>? Awaited, UpdateCountdown Hold) : Handshake(Awaited)
+    internal sealed partial record HoldingHandshake(RequestedSound<TSound>? Awaited, UpdateCountdown Hold) : Handshake(Awaited)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.HoldingBeforeWithdrawal;
     }
 
     /// <summary>Repeating the withdrawal until the library reports nothing, awaiting nothing.</summary>
-    internal sealed record WithdrawingHandshake() : Handshake(Awaited: default)
+    internal sealed partial record WithdrawingHandshake() : Handshake(Awaited: default)
     {
         /// <inheritdoc/>
         internal override Phase Phase => Phase.AwaitingWithdrawalAcceptance;

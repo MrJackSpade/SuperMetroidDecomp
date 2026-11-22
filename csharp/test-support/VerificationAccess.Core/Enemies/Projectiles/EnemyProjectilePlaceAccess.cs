@@ -20,39 +20,9 @@ internal static class EnemyProjectilePlaceAccess
     /// projectile spawn through the game (<see cref="FamilyProjectileStarts.Allocate"/>). Every projectile runs an
     /// animation: this one deletes itself at its first animation step.
     /// </summary>
-<<<<<<< HEAD
     internal static EnemyProjectile OccupyProjectile(this RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
         Ensure.NotNull(enemies).Projectiles.Occupy(place, kind, FamilyProjectileStarts.BehaviorOf(enemies, kind), graphics,
             EnemyProjectileDeleteAnimation.Instance);
-||||||| 418ca79935
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind) =>
-        engine.Occupy(place, kind, EnemyProjectileDeleteAnimation.Instance);
-
-    /// <summary>
-    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/> running <paramref name="animation"/>,
-    /// starting from what the place's latest projectile left there, as a spawn into it would.
-    /// </summary>
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
-    {
-        EnemyProjectile?[] places = PrivateState.Field<EnemyProjectileEngine, EnemyProjectile?[]>(engine, "_places");
-        EnemyProjectilePlaceLeftovers leftovers = PrivateState.Field<EnemyProjectileEngine, EnemyProjectilePlaceLeftovers>(engine, "_leftovers");
-        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind, animation);
-    }
-=======
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind) =>
-        engine.Occupy(place, kind, EnemyProjectileDeleteAnimation.Instance);
-
-    /// <summary>
-    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/> running <paramref name="animation"/>,
-    /// starting from what the place's latest projectile left there, as a spawn into it would.
-    /// </summary>
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
-    {
-        EnemyProjectile?[] places = engine.ProjectilesInPlaces;
-        EnemyProjectilePlaceLeftovers leftovers = engine.Leftovers;
-        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind, animation);
-    }
->>>>>>> origin/main
 
     /// <summary>
     /// Makes <paramref name="place"/> free, holding <paramref name="leftover"/> for the room's next spawn there, as a

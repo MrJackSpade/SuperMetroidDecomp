@@ -52,7 +52,7 @@ internal abstract partial record YardCue
     /// <paramref name="Landing"/> once it lands.
     /// </summary>
     /// <param name="Landing">The animation the Yard hides with once it lands: the one the airborne animation's facing names.</param>
-    internal sealed record BeginFlight(YardSegment Landing) : YardCue
+    internal sealed partial record BeginFlight(YardSegment Landing) : YardCue
     {
         /// <inheritdoc/>
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginFlight(this, context);

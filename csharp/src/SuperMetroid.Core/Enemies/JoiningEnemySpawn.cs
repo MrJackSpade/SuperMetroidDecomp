@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <typeparam name="TEncounter">The encounter the spawned enemy joins.</typeparam>
 /// <typeparam name="TSettings">The settings the spawn gives the species.</typeparam>
-internal sealed class JoiningEnemySpawn<TEncounter, TSettings> : EnemySpawn, IEnemyBuild
+internal sealed partial class JoiningEnemySpawn<TEncounter, TSettings> : EnemySpawn, IEnemyBuild
     where TEncounter : class where TSettings : EnemySpawnSettings
 {
     /// <summary>The species.</summary>

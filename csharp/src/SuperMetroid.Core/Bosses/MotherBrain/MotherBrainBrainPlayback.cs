@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="Animation">The playing animation and where it stands.</param>
 /// <param name="Shown">The picture the brain shows.</param>
-internal sealed record MotherBrainBrainPlayback(AnimationPlayback<MotherBrainHeadSegment> Animation, EnemyFrameId Shown);
+internal sealed partial record MotherBrainBrainPlayback(AnimationPlayback<MotherBrainHeadSegment> Animation, EnemyFrameId Shown);

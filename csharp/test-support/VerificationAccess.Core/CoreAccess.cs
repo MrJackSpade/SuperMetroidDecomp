@@ -89,24 +89,6 @@ internal static class CoreAccess
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
-<<<<<<< HEAD
-||||||| 418ca79935
-        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
-        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
-        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal int MotherBrainHitCount =>
-            intro.CurrentFlashbackMotherBrain is { } motherBrain ? PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount") : 0;
-=======
-        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
-        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
-        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal int MotherBrainHitCount =>
-            intro.CurrentFlashbackMotherBrain is { } motherBrain ? motherBrain.HitCount : 0;
->>>>>>> origin/main
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>

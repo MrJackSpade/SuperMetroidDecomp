@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 /// <param name="body">The eye body that cast the beam.</param>
 /// <param name="eye">The state the eye body holds.</param>
-internal sealed class MorphBallEyeBeamCast(RoomEnemyPlace body, MorphBallEyeEnemyState eye)
+internal sealed partial class MorphBallEyeBeamCast(RoomEnemyPlace body, MorphBallEyeEnemyState eye)
 {
     /// <summary>The eye body that cast the beam.</summary>
     internal RoomEnemyPlace Body { get; } = Ensure.NotNull(body);

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// loads.
 /// </summary>
 /// <param name="sheet">The room's warning picture sheet.</param>
-public sealed class RoomWarnings(WrittenPictureSheet sheet)
+public sealed partial class RoomWarnings(WrittenPictureSheet sheet)
 {
     /// <summary>The warning written at the background's depth.</summary>
     public RoomWarning WithBackground { get; } = new(sheet, RoomWarningDepth.WithBackground);

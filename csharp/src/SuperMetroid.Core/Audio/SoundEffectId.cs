@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Audio;
 /// holds no number: the import pipeline alone maps a sound to the installed sound effect it requests. The identity is a
 /// closed choice of the three libraries' sounds and stops (#2554), so every identity names one library's sound or stop.
 /// </remarks>
-public abstract record SoundEffectId
+public abstract partial record SoundEffectId
 {
     /// <summary>Only the three libraries' sounds and stops below exist.</summary>
     private SoundEffectId() { }
@@ -50,7 +50,7 @@ public abstract record SoundEffectId
 
     /// <summary>A sound of Samus's library.</summary>
     /// <param name="Sound">Samus's sound.</param>
-    public sealed record OfSamus(SamusSound Sound) : SoundEffectId
+    public sealed partial record OfSamus(SamusSound Sound) : SoundEffectId
     {
         /// <inheritdoc />
         public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;

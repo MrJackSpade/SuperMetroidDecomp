@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// The Magdollite head's idle, submerge and emerge animations (#641, #2554). Each frame shows a <see cref="EnemyFrameId"/>
 /// and each cue is a <see cref="MagdolliteHeadCue"/> with the values it acts on, which only the head carries out.
 /// </summary>
-internal static class MagdolliteHeadAnimations
+internal static partial class MagdolliteHeadAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MagdolliteHeadSegment, EnemyFrameId, MagdolliteHeadCue> Segments { get; } = new(

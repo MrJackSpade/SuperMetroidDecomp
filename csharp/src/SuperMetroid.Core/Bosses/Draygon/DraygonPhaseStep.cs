@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// might not have. Each phase runs itself (<see cref="DraygonPhaseSteps"/>); <see cref="Phase"/> names it for what reads the
 /// fight from outside.
 /// </summary>
-internal abstract class DraygonPhaseStep
+internal abstract partial class DraygonPhaseStep
 {
     /// <summary>Names the step by the phase it runs.</summary>
     /// <param name="phase">The phase the step runs.</param>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// rebuilt by a respawn, or spawned on another enemy's behalf.
 /// </summary>
 /// <typeparam name="TSettings">The settings the species' creation takes.</typeparam>
-internal sealed class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpawn, IEnemyBuild where TSettings : EnemySpawnSettings
+internal sealed partial class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpawn, IEnemyBuild where TSettings : EnemySpawnSettings
 {
     /// <summary>The settings the entry gives its species.</summary>
     private readonly TSettings _settings;

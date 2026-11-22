@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// How the Yard moves (#2554), holding what its movement needs: an airborne Yard holds the animation it hides with once it
 /// lands, which the airborne animation it flies with names, so a landing resumes the animation its flight holds.
 /// </summary>
-internal abstract class YardMotion
+internal abstract partial class YardMotion
 {
     /// <summary>Only the motions below derive from it.</summary>
     private YardMotion(YardMovement movement) => Movement = movement;
@@ -26,11 +26,11 @@ internal abstract class YardMotion
 
     /// <summary>A movement on or against a surface, which needs nothing beyond the Yard's state.</summary>
     /// <param name="movement">The movement.</param>
-    private sealed class Grounded(YardMovement movement) : YardMotion(movement);
+    private sealed partial class Grounded(YardMovement movement) : YardMotion(movement);
 
     /// <summary>The Yard's shell flies, falling, bouncing and slowing until it lands.</summary>
     /// <param name="landing">The animation the Yard hides with once it lands.</param>
-    internal sealed class Airborne(YardSegment landing) : YardMotion(YardMovement.Airborne)
+    internal sealed partial class Airborne(YardSegment landing) : YardMotion(YardMovement.Airborne)
     {
         /// <summary>The animation the Yard hides with once it lands, which its airborne animation names.</summary>
         internal YardSegment Landing { get; } = landing;

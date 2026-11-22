@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="Pieces">The ship's three pieces, with the entrance pad's animation the top hull starts and steps.</param>
 /// <param name="Hull">The top hull's own animation.</param>
 /// <param name="Ship">The ship's phase, timers and motion.</param>
-internal sealed record GunshipTop(GunshipPieces Pieces, GunshipPieceState Hull, GunshipState Ship);
+internal sealed partial record GunshipTop(GunshipPieces Pieces, GunshipPieceState Hull, GunshipState Ship);

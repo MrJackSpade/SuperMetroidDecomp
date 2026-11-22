@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="Place">The door's place.</param>
 /// <param name="Door">The door's animation, which holds its look.</param>
 [RoomLifetime]
-internal sealed record CeresRidleyRoomDoor(RoomEnemyPlace Place, CeresDoorAnimationState Door);
+internal sealed partial record CeresRidleyRoomDoor(RoomEnemyPlace Place, CeresDoorAnimationState Door);

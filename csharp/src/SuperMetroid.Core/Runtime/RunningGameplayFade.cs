@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="steps">The fade's steps of the shared gradual colour change.</param>
 /// <param name="toward">The colour the fade ends in.</param>
 /// <param name="spared">What the fade leaves in its own colours.</param>
-internal sealed class RunningGameplayFade(GradualFadeSteps steps, RgbColor toward, GameplayFadeSpares spared)
+internal sealed partial class RunningGameplayFade(GradualFadeSteps steps, RgbColor toward, GameplayFadeSpares spared)
 {
     /// <summary>Takes one step of the fade.</summary>
     /// <returns>Whether the fade completed on this update; the display keeps showing its end until it ends.</returns>

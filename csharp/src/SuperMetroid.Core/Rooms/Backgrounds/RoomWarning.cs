@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// picture at its place on the screen, and the room's warning picture sheet its pictures show from. Only a room whose
 /// tileset has the sheet has its warnings (<see cref="RoomWarnings"/>), so nothing is written where it cannot be shown.
 /// </summary>
-public sealed class RoomWarning
+public sealed partial class RoomWarning
 {
     /// <summary>Resolves each written picture's frame in the room's warning picture sheet.</summary>
     private readonly WrittenPictureResolver _pictures;

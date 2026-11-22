@@ -51,7 +51,7 @@ internal abstract partial record AudioRequest
     /// Installs only the shared sounds, as at power-on: the music stops and the waiting song change is dropped. The songs
     /// asked for next are of the set loaded next.
     /// </summary>
-    internal sealed record InstallSharedSounds : AudioRequest
+    internal sealed partial record InstallSharedSounds : AudioRequest
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioRequestReactions<TContext> reactions, TContext context) =>

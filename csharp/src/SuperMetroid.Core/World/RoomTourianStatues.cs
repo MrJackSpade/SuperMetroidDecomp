@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.World;
 /// <param name="Room">The statues' room.</param>
 /// <param name="Actors">The statue actors the room's enemies built over it.</param>
 [RoomLifetime]
-internal sealed record RoomTourianStatues(TourianStatueRoom Room, ITourianStatueActors Actors);
+internal sealed partial record RoomTourianStatues(TourianStatueRoom Room, ITourianStatueActors Actors);

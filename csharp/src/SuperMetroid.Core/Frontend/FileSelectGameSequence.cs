@@ -276,7 +276,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
     }
 
     /// <summary>A step of choosing a game (#2554): its name, the screen it shows and what it runs.</summary>
-    internal abstract class Stage
+    internal abstract partial class Stage
     {
         /// <summary>Only the steps below derive from it.</summary>
         private protected Stage()
@@ -299,7 +299,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
 
         /// <summary>The save slots, showing <paramref name="screen"/>.</summary>
         /// <param name="screen">The save slots' screen.</param>
-        internal sealed class SaveSlots(FileSelectMenuState screen) : Stage
+        internal sealed partial class SaveSlots(FileSelectMenuState screen) : Stage
         {
             /// <summary>The save slots' screen.</summary>
             internal FileSelectMenuState Screen { get; } = Ensure.NotNull(screen);
@@ -320,7 +320,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
 
         /// <summary>The selected game's options, showing <paramref name="screen"/>.</summary>
         /// <param name="screen">The options' screen.</param>
-        internal sealed class Options(GameOptionsMenuState screen) : Stage
+        internal sealed partial class Options(GameOptionsMenuState screen) : Stage
         {
             /// <summary>The options' screen.</summary>
             internal GameOptionsMenuState Screen { get; } = Ensure.NotNull(screen);
@@ -340,7 +340,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
         }
 
         /// <summary>A saved game's area map, before its first update builds it.</summary>
-        internal sealed class PreparingMap : Stage
+        internal sealed partial class PreparingMap : Stage
         {
             /// <summary>Only <see cref="Instance"/> is made.</summary>
             private PreparingMap()
@@ -366,7 +366,7 @@ internal sealed partial class FileSelectGameSequence(FrontendSession session, Fi
 
         /// <summary>A saved game's area map, showing <paramref name="screen"/>.</summary>
         /// <param name="screen">The map's screen.</param>
-        internal sealed class Map(FileSelectMapMenuState screen) : Stage
+        internal sealed partial class Map(FileSelectMapMenuState screen) : Stage
         {
             /// <summary>The map's screen.</summary>
             internal FileSelectMapMenuState Screen { get; } = Ensure.NotNull(screen);

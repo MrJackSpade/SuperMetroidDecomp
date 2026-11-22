@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
 /// <param name="create">The species' creation.</param>
-internal sealed class SpeciesSpawnCreation<TSettings>(EnemySpawnCreation<TSettings> create) where TSettings : EnemySpawnSettings
+internal sealed partial class SpeciesSpawnCreation<TSettings>(EnemySpawnCreation<TSettings> create) where TSettings : EnemySpawnSettings
 {
     /// <summary>The species' creation.</summary>
     private readonly EnemySpawnCreation<TSettings> _create = Ensure.NotNull(create);

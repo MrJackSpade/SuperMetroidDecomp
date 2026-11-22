@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's phases (#2554), each the step his body runs while in it: the phases that run from his state alone, which are
 /// one step each, and the swoop and goop phases, built over the path or the setup they hold.
 /// </summary>
-internal static class DraygonPhaseSteps
+internal static partial class DraygonPhaseSteps
 {
     /// <summary>The fight's opening delay, while the dancing Evirs spawn.</summary>
     internal static DraygonPhaseStep IntroInitialDelay() => IntroInitialDelayStep.Instance;
@@ -87,7 +87,7 @@ internal static class DraygonPhaseSteps
     internal static DraygonPhaseStep GoopRecovery(DraygonPhaseStep exit) => new GoopRecoveryStep(exit);
 
     /// <summary>The fight's opening delay, while the dancing Evirs spawn.</summary>
-    private sealed class IntroInitialDelayStep : DraygonPhaseStep
+    private sealed partial class IntroInitialDelayStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static IntroInitialDelayStep Instance { get; } = new();
@@ -103,7 +103,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The Evirs' opening dance.</summary>
-    private sealed class IntroDanceStep : DraygonPhaseStep
+    private sealed partial class IntroDanceStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static IntroDanceStep Instance { get; } = new();
@@ -119,7 +119,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The rightward swoop's setup, which plans the swoop's path.</summary>
-    private sealed class RightSwoopSetupStep : DraygonPhaseStep
+    private sealed partial class RightSwoopSetupStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static RightSwoopSetupStep Instance { get; } = new();
@@ -135,7 +135,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The chase that tries to grab a slowed Samus.</summary>
-    private sealed class TryGrabSamusStep : DraygonPhaseStep
+    private sealed partial class TryGrabSamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static TryGrabSamusStep Instance { get; } = new();
@@ -151,7 +151,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The recoil from Samus's grapple.</summary>
-    private sealed class RepelGrappleStep : DraygonPhaseStep
+    private sealed partial class RepelGrappleStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static RepelGrappleStep Instance { get; } = new();
@@ -167,7 +167,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The carry of a grabbed Samus to the spiral.</summary>
-    private sealed class CarrySamusStep : DraygonPhaseStep
+    private sealed partial class CarrySamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static CarrySamusStep Instance { get; } = new();
@@ -183,7 +183,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The spiral with Samus held.</summary>
-    private sealed class FlailWithSamusStep : DraygonPhaseStep
+    private sealed partial class FlailWithSamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static FlailWithSamusStep Instance { get; } = new();
@@ -199,7 +199,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The start of a tail whip with Samus held.</summary>
-    private sealed class BeginTailWhipWithSamusStep : DraygonPhaseStep
+    private sealed partial class BeginTailWhipWithSamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static BeginTailWhipWithSamusStep Instance { get; } = new();
@@ -215,7 +215,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>A tail whip with Samus held.</summary>
-    private sealed class TailWhipWithSamusStep : DraygonPhaseStep
+    private sealed partial class TailWhipWithSamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static TailWhipWithSamusStep Instance { get; } = new();
@@ -231,7 +231,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The start of the final tail whips.</summary>
-    private sealed class FinalTailWhipsStep : DraygonPhaseStep
+    private sealed partial class FinalTailWhipsStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static FinalTailWhipsStep Instance { get; } = new();
@@ -247,7 +247,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The wait through the final tail whips.</summary>
-    private sealed class FinalTailWhipsWaitStep : DraygonPhaseStep
+    private sealed partial class FinalTailWhipsWaitStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static FinalTailWhipsWaitStep Instance { get; } = new();
@@ -263,7 +263,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The release of a held Samus.</summary>
-    private sealed class ReleaseSamusStep : DraygonPhaseStep
+    private sealed partial class ReleaseSamusStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static ReleaseSamusStep Instance { get; } = new();
@@ -279,7 +279,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The climb straight up and out of the room, back to the rightward swoop's setup.</summary>
-    private sealed class FlyStraightUpStep : DraygonPhaseStep
+    private sealed partial class FlyStraightUpStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static FlyStraightUpStep Instance { get; } = new();
@@ -295,7 +295,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The dying body's drift to its burial point.</summary>
-    private sealed class DyingStep : DraygonPhaseStep
+    private sealed partial class DyingStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static DyingStep Instance { get; } = new();
@@ -311,7 +311,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The dying body's wait for its burial Evirs.</summary>
-    private sealed class DyingWaitForEvirsStep : DraygonPhaseStep
+    private sealed partial class DyingWaitForEvirsStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static DyingWaitForEvirsStep Instance { get; } = new();
@@ -327,7 +327,7 @@ internal static class DraygonPhaseSteps
     }
 
     /// <summary>The dying body's sink below the room.</summary>
-    private sealed class DyingFinishStep : DraygonPhaseStep
+    private sealed partial class DyingFinishStep : DraygonPhaseStep
     {
         /// <summary>The step's only value.</summary>
         internal static DyingFinishStep Instance { get; } = new();
@@ -344,7 +344,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>The leftward swoop's setup, flying the path the rightward setup last planned.</summary>
     /// <param name="path">The path the swoop flies.</param>
-    private sealed class LeftSwoopSetupStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopSetup, path)
+    private sealed partial class LeftSwoopSetupStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopSetup, path)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Swoops.SetupDraygonLeftSwoop(update.State, update.Samus, update.FrameCounter, Path);
@@ -352,7 +352,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>The swoop's descent along its path.</summary>
     /// <param name="path">The path the swoop flies.</param>
-    private sealed class SwoopDescendingStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopDescending, path)
+    private sealed partial class SwoopDescendingStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopDescending, path)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Swoops.DescendDraygonSwoop(update.State, update.Samus, update.FrameCounter, DraygonBehavior.SwoopSideOf(update.State), Path);
@@ -360,7 +360,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>The swoop's bottom, where it aims its climb along its path at the side it flies to.</summary>
     /// <param name="path">The path the swoop flies.</param>
-    private sealed class SwoopApexStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopApex, path)
+    private sealed partial class SwoopApexStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopApex, path)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Swoops.CrossDraygonSwoopApex(update.State, update.Samus, update.FrameCounter, Path);
@@ -368,7 +368,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>The swoop's climb along its path.</summary>
     /// <param name="path">The path the swoop flies.</param>
-    private sealed class SwoopAscendingStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopAscending, path)
+    private sealed partial class SwoopAscendingStep(DraygonSwoopPath path) : DraygonSwoopStep(DraygonPhase.SwoopAscending, path)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Swoops.AscendDraygonSwoop(update.State, update.Samus, update.FrameCounter, DraygonBehavior.SwoopSideOf(update.State), Path);
@@ -376,7 +376,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>A goop pass's setup.</summary>
     /// <param name="exit">The swoop setup the pass leads into.</param>
-    private sealed class GoopSetupStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopSetup, exit)
+    private sealed partial class GoopSetupStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopSetup, exit)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Goop.SetupDraygonGoopPass(update.State, update.State.PassDirection, update.Samus, update.FrameCounter, Exit);
@@ -384,7 +384,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>A goop pass's approach toward Samus.</summary>
     /// <param name="exit">The swoop setup the pass leads into.</param>
-    private sealed class GoopApproachStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopApproach, exit)
+    private sealed partial class GoopApproachStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopApproach, exit)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Goop.ApproachSamusForDraygonGoop(update.State, update.Samus, update.FrameCounter, Exit);
@@ -392,7 +392,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>A goop pass's firing.</summary>
     /// <param name="exit">The swoop setup the pass leads into.</param>
-    private sealed class GoopTailStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopTail, exit)
+    private sealed partial class GoopTailStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopTail, exit)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Goop.FireDraygonGoop(update.State, update.State.PassDirection, update.Samus, update.FrameCounter, Exit);
@@ -400,7 +400,7 @@ internal static class DraygonPhaseSteps
 
     /// <summary>A goop pass's way off the screen.</summary>
     /// <param name="exit">The swoop setup the pass leads into.</param>
-    private sealed class GoopRecoveryStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopRecovery, exit)
+    private sealed partial class GoopRecoveryStep(DraygonPhaseStep exit) : DraygonGoopStep(DraygonPhase.GoopRecovery, exit)
     {
         /// <inheritdoc/>
         internal override void Run(DraygonPhaseUpdate update) => update.Draygon.Goop.ExitDraygonGoopPass(update.State, update.State.PassDirection, update.Samus, Exit);

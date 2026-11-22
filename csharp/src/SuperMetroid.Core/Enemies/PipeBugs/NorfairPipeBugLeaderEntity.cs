@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="place">The place the leader occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species: its trigger width and speed.</param>
-internal sealed class NorfairPipeBugLeaderEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+internal sealed partial class NorfairPipeBugLeaderEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     NorfairPipeBugLeaderSpawnSettings settings)
     : NorfairPipeBugEntity(species, occupant, place, common)
 {

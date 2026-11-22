@@ -619,7 +619,7 @@ public static partial class SamusGrappleMovement
     /// <param name="terrain">The room's terrain, whose room objects the block's reaction can spawn.</param>
     /// <param name="samus">Samus, whose periodic damage a latching spike adds to.</param>
     /// <param name="block">The block the beam's endpoint stands for.</param>
-    private sealed class EndpointReaction(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block) : IWholeBlockReader<GrappleBlockReaction>
+    private sealed partial class EndpointReaction(RoomTerrain terrain, SamusState samus, RoomCollisionBlock block) : IWholeBlockReader<GrappleBlockReaction>
     {
         /// <inheritdoc/>
         public GrappleBlockReaction Air() => GrappleBlockReaction.Passes;

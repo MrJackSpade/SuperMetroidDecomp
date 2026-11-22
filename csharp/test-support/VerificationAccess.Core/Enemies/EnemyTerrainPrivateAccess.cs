@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class EnemyTerrainPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.EnemyTerrain self)
-    {
-        /// <summary>The private method <c>ReactToEnemySpikeBlock</c>, invoked by name.</summary>
-        internal bool ReactToEnemySpikeBlock(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData level, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks> position, global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock block) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.EnemyTerrain, bool>(self, "ReactToEnemySpikeBlock", [typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomLevelData), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>), typeof(global::SuperMetroid.Core.Rooms.LevelData.RoomCollisionBlock)], new object?[] { level, position, block });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.EnemyTerrain)
     {

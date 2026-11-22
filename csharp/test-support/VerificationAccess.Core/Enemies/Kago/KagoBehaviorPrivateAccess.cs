@@ -11,10 +11,6 @@ internal static class KagoBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Enemies.Kago.KagoBehavior self)
     {
-        /// <summary>The private method <c>ResolveKagoShotAfterCommon</c>, invoked by name.</summary>
-        internal void ResolveKagoShotAfterCommon(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Kago.KagoEnemyState state) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Kago.KagoBehavior>(self, "ResolveKagoShotAfterCommon", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Kago.KagoEnemyState)], new object?[] { occupant, place, state });
-
         /// <summary>The private method <c>SpawnKagoBug</c>, invoked by name.</summary>
         internal void SpawnKagoBug(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Kago.KagoBehavior>(self, "SpawnKagoBug", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { occupant, source });

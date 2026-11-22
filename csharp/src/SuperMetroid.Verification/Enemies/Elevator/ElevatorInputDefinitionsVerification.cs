@@ -29,9 +29,12 @@ internal static class ElevatorInputDefinitionsVerification
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
-            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => enemies.ElevatorBehavior.InitializeElevator(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
+            // The elevator is set up as the population load sets it up, and waits for its input as its main AI runs once Samus
+            // stands at its door.
+            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => fixturePlace.InitializeAsPlaced(fixtureArg1);
             Action<RoomEnemyPlace, SamusState, GameplayAction,
-                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) => enemies.ElevatorBehavior.WaitForElevatorDirectionInput(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3);
+                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) =>
+                fixturePlace.RunMainAi(PlacedEnemyAccess.AiFrame(fixtureArg1, fixtureArg2, fixtureArg3));
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);

@@ -26,10 +26,7 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
-        var unstarted = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Func<KraidEnemyState, KraidHeadAnimationResult> run = unstarted.KraidBehavior.Head.RunKraidHeadAnimationStep;
-        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(KraidPartsFixtures.Standalone())),
-            "an unstarted Kraid head program fails loudly, as an unset native cursor did");
+        // A head always plays an animation from the update it stands on (#2554), so there is no unstarted head to refuse.
 
         Console.WriteLine(
             "Kraid head programs: the 19 native records of the three started lists, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
@@ -44,7 +41,7 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
+            Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.PlayToNextPose;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
             state.HeadPlayback = record.Playback;

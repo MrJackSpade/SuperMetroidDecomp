@@ -2,6 +2,8 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Kago;
@@ -30,7 +32,16 @@ internal static class KagoBehaviorVerification
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. slow, slow[0]], [10, 10, 10, 10, 10]),
             EnemyInstructionRunner.ShownFrames(place, 41, Animate), "Kago slow loop");
 
-        enemies.KagoBehavior.ResolveKagoShotAfterCommon(place.HeldOccupant(), place, state);
+        // A beam strikes the Kago: its shot reaction's stage after the common damage runs as the collision runs it.
+        RoomEnemyOccupant kago = place.HeldOccupant();
+        EnemyShotReaction reaction = enemies.KagoBehavior.KagoShotReaction(kago, kago.SpawnSettings<KagoSpawnSettings>(), state);
+        SamusProjectileSystem projectiles = InstalledFixtures.CreateProjectileSystem();
+        SamusProjectileType beam = SamusProjectileType.Of(SamusProjectileFamily.Beam);
+        SamusProjectileOccupant fired = projectiles.Shots[0].Occupy(beam, 20);
+        var shot = new EnemyShotContext(kago, fired, projectiles, RoomEnemyFrameFixtures.StandaloneSamus(), beam, 20,
+            SamusProjectileDirection.Left, SamusProjectileFamily.Beam, UsesFrameHitboxes: false, kago.Definition.Shot, Position16<RoomPixels>.Zero);
+        (reaction.AfterCommon ?? throw new InvalidOperationException("The Kago's shot reaction runs no stage after the common damage."))
+            (new EnemyShotHitContext(shot, place.Health));
         AssertEqual(1, state.HitsTaken, "Kago real shot handoff counts its first hit");
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.KagoBug),
             "Kago real shot handoff retains its projectile side effect");

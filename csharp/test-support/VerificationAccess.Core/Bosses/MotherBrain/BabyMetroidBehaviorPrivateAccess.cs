@@ -11,24 +11,8 @@ internal static class BabyMetroidBehaviorPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior self)
     {
-        /// <summary>The private method <c>RequireBabyMetroidVictim</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Enemies.RoomEnemyPlace RequireBabyMetroidVictim(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior, global::SuperMetroid.Core.Enemies.RoomEnemyPlace>(self, "RequireBabyMetroidVictim", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { place });
-
-        /// <summary>The private method <c>RunBabyMetroidMain</c>, invoked by name.</summary>
-        internal void RunBabyMetroidMain(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera, global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem samusBombs) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior>(self, "RunBabyMetroidMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>), typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem)], new object?[] { place, samus, camera, samusBombs });
-
         /// <summary>The private method <c>StepBabyMetroidMembranePulse</c>, invoked by name.</summary>
         internal void StepBabyMetroidMembranePulse(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidEnemyState state) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior>(self, "StepBabyMetroidMembranePulse", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidEnemyState)], new object?[] { place, state });
-    }
-
-    /// <summary>The private static members checks name.</summary>
-    extension(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior)
-    {
-        /// <summary>The private method <c>InitializeBabyMetroid</c>, invoked by name.</summary>
-        internal static void InitializeBabyMetroid(global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, int cameraX) =>
-            PrivateState.InvokeStatic(typeof(global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidBehavior), "InitializeBabyMetroid", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(int)], new object?[] { place, cameraX });
     }
 }

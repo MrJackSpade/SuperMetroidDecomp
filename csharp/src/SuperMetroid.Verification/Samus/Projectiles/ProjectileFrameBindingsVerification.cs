@@ -45,11 +45,12 @@ internal static class ProjectileFrameBindingsVerification
             nativeBomb.HeldBomb().Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y);
             var installedShot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
             installedShot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            var installedBomb = new SamusBomb(0);
-            installedBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            installedBomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
+            // The installed bomb holds the bomb system's first place, its fuse burned out, so its update plays its animation.
+            SamusBomb installedBomb = bombs.FirstBomb;
+            installedBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            installedBomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             // A list repeating one still picture is held, and no bomb shows one (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertTrue(Word(0) is > 0 and < 0x8000,
@@ -69,7 +70,7 @@ internal static class ProjectileFrameBindingsVerification
                 "projectile Y radius is independent of sprite binding");
             if (still)
                 continue;
-            bombs.AdvanceProjectileAnimation(installedBomb.HeldBomb());
+            bombs.HandleBombsInOpenRoom();
             AssertEqual(false, !installedBomb.IsActive,
                 "installed bomb frame survives");
             AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedBomb.SpritemapPointer,

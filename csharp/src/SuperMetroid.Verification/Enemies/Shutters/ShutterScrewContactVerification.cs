@@ -60,7 +60,8 @@ internal static class ShutterScrewContactVerification
                     contactPlaces[direction] is { } place ? runtime.Enemies.Places.InUpdateOrder[place] : null);
             }
 
-            runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter.HeldOccupant(), shutter, state, samus, Position16<RoomPixels>.Zero);
+            // The shutter's main AI runs as the enemy pass runs it, with the camera at the room's origin.
+            shutter.RunMainAi(PlacedEnemyAccess.AiFrame(samus));
             string context = $"{contacts}, contact damage {contactDamage}";
             AssertEqual(reacts, state.Action is VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown,
                 $"{context}: the idle shutter starts moving");

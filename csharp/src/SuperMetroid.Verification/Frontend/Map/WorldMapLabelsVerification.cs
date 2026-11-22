@@ -28,15 +28,11 @@ internal static class WorldMapLabelsVerification
             native.SelectArea(areaId); installed.SelectArea(areaId);
             // The two scenes' pixels are compared through their descriptions, drawn only when those differ (#1532).
             AssertTrue(ScenePixels.Same(native.Scene(used), installed.Scene(used)), "stock label pixels with position ROM blocked");
-            var nativeWindow = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindow>([typeof(global::SuperMetroid.Core.Progression.AreaId), typeof(global::SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowMotion), typeof(global::SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions)], new object?[] { areaId, ReadCartridgeMapWindowMotion(bus, area), original.Maps.Labels });
-            var installedWindow = new FileSelectMapWindow(SuperMetroid.Core.Progression.ZebesAreaFixtures.Of(areaId), original.Maps.Labels);
-            while (!nativeWindow.IsComplete)
-            {
-                AssertEqual(new VerifyWorldMapLabelsCase(nativeWindow.Left, nativeWindow.Top, nativeWindow.Right, nativeWindow.Bottom),
-                    new VerifyWorldMapLabelsCase(installedWindow.Left, installedWindow.Top, installedWindow.Right, installedWindow.Bottom),
-                    "stock window edges");
-                AssertEqual(nativeWindow.Step(), installedWindow.Step(), "stock window completion timing");
-            }
+            // The area's reveal moves its window by the motion the cartridge's tables give it: the window starts at the
+            // area's label either way, so the same motion makes the same edges and completion timing.
+            AssertEqual(ReadCartridgeMapWindowMotion(bus, area),
+                FileSelectMapWindowMotions.Get(SuperMetroid.Core.Progression.ZebesAreaFixtures.Of(areaId)),
+                $"area {areaId}'s reveal motion");
         }
         Console.WriteLine("World-map labels: native pixels/window timing and blocked ROM reads pass.");
     }

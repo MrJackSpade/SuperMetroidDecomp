@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -84,5 +85,18 @@ internal static class SamusProjectileFixtureOccupancy
         /// <summary>Takes the place with a bomb of <paramref name="type"/> dealing the damage its family's bomb definition gives.</summary>
         /// <returns>The bomb now holding the place.</returns>
         internal SamusBombOccupant OccupyAsPlaced(SamusProjectileType type) => bomb.Occupy(BombKindOf(type.Family), DamageAsPlaced(type));
+    }
+
+    /// <summary>Fixture runs of Samus's bombs.</summary>
+    extension(SamusBombProjectileSystem bombs)
+    {
+        /// <summary>
+        /// Runs the bombs' share of one projectile pass (<see cref="SamusBombProjectileSystem.HandleBombs"/>) in a room with
+        /// no terrain, beside a new Samus, the bomb-jump overlap left to the pass's end: each placed bomb's fuse runs, and
+        /// it plays the animation its update leaves.
+        /// </summary>
+        internal void HandleBombsInOpenRoom() =>
+            bombs.HandleBombs(SamusTerrain.InRoom(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled),
+                SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), BombJumpOverlapPublication.Deferred);
     }
 }

@@ -44,7 +44,7 @@ internal static class RoomFxWidenedInputsVerification
         const int deepest = CoordinateAxis.LastNonNegative;
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
-        var liquid = global::SuperMetroid.Core.PrivateState.New<global::SuperMetroid.Core.Fx.RoomFxOverlayState>([typeof(global::SuperMetroid.Core.Audio.GameplaySoundRequests)], new object?[] { SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone() });
+        var liquid = global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertTrue(liquid.BaseY is null && liquid.TargetSurface is null && liquid.Surface is null,
             "a room with no effect has no liquid surface or target (#1987)");
         liquid.SetLiquidLevel(deepest);

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Enemies;
@@ -91,6 +93,32 @@ internal static class PlacedEnemyAccess
         new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(level ?? RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), enemyFrame) with { Samus = Ensure.NotNull(samus), Camera = camera },
             new FrameCounters(ShortFrameCount.Zero.After(enemyFrame)));
+
+    /// <summary>
+    /// A main-AI frame over an open room with <paramref name="samus"/>, the camera at <paramref name="camera"/>, Samus's
+    /// bombs <paramref name="bombs"/>, nothing pressed and both clocks at zero: the frame an enemy that reads the room's
+    /// bombs, such as the Baby Metroid draining Samus, runs in beside the running game's Samus.
+    /// </summary>
+    internal static IEnemyAiFrame AiFrame(SamusState samus, Position16<RoomPixels> camera, SamusBombProjectileSystem bombs) =>
+        new ClockedEnemyAiFrame(
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with
+            {
+                Samus = Ensure.NotNull(samus), Camera = camera, SamusBombs = Ensure.NotNull(bombs),
+            },
+            new FrameCounters(ShortFrameCount.Zero));
+
+    /// <summary>
+    /// A main-AI frame over an open room with <paramref name="samus"/>, the camera at the room's origin,
+    /// <paramref name="newlyPressed"/> newly pressed, Samus's beams and missiles <paramref name="projectiles"/> and both
+    /// clocks at zero: the frame an enemy that answers the controller, such as an elevator, runs in.
+    /// </summary>
+    internal static IEnemyAiFrame AiFrame(SamusState samus, GameplayAction newlyPressed, SamusProjectileSystem projectiles) =>
+        new ClockedEnemyAiFrame(
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with
+            {
+                Samus = Ensure.NotNull(samus), NewlyPressedControllerInput = newlyPressed, SamusProjectiles = Ensure.NotNull(projectiles),
+            },
+            new FrameCounters(ShortFrameCount.Zero));
 
     /// <summary>A room of <paramref name="size"/> blocks that is solid throughout, so an enemy moving anywhere in it meets terrain.</summary>
     internal static RoomLevelData SolidRoom(Extent16<RoomBlocks> size)

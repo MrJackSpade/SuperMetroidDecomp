@@ -39,10 +39,6 @@ internal static class TorizoAttacksPrivateAccess
             get => PrivateState.Get<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks, global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior>(self, "Egg");
         }
 
-        /// <summary>The private method <c>InitializeTorizoRandomizedProjectile</c>, invoked by name.</summary>
-        internal void InitializeTorizoRandomizedProjectile(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior owner, global::SuperMetroid.Core.Enemies.EnemyProjectile projectile, global::SuperMetroid.Core.Enemies.RoomEnemyPlace torizo, global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition definition) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks>(self, "InitializeTorizoRandomizedProjectile", [typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior), typeof(global::SuperMetroid.Core.Enemies.EnemyProjectile), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Bosses.Torizo.TorizoRandomizedProjectileDefinition)], new object?[] { owner, projectile, torizo, definition });
-
         /// <summary>The private property <c>SuperMissile</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Bosses.Torizo.TorizoAttacks.TorizoProjectileBehavior SuperMissile
         {

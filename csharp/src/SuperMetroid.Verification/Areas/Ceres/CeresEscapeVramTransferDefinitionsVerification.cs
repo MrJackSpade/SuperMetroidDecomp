@@ -96,8 +96,8 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         AssertEqual(backgroundList.Length, CeresSelfDestructWarningDefinitions.BeforeTitleUpdates, "the wait for the title lasts one update a timer-background record");
 
         // The Japanese subtitle's lines are written over BG1 at exactly the four compiled records' destinations, two rows each.
-        foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
-            escape.ShowWarningPicture(line);
+        // They show as the subtitle phase's wait runs out.
+        escape.ShowJapaneseSubtitleAsItsWaitRunsOut();
         var written = new bool[TwoScreenTilemapCells.Count];
         for (int index = 0; index < 4; index++)
         {

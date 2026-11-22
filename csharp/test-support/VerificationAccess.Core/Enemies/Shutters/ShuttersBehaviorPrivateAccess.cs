@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 internal static class ShuttersBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior self)
-    {
-        /// <summary>The private method <c>RunVerticalShutterMain</c>, invoked by name.</summary>
-        internal void RunVerticalShutterMain(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace place, global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus, global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels> camera) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior>(self, "RunVerticalShutterMain", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.Shutters.VerticalShutterEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState), typeof(global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomPixels>)], new object?[] { occupant, place, state, samus, camera });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.Shutters.ShuttersBehavior)
     {

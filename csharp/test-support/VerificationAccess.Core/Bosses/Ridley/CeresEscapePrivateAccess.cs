@@ -19,10 +19,6 @@ internal static class CeresEscapePrivateAccess
         internal void ShowFloorZoom(global::SuperMetroid.Core.Spatial.FloorZoom zoom) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "ShowFloorZoom", [typeof(global::SuperMetroid.Core.Spatial.FloorZoom)], new object?[] { zoom });
 
-        /// <summary>The private method <c>ShowWarningPicture</c>, invoked by name.</summary>
-        internal void ShowWarningPicture(global::SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeWarningPicture page) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Ridley.CeresEscape>(self, "ShowWarningPicture", [typeof(global::SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeWarningPicture)], new object?[] { page });
-
         /// <summary>The private property <c>Stage</c>, reached by name.</summary>
         internal global::SuperMetroid.Core.Bosses.Ridley.CeresEscapeStage Stage
         {

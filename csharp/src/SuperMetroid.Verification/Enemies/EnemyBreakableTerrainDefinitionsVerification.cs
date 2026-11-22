@@ -40,8 +40,9 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain(roomObjects.BreakableTerrain);
-            RoomCollisionBlock block = level.GetCollisionBlock(Position16<RoomBlocks>.Zero);
-            bool collision = terrain.ReactToEnemySpikeBlock(level, Position16<RoomBlocks>.Zero, block);
+            // An enemy within the block's row moves a pixel down, its lower edge reaching the spike block as it moves.
+            var body = new MovingEnemyBody(FixedPosition<RoomPixels>.FromWhole(new(8, 4)), new(4, 2));
+            bool collision = terrain.MoveEnemyVertically(level, body, SignedSixteenSixteen.OnePixel);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
@@ -70,5 +71,17 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
 
         Console.WriteLine(
             "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass through the bus-free terrain owner; 224 adjacent-code selectors fail explicitly.");
+    }
+
+    /// <summary>The body of an enemy the check moves through the room's terrain: where it is and how far it reaches.</summary>
+    /// <param name="position">Where the enemy starts.</param>
+    /// <param name="radius">How far the enemy reaches from its centre.</param>
+    private sealed class MovingEnemyBody(FixedPosition<RoomPixels> position, Extent16<RoomPixels> radius) : IEnemyTerrainBody
+    {
+        /// <inheritdoc/>
+        public FixedPosition<RoomPixels> Position { get; set; } = position;
+
+        /// <inheritdoc/>
+        public Extent16<RoomPixels> Radius { get; } = radius;
     }
 }

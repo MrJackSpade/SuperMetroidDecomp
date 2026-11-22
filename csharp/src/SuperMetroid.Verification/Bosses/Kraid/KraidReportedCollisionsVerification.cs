@@ -41,7 +41,7 @@ internal static class KraidReportedCollisionsVerification
             state.HeadPlayback = closed
                 ? KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0)
                 : KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 4);
-            runtime.Enemies.KraidBehavior.Head.RunKraidHeadAnimationStep(state);
+            runtime.Enemies.KraidBehavior.Head.PlayToNextPose(state);
             bool marked = false;
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)

@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal static class FuneNamiheBehaviorPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior self)
-    {
-        /// <summary>The private method <c>SpawnFuneNamiheFireball</c>, invoked by name.</summary>
-        internal void SpawnFuneNamiheFireball(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant occupant, global::SuperMetroid.Core.Enemies.RoomEnemyPlace source, global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState state, global::SuperMetroid.Core.Spatial.HorizontalDirection direction, global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind kind) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior>(self, "SpawnFuneNamiheFireball", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyOccupant), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace), typeof(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEnemyState), typeof(global::SuperMetroid.Core.Spatial.HorizontalDirection), typeof(global::SuperMetroid.Core.Enemies.RoomEnemyProjectileKind)], new object?[] { occupant, source, state, direction, kind });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheBehavior)
     {

@@ -415,7 +415,6 @@ global using static SuperMetroid.Core.Enemies.Beetom.BeetomBehaviorPrivateAccess
 global using static SuperMetroid.Core.Enemies.BossBodies.BossBodyFramePrivateAccess;
 global using static SuperMetroid.Core.Enemies.BossBodies.BossBodyPartsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Boulder.BoulderAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Boulder.BoulderBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Boyon.BoyonAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Boyon.BoyonBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Boyon.BoyonBounceCurvePrivateAccess;
@@ -424,7 +423,6 @@ global using static SuperMetroid.Core.Enemies.Bull.BullBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Cacatac.CacatacAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Cacatac.CacatacBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Choot.ChootAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Choot.ChootBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Chozo.ChozoStatueAnimationsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Chozo.ChozoStatueBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Chozo.LowerNorfairChozoHandObjectPrivateAccess;
@@ -441,7 +439,6 @@ global using static SuperMetroid.Core.Enemies.Dragon.DragonBehaviorPrivateAccess
 global using static SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorsPrivateAccess;
 global using static SuperMetroid.Core.Enemies.Elevator.ElevatorAnimationsPrivateAccess;
-global using static SuperMetroid.Core.Enemies.Elevator.ElevatorBehaviorPrivateAccess;
 global using static SuperMetroid.Core.Enemies.EnemyAnimationClockPrivateAccess;
 global using static SuperMetroid.Core.Enemies.EnemyAudioQueuePrivateAccess;
 global using static SuperMetroid.Core.Enemies.EnemyCollisionPrivateAccess;
@@ -676,7 +673,6 @@ global using static SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsStatePriv
 global using static SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounterPrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.ScrollBoundaryCameraPrivateAccess;
 global using static SuperMetroid.Core.Samus.Poses.SamusCollisionPosesPrivateAccess;
-global using static SuperMetroid.Core.Samus.Poses.SamusGroundedPoseTransitionsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Poses.SamusPoseHistoryStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeLevelPrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeStatePrivateAccess;

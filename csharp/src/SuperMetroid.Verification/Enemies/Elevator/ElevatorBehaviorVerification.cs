@@ -23,7 +23,7 @@ internal static class ElevatorBehaviorVerification
         place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
-        enemies.ElevatorBehavior.InitializeElevator(place.HeldOccupant(), place, RoomEnemyFrameFixtures.StandaloneSamus());
+        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorSegment.Idle, ElevatorFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorSegment.Idle)),
@@ -45,7 +45,7 @@ internal static class ElevatorBehaviorVerification
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
-        enemies.ElevatorBehavior.InitializeElevator(elevator.HeldOccupant(), elevator, samus);
+        elevator.InitializeAsPlaced(samus);
         AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ArrivalElevator),
             "the arriving elevator is the placement the door loader waits for");
 

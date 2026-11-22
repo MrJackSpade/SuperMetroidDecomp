@@ -13,10 +13,6 @@ internal static class SamusBombProjectileSystemPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem self)
     {
-        /// <summary>The private method <c>AdvanceProjectileAnimation</c>, invoked by name.</summary>
-        internal void AdvanceProjectileAnimation(global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant bomb) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem>(self, "AdvanceProjectileAnimation", [typeof(global::SuperMetroid.Core.Samus.Projectiles.SamusBombOccupant)], new object?[] { bomb });
-
         /// <summary>The private method <c>SpawnBombSpread</c>, invoked by name.</summary>
         internal void SpawnBombSpread(global::SuperMetroid.Core.Samus.SamusState samus) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Samus.Projectiles.SamusBombProjectileSystem>(self, "SpawnBombSpread", [typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { samus });

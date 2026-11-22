@@ -34,7 +34,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         SamusAerialPoseTransitions.ApplyWallContactAnimationRewind(spinning);
         AssertEqual(0x0a, spinning.AnimationNumber, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        SamusAerialPoseTransitions.ApplyWallJumpTrigger(spinning, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
+        SamusAerialPoseTransitions.ApplyWallJumpTrigger(spinning, new RoomTerrain(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 

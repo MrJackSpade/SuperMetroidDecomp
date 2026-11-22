@@ -1685,7 +1685,7 @@ internal static class LookupStream4Verification
                 DraygonEnemyState initialized = enemies.Draygon ?? throw new InvalidOperationException("Verification requires enemies.Draygon.");
                 LayDraygonShading(actual, selected, initialized.Colours);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer shows only his opening's colours");
-                AssertEqual(DraygonPhase.IntroInitialDelay,initialized.Phase,"Actual initializer phase");
+                AssertEqual(DraygonPhaseSteps.IntroInitialDelay(),initialized.Step,"Actual initializer phase");
             }
         }
         foreach(int invalid in new[]{-1,25,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.ResolveIntro(invalid),"Original intro domain");

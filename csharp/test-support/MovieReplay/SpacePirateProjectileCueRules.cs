@@ -23,8 +23,11 @@ internal static class SpacePirateProjectileCueRules
             // Both ways' routines stand for the one motion; the routine the list installs names the cue's way (#2278).
             ushort routine = (ushort)(operands[0] | operands[1] << 8);
             VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(routine, SingleMotion.Moving), $"{at}: movement");
-            VerificationAssertions.AssertEqual(cue.Kind == SpacePirateProjectileCueKind.FireLaser
-                ? EnemyProjectileMotionAccess.PirateLaserFlight(cue.Direction)
-                : EnemyProjectileMotionAccess.PirateClawThrow(cue.Direction), routine, $"{at}: the movement's way");
+            // The thrower chooses the way, which the cue does not name (#2553); the routine is one of its kind's two ways.
+            Func<HorizontalDirection, ushort> flight = cue.Kind == SpacePirateProjectileCueKind.FireLaser
+                ? EnemyProjectileMotionAccess.PirateLaserFlight
+                : EnemyProjectileMotionAccess.PirateClawThrow;
+            VerificationAssertions.AssertTrue(routine == flight(HorizontalDirection.Left) || routine == flight(HorizontalDirection.Right),
+                $"{at}: the movement is the cue's kind's");
         });
 }

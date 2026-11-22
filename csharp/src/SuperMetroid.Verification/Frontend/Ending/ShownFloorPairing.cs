@@ -146,7 +146,8 @@ internal sealed class ShownFloorPairing
                 bool clear = pixels[pixel].A == 0;
                 int value = clear ? -1
                     : composedIndices ? InstalledPictureColoursConstants.ComposedIndexAt(sheet, pixel)
-                    : sheet.PlaceOf(sheet.KeyAt(pixel)) ?? throw new InvalidOperationException($"{sheet} holds no key for its own pixel {pixel}.");
+                    : sheet.TryGetPlace(sheet.KeyAt(pixel), out int keyPlace) ? keyPlace
+                    : throw new InvalidOperationException($"{sheet} holds no key for its own pixel {pixel}.");
                 laid[target + x] = new LaidPixel(place, value, clear);
             }
         }

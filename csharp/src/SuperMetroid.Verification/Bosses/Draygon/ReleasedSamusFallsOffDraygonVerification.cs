@@ -59,7 +59,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);
 
-        AssertEqual(DraygonPhase.Dying, draygon.Phase, "touching the dead Draygon runs its death reaction");
+        AssertEqual(DraygonPhaseSteps.Dying(), draygon.Step, "touching the dead Draygon runs its death reaction");
         AssertEqual(SamusPoseId.FallingRightPose, samus.Pose,
             "the released Samus walks off thin water and falls in the same frame");
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");

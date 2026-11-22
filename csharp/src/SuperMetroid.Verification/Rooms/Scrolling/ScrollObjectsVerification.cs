@@ -74,7 +74,7 @@ internal static class ScrollObjectsVerification
         {
             var insideSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
-            SamusInsideBlockReactions.PrepareFrame(SamusTerrain.InRoom(level, roomObjects), insideSamus, roomHasPower: true);
+            SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, roomObjects), insideSamus, roomHasPower: true);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             roomObjects.Step(level, scrolls);
@@ -102,7 +102,7 @@ internal static class ScrollObjectsVerification
         };
         // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
         SamusState probeSamus = InstalledFixtures.CreateSamus();
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), body, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, roomObjects), body, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -125,7 +125,7 @@ internal static class ScrollObjectsVerification
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
-        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(ball), SamusTerrain.InRoom(level, roomObjects), ball, frameCounter: 0);
+        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(ball), new RoomTerrain(level, roomObjects), ball, frameCounter: 0);
         AssertTrue(ball.Position.X.Whole > ballStartX,
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -152,7 +152,7 @@ internal static class ScrollObjectsVerification
         bombJump.Kinematics.VerticalVelocity = bombJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         SamusBombJumpMovement.Step(
 
-            SamusTerrain.InRoom(level, roomObjects),
+            new RoomTerrain(level, roomObjects),
             bombJump,
             frameCounter: 0);
         AssertTrue(bombJump.BombJumpActive,

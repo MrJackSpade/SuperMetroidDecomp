@@ -127,7 +127,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             hiddenFrame.FinalizeAsOam();
             AssertEqual(PictureUpdates(kind, 0), hidden.All[0].StepUpdatesLeft, $"production atmospheric type {type} delayed timer");
             AssertEqual(0, hidden.All[0].AnimationStep, $"production atmospheric type {type} delayed handoff");
-            AssertTrue(!hidden.All[0].IsHidden, $"production atmospheric type {type} shows");
+            AssertTrue(hidden.All[0].Stage is SamusParticleStage.Showing, $"production atmospheric type {type} shows");
             AssertThrows<ArgumentOutOfRangeException>(
                 () => SamusParticle.AtStep(kind, 1, SamusParticleStart.Hidden(1), new(100, 100), Offset16<RoomPixels>.Zero),
                 $"atmospheric type {type} starts hidden only on its first picture");

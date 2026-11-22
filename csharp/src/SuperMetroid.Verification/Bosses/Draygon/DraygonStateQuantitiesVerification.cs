@@ -112,7 +112,7 @@ internal static class DraygonStateQuantitiesVerification
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
         AssertEqual(unchecked((byte)(angle + EightEightOracle.UnsignedWhole(nativeDelta))), state.SpiralAngle.ToTrigonometryAngle().RawValue,
             "the angle advances by the step's whole units and wraps around the turn");
-        AssertEqual(DraygonPhase.FinalTailWhips, state.Phase, "the lifted centre past its limit ends the spiral");
+        AssertEqual(DraygonPhaseSteps.FinalTailWhips(), state.Step, "the lifted centre past its limit ends the spiral");
     }
 
     /// <summary>

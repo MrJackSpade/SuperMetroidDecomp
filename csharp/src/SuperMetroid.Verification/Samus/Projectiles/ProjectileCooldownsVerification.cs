@@ -49,8 +49,8 @@ internal static class ProjectileCooldownsVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam) | (charged ? SamusBeamFlags.Charge : SamusBeamFlags.None) }.InPose(SamusPoseId.FacingRightNormalPose);
             // A charged shot is released from a full charge, which needs Charge equipped; an uncharged one is fired without it.
             bool fired = charged
-                ? projectiles.FireChargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge)
-                : projectiles.FireUnchargedBeam(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge);
+                ? projectiles.FireChargedBeam(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge)
+                : projectiles.FireUnchargedBeam(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, shared, edge);
             AssertTrue(fired, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual(retail.ReadCartridgeByte(address), shared.CooldownTimer,
@@ -66,7 +66,7 @@ internal static class ProjectileCooldownsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (chargeEquipped ? SamusBeamFlags.Charge : SamusBeamFlags.None) | SamusBeamFlags.Wave | SamusBeamFlags.Plasma }.InPose(SamusPoseId.NormalJumpGunExtendedLeftPose);
             samus.TransitionShot.Hand(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Left));
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
-            projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            projectiles.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual(15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -80,8 +80,8 @@ internal static class ProjectileCooldownsVerification
             for (int frame = 0; frame < 70; frame++)
             {
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
-                shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, frame == 0 ? GameplayAction.Shoot : 0);
-                SoundRequest? firingSound = projectiles.StepFrameFiringSound(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+                shared.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, frame == 0 ? GameplayAction.Shoot : 0);
+                SoundRequest? firingSound = projectiles.StepFrameFiringSound(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
                 if (firingSound is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;

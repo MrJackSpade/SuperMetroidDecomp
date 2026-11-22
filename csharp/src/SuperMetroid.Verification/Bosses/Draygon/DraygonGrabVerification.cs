@@ -42,7 +42,7 @@ internal static class DraygonGrabVerification
     {
         const ushort leftoverFraction = 16384;
         var (_, _, draygon) = GrabSamus(spiralYFraction: leftoverFraction, pendingPose: null);
-        AssertEqual(DraygonPhase.CarrySamus, draygon.Phase, "Draygon carries Samus");
+        AssertEqual(DraygonPhaseSteps.CarrySamus(), draygon.Step, "Draygon carries Samus");
         AssertEqual(leftoverFraction, draygon.SpiralCenter.Center.Y.Fraction, "the grab keeps the previous spiral's Y fraction");
         Console.WriteLine("Draygon grab spiral fraction: the grab keeps the leftover spiral Y fraction.");
     }
@@ -64,15 +64,15 @@ internal static class DraygonGrabVerification
 
         draygon.Step = DraygonPhaseSteps.BeginTailWhipWithSamus();
         grab.BeginDraygonTailWhip(draygon, samus);
-        AssertEqual(DraygonPhase.TailWhipWithSamus, draygon.Phase, "the pause runs on after its first update");
+        AssertEqual(DraygonPhaseSteps.TailWhipWithSamus(), draygon.Step, "the pause runs on after its first update");
         AssertEqual(whip, draygon.TailPart.Playback, "the tail starts its whip on the pause's first update");
         for (int update = 2; update < DraygonGrabDefinitions.TailWhipUpdates; update++)
         {
             grab.RunDraygonTailWhip(draygon, samus);
-            AssertEqual(DraygonPhase.TailWhipWithSamus, draygon.Phase, $"the spiral still pauses on update {update} of the whip");
+            AssertEqual(DraygonPhaseSteps.TailWhipWithSamus(), draygon.Step, $"the spiral still pauses on update {update} of the whip");
         }
         grab.RunDraygonTailWhip(draygon, samus);
-        AssertEqual(DraygonPhase.FlailWithSamus, draygon.Phase, "the spiral resumes on the pause's last update");
+        AssertEqual(DraygonPhaseSteps.FlailWithSamus(), draygon.Step, "the spiral resumes on the pause's last update");
         Console.WriteLine("Draygon tail whip pause: the whip starts on the pause's first update and the spiral resumes on its 64th.");
     }
 

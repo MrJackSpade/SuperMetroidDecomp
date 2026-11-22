@@ -120,13 +120,13 @@ internal static class RoomTerrainBlockAddressingVerification
                 RoomCollisionBlock block = room.Level.GetCollisionBlock(BlockAtPlace(start, width));
                 if (reached is not { } place)
                 {
-                    AssertThrows<InvalidDataException>(() => room.Level.TryReachBlockStoodFor(ref block, out _), context);
+                    AssertThrows<InvalidDataException>(() => room.Level.TryReachBlockStoodFor(ref block), context);
                     continue;
                 }
 
                 // A chain that ends behaves as air, and the read keeps the block it found (#2572); one that reaches a block
                 // stands for the block the walk reaches.
-                bool resolved = room.Level.TryReachBlockStoodFor(ref block, out _);
+                bool resolved = room.Level.TryReachBlockStoodFor(ref block);
                 AssertEqual(collides, resolved, $"{context}: whether it collides");
                 if (collides && block != room.Read(place))
                     AssertEqual(room.Read(place), block, $"{context}: the block reached");

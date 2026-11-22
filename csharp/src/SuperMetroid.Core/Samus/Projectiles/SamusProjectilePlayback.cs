@@ -89,11 +89,11 @@ internal static class SamusProjectilePlayback
     /// animation that does not open with a frame fails there and no selection checks again (#2553).
     /// </summary>
     private static Dictionary<SamusProjectileSegment, Extent16<RoomPixels>> OpeningRadii { get; } =
-        SamusProjectileAnimations.StartingAt.ToDictionary(entry => entry.Key, entry => OpeningRadius(entry.Key, entry.Value));
+        SamusProjectileAnimations.StartingAt.ToDictionary(entry => entry.Key, entry => OpeningRadius(entry.Value));
 
-    /// <summary>The hitbox <paramref name="animation"/>, the one starting at <paramref name="segment"/>, declares through its first step.</summary>
+    /// <summary>The hitbox <paramref name="animation"/> declares through its first step.</summary>
     /// <exception cref="InvalidDataException">The animation does not open with a frame.</exception>
-    private static Extent16<RoomPixels> OpeningRadius(SamusProjectileSegment segment, Animation<SamusProjectileSegment> animation)
+    private static Extent16<RoomPixels> OpeningRadius(Animation<SamusProjectileSegment> animation)
     {
         AnimationPhase<SamusProjectileSegment> first = animation.Phases[0];
         // Every projectile animation opens with a frame.

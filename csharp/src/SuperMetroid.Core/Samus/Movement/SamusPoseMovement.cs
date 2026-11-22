@@ -91,6 +91,14 @@ internal sealed class SamusPoseMovement
     /// <summary>The glitch-ball knockback's movement once its knockback ends: Samus holds still in it (#1535).</summary>
     internal static SamusPoseMovement GlitchBallKnockbackHold { get; } = new(nameof(GlitchBallKnockbackHold), steps => steps.HoldStill());
 
+    /// <summary>
+    /// The movement of a movement type whose poses' movement its own mover owns (#2554): grappling's and the compact
+    /// airborne poses' movers and the special movement type's, which the movement phase runs before it would run a pose's
+    /// normal movement, so a pose reaching this movement is corrupt pose state.
+    /// </summary>
+    internal static SamusPoseMovement OwnedByItsMover { get; } = new(nameof(OwnedByItsMover), static _ =>
+        throw new InvalidDataException("A pose whose movement its own mover owns reached the pose's normal movement."));
+
     /// <summary>Takes the movement's step on one update.</summary>
     /// <param name="steps">The update's steps against the loaded room.</param>
     internal void Step(ISamusPoseMovementSteps steps) => _step(steps);

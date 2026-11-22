@@ -23,17 +23,9 @@ internal sealed class SamusPoseMovementRun(SamusState samus, SamusTerrain terrai
     GameplayAction newlyPressed, int frameCounter, SamusElevatorFooting elevator) : ISamusPoseMovementSteps
 {
     /// <summary>Runs the normal movement of <paramref name="movement"/>, the movement type that selects Samus's mover.</summary>
-    /// <exception cref="InvalidDataException">The movement type has no movement its pose owns.</exception>
-    internal static void Step(SamusMovementType movement, SamusPoseMovementRun run)
-    {
-        // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
-        // types are owned by their own movers; any other is corrupt pose state.
-        SamusPoseMovement step = SamusMovementTypeDefinitions.Movements[movement].PoseMovement is { } owned
-            ? owned
-            : throw new InvalidDataException(
-                $"Runtime movement step received pose {run.Samus.Pose}, whose movement type {movement} has no movement its pose owns.");
-        step.Step(run);
-    }
+    /// <exception cref="InvalidDataException">The movement type's movement its own mover owns (<see cref="SamusPoseMovement.OwnedByItsMover"/>).</exception>
+    internal static void Step(SamusMovementType movement, SamusPoseMovementRun run) =>
+        SamusMovementTypeDefinitions.Movements[movement].PoseMovement.Step(run);
 
     /// <summary>Samus.</summary>
     private SamusState Samus { get; } = samus;

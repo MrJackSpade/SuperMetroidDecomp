@@ -17,14 +17,4 @@ public static class SquareSlopes
     /// <summary>Whether <paramref name="quadrant"/> of a block of <paramref name="shape"/> is solid.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The shape is undefined.</exception>
     public static bool IsSolid(SquareSlopeShape shape, SquareSlopeQuadrant quadrant) => SolidQuadrants[shape](quadrant);
-
-    /// <summary>The solid quarters of the square slope shape a slope block's behaviour selects (<see cref="SlopeShape.SquareQuarters"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
-    public static SquareSlopeShape ShapeOf(RoomBlockBehavior behavior) =>
-        behavior.Slope.Shape.SquareQuarters ??
-            throw new ArgumentOutOfRangeException(nameof(behavior), behavior.Slope.Shape, "The behaviour selects a non-square slope shape.");
-
-    /// <summary>Whether the quarter of a square slope block that <paramref name="quadrant"/> names is solid.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The behaviour selects a non-square slope shape.</exception>
-    public static bool IsSolid(RoomBlockBehavior behavior, SquareSlopeQuadrant quadrant) => IsSolid(ShapeOf(behavior), quadrant);
 }

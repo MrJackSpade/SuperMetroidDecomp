@@ -68,7 +68,7 @@ internal static class HopperAnimationDefinitionsVerification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
             // The hopper's setup builds the state its steps and its animation, which the check plays, run on.
-            HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[definitions[variant]]);
+            HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[definitions[variant]]);
             Action animate = () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state);
             // The hopper's main AI runs the step its action names, as its entity runs it each update.
             HopperSpawnSettings settings = place.HeldOccupant().SpawnSettings<HopperSpawnSettings>();
@@ -128,7 +128,7 @@ internal static class HopperAnimationDefinitionsVerification
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]);
+        HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]);
         EnemyInstructionRunner.ShownFrames(place, 1, () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state));
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");

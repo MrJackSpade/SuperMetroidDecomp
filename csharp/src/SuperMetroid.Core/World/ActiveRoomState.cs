@@ -43,11 +43,11 @@ internal sealed class ActiveRoomState
     /// <summary>Starts building a room's scope; until <see cref="Adopt"/>, the room views below read its parts.</summary>
     /// <exception cref="InvalidOperationException">A load is already in progress.</exception>
     internal RoomScopeConstruction BeginConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-        LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles)
+        RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles)
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        var construction = new RoomScopeConstruction(door, room, assets, loadStation, ceresElevatorArrival, camera, bombProjectiles, RoomMainHandOvers);
+        var construction = new RoomScopeConstruction(door, room, assets, entry, camera, bombProjectiles, RoomMainHandOvers);
         _construction = construction;
         return construction;
     }

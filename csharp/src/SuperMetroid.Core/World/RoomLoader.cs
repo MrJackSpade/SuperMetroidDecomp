@@ -726,7 +726,7 @@ internal sealed class RoomLoader
         // reaches into the destination, and the camera step below places the camera.
         var destinationCamera = new ScrollBoundaryCamera(assets.Scrolls);
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.SamusArtwork);
-        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation, entry.CeresElevatorArrival, destinationCamera, bombs);
+        RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry, destinationCamera, bombs);
         // The room's block animations: those the door-selected effect lists, and the treadmill a door's setup may start.
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         // The room's pictures carry its tileset's colours (#1512), so the load colours nothing.

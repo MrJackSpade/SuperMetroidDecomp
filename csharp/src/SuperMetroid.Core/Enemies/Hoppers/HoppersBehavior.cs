@@ -70,7 +70,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Initializes the Hopper.</summary>
     /// <returns>The state the enemy holds from its setup.</returns>
-    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperSpawnSettings hopperSpawnSettings, HopperKind kind)
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, HopperSpawnSettings hopperSpawnSettings, HopperKind kind)
     {
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);

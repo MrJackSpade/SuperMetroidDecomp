@@ -60,7 +60,7 @@ internal static class SamusMovementTypeDefinitions
         [Move.Knockback] = new(Response.Stop, Bomb.KeepPose, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Jump, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.KnockbackEnding),
         [Move.CompactAirborne] = new(Response.KillXSpeed, Bomb.ForwardJump, Xray.Disallowed, Splash.Diving,
-            Firing.Cancelled, Selection.Jump, Knockback.Upright, Setup.KeepsMomentum),
+            Firing.Cancelled, Selection.Jump, Knockback.Upright, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.OwnedByItsMover),
         [Move.TurningOnGround] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.GroundedPair,
             Firing.Cancelled, Selection.Turning, Knockback.Refused, Setup.StopTurn, PoseMovement: SamusPoseMovement.TurningOnGround),
         [Move.PostureTransition] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.GroundedPair,
@@ -78,7 +78,7 @@ internal static class SamusMovementTypeDefinitions
         [Move.RanIntoWall] = new(Response.Stop, Bomb.ForwardJump, Xray.Standing, Splash.GroundedPair,
             Firing.Fires, Selection.Standard, Knockback.Upright, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.RanIntoWall),
         [Move.Grappling] = new(Response.KillXSpeed, Bomb.ForwardJump, Xray.Disallowed, Splash.Diving,
-            Firing.Fires, Selection.Grapple, Knockback.Refused, Setup.KeepsMomentum),
+            Firing.Fires, Selection.Grapple, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.OwnedByItsMover),
         [Move.TurningRisingOrAimedCrouched] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
             Firing.Cancelled, Selection.Turning, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.TurningRisingOrAimedCrouched),
         [Move.TurningWhileFalling] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
@@ -88,6 +88,6 @@ internal static class SamusMovementTypeDefinitions
         [Move.DraygonHeld] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
             Firing.Fires, Selection.DraygonHeld, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.DraygonHeld),
         [Move.Special] = new(Response.Stop, Bomb.TurnedDown, Xray.Disallowed, Splash.Diving,
-            Firing.Cancelled, Selection.Jump, Knockback.Refused, Setup.KeepsMomentum),
+            Firing.Cancelled, Selection.Jump, Knockback.Refused, Setup.KeepsMomentum, PoseMovement: SamusPoseMovement.OwnedByItsMover),
     });
 }

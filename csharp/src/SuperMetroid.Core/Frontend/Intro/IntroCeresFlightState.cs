@@ -277,13 +277,11 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     /// <param name="caption">The caption the title types.</param>
     private void StepSpaceColonyTitle(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) =>
-        caption.Step(cue => CarryOut(cue, caption));
+        caption.Step(_ => CarryOut(caption));
 
-    /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
-    /// <param name="cue">The cue the caption raised.</param>
+    /// <summary>Carries out the cue the caption's typing raises at its end: the fade-out starts.</summary>
     /// <param name="caption">The caption raising it, which stays shown through the fade.</param>
-    /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
-    private void CarryOut(SpaceColonyCaptionCue cue, AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption)
+    private void CarryOut(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption)
     {
         fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
         stage = new FadeOutStage(caption);

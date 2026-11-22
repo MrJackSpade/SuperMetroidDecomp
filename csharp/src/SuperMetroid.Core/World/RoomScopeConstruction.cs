@@ -28,9 +28,12 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation, CeresElevatorArrivalState? ceresElevatorArrival, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
+    RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
     RoomMainHandOvers handOvers) : IDoorEventLoad
 {
+    /// <summary>The Ceres elevator's arrival the room is built with, which the entry carries; none for every other entry.</summary>
+    private readonly CeresElevatorArrivalState? _ceresElevatorArrival = Ensure.NotNull(entry).CeresElevatorArrival;
+
     /// <summary>What the previous room's main handed on, each hand-over given only to the main that carries it.</summary>
     private readonly RoomMainHandOvers _handOvers = Ensure.NotNull(handOvers);
 
@@ -44,7 +47,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public LoadedRoomAssets Assets { get; } = Ensure.NotNull(assets);
 
     /// <summary>The load station whose load establishes this room; null for a room entered otherwise.</summary>
-    public LoadStation? LoadStation { get; } = loadStation;
+    public LoadStation? LoadStation { get; } = entry.LoadStation;
 
     /// <summary>
     /// The warnings the room's escapes can write over it, or none in a room whose tileset has no warning picture sheet (#2554).
@@ -190,7 +193,7 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         Room = Room,
         Assets = Assets,
         LoadStation = LoadStation,
-        CeresElevatorArrival = ceresElevatorArrival,
+        CeresElevatorArrival = _ceresElevatorArrival,
         LevelData = LevelData,
         Camera = Camera,
         ArtworkFrames = ArtworkFrames,

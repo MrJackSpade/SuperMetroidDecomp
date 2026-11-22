@@ -22,7 +22,7 @@ public static class SamusInsideBlockReactions
         void Visit(int y, SamusInsideBlockPoint point)
         {
             var block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block, out _) ||
+            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir || block.Behavior.SpecialAir is not { } air)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.

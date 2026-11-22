@@ -710,7 +710,7 @@ public sealed class SamusBombProjectileSystem
             return true;
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
-        if (!level.TryReachBlockStoodFor(ref block, out _))
+        if (!level.TryReachBlockStoodFor(ref block))
             return false;
 
         if (block.CollisionType != RoomCollisionType.Slope)

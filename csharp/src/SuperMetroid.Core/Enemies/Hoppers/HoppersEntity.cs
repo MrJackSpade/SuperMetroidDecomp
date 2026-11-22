@@ -14,7 +14,7 @@ internal sealed class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant o
     internal HopperSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly HopperEnemyState state = species.InitializeHopper(place, occupant, settings, kind);
+    private readonly HopperEnemyState state = species.InitializeHopper(place, settings, kind);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunHoppersMainAi(Settings, Place, state, frame);

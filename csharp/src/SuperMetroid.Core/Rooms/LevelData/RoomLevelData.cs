@@ -309,17 +309,12 @@ public sealed class RoomLevelData
     /// when it behaves as air.
     /// </summary>
     /// <param name="block">A block the read found in the grid; the block it stands for once the call returns true.</param>
-    /// <param name="kind">The reached block's kind as a whole block, once the call returns true.</param>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-    internal bool TryReachBlockStoodFor(ref RoomCollisionBlock block, [NotNullWhen(true)] out RoomBlockKind.Whole? kind)
+    internal bool TryReachBlockStoodFor(ref RoomCollisionBlock block)
     {
         if (BlockStoodFor(block) is not { } stoodFor)
-        {
-            kind = null;
             return false;
-        }
         block = stoodFor.Block;
-        kind = stoodFor.Kind;
         return true;
     }
 

@@ -37,6 +37,6 @@ internal sealed record SamusMovementTypeDefinition(
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
     SamusNoTransitionSetup NoTransitionSetup,
-    SamusPoseMovement? PoseMovement = null,
+    SamusPoseMovement PoseMovement,
     bool SilencesItemSelection = false,
     bool SpinSoundEndsOnDeath = false);

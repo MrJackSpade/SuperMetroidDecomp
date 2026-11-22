@@ -32,19 +32,20 @@ internal static class SamusRunningCadences
     /// <exception cref="InvalidDataException">The catalog does not name each authored stage exactly once.</exception>
     private static SpeedBoostCadence[] StagesOf(IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> timings)
     {
-        var stages = new SpeedBoostCadence?[SamusSpeedBoostCounter.AuthoredStages];
+        var cadences = new SpeedBoostCadence[SamusSpeedBoostCounter.AuthoredStages];
+        var named = new bool[cadences.Length];
         foreach (SamusRunningCadenceTiming timing in timings.Values)
         {
             if (timing.Boost is not { } boost)
                 continue;
-            if (boost.Stage >= stages.Length || stages[boost.Stage] is not null)
+            if (boost.Stage >= cadences.Length || named[boost.Stage])
                 throw new InvalidDataException($"The running cadences name boost stage {boost.Stage} outside the authored stages or twice.");
-            stages[boost.Stage] = SpeedBoostCadence.Authored(timing, boost);
+            cadences[boost.Stage] = SpeedBoostCadence.Authored(timing, boost);
+            named[boost.Stage] = true;
         }
-
-        var cadences = new SpeedBoostCadence[stages.Length];
-        for (int stage = 0; stage < stages.Length; stage++)
-            cadences[stage] = stages[stage] ?? throw new InvalidDataException($"The running cadences name no boost stage {stage}.");
+        int unnamed = Array.IndexOf(named, false);
+        if (unnamed >= 0)
+            throw new InvalidDataException($"The running cadences name no boost stage {unnamed}.");
         return cadences;
     }
 }

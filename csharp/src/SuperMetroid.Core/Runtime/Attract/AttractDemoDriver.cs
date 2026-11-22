@@ -128,17 +128,25 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _attractSession.Input = new AttractDemoInput(scene);
     }
 
-    /// <summary>What <see cref="ApplyAttractRoomSetup"/> does for each <see cref="AttractDemoRoomSetup"/> member, each member's own arm.</summary>
-    private IdentityTable<AttractDemoRoomSetup, Action<RoomScope>> ApplyAttractRoomSetupForAttractDemoRoomSetup => field ??= new(new Dictionary<AttractDemoRoomSetup, Action<RoomScope>>
-    {
-        [AttractDemoRoomSetup.ChargeBeamScroll] = room => room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed),
-        [AttractDemoRoomSetup.KraidTimer] = room => room.Enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates),
-        [AttractDemoRoomSetup.DefeatedKraid] = _ => _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss),
-    });
-
-    /// <summary>Applies scene-specific scroll, Kraid timer, or defeated-boss setup.</summary>
+    /// <summary>
+    /// Applies scene-specific scroll, Kraid timer, or defeated-boss setup to <paramref name="room"/>, the demo room the
+    /// load just built, which the setup receives rather than a table that outlives the room holds.
+    /// </summary>
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomScope room)
     {
-        ApplyAttractRoomSetupForAttractDemoRoomSetup[roomSetup](room);
+        switch (roomSetup)
+        {
+            case AttractDemoRoomSetup.ChargeBeamScroll:
+                room.Camera.Scrolls.SetRoomScreen(AttractDemoDefinitions.ChargeBeamClosedScreen, RoomScrollState.Closed);
+                break;
+            case AttractDemoRoomSetup.KraidTimer:
+                room.Enemies.AttractDemoHooks.StartKraidPhaseWait(AttractDemoDefinitions.KraidPhaseWaitUpdates);
+                break;
+            case AttractDemoRoomSetup.DefeatedKraid:
+                _system.RecordBossesDefeated(AreaId.Brinstar, DefeatedBosses.AreaBoss);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(AttractDemoRoomSetup)} {roomSetup}.");
+        }
     }
 }

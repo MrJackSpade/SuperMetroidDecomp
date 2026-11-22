@@ -152,6 +152,14 @@ internal static class EnemyEntityStates
             return held66;
         if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipBottomEntity entity67 && entity67.State is T held67)
             return held67;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67a && entity67a.State is T held67a)
+            return held67a;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67b && entity67b.State.Ship is T held67b)
+            return held67b;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67c && entity67c.State.Hull is T held67c)
+            return held67c;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67d && entity67d.State.Pieces is T held67d)
+            return held67d;
         if (entity is global::SuperMetroid.Core.Enemies.Hibashi.HibashiCollisionPartEntity entity68 && entity68.State is T held68)
             return held68;
         if (entity is global::SuperMetroid.Core.Enemies.Hibashi.HibashiEntity entity69 && entity69.State is T held69)

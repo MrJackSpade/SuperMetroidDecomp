@@ -36,15 +36,16 @@ internal static class KraidGrowthCommandCursorVerification
         enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.PlaceKraid();
-        Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];
         var foot = enemies.Places.InUpdateOrder[5];
         body.Bind(EnemyDefinitionId.Kraid, body.KeptDefinition);
         state.InitialHealth = 1000;
         body.Health = 874;
+        // He fights his first phase, his head standing on the roar's cry, and the head's hold runs out on one update.
+        state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         state.HeadPlayback = native.PlaybackAt(0x96e2);
-        execute(state);
+        RunOutHeadHold(enemies.KraidBehavior.Head, state);
         AssertEqual(native.PlaybackAt(0x96ea), state.HeadPlayback, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
         state.FootState.Phase = KraidFootPhase.PrepareFirstPhaseLunge;

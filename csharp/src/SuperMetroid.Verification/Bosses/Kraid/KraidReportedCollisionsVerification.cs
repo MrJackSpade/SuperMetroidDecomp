@@ -41,7 +41,7 @@ internal static class KraidReportedCollisionsVerification
             state.HeadPlayback = closed
                 ? KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 0)
                 : KraidHeadNativeCursors.PlaybackAtStep(KraidHeadSegment.Roar, 4);
-            runtime.Enemies.KraidBehavior.Head.RunKraidHeadAnimationStep(state);
+            KraidHeadInstructionsVerification.RunOutHeadHold(runtime.Enemies.KraidBehavior.Head, state);
             bool marked = false;
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)
@@ -93,9 +93,9 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.Places.InUpdateOrder[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
-            ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()).Phase = KraidLintPhase.Inactive;
+            state.Lint(KraidLintPart.Top).Phase = KraidLintPhase.Inactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), state.Lint(KraidLintPart.Top), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");

@@ -11,10 +11,6 @@ internal static class KraidDeathPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Kraid.KraidDeath self)
     {
-        /// <summary>The private method <c>InitializeKraidDeath</c>, invoked by name.</summary>
-        internal void InitializeKraidDeath(global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState state, global::SuperMetroid.Core.Samus.SamusState samus) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.KraidDeath>(self, "InitializeKraidDeath", [typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState), typeof(global::SuperMetroid.Core.Samus.SamusState)], new object?[] { state, samus });
-
         /// <summary>The private method <c>TakeKraidSinkStep</c>, invoked by name.</summary>
         internal void TakeKraidSinkStep(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.KraidDeath>(self, "TakeKraidSinkStep", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { body });

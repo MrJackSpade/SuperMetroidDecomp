@@ -26,13 +26,32 @@ internal static class KraidHeadInstructionsVerification
         Suite(nameof(VerifyProductionInterpreter), () => VerifyProductionInterpreter(rom));
         Suite(nameof(VerifyTimerAndGrowthConsumers), () => VerifyTimerAndGrowthConsumers(rom));
 
-        var unstarted = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Func<KraidEnemyState, KraidHeadAnimationResult> run = unstarted.KraidBehavior.Head.RunKraidHeadAnimationStep;
-        AssertThrows<InvalidDataException>(() => run(new KraidEnemyState(KraidPartsFixtures.Standalone())),
-            "an unstarted Kraid head program fails loudly, as an unset native cursor did");
-
         Console.WriteLine(
             "Kraid head programs: the 19 native records of the three started lists, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
+    }
+
+    /// <summary>
+    /// Runs out the hold of risen Kraid's head on one update, as his fight and his death step it: the head animation plays
+    /// on to its next pose and shows it, holding it for its duration, or holds at its segment's end, its hold run out.
+    /// </summary>
+    /// <returns>Whether the animation showed a pose or reached its segment's end.</returns>
+    internal static KraidHeadAnimationResult RunOutHeadHold(KraidHead head, KraidEnemyState state)
+    {
+        state.HeadHold.LastFor(1);
+        head.AdvanceKraidHeadAnimation(state, state.RisenHead);
+        return state.HeadHold.UpdatesLeft == 0
+            ? KraidHeadAnimationResult.AnimationEnded
+            : KraidHeadAnimationResult.PoseShown;
+    }
+
+    /// <summary>
+    /// Starts Kraid's death as the first update of his dying does: his body enters his death's first phase, whose update
+    /// starts the death beside <paramref name="samus"/>.
+    /// </summary>
+    internal static void StartKraidDeath(KraidBehavior behavior, KraidEnemyState state, SuperMetroid.Core.Samus.SamusState samus)
+    {
+        state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
+        behavior.Death.RunKraidDeathPhase(state.Parts.Body, state, (KraidStageRun.Dying)state.BodyState.Run, samus);
     }
 
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
@@ -44,12 +63,12 @@ internal static class KraidHeadInstructionsVerification
             var guard = new KraidHeadProgramReadGuard(rom);
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
+            state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
             state.HeadPlayback = record.Playback;
 
-            KraidHeadAnimationResult result = execute(state);
+            KraidHeadAnimationResult result = RunOutHeadHold(enemies.KraidBehavior.Head, state);
             if (record.IsTerminator)
             {
                 AssertEqual(KraidHeadAnimationResult.AnimationEnded, result, $"Kraid terminator ${record.Pointer:X4} result");
@@ -94,7 +113,7 @@ internal static class KraidHeadInstructionsVerification
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<KraidEnemyState>(glowState => enemies.KraidBehavior.Head.InitializeKraidEyeGlow(glowState, (KraidStageRun.Fighting)glowState.BodyState.Run));
-        var death = new Action<KraidEnemyState>(deathState => enemies.KraidBehavior.Death.InitializeKraidDeath(deathState, RoomEnemyFrameFixtures.StandaloneSamus()));
+        var death = new Action<KraidEnemyState>(deathState => StartKraidDeath(enemies.KraidBehavior, deathState, RoomEnemyFrameFixtures.StandaloneSamus()));
         var combat = new Action<RoomEnemyPlace, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
             enemies.KraidBehavior.RunKraidBodyStage(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];

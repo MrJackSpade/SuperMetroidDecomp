@@ -11,10 +11,6 @@ internal static class KraidHeadPrivateAccess
     /// <summary>The private instance members checks read or call.</summary>
     extension(global::SuperMetroid.Core.Bosses.Kraid.KraidHead self)
     {
-        /// <summary>The private method <c>RunKraidHeadAnimationStep</c>, invoked by name.</summary>
-        internal global::SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimationResult RunKraidHeadAnimationStep(global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState state) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.KraidHead, global::SuperMetroid.Core.Bosses.Kraid.KraidHeadAnimationResult>(self, "RunKraidHeadAnimationStep", [typeof(global::SuperMetroid.Core.Bosses.Kraid.KraidEnemyState)], new object?[] { state });
-
         /// <summary>The private method <c>SpawnKraidSpitRock</c>, invoked by name.</summary>
         internal void SpawnKraidSpitRock(global::SuperMetroid.Core.Enemies.RoomEnemyPlace body) =>
             PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Kraid.KraidHead>(self, "SpawnKraidSpitRock", [typeof(global::SuperMetroid.Core.Enemies.RoomEnemyPlace)], new object?[] { body });

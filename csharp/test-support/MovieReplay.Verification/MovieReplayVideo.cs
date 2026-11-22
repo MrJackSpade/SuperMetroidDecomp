@@ -35,7 +35,6 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     private FileStream? audio;
     private Process? encoder;
     private Extent16<ScreenPixels> size;
-    private long sequence;
 
     /// <summary>Prepares the segment's picture at <paramref name="videoPath"/> and its sound beside it.</summary>
     /// <param name="videoPath">The MP4 the segment's picture is written to; its sound goes to the same path plus <c>.pcm</c>.</param>
@@ -57,10 +56,10 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
         SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips().Clips;
 
     /// <summary>Whether every frame of the segment has been recorded.</summary>
-    internal bool Done => sequence >= endFrame;
+    internal bool Done => FramesRun >= endFrame;
 
     /// <summary>How many frames have run, recorded or not.</summary>
-    internal long FramesRun => sequence;
+    internal long FramesRun { get; private set; }
 
     /// <summary>Runs one production frame, and records its picture and sound when it lies in the segment.</summary>
     /// <param name="game">The game the replay steps.</param>
@@ -68,7 +67,7 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     /// <param name="position">Where the frame comes from in the movie.</param>
     internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input, MovieReplayPosition position)
     {
-        long frame = sequence++;
+        long frame = FramesRun++;
         CapturedFrontendFrame captured = game.StepCaptured(input);
         game.CopyAudioFrame(samples);
         if (frame < firstFrame)
@@ -94,15 +93,15 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     internal void Complete()
     {
         if (encoder is null)
-            throw new InvalidOperationException($"The movie has {sequence} frames, so the segment from frame {firstFrame} recorded none.");
+            throw new InvalidOperationException($"The movie has {FramesRun} frames, so the segment from frame {firstFrame} recorded none.");
         encoder.StandardInput.Close();
         encoder.WaitForExit();
         if (encoder.ExitCode != 0) throw new InvalidOperationException($"ffmpeg video encoding failed with exit code {encoder.ExitCode}.");
         audio!.Flush();
         audio.Close();
-        long recorded = sequence - firstFrame;
+        long recorded = FramesRun - firstFrame;
         Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-            $"Wrote frames {firstFrame}-{sequence - 1} ({recorded} frames, {recorded / 60.0:F1} s) to {videoPath} and {audioPath}"));
+            $"Wrote frames {firstFrame}-{FramesRun - 1} ({recorded} frames, {recorded / 60.0:F1} s) to {videoPath} and {audioPath}"));
     }
 
     /// <inheritdoc/>

@@ -725,7 +725,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2332,
+      "files": 2333,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -846,7 +846,7 @@
     {
       "module": "csharp/test-support/MovieReplay",
       "role": "verification-support",
-      "files": 152,
+      "files": 153,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -884,7 +884,7 @@
     {
       "module": "csharp/test-support/MovieReplay.Verification",
       "role": "verification-support",
-      "files": 3,
+      "files": 4,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core/Assets",
@@ -892,7 +892,9 @@
         "csharp/src/SuperMetroid.Core/Compatibility",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
+        "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/FrameRendering",
         "csharp/test-support/MovieReplay",
@@ -136031,8 +136033,7 @@
         "SuperMetroid.Verification"
       ],
       "dependsOn": [
-        "csharp/test-support/MovieReplay",
-        "csharp/test-support/MovieReplay.Verification"
+        "csharp/test-support/MovieReplay"
       ]
     },
     {
@@ -136418,6 +136419,20 @@
       "namespace": "SuperMetroid.Verification.Harness",
       "assemblies": [
         "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Harness/MovieVideoExportVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Harness",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/test-support/MovieReplay",
+        "csharp/test-support/MovieReplay.Verification"
       ]
     },
     {
@@ -148538,6 +148553,18 @@
       ]
     },
     {
+      "path": "csharp/test-support/MovieReplay.Verification/MovieReplayOverlay.cs",
+      "module": "csharp/test-support/MovieReplay.Verification",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.MovieReplay.Verification",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Assets"
+      ]
+    },
+    {
       "path": "csharp/test-support/MovieReplay.Verification/MovieReplayVideo.cs",
       "module": "csharp/test-support/MovieReplay.Verification",
       "role": "verification-support",
@@ -148551,7 +148578,9 @@
         "csharp/src/SuperMetroid.Core/Audio",
         "csharp/src/SuperMetroid.Core/Frontend",
         "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
         "csharp/src/SuperMetroid.Core/Rendering",
+        "csharp/src/SuperMetroid.Core/Rooms",
         "csharp/src/SuperMetroid.Core/Spatial",
         "csharp/test-support/FrameRendering",
         "csharp/test-support/MovieReplay",
@@ -149526,6 +149555,16 @@
     },
     {
       "path": "csharp/test-support/MovieReplay/MovieReplayJsonContext.cs",
+      "module": "csharp/test-support/MovieReplay",
+      "role": "verification-support",
+      "namespace": "SuperMetroid.TestSupport.MovieReplay",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.Verification"
+      ]
+    },
+    {
+      "path": "csharp/test-support/MovieReplay/MovieReplayPosition.cs",
       "module": "csharp/test-support/MovieReplay",
       "role": "verification-support",
       "namespace": "SuperMetroid.TestSupport.MovieReplay",

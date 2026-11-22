@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
@@ -18,7 +17,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// <param name="DiscoveryActor">Nineteen SR388 egg and confused-baby actor compositions.</param>
 /// <param name="Scientist">Six delivery/examination baby-Metroid compositions.</param>
 /// <param name="CeresDestruction">Station-blast and Zebes-reveal compositions; the approach's are the Ceres flight's.</param>
-[ArchitectureReview("context-bag", "The opening's decoded sprite composition documents the import composes its sheets from; every member is immutable artwork data, not a service.")]
 public sealed partial record IntroCinematicSprites(IntroCaretSpritePresentation Caret, IntroNextPageArrowSpritePresentation NextPageArrow,
     IntroMotherBrainSpritePresentation MotherBrain, IntroMotherBrainExplosionSpritePresentation MotherBrainExplosion,
     IntroRinkaSpritePresentation Rinka, IntroEggEffectSpritePresentation EggEffect, IntroDiscoveryActorSpritePresentation DiscoveryActor,

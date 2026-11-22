@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Audio;
 
 using SuperMetroid.Verification.Harness;

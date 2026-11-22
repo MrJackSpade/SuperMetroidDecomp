@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -9,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// and sheets are composed from and named by. Its characters are import data the installation never holds
 /// (<see cref="EndingObjectCharacters"/>).
 /// </summary>
-[ArchitectureReview("context-bag", "The ending's installed object documents read together; every member is an immutable map or composition the pictures are composed from and named by, not a service.")]
 public sealed partial record EndingObjectArtworkParts
 {
 

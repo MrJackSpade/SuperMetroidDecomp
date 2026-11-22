@@ -47,8 +47,11 @@ internal static class CeresEscapeWarningAccess
         internal void ShowJapaneseSubtitle(SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessage message)
         {
             var typed = new SuperMetroid.Core.Escape.EscapeTypewriterState(message);
-            while (!typed.Completed)
-                _ = typed.Step();
+            // The typewriter types until an update finds the warning complete.
+            SuperMetroid.Core.Escape.EscapeTypewriterStep step;
+            do
+                step = typed.Step();
+            while (step is not SuperMetroid.Core.Escape.EscapeTypewriterStep.Complete);
             escape.Warning.PhaseWait.LastFor(1);
             _ = escape.RunJapaneseSubtitle(0, typed, escape.FixtureWarning);
         }

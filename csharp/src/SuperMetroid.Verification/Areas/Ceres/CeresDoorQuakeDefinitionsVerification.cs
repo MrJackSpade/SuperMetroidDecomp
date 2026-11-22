@@ -48,8 +48,10 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        // The door of Ridley's room as its room's population places it and sets it up, which attaches it to the room's doors.
-        RoomEnemyPlace door = enemies.StartCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None, new(100, 80));
+        // The door of Ridley's room as its room's population places it, animating, and sets it up, which attaches it to the
+        // room's doors.
+        RoomEnemyPlace door = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CeresRidleyRoomDoor, new Position16<RoomPixels>(100, 80))
+            with { Processing = EnemyProcessing.Animates })[0];
         // The door's overlay shows from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
         // The door's own animation opens it and then shows its overlay over the closed door, which stays while Ridley lives.

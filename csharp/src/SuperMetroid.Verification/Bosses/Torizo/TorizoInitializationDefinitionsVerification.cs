@@ -39,6 +39,9 @@ internal static class TorizoInitializationDefinitionsVerification
             for (int properties = 0; properties <= ushort.MaxValue; properties += 256)
             {
                 EnemyPropertyState population = EnemyPropertyWordCodec.Decode(properties, 0);
+                // A Torizo is placed only by his room's population, never respawned, so no entry of his lets him respawn.
+                if (population.Presence.HasAny(EnemyPresence.RespawnsIfKilled))
+                    continue;
                 bool populationCollidesByFrameHitboxes = population.Contact.HasAny(EnemyContact.BlocksPlasmaBeam);
                 RoomEnemyPlace actor = initialize(defeated: false, PopulationPlacementAccess.Entry(species, new(0xffff, 0xffff)) with
                 {

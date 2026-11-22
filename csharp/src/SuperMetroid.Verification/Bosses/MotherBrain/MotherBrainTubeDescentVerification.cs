@@ -11,11 +11,10 @@ internal static class MotherBrainTubeDescentVerification
     /// <summary>Compares fractional acceleration and head position every frame through tube deletion and room rebuild.</summary>
     internal static int VerifyMotherBrainTubeDescent()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-            definitions: CompiledRoomEnemyDefinitions.Instance);
-        // Mother Brain's body and brain as her room's population sets them up; her fake death spawns the main tube, which
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        // Mother Brain's glass, body and brain as her room sets them up; her fake death spawns the main tube, which
         // joins the encounter that spawned it and sets up its fall (#2218).
-        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
         RoomEnemyPlace tube = enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.MotherBrainTubes));
         MotherBrainTubesEntity tubeEntity = tube.EntityOf<MotherBrainTubesEntity>();

@@ -159,9 +159,12 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        // Botwoon is alive: his setup spawns his body.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // Botwoon is alive: his room's population sets him up, and his setup spawns his body.
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+        RoomEnemyPlace head = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Botwoon))[0];
+        BotwoonEnemyState state = head.EntityOf<BotwoonEntity>().State;
         void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
@@ -172,7 +175,7 @@ internal static class BotwoonAnimationsVerification
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.BoundFor(EnemyDefinitionId.Botwoon), head, new TrigonometryAngle(angle), speed);
+        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.HeldOccupant(), head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");
@@ -180,14 +183,11 @@ internal static class BotwoonAnimationsVerification
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // Botwoon is loaded, as his initializer leaves him, before his body segments animate: they show his body's colours.
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState();
-        head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
         Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
-        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, head.RequireSpeciesState<BotwoonEnemyState>(), 1, segment, segmentAnimation));
+        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, state, 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);
@@ -203,9 +203,7 @@ internal static class BotwoonAnimationsVerification
         // Landing hands the segment to the shared native big-explosion list.
         // His setup spawns his body, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        // His room's load reads whether its mini-boss is defeated; this room's is not.
-        enemies.VerificationServices().IsAreaMiniBossDefeated ??= () => false;
-        BotwoonSegmentState spawned = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head).Body[1];
+        BotwoonSegmentState spawned = state.Body[1];
         EnemyProjectile body = spawned.Projectile;
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,
             "the real body producer returns the segment it spawned among the room's projectiles");
@@ -239,12 +237,12 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Creates a head slot with Botwoon's state attached to its owning enemy system.</summary>
     private static NewBotwoonHeadResult NewBotwoonHead()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
-        var state = new BotwoonEnemyState();
-        head.SetSpeciesState(state);
-        return new NewBotwoonHeadResult(enemies, head, state);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // A living Botwoon, as his room's population sets him up; his state is the one his setup built.
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+        RoomEnemyPlace head = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Botwoon))[0];
+        return new NewBotwoonHeadResult(enemies, head, head.EntityOf<BotwoonEntity>().State);
     }
 
     /// <summary>Whether the head plays the animation that begins at <paramref name="segment"/>.</summary>

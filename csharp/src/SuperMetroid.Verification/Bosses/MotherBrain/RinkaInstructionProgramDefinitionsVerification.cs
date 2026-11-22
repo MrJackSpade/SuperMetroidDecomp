@@ -29,7 +29,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         (RoomEnemySystem ordinarySystem, RoomEnemyPlace ordinary) = RunRinkaProgram(RinkaSegment.Ordinary, special: false);
-        AssertEqual(RinkaAction.AimDelay, ordinary.RequireSpeciesState<RinkaEnemyState>().Action,
+        AssertEqual(RinkaAction.AimDelay, ordinary.EntityOf<RinkaEntity>().State.Action,
             "ordinary Rinka fire callback selects aim-delay AI");
         AssertTrue(!ordinary.Presence.HasAny(EnemyPresence.Hidden),
             "ordinary Rinka fire callback makes the actor visible");
@@ -37,7 +37,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             "ordinary Rinka program does not enable off-screen processing");
 
         (RoomEnemySystem specialSystem, RoomEnemyPlace special) = RunRinkaProgram(RinkaSegment.KeptRunningOffScreen, special: true);
-        AssertEqual(RinkaAction.AimDelay, special.RequireSpeciesState<RinkaEnemyState>().Action,
+        AssertEqual(RinkaAction.AimDelay, special.EntityOf<RinkaEntity>().State.Action,
             "special Rinka fire callback selects aim-delay AI");
         AssertTrue(!special.Presence.HasAny(EnemyPresence.Hidden),
             "special Rinka fire callback makes the actor visible");
@@ -54,15 +54,13 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         bool special)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace rinka = enemies.Places.InUpdateOrder[0];
-        rinka.Bind(EnemyDefinitionId.Rinka, rinka.KeptDefinition);
-        rinka.Bind(rinka.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         RinkaSpawnSettings spawning = special ? new RinkaSpawnSettings.SharingPoints(RinkaSpawnPoint.FarRightUpper) : RinkaSpawnSettings.AtOwnPlacement;
-        rinka.SetSpawnSettings(spawning);
+        // The Rinka as its room's population places it with its spawn settings; its setup builds the state its program
+        // runs on, the life animation its settings choose.
+        RoomEnemyPlace rinka = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Rinka, spawning))[0];
+        RinkaEnemyState state = rinka.EntityOf<RinkaEntity>().State;
+        AssertTrue(ReferenceEquals(RinkaAnimations.StartingWith(program), state.Playback.Animation), $"the Rinka's setup starts its {program} life");
         rinka.AnimationClock.StepOnNextUpdate();
-
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, program, spawning);
-        enemies.Places.InUpdateOrder[0].SetSpeciesState(state);
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.

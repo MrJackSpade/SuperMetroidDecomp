@@ -23,17 +23,17 @@ internal static class TorizoPaletteShakeVerification
     internal static int VerifyTorizoPaletteShake()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var actor = enemies.Places.InUpdateOrder[0];
-        actor.Bind(EnemyDefinitionId.BombTorizo, actor.KeptDefinition);
-        actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(actor.HeldOccupant().DefinitionId));
-        // The initializer's function words; the build-pinned debugger state below rejects the undefined zero defaults.
-        var state = new TorizoEnemyState(TorizoVariant.Bomb) { Phase = TorizoPhase.Falling };
-        actor.SetSpeciesState(state);
-        void Execute(TorizoCueKind kind) =>
+        // Bomb Torizo as his room's population sets him up, his state the one his setup built.
+        RoomEnemyPlace actor = enemies.PlaceTorizo(0, new(128, 128));
+        TorizoEnemyState state = actor.EntityOf<TorizoEntity>().State;
+        void ExecuteCue(TorizoCue cue) =>
             AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
                     actor.HeldOccupant(), actor, state, new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
-                    new TorizoCue.Signal(kind), TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
+                    cue, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
                 "Torizo palette cue runs on");
+        void Execute(TorizoCueKind kind) => ExecuteCue(new TorizoCue.Signal(kind));
+        // His awakening's fall, which the build-pinned debugger state below needs defined.
+        ExecuteCue(new TorizoCue.SetPhase(TorizoPhase.Falling));
         enemies.Earthquake.Start(NativeEarthquakeTypes.Shake(4), 32);
         // The native awakening loop invokes B271 every four frames. It must not extend a pending landing quake.
         Execute(TorizoCueKind.FadeToNormalColors);

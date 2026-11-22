@@ -23,13 +23,12 @@ internal static class CrocomireMouthShotHoldVerification
     {
         int expected = WrappingCountdown.Start(StartingHold).AddFrames(8).RemainingFrames;
         int cases = 0;
-        (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
         foreach (CrocomirePhase phase in Enum.GetValues<CrocomirePhase>())
         {
             foreach ((string place, int cameraX) in new[] { ("off screen", 0), ("on screen", 400) })
             {
-                var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]) { Phase = phase };
-                body.SetSpeciesState(state);
+                (RoomEnemySystem enemies, RoomEnemyPlace body, CrocomireEnemyState state) = NewCrocomireBody();
+                state.Phase = phase;
                 body.AnimationClock.HoldFor(StartingHold);
                 body.HurtFlash.End();
 
@@ -54,9 +53,8 @@ internal static class CrocomireMouthShotHoldVerification
     /// </summary>
     internal static void VerifyCrocomireMouthShotReadsPassCamera()
     {
-        (RoomEnemySystem enemies, RoomEnemyPlace body) = NewCrocomireBody();
-        var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]) { Phase = CrocomirePhase.SteppingForward };
-        body.SetSpeciesState(state);
+        (RoomEnemySystem enemies, RoomEnemyPlace body, CrocomireEnemyState state) = NewCrocomireBody();
+        state.Phase = CrocomirePhase.SteppingForward;
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0);
@@ -78,14 +76,15 @@ internal static class CrocomireMouthShotHoldVerification
         Console.WriteLine("  Crocomire mouth shot: the reaction reads the pass's camera.");
     }
 
-    /// <summary>A room enemy system whose first actor is Crocomire's body, standing at column 576.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemyPlace Body) NewCrocomireBody()
+    /// <summary>
+    /// A room enemy system whose first actor is Crocomire's body, as his room's population sets him up, standing at column
+    /// 576, with the encounter his setup built.
+    /// </summary>
+    private static (RoomEnemySystem Enemies, RoomEnemyPlace Body, CrocomireEnemyState State) NewCrocomireBody()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(576, 144));
-        return (enemies, body);
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
+        return (enemies, enemies.Places.InUpdateOrder[0], state);
     }
 }

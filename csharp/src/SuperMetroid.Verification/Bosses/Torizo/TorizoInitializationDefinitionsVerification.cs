@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -25,34 +25,32 @@ internal static class TorizoInitializationDefinitionsVerification
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, TorizoNativeListAddresses.Entry(compiled.Animation), checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(EnemyContact.None, compiled.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))), compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            bool defeated = false;
-            enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            void initialize(RoomEnemyPlace place) => place.SetSpeciesState(enemies.TorizoBehavior.Movement.InitializeTorizo(
-                place, variant != 0 ? TorizoVariant.Golden : TorizoVariant.Bomb, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0));
-            var actor = enemies.Places.InUpdateOrder[0];
-            actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.KeptDefinition);
+            EnemyDefinitionId species = variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo;
+            // Each initialization is the setup the room's population load runs for a Torizo it places with the entry's
+            // properties, in a room of its own whose Torizo is beaten or not.
+            RoomEnemyPlace initialize(bool defeated, RoomEnemyPlacement entry)
+            {
+                var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+                enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
+                return enemies.LoadPopulation(entry)[0];
+            }
             // Every combination of engine properties (#1472: the property word's low byte is species settings, not
             // an engine property), with both additional properties varying across the combinations.
             for (int properties = 0; properties <= ushort.MaxValue; properties += 256)
             {
                 EnemyPropertyState population = EnemyPropertyWordCodec.Decode(properties, 0);
+                // A Torizo is placed only by his room's population, never respawned, so no entry of his lets him respawn.
+                if (population.Presence.HasAny(EnemyPresence.RespawnsIfKilled))
+                    continue;
                 bool populationCollidesByFrameHitboxes = population.Contact.HasAny(EnemyContact.BlocksPlasmaBeam);
-                bool populationNewInstructionFrame = !population.Contact.HasAny(EnemyContact.SolidToSamus);
-                actor.Contact = population.Contact;
-                actor.Processing = population.Processing;
-                actor.Presence = population.Presence;
-                actor.CollidesByFrameHitboxes = populationCollidesByFrameHitboxes;
-                actor.AnimationClock.ShowsNewFrame = populationNewInstructionFrame;
-                actor.Radius = new(0xffff, 0xffff);
-                actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
-                actor.Health = 0x3456;
-                actor.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-                actor.AnimationClock.HoldFor(0xffff);
-                initialize(actor);
+                RoomEnemyPlace actor = initialize(defeated: false, PopulationPlacementAccess.Entry(species, new(0xffff, 0xffff)) with
+                {
+                    Contact = population.Contact, Processing = population.Processing, Presence = population.Presence,
+                    CollidesByFrameHitboxes = populationCollidesByFrameHitboxes,
+                });
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");
                 AssertEqual(native[1], actor.Position.Y.Whole, "Real Torizo initial Y");
-                TorizoEnemyState started = actor.RequireSpeciesState<TorizoEnemyState>();
+                TorizoEnemyState started = actor.EntityOf<TorizoEntity>().State;
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(TorizoAnimations.Playing(started.BodyPlayback)), "Real Torizo initial program selection");
                 AssertEqual(TorizoAnimations.Start(TorizoAnimations.Playing(started.BodyPlayback)), started.BodyPlayback, "Real Torizo starts its initial animation");
                 EnemyPropertyState initialized = EnemyPropertyWordCodec.Decode(properties | native[3], 0);
@@ -62,30 +60,27 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");
                 AssertTrue(actor.CollidesByFrameHitboxes, "Torizo initialization collides by frame hitboxes");
-                AssertEqual(populationNewInstructionFrame, actor.AnimationClock.ShowsNewFrame, "Extended map flag preserves the population's new-frame property");
-                AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
-                AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
-                AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
+                // The population places a Torizo on whole pixels, which his initialization keeps beneath his wake position.
+                AssertEqual((ushort)0, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
+                AssertEqual((ushort)0, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
+                AssertEqual(actor.Definition.Health, actor.Health, "Torizo initialization preserves population health");
                 AssertEqual(1, actor.AnimationClock.Hold, "Initial instruction timer");
-                var state = variant == 0 ? enemies.BombTorizo : enemies.GoldenTorizo;
-                AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity.X.RawValue, "Initial horizontal velocity");
-                AssertEqual(state.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
+                AssertEqual((ushort)0, started.Velocity.X.RawValue, "Initial horizontal velocity");
+                AssertEqual(started.Colours.Shading, actor.Shading, "Initial colours: the shading his colours name for his starting look");
                 AssertTrue(!actor.Shading.IsStandard, "Initial colours: his starting look is a shade over his sheet");
-                AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
+                AssertEqual((ushort)0x100, started.Velocity.Y.RawValue, "Initial falling velocity");
             }
-            defeated = true;
-            actor.Contact = EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus;
-            actor.Processing = EnemyProcessing.None;
-            actor.Presence = EnemyPresence.None;
-            actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
-            actor.AnimationClock.HoldFor(0x3333);
-            initialize(actor);
-            AssertEqual(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus, actor.Contact, "Defeated Torizo keeps its contact");
-            AssertEqual(EnemyProcessing.None, actor.Processing, "Defeated Torizo gains no processing");
-            AssertEqual(EnemyPresence.Deleted, actor.Presence, "Defeated Torizo is deleted before initialization writes");
-            AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
-            AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
-            AssertEqual(0x3333, actor.AnimationClock.Hold, "Defeated Torizo leaves its animation untouched");
+            RoomEnemyPlace beaten = initialize(defeated: true, PopulationPlacementAccess.Entry(species, new(0x1111, 0x2222)) with
+            {
+                Contact = EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus,
+            });
+            AssertEqual(EnemyContact.BlocksPlasmaBeam | EnemyContact.IgnoresSamus, beaten.Contact, "Defeated Torizo keeps its contact");
+            AssertEqual(EnemyProcessing.None, beaten.Processing, "Defeated Torizo gains no processing");
+            AssertEqual(EnemyPresence.Deleted, beaten.Presence, "Defeated Torizo is deleted before initialization writes");
+            AssertEqual((ushort)0x1111, beaten.Position.X.Whole, "Defeated Torizo preserves X");
+            AssertEqual((ushort)0x2222, beaten.Position.Y.Whole, "Defeated Torizo preserves Y");
+            AssertEqual(default(AnimationPlayback<TorizoBodySegment>), beaten.EntityOf<TorizoEntity>().State.BodyPlayback,
+                "Defeated Torizo leaves its animation untouched");
         }
         Console.WriteLine("Torizo initialization: all 12 native words, 131072 real live initializations and both defeated early returns pass without ROM reads.");
     }

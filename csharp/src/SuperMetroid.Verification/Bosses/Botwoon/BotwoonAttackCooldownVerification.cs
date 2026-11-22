@@ -131,23 +131,18 @@ internal static class BotwoonAttackCooldownVerification
     /// </summary>
     private static NewBotwoonHeadResult NewBotwoon()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        // Botwoon is alive: his setup spawns his body.
+        // Botwoon is alive: his room's population sets him up, and his setup builds the state his main AI runs on and
+        // spawns his body; the check then stands him clear of his holes, past his first action.
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
-        head.Position = head.Position.WithWhole(new(1000, 1000));
-        // His room's load reads whether its mini-boss is defeated; this room's is not.
-        enemies.VerificationServices().IsAreaMiniBossDefeated ??= () => false;
-        // His setup builds the state his main AI runs on and spawns his body; the check then stands him clear of his holes,
-        // past his first action.
-        BotwoonEnemyState state = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);
+        RoomEnemyPlace head = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Botwoon, new Position16<RoomPixels>(1000, 1000)))[0];
+        BotwoonEnemyState state = head.EntityOf<BotwoonEntity>().State;
         state.HealthBand = BotwoonHealthBandDefinitions.BelowEighth;
         state.InsideHole = false;
         state.PreviousInsideHole = false;
         state.InitialAction = false;
-        head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
     }
 

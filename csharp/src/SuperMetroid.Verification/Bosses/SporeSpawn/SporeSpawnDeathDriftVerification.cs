@@ -28,18 +28,15 @@ internal static class SporeSpawnDeathDriftVerification
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-                services: new VerificationRoomEnemyServices(null));
+                definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
+            enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+            // Spore Spawn as his room's population sets him up at his arena's centre, his stalk hanging from it; his death
+            // then begins with him at the start.
+            RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(128, 624)))[0];
+            SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
             body.Position = body.Position.WithWhole(start);
-            var state = new SporeSpawnEnemyState
-            {
-                Movement = SporeSpawnMovement.SetupDeath,
-                MovementCenter = new(128, 624),
-            };
-            state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body.HeldOccupant(), body, segment)).OfType<SporeSpawnStalkLink>()];
-            body.SetSpeciesState(state);
+            state.Movement = SporeSpawnMovement.SetupDeath;
 
             enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
             FixedVector<RoomPixels> velocity = state.DeathVelocity;

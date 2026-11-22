@@ -44,8 +44,8 @@ internal static class TorizoOwnershipVerification
         AssertThrows<InvalidOperationException>(
             () => new global::SuperMetroid.Core.Fx.ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
             "the belly glow never starts without the Torizo that shows it");
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
-        TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(0, new(128, 128), ordinal: 3);
+        TorizoEnemyState state = torizo.EntityOf<TorizoEntity>().State;
         TorizoBody.ShowLook(torizo, state, new TorizoLook(TorizoLookKind.Normal));
         TorizoBehavior.ShowBellyGlow(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), frame);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, frame), torizo.Shading.Shades[^1],
@@ -57,14 +57,12 @@ internal static class TorizoOwnershipVerification
     {
         RoomEnemySystem enemies = NewEnemies();
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(400, 400));
-        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(0, new(400, 400), TorizoVariant.Golden);
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
         EnemyProjectile missile = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
         torizo.Position = torizo.Position.WithWhole(new(300, 350));
-        state.Posture = TorizoPosture.AfterStep(HorizontalDirection.Right, foot: HorizontalDirection.Right);
+        enemies.PlayTorizoCue(torizo, new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Right));
         enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new Position16<RoomPixels>(300, 350) + TorizoProjectilePlacementDefinitions.HeldSuperMissile, missile.Position.Whole,
             "the held Super Missile stays at the hand of the Golden Torizo that caught it");
@@ -78,10 +76,8 @@ internal static class TorizoOwnershipVerification
     {
         RoomEnemySystem enemies = NewEnemies();
         RoomLevelData level = CreateEmptyRoom(new(64, 64));
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(400, 400));
-        TorizoEnemyState state = torizo.BindTorizoFixtureState(0, TorizoVariant.Golden);
-        state.EyeBeamExplosionsEnabled = explosionsEnabled;
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(0, new(400, 400), TorizoVariant.Golden);
+        enemies.PlayTorizoCue(torizo, new TorizoCue.Signal(explosionsEnabled ? TorizoCueKind.EnableEyeBeamExplosions : TorizoCueKind.DisableEyeBeamExplosions));
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
         EnemyProjectile beam = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         beam.HoldStill();

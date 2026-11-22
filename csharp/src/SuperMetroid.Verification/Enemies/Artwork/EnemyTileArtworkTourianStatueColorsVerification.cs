@@ -175,9 +175,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
+            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            // The room's population load builds the placement and initializes it.
+            _ = enemy.LoadAuthoredPopulation();
         }
 
         static SuperMetroidRuntime CreateGreyRoom(

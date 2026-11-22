@@ -20,18 +20,27 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<KiHunterSpawnSettings>(
-            [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterYellow],
-            (occupant, settings, place, common) =>
-            {
-                var partner = new KiHunterWingsBody(place, occupant, settings);
-                foreach (EnemyDefinitionId wings in WingsDefinitions)
-                {
-                    _partOffers.Offer<KiHunterWingsSpawnSettings>(wings, (wingsOccupant, wingsSettings, wingsPlace, wingsCommon) =>
-                        EnemyOccupant.Running(new KiHunterWingsEntity(this, wingsOccupant, wingsPlace, wingsCommon, wingsSettings, partner)));
-                }
-                return EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, settings));
-            });
+            [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterYellow], CreateBody);
         registrar.Joins(WingsDefinitions);
+    }
+
+    /// <summary>A body, which offers the wings listed after it the creation that builds them following it.</summary>
+    private EnemyOccupant CreateBody(RoomEnemyOccupant occupant, KiHunterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        var following = new WingsFollowing(this, new KiHunterWingsBody(place, occupant, settings));
+        foreach (EnemyDefinitionId wings in WingsDefinitions)
+            _partOffers.Offer<KiHunterWingsSpawnSettings>(wings, following.CreateWings);
+        return EnemyOccupant.Running(new KiHunterBodyEntity(this, occupant, place, common, settings));
+    }
+
+    /// <summary>The creation a body offers the wings its room lists right after it (#2554): the wings following the body.</summary>
+    /// <param name="species">The Ki-Hunter species owner.</param>
+    /// <param name="partner">The body the wings follow.</param>
+    private sealed partial class WingsFollowing(KiHunterBehavior species, KiHunterWingsBody partner)
+    {
+        /// <summary>The wings, following the body.</summary>
+        internal EnemyOccupant CreateWings(RoomEnemyOccupant occupant, KiHunterWingsSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new KiHunterWingsEntity(species, occupant, place, common, settings, partner));
     }
 
     /// <summary>The wings of every colour, which join the body listed before them.</summary>

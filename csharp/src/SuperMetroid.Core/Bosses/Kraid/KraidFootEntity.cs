@@ -7,14 +7,24 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
-internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    KraidEnemyState encounter)
-    : KraidLimbEntity(species, occupant, place, common, species.Limbs.InitializeKraidFoot(place, encounter))
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KraidEnemyState encounter)
+    : KraidLimbEntity(species, occupant, place, common, encounter)
 {
-    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly KraidEnemyState encounter = encounter;
-
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the foot occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static KraidFootEntity SetUp(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KraidEnemyState encounter) =>
+        new(species, occupant, place, common, species.Limbs.InitializeKraidFoot(place, encounter));
 
     /// <summary>The foot's own part of the encounter.</summary>
     internal override KraidAnimatedPartState Part => Encounter.FootState;

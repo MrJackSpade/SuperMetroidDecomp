@@ -25,12 +25,18 @@ internal sealed partial class CeresDoorFactory(CeresDoorBehavior doors) : IEnemy
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
         Ensure.NotNull(registrar).Spawns<CeresDoorSpawnSettings>([EnemyDefinitionId.CeresDoor], CreateDoor);
-        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.CeresRidleyRoomDoor], (occupant, _, place, common) =>
-            EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common)));
-        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.CeresElevatorRoomWall], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new CeresElevatorRoomWallEntity(_doors, occupant, place, common)));
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.CeresRidleyRoomDoor], CreateRidleyRoomDoor);
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.CeresElevatorRoomWall], CreateElevatorRoomWall);
         registrar.Spawns<CeresGetawayChamberWallSpawnSettings>([EnemyDefinitionId.CeresGetawayChamberWall], CreateGetawayChamberWall);
     }
+
+    /// <summary>The door of Ridley's room.</summary>
+    private EnemyOccupant CreateRidleyRoomDoor(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Of(new CeresRidleyRoomDoorEntity(_doors, occupant, place, common));
+
+    /// <summary>The elevator room's wall.</summary>
+    private EnemyOccupant CreateElevatorRoomWall(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new CeresElevatorRoomWallEntity(_doors, occupant, place, common));
 
     /// <summary>An ordinary door, facing where its placement says.</summary>
     /// <exception cref="InvalidDataException">The placement names no facing.</exception>

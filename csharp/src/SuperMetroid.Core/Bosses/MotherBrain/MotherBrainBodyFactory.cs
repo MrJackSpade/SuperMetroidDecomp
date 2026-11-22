@@ -23,8 +23,11 @@ internal sealed partial class MotherBrainBodyFactory(MotherBrainBehavior species
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MotherBrainBody], (occupant, _, place, common) =>
-            species.CreateBody(occupant, place, common, zebesWarning));
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MotherBrainBody], CreateBody);
         registrar.Joins([EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes]);
     }
+
+    /// <summary>Her body, which receives the room's background warning as it is placed.</summary>
+    private EnemyOccupant CreateBody(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        species.CreateBody(occupant, place, common, zebesWarning);
 }

@@ -9,14 +9,16 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract partial class DragonPartEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="followUpRecipient">What the enemy's setup built (#2554).</param>
+internal abstract partial class DragonPartEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, RoomEnemyPlace followUpRecipient)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyPrivateShotReaction
 {
     /// <summary>The Dragon species owner.</summary>
     private protected DragonBehavior Species => species;
 
     /// <summary>The enemy the part's follow-up to a hit reaches, the one its room lists right after it, found as it is built.</summary>
-    private RoomEnemyPlace FollowUpRecipient { get; } = species.FollowUpRecipientOf(place);
+    private RoomEnemyPlace FollowUpRecipient { get; } = followUpRecipient;
 
     /// <summary>The part's own shot reaction, which carries its hit to the enemy its follow-up reaches.</summary>
     private EnemyShotReaction OwnShot => field ??= DragonBehavior.DragonShotReaction(CarryHitOn);

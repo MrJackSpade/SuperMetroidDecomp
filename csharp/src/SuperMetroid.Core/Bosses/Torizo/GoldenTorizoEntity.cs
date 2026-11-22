@@ -7,11 +7,27 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Golden Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
+/// <param name="state">What the enemy's setup built, which its base holds (#2554).</param>
 internal sealed partial class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    EnemyPopulationSurroundings surroundings)
-    : TorizoEntity(species, occupant, place, common, surroundings, TorizoVariant.Golden)
+    TorizoEnemyState state)
+    : TorizoEntity(species, occupant, place, common, state)
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Torizo species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place Golden Torizo occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
+    internal GoldenTorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings)
+        : this(species, occupant, place, common,
+            species.Movement.InitializeTorizo(place, TorizoVariant.Golden, surroundings.Samus, surroundings.ControllerInput))
+    {
+    }
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Occupant, Place, State, frame);
 

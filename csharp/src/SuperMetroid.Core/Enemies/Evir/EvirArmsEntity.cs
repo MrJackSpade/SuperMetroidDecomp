@@ -7,27 +7,36 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// shot reaction, but their bombs and Power Bombs still take the Evir's, followed by the follow-up to the enemies after
 /// them.
 /// </summary>
-/// <param name="species">The Evir species owner.</param>
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="body">The place of the body the room lists before the arms, which offered them their creation (#2554).</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+/// <param name="followUpRecipients">What the enemy's setup built (#2554).</param>
 [RoomLifetime]
-internal sealed partial class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    RoomEnemyPlace body)
+internal sealed partial class EvirArmsEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EvirArmsState state,
+    IReadOnlyList<RoomEnemyPlace> followUpRecipients)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The <c>species</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly EvirBehavior species = species;
-
-    /// <summary>The <c>body</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RoomEnemyPlace body = body;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Evir species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the arms occupy.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="body">The place of the body the room lists before the arms, which offered them their creation (#2554).</param>
+    internal EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomEnemyPlace body)
+        : this(occupant, place, common, species.InitializeEvirArms(place, body), species.FollowUpRecipientsOf(place))
+    {
+    }
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly EvirArmsState state = species.InitializeEvirArms(place, body);
+    private readonly EvirArmsState state = state;
 
     /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
-    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
+    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = followUpRecipients;
 
     /// <summary>The part's own bomb stages, which carry its hit to the enemies its follow-up reaches.</summary>
     private EnemyBombReaction OwnBomb => field ??= EvirBehavior.EvirBombReaction(PassHitOn);

@@ -6,19 +6,32 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="place">The place the baby occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-/// <param name="family">The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</param>
-internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BabyTurtleSpawnSettings settings,
-    MamaTurtleFamily family)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BabyTurtleSpawnSettings settings, BabyTurtleEnemyState state)
     : TurtleEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
-    /// <summary>The <c>family</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly MamaTurtleFamily family = family;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The mama turtle species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the baby occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    /// <param name="family">The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</param>
+    internal BabyTurtleEntity(MamaTurtleBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BabyTurtleSpawnSettings settings, MamaTurtleFamily family)
+        : this(species, occupant, place, common, settings, MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family))
+    {
+    }
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal BabyTurtleSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly BabyTurtleEnemyState state = MamaTurtleBehavior.InitializeBabyTurtle(settings, place, family);
+    private readonly BabyTurtleEnemyState state = state;
 
     /// <summary>The baby's own shot reaction, which wakes its Mama.</summary>
     private EnemyShotReaction OwnShot => field ??= MamaTurtleBehavior.BabyTurtleShotReaction(this);

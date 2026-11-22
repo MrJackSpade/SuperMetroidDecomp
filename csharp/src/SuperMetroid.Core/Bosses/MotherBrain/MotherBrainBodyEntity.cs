@@ -16,16 +16,29 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-/// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
-internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    BossArtworkBinding bossArtwork, RoomWarning zebesWarning)
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, MotherBrainEnemyState encounter)
     : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
-    /// <summary>The Zebes warning the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RoomWarning zebesWarning = zebesWarning;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The MotherBrain species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+    internal MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork, RoomWarning zebesWarning)
+        : this(species, occupant, place, common, bossArtwork, species.BeginEncounter(occupant, zebesWarning))
+    {
+    }
 
     /// <summary>The encounter the body begins as it is set up, which her head joins (#2218, #2554).</summary>
-    internal override MotherBrainEnemyState Encounter { get; } = species.BeginEncounter(occupant, zebesWarning);
+    internal override MotherBrainEnemyState Encounter { get; } = encounter;
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
@@ -48,7 +61,6 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context) =>
         context.SelectedShot == MotherBrainReactions.BodyShot || base.TryReactToBomb(context);
-
 
     /// <inheritdoc/>
     public BossBodyParts BodyParts => Encounter.BodyParts;

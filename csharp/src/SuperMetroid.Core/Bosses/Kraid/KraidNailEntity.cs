@@ -11,14 +11,25 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="place">The place the fingernail occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
-/// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
-internal sealed partial class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidNailPart nail,
-    KraidEnemyState encounter)
-    : KraidEntity(species, occupant, place, common, KraidProjectiles.InitializeKraidNail(place, nail, encounter)), IEnemyTypedAnimation
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidNailEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KraidNailPart nail, KraidEnemyState encounter)
+    : KraidEntity(species, occupant, place, common, encounter), IEnemyTypedAnimation
 {
-    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly KraidEnemyState encounter = encounter;
-
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the fingernail occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="nail">Which of his fingernails it is, whose state it holds from its setup (#2298).</param>
+    /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static KraidNailEntity SetUp(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KraidNailPart nail, KraidEnemyState encounter) =>
+        new(species, occupant, place, common, nail, KraidProjectiles.InitializeKraidNail(place, nail, encounter));
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidNailMain(Place, Part, frame.Level);

@@ -17,11 +17,17 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateGoldNinja], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateSilverNinja], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings)));
+        Ensure.NotNull(registrar).Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateGoldNinja], CreateGoldNinja);
+        registrar.Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateSilverNinja], CreateSilverNinja);
     }
+
+    /// <summary>The gold ninja Space Pirate.</summary>
+    private EnemyOccupant CreateGoldNinja(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings));
+
+    /// <summary>The silver ninja Space Pirate.</summary>
+    private EnemyOccupant CreateSilverNinja(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;

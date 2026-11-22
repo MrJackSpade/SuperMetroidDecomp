@@ -5,9 +5,24 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, DeadTorizoEnemyState state)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The dead Torizo species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(species, occupant, place, common, species.InitializeDeadTorizo(place))
+    {
+    }
+
     /// <summary>The species' DeadTorizoShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnDeadTorizoShotReaction => field ??= DeadTorizoBehavior.DeadTorizoShotReaction(MarkShotAndRot);
 
@@ -18,7 +33,7 @@ internal sealed partial class DeadTorizoEntity(DeadTorizoBehavior species, RoomE
     public CorpseRotRows ShownRotRows => DeadTorizoBehavior.ShownDeadTorizoRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DeadTorizoEnemyState State { get; } = species.InitializeDeadTorizo(place);
+    internal DeadTorizoEnemyState State { get; } = state;
 
     /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The blast meeting the corpse.</param>

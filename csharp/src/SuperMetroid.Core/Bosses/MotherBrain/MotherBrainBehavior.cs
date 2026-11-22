@@ -49,9 +49,18 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoining
     internal MotherBrainEnemyState BeginEncounter(RoomEnemyOccupant body, RoomWarning zebesWarning)
     {
         MotherBrainEnemyState state = Body.InitializeMotherBrainBody(body, zebesWarning);
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.MotherBrainHead, (occupant, _, place, common) =>
-            EnemyOccupant.Running(new MotherBrainHeadEntity(this, occupant, place, common, state)));
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.MotherBrainHead, new HeadJoining(this, state).CreateHead);
         return state;
+    }
+
+    /// <summary>The creation her body offers her head (#2554): the head joining the encounter her body began.</summary>
+    /// <param name="species">Mother Brain's species owner.</param>
+    /// <param name="encounter">The encounter her body began.</param>
+    private sealed partial class HeadJoining(MotherBrainBehavior species, MotherBrainEnemyState encounter)
+    {
+        /// <summary>Her head, joining her encounter.</summary>
+        internal EnemyOccupant CreateHead(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(MotherBrainHeadEntity.SetUp(species, occupant, place, common, encounter));
     }
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     internal MotherBrainProjectiles Projectiles { get; }

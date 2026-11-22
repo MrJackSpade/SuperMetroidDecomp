@@ -40,26 +40,62 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<
     internal KraidEnemyState BeginKraid(RoomEnemyPlace body)
     {
         KraidEnemyState state = Rise.InitializeKraidBody(body);
-        KraidParts parts = state.Parts;
-        Offer(EnemyDefinitionId.KraidArm, parts.Arm, (occupant, place, common) => new KraidArmEntity(this, occupant, place, common, state));
-        Offer(EnemyDefinitionId.KraidFoot, parts.Foot, (occupant, place, common) => new KraidFootEntity(this, occupant, place, common, state));
-        Offer(EnemyDefinitionId.KraidLintTop, parts.TopLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Top, state));
-        Offer(EnemyDefinitionId.KraidLintMiddle, parts.MiddleLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Middle, state));
-        Offer(EnemyDefinitionId.KraidLintBottom, parts.BottomLint, (occupant, place, common) => new KraidLintEntity(this, occupant, place, common, KraidLintPart.Bottom, state));
-        Offer(EnemyDefinitionId.KraidFirstNail, parts.FirstNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, KraidNailPart.First, state));
-        Offer(EnemyDefinitionId.KraidSecondNail, parts.SecondNail, (occupant, place, common) => new KraidNailEntity(this, occupant, place, common, KraidNailPart.Second, state));
+        var joining = new PartJoining(this, state);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidArm, joining.CreateArm);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidFoot, joining.CreateFoot);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidLintTop, joining.CreateTopLint);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidLintMiddle, joining.CreateMiddleLint);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidLintBottom, joining.CreateBottomLint);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidFirstNail, joining.CreateFirstNail);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.KraidSecondNail, joining.CreateSecondNail);
         return state;
     }
 
     /// <summary>
-    /// Offers <paramref name="part"/> the creation <paramref name="create"/> makes, for the place his body found it in as
-    /// his room lists it.
+    /// The creations his body offers his other parts (#2554): each joining the encounter his body began, in the place his
+    /// body found it in as his room lists it.
     /// </summary>
-    /// <exception cref="InvalidDataException">The room lists the part elsewhere than his body found it.</exception>
-    private void Offer(EnemyDefinitionId part, RoomEnemyPlace listed, Func<RoomEnemyOccupant, RoomEnemyPlace, EnemyCommonParticipation, KraidEntity> create) =>
-        _partOffers.Offer<EnemySpawnSettings>(part, (occupant, _, place, common) => place == listed
-            ? EnemyOccupant.Running(create(occupant, place, common))
-            : throw new InvalidDataException($"Kraid's {part} set up as enemy {place.Ordinal}, but his body lists enemy {listed.Ordinal} as it."));
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="encounter">The encounter his body began.</param>
+    private sealed partial class PartJoining(KraidBehavior species, KraidEnemyState encounter)
+    {
+        /// <summary>His arm, joining his encounter.</summary>
+        internal EnemyOccupant CreateArm(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidArmEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidArm, encounter.Parts.Arm, place), common, encounter));
+
+        /// <summary>His foot, joining his encounter.</summary>
+        internal EnemyOccupant CreateFoot(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidFootEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidFoot, encounter.Parts.Foot, place), common, encounter));
+
+        /// <summary>His top lint, joining his encounter.</summary>
+        internal EnemyOccupant CreateTopLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintTop, encounter.Parts.TopLint, place), common, KraidLintPart.Top, encounter));
+
+        /// <summary>His middle lint, joining his encounter.</summary>
+        internal EnemyOccupant CreateMiddleLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintMiddle, encounter.Parts.MiddleLint, place), common, KraidLintPart.Middle, encounter));
+
+        /// <summary>His bottom lint, joining his encounter.</summary>
+        internal EnemyOccupant CreateBottomLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintBottom, encounter.Parts.BottomLint, place), common, KraidLintPart.Bottom, encounter));
+
+        /// <summary>His first fingernail, joining his encounter.</summary>
+        internal EnemyOccupant CreateFirstNail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidNailEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidFirstNail, encounter.Parts.FirstNail, place), common, KraidNailPart.First, encounter));
+
+        /// <summary>His second fingernail, joining his encounter.</summary>
+        internal EnemyOccupant CreateSecondNail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(KraidNailEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidSecondNail, encounter.Parts.SecondNail, place), common, KraidNailPart.Second, encounter));
+
+        /// <summary>
+        /// The place a part is built in, <paramref name="place"/>, checked before the part is built to be where his body found
+        /// it as his room lists it.
+        /// </summary>
+        /// <exception cref="InvalidDataException">The room lists the part elsewhere than his body found it.</exception>
+        private static RoomEnemyPlace Listed(EnemyDefinitionId part, RoomEnemyPlace listed, RoomEnemyPlace place) => place == listed
+            ? place
+            : throw new InvalidDataException($"Kraid's {part} set up as enemy {place.Ordinal}, but his body lists enemy {listed.Ordinal} as it.");
+    }
 
     /// <summary>Kraid's body, which joins its own reference as it is set up (#1877, #2146).</summary>
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>

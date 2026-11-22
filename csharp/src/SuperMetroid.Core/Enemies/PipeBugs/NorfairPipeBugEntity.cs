@@ -9,11 +9,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Pipe Bug occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract partial class NorfairPipeBugEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal abstract partial class NorfairPipeBugEntity(PipeBugsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, NorfairPipeBugState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal NorfairPipeBugState State { get; } = species.InitializeNorfairPipeBug(place);
+    internal NorfairPipeBugState State { get; } = state;
 
     /// <summary>The Pipe Bugs species owner.</summary>
     protected PipeBugsBehavior Species => species;

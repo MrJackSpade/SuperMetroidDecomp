@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed partial class EnemySpeciesRegistry
 {
     /// <summary>How each definition a population places binds its entries.</summary>
-    private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _placed;
+    private readonly Dictionary<EnemyDefinitionId, IEnemyEntryBinding> _placed;
 
     /// <summary>The creations parts already placed offer the parts the room lists after them.</summary>
     private readonly EnemyPartOffers _offers;
@@ -74,8 +74,8 @@ internal sealed partial class EnemySpeciesRegistry
     {
         if (_offers.TryBind(Ensure.NotNull(placement), out PopulationEnemySpawn? offered))
             return offered;
-        return _placed.TryGetValue(placement.DefinitionId, out Func<RoomEnemyPlacement, PopulationEnemySpawn>? bind)
-            ? bind(placement)
+        return _placed.TryGetValue(placement.DefinitionId, out IEnemyEntryBinding? bind)
+            ? bind.Bind(placement)
             : throw new InvalidDataException($"No species in this room places enemy {placement.DefinitionId} from its population, and no part placed before it offered one.");
     }
 }

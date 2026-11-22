@@ -12,18 +12,11 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Torizo occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="surroundings">The room, Samus, controller and camera the population load sets the Torizo up in.</param>
-/// <param name="variant">Which Torizo the entity is.</param>
-internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    EnemyPopulationSurroundings surroundings, TorizoVariant variant)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, TorizoEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
-    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly EnemyPopulationSurroundings surroundings = surroundings;
-
-    /// <summary>The <c>variant</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly TorizoVariant variant = variant;
-
     /// <summary>The Torizo species owner.</summary>
     protected TorizoBehavior Species => species;
 
@@ -31,7 +24,7 @@ internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOc
     public bool IsDefeated => Place.Health == 0;
 
     /// <summary>The Torizo's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal TorizoEnemyState State { get; } = species.Movement.InitializeTorizo(place, variant, surroundings.Samus, surroundings.ControllerInput);
+    internal TorizoEnemyState State { get; } = state;
 
     /// <summary>Begins the Torizo's own death when a shot's common damage takes its last health.</summary>
     /// <param name="context">The shot's hit.</param>

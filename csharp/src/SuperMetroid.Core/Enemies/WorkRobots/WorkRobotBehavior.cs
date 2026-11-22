@@ -20,11 +20,17 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.WorkRobot], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common)));
-        registrar.Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.UnpoweredWorkRobot], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings)));
+        Ensure.NotNull(registrar).Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.WorkRobot], CreatePowered);
+        registrar.Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.UnpoweredWorkRobot], CreateUnpowered);
     }
+
+    /// <summary>The powered work robot.</summary>
+    private EnemyOccupant CreatePowered(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common));
+
+    /// <summary>The unpowered work robot, from its settings.</summary>
+    private EnemyOccupant CreateUnpowered(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings));
 
     /// <summary>Samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;

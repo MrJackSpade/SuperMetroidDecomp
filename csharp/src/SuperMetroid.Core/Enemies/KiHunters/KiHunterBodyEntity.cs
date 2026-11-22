@@ -9,9 +9,26 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KiHunterSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KiHunterSpawnSettings settings, KiHunterBodyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Ki-Hunter species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KiHunterSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeKiHunter(settings, place))
+    {
+    }
+
     /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(DetachWings);
 
@@ -22,7 +39,7 @@ internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomE
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly KiHunterBodyState state = species.InitializeKiHunter(settings, place);
+    private readonly KiHunterBodyState state = state;
 
     /// <summary>Runs the body's wing detachment after a shot's common damage.</summary>
     /// <param name="context">The shot's hit.</param>

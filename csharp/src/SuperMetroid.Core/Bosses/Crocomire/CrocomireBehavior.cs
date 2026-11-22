@@ -30,9 +30,18 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemySpawnFact
     public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         var body = new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork);
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.CrocomireTongue, (tongue, _, tonguePlace, tongueCommon) =>
-            EnemyOccupant.Running(new CrocomireTongueEntity(this, tongue, tonguePlace, tongueCommon, body.Encounter)));
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.CrocomireTongue, new TongueJoining(this, body.Encounter).CreateTongue);
         return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>The creation his body offers his tongue (#2554): the tongue joining the encounter his body began.</summary>
+    /// <param name="species">The Crocomire species owner.</param>
+    /// <param name="encounter">The encounter his body began.</param>
+    private sealed partial class TongueJoining(CrocomireBehavior species, CrocomireEnemyState encounter)
+    {
+        /// <summary>His tongue, joining his encounter.</summary>
+        internal EnemyOccupant CreateTongue(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new CrocomireTongueEntity(species, occupant, place, common, encounter));
     }
 
     /// <summary>Where his body offers his tongue the creation that builds it joining his encounter.</summary>

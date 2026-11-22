@@ -8,22 +8,37 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, EvirSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+/// <param name="followUpRecipients">What the enemy's setup built (#2554).</param>
+internal sealed partial class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    EvirSpawnSettings settings, EvirBodyState state, IReadOnlyList<RoomEnemyPlace> followUpRecipients)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Evir species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings, EvirSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeEvirBody(settings, place, surroundings.Samus), species.FollowUpRecipientsOf(place))
+    {
+    }
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal EvirSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal EvirBodyState State { get; } = species.InitializeEvirBody(settings, place, surroundings.Samus);
+    internal EvirBodyState State { get; } = state;
 
     /// <summary>The two enemies the part's follow-up to a hit reaches, the ones its room lists after it, found as it is built.</summary>
-    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
+    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = followUpRecipients;
 
     /// <summary>The part's own bomb stages, which carry its hit to the enemies its follow-up reaches.</summary>
     private EnemyBombReaction OwnBomb => field ??= EvirBehavior.EvirBombReaction(PassHitOn);

@@ -8,14 +8,16 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="followUpRecipients">What the enemy's setup built (#2554).</param>
+internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, IReadOnlyList<RoomEnemyPlace> followUpRecipients)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Magdollite species owner.</summary>
     private protected MagdolliteBehavior Species => species;
 
     /// <summary>The enemies, up to two, the part's follow-up to a hit reaches, found as it is built (#2558).</summary>
-    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = species.FollowUpRecipientsOf(place);
+    private IReadOnlyList<RoomEnemyPlace> FollowUpRecipients { get; } = followUpRecipients;
 
     /// <summary>The part's own shot reaction, which passes its fate to the enemies its follow-up reaches.</summary>
     private EnemyShotReaction OwnShot => field ??= MagdolliteBehavior.MagdolliteShotReaction(this);

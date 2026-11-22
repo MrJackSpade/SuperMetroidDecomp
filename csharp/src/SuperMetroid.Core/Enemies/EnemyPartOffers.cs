@@ -13,19 +13,14 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed partial class EnemyPartOffers
 {
     /// <summary>How each offered definition's entries bind, by the creation the offer carries.</summary>
-    private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _offered = [];
+    private readonly Dictionary<EnemyDefinitionId, IEnemyEntryBinding> _offered = [];
 
     /// <summary>Offers <paramref name="create"/> as how the entries of <paramref name="part"/> listed from here on are built.</summary>
     /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
     /// <param name="part">The later part's definition.</param>
-    /// <param name="create">The creation, which carries what the part joins.</param>
-    internal void Offer<TSettings>(EnemyDefinitionId part, EnemySpawnCreation<TSettings> create) where TSettings : EnemySpawnSettings
-    {
-        var shared = new SpeciesSpawnCreation<TSettings>(create);
-        _offered[part] = placement => placement.SpawnSettings is TSettings settings
-            ? new OrdinaryEnemySpawn<TSettings>(placement, settings, shared)
-            : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
-    }
+    /// <param name="create">The creation, a named method of the object that carries what the part joins.</param>
+    internal void Offer<TSettings>(EnemyDefinitionId part, EnemySpawnCreation<TSettings> create) where TSettings : EnemySpawnSettings =>
+        _offered[part] = new MethodSpawnCreation<TSettings>(create);
 
     /// <summary>
     /// Offers <paramref name="create"/> as how the entries of <paramref name="part"/> listed from here on are built, for a
@@ -33,14 +28,9 @@ internal sealed partial class EnemyPartOffers
     /// </summary>
     /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
     /// <param name="part">The later part's definition.</param>
-    /// <param name="create">The creation, which carries what the part joins.</param>
-    internal void OfferLoaded<TSettings>(EnemyDefinitionId part, EnemyLoadedCreation<TSettings> create) where TSettings : EnemySpawnSettings
-    {
-        var shared = new SpeciesLoadedCreation<TSettings>(create);
-        _offered[part] = placement => placement.SpawnSettings is TSettings settings
-            ? new LoadedEnemySpawn<TSettings>(placement, settings, shared)
-            : throw new InvalidDataException($"Enemy {placement.DefinitionId}'s population entry carries {placement.SpawnSettings}, not {typeof(TSettings).Name}.");
-    }
+    /// <param name="create">The creation, a named method of the object that carries what the part joins.</param>
+    internal void OfferLoaded<TSettings>(EnemyDefinitionId part, EnemyLoadedCreation<TSettings> create) where TSettings : EnemySpawnSettings =>
+        _offered[part] = new MethodLoadedCreation<TSettings>(create);
 
     /// <summary>Binds <paramref name="placement"/> through the offer its enemy has, when an earlier part made one.</summary>
     /// <param name="placement">The population entry.</param>
@@ -49,9 +39,9 @@ internal sealed partial class EnemyPartOffers
     /// <exception cref="InvalidDataException">The entry carries other settings than the offered creation takes.</exception>
     internal bool TryBind(RoomEnemyPlacement placement, [NotNullWhen(true)] out PopulationEnemySpawn? spawn)
     {
-        if (_offered.TryGetValue(Ensure.NotNull(placement).DefinitionId, out Func<RoomEnemyPlacement, PopulationEnemySpawn>? bind))
+        if (_offered.TryGetValue(Ensure.NotNull(placement).DefinitionId, out IEnemyEntryBinding? bind))
         {
-            spawn = bind(placement);
+            spawn = bind.Bind(placement);
             return true;
         }
         spawn = null;

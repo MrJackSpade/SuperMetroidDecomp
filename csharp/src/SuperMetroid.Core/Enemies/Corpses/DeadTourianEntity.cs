@@ -6,9 +6,26 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CorpseSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, CorpseSpawnSettings settings, DeadTourianCorpseEnemyState state)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Tourian corpses' species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        CorpseSpawnSettings settings)
+        : this(species, occupant, place, common, settings, DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings))
+    {
+    }
+
     /// <summary>The species' DeadTourianShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnDeadTourianShotReaction => field ??= DeadTourianBehavior.DeadTourianShotReaction(MarkShotAndRot);
 
@@ -22,7 +39,7 @@ internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, Roo
     public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(state);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly DeadTourianCorpseEnemyState state = DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings);
+    private readonly DeadTourianCorpseEnemyState state = state;
 
     /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The blast meeting the corpse.</param>

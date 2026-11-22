@@ -18,9 +18,12 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<HopperSpawnSettings>(Definitions, (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, HopperKindDefinitions.Kinds[occupant.DefinitionId])));
+        Ensure.NotNull(registrar).Spawns<HopperSpawnSettings>(Definitions, CreateHopper);
     }
+
+    /// <summary>A hopper, from its settings, with the kind its definition gives it.</summary>
+    private EnemyOccupant CreateHopper(RoomEnemyOccupant occupant, HopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, HopperKindDefinitions.Kinds[occupant.DefinitionId]));
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;

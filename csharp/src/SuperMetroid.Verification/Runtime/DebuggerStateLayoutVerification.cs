@@ -275,6 +275,35 @@ internal static partial class DebuggerStateLayoutVerification
         Console.WriteLine("Debugger state packing: struct elements holding references pack, their objects written once each.");
     }
 
+    /// <summary>
+    /// #2554: a restore never repeats an enemy's setup. Botwoon's setup spawns his body as the population load places him;
+    /// a runtime standing in his room captures and restores, and the restored room holds exactly the body segments the
+    /// captured one held, none spawned again, with the captured runtime's graph digest: the restore built every enemy
+    /// through the constructor that only assigns what the state holds, and no species' setup ran on the restored objects.
+    /// The room's species creations and part offers are named methods and binding objects, so the state holds them too.
+    /// </summary>
+    internal static void VerifyDebuggerStateRestoreRunsNoSetup()
+    {
+        SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(SuperMetroid.Core.Hud.HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        runtime.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Botwoon);
+        object[] content = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent;
+        int captured = BotwoonBodySegments(runtime);
+        AssertTrue(captured > 0, "Botwoon's setup spawned his body as his room's population load placed him");
+
+        var restored = GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(GraphDigestVerification.SerializeGraph(runtime, content), content);
+        AssertEqual(captured, BotwoonBodySegments(restored), "the restored room holds the body Botwoon's setup spawned, none spawned again");
+        AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
+            "the restored Botwoon room runtime has the captured runtime's graph digest");
+        Console.WriteLine($"Debugger state restore: Botwoon's room restores with his {captured} body segments, his setup not run again.");
+    }
+
+    /// <summary>The live Botwoon body segments among <paramref name="runtime"/>'s room's enemy projectiles.</summary>
+    private static int BotwoonBodySegments(SuperMetroidRuntime runtime) =>
+        runtime.Room.LoadedScope.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == SuperMetroid.Core.Enemies.RoomEnemyProjectileKind.BotwoonBody);
+
     /// <summary>How many times <paramref name="text"/>'s UTF-8 bytes occur in <paramref name="graph"/>.</summary>
     private static int Occurrences(byte[] graph, string text)
     {
@@ -377,6 +406,7 @@ internal static partial class DebuggerStateLayoutVerification
         Suite(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections());
         Suite(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks());
         Suite(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals());
+        Suite(nameof(VerifyDebuggerStateRestoreRunsNoSetup), () => VerifyDebuggerStateRestoreRunsNoSetup());
         return 0;
     }
 }

@@ -16,11 +16,17 @@ internal sealed partial class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntit
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<EscapeEtecoonSpawnSettings>([EnemyDefinitionId.EtecoonEscape], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.DachoraEscape], (occupant, _, place, common) =>
-            EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common)));
+        Ensure.NotNull(registrar).Spawns<EscapeEtecoonSpawnSettings>([EnemyDefinitionId.EtecoonEscape], CreateEtecoon);
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.DachoraEscape], CreateDachora);
     }
+
+    /// <summary>An escaping Etecoon, from its settings.</summary>
+    private EnemyOccupant CreateEtecoon(RoomEnemyOccupant occupant, EscapeEtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new EscapeEtecoonEntity(this, occupant, place, common, settings));
+
+    /// <summary>The escaping Dachora.</summary>
+    private EnemyOccupant CreateDachora(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.PlacedOnly(new EscapeDachoraEntity(this, occupant, place, common));
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
     private readonly EnemyRoomBinding _room;

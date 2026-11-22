@@ -7,18 +7,31 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
-internal sealed partial class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BabyMetroidEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Baby Metroid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="surroundings">The room, Samus, controller and camera the population load sets the enemy up in.</param>
+    internal BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings)
+        : this(species, occupant, place, common, BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X))
+    {
+    }
 
     /// <summary>The species' BabyMetroidShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnBabyMetroidShotReaction => field ??= BabyMetroidBehavior.BabyMetroidShotReaction(RecoilFromShot);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal BabyMetroidEnemyState State { get; } = BabyMetroidBehavior.InitializeBabyMetroid(place, surroundings.Camera.X);
+    internal BabyMetroidEnemyState State { get; } = state;
 
     /// <summary>Marks a shot's collision with the Baby and recoils it from the shot, without hurting it.</summary>
     /// <param name="c">The shot meeting the Baby.</param>

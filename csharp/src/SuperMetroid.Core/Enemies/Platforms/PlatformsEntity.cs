@@ -6,9 +6,26 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PlatformSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, PlatformSpawnSettings settings, PlatformEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Platforms species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal PlatformsEntity(PlatformsBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        PlatformSpawnSettings settings)
+        : this(species, occupant, place, common, settings, PlatformsBehavior.InitializePlatform(settings, place, occupant.DefinitionId))
+    {
+    }
+
     /// <summary>The species' TripperShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnTripperShotReaction => field ??= PlatformsBehavior.TripperShotReaction(ShowFrozenFrame);
 
@@ -19,7 +36,7 @@ internal sealed partial class PlatformsEntity(PlatformsBehavior species, RoomEne
     internal PlatformSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly PlatformEnemyState state = PlatformsBehavior.InitializePlatform(settings, place, occupant.DefinitionId);
+    private readonly PlatformEnemyState state = state;
 
     /// <summary>Shows a frozen Tripper's frame for its movement after a bomb's common damage.</summary>
     /// <param name="context">The bomb's hit.</param>

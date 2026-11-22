@@ -13,15 +13,27 @@ internal sealed partial class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFact
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<BrinstarPipeBugSpawnSettings>([EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, settings)));
-        registrar.Spawns<NorfairPipeBugSpawnSettings>([EnemyDefinitionId.Gamet], (occupant, settings, place, common) =>
-            settings is NorfairPipeBugLeaderSpawnSettings leader
-                ? EnemyOccupant.Running(new NorfairPipeBugLeaderEntity(this, occupant, place, common, leader))
-                : EnemyOccupant.Running(new NorfairPipeBugFollowerEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<YellowPipeBugSpawnSettings>([EnemyDefinitionId.Geega], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, settings)));
+        Ensure.NotNull(registrar).Spawns<BrinstarPipeBugSpawnSettings>([EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo], CreateBrinstarPipeBug);
+        registrar.Spawns<NorfairPipeBugSpawnSettings>([EnemyDefinitionId.Gamet], CreateNorfairPipeBug);
+        registrar.Spawns<YellowPipeBugSpawnSettings>([EnemyDefinitionId.Geega], CreateYellowPipeBug);
     }
+
+    /// <summary>A Brinstar Pipe Bug, Zeb or Zebbo.</summary>
+    private static EnemyOccupant CreateBrinstarPipeBug(RoomEnemyOccupant occupant, BrinstarPipeBugSpawnSettings settings, RoomEnemyPlace place,
+        EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new BrinstarPipeBugEntity(occupant, place, common, settings));
+
+    /// <summary>A Norfair Pipe Bug, Gamet: its formation's leader or a follower.</summary>
+    private EnemyOccupant CreateNorfairPipeBug(RoomEnemyOccupant occupant, NorfairPipeBugSpawnSettings settings, RoomEnemyPlace place,
+        EnemyCommonParticipation common) =>
+        settings is NorfairPipeBugLeaderSpawnSettings leader
+            ? EnemyOccupant.Running(new NorfairPipeBugLeaderEntity(this, occupant, place, common, leader))
+            : EnemyOccupant.Running(new NorfairPipeBugFollowerEntity(this, occupant, place, common, settings));
+
+    /// <summary>A yellow Pipe Bug, Geega.</summary>
+    private static EnemyOccupant CreateYellowPipeBug(RoomEnemyOccupant occupant, YellowPipeBugSpawnSettings settings, RoomEnemyPlace place,
+        EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new YellowPipeBugEntity(occupant, place, common, settings));
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemyPlaces _places;

@@ -6,23 +6,36 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// One Bull occupant: its initialization, main AI, typed animation and immune-hit recoil after shots and bombs, with the
 /// shared reactions otherwise. Its state inherits the shot-reaction guard of the previous Bull in its place.
 /// </summary>
-/// <param name="species">The Bull species owner.</param>
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the Bull occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
 [RoomLifetime]
-internal sealed partial class BullEntity(BullBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BullSpawnSettings settings)
+internal sealed partial class BullEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    BullSpawnSettings settings, BullEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The <c>species</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly BullBehavior species = species;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Bull species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the Bull occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal BullEntity(BullBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BullSpawnSettings settings)
+        : this(occupant, place, common, settings, species.InitializeBull(settings, place))
+    {
+    }
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal BullSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly BullEnemyState state = species.InitializeBull(settings, place);
+    private readonly BullEnemyState state = state;
 
     /// <summary>Kicks the Bull straight up from a bomb that left its health alone.</summary>
     /// <param name="context">The bomb's hit.</param>

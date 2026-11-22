@@ -18,5 +18,5 @@ internal interface IEnemySpawnFactory<in TSettings> : IEnemyEntityFactory where 
     EnemyOccupant Create(RoomEnemyOccupant occupant, TSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common);
 
     /// <inheritdoc/>
-    void IEnemyEntityFactory.OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Spawns<TSettings>(Definitions, Create);
+    void IEnemyEntityFactory.OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Spawns(this);
 }

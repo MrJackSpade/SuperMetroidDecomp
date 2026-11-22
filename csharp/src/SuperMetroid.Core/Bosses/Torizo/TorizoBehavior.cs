@@ -22,11 +22,19 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.BombTorizo], (occupant, _, place, common, surroundings) =>
-            EnemyOccupant.Running(new BombTorizoEntity(this, occupant, place, common, surroundings)));
-        registrar.Loads<EnemySpawnSettings>([EnemyDefinitionId.GoldenTorizo], (occupant, _, place, common, surroundings) =>
-            EnemyOccupant.Running(new GoldenTorizoEntity(this, occupant, place, common, surroundings)));
+        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.BombTorizo], CreateBombTorizo);
+        registrar.Loads<EnemySpawnSettings>([EnemyDefinitionId.GoldenTorizo], CreateGoldenTorizo);
     }
+
+    /// <summary>The Bomb Torizo, set up in the population load's surroundings.</summary>
+    private EnemyOccupant CreateBombTorizo(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) =>
+        EnemyOccupant.Running(new BombTorizoEntity(this, occupant, place, common, surroundings));
+
+    /// <summary>The Golden Torizo, set up in the population load's surroundings.</summary>
+    private EnemyOccupant CreateGoldenTorizo(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) =>
+        EnemyOccupant.Running(new GoldenTorizoEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;

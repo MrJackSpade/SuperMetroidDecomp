@@ -27,9 +27,9 @@ internal sealed partial class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpa
     /// <summary>Binds <paramref name="placement"/>, the one entry <paramref name="create"/> builds, to it.</summary>
     /// <param name="placement">The entry.</param>
     /// <param name="settings">The entry's settings, as the species takes them.</param>
-    /// <param name="create">The creation of the entry's enemy, which no other entry shares.</param>
+    /// <param name="create">The creation of the entry's enemy, a named method, which no other entry shares.</param>
     internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, EnemySpawnCreation<TSettings> create)
-        : this(placement, settings, new SpeciesSpawnCreation<TSettings>(create))
+        : this(placement, settings, new MethodSpawnCreation<TSettings>(create))
     {
     }
 
@@ -38,7 +38,7 @@ internal sealed partial class OrdinaryEnemySpawn<TSettings> : PopulationEnemySpa
     /// <param name="settings">The entry's settings, as the species takes them.</param>
     /// <param name="factory">The species.</param>
     internal OrdinaryEnemySpawn(RoomEnemyPlacement placement, TSettings settings, IEnemySpawnFactory<TSettings> factory)
-        : this(placement, settings, Ensure.NotNull(factory).Create)
+        : this(placement, settings, new FactorySpawnCreation<TSettings>(factory))
     {
     }
 

@@ -9,13 +9,26 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the tentacles occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-/// <param name="encounter">The encounter his body began, which the tentacles joins as it is built.</param>
-internal sealed partial class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
-    PhantoonEnemyState encounter)
-    : PhantoonEntity(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonTentacles(encounter))
+/// <param name="part">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, PhantoonPart part)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork, part)
 {
-    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly PhantoonEnemyState encounter = encounter;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Phantoon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the tentacles occupy.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    /// <param name="encounter">The encounter his body began, which the tentacles joins as it is built.</param>
+    internal PhantoonTentaclesEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork, PhantoonEnemyState encounter)
+        : this(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonTentacles(encounter))
+    {
+    }
 
     /// <summary>Takes no action of its own: the tentacles plays its own animation.</summary>
     /// <param name="frame">The enemy frame.</param>

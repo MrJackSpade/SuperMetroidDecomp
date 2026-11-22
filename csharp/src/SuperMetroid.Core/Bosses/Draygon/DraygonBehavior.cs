@@ -40,13 +40,29 @@ internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemySpawnFactor
     internal DraygonEnemyState BeginDraygon(RoomEnemyOccupant body)
     {
         DraygonEnemyState state = Parts.InitializeDraygonBody(body);
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonEye, (occupant, _, place, common) =>
-            EnemyOccupant.Running(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork, state)));
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonTail, (occupant, _, place, common) =>
-            EnemyOccupant.Running(new DraygonTailEntity(this, occupant, place, common, _bossArtwork, state)));
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonArms, (occupant, _, place, common) =>
-            EnemyOccupant.Running(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork, state)));
+        var joining = new PartJoining(this, state);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonEye, joining.CreateEye);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonTail, joining.CreateTail);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonArms, joining.CreateArms);
         return state;
+    }
+
+    /// <summary>The creations his body offers his eye, tail and arms (#2554): each joining the encounter his body began.</summary>
+    /// <param name="species">The Draygon species owner.</param>
+    /// <param name="encounter">The encounter his body began.</param>
+    private sealed partial class PartJoining(DraygonBehavior species, DraygonEnemyState encounter)
+    {
+        /// <summary>His eye, joining his encounter.</summary>
+        internal EnemyOccupant CreateEye(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonEyeEntity(species, occupant, place, common, species._bossArtwork, encounter));
+
+        /// <summary>His tail, joining his encounter.</summary>
+        internal EnemyOccupant CreateTail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonTailEntity(species, occupant, place, common, species._bossArtwork, encounter));
+
+        /// <summary>His arms, joining his encounter.</summary>
+        internal EnemyOccupant CreateArms(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonArmsEntity(species, occupant, place, common, species._bossArtwork, encounter));
     }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

@@ -9,16 +9,29 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-/// <param name="draygon">The encounter his body began, which the arms joins as it is built.</param>
-internal sealed partial class DraygonArmsEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork,
-    DraygonEnemyState draygon)
+/// <param name="part">What the enemy's setup built (#2554).</param>
+internal sealed partial class DraygonArmsEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, DraygonPart part)
     : DraygonEntity(species, occupant, place, common, bossArtwork)
 {
-    /// <summary>The <c>draygon</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly DraygonEnemyState draygon = draygon;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Draygon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the arms occupy.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    /// <param name="draygon">The encounter his body began, which the arms joins as it is built.</param>
+    internal DraygonArmsEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork, DraygonEnemyState draygon)
+        : this(species, occupant, place, common, bossArtwork, DraygonParts.InitializeDraygonArms(place, draygon))
+    {
+    }
 
     /// <summary>The arms' part of the encounter they joined as they set up.</summary>
-    internal override DraygonPart Part { get; } = DraygonParts.InitializeDraygonArms(place, draygon);
+    internal override DraygonPart Part { get; } = part;
 
     /// <summary>Takes no action of their own; his body's fight animates the arms.</summary>
     /// <param name="frame">The enemy frame.</param>

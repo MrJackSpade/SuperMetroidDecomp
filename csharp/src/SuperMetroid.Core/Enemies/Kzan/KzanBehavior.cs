@@ -12,11 +12,17 @@ internal sealed partial class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<KzanSpawnSettings>([EnemyDefinitionId.KzanTop], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.KzanBottom], (occupant, _, place, common) =>
-            EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common)));
+        Ensure.NotNull(registrar).Spawns<KzanSpawnSettings>([EnemyDefinitionId.KzanTop], CreateTop);
+        registrar.Spawns<EnemySpawnSettings>([EnemyDefinitionId.KzanBottom], CreateBottom);
     }
+
+    /// <summary>A Kzan's top, from its settings.</summary>
+    private EnemyOccupant CreateTop(RoomEnemyOccupant occupant, KzanSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new KzanTopEntity(this, occupant, place, common, settings));
+
+    /// <summary>The bottom that follows a Kzan's top.</summary>
+    private EnemyOccupant CreateBottom(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Of(new KzanBottomEntity(this, occupant, place, common));
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
     private readonly EnemyPlaces _places;

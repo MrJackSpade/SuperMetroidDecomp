@@ -10,8 +10,6 @@ namespace SuperMetroid.Core.World;
 /// outlive every room, the runtime's shared fade step count and Yard kick camera measure and the session's unauthored Speed
 /// Booster cadence, the loader hands on to every enemy system it builds.
 /// </summary>
-[ArchitectureReview("context-bag", "A constructor parameter object: the game builds it only for RoomEnemySystem's " +
-    "constructor, and every other method taking it forwards it to that same constructor.")]
 internal sealed partial class RoomEnemyCompatibility
 {
     /// <summary>The horizontal reach a power bomb's sweep continues with after the sweep kills an enemy.</summary>

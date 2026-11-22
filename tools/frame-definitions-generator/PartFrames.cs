@@ -380,14 +380,6 @@ internal sealed record PartFrameConfiguration(
                 ["RidleyBreakupPiece"] = [],
             },
             null, null, []),
-        // Ceres Ridley's own factory (#2554), which builds him with his room's warnings, serves his body poses.
-        new("CeresRidleyEntityFactory", "RidleyCollisionDefinitions", "BodyFrames", null, null, [],
-            new Dictionary<string, string[]>(StringComparer.Ordinal),
-            new Dictionary<string, string[]>(StringComparer.Ordinal)
-            {
-                ["RidleyCeres"] = RidleyBodyFrames,
-            },
-            null, null, []),
     ];
 
     /// <summary>A hopper variant's four programs, as <c>HopperAnimationDefinitions.Programs</c> names them.</summary>

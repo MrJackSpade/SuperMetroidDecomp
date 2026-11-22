@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The phase Kraid's body runs while he rises through the floor (<c>KraidBodyStage.Rising</c>).</summary>
+/// <summary>The phase Kraid's body runs while he rises through the floor (<see cref="KraidStageRun.Rising"/>).</summary>
 public enum KraidRisePhase
 {
     /// <summary>

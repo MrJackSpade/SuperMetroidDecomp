@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The ending's credits (<c>EndingStep.Credits</c>, #2554): Zebes's destruction, the results and the credits, shown on
+/// The ending's credits, its step after leaving Zebes (<see cref="EndingGameSequence"/>, #2554): Zebes's destruction, the results and the credits, shown on
 /// <paramref name="credits"/>, which leaving Zebes made once the screen was black.
 /// </summary>
 /// <param name="session">The frontend session the credits run against.</param>

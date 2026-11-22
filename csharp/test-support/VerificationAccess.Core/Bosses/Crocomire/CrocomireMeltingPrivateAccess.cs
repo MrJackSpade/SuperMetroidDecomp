@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireMeltingPrivateAccess
 {
-    /// <summary>The private instance members checks read or call.</summary>
-    extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting self)
-    {
-        /// <summary>The private method <c>EraseNextCrocomireMeltingColumn</c>, invoked by name.</summary>
-        internal void EraseNextCrocomireMeltingColumn(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathState death) =>
-            PrivateState.Invoke<global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting>(self, "EraseNextCrocomireMeltingColumn", [typeof(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireDeathState)], new object?[] { death });
-    }
-
     /// <summary>The private static members checks name.</summary>
     extension(global::SuperMetroid.Core.Bosses.Crocomire.CrocomireMelting)
     {

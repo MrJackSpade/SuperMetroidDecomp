@@ -30,15 +30,36 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.ShipTop], (occupant, _, place, common, surroundings) =>
-        {
-            var top = new GunshipTopEntity(this, occupant, place, common, surroundings);
-            _partOffers.OfferLoaded<GunshipSpawnSettings>(EnemyDefinitionId.ShipBottomEntrance, (piece, settings, piecePlace, pieceCommon, pieceSurroundings) =>
-                CreateBottom(piece, settings, piecePlace, pieceCommon, pieceSurroundings, top.State.Pieces.EntrancePadPiece));
-            return EnemyOccupant.Running(top);
-        });
-        registrar.Loads<GunshipSpawnSettings>([EnemyDefinitionId.ShipBottomEntrance], (occupant, settings, place, common, surroundings) =>
-            CreateBottom(occupant, settings, place, common, surroundings, StartingEntrancePadPiece()));
+        Ensure.NotNull(registrar).Loads<EnemySpawnSettings>([EnemyDefinitionId.ShipTop], CreateTop);
+        registrar.Loads<GunshipSpawnSettings>([EnemyDefinitionId.ShipBottomEntrance], CreateLoneBottom);
+    }
+
+    /// <summary>The top hull, which offers the pieces listed after it the creation that gives the pad its animation.</summary>
+    private EnemyOccupant CreateTop(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings)
+    {
+        var top = new GunshipTopEntity(this, occupant, place, common, surroundings);
+        _partOffers.OfferLoaded<GunshipSpawnSettings>(EnemyDefinitionId.ShipBottomEntrance, new PadJoining(this, top).CreateBottom);
+        return EnemyOccupant.Running(top);
+    }
+
+    /// <summary>The bottom hull, or an entrance pad no top hull was listed before, which plays its own animation.</summary>
+    private EnemyOccupant CreateLoneBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) =>
+        CreateBottom(occupant, settings, place, common, surroundings, StartingEntrancePadPiece());
+
+    /// <summary>
+    /// The creation the top hull offers the pieces its room lists after it (#2554): the entrance pad plays the animation
+    /// the top hull opens and closes.
+    /// </summary>
+    /// <param name="species">The gunship species owner.</param>
+    /// <param name="top">The top hull, whose pad animation a later pad plays.</param>
+    private sealed partial class PadJoining(GunshipBehavior species, GunshipTopEntity top)
+    {
+        /// <summary>The bottom hull, or the entrance pad playing the top hull's pad animation.</summary>
+        internal EnemyOccupant CreateBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+            EnemyPopulationSurroundings surroundings) =>
+            species.CreateBottom(occupant, settings, place, common, surroundings, top.State.Pieces.EntrancePadPiece);
     }
 
     /// <summary>

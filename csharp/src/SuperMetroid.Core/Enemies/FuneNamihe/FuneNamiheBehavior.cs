@@ -16,11 +16,17 @@ internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFa
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<NamiheSpawnSettings>([EnemyDefinitionId.Namihe], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<FuneSpawnSettings>([EnemyDefinitionId.Fune], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, settings)));
+        Ensure.NotNull(registrar).Spawns<NamiheSpawnSettings>([EnemyDefinitionId.Namihe], CreateNamihe);
+        registrar.Spawns<FuneSpawnSettings>([EnemyDefinitionId.Fune], CreateFune);
     }
+
+    /// <summary>A Namihe, from its settings.</summary>
+    private EnemyOccupant CreateNamihe(RoomEnemyOccupant occupant, NamiheSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, settings));
+
+    /// <summary>A Fune, from its settings.</summary>
+    private EnemyOccupant CreateFune(RoomEnemyOccupant occupant, FuneSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, settings));
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;

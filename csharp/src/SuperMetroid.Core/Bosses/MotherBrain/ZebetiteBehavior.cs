@@ -235,11 +235,20 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFacto
         RoomEnemyPlacement population = Zebetites.SpawnPopulation(half, generation);
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(population.DefinitionId);
-        var spawn = new OrdinaryEnemySpawn<EnemySpawnSettings>(population, population.SpawnSettings, (occupant, _, place, common) =>
-            EnemyOccupant.Running(new ZebetiteEntity(this, occupant, place, common, linkedTo)));
+        var spawn = new OrdinaryEnemySpawn<EnemySpawnSettings>(population, population.SpawnSettings, new LinkedSpawn(this, linkedTo).CreateZebetite);
         _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(spawned, spawn, definition), spawn);
         _places.CoverSpawn(spawned);
         return spawned;
+    }
+
+    /// <summary>The creation of a spawned half (#2554): a Zebetite linked to the half it shares its health with, or to none.</summary>
+    /// <param name="species">The Zebetite species owner.</param>
+    /// <param name="linkedTo">The half the spawned one shares its health with, when it has one.</param>
+    private sealed partial class LinkedSpawn(ZebetiteBehavior species, RoomEnemyPlace? linkedTo)
+    {
+        /// <summary>The spawned half, linked to <c>linkedTo</c>.</summary>
+        internal EnemyOccupant CreateZebetite(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new ZebetiteEntity(species, occupant, place, common, linkedTo));
     }
 
     /// <summary>Finishes a Zebetite's reaction to a shot, after its common damage.</summary>

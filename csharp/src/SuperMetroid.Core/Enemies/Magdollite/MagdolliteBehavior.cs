@@ -27,15 +27,28 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
         if (settings is not MagdolliteHeadSpawnSettings headSettings)
             throw new InvalidDataException($"A Magdollite {settings} in enemy place {Ensure.NotNull(place).Ordinal} is listed with no head before it.");
         var head = new MagdolliteHeadEntity(this, occupant, place, common, surroundings, headSettings);
-        MagdollitePartners partners = head.Partners;
-        _partOffers.OfferLoaded<MagdolliteSpawnSettings>(EnemyDefinitionId.Magdollite, (part, partSettings, partPlace, partCommon, partSurroundings) => partSettings switch
-        {
-            MagdolliteHeadSpawnSettings => CreateLoaded(part, partSettings, partPlace, partCommon, partSurroundings),
-            MagdolliteBodySpawnSettings => EnemyOccupant.Running(new MagdolliteBodyEntity(this, part, JoiningPart(partPlace, partners.Composite.Body, "body"), partCommon, partners)),
-            MagdolliteOverlaySpawnSettings => EnemyOccupant.Running(new MagdolliteOverlayEntity(this, part, JoiningOverlay(partPlace, partners), partCommon, partners)),
-            var unknown => throw new InvalidOperationException($"Undefined Magdollite part {unknown}."),
-        });
+        _partOffers.OfferLoaded<MagdolliteSpawnSettings>(EnemyDefinitionId.Magdollite, new PartJoining(this, head.Partners).CreateLater);
         return EnemyOccupant.Running(head);
+    }
+
+    /// <summary>
+    /// The creation a head offers the body and overlay its room lists right after it (#2554): each in the head's Magdollite;
+    /// a later head is built as any head is.
+    /// </summary>
+    /// <param name="species">The Magdollite species owner.</param>
+    /// <param name="partners">The head's Magdollite, which a later body or overlay joins.</param>
+    private sealed partial class PartJoining(MagdolliteBehavior species, MagdollitePartners partners)
+    {
+        /// <summary>A later entry: the body or overlay in the head's Magdollite, or another head.</summary>
+        /// <exception cref="InvalidOperationException">The settings name no Magdollite part.</exception>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, MagdolliteSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+            EnemyPopulationSurroundings surroundings) => settings switch
+        {
+            MagdolliteHeadSpawnSettings => species.CreateLoaded(occupant, settings, place, common, surroundings),
+            MagdolliteBodySpawnSettings => EnemyOccupant.Running(new MagdolliteBodyEntity(species, occupant, JoiningPart(place, partners.Composite.Body, "body"), common, partners)),
+            MagdolliteOverlaySpawnSettings => EnemyOccupant.Running(new MagdolliteOverlayEntity(species, occupant, JoiningOverlay(place, partners), common, partners)),
+            var unknown => throw new InvalidOperationException($"Undefined Magdollite part {unknown}."),
+        };
     }
 
     /// <summary>Where a head offers the body and overlay listed after it the creation that builds each in its Magdollite.</summary>

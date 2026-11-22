@@ -22,11 +22,23 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
         if (Ensure.NotNull(settings).Part == DragonPart.Wing)
             return EnemyOccupant.PlacedOnly(new DragonWingEntity(this, occupant, place, common, StartingWingState()));
         var body = new DragonEntity(this, occupant, place, common);
-        _partOffers.Offer<DragonSpawnSettings>(EnemyDefinitionId.Dragon, (later, laterSettings, laterPlace, laterCommon) =>
-            laterSettings.Part == DragonPart.Wing
-                ? EnemyOccupant.PlacedOnly(new DragonWingEntity(this, later, laterPlace, laterCommon, body.State.WingState))
-                : Create(later, laterSettings, laterPlace, laterCommon));
+        _partOffers.Offer<DragonSpawnSettings>(EnemyDefinitionId.Dragon, new WingJoining(this, body).CreateLater);
         return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>
+    /// The creation a body offers the entry its room lists after it (#2554): a wing with the wing state the body moves and
+    /// animates; another body is built as any body is.
+    /// </summary>
+    /// <param name="species">The Dragon species owner.</param>
+    /// <param name="body">The body whose wing state a later wing takes.</param>
+    private sealed partial class WingJoining(DragonBehavior species, DragonEntity body)
+    {
+        /// <summary>A later entry: the body's wing, or another body.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, DragonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            settings.Part == DragonPart.Wing
+                ? EnemyOccupant.PlacedOnly(new DragonWingEntity(species, occupant, place, common, body.State.WingState))
+                : species.Create(occupant, settings, place, common);
     }
 
     /// <summary>Where a body offers the entry listed after it the creation that builds its wing.</summary>

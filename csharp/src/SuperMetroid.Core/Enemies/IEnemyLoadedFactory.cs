@@ -20,5 +20,5 @@ internal interface IEnemyLoadedFactory<in TSettings> : IEnemyEntityFactory where
         EnemyPopulationSurroundings surroundings);
 
     /// <inheritdoc/>
-    void IEnemyEntityFactory.OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Loads<TSettings>(Definitions, CreateLoaded);
+    void IEnemyEntityFactory.OfferCreations(EnemySpeciesRegistrar registrar) => Ensure.NotNull(registrar).Loads(this);
 }

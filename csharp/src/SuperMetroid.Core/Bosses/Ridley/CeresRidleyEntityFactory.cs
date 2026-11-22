@@ -19,6 +19,9 @@ internal sealed partial class CeresRidleyEntityFactory(CeresRidleyBehavior ceres
     /// <summary>Ceres Ridley, built the same way wherever he is set up.</summary>
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar) =>
-        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.RidleyCeres], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new CeresRidleyEntity(ceres, escape, warning, occupant, place, common)));
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.RidleyCeres], CreateRidley);
+
+    /// <summary>Ceres Ridley, who receives the room's foreground warning as he is placed.</summary>
+    private EnemyOccupant CreateRidley(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new CeresRidleyEntity(ceres, escape, warning, occupant, place, common));
 }

@@ -26,11 +26,23 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory
                 $"Norfair Rio follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
         }
         var parent = new GerutaEntity(this, occupant, place, common);
-        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Geruta, (later, laterSettings, laterPlace, laterCommon) =>
-            laterSettings.Role == EnemyFollowerRole.Follower
-                ? EnemyOccupant.Running(new GerutaFollowerEntity(this, later, laterPlace, laterCommon, parent))
-                : Create(later, laterSettings, laterPlace, laterCommon));
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Geruta, new ParentFollowing(this, parent).CreateLater);
         return EnemyOccupant.Running(parent);
+    }
+
+    /// <summary>
+    /// The creation a parent offers the entry its room lists after it (#2554): a follower following the parent; another
+    /// parent is built as any parent is.
+    /// </summary>
+    /// <param name="species">The Geruta species owner.</param>
+    /// <param name="parent">The parent a later follower follows.</param>
+    private sealed partial class ParentFollowing(GerutaBehavior species, GerutaEntity parent)
+    {
+        /// <summary>A later entry: a follower following the parent, or another parent.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            settings.Role == EnemyFollowerRole.Follower
+                ? EnemyOccupant.Running(new GerutaFollowerEntity(species, occupant, place, common, parent))
+                : species.Create(occupant, settings, place, common);
     }
 
     /// <summary>Where a parent offers the follower listed after it the creation that builds it following the parent.</summary>

@@ -20,19 +20,33 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings)));
-        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Zero], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings)));
-        registrar.Spawns<ViolaSpawnSettings>([EnemyDefinitionId.Viola], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(settings))));
+        Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], CreateSciser);
+        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Zero], CreateZero);
+        registrar.Spawns<ViolaSpawnSettings>([EnemyDefinitionId.Viola], CreateViola);
         registrar.Spawns<CrawlerSpawnSettings>(
-            [EnemyDefinitionId.Zeela, EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer],
-            (occupant, settings, place, common) =>
-                EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings)));
-        registrar.Spawns<OrangeZoomerSpawnSettings>([EnemyDefinitionId.OrangeZoomer], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, settings)));
+            [EnemyDefinitionId.Zeela, EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer], CreateSharedCrawler);
+        registrar.Spawns<OrangeZoomerSpawnSettings>([EnemyDefinitionId.OrangeZoomer], CreateOrangeZoomer);
     }
+
+    /// <summary>A Sciser, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateSciser(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings));
+
+    /// <summary>A Zero, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateZero(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings));
+
+    /// <summary>A Viola, crawling in its own animation family along the side of the block it is placed against.</summary>
+    private EnemyOccupant CreateViola(RoomEnemyOccupant occupant, ViolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(settings)));
+
+    /// <summary>A Zeela, Sova or Zoomer, crawling in the shared animation family.</summary>
+    private EnemyOccupant CreateSharedCrawler(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings));
+
+    /// <summary>An orange Zoomer.</summary>
+    private EnemyOccupant CreateOrangeZoomer(RoomEnemyOccupant occupant, OrangeZoomerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, settings));
 
     /// <summary>
     /// A Viola's settings as a crawler's: it starts crawling along the side of the block it is placed against, at its

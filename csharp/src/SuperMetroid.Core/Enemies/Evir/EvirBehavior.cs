@@ -30,13 +30,30 @@ internal sealed partial class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException($"Evir arms in enemy place {Ensure.NotNull(place).Ordinal} are listed with no body before them.");
         _lenders.Lend(place, settings);
         var body = new EvirBodyEntity(this, occupant, place, common, surroundings, settings);
-        _partOffers.OfferLoaded<EvirSpawnSettings>(EnemyDefinitionId.Evir, (later, laterSettings, laterPlace, laterCommon, laterSurroundings) =>
-            laterSettings.Part == EvirBodyPart.Arms
-                ? CreateArms(later, laterSettings, laterPlace, laterCommon, place)
-                : CreateBody(later, laterSettings, laterPlace, laterCommon, laterSurroundings));
-        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.EvirProjectile, (spit, _, spitPlace, spitCommon) =>
-            EnemyOccupant.Running(new EvirSpitEntity(this, spit, spitPlace, spitCommon, place)));
+        var following = new BodyFollowing(this, place);
+        _partOffers.OfferLoaded<EvirSpawnSettings>(EnemyDefinitionId.Evir, following.CreateLater);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.EvirProjectile, following.CreateSpit);
         return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>
+    /// The creations a body offers the arms and spit its room lists after it (#2554): each following the body; a later body
+    /// is built as any body is.
+    /// </summary>
+    /// <param name="species">The Evir species owner.</param>
+    /// <param name="body">The body's place, which its arms and spit follow.</param>
+    private sealed partial class BodyFollowing(EvirBehavior species, RoomEnemyPlace body)
+    {
+        /// <summary>A later entry: the body's arms, or another body.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EvirSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+            EnemyPopulationSurroundings surroundings) =>
+            settings.Part == EvirBodyPart.Arms
+                ? species.CreateArms(occupant, settings, place, common, body)
+                : species.CreateBody(occupant, settings, place, common, surroundings);
+
+        /// <summary>The body's spit.</summary>
+        internal EnemyOccupant CreateSpit(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new EvirSpitEntity(species, occupant, place, common, body));
     }
 
     /// <summary>An Evir's arms, following <paramref name="body"/>, whose placement's period a later body may take on.</summary>

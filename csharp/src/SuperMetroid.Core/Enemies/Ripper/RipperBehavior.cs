@@ -14,13 +14,22 @@ internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactor
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<GrappleRipperSpawnSettings>([EnemyDefinitionId.GrappleRipper], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new GrappleRipperEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.JetRipper], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new JetRipperEntity(this, occupant, place, common, settings)));
-        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.Ripper], (occupant, settings, place, common) =>
-            EnemyOccupant.Running(new OrdinaryRipperEntity(this, occupant, place, common, settings)));
+        Ensure.NotNull(registrar).Spawns<GrappleRipperSpawnSettings>([EnemyDefinitionId.GrappleRipper], CreateGrappleRipper);
+        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.JetRipper], CreateJetRipper);
+        registrar.Spawns<RipperSpawnSettings>([EnemyDefinitionId.Ripper], CreateOrdinaryRipper);
     }
+
+    /// <summary>The grapple Ripper.</summary>
+    private EnemyOccupant CreateGrappleRipper(RoomEnemyOccupant occupant, GrappleRipperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new GrappleRipperEntity(this, occupant, place, common, settings));
+
+    /// <summary>The jet Ripper.</summary>
+    private EnemyOccupant CreateJetRipper(RoomEnemyOccupant occupant, RipperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new JetRipperEntity(this, occupant, place, common, settings));
+
+    /// <summary>The ordinary Ripper.</summary>
+    private EnemyOccupant CreateOrdinaryRipper(RoomEnemyOccupant occupant, RipperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new OrdinaryRipperEntity(this, occupant, place, common, settings));
 
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;

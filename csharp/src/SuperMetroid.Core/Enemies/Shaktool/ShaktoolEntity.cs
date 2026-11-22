@@ -24,7 +24,7 @@ internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemy
     private ShaktoolChain Chain { get; } = chain;
 
     /// <summary>How the segment moves while its motion runs, as its definition names it, found as it is built.</summary>
-    private Action<ShaktoolSegmentState, RoomLevelData> Course { get; } = species.CourseOf(place, settings.Segment, chain);
+    private IShaktoolCourse Course { get; } = species.CourseOf(place, settings.Segment, chain);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => ShaktoolBehavior.RunShaktoolMainAi(state, Course, frame);

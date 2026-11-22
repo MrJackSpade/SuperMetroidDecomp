@@ -26,11 +26,23 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
         if (Ensure.NotNull(settings).Role == DachoraRole.SpeedBoostEcho)
             return EnemyOccupant.Running(new DachoraEchoEntity(occupant, place, common, settings));
         var body = new DachoraEntity(this, occupant, place, common, settings);
-        _partOffers.Offer<DachoraSpawnSettings>(EnemyDefinitionId.Dachora, (later, laterSettings, laterPlace, laterCommon) =>
-            laterSettings.Role == DachoraRole.SpeedBoostEcho
-                ? EnemyOccupant.Running(body.State.Echoes.Join(new DachoraEchoEntity(later, laterPlace, laterCommon, laterSettings)))
-                : Create(later, laterSettings, laterPlace, laterCommon));
+        _partOffers.Offer<DachoraSpawnSettings>(EnemyDefinitionId.Dachora, new TrailJoining(this, body).CreateLater);
         return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>
+    /// The creation a body offers the entries its room lists after it (#2554): an echo joins the body's trail; another body
+    /// is built as any body is.
+    /// </summary>
+    /// <param name="species">The Dachora species owner.</param>
+    /// <param name="body">The body whose trail later echoes join.</param>
+    private sealed partial class TrailJoining(DachoraBehavior species, DachoraEntity body)
+    {
+        /// <summary>A later entry: an echo joining the body's trail, or another body.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, DachoraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            settings.Role == DachoraRole.SpeedBoostEcho
+                ? EnemyOccupant.Running(body.State.Echoes.Join(new DachoraEchoEntity(occupant, place, common, settings)))
+                : species.Create(occupant, settings, place, common);
     }
 
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>

@@ -20,16 +20,28 @@ internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFa
     [field: NonSerialized]
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], (occupant, _, place, common) =>
-        {
-            var mama = new MamaTurtleEntity(this, occupant, place, common);
-            var family = new MamaTurtleFamily(place, mama.State,
-                _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle));
-            _partOffers.Offer<BabyTurtleSpawnSettings>(EnemyDefinitionId.BabyTurtle, (baby, settings, babyPlace, babyCommon) =>
-                EnemyOccupant.Running(new BabyTurtleEntity(this, baby, babyPlace, babyCommon, settings, family)));
-            return EnemyOccupant.Running(mama);
-        });
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], CreateMama);
         registrar.Joins([EnemyDefinitionId.BabyTurtle]);
+    }
+
+    /// <summary>The mama turtle, who offers the babies listed after her the creation that builds each of them in her family.</summary>
+    private EnemyOccupant CreateMama(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        var mama = new MamaTurtleEntity(this, occupant, place, common);
+        var family = new MamaTurtleFamily(place, mama.State,
+            _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle));
+        _partOffers.Offer<BabyTurtleSpawnSettings>(EnemyDefinitionId.BabyTurtle, new FamilyJoining(this, family).CreateBaby);
+        return EnemyOccupant.Running(mama);
+    }
+
+    /// <summary>The creation a mama offers the babies her room lists right after her (#2554): each baby in her family.</summary>
+    /// <param name="species">The Mama Turtle species owner.</param>
+    /// <param name="family">The mama's family, which a baby joins.</param>
+    private sealed partial class FamilyJoining(MamaTurtleBehavior species, MamaTurtleFamily family)
+    {
+        /// <summary>A baby, in the mama's family.</summary>
+        internal EnemyOccupant CreateBaby(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new BabyTurtleEntity(species, occupant, place, common, settings, family));
     }
 
     /// <summary>Where a mama offers the babies listed after her the creation that builds each of them in her family.</summary>

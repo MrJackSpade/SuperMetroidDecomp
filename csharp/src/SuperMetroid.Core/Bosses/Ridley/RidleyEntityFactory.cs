@@ -22,8 +22,11 @@ internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair)
     /// <param name="registrar">The room's registry being composed.</param>
     public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.Ridley], (occupant, _, place, common) =>
-            EnemyOccupant.Running(new NorfairRidleyEntity(Norfair, occupant, place, common)));
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.Ridley], CreateRidley);
         registrar.Joins([EnemyDefinitionId.RidleyBreakupPiece]);
     }
+
+    /// <summary>Lower Norfair Ridley.</summary>
+    private EnemyOccupant CreateRidley(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NorfairRidleyEntity(Norfair, occupant, place, common));
 }

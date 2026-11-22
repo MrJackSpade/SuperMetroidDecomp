@@ -101,12 +101,9 @@ internal static class CrocomireCutsceneVerification
         var scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
-        var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(1480, 144));
-        var state = new CrocomireEnemyState(body.HeldOccupant(), body, enemies.Places.InUpdateOrder[1]);
-        body.SetSpeciesState(state);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        // Crocomire and his tongue as his room's population sets them up; his encounter is the one his setup built.
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(1480, 144));
+        RoomEnemyPlace body = state.Body;
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemyPlace, SamusState, Position16<RoomPixels>> run = (crocomire, samus, camera) =>
@@ -186,9 +183,9 @@ internal static class CrocomireCutsceneVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
             enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-            enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
+            // His room's population sets up his body and his tongue, his setup writing the arena's scrolls.
+            _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Crocomire),
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.CrocomireTongue));
             string room = defeated ? "a defeated room" : "a living fight";
             RoomScrollState[] kept = scrolls.KeptStates;
             for (int cell = 0; cell < kept.Length; cell++)

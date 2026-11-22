@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
@@ -59,7 +60,7 @@ internal static class InstalledDocumentNullElementsVerification
 
     /// <summary>Reads <paramref name="json"/> as the probe document.</summary>
     private static ElementsProbe Read(string json) =>
-        JsonSerializer.Deserialize<ElementsProbe>(json, Options) ?? throw new InvalidDataException("The probe document read as null.");
+        JsonSerializer.Deserialize(json, (JsonTypeInfo<ElementsProbe>)Options.GetTypeInfo(typeof(ElementsProbe))) ?? throw new InvalidDataException("The probe document read as null.");
 
     [VerificationCommand("--installed-document-null-elements")]
     internal static int InstalledDocumentNullElementsCommand()

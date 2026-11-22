@@ -51,26 +51,6 @@ internal static partial class EnemyCompositeListing
     }
 
     /// <summary>
-    /// The member listed right before <paramref name="self"/> in its composite, or null for the composite's first member,
-    /// which has none.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The composite does not name <paramref name="selfRole"/> once.</exception>
-    /// <exception cref="InvalidDataException">The population lists no enemy where the partner belongs.</exception>
-    internal static RoomEnemyPlace? MemberBefore<TRole>(this EnemyPlaces enemies, RoomEnemyPlace self, EnemyComposite<TRole> composite, TRole selfRole)
-        where TRole : notnull =>
-        OnlyPlaceOf(composite, selfRole) == 0 ? null : RequireListed(enemies, self, -1, selfRole);
-
-    /// <summary>
-    /// The member listed right after <paramref name="self"/> in its composite, or null for the composite's last member,
-    /// which has none.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The composite does not name <paramref name="selfRole"/> once.</exception>
-    /// <exception cref="InvalidDataException">The population lists no enemy where the partner belongs.</exception>
-    internal static RoomEnemyPlace? MemberAfter<TRole>(this EnemyPlaces enemies, RoomEnemyPlace self, EnemyComposite<TRole> composite, TRole selfRole)
-        where TRole : notnull =>
-        OnlyPlaceOf(composite, selfRole) == composite.ListedRoles.Count - 1 ? null : RequireListed(enemies, self, 1, selfRole);
-
-    /// <summary>
     /// The enemies the room lists after <paramref name="enemy"/>, by how many places after it, one or more, for a rule that
     /// reproduces a reach by placement (<see cref="FollowUpAfterStruckPart"/>).
     /// </summary>

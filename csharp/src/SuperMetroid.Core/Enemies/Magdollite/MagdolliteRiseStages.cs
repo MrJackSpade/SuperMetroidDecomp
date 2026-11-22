@@ -18,7 +18,7 @@ public static partial class MagdolliteRiseStages
         return at >= 0 ? at : throw new ArgumentOutOfRangeException(nameof(stage), stage, "Undefined Magdollite rise stage.");
     }
 
-    /// <summary>A stage's phase, from <see cref="MagdollitePhaseDefinitions.Phases"/>, and its neighbours in <see cref="MagdollitePhaseDefinitions.RiseOrder"/>.</summary>
+    /// <summary>A stage's phase, from <see cref="MagdollitePhaseDefinitions.Phases"/>, and its neighbours in <c>MagdollitePhaseDefinitions.RiseOrder</c>.</summary>
     extension(MagdolliteRiseStage stage)
     {
         /// <summary>The stage's distance threshold, body animation and overlay offset.</summary>

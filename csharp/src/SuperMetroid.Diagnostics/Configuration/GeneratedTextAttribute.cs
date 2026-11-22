@@ -8,6 +8,4 @@ namespace SuperMetroid.Diagnostics.Configuration;
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
 internal sealed class GeneratedTextAttribute(string fileName) : Attribute
 {
-    /// <summary>The additional file's name.</summary>
-    public string FileName { get; } = fileName;
 }

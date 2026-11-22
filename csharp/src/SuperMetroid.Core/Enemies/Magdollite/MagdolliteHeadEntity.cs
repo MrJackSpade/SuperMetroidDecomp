@@ -29,9 +29,6 @@ internal sealed partial class MagdolliteHeadEntity(MagdolliteBehavior species, R
     {
     }
 
-    /// <inheritdoc/>
-    internal override MagdollitePartState State => Head;
-
     /// <summary>The Magdollite the head began as it was set up.</summary>
     internal override MagdollitePartners Partners { get; } = partners;
 

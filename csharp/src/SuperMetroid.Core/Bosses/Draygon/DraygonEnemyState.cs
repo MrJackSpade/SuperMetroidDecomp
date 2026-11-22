@@ -189,9 +189,6 @@ public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBo
     /// </summary>
     internal DraygonPhaseStep Step { get; set => field = Ensure.NotNull(value); } = DraygonPhaseSteps.IntroInitialDelay();
 
-    /// <summary>The body's phase, the one its step runs.</summary>
-    public DraygonPhase Phase => Step.Phase;
-
     /// <summary>The way Draygon's swoop or goop pass travels (#2165).</summary>
     public HorizontalDirection PassDirection { get; internal set; }
 

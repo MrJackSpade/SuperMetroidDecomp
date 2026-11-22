@@ -169,13 +169,6 @@ public static partial class SamusInsideBlockReactions
     /// </summary>
     private sealed partial class SpecialAirInside : IWholeBlockReader<SpecialAirReaction?>
     {
-        /// <summary>Only <see cref="Reader"/> is made.</summary>
-        private SpecialAirInside()
-        {
-        }
-
-        /// <summary>The one reader.</summary>
-        internal static SpecialAirInside Reader { get; } = new();
 
         /// <inheritdoc/>
         public SpecialAirReaction? SpecialAir(SpecialAirReaction reaction) => reaction;

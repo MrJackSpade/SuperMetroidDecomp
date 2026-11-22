@@ -18,9 +18,6 @@ internal sealed class PackedObjects
     /// <summary>A table read back from a state.</summary>
     private PackedObjects(List<object?> read) => objects.AddRange(read!);
 
-    /// <summary>How many objects the table holds.</summary>
-    internal int Count => objects.Count;
-
     /// <summary>The place of <paramref name="value"/>, adding it when the run first holds it.</summary>
     internal int Place(object value)
     {

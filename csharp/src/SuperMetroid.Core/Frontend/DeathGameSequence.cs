@@ -16,9 +16,6 @@ internal sealed partial class DeathGameSequence(FrontendSession session, DeathGa
     /// <summary>The step that runs, with what it holds (#2554).</summary>
     internal Stage Current { get; private set; } = Ensure.NotNull(stage);
 
-    /// <summary>The name of the step that runs.</summary>
-    internal DeathSequenceStep CurrentStep => Current.Step;
-
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.DeathSequence;
 

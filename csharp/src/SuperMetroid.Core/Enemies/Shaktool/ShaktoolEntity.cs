@@ -31,9 +31,6 @@ internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemy
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal ShaktoolSpawnSettings Settings { get; } = settings;
-
     /// <summary>The chain the segment is in: its seven segments and their shared motion and target.</summary>
     private ShaktoolChain Chain { get; } = chain;
 

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Areas.Tourian;
+﻿using SuperMetroid.Core.Areas.Tourian;
 
 namespace SuperMetroid.Core.Fx.ColourEffects;
 

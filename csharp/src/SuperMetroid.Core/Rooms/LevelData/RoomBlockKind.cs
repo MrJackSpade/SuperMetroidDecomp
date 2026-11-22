@@ -15,9 +15,6 @@ public abstract partial record RoomBlockKind
     {
     }
 
-    /// <summary>The collision kind this case is.</summary>
-    public abstract RoomCollisionType Collision { get; }
-
     /// <summary>What <paramref name="reader"/> makes of a block of this kind: the reader's member for this case.</summary>
     /// <typeparam name="TAnswer">What the reader makes of a block.</typeparam>
     /// <param name="reader">The reader, which answers every kind a room's cell can be.</param>
@@ -97,9 +94,6 @@ public abstract partial record RoomBlockKind
         public static Air Instance { get; } = new();
 
         /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.Air;
-
-        /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).Air();
     }
 
@@ -115,9 +109,6 @@ public abstract partial record RoomBlockKind
         public static Slope Instance { get; } = new();
 
         /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.Slope;
-
-        /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).Slope();
     }
 
@@ -131,9 +122,6 @@ public abstract partial record RoomBlockKind
 
         /// <summary>The one horizontal-extension case.</summary>
         public static HorizontalExtension Instance { get; } = new();
-
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.HorizontalExtension;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Ensure.NotNull(reader).HorizontalExtension();
@@ -154,9 +142,6 @@ public abstract partial record RoomBlockKind
         public static VerticalExtension Instance { get; } = new();
 
         /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.VerticalExtension;
-
-        /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IRoomBlockReader<TAnswer> reader) => Ensure.NotNull(reader).VerticalExtension();
 
         /// <inheritdoc/>
@@ -175,9 +160,6 @@ public abstract partial record RoomBlockKind
         public static UnrevealedAir Instance { get; } = new();
 
         /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.UnrevealedAir;
-
-        /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).UnrevealedAir();
     }
 
@@ -191,9 +173,6 @@ public abstract partial record RoomBlockKind
 
         /// <summary>The one solid-block case.</summary>
         public static SolidBlock Instance { get; } = new();
-
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.SolidBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SolidBlock();
@@ -211,9 +190,6 @@ public abstract partial record RoomBlockKind
         public static DoorBlock Instance { get; } = new();
 
         /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.DoorBlock;
-
-        /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).DoorBlock();
     }
 
@@ -221,8 +197,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
     public sealed partial record SpikeAir(SpikeReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.SpikeAir;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpikeAir(Reaction);
@@ -232,8 +206,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The spike reaction the block's behaviour gives it.</param>
     public sealed partial record SpikeBlock(SpikeReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.SpikeBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpikeBlock(Reaction);
@@ -243,8 +215,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The special-air reaction the block's behaviour gives it.</param>
     public sealed partial record SpecialAir(SpecialAirReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.SpecialAir;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpecialAir(Reaction);
@@ -254,8 +224,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The special-block reaction the block's behaviour gives it.</param>
     public sealed partial record SpecialBlock(SpecialBlockReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.SpecialBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).SpecialBlock(Reaction);
@@ -265,8 +233,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
     public sealed partial record ShootableAir(ShootableReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.ShootableAir;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).ShootableAir(Reaction);
@@ -276,8 +242,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The shootable reaction the block's behaviour gives it.</param>
     public sealed partial record ShootableBlock(ShootableReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.ShootableBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).ShootableBlock(Reaction);
@@ -287,8 +251,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
     public sealed partial record BombableAir(BombableReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.BombableAir;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).BombableAir(Reaction);
@@ -298,8 +260,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The bombable reaction the block's behaviour gives it.</param>
     public sealed partial record BombableBlock(BombableReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.BombableBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).BombableBlock(Reaction);
@@ -309,8 +269,6 @@ public abstract partial record RoomBlockKind
     /// <param name="Reaction">The grapple reaction the block's behaviour gives it.</param>
     public sealed partial record GrappleBlock(GrappleReaction Reaction) : Whole
     {
-        /// <inheritdoc/>
-        public override RoomCollisionType Collision => RoomCollisionType.GrappleBlock;
 
         /// <inheritdoc/>
         public override TAnswer Read<TAnswer>(IWholeBlockReader<TAnswer> reader) => Ensure.NotNull(reader).GrappleBlock(Reaction);

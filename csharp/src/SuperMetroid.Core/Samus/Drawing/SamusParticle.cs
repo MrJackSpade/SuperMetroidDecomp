@@ -65,9 +65,6 @@ public sealed partial class SamusParticle
     /// <summary>How far it moves on each update it is shown.</summary>
     public Offset16<RoomPixels> Drift { get; }
 
-    /// <summary>Whether it waits hidden.</summary>
-    public bool IsHidden => Stage is SamusParticleStage.Waiting;
-
     /// <summary>Whether its animation has run out; a finished particle is no longer shown.</summary>
     public bool IsFinished => Stage is SamusParticleStage.Showing { Animation.HasStopped: true };
 

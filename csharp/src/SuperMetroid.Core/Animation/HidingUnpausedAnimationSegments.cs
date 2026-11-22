@@ -51,5 +51,5 @@ internal sealed partial class HidingUnpausedAnimationSegments<TSegment, TFrame, 
     /// <summary>What a play shows on each beat it passes, built once: a hidden stretch hides the owner for its updates.</summary>
     private static UnpausedHidingAnimationBeatCases<TFrame, TEvent, Play, IUnpausedHidingAnimationShown<TSegment, TFrame>?> BeatPlays { get; } = new(
         Unpaused: static (beat, ref play) => beat.Match(UnpausedBeatPlays, ref play),
-        Hidden: static (hidden, ref play) => new AnimationHiddenShown<TSegment, TFrame>(play.Phase.Segment, hidden.Duration));
+        Hidden: static (hidden, ref play) => new AnimationHiddenShown<TSegment, TFrame>(hidden.Duration));
 }

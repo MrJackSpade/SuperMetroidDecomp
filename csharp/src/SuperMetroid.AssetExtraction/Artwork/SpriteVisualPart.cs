@@ -28,21 +28,4 @@ public sealed partial record SpriteVisualPart
     public required bool FlipX { get; init; }
     /// <summary>Vertical reflection applied to the selected artwork region.</summary>
     public required bool FlipY { get; init; }
-
-    /// <summary>The document form of <paramref name="part"/> on a sheet <paramref name="tileColumns"/> characters wide.</summary>
-    /// <param name="part">The piece.</param>
-    /// <param name="tileColumns">Characters across the sheet.</param>
-    /// <param name="inheritPalette">Whether the document records the palette as inherited instead of the piece's row.</param>
-    public static SpriteVisualPart FromSpritePart(SpritePart part, int tileColumns, bool inheritPalette = false) => new()
-    {
-        OffsetX = part.Offset.X,
-        OffsetY = part.Offset.Y,
-        TileColumn = part.Character % tileColumns,
-        TileRow = part.Character / tileColumns,
-        Size = part.Large ? 16 : 8,
-        Depth = part.Depth,
-        Palette = inheritPalette ? null : part.Palette,
-        FlipX = part.FlipsHorizontally,
-        FlipY = part.FlipsVertically,
-    };
 }

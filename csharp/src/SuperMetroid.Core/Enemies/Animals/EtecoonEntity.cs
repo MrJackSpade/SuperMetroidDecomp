@@ -26,9 +26,6 @@ internal sealed partial class EtecoonEntity(EtecoonBehavior species, RoomEnemyOc
     {
     }
 
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal EtecoonSpawnSettings Settings { get; } = settings;
-
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly EtecoonEnemyState state = state;
 

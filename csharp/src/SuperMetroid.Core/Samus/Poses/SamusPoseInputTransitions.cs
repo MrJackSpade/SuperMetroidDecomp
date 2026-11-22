@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -13,34 +12,9 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 public static partial class SamusPoseInputTransitions
 {
-    /// <summary>The gameplay actions in the order a transition lists those it reads (#2567).</summary>
-    private static readonly IReadOnlyList<GameplayAction> ActionOrder = Ensure.EveryMemberOnce<GameplayAction>(
-    [
-        GameplayAction.None,
-        GameplayAction.Up,
-        GameplayAction.Down,
-        GameplayAction.Left,
-        GameplayAction.Right,
-        GameplayAction.Start,
-        GameplayAction.Shoot,
-        GameplayAction.Jump,
-        GameplayAction.Dash,
-        GameplayAction.ItemSelect,
-        GameplayAction.ItemCancel,
-        GameplayAction.AimUp,
-        GameplayAction.AimDown,
-    ]);
 
     /// <summary>Held Start and item selection, which the pose's input transitions do not read.</summary>
     private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;
-
-    /// <summary>
-    /// Whether the input transitions of <paramref name="currentPose"/> select <paramref name="target"/> for some held and
-    /// newly pressed actions (#2397).
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
-    internal static bool CanSelect(SamusPoseId currentPose, SamusPoseId target) =>
-        SamusPoseTraits.Of(currentPose).Inputs.SelectableTargets.Contains(target);
 
     /// <summary>
     /// Looks the pose's input transitions up: a new pose, the pose's no-input fallback, or keeping the pose.
@@ -76,31 +50,4 @@ public static partial class SamusPoseInputTransitions
             ? SamusPoseTransitionLookup.KeepsPose
             : SamusPoseTransitionLookup.Choosing(transition);
     }
-
-    /// <summary>
-    /// The poses <paramref name="inputList"/> selects under some held chord its transitions read, with any part of it newly
-    /// pressed, as <see cref="Lookup"/> reads it: with an action held and Start and item selection left out.
-    /// </summary>
-    internal static FrozenSet<SamusPoseId> Selectable(SamusPoseInputList inputList)
-    {
-        GameplayAction[] read = [.. ActionOrder.Where(action =>
-            action != GameplayAction.None && (action & StartAndItemSelect) == GameplayAction.None)];
-        var targets = new HashSet<SamusPoseId>();
-        foreach (GameplayAction[] heldActions in Subsets(read).Where(actions => actions.Length > 0))
-        {
-            GameplayAction held = heldActions.Aggregate(GameplayAction.None, (chord, action) => chord | action);
-            foreach (GameplayAction[] pressedActions in Subsets(heldActions))
-            {
-                GameplayAction newlyPressed = pressedActions.Aggregate(GameplayAction.None, (chord, action) => chord | action);
-                if (SamusPoseInputRules.Match(inputList, held, newlyPressed).Transition is { } transition)
-                    targets.Add(transition.ProspectivePose);
-            }
-        }
-        return targets.ToFrozenSet();
-    }
-
-    /// <summary>Every subset of <paramref name="actions"/>, the empty one included.</summary>
-    private static IEnumerable<GameplayAction[]> Subsets(GameplayAction[] actions) =>
-        actions.Aggregate<GameplayAction, IEnumerable<GameplayAction[]>>([[]],
-            (subsets, action) => subsets.SelectMany(subset => new[] { subset, [.. subset, action] }));
 }

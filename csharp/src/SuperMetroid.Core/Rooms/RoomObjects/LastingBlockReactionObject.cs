@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="change">The reaction's authored timing.</param>
 internal sealed partial class LastingBlockReactionObject(LastingBlockReactionChange change) : RoomObjectBehaviour
 {
-    /// <summary>The reaction's authored timing.</summary>
-    internal LastingBlockReactionChange Change { get; } = Ensure.NotNull(change);
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out

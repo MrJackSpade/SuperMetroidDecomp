@@ -27,9 +27,6 @@ public sealed partial class RoomWarning
     /// <summary>What the warning has written, in the order written; nothing before its escape writes any.</summary>
     private RoomWarningText Text { get; set; } = RoomWarningText.Empty;
 
-    /// <summary>The room's warning picture sheet.</summary>
-    public WrittenPictureSheet Sheet => _pictures.Sheet;
-
     /// <summary>Writes <paramref name="picture"/> as the next part of the warning.</summary>
     /// <param name="picture">The picture written and where.</param>
     internal void Write(WrittenPicture picture) => Text = Text.With(picture);

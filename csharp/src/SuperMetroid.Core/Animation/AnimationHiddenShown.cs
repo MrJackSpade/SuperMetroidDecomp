@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Animation;
 /// </summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
-/// <param name="Segment">The segment whose beat hides the owner.</param>
 /// <param name="Duration">The updates the owner stays hidden.</param>
-internal sealed partial record AnimationHiddenShown<TSegment, TFrame>(TSegment Segment, int Duration)
+internal sealed partial record AnimationHiddenShown<TSegment, TFrame>(int Duration)
     : IHidingAnimationShown<TSegment, TFrame>, IUnpausedHidingAnimationShown<TSegment, TFrame>
     where TSegment : struct
     where TFrame : struct

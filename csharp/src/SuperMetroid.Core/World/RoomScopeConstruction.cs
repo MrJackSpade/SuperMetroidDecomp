@@ -31,8 +31,6 @@ internal sealed partial class RoomScopeConstruction(DoorDefinition door, Selecte
     RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
     RoomMainHandOvers handOvers) : IDoorEventLoad
 {
-    /// <summary>The <c>entry</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RoomEntry entry = entry;
 
     /// <summary>The Ceres elevator's arrival the room is built with, which the entry carries; none for every other entry.</summary>
     private readonly CeresElevatorArrivalState? _ceresElevatorArrival = Ensure.NotNull(entry).CeresElevatorArrival;

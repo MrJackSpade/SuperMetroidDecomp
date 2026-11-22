@@ -10,10 +10,6 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 internal abstract partial record SamusPoseAim
 {
-    /// <summary>Closes the hierarchy to the aims declared here.</summary>
-    private SamusPoseAim()
-    {
-    }
 
     /// <summary>Whether the pose disables shooting: it fires nothing and draws no flare.</summary>
     public bool DisablesShooting => this is ShootingDisabled;

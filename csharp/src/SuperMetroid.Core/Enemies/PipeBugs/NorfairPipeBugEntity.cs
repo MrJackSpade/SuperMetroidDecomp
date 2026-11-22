@@ -17,9 +17,6 @@ internal abstract partial class NorfairPipeBugEntity(PipeBugsBehavior species, R
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     internal NorfairPipeBugState State { get; } = state;
 
-    /// <summary>The Pipe Bugs species owner.</summary>
-    protected PipeBugsBehavior Species => species;
-
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
 

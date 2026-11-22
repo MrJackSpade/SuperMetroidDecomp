@@ -28,10 +28,6 @@ public abstract partial record SamusMissileIgnition
     /// </summary>
     public abstract partial record Unignited : SamusMissileIgnition
     {
-        /// <summary>Only the two stages before ignition derive from it.</summary>
-        private protected Unignited()
-        {
-        }
     }
 
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>

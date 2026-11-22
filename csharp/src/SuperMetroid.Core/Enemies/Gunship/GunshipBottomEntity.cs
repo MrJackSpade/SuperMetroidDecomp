@@ -13,8 +13,6 @@ internal sealed partial class GunshipBottomEntity(RoomEnemyOccupant occupant, Ro
     GunshipPieceState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
-    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
-    internal GunshipSpawnSettings Settings { get; } = settings;
 
     /// <summary>The piece's animation, which its setup began as the enemy was built (#2554).</summary>
     private readonly GunshipPieceState ownState = Ensure.NotNull(state);

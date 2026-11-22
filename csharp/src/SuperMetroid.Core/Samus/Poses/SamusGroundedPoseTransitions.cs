@@ -212,14 +212,6 @@ internal static partial class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Applies the ordinary grounded start-moving transition from the normal standing pose,
-    /// <see cref="SamusPoseId.FacingRightNormalPose"/> or <see cref="SamusPoseId.FacingLeftNormalPose"/>, to running the
-    /// same way.
-    /// </summary>
-    public static void ApplyStandingToRunning(SamusState samus) =>
-        ApplySimpleGroundedPoseChange(samus, FacingHerWay(samus, SamusPoseId.MovingRightNormalPose));
-
-    /// <summary>
     /// Applies the no-button fallback from the normal running pose, <see cref="SamusPoseId.MovingRightNormalPose"/> or
     /// <see cref="SamusPoseId.MovingLeftNormalPose"/>, to standing the same way, after ordinary running momentum has
     /// decelerated to zero.

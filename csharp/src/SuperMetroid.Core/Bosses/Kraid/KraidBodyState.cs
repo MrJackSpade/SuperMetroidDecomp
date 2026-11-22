@@ -22,9 +22,6 @@ public sealed partial class KraidBodyState : KraidPartState
     /// </summary>
     public KraidStageRun Run { get; internal set; } = new KraidStageRun.Rising(KraidRisePhase.RestrictSamusToFirstScreen);
 
-    /// <summary>The name of the stage the body is in.</summary>
-    public KraidBodyStage Stage => Run.Stage;
-
     /// <summary>
     /// Whether Kraid fights (#1452, #1737): his fight and growth. Only then does his body's touch hurt Samus and a mouth hit
     /// that leaves him without health start his death; his rise through the floor and his death lie outside it.

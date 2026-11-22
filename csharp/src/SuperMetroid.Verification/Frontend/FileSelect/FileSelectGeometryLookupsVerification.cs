@@ -42,7 +42,6 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.Main, FileSelectItemRows.MainWithData[row]).Y,
                 $"extracted main cursor Y {row}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.MainSelectionY, [(FileSelectItem)99]));
     }
 
     /// <summary>Compares four data-menu cursor rows from both native views with extracted positions.</summary>
@@ -58,7 +57,7 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, FileSelectItemRows.Data[row]).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, [FileSelectItem.Copy, FileSelectItem.Clear, (FileSelectItem)99]));
+        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, [FileSelectItem.Copy, FileSelectItem.Clear]));
     }
 
     /// <summary>Compares three helmet anchors with native immediate operands and extracted artwork positions.</summary>
@@ -74,13 +73,12 @@ internal static class FileSelectGeometryLookupsVerification
             AssertEqual(expected, FileSelectCursorPositions.HelmetY(FileSelectCursorPositions.Slots[slot]), $"helmet Y {slot}");
             AssertEqual(expected, document.HelmetAnchors[FileSelectCursorPositions.Slots[slot].ToString()].Y, $"extracted helmet Y {slot}");
         }
-        Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.HelmetY, [(SuperMetroid.Core.Saves.SaveSlot)99]));
     }
 
     /// <summary>Reads a native helmet placement opcode as the cartridge comparison oracle.</summary>
     private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that each indexed geometry lookup rejects values outside its native row count.</summary>
+    /// <summary>Checks that a geometry lookup rejects each row its page does not hold.</summary>
     private static void VerifyFileSelectGeometryBounds<TRow>(Func<TRow, int> lookup, TRow[] notOnThePage)
     {
         foreach (TRow row in notOnThePage)

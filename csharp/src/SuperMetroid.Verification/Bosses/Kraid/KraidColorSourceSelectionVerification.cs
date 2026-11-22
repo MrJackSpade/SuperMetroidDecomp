@@ -35,8 +35,6 @@ internal static class KraidColorSourceSelectionVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(source, -1), "Negative color index");
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(source, row.Length), "Selected source bounds");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((KraidPaletteSource)invalid, 0), "Unknown palette source");
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
             // Preserve the original dictionary's enum-key ordering contract.

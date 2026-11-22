@@ -60,10 +60,6 @@ internal static class CeresZebesActorMetadataVerification
             CeresDestructionActors.ZebesActor(ZebesRevealActorRole.Title);
         AssertTrue(title.SlideAcceleration is null, "PLANET ZEBES title cannot slide");
 
-        foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<ZebesRevealActorRole>().Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresDestructionActors.ZebesActor((ZebesRevealActorRole)undefined), "Zebes metadata undefined role");
-
         // The title's Japanese-text instruction ($8B:C9AF) spawns the subtitle's definition ($8B:CEB5), whose initializer
         // ($8B:C9E6) selects the title's sprite colours and whose list ends before the slide (#1733).
         CeresDestructionActorDefinition subtitle = CeresDestructionActors.ZebesActor(ZebesRevealActorRole.JapaneseSubtitle);

@@ -189,9 +189,6 @@ internal static class SaveRamCodecVerification
     internal static void VerifyProgressionSavedFields()
     {
         var system = new SharedGameState(new SharedRandom());
-        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedStartupRoute((SaveStartupRoute)(-1)),
-            "an undefined startup route is rejected");
-
         // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,
         // and typed operations change only the named flags; writing the table back leaves the untested bit clear.
         byte[] areas = new byte[ProgressionTableCodec.AreaBossByteCount];

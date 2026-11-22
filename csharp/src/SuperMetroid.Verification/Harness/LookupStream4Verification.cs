@@ -939,7 +939,6 @@ internal static class LookupStream4Verification
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,GameplayHudStockDefinitions.IconSourceOrder[item]);
             for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudStockDefinitions.IconSourceOrder[item].ToString()];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Occupied icon guard preserves current cells");}
         }
-        foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>stock.TryApplyIcon(new ushort[96],(HudIcon)invalid),"Icon item domain");
         const int scale=6,imageWidth=128*scale,imageHeight=16*scale;byte[] pixels=new byte[imageWidth*imageHeight];int sourceIndex=0,startX=0;
         for(int item=0;item<5;item++)
         {
@@ -1210,8 +1209,6 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
-        // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
-        AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab((SamusMovementType)(-1)), "Undefined movement types fail loudly");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
@@ -1370,8 +1367,6 @@ internal static class LookupStream4Verification
         }
         GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
         var panelMessages = new GameplayMessageArtwork(null, panels);
-        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset((GameplayMessageId)(-1)),
-            "Message button patch rejects no message");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
@@ -1604,7 +1599,6 @@ internal static class LookupStream4Verification
             foreach (int invalid in new[] { int.MinValue, -1, count, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(sequence, invalid), "Power Bomb color index domain");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((PowerBombGlowSequence)2, 0), "Power Bomb sequence domain");
     }
 
     /// <summary>

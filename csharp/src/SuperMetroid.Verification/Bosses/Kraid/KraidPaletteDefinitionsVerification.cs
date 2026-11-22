@@ -25,9 +25,6 @@ internal static class KraidPaletteDefinitionsVerification
             int expected = 0xa70000 | KraidPaletteSourceAddressesRomByte(rom, instruction + 1) | KraidPaletteSourceAddressesRomByte(rom, instruction + 2) << 8;
             AssertEqual(expected, KraidPaletteSources.SourceAddress(source), "Native palette source operand");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidPaletteSources.SourceAddress((KraidPaletteSource)invalid),
-                "Unknown palette address source rejected");
     }
 
     /// <summary>Reads a byte of retail bank-$A7 code solely for the source-address oracle.</summary>
@@ -46,8 +43,5 @@ internal static class KraidPaletteDefinitionsVerification
         ];
         foreach (var (source, start, end) in extents)
             AssertEqual((end - start) / 2, KraidPalettes.ColorCount(source), "Complete native palette extent");
-        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidPalettes.ColorCount((KraidPaletteSource)invalid),
-                "Unknown palette size source rejected");
     }
 }

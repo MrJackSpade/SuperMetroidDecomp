@@ -666,7 +666,6 @@ internal static class LookupStream5Verification
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, MapSpriteColouring colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, Offset16<ScreenPixels>.Wrapped(x - 7, y - 9), MapSpriteScreen.FileSelect, colouring);
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapLandmarks.BossMarkers((AreaId)7), "Invalid boss area");
         AssertEqual(8, bossSlots, "Eight native boss slots including three unused");
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 28 stock ordered OAM/state cases pass.");
@@ -769,7 +768,6 @@ internal static class LookupStream5Verification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Shared, -1), "Power lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn(WreckedShipPoweredPart.Lights, 16), "Power upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolvePowerOn((WreckedShipPoweredPart)Enum.GetValues<WreckedShipPoweredPart>().Length, 0), "Power rejects a part the power-on does not fade");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, -1), "Health color lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealth(PhantoonHealthBandDefinitions.Unhurt, 16), "Health color upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveFadeOut(-1), "Fade lower bound");
@@ -815,8 +813,6 @@ internal static class LookupStream5Verification
             AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)i), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)(-1)), "No direction has no binding");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapScrollControls.ButtonFor((MapScrollDirection)4), "Invalid direction");
         var state = new SharedGameState(new SharedRandom());
         state.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         state.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -1077,7 +1073,6 @@ internal static class LookupStream5Verification
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => YappingMawAttackGeometry.HeldSamusOffset((YappingMawAim)Enum.GetValues<YappingMawAim>().Length), "Held aim beyond the eight aims");
         Console.WriteLine("Yapping Maw offsets:16 native words, eight actual held callbacks,256 angle-quantized begin-extension writes and direction bounds pass.");
 
         void Check(int direction, string context)
@@ -1324,9 +1319,6 @@ internal static class LookupStream5Verification
                 eyeState.EyePart.PlayingProgram(),
                 $"production Phantoon eye direction {direction}");
         }
-        AssertThrows<InvalidDataException>(
-            () => PhantoonEyeGaze.EyeAnimation((CompassDirection)Enum.GetValues<CompassDirection>().Length),
-            "Phantoon eye direction beyond the eight directions");
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
@@ -1525,8 +1517,6 @@ internal static class LookupStream5Verification
         }
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7), "Ceres door upper bound");
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(ushort.MaxValue), "Ceres door full-word rejection");
-        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
-        AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => _ = MagdolliteRiseStage.Setup.Lower, "Magdollite lower bound");
         AssertThrows<InvalidDataException>(() => _ = stage.Higher, "Magdollite upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");

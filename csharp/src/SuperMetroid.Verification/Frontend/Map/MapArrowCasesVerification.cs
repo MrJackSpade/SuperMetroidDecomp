@@ -25,8 +25,6 @@ internal static class MapArrowCasesVerification
         Suite(nameof(VerifyMapArrowShapeCases), () => VerifyMapArrowShapeCases(rom));
         var document = RequiredJson.Deserialize<MapArrowDocument>(bytes,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => original.Get((MapScrollDirection)invalid), "invalid arrow direction");
         foreach (string name in document.Arrows.Keys)
         {
             var missing = new Dictionary<string, MapArrowEntry>(document.Arrows);

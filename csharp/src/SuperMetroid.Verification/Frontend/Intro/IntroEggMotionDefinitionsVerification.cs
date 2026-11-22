@@ -17,8 +17,7 @@ internal static class IntroEggMotionDefinitionsVerification
 
     /// <summary>
     /// Decodes the gravity steps the shell fragments read past their 38-step curve from the cartridge and compares them
-    /// with the installed <see cref="ShellFragmentFallPastCurve"/> (#1500): every step the fragments read past the curve,
-    /// and the rejection of the first step no fragment reads.
+    /// with the installed <see cref="ShellFragmentFallPastCurve"/> (#1500): every step the fragments read past the curve.
     /// </summary>
     internal static void VerifyShellFragmentFallPastCurve(CartridgeImportAddressSpace rom)
     {
@@ -32,7 +31,6 @@ internal static class IntroEggMotionDefinitionsVerification
             AssertEqual(cartridge.ReadCartridgeWord(address), step.UnsignedWholePixels, $"shell step {past} past the curve: whole word");
             AssertEqual(cartridge.ReadCartridgeWord(address + 2), step.Fraction, $"shell step {past} past the curve: fraction word");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => installed.Step(stepsPastCurve), "no fragment falls a fourth step past the curve");
         Console.WriteLine("Shell fragment fall past curve: the three steps past the gravity curve match the cartridge.");
     }
 

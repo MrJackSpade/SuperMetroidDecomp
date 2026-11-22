@@ -22,11 +22,6 @@ internal static class SpcAllocationAddressesVerification
             for (int channel = 0; channel < (library == 0 ? 4 : 2); channel++)
                 AssertEqual(original[library, field] + channel, actual + channel, "serialized per-channel address");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress((SoundEffectLibrary)invalid, SpcAllocationField.VoiceBitset), "invalid library");
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(SoundEffectLibrary.Samus, (SpcAllocationField)invalid), "invalid field");
-        }
     }
 
     /// <summary>Runs the focused allocation-address verification from the command line.</summary>

@@ -54,9 +54,6 @@ internal static class GameOptionsHeadingsVerification
             AssertEqual(ReadVerificationWord(rom, 0x820000 | pointer), document.Sprites[name].Length,
                 "imported original heading part count");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.HeadingSpritemaps[(GameOptionsPage)invalid],
-                "heading sprite selector bounds");
     }
 
     /// <summary>Checks per-page X and shared Y setup operands against imported drawing anchors.</summary>

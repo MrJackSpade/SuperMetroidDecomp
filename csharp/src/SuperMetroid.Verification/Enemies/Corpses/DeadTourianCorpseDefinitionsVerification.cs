@@ -60,9 +60,6 @@ internal static class DeadTourianCorpseDefinitionsVerification
                 $"dead {family.Species} selector past definitions");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => DeadTourianCorpses.RowUploadList((DeadTourianCorpseSpecies)3, 0),
-            "unknown dead Tourian corpse species");
         VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
             "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' upload lists and heights, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");

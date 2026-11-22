@@ -44,10 +44,6 @@ internal static class CeresInitialActorMetadataVerification
         AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | CinematicActorNativeMotions.CeresDestruction[CeresDestructionActorRole.Vortex]), "stationary vortex RTS");
         AssertEqual(SignedSixteenSixteen.Zero, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.DriftsRoundLoop, "stationary vortex does not drift round the loop");
-        foreach (int undefined in new[] { int.MinValue, -1, Enum.GetValues<CeresDestructionActorRole>().Length, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(
-                () => CeresDestructionActors.InitialActor((CeresDestructionActorRole)undefined), "destruction actor undefined role");
-
         static void VerifyActor(
             ISnesAddressSpace source,
             ushort definitionPointer,

@@ -66,9 +66,6 @@ internal static class AnimatedTileInstructionCodesVerification
             "  Animated tiles: 37 named bank-$87 pointers and both retail treadmill streams agree.");
     }
 
-    /// <summary>Values naming no <see cref="BlockAnimation"/> member (its values are arbitrary, #1415), including a constructed bank-$87 header word.</summary>
-    internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0100, 0x8f00, 0xffff];
-
     /// <summary>Checks boss wait, four directional DMA sources, loop restart, and forbidden source reads.</summary>
     internal static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,

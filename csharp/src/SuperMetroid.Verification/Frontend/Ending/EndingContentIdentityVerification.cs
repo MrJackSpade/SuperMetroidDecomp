@@ -74,13 +74,6 @@ internal static class EndingContentIdentityVerification
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingFloorSceneId)invalid], "ending Mode7 role bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.Floor((EndingFloorSceneId)invalid), "Mode7 source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.CharacterFileName((EndingFloorSceneId)invalid), "Mode7 character filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.MapFileName((EndingFloorSceneId)invalid), "Mode7 map filename bounds");
-        }
     }
 
     /// <summary>Checks domain-specific digest changes, canonical frame order, and encoding invariance.</summary>

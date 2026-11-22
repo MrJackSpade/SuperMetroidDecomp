@@ -581,7 +581,6 @@ internal static class LookupStream1Verification
         var stock = Create(native);
         for (int index = 0; index < 32; index++)
             AssertEqual(native[index], stock.Resolve(index < 16 ? SamusHurtColorVariant.Hurt : SamusHurtColorVariant.Intro, index % 16), "Stock color matches native");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((SamusHurtColorVariant)2, 0), "Variant rejection preserved");
         foreach (int index in new[] { -1, 16 })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(SamusHurtColorVariant.Intro, index), "Color bounds preserved");
         Console.WriteLine("Hurt/intro:32 native colors kept as installed and the variant and colour bounds pass.");

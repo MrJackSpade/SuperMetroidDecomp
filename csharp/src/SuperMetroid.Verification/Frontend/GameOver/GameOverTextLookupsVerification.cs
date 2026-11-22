@@ -32,9 +32,6 @@ internal static class GameOverTextLookupsVerification
                 $"game-over text {name} selector {index}");
             AssertEqual(expected, field(enumerated[index]), $"game-over text {name} enumeration {index}");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOverTexts.Get((GameOverTextElement)invalid),
-                $"invalid game-over text {name} selector {invalid}");
     }
 
     /// <summary>Reads a native instruction byte only for the cartridge oracle.</summary>

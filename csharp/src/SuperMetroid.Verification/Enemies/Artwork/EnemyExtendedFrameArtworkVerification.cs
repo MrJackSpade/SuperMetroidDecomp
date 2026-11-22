@@ -272,11 +272,23 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
-        place.Bind(ExtendedFrameShower(frame), place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        EnemyDefinitionId shower = ExtendedFrameShower(frame);
+        RoomEnemyPlace place;
+        if (shower is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
+        {
+            // Kraid's arm and foot draw the pose their part of his encounter shows, with its step and depth (#2210), so
+            // Kraid is placed as his room places him and the limb's own entity draws (#2554).
+            _ = KraidPartsFixtures.PlaceKraid(enemies);
+            place = enemies.Places.InUpdateOrder.Single(candidate => candidate.Holds(shower));
+        }
+        else
+        {
+            place = enemies.Places.InUpdateOrder[0];
+            place.Bind(shower, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        }
+        enemies.Drawing.Enqueue(place, reached: true);
         // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
         BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
         if (art is not null)
@@ -293,14 +305,10 @@ internal static class EnemyExtendedFrameArtworkVerification
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;
-        // Kraid's arm and foot show the pose their record stores, its step and depth, through their part state (#2210).
-        if (place.Occupant?.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
-        {
-            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.Holds(EnemyDefinitionId.KraidArm)
-                ? new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(KraidPartsFixtures.Standalone()).ArmState
-                : new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(KraidPartsFixtures.Standalone()).FootState);
+        // Kraid's arm and foot show the pose their record stores, its step and depth, through their part of his encounter
+        // (#2210).
+        if (shower is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
             place.SpritemapPointer = pointer;
-        }
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
         place.AnimationClock.HoldFor(7);

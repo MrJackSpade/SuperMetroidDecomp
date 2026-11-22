@@ -56,7 +56,7 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation.</param>
     public sealed partial class Fighting(KraidFightPhase phase, KraidRisenHead head) : Risen(head)
     {
-        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        /// <summary>The <c>head</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
         private readonly KraidRisenHead head = head;
 
         /// <summary>The phase of his fight the body runs.</summary>
@@ -77,7 +77,7 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation.</param>
     public sealed partial class Growing(KraidGrowthPhase phase, KraidRisenHead head) : Risen(head)
     {
-        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        /// <summary>The <c>head</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
         private readonly KraidRisenHead head = head;
 
         /// <summary>The phase of his growth the body runs.</summary>
@@ -98,7 +98,7 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation, which plays his dying cry.</param>
     public sealed partial class Dying(KraidDeathPhase phase, KraidRisenHead head) : Risen(head)
     {
-        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        /// <summary>The <c>head</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
         private readonly KraidRisenHead head = head;
 
         /// <summary>The phase of his death the body runs.</summary>

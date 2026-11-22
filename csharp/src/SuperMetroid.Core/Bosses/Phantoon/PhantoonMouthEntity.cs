@@ -14,7 +14,7 @@ internal sealed partial class PhantoonMouthEntity(PhantoonBehavior species, Room
     PhantoonEnemyState encounter)
     : PhantoonEntity(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonMouth(encounter))
 {
-    /// <summary>The constructor's <c>encounter</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly PhantoonEnemyState encounter = encounter;
 
     /// <summary>Takes no action of its own: the mouth plays its own animation.</summary>

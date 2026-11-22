@@ -13,7 +13,7 @@ internal sealed partial class EnemySpeciesRegistry
     private readonly Dictionary<EnemyDefinitionId, Func<RoomEnemyPlacement, PopulationEnemySpawn>> _placed;
 
     /// <summary>The creations parts already placed offer the parts the room lists after them.</summary>
-    internal readonly EnemyPartOffers _offers;
+    private readonly EnemyPartOffers _offers;
 
     /// <summary>Composes the registry from <paramref name="registrar"/>'s registrations.</summary>
     internal EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)

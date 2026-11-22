@@ -14,7 +14,7 @@ internal sealed partial class EvirSpitEntity(EvirBehavior species, RoomEnemyOccu
     RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The constructor's <c>body</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>body</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly RoomEnemyPlace body = body;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>

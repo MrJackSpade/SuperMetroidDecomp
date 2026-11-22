@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 internal sealed partial class HoppersEntity(HoppersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HopperSpawnSettings settings, HopperKind kind)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The constructor's <c>kind</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>kind</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly HopperKind kind = kind;
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
@@ -7,10 +9,11 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the bottom occupies.</param>
 /// <param name="common">The shared participation.</param>
+[RoomLifetime]
 internal sealed partial class KzanBottomEntity(KzanBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi
 {
-    /// <summary>The constructor's <c>species</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>species</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly KzanBehavior species = species;
 
     /// <summary>The place of the top the bottom follows, which its room lists directly before it, found as it is built.</summary>

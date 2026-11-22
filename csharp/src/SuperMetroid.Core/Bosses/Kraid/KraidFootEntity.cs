@@ -12,7 +12,7 @@ internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOc
     KraidEnemyState encounter)
     : KraidLimbEntity(species, occupant, place, common, species.Limbs.InitializeKraidFoot(place, encounter))
 {
-    /// <summary>The constructor's <c>encounter</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly KraidEnemyState encounter = encounter;
 
 

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed partial class OrangeZoomerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, OrangeZoomerSpawnSettings settings)
     : CrawlerEntity(occupant, place, common, CrawlersBehavior.InitializeOrangeZoomer(settings, place))
 {
-    /// <summary>The constructor's <c>settings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>settings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly OrangeZoomerSpawnSettings settings = settings;
 
     /// <inheritdoc/>

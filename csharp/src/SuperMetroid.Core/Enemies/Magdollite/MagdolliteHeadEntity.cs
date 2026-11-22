@@ -11,7 +11,7 @@ internal sealed partial class MagdolliteHeadEntity(MagdolliteBehavior species, R
     EnemyPopulationSurroundings surroundings, MagdolliteHeadSpawnSettings settings)
     : MagdollitePartEntity(species, occupant, place, common)
 {
-    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EnemyPopulationSurroundings surroundings = surroundings;
 
     /// <inheritdoc/>

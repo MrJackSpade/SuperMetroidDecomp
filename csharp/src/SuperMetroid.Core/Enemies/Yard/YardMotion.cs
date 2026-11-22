@@ -28,7 +28,7 @@ internal abstract partial class YardMotion
     /// <param name="movement">The movement.</param>
     private sealed partial class Grounded(YardMovement movement) : YardMotion(movement)
     {
-        /// <summary>The constructor's <c>movement</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        /// <summary>The <c>movement</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
         private readonly YardMovement movement = movement;
     }
 

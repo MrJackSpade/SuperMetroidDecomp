@@ -16,7 +16,7 @@ internal sealed partial class MotherBrainTubesEntity(MotherBrainBehavior species
     MotherBrainTubeSpawnSettings settings, MotherBrainEnemyState encounter)
     : MotherBrainEntity(species, occupant, place, common)
 {
-    /// <summary>The constructor's <c>settings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>settings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly MotherBrainTubeSpawnSettings settings = settings;
 
     /// <inheritdoc/>

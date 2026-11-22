@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 internal sealed partial class AlcoonEntity(AlcoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EnemyPopulationSurroundings surroundings = surroundings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>

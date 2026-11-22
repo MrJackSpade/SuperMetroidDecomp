@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
@@ -10,14 +12,15 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="place">The place the arms occupy.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="body">The place of the body the room lists before the arms, which offered them their creation (#2554).</param>
+[RoomLifetime]
 internal sealed partial class EvirArmsEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
     RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The constructor's <c>species</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>species</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EvirBehavior species = species;
 
-    /// <summary>The constructor's <c>body</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>body</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly RoomEnemyPlace body = body;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>

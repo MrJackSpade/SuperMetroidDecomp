@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed partial class CeresSteamEntity(CeresSteamBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresSteamVentMotions motions, CeresSteamSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <summary>The constructor's <c>motions</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>motions</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly CeresSteamVentMotions motions = motions;
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

@@ -14,7 +14,7 @@ internal sealed partial class DraygonTailEntity(DraygonBehavior species, RoomEne
     DraygonEnemyState draygon)
     : DraygonEntity(species, occupant, place, common, bossArtwork)
 {
-    /// <summary>The constructor's <c>draygon</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>draygon</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly DraygonEnemyState draygon = draygon;
 
     /// <summary>The tail's part of the encounter it joined as it set up.</summary>

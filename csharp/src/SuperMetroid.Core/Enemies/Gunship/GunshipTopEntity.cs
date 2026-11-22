@@ -10,7 +10,7 @@ internal sealed partial class GunshipTopEntity(GunshipBehavior species, RoomEnem
     EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EnemyPopulationSurroundings surroundings = surroundings;
 
     /// <summary>The ship the top hull holds from its setup (#2554).</summary>

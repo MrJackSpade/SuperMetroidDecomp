@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed partial class BabyMetroidEntity(BabyMetroidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EnemyPopulationSurroundings surroundings = surroundings;
 
     /// <summary>The species' BabyMetroidShotReaction, built once for this enemy with its state (#2554).</summary>

@@ -18,10 +18,10 @@ internal abstract partial class TorizoEntity(TorizoBehavior species, RoomEnemyOc
     EnemyPopulationSurroundings surroundings, TorizoVariant variant)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction, ILitTorizo
 {
-    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>surroundings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly EnemyPopulationSurroundings surroundings = surroundings;
 
-    /// <summary>The constructor's <c>variant</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>variant</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly TorizoVariant variant = variant;
 
     /// <summary>The Torizo species owner.</summary>

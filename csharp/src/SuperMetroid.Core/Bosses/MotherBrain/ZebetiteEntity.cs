@@ -12,7 +12,7 @@ internal sealed partial class ZebetiteEntity(ZebetiteBehavior species, RoomEnemy
     RoomEnemyPlace? linkedTo)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The constructor's <c>linkedTo</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The primary half the object was made linked to, or none,, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly RoomEnemyPlace? linkedTo = linkedTo;
 
     /// <summary>The species' ZebetiteShotReaction, built once for this enemy with its state (#2554).</summary>

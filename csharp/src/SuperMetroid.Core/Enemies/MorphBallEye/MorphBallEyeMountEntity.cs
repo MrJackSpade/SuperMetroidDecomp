@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>
@@ -10,10 +12,11 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
+[RoomLifetime]
 internal sealed partial class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
-    /// <summary>The constructor's <c>species</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>species</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly MorphBallEyeBehavior species = species;
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

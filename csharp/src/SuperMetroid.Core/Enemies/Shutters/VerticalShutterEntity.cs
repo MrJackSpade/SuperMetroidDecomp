@@ -15,7 +15,7 @@ internal abstract partial class VerticalShutterEntity(ShuttersBehavior species, 
     ShutterSpawnSettings settings, ShutterSegment pose)
     : ShuttersEntity(species, occupant, place, common)
 {
-    /// <summary>The constructor's <c>pose</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>pose</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly ShutterSegment pose = pose;
 
     /// <summary>What the shutter's population entry tells its species, which its factory checked as it built the enemy.</summary>

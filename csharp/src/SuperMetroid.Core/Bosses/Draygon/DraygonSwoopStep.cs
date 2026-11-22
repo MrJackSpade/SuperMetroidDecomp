@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="path">The path the rightward setup planned.</param>
 internal abstract partial class DraygonSwoopStep(DraygonPhase phase, DraygonSwoopPath path) : DraygonPhaseStep(phase)
 {
-    /// <summary>The constructor's <c>phase</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>phase</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly DraygonPhase phase = phase;
 
     /// <summary>

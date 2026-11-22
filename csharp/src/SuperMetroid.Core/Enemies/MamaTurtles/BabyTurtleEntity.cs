@@ -11,7 +11,7 @@ internal sealed partial class BabyTurtleEntity(MamaTurtleBehavior species, RoomE
     MamaTurtleFamily family)
     : TurtleEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
-    /// <summary>The constructor's <c>family</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    /// <summary>The <c>family</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
     private readonly MamaTurtleFamily family = family;
 
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>

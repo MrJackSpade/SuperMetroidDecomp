@@ -198,7 +198,6 @@ internal sealed partial class CeresEscape : IGameplayShadingSource
     }
 
     /// <summary>What <see cref="RunRidleysStep"/> does for each <see cref="CeresEscapeStage"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<CeresEscapeStage, Action<int, RoomWarning>> RunRidleysStepForCeresEscapeStage => field ??= new(new Dictionary<CeresEscapeStage, Action<int, RoomWarning>>
     {
         [CeresEscapeStage.Getaway] = (_, _) =>

@@ -104,7 +104,6 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory
     }
 
     /// <summary>What <see cref="RunGerutaMain"/> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>> RunGerutaMainForGerutaAction => field ??= new(new Dictionary<GerutaAction, Action<RoomEnemyPlace, GerutaEnemyState, SamusState, RoomLevelData, int>>
     {
         [GerutaAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>

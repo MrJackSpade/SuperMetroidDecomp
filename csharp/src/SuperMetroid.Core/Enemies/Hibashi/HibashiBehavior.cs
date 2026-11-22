@@ -28,7 +28,6 @@ internal sealed partial class HibashiBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="ApplyHibashiCue"/> does for each <see cref="HibashiCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<HibashiCueKind, Action<RoomEnemyPlace, HibashiEnemyState>> ApplyHibashiCueForHibashiCueKind => field ??= new(new Dictionary<HibashiCueKind, Action<RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiCueKind.PlayEruptionSound] = (_, _) => PlayHibashiEruptionSound(),
@@ -83,7 +82,6 @@ internal sealed partial class HibashiBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunHibashiMain"/> does for each <see cref="HibashiAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private static IdentityTable<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>> RunHibashiMainForHibashiAction => field ??= new(new Dictionary<HibashiAction, Action<HibashiFlameSpawnSettings, RoomEnemyPlace, HibashiEnemyState>>
     {
         [HibashiAction.Inactive] = (_, place, state) => RunHibashiInactive(place, state),

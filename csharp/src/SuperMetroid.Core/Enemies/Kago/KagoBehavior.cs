@@ -107,7 +107,6 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
         internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
 
         /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
         {
             [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
@@ -125,7 +124,6 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
         /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
         {
             [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),

@@ -196,7 +196,6 @@ internal sealed partial class RidleyProjectiles : EnemyProjectileMotionBehavior<
     };
 
     /// <summary>What <c>Move</c> does for each <see cref="RidleyFireballMotion"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<RidleyFireballMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForRidleyFireballMotion => field ??= new(new Dictionary<RidleyFireballMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
     {
         [RidleyFireballMotion.FireballFlying] = (context, projectile) => FlyFireball(projectile, context.Level),
@@ -230,7 +229,6 @@ internal sealed partial class RidleyProjectiles : EnemyProjectileMotionBehavior<
     }
 
     /// <summary>What <see cref="RunCue"/> does for each <see cref="RidleyFireballCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<RidleyFireballCue, Action<EnemyProjectile>> RunCueForRidleyFireballCue => field ??= new(new Dictionary<RidleyFireballCue, Action<EnemyProjectile>>
     {
         [RidleyFireballCue.StopMoving] = projectile => projectile.HoldStill(),

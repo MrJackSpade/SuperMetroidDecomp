@@ -30,7 +30,6 @@ internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) 
     private readonly BossCountdown _holdBeforeNextStep = BossCountdown.LastingOneUpdate();
 
     /// <summary>What <c>Update</c> does for each <see cref="BombTorizoHandPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForBombTorizoHandPhase => field ??= new(new Dictionary<BombTorizoHandPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [BombTorizoHandPhase.Starting] = (place, context) =>

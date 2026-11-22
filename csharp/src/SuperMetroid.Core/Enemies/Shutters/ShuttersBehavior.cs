@@ -113,7 +113,6 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunGrowingShutterMain"/> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<GrowingShutterAction, Action<GrowingShutterSpawnSettings, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<GrowingShutterSpawnSettings, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
         [GrowingShutterAction.WaitForTimer] = (settings, place, state, samus, camera) => WaitToGrow(settings, place, state, samus, camera),
@@ -416,7 +415,6 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunVerticalShutterMain"/> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<VerticalShutterAction, Action<ShutterSpawnSettings, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<ShutterSpawnSettings, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
         [VerticalShutterAction.WaitForTimer] = (settings, place, state, samus, camera) => WaitForTrigger(settings, place, state, samus, camera),

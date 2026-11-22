@@ -58,7 +58,6 @@ internal sealed partial class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawn
     }
 
     /// <summary>What <see cref="RunNuclearWaffleMain"/> does for each <see cref="NuclearWaffleAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NuclearWaffleAction, Action<NuclearWaffleSpawnSettings, RoomEnemyPlace, NuclearWaffleEnemyState>> RunNuclearWaffleMainForNuclearWaffleAction => field ??= new(new Dictionary<NuclearWaffleAction, Action<NuclearWaffleSpawnSettings, RoomEnemyPlace, NuclearWaffleEnemyState>>
     {
         [NuclearWaffleAction.Waiting] = (settings, place, state) => RunNuclearWaffleWaiting(settings, place, state),

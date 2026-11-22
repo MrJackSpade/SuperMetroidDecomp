@@ -52,7 +52,6 @@ internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunBoulderMain"/> does for each <see cref="BoulderAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BoulderAction, Action<BoulderSpawnSettings, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>> RunBoulderMainForBoulderAction => field ??= new(new Dictionary<BoulderAction, Action<BoulderSpawnSettings, RoomEnemyPlace, BoulderEnemyState, SamusState, RoomLevelData>>
     {
         [BoulderAction.WaitingForSamus] = (settings, place, state, samus, level) => RunBoulderWaiting(settings, place, state, samus),

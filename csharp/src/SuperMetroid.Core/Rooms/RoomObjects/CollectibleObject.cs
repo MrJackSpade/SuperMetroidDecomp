@@ -56,7 +56,6 @@ internal sealed partial class CollectibleObject(
         AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase>.Starting(CollectibleSequenceAnimations.Segments,
             phase == CollectiblePhase.ChozoOrb ? CollectibleSequenceAnimations.OrbPulsing : CollectibleSequenceAnimations.Exposed);
     /// <summary>What <c>Update</c> does for each <see cref="CollectiblePhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForCollectiblePhase => field ??= new(new Dictionary<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [CollectiblePhase.AwaitingMessage] = (place, context) => { },

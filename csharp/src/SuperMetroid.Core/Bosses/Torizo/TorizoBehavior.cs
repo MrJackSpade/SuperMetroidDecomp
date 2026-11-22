@@ -97,7 +97,6 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
         state.Colours.FadeToward(new TorizoLook(look));
 
     /// <summary>What <see cref="RunTorizoMain"/> does for each <see cref="TorizoPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>> RunTorizoMainForTorizoPhase => field ??= new(new Dictionary<TorizoPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData>>
     {
         [TorizoPhase.Idle] = (_, torizo, state, samus, level) => { },
@@ -233,7 +232,6 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
         _presentation.ShowLook(look.Of(state.Variant.Artwork));
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoCueKind => field ??= new(new Dictionary<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoCueKind.StartWalking] = (_, torizo, state, inputs) =>
@@ -478,7 +476,6 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoInterruptKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoInterruptKind => field ??= new(new Dictionary<TorizoInterruptKind, Func<RoomEnemyPlace, TorizoCue.Interrupt, TorizoEnemyState, TorizoCueInputs, AnimationPlayback<TorizoBodySegment>, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoInterruptKind.BombSwipeAtSamusBehind] = (torizo, interrupt, state, inputs, continuation) => TorizoChoices.SelectBombTorizoCloseBehindBranch(
@@ -512,7 +509,6 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
     });
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoBranchKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoBranchKind => field ??= new(new Dictionary<TorizoBranchKind, Func<RoomEnemyPlace, TorizoCue.Branch, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>
     {
         [TorizoBranchKind.BombJumpBackFromSamusInFront] = (torizo, branch, state, inputs) => TorizoChoices.SelectBombTorizoCloseFrontJump(

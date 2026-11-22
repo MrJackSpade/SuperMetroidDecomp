@@ -33,7 +33,6 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
     }
 
     /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>> SpawnNoobTubeProjectileForNoobTubeProjectileDefinition => field ??= new(new Dictionary<NoobTubeProjectileDefinition, Action<NoobTubePiece, EnemyProjectile, Position16<RoomPixels>>>
     {
         [NoobTubeProjectileDefinition.Crack] = (piece, projectile, place) =>
@@ -178,7 +177,6 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="NoobTubePieceMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForNoobTubePieceMotion => field ??= new(new Dictionary<NoobTubePieceMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [NoobTubePieceMotion.CrackFlickering] = (context, projectile) => FlickerNoobTubeCrack(projectile, context.ShortCounter),
@@ -215,7 +213,6 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
             Pieces.Of(projectile).IsHidden = NoobTubeCadenceDefinitions.CrackHidden.IsInSecondHalfAt(shortCounter);
 
         /// <summary>What <see cref="ApplyNoobTubeProjectileCue"/> does for each <see cref="NoobTubeProjectileCueKind"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>> ApplyNoobTubeProjectileCueForNoobTubeProjectileCueKind => field ??= new(new Dictionary<NoobTubeProjectileCueKind, Action<EnemyProjectile, NoobTubeShardMirroring, bool>>
         {
             [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>

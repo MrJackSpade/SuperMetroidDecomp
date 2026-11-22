@@ -55,7 +55,6 @@ internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
     {
         [SkulteraAction.Swimming] = (settings, place, state, level) => SwimSkultera(settings, place, state, level, state.Heading),

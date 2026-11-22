@@ -143,7 +143,6 @@ internal sealed partial class IntroMotherBrainSpriteState
     }
 
     /// <summary>What <c>Step</c> does for each <see cref="IntroMotherBrainCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<IntroMotherBrainCue, Action> StepForIntroMotherBrainCue => field ??= new(new Dictionary<IntroMotherBrainCue, Action>
     {
         [IntroMotherBrainCue.StartNextPage] = () => NextPageRequested = true,

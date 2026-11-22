@@ -146,7 +146,6 @@ internal sealed partial class ProjectileEnemyImpacts
     }
 
     /// <summary>What <see cref="TryStartEnemyImpact"/> comes to for each <see cref="SamusProjectileFamily"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>> TryStartEnemyImpactForSamusProjectileFamily => field ??= new(new Dictionary<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>>
     {
         [SamusProjectileFamily.Beam] = (samusBombs, blocksPlasmaBeam, held) =>

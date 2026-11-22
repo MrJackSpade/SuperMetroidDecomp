@@ -92,7 +92,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     }
 
     /// <summary>What <see cref="RunBotwoonMain"/> does for each <see cref="BotwoonPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonMainForBotwoonPhase => field ??= new(new Dictionary<BotwoonPhase, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
     {
         [BotwoonPhase.InitialDelay] = (_, head, state, samus) =>
@@ -427,7 +426,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     }
 
     /// <summary>What <see cref="RunBotwoonHeadAction"/> does for each <see cref="BotwoonHeadAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>> RunBotwoonHeadActionForBotwoonHeadAction => field ??= new(new Dictionary<BotwoonHeadAction, Action<RoomEnemyOccupant, RoomEnemyPlace, BotwoonEnemyState, SamusState>>
     {
         [BotwoonHeadAction.AnimateFromMovement] = (_, head, state, samus) => AnimateBotwoonHeadFromMovement(head, state),
@@ -529,7 +527,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     }
 
     /// <summary>What <see cref="ApplyBotwoonHeadCue"/> does for each <see cref="BotwoonHeadCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BotwoonHeadCueKind, Action<BotwoonEnemyState>> ApplyBotwoonHeadCueForBotwoonHeadCueKind => field ??= new(new Dictionary<BotwoonHeadCueKind, Action<BotwoonEnemyState>>
     {
         [BotwoonHeadCueKind.QueueSpitSound] = state => RequestBotwoonSound(BotwoonSoundDefinitions.Spit),
@@ -732,7 +729,6 @@ internal sealed partial class BotwoonBehavior : EnemyProjectileMotionBehavior<Bo
     };
 
     /// <summary>What <c>Move</c> does for each <see cref="BotwoonProjectileMotion"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BotwoonProjectileMotion, Action<EnemyProjectileMotionContext>> MoveForBotwoonProjectileMotion => field ??= new(new Dictionary<BotwoonProjectileMotion, Action<EnemyProjectileMotionContext>>
     {
         [BotwoonProjectileMotion.BodySegment] = context => MoveBotwoonBodySegment(context.Projectile, context.ShortCounter),

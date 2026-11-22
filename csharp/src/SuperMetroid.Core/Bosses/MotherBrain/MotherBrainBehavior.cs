@@ -158,7 +158,6 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoining
     }
 
     /// <summary>What <see cref="RunMotherBrainFakeDeath"/> does for each <see cref="MotherBrainDescentPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainFakeDeathForMotherBrainDescentPhase => field ??= new(new Dictionary<MotherBrainDescentPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainDescentPhase.InitialPause] = (state, samus) =>
@@ -250,7 +249,6 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoining
     }
 
     /// <summary>What <see cref="RunMotherBrainAscent"/> does for each <see cref="MotherBrainAscentPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainAscentPhase, Action<MotherBrainEnemyState>> RunMotherBrainAscentForMotherBrainAscentPhase => field ??= new(new Dictionary<MotherBrainAscentPhase, Action<MotherBrainEnemyState>>
     {
         [MotherBrainAscentPhase.DrawMural] = state => FakeDeath.DrawNextMuralRows(state),
@@ -273,7 +271,6 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoining
     }
 
     /// <summary>What <see cref="RunMotherBrainPhase2Fight"/> does for each <see cref="MotherBrainPhase2FightPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>> RunMotherBrainPhase2FightForMotherBrainPhase2FightPhase => field ??= new(new Dictionary<MotherBrainPhase2FightPhase, Action<MotherBrainEnemyState, SamusState>>
     {
         [MotherBrainPhase2FightPhase.StretchingShakeHead] = (state, samus) => MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state),

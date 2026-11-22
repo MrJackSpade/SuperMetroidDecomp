@@ -124,7 +124,6 @@ internal sealed partial class EndingRewardJump
     private bool HandleCue(EndingRewardJumpCue cue) => CueReactions[cue]();
 
     /// <summary>What each cue of the jump animations does, and whether it is the shoot event.</summary>
-    [field: NonSerialized]
     private IdentityTable<EndingRewardJumpCue, Func<bool>> CueReactions => field ??= new(new Dictionary<EndingRewardJumpCue, Func<bool>>
     {
         [EndingRewardJumpCue.Launch] = () =>

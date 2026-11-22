@@ -50,7 +50,6 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemySpawnFact
     }
 
     /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>> RunMochtroidMainForMochtroidMovementMode => field ??= new(new Dictionary<MochtroidMovementMode, Action<RoomEnemyPlace, SamusState, RoomLevelData, MochtroidEnemyState>>
     {
         [MochtroidMovementMode.NotTouchingSamus] = (place, samus, level, state) => RunMochtroidFreeFlight(place, state, samus, level),

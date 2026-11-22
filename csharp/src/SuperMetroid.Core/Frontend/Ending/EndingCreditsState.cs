@@ -493,7 +493,6 @@ internal sealed partial class EndingCreditsState : IFrontendScreen, IEndingActor
     private void StepActors() => EscapeScenes.StepSprites(this, HandleSceneCue);
 
     /// <summary>What <see cref="HandleSceneCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSceneCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
     {
         [EndingSceneCue.EndZebesExplosion] = (actor, cue) =>

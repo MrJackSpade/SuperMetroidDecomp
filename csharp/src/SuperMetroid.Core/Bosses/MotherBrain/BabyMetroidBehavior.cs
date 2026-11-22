@@ -746,7 +746,6 @@ internal sealed partial class BabyMetroidBehavior : IEnemySpecies, IEnemyLoadedF
     }
 
     /// <summary>What <see cref="ApplyBabyMetroidCue"/> comes to for each <see cref="BabyMetroidCue"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>> ApplyBabyMetroidCueForBabyMetroidCue => field ??= new(new Dictionary<BabyMetroidCue, Func<AnimationContinuation<BabyMetroidSegment>?>>
     {
         [BabyMetroidCue.MaybeRemorseCry] = () =>

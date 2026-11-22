@@ -106,7 +106,6 @@ internal sealed partial class DachoraBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunDachoraMain"/> does for each <see cref="DachoraAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>> RunDachoraMainForDachoraAction => field ??= new(new Dictionary<DachoraAction, Action<RoomEnemyPlace, DachoraEnemyState, SamusState, RoomLevelData>>
     {
         [DachoraAction.WaitingForSamus] = (place, state, samus, level) => RunDachoraWaiting(place, state, samus, level),

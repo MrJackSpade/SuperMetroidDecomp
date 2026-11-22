@@ -155,7 +155,6 @@ internal sealed partial class PhantoonCombat
         private void MoveSpiralOrbiting(EnemyProjectileMotionContext context) => RunPhantoonSpiralFlame(context.Projectile);
 
         /// <summary>What <see cref="RunCue"/> does for each <see cref="PhantoonFlameCue"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>> RunCueForPhantoonFlameCue => field ??= new(new Dictionary<PhantoonFlameCue, Action<EnemyProjectileCueContext, EnemyProjectile>>
         {
             [PhantoonFlameCue.SpawnDrop] = (context, projectile) => RequestPhantoonFlameDrop(projectile, context.Samus),

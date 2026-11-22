@@ -162,7 +162,6 @@ internal sealed partial class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Where each route of the update's out-of-health check sends Samus, and whether the refill or the death takes the update.</summary>
-    [field: NonSerialized]
     private IdentityTable<SamusOutOfHealthRoute, Func<SamusState, bool>> OutOfHealthRoutes => field ??=
         new(new Dictionary<SamusOutOfHealthRoute, Func<SamusState, bool>>
         {

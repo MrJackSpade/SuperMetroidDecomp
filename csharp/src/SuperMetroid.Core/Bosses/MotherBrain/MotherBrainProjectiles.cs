@@ -173,7 +173,6 @@ internal sealed partial class MotherBrainProjectiles
         };
 
         /// <summary>What <c>Move</c> does for each <see cref="MotherBrainProjectileMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>> MoveForMotherBrainProjectileMotion => field ??= new(new Dictionary<MotherBrainProjectileMotion, Action<EnemyProjectileMotionContext, EnemyProjectile>>
         {
             [MotherBrainProjectileMotion.TurretAiming] = (context, projectile) => OperateMotherBrainTurret(projectile, context.Camera),
@@ -223,7 +222,6 @@ internal sealed partial class MotherBrainProjectiles
         /// What <see cref="RunCue(EnemyProjectileCueContext, MotherBrainHandBeamCue)"/> does for each
         /// <see cref="MotherBrainHandBeamCue"/> member, each member's own arm.
         /// </summary>
-        [field: NonSerialized]
         private IdentityTable<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>> RunCueForMotherBrainHandBeamCue => field ??= new(new Dictionary<MotherBrainHandBeamCue, Action<EnemyProjectileCueContext>>
         {
             [MotherBrainHandBeamCue.SpawnNextBeam] = context => SpawnMotherBrainHandBeamFired(MotherBrains.Of(context.Projectile).MotherBrain),
@@ -237,7 +235,6 @@ internal sealed partial class MotherBrainProjectiles
         }
 
         /// <summary>What <see cref="ApplyMotherBrainEffectCue"/> does for each <see cref="MotherBrainEffectCueKind"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<MotherBrainEffectCueKind, Action<EnemyProjectile>> ApplyMotherBrainEffectCueForMotherBrainEffectCueKind => field ??= new(new Dictionary<MotherBrainEffectCueKind, Action<EnemyProjectile>>
         {
             [MotherBrainEffectCueKind.DropDrool] = projectile =>

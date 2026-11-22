@@ -47,7 +47,6 @@ public sealed partial class RoomLevelPlane
     /// so a snapshot neither holds nor works them out.
     /// </summary>
     /// <exception cref="InvalidOperationException">A block is terrain beyond the room, which no plane shows.</exception>
-    [field: NonSerialized]
     public RoomBlockCells Cells => field ??= new RoomBlockCells(Size,
         [.. blocks.Select((block, index) => collectibles.TryGetValue(index, out CollectiblePicture picture)
             ? new RoomBlockCell(RoomCellPicture.Of(picture), BlockMirroring.None)

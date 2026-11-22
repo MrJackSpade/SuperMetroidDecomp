@@ -113,7 +113,6 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     private readonly partial record struct ApplyKiHunterCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, KiHunterBodyState State, KiHunterBehavior Owner);
 
     /// <summary>What each of the Ki-Hunter body's signals does, and the animation it continues at, or null to run on.</summary>
-    [field: NonSerialized]
     private IdentityTable<KiHunterCueKind, Func<KiHunterBodyState, KiHunterSegment?>> KiHunterSignals => field ??=
         new(new Dictionary<KiHunterCueKind, Func<KiHunterBodyState, KiHunterSegment?>>
         {
@@ -174,7 +173,6 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunKiHunterMain"/> does for each <see cref="KiHunterAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>> RunKiHunterMainForKiHunterAction => field ??= new(new Dictionary<KiHunterAction, Action<RoomEnemyPlace, KiHunterBodyState, SamusState, RoomLevelData>>
     {
         [KiHunterAction.FlyingPatrol] = (actor, state, samus, level) => RunKiHunterFlyingPatrol(actor, state, samus, level),
@@ -204,7 +202,6 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunKiHunterWingMain"/> does for each <see cref="KiHunterWingAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, KiHunterWingsBody, RoomLevelData>> RunKiHunterWingMainForKiHunterWingAction => field ??= new(new Dictionary<KiHunterWingAction, Action<RoomEnemyPlace, KiHunterWingState, KiHunterWingsBody, RoomLevelData>>
     {
         [KiHunterWingAction.FollowBody] = (wings, _, partner, _) => FollowKiHunterBody(wings, partner),
@@ -488,7 +485,6 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>What <see cref="RunDetachedKiHunterWing"/> does for each <see cref="KiHunterWingMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>> RunDetachedKiHunterWingForKiHunterWingMovement => field ??= new(new Dictionary<KiHunterWingMovement, Action<RoomEnemyPlace, KiHunterWingState, RoomLevelData>>
     {
         [KiHunterWingMovement.Orbit] = (wings, state, level) => RunDetachedKiHunterWingOrbit(wings, state),
@@ -780,7 +776,6 @@ internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFact
         private readonly partial record struct RunCueContext(EnemyProjectile Projectile, AcidBehavior Owner);
 
         /// <summary>What <c>Move</c> does for each <see cref="KiHunterAcidMotion"/> member, each member's own arm.</summary>
-        [field: NonSerialized]
         private IdentityTable<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>> MoveForKiHunterAcidMotion => field ??= new(new Dictionary<KiHunterAcidMotion, Action<EnemyProjectileMotionContext>>
         {
             [KiHunterAcidMotion.Falling] = context => RunKiHunterAcidMovement(this, context.Projectile, context.Level),

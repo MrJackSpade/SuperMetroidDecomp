@@ -58,7 +58,6 @@ internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactor
     }
 
     /// <summary>What <see cref="RunEtecoonMain"/> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>> RunEtecoonMainForEtecoonAction => field ??= new(new Dictionary<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>>
     {
         [EtecoonAction.Dormant] = (place, state, samus, level) => RunEtecoonDormant(place, state, samus),

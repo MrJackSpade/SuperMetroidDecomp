@@ -104,7 +104,6 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
     }
 
     /// <summary>What <see cref="RunSporeSpawnMain"/> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>> RunSporeSpawnMainForSporeSpawnMovement => field ??= new(new Dictionary<SporeSpawnMovement, Action<RoomEnemyPlace, SporeSpawnEnemyState>>
     {
         [SporeSpawnMovement.Idle] = (body, state) => { },
@@ -431,7 +430,6 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
     }
 
     /// <summary>What <see cref="ApplySporeSpawnCue"/> does for each <see cref="SporeSpawnCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>> ApplySporeSpawnCueForSporeSpawnCueKind => field ??= new(new Dictionary<SporeSpawnCueKind, Action<RoomEnemyPlace, SporeSpawnEnemyState, SamusState>>
     {
         [SporeSpawnCueKind.WidenSway] = (body, state, samus) => state.SwayRadius = state.SwayRadius.Widened(),

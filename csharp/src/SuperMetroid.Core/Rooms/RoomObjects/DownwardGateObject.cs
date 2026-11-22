@@ -71,7 +71,6 @@ internal sealed partial class DownwardGateObject(GateObjects owner) : SilentSequ
     }
 
     /// <summary>What <c>Show</c> does for each <see cref="DownwardGateMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>> ShowForDownwardGateMovement => field ??= new(new Dictionary<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
         [DownwardGateMovement.None] = (place, context) =>

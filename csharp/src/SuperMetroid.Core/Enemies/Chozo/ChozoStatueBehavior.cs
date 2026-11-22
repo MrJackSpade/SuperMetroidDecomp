@@ -133,7 +133,6 @@ internal sealed partial class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFa
     }
 
     /// <summary>What <see cref="ApplyChozoStatueCue"/> does for each <see cref="ChozoStatueCueKind"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
     private IdentityTable<ChozoStatueCueKind, Action<ChozoStatueState>> ApplyChozoStatueCueForChozoStatueCueKind => field ??= new(new Dictionary<ChozoStatueCueKind, Action<ChozoStatueState>>
     {
         [ChozoStatueCueKind.AwaitHand] = state => state.AwaitHand(),

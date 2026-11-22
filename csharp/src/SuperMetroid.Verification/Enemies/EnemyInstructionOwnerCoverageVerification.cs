@@ -6,6 +6,10 @@ using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -39,174 +43,126 @@ internal static class EnemyInstructionOwnerCoverageVerification
         }
 
         CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>> populations =
-            ReadRetailEnemyPopulationRecords(rom);
+        // A population that places no enemy sets none up.
+        RoomEnemyPopulationDefinition[] populations = [.. ReadRetailPopulations(rom).Where(population => population.Placements.Length > 0)];
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
-        // Each definition's header is read from the cartridge here, on the suite's own thread.
-        RoomEnemyDefinition[] headers = [.. definitions.Select(definitionPointer =>
-            SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(rom, definitionPointer))];
-        // The shared installed fixtures every record's enemy system and Samus are built from load here too, as timed shared
+        // A definition no room places is one only code spawns, joining the encounter of the enemy that spawns it: the room's
+        // species registry places none of them from a population, so no population record sets one up.
+        HashSet<EnemyDefinitionId> placed = [.. populations.SelectMany(population => population.Placements.ToArray()).Select(record => record.DefinitionId)];
+        EnemyDefinitionId[] unplaced = [.. definitions.Where(definition => !placed.Contains(definition))];
+        AssertEqual(string.Join(", ", CodeSpawnedDefinitions.Order()), string.Join(", ", unplaced.Order()),
+            "the named definitions no room places are the ones only code spawns");
+        // The shared installed fixtures every room's enemy system and Samus are built from load here, as timed shared
         // fixture loads, so the workers below only read them.
         _ = InstalledFixtures.EnemyOverreads;
         _ = InstalledFixtures.BossAndIntroOverreads;
         _ = InstalledFixtures.EnemyFrameDisplays;
         _ = InstalledFixtures.FramesBeyondAnimation;
+        _ = InstalledFixtures.RoomAssets;
 
-        // Each definition's records run on one worker, the definitions across the machine's cores (#1757): every record
-        // builds its own enemy system, services, artwork binding and Samus, and reads only the immutable header, records
-        // and installed fixtures, so the definitions are independent. A definition writes only its own outcome, which is
-        // gathered in definition order once every definition has run.
-        var outcomes = new DefinitionOutcome[definitions.Length];
-        ParallelSweep.For(0, definitions.Length, index =>
-            outcomes[index] = AuditDefinition(definitions[index], headers[index], populations));
+        // Each population sets up in a retail room that places it, as that room's load sets it up (#2554): over the room's
+        // terrain, whose blocks an enemy's setup reads (an Alcoon lands on its floor), after the room's objects, which an
+        // enemy's setup reaches (Mother Brain's glass, Bomb Torizo's hand), each part with the body placed before it. Each
+        // room loads in systems of its own, the rooms across the machine's cores (#1757), each writing only its own records'
+        // outcomes, which are gathered in population order once every room has loaded.
+        Dictionary<RoomEnemyPopulationDefinition, SelectedRoom> rooms = RoomsPlacing();
+        var audits = new RecordOutcome[populations.Length][];
+        ParallelSweep.For(0, audits.Length, index => audits[index] = AuditPopulation(rooms[populations[index]]));
 
-        var translated = new HashSet<EnemyDefinitionId>();
-        var owned = new HashSet<EnemyDefinitionId>();
-        var withoutSpecies = new List<EnemyDefinitionId>();
-        var unresolved = new List<string>();
-        for (int index = 0; index < definitions.Length; index++)
+        HashSet<EnemyDefinitionId> named = [.. definitions];
+        var audited = new HashSet<EnemyDefinitionId>();
+        var needingOwner = new HashSet<EnemyDefinitionId>();
+        var unresolved = new HashSet<EnemyDefinitionId>();
+        foreach (RecordOutcome record in audits.SelectMany(audit => audit).Where(record => named.Contains(record.Definition)))
         {
-            DefinitionOutcome outcome = outcomes[index];
-            if (outcome.Translated)
-                translated.Add(definitions[index]);
-            if (outcome.Owned)
-                owned.Add(definitions[index]);
-            if (outcome.WithoutSpecies)
-                withoutSpecies.Add(definitions[index]);
-            unresolved.AddRange(outcome.Unresolved);
+            audited.Add(record.Definition);
+            if (!record.ProcessesInstructions)
+                continue;
+            // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
+            needingOwner.Add(record.Definition);
+            if (!record.RunsTypedAnimation)
+                unresolved.Add(record.Definition);
         }
+        EnemyDefinitionId[] owned = [.. needingOwner.Where(definition => !unresolved.Contains(definition))];
 
         AssertEqual(150, definitions.Length,
             "owner audit enumerates every named retail enemy definition a room places or code spawns, the five Ceres doors and walls included");
-        AssertTrue(translated.Count > 100,
-            "owner audit recognizes the translated retail initializer surface");
-        AssertTrue(owned.Count > 90,
+        AssertEqual(definitions.Length - unplaced.Length, audited.Count,
+            "owner audit sets up every named retail enemy definition a room places");
+        AssertTrue(owned.Length > 90,
             "owner audit reaches the translated instruction-processing surface");
         // Each entry names its definition by identity (#2554), no longer by a header address.
-        AssertEqual("", string.Join(", ", unresolved.Distinct()),
+        AssertEqual("", string.Join(", ", definitions.Where(unresolved.Contains).Select(definition => $"{definition} has no typed animation")),
             "every translated instruction-processing enemy runs a typed animation");
 
-        // Every definition the game names is one it places, and a species owns it (#2010); the Torizo orbs' headers, which
-        // hold the chances a broken orb's drop rolls, are named by the orbs' own chances instead (#2332, #2364).
-        AssertEqual("", string.Join(", ", withoutSpecies),
-            "every definition the game names has a species");
-
         Console.WriteLine(
-            $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
-            $"{translated.Count} translated initializers, {owned.Count} compiled " +
-            "instruction-processing owners, each running a typed animation.");
+            $"  Ordinary-enemy mechanics owners: {definitions.Length - unplaced.Length} of {definitions.Length} named definitions set up through " +
+            $"{populations.Length} retail populations ({unplaced.Length} only code spawns), {owned.Length} compiled instruction-processing owners, " +
+            "each running a typed animation.");
     }
 
-    /// <summary>What auditing one definition's records found.</summary>
-    /// <param name="Translated">Whether a record's initialization ran translated code.</param>
-    /// <param name="Owned">Whether a record processes instructions and one that does runs a typed animation.</param>
-    /// <param name="Unresolved">Each instruction-processing record with no typed animation, in record order.</param>
-    /// <param name="WithoutSpecies">Whether no species owns the definition, so no slot can hold it.</param>
-    private sealed record DefinitionOutcome(bool Translated, bool Owned, IReadOnlyList<string> Unresolved, bool WithoutSpecies = false);
+    /// <summary>What setting one population record's enemy up found.</summary>
+    /// <param name="Definition">The record's enemy.</param>
+    /// <param name="ProcessesInstructions">Whether the enemy animates and is not deleted after its setup.</param>
+    /// <param name="RunsTypedAnimation">Whether the enemy's entity runs a typed animation.</param>
+    private sealed record RecordOutcome(EnemyDefinitionId Definition, bool ProcessesInstructions, bool RunsTypedAnimation);
 
-    /// <summary>Initializes <paramref name="definitionPointer"/> from each population record placing it, each in an enemy system of its own.</summary>
-    private static DefinitionOutcome AuditDefinition(EnemyDefinitionId definitionPointer, RoomEnemyDefinition definition,
-        Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>> populations)
+    /// <summary>A Samus as a new game makes her, beside whom a population's enemies are set up.</summary>
+    private static SamusState NewSamus() =>
+        new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(),
+            global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+
+    /// <summary>
+    /// Loads <paramref name="room"/>'s terrain, its objects and then its enemy population, as the room's load does, and reads
+    /// each population record's enemy after its setup, in the place the load put it.
+    /// </summary>
+    private static RecordOutcome[] AuditPopulation(SelectedRoom room)
     {
-        var unresolved = new List<string>();
-        IReadOnlyList<RoomEnemyPlacement> records =
-            populations.TryGetValue(definitionPointer, out List<RoomEnemyPlacement>? found)
-                ? found
-                : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0,
-                    EnemySpawnSettingsCodec.FirstParameterPlacing(definitionPointer), 0)];
-
-        // The open room every record sets up in is built once for the definition: an enemy's setup reads the room's blocks
-        // and changes none (blocks change only through room objects, which these enemy systems have none of), so each
-        // record finds it as built. Building it per record was the most of the check's allocation (about 500 KB a record).
-        RoomLevelData room = RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
-        bool definitionTranslated = false;
-        bool definitionNeedsOwner = false;
-        bool definitionHasOwner = false;
-        foreach (RoomEnemyPlacement population in records)
+        RoomLevelData terrain = LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, InstalledFixtures.RoomAssets).LevelData;
+        // The room's objects set up before its enemies, in a game that has seen no story event and beaten no boss.
+        RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
+        RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(terrain, new SharedGameState(new SharedRandom()), room.Area),
+            room.State.ObjectPopulation, RoomObjectServiceFixtures.Uninstalled with
+            {
+                Samus = new FixtureRoomSamus(NewSamus),
+                Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false },
+                Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } },
+            });
+        RoomObjectsReachedByEnemies reached = RoomObjectFixtures.ReachedByEnemiesOf(roomObjects);
+        var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        enemies.VerificationServices().RoomGlass = reached.MotherBrainGlass;
+        enemies.VerificationServices().RoomHand = reached.BombTorizoHand;
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
+        enemies.VerificationServices().NextRandom = () => 0;
+        enemies.VerificationServices().ReadRandom = () => 0;
+        // A species that asks whether its area's boss is dead sees it alive.
+        enemies.VerificationServices().IsAreaBossDefeated = () => false;
+        // A species whose setup writes its room's screens' scrolls (Crocomire's) writes them into a room the check keeps no
+        // scroll grid for.
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadRoom(room.State.EnemyPopulation, NewSamus(), terrain);
+        RoomEnemyPlacement[] records = room.State.EnemyPopulation.Placements.ToArray();
+        var outcomes = new RecordOutcome[records.Length];
+        for (int index = 0; index < records.Length; index++)
         {
-            var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-            enemies.VerificationServices().NextRandom = () => 0;
-            enemies.VerificationServices().ReadRandom = () => 0;
-            // A species that asks whether its area's boss is dead sees it alive.
-            enemies.VerificationServices().IsAreaBossDefeated = () => false;
-
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            // The placement's settings are recorded before the entity is bound, as a room load records them, so a species
-            // that places several actors (the Ceres doors and walls) creates the one the placement names (#1953, #1999).
-            try
-            {
-                place.BindPlaced(definitionPointer, population.SpawnSettings);
-            }
-            catch (InvalidOperationException exception) when (
-                exception.Message.StartsWith("No enemy species owns definition", StringComparison.Ordinal))
-            {
-                // The registry refuses a definition no species owns; the audit records it and the caller asserts which.
-                return new DefinitionOutcome(false, false, [], WithoutSpecies: true);
-            }
-            place.Bind(place.HeldOccupant().DefinitionId, definition);
-            place.Radius = new(definition.Radius.X, definition.Radius.Y);
-            place.Health = definition.Health;
-            place.Position = population.Placing.Place(place.Position);
-            place.Contact = population.Contact;
-            place.Processing = population.Processing;
-            place.Presence = population.Presence;
-            place.CollidesByFrameHitboxes = population.CollidesByFrameHitboxes;
-            place.AnimationClock.ShowsNewFrame = false;
-
-            place.AnimationClock.StepOnNextUpdate();
-
-            bool translatedRecord = true;
-            try
-            {
-                _ = enemies.LoadAuthoredPopulation(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), room);
-            }
-            catch (Exception exception)
-                when (IsUntranslatedEnemyInitializer(
-                    exception, definitionPointer))
-            {
-                translatedRecord = false;
-            }
-            catch (Exception)
-            {
-                // A matched initializer may require its native sibling slot, room
-                // geometry, or encounter state. Matching the dispatcher still proves
-                // this is translated code; the population's instruction ownership is
-                // independent of completing that encounter-specific initialization.
-            }
-
-            if (!translatedRecord)
-                continue;
-
-            definitionTranslated = true;
-            // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
-            // removed by the scheduler before any AI or instruction frame.
-            bool processesInstructions =
-                place.Processing.HasAny(EnemyProcessing.Animates) &&
-                !place.Presence.HasAny(EnemyPresence.Deleted);
-            if (!processesInstructions)
-                continue;
-
-            // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
-            definitionNeedsOwner = true;
-            if (place.Entity is IEnemyTypedAnimation)
-                definitionHasOwner = true;
-            else
-                unresolved.Add($"{definitionPointer} has no typed animation");
+            RoomEnemyPlace place = places[index];
+            AssertEqual(records[index].DefinitionId, place.HeldOccupant().DefinitionId, $"the load places record {index}'s enemy in its own place");
+            // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is removed by
+            // the scheduler before any AI or instruction frame.
+            bool processesInstructions = place.Processing.HasAny(EnemyProcessing.Animates) && !place.Presence.HasAny(EnemyPresence.Deleted);
+            outcomes[index] = new RecordOutcome(records[index].DefinitionId, processesInstructions, place.Entity is IEnemyTypedAnimation);
         }
-
-        return new DefinitionOutcome(definitionTranslated, definitionNeedsOwner && definitionHasOwner, unresolved);
+        return outcomes;
     }
 
-    /// <summary>Recognizes the dispatcher's specific failure for a definition without translated initialization AI.</summary>
-    private static bool IsUntranslatedEnemyInitializer(
-        Exception? exception,
-        EnemyDefinitionId definitionPointer) =>
-        exception is InvalidDataException invalid &&
-        invalid.Message.StartsWith(
-            $"Enemy {definitionPointer} initialization AI $",
-            StringComparison.Ordinal) &&
-        invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
+    /// <summary>
+    /// The named definitions only code spawns, each joining the encounter of the enemy that spawns it: Ridley's breakup
+    /// pieces as he dies, the Ceres getaway chamber's walls as Ceres Ridley escapes, the Baby Metroid Mother Brain's last
+    /// beam brings in, and the glass tubes that fall in her room.
+    /// </summary>
+    private static readonly EnemyDefinitionId[] CodeSpawnedDefinitions =
+        [EnemyDefinitionId.RidleyBreakupPiece, EnemyDefinitionId.CeresGetawayChamberWall, EnemyDefinitionId.BabyMetroidCutscene, EnemyDefinitionId.MotherBrainTubes];
 
     /// <summary>
     /// The bank-$A0 headers no room places and no code spawns: Bang, the spinning turtle eye, the horizontal shutter, the
@@ -265,19 +221,32 @@ internal static class EnemyInstructionOwnerCoverageVerification
         return sharing.Length > 0 ? sharing : [EnemyDefinitionIdsConstants.FromHeaderPointer(header)];
     }
 
-    /// <summary>Groups native population records from all retail room states by enemy definition.</summary>
-    private static Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>>
-        ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
+    /// <summary>Each retail population, with the first room state that places it, in the rooms' and their states' order.</summary>
+    private static Dictionary<RoomEnemyPopulationDefinition, SelectedRoom> RoomsPlacing()
+    {
+        var rooms = new Dictionary<RoomEnemyPopulationDefinition, SelectedRoom>(ReferenceEqualityComparer.Instance);
+        foreach ((RoomDefinition room, RoomStateChoice choice) in RoomStateSelectionDefinitions.Choices)
+        {
+            foreach (RoomStateSettings state in choice.Branches.Select(branch => branch.State).Prepend(choice.Default))
+                rooms.TryAdd(state.EnemyPopulation, new SelectedRoom(room, state));
+        }
+        return rooms;
+    }
+
+    /// <summary>
+    /// The distinct enemy populations of every retail room state, each checked against the cartridge's native records: its
+    /// entries place the enemies the native records do, in their order.
+    /// </summary>
+    private static RoomEnemyPopulationDefinition[] ReadRetailPopulations(ISnesAddressSpace rom)
     {
         RoomStateSettings[] states = RoomStateDefinitions.All.ToArray();
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Length,
             "owner fixture enumerates every retail room state");
-        var records = new Dictionary<EnemyDefinitionId, List<RoomEnemyPlacement>>();
-
-        foreach (ushort populationPointer in states
-                     .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation))
-                     .Distinct())
+        RoomEnemyPopulationDefinition[] populations = [.. states.Select(state => state.EnemyPopulation).Distinct()];
+        foreach (RoomEnemyPopulationDefinition population in populations)
         {
+            ushort populationPointer = RoomEnemyPopulationDefinitions.PointerOf(population);
+            var native = new List<EnemyDefinitionId>();
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
             for (int recordIndex = 0;
                  recordIndex < EnemyPlaceOrder.Capacity;
@@ -286,24 +255,13 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 ushort definitionPointerWord = rom.ReadCartridgeWord(cursor);
                 if (definitionPointerWord == 0xffff)
                     break;
-                int Word(int offset) => rom.ReadCartridgeWord(cursor + offset);
                 // A header several actors share places the one its first parameter selects (#1989).
-                EnemyDefinitionId definitionPointer = EnemySpawnSettingsCodec.PlacedActor(definitionPointerWord, Word(12));
-
-                RoomEnemyPlacement record = RoomEnemyPopulationRecordCodec.Decode(
-                    definitionPointer, Word(2), Word(4), Word(6), Word(8), Word(10), Word(12), Word(14));
-                if (!records.TryGetValue(
-                    definitionPointer,
-                    out List<RoomEnemyPlacement>? definitionRecords))
-                {
-                    definitionRecords = [];
-                    records.Add(definitionPointer, definitionRecords);
-                }
-                definitionRecords.Add(record);
+                native.Add(EnemySpawnSettingsCodec.PlacedActor(definitionPointerWord, rom.ReadCartridgeWord(cursor + 12)));
             }
+            AssertEqual(string.Join(", ", native), string.Join(", ", population.Placements.ToArray().Select(record => record.DefinitionId)),
+                $"population {population.Name} places the native records' enemies in their order");
         }
-
-        return records;
+        return populations;
     }
 
     /// <summary>Runs the retail-wide audit of translated enemy instruction ownership.</summary>

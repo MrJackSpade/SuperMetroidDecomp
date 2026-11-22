@@ -68,6 +68,12 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded, 
     /// </summary>
     public MotherBrainGlassObjects? RoomGlass { get; set; }
 
+    /// <summary>
+    /// Bomb Torizo's statue hand as the case's room objects set it up before his body spawns (#2554), in place of the loaded
+    /// services' room objects.
+    /// </summary>
+    public SuperMetroid.Core.Bosses.Torizo.BombTorizoHandObjects? RoomHand { get; set; }
+
     /// <summary>Takes Samus's controls away (true) or gives them back (false), in place of the loaded services' lock.</summary>
     public Action<bool>? SetControlsLocked { get; set; }
 
@@ -195,8 +201,10 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded, 
             Loaded("confirm Mother Brain's glass loaded").MotherBrain.ConfirmGlassLoaded();
     }
 
-    /// <summary>Whether the loaded room's Bomb Torizo statue hand still stands.</summary>
-    public bool BombTorizoHandRemains => Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;
+    /// <summary>Whether the Bomb Torizo statue hand still stands: the case's room objects', or the loaded room's.</summary>
+    public bool BombTorizoHandRemains => RoomHand is { } hand
+        ? hand.HandRemains
+        : Loaded("ask whether the statue's hand still stands").RoomObjects.BombTorizoHandRemains;
 
     /// <summary>The story events, Zebetite count and defeated bosses: the loaded room's, or a new game's in the room's area.</summary>
     private (IStoryEvents Events, IZebetiteProgress ZebetiteProgress, IDefeatedBossesRecorder Bosses) Progress =>

@@ -213,18 +213,14 @@ internal static class DraygonAnimationsVerification
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
     private static NewDraygonResult NewDraygon()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        body.SetSpeciesState(state);
-        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
-        state.Eye.SetSpeciesState(state.EyePart);
-        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
-        state.Tail.SetSpeciesState(state.TailPart);
-        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
-        state.Arms.SetSpeciesState(state.ArmsPart);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // His room's population sets up his body, eye, tail and arms in their order; the encounter is the one his body's
+        // setup built, which each part's setup joins.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonBody, new Position16<RoomPixels>(256, 384)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonEye), PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonTail),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonArms))[0];
+        DraygonEnemyState state = body.EntityOf<DraygonEntity>().Encounter;
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         enemies.VerificationServices().NextRandom = () => 4660;

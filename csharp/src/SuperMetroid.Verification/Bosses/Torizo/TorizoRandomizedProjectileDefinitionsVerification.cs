@@ -54,10 +54,8 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             int randomCall = 0;
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
-            RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-            torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             // The Torizo faces the way the tuple launches and spawns the projectile the tuple launches, as its attack does.
-            torizo.BindTorizoFixtureState(name.EndsWith(" right", StringComparison.Ordinal) ? 0x8000 : 0);
+            RoomEnemyPlace torizo = enemies.PlaceTorizo(name.EndsWith(" right", StringComparison.Ordinal) ? 0x8000 : 0, new(1000, 500));
             TorizoEnemyState torizoState = torizo.RequireSpeciesState<TorizoEnemyState>();
             TorizoAttacks attacks = enemies.TorizoBehavior.Attacks;
             if (name.StartsWith("Bomb orb", StringComparison.Ordinal))
@@ -116,9 +114,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             draws++;
             return 0;
         };
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(facingRight ? 0x8000 : 0, new(1000, 500));
 
         enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
@@ -141,9 +137,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(facingRight ? 0x8000 : 0, new(1000, 500));
 
         spawn(enemies, torizo);
 

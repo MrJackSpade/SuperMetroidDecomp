@@ -71,9 +71,7 @@ internal static class BombTorizoDroolSineVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue;
 
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
-        torizo.BindTorizoFixtureState(parameter1);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(parameter1, new(0x0400, 0x0200));
 
         spawn(enemies, torizo);
 

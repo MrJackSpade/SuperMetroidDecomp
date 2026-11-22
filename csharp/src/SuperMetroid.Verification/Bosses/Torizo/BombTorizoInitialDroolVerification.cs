@@ -22,15 +22,15 @@ internal static class BombTorizoInitialDroolVerification
         const int HalfHeight = 41;
         const int HalfWidth = 18;
         const int RoomExtent = 512;
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
         var randoms = new Queue<ushort>();
-        enemies.VerificationServices().NextRandom = randoms.Dequeue;
         int spawns = 0;
         foreach ((int posture, string name) in new[] { (0x0000, "facing left"), (0x8000, "facing right"), (0x4000, "turning") })
         {
-            torizo.BindTorizoFixtureState(posture);
+            // Each posture's Torizo is placed in a room of his own, which his population sets up.
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+                definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            enemies.VerificationServices().NextRandom = randoms.Dequeue;
+            RoomEnemyPlace torizo = enemies.PlaceTorizo(posture, new(HalfWidth, HalfHeight));
             for (int y = HalfHeight; y <= RoomExtent - HalfHeight; y += 3)
             for (int x = HalfWidth; x <= RoomExtent - HalfWidth; x += 79)
             for (int sample = 0; sample < 32; sample += 4)

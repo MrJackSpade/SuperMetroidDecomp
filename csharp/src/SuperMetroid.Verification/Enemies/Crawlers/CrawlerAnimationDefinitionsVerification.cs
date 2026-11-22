@@ -86,7 +86,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             }
             place.SetSpawnParameter1(species, 0);
             // The crawler is set up as the population load sets it up, its species building its entity.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     family, orientations[orientation])), AnimationPlace.StartOfAnimation),

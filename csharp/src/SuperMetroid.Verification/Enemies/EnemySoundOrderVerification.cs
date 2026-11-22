@@ -37,8 +37,9 @@ internal static class EnemySoundOrderVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => CryRandom;
-        RoomEnemyPlace firstMetroid = MetroidAtItsCry(enemies, 0);
+        // The room's population load places the Boyon; the Metroids are then bound in the places around it.
         RoomEnemyPlace boyon = BoyonStartingItsBounce(enemies, 1);
+        RoomEnemyPlace firstMetroid = MetroidAtItsCry(enemies, 0);
         RoomEnemyPlace secondMetroid = MetroidAtItsCry(enemies, 2);
 
         enemies.Audio.BeginFrame();
@@ -123,11 +124,13 @@ internal static class EnemySoundOrderVerification
     /// </summary>
     private static RoomEnemyPlace BoyonStartingItsBounce(RoomEnemySystem enemies, int place)
     {
-        RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[place];
-        // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
+        // Parameter two is the horizontal trigger range Samus must be within to start a bounce. The room's population places
+        // a stand-in in each place before the Boyon's.
         var settings = (BoyonSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Boyon, PopulationWords.Parameters(0, 64));
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        enemy.PlaceAs<BoyonEntity>(EnemyDefinitionId.Boyon, settings, samus, new(256, 512));
+        RoomEnemyPlace enemy = enemies.LoadPopulation(samus, [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn), place),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Boyon, settings, new(256, 512))])[place];
+        _ = enemy.EntityOf<BoyonEntity>();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole);
         enemy.RunMainAi(samus);
         enemy.RunMainAi(samus);

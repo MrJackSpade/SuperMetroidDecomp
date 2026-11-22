@@ -28,7 +28,7 @@ internal static class RidleyCollisionDefinitionsVerification
         // walker. The installed definition selects the new compiled Ridley branch.
         compiledPlace.Bind(EnemyDefinitionId.Ridley, compiledPlace.KeptDefinition);
         // Ridley answers for his own frames' hitboxes, as the population load builds him (#2554).
-        compiledPlace.SetUpAsPlaced();
+        _ = compiled.LoadAuthoredPopulation();
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
 

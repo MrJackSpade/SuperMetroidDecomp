@@ -31,7 +31,7 @@ internal static class ElevatorInputDefinitionsVerification
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             // The elevator is set up as the population load sets it up, and waits for its input as its main AI runs once Samus
             // stands at its door.
-            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => fixturePlace.InitializeAsPlaced(fixtureArg1);
+            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => _ = enemies.LoadAuthoredPopulation(fixtureArg1, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             Action<RoomEnemyPlace, SamusState, GameplayAction,
                     SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) =>
                 fixturePlace.RunMainAi(PlacedEnemyAccess.AiFrame(fixtureArg1, fixtureArg2, fixtureArg3));

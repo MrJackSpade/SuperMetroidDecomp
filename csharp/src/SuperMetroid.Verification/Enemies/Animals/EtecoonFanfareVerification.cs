@@ -33,9 +33,9 @@ internal static class EtecoonFanfareVerification
             place.Processing = EnemyProcessing.OffScreen;
             place.Presence = EnemyPresence.None;
             place.SetSpawnParameter2(EnemyDefinitionId.Etecoon, (ushort)index);
-            // The population load sets each Etecoon up, so the enemy pass runs the AI and animation of the state it built.
-            place.InitializeAsPlaced(samus);
         }
+        // The population load sets each Etecoon up, so the enemy pass runs the AI and animation of the state it built.
+        _ = enemies.LoadAuthoredPopulation(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
         passage.Start();
         for (int frame = 0; frame < 3; frame++)

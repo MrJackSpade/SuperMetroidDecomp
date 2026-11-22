@@ -64,7 +64,7 @@ internal static class TourianStatueRoomScopeFixture
         // room's setup and main, the colour effects, the enemies, the statues' sequence.
         LoadedRoomAssets assets = LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, InstalledFixtures.RoomAssets);
         var camera = new ScrollBoundaryCamera(assets.Scrolls);
-        var scope = new RoomScopeConstruction(door, room, assets, loadStation: null, camera, InstalledFixtures.CreateBombSystem(),
+        var scope = new RoomScopeConstruction(door, room, assets, RoomEntry.Plain, camera, InstalledFixtures.CreateBombSystem(),
             new RoomMainHandOvers());
         var blockAnimations = new RoomBlockAnimations(room.State.Fx, door);
         var fxOverlay = RoomFxOverlayState.ForRoom(room.State.Fx, door, system.RandomNumber, audio, definition);

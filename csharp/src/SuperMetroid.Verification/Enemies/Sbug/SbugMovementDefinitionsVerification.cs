@@ -61,7 +61,7 @@ internal static class SbugMovementDefinitionsVerification
             SbugEnemyState state = initialize(place);
 
             ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
-            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant()).Facing;
+            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant().SpawnSettings<SbugSpawnSettings>()).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
             AssertEqual(new AnimationPlayback<CompassDirection>(SbugAnimations.StartingWith(forward), AnimationPlace.StartOfAnimation), state.Playback,

@@ -28,8 +28,10 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         // Her late fight brings in the Baby, whose death sequence's first update sets off its first explosion.
-        BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus));
-        baby.Baby.Phase = new BabyMetroidCutscenePhase.Flying.DeathSequence();
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
+        BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(lateFight);
+        (lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.")).Phase =
+            new BabyMetroidCutscenePhase.Flying.DeathSequence();
 
         runtime.Enemies.Audio.BeginFrame();
         baby.Place.RunMainAi(runtime.Player.Samus);

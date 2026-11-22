@@ -22,7 +22,7 @@ internal static class DeadTorizoBehaviorVerification
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.KeptDefinition);
         corpse.Bind(corpse.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The corpse is set up as the population load sets it up.
-        corpse.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
         // A still picture shows once and holds (#2275).
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),

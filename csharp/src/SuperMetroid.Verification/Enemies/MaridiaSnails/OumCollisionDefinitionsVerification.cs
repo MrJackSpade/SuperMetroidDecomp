@@ -44,7 +44,7 @@ internal static class OumCollisionDefinitionsVerification
         nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.KeptDefinition);
         compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.KeptDefinition);
         // Oum answers for his own frames' hitboxes, as the population load builds him (#2554).
-        compiledPlace.SetUpAsPlaced();
+        _ = compiled.LoadAuthoredPopulation();
         AssertEqual(30, OumCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, OumCollisionDefinitions.HitboxPointers.Count(),

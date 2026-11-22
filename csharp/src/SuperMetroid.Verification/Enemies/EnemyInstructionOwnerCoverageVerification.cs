@@ -159,7 +159,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(room, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
+                _ = enemies.LoadAuthoredPopulation(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), room);
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

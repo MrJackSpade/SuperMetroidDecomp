@@ -58,7 +58,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         RoomEnemyPlace robot = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace other = enemies.Places.InUpdateOrder[1];
         // The robot is placed as a powered robot's population entry places it, which names no setting of its own (#2554).
-        _ = robot.PlaceAs<PoweredWorkRobotEntity>(EnemyDefinitionId.WorkRobot,
+        _ = enemies.PlaceAs<PoweredWorkRobotEntity>(EnemyDefinitionId.WorkRobot,
             EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.WorkRobot, EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.WorkRobot)),
             RoomEnemyFrameFixtures.StandaloneSamus());
         var step = new Action(enemies.WorkRobotBehavior.StepGlow);

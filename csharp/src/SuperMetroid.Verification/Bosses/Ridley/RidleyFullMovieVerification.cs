@@ -294,7 +294,7 @@ internal static class RidleyFullMovieVerification
         {
             runtime.System.SetRandomNumber(0x117d);
             game.Session.Enter(step);
-            game.AdvanceMenuRandom();
+            game.AdvanceMenuRandom(game.Session.RunningPhase, game.MatchGameplay(game.Session.RunningPhase));
             bool gameplayOwnsRandom = step is PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay;
             ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
                 step == PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;

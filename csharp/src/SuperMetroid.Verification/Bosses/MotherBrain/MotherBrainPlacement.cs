@@ -21,8 +21,8 @@ internal static class MotherBrainPlacement
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectPlace glassPlace = roomObjects.Places.Spawn() ?? throw new InvalidOperationException("A new room has a free room-object place.");
         glassPlace.Block = new Position16<RoomBlocks>(8, 8);
-        roomObjects.MotherBrainGlass.SetupMotherBrainGlass(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), glassPlace);
-        enemies.VerificationServices().RoomGlass = roomObjects.MotherBrainGlass;
+        RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.SetupMotherBrainGlass(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), glassPlace);
+        enemies.VerificationServices().RoomGlass = RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass;
         return MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
     }
 }

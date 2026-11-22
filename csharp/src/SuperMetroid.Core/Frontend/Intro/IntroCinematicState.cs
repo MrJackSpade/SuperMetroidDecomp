@@ -134,7 +134,7 @@ public sealed partial class IntroCinematicState : IFrontendScreen
     /// </summary>
     private readonly GameplaySoundRequests flashbackAudioRequests;
     /// <summary>Persistent narration actor and the caret that moves along the text of illustrated pages.</summary>
-    private IntroNarrationActors? CurrentNarration { get; set; }
+    internal IntroNarrationActors? CurrentNarration { get; private set; }
     /// <summary>Applies the selected Japanese subtitle treatment to narration pages.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
     /// <summary>
@@ -164,7 +164,7 @@ public sealed partial class IntroCinematicState : IFrontendScreen
     /// <summary>Laboratory actors shared by delivery and examination scenes.</summary>
     internal IntroScientistCutsceneState? CurrentScientistCutscene { get; private set; }
     /// <summary>Final SPACE COLONY flight sequence after the narrated pages.</summary>
-    private IntroCeresFlightState? CurrentCeresFlight { get; set; }
+    internal IntroCeresFlightState? CurrentCeresFlight { get; private set; }
     /// <summary>
     /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
     /// crossfade's finish ends react to it after the cinematic phase has advanced it.

@@ -73,7 +73,7 @@ internal static class CeresSteamAnimationsVerification
         vent.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)CeresSteamVariant.Up);
         vent.Bind(EnemyDefinitionId.SteamVent, vent.KeptDefinition);
         // The vent is set up as the population load sets it up, its species building its entity.
-        vent.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
 
         bool Hidden() => vent.Presence.HasAny(EnemyPresence.Hidden) && vent.Contact.HasAny(EnemyContact.IgnoresSamus);
         int update = 0;

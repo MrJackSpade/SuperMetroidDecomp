@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -49,11 +50,19 @@ internal static class PopulationPlacementAccess
         /// their order. The population draws under the session start's graphics set, as a room that has placed no enemies
         /// draws.
         /// </summary>
-        internal IReadOnlyList<RoomEnemyPlace> LoadPopulation(SamusState samus, RoomLevelData level, params RoomEnemyPlacement[] entries)
+        internal IReadOnlyList<RoomEnemyPlace> LoadPopulation(SamusState samus, RoomLevelData level, params RoomEnemyPlacement[] entries) =>
+            enemies.LoadPopulation(samus, level, GameplayAction.None, entries);
+
+        /// <summary>
+        /// Loads <paramref name="entries"/> as the three-argument load does while the controller holds
+        /// <paramref name="controllerInput"/>, for an enemy whose setup reads the buttons held as its room loads.
+        /// </summary>
+        internal IReadOnlyList<RoomEnemyPlace> LoadPopulation(SamusState samus, RoomLevelData level, GameplayAction controllerInput,
+            params RoomEnemyPlacement[] entries)
         {
             var population = new PlacedRoomEnemyPopulationDefinition("fixture population", Ensure.NotNull(entries), deathQuota: 0);
             FixturePopulationSets.Record(population, RoomEnemyGraphicsSetDefinitions.SessionStart);
-            return enemies.LoadRoom(population, samus, level);
+            return enemies.LoadRoom(population, samus, level, controllerInput);
         }
 
         /// <summary>
@@ -61,7 +70,8 @@ internal static class PopulationPlacementAccess
         /// helpers that write an entry's settings or words (<see cref="RoomEnemyPlaceSpawnParameters"/>), in their order up
         /// to the first place it authored none on, beside a lone Samus in an open room. Each entry places its enemy where the
         /// check stood its place, when it places it at a position, and gives it the contact, processing and presence the
-        /// check gave the place, as the place's entry would. Returns the room's places.
+        /// check gave the place, as the place's entry would, and its species the definition the check bound on the place
+        /// (<see cref="AuthoredEnemyDefinitions"/>). Returns the room's places.
         /// </summary>
         internal IReadOnlyList<RoomEnemyPlace> LoadAuthoredPopulation() =>
             enemies.LoadAuthoredPopulation(RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
@@ -70,13 +80,23 @@ internal static class PopulationPlacementAccess
         /// Loads the entries a check authored on the room's first places as the parameterless load does beside
         /// <paramref name="samus"/> in a room whose terrain is <paramref name="level"/>.
         /// </summary>
-        internal IReadOnlyList<RoomEnemyPlace> LoadAuthoredPopulation(SamusState samus, RoomLevelData level)
+        internal IReadOnlyList<RoomEnemyPlace> LoadAuthoredPopulation(SamusState samus, RoomLevelData level) =>
+            enemies.LoadAuthoredPopulation(samus, level, GameplayAction.None);
+
+        /// <summary>
+        /// Loads the entries a check authored on the room's first places as the two-argument load does while the controller
+        /// holds <paramref name="controllerInput"/>, for an enemy whose setup reads the buttons held as its room loads.
+        /// </summary>
+        internal IReadOnlyList<RoomEnemyPlace> LoadAuthoredPopulation(SamusState samus, RoomLevelData level, GameplayAction controllerInput)
         {
             var entries = new List<RoomEnemyPlacement>();
-            foreach (RoomEnemyPlace place in Ensure.NotNull(enemies).Places.InUpdateOrder)
+            AuthoredEnemyDefinitions definitions = AuthoredEnemyDefinitions.Of(Ensure.NotNull(enemies));
+            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder)
             {
                 if (place.History is not PopulatedEnemyPlace populated)
                     break;
+                // The load builds each enemy with the definition the check bound on its place.
+                definitions.Author(place.HeldOccupant().DefinitionId, place.HeldOccupant().Definition);
                 RoomEnemyPlacement authored = populated.Occupancy.LastSpawn;
                 entries.Add((authored.Placing is EnemyPlacedAt ? authored with { Placing = EnemyPlacing.At(place.Position.Whole) } : authored)
                     with { Contact = place.Contact, Processing = place.Processing, Presence = place.Presence });
@@ -85,7 +105,7 @@ internal static class PopulationPlacementAccess
             // reads a later place finds it empty, not holding the entry the check authored there.
             foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder.Take(entries.Count))
                 place.Unbind();
-            return enemies.LoadPopulation(samus, level, [.. entries]);
+            return enemies.LoadPopulation(samus, level, controllerInput, [.. entries]);
         }
 
         /// <summary>
@@ -99,10 +119,18 @@ internal static class PopulationPlacementAccess
         }
 
         /// <summary>Loads <paramref name="population"/> beside <paramref name="samus"/> in <paramref name="level"/> and returns the room's places.</summary>
-        internal IReadOnlyList<RoomEnemyPlace> LoadRoom(RoomEnemyPopulationDefinition population, SamusState samus, RoomLevelData level)
+        internal IReadOnlyList<RoomEnemyPlace> LoadRoom(RoomEnemyPopulationDefinition population, SamusState samus, RoomLevelData level) =>
+            enemies.LoadRoom(population, samus, level, GameplayAction.None);
+
+        /// <summary>
+        /// Loads <paramref name="population"/> as the three-argument load does while the controller holds
+        /// <paramref name="controllerInput"/>.
+        /// </summary>
+        internal IReadOnlyList<RoomEnemyPlace> LoadRoom(RoomEnemyPopulationDefinition population, SamusState samus, RoomLevelData level,
+            GameplayAction controllerInput)
         {
             Ensure.NotNull(enemies).Load(RoomEnemyFrameFixtures.StandaloneLoad(population,
-                BgArtworkFixtures.For(new SuperMetroid.AssetExtraction.Video.SnesVram()), level, Ensure.NotNull(samus)));
+                BgArtworkFixtures.For(new SuperMetroid.AssetExtraction.Video.SnesVram()), level, Ensure.NotNull(samus)) with { ControllerInput = controllerInput });
             return enemies.Places.InUpdateOrder;
         }
 

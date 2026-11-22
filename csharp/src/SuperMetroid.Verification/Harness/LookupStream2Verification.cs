@@ -827,7 +827,7 @@ internal static class LookupStream2Verification
         enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
         KraidEnemyState state = enemies.PlaceKraid();
         enemies.VerificationServices().ReadRandom = () => 1;
-        Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;
+        Action<RoomEnemyPlace, KraidLintState> align = KraidProjectiles.AlignKraidLint;
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];

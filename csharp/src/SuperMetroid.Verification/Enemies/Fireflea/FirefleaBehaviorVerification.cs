@@ -22,7 +22,7 @@ internal static class FirefleaBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         // The Fireflea is set up as the population load sets it up.
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), FirefleaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat))),

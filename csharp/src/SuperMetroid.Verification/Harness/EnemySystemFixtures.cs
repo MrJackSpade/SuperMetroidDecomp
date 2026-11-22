@@ -48,12 +48,14 @@ internal static class EnemySystemFixtures
         RoomFloor? floor = null, TourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null,
         RoomWarnings? warnings = null)
     {
+        // The room reads the definitions the check authors on its places over the room's own (#2554).
+        var authored = new AuthoredEnemyDefinitions(definitions ?? CompiledRoomEnemyDefinitions.Instance);
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
             Session = session,
             Compatibility = compatibility,
             Looks = new EncounterLooks(),
-            Definitions = definitions ?? CompiledRoomEnemyDefinitions.Instance,
+            Definitions = authored,
             Services = services ?? new VerificationRoomEnemyServices(null, area),
             Area = area,
             BossArtwork = new BossArtworkBinding(InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays, InstalledFixtures.Maps.EscapeTypewriter,
@@ -66,6 +68,7 @@ internal static class EnemySystemFixtures
             Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),
         });
         system.BossArtwork = installedBosses;
+        AuthoredEnemyDefinitions.Register(system, authored);
         return system;
     }
 

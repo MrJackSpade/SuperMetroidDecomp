@@ -35,17 +35,17 @@ internal static class AtomicMovementDefinitionsVerification
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Atomic, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-
         for (ushort selector = 0; selector < 4; selector++)
         {
+            // Each selector's Atomic is placed in a room of its own, whose population load sets it up.
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Atomic, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
             // The Atomic is set up as the population load sets it up.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
             // The spinning loop the Atomic shows below is the animation its initializer started.
             AtomicSegment program = DecodedSpin(selector);
 

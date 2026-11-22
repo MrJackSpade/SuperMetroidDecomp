@@ -34,7 +34,8 @@ internal static class KagoBehaviorVerification
 
         // A beam strikes the Kago: its shot reaction's stage after the common damage runs as the collision runs it.
         RoomEnemyOccupant kago = place.HeldOccupant();
-        EnemyShotReaction reaction = enemies.KagoBehavior.KagoShotReaction(kago, kago.SpawnSettings<KagoSpawnSettings>(), state);
+        EnemyShotReaction reaction = KagoBehavior.KagoShotReaction(context =>
+            enemies.KagoBehavior.ResolveKagoShotAfterCommon(kago, kago.SpawnSettings<KagoSpawnSettings>(), context.Enemy, state));
         SamusProjectileSystem projectiles = InstalledFixtures.CreateProjectileSystem();
         SamusProjectileType beam = SamusProjectileType.Of(SamusProjectileFamily.Beam);
         SamusProjectileOccupant fired = projectiles.Shots[0].Occupy(beam, 20);

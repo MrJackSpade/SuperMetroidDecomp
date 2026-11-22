@@ -23,7 +23,7 @@ internal static class ElevatorBehaviorVerification
         place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorSegment.Idle, ElevatorFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorSegment.Idle)),
@@ -38,14 +38,14 @@ internal static class ElevatorBehaviorVerification
     internal static void VerifyElevatorArrivalPlacement()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[3];
+        RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[0];
         elevator.Bind(EnemyDefinitionId.Elevator, elevator.KeptDefinition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
-        elevator.InitializeAsPlaced(samus);
+        _ = enemies.LoadAuthoredPopulation(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ArrivalElevator),
             "the arriving elevator is the placement the door loader waits for");
 

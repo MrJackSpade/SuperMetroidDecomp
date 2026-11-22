@@ -23,7 +23,7 @@ internal static class BlueBrinstarFaceBlockPlacing
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var settings = (FaceBlockSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.FaceBlock, PopulationWords.Parameters(64, 0));
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        place.PlaceAs<BlueBrinstarFaceBlockEntity>(EnemyDefinitionId.FaceBlock, settings, samus, at);
+        _ = enemies.PlaceAs<BlueBrinstarFaceBlockEntity>(EnemyDefinitionId.FaceBlock, settings, samus, at);
         place.AdvanceAnimation(samus);
         return place;
     }

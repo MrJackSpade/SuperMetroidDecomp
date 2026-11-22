@@ -219,9 +219,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             wings.SetSpawnSettings(new KiHunterWingsSpawnSettings(DetachHealth: 0));
             // The body is set up as its room's population sets it up, offering its wings, which are set up after it; its
             // setup, run again, builds the state the body's steps and its animation, which the check plays, run on.
-            body.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             KiHunterBodyState bodyState = enemies.KiHunterBehavior.InitializeKiHunter(body.HeldOccupant().SpawnSettings<KiHunterSpawnSettings>(), body);
-            wings.SetUpAsPlaced();
             return new CreatePairResult(enemies, body, wings,
                 bodyState, (enemies.KiHunterWingStates[1] ?? throw new InvalidOperationException("Verification requires the initialized KiHunter wing state.")));
         }

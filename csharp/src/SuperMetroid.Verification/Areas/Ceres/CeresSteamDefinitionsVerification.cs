@@ -45,7 +45,7 @@ internal static class CeresSteamDefinitionsVerification
             place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)index);
             place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             // The vent is set up as the population load sets it up, its species building its entity.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
 
             // The vent's motion carries out its function: a vent riding the shaft's turn is drawn where the turn carries the
             // point it stands on, and one holding its place is drawn where it stands.

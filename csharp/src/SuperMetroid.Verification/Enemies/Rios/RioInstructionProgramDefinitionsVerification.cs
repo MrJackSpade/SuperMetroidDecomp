@@ -38,7 +38,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         // load sets it up: its swoop moves it through the room's terrain.
         rio.Position = rio.Position.WithWhole(new(256, 256));
         rio.Radius = rio.HeldOccupant().Definition.Radius;
-        rio.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
 
         // Idle shows its tucked wingbeat, then runs into the post-swoop hover's tucked wingbeat three times and its hanging
         // wingbeat twice, which return to idle (#2451, #2512).

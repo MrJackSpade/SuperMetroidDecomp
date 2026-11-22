@@ -21,7 +21,7 @@ internal static class PolypBehaviorVerification
         place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The Polyp is set up as the population load sets it up.
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
         // A still picture is held (#2276): it is new on the update it shows and stays without showing anew.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),

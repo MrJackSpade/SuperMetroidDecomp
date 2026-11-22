@@ -61,7 +61,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         var settings = (FaceBlockSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.FaceBlock, PopulationWords.Parameters(64, parameter2));
-        place.PlaceAs<BlueBrinstarFaceBlockEntity>(EnemyDefinitionId.FaceBlock, settings, RoomEnemyFrameFixtures.StandaloneSamus(), new(256, 256));
+        _ = enemies.PlaceAs<BlueBrinstarFaceBlockEntity>(EnemyDefinitionId.FaceBlock, settings, RoomEnemyFrameFixtures.StandaloneSamus(), new(256, 256));
         return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, place);
     }
 

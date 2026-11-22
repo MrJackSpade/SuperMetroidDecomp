@@ -35,7 +35,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)variant);
             // The vent is set up as the population load sets it up, its species building its entity.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
             object?[] arguments =
                 [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < 90; frame++)
@@ -71,7 +71,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
 
         compiledPlace.Bind(EnemyDefinitionId.SteamVent, compiledPlace.KeptDefinition);
         // The steam answers for its own frames' hitboxes, as the population load builds it (#2554).
-        compiledPlace.SetUpAsPopulated();
+        compiled.SetUpAsPopulated(compiledPlace);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

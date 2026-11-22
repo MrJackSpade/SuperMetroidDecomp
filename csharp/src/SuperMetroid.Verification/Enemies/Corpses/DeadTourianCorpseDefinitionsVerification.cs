@@ -153,7 +153,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         place.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
         // The corpse is set up as the population load sets it up.
-        place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        _ = enemies.LoadAuthoredPopulation();
 
         // The corpse shows the first picture of the animation its setup started on its next animation step.
         place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());

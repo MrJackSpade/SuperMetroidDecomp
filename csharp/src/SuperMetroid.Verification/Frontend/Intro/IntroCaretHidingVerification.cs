@@ -15,7 +15,7 @@ internal static class IntroCaretHidingVerification
     {
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
-        IntroNarrationActors narration = intro.Narration;
+        IntroNarrationActors narration = intro.CurrentNarration ?? throw new InvalidOperationException("The first illustrated page shows no narration.");
         narration.Step(0);
         AssertTrue(narration.CaretPose is not null, "the narration's caret shows its program's pose");
         int shownDraws = intro.ComposeScene().SpriteDraws.Length;

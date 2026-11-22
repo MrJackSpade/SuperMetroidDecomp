@@ -24,7 +24,8 @@ internal static class DeadTorizoCollisionVerification
             place.Bind(EnemyDefinitionId.CorpseTorizo, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(120, 100));
             place.Radius = new(16, 32);
-            enemies.DeadTorizoBehavior.InitializeDeadTorizo(place);
+            // The corpse's setup builds the state its AI and its rot triggers run on.
+            DeadTorizoEnemyState corpse = enemies.DeadTorizoBehavior.InitializeDeadTorizo(place);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(place.Contact.HasAny(EnemyContact.SolidToSamus),
                 "Native initial solidity must be retained.");
@@ -36,21 +37,21 @@ internal static class DeadTorizoCollisionVerification
             {
                 case "contact":
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(120);
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, samus);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, corpse, samus);
                     Require(samus.Kinematics.ExtraDisplacement.X.WholePixels >= 4 &&
                         samus.Kinematics.ExtraDisplacement.Y.WholePixels == 4,
                         "The custom touch rectangles must publish native displacement.");
                     break;
-                case "shot": DeadTorizoBehavior.TriggerDeadTorizoRotting(place); break;
-                case "power bomb": DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place); break;
+                case "shot": DeadTorizoBehavior.TriggerDeadTorizoRotting(place, corpse); break;
+                case "power bomb": DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place, corpse); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, place);
                     // The wait handler reads which enemies Samus met.
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, samus);
-                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, RoomEnemyFrameFixtures.StandaloneSamus());
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, corpse, samus);
+                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, corpse, RoomEnemyFrameFixtures.StandaloneSamus());
                     Require(IsInteractive(), "The native 16-frame pre-rot delay must retain collision.");
-                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, RoomEnemyFrameFixtures.StandaloneSamus());
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(place, corpse, RoomEnemyFrameFixtures.StandaloneSamus());
                     break;
             }
             Require(place.Contact.HasAny(EnemyContact.IgnoresSamus),
@@ -58,11 +59,9 @@ internal static class DeadTorizoCollisionVerification
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
             samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
-            DeadTorizoEnemyState corpse = place.SpeciesState<DeadTorizoEnemyState>()
-                ?? throw new InvalidOperationException("The initialized corpse has no state.");
             CorpsePhase? phase = corpse.Phase;
             corpse.Phase = CorpsePhase.Finished;
-            DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place);
+            DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(place, corpse);
             Require(corpse.Phase == CorpsePhase.Finished, "An ignored corpse must not restart from another power bomb.");
             Require(phase == CorpsePhase.Rotting, "Each trigger must enter the native rotting phase.");
 

@@ -47,7 +47,7 @@ internal static class ShutterBehaviorVerification
                 {
                     // The shutter is set up as its room's population sets it up: its species builds its entity, whose setup
                     // builds its state.
-                    place.SetUpAsPlaced();
+                    _ = enemies.LoadAuthoredPopulation();
                     VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                         ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
                     AssertEqual(ShuttersBehavior.InitialAction(place.HeldOccupant().SpawnSettings<ShutterSpawnSettings>().TriggerMode), state.Action,
@@ -60,7 +60,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemyPlace kamer = NewPlace(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.KeptDefinition);
         // The Kamer is set up as its room's population sets it up: its own entity sets it up, showing its platform (#2179).
-        kamer.SetUpAsPlaced();
+        _ = kamerSystem.LoadAuthoredPopulation();
         AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
         AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
             kamerSystem.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
@@ -235,8 +235,12 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyEscapeShutterFlash()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace destroyable = SetUp(0, EnemyDefinitionId.ShutterDestroyable);
-        RoomEnemyPlace shootable = SetUp(1, EnemyDefinitionId.ShutterShootable);
+        RoomEnemyPlace destroyable = Author(0, EnemyDefinitionId.ShutterDestroyable);
+        RoomEnemyPlace shootable = Author(1, EnemyDefinitionId.ShutterShootable);
+        // The shutters are set up as their room's population sets them up.
+        _ = enemies.LoadAuthoredPopulation();
+        destroyable.Shading = PictureShading.Standard;
+        shootable.Shading = PictureShading.Standard;
 
         var first = new ColourEffectFrame(ColourEffectId.TourianShutterRedFlashing, 0);
         enemies.ShowEscapeShutterFlash(first);
@@ -255,14 +259,11 @@ internal static class ShutterBehaviorVerification
             "a shutter that has left its place shows the flash no more");
         Console.WriteLine("  Escape shutter flash: shows on the destroyable shutters the room set up while they hold their places.");
 
-        RoomEnemyPlace SetUp(int ordinal, EnemyDefinitionId definition)
+        RoomEnemyPlace Author(int ordinal, EnemyDefinitionId definition)
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[ordinal];
             place.Bind(definition, place.KeptDefinition);
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
-            // The shutter is set up as its room's population sets it up.
-            place.SetUpAsPlaced();
-            place.Shading = PictureShading.Standard;
             return place;
         }
     }

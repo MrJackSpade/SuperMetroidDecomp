@@ -35,7 +35,6 @@ internal static class GoldenTorizoCodeVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            var initialize = new Action<RoomEnemyPlace, EnemyPopulationSurroundings>(EnemyLifecycle.SetUpEnemy);
             var actor = enemies.Places.InUpdateOrder[0];
             actor.Bind(header, actor.KeptDefinition);
             actor.Bind(actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(header));
@@ -47,7 +46,8 @@ internal static class GoldenTorizoCodeVerification
                 EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = ReserveTankMode.Manual,
             };
             ushort[] before = Snapshot(samus);
-            initialize(actor, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus, held, default));
+            // The room's population load sets the Torizo up while the controller holds the chord.
+            _ = enemies.LoadAuthoredPopulation(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), held);
             ushort[] expected = grants
                 ? [native[0], native[0], native[1], native[1], native[2], native[2],
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]

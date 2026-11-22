@@ -26,7 +26,7 @@ internal static class FlyBehaviorVerification
             place.Bind(definition, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The fly is set up as the population load sets it up.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, 9),
                 $"fly {definition} runs the flight loop");
         }

@@ -22,7 +22,7 @@ internal static class PowampPairFixtures
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.KeptDefinition);
         balloon.Bind(balloon.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The balloon is set up as its room sets it up, so the body that follows it finds it.
-        balloon.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
         body.BindPlaced(EnemyDefinitionId.Powamp, new PowampBodySpawnSettings(PowampContact.Accepts));
         body.Bind(EnemyDefinitionId.Powamp, body.KeptDefinition);

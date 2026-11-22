@@ -176,7 +176,7 @@ internal static class ShotCallbackDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
             enemy.Bind(EnemyPlaceFixtures.StandIn, definition);
-            enemy.SetUpAsPopulated();
+            enemies.SetUpAsPopulated(enemy);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

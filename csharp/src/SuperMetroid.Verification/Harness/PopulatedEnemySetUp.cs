@@ -1,25 +1,30 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>A check's enemy set up as the population load sets up one whose entry names no setting of its own (#2554).</summary>
+/// <summary>A check's enemies set up as the population load sets up ones whose entries name no setting of their own (#2554).</summary>
 internal static class PopulatedEnemySetUp
 {
-    /// <summary>The enemy a fixture place holds.</summary>
-    extension(RoomEnemyPlace self)
+    /// <summary>A check's room, whose enemies the check bound.</summary>
+    extension(RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Sets the enemy the check bound in the place up as the population load sets up one whose entry names no setting of
-        /// its own: the entry is bound again with the settings such an entry gives its species, keeping the definition the
-        /// check bound, and the species builds the enemy's entity, which runs its setup with a lone Samus.
+        /// Sets the enemies the check bound in <paramref name="places"/> up as the room's population load sets up ones whose
+        /// entries name no setting of their own: each entry gets the settings such an entry gives its species, keeping the
+        /// definition the check bound, and the room loads the entries the check authored (<see cref="PopulationPlacementAccess"/>),
+        /// its species building each enemy's entity, which runs its setup with a lone Samus.
         /// </summary>
-        /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
-        internal void SetUpAsPopulated()
+        /// <exception cref="InvalidOperationException">The check has bound no enemy in one of the places.</exception>
+        internal void SetUpAsPopulated(params RoomEnemyPlace[] places)
         {
-            EnemyDefinitionId species = self.HeldOccupant().DefinitionId;
-            self.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, EnemySpawnSettingsCodec.Blank(species)));
-            self.SetUpAsPlaced();
+            foreach (RoomEnemyPlace place in places)
+            {
+                EnemyDefinitionId species = place.HeldOccupant().DefinitionId;
+                place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, EnemySpawnSettingsCodec.Blank(species)));
+            }
+            _ = enemies.LoadAuthoredPopulation();
         }
     }
 }

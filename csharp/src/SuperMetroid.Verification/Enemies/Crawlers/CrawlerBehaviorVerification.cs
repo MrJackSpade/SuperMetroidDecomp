@@ -44,7 +44,7 @@ internal static class CrawlerBehaviorVerification
             else
                 place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             // The crawler is set up as the population load sets it up, its species building its entity.
-            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+            _ = enemies.LoadAuthoredPopulation();
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";

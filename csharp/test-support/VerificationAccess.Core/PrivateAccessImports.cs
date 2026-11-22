@@ -675,7 +675,6 @@ global using static SuperMetroid.Core.Samus.Movement.SamusHorizontalSpeedStatePr
 global using static SuperMetroid.Core.Samus.Movement.SamusLiquidPhysicsStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.SamusSpeedBoostCounterPrivateAccess;
 global using static SuperMetroid.Core.Samus.Movement.ScrollBoundaryCameraPrivateAccess;
-global using static SuperMetroid.Core.Samus.Poses.SamusCollisionPosesPrivateAccess;
 global using static SuperMetroid.Core.Samus.Poses.SamusGroundedPoseTransitionsPrivateAccess;
 global using static SuperMetroid.Core.Samus.Poses.SamusPoseHistoryStatePrivateAccess;
 global using static SuperMetroid.Core.Samus.Projectiles.BeamChargeLevelPrivateAccess;

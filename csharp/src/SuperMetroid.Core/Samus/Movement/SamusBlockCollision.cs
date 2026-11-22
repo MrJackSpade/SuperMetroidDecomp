@@ -25,8 +25,8 @@ public static class SamusBlockCollision
     internal static BlockMoveResult ProbeWallHorizontal(
         SamusTerrain terrain,
         SamusKinematicsState state,
-        SamusState? owner,
-        SamusPoseId? pose,
+        SamusState owner,
+        SamusPoseId pose,
         SignedSixteenSixteen signedDistance)
     {
         Ensure.NotNull(state);
@@ -62,13 +62,10 @@ public static class SamusBlockCollision
     /// </summary>
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, to a fraction of a pixel, and collision-related motion values are updated.</param>
-    /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act, or null for an ownerless probe.</param>
-    /// <param name="pose">
-    /// The pose Samus moves in, which the elevator's pseudo-doors, the stations and the Chozo statue's hand admit by, or
-    /// null for a probe with no pose, which none of them admits.
-    /// </param>
+    /// <param name="owner">The Samus whose collision reactions (spikes, boost blocks, bomb blocks) act.</param>
+    /// <param name="pose">The pose Samus moves in, which the elevator's pseudo-doors, the stations and the Chozo statue's hand admit by.</param>
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
-    internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, HorizontalBlockMove move)
+    internal static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, SamusState owner, SamusPoseId pose, HorizontalBlockMove move)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
@@ -167,13 +164,10 @@ public static class SamusBlockCollision
                     }
                     else if (standing.CollisionType == StandingCollisionType.SpikeBlock)
                     {
-                        if (owner is { } horizontalSamus)
-                        {
-                            SamusTerrainHazardCollision.ApplySolidSpikeCollision(
-                                terrain.Level,
-                                horizontalSamus,
-                                block);
-                        }
+                        SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                            terrain.Level,
+                            owner,
+                            block);
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
                             acceptedDisplacement,
@@ -237,12 +231,11 @@ public static class SamusBlockCollision
                             return;
                         // A Speed Booster block breaks at once under a full-stage boost or a directional
                         // shinespark, so this same horizontal scan continues through the block it leaves.
-                        if (owner is { } speedBoostingSamus &&
-                                room.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
+                        if (room.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                                 terrain.Level,
                                 block.At,
                                 block.Behavior,
-                                speedBoostingSamus.RoomView))
+                                owner.RoomView))
                         {
                             return;
                         }
@@ -308,10 +301,10 @@ public static class SamusBlockCollision
 
         // Only the live movement publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
-        if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
+        if (ReferenceEquals(owner.Kinematics, state) &&
             !move.Observes &&
             move.AlignToSlopeAfterMovement)
-            mover.ProjectileInheritance.Record(
+            owner.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right,
                 acceptedDisplacement);
 
@@ -340,10 +333,10 @@ public static class SamusBlockCollision
     /// </summary>
     /// <param name="terrain">The room terrain the move collides with and reacts to.</param>
     /// <param name="state">Live or probe kinematics whose position, to a fraction of a pixel, and collision-related motion values are updated.</param>
-    /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
-    /// <param name="pose">The pose Samus moves in, which pose-gated block reactions admit by, or null for a probe with no pose.</param>
+    /// <param name="owner">The Samus whose collision reactions act.</param>
+    /// <param name="pose">The pose Samus moves in, which pose-gated block reactions admit by.</param>
     /// <param name="move">One vertical block move: the displacement and which collision side effects it publishes.</param>
-    internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, VerticalBlockMove move)
+    internal static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, SamusState owner, SamusPoseId pose, VerticalBlockMove move)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
@@ -397,9 +390,9 @@ public static class SamusBlockCollision
         }
 
         state.Position = state.Position.AdvanceY(acceptedDisplacement);
-        if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
+        if (ReferenceEquals(owner.Kinematics, state) &&
             !move.Observes)
-            mover.ProjectileInheritance.Record(
+            owner.ProjectileInheritance.Record(
                 move.Displacement.IsNegative ? VerticalDirection.Up : VerticalDirection.Down,
                 acceptedDisplacement);
         // Sand contact counts as a collision whether Samus moved up or down. A changed pose's probe
@@ -421,7 +414,7 @@ public static class SamusBlockCollision
     /// (right to left): every block under the leading boundary, each reacting by its collision type.
     /// A zero displacement scans downward from the current bottom boundary.
     /// </summary>
-    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState? owner, SamusPoseId? pose, VerticalTerrainProbe move)
+    private static VerticalTerrainScan ScanVerticalTerrain(SamusTerrain terrain, SamusKinematicsState state, SamusState owner, SamusPoseId pose, VerticalTerrainProbe move)
     {
         SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
@@ -495,13 +488,10 @@ public static class SamusBlockCollision
                 }
                 else if (standing.CollisionType == StandingCollisionType.SpikeBlock)
                 {
-                    if (owner is { } verticalSamus)
-                    {
-                        SamusTerrainHazardCollision.ApplySolidSpikeCollision(
-                            terrain.Level,
-                            verticalSamus,
-                            block);
-                    }
+                    SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                        terrain.Level,
+                        owner,
+                        block);
                     acceptedDisplacement = ClipVerticalToSolid(
                         state,
                         acceptedDisplacement,
@@ -560,20 +550,18 @@ public static class SamusBlockCollision
                         return;
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
-                    if (owner is { } chozoSamus)
-                        room.RoomObjects.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
-                            block.At, chozoSamus,
-                            chozoSamus.Pose, movingDown: acceptedDisplacement.IsPositive &&
-                                !move.Observes);
+                    room.RoomObjects.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level,
+                        block.At, owner,
+                        owner.Pose, movingDown: acceptedDisplacement.IsPositive &&
+                            !move.Observes);
                     // The vertical special-solid check shares the speed-block setup
                     // with horizontal collision. Accepted boost contact becomes air
                     // before clipping; rejected/non-speed special blocks remain solid.
-                    if (owner is { } speedBoostingSamus &&
-                        room.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
+                    if (room.RoomObjects.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                             terrain.Level,
                             block.At,
                             block.Behavior,
-                            speedBoostingSamus.RoomView))
+                            owner.RoomView))
                     {
                         return;
                     }
@@ -655,7 +643,7 @@ public static class SamusBlockCollision
     /// </summary>
     /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
-    /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
+    /// <param name="owner">The Samus whose collision reactions act.</param>
     /// <param name="pose">
     /// The pose being installed, which the elevator ride's standing-pose gate tests: the game writes it to Samus's
     /// pose before the larger-radius check.
@@ -665,7 +653,7 @@ public static class SamusBlockCollision
     internal static BlockMoveResult ProbeChangedPoseVertical(
         SamusTerrain terrain,
         SamusKinematicsState state,
-        SamusState? owner,
+        SamusState owner,
         SamusPoseId pose,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight)
@@ -685,7 +673,7 @@ public static class SamusBlockCollision
     /// <param name="block">The door block she met.</param>
     /// <param name="pose">Her pose, which decides whether the elevator's door arms the elevator.</param>
     /// <param name="meeting">Whether the move contacts door blocks or is carried past them.</param>
-    private static bool MeetDoorBlock(RoomTerrain terrain, RoomCollisionBlock block, SamusPoseId? pose, DoorBlockMeeting meeting)
+    private static bool MeetDoorBlock(RoomTerrain terrain, RoomCollisionBlock block, SamusPoseId pose, DoorBlockMeeting meeting)
     {
         DoorContact contact = DoorContact.Of(terrain.Level.DoorExitAt(block), pose.ForRoomCollision());
         // An elevator carrying Samus past the door's block makes no contact with it.
@@ -700,13 +688,13 @@ public static class SamusBlockCollision
     /// <param name="terrain">The room's level and room objects.</param>
     /// <param name="block">The bombable air block Samus met.</param>
     /// <param name="reaction">The block's bombable reaction.</param>
-    /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
+    /// <param name="owner">The Samus whose collision reactions act.</param>
     /// <param name="explicitAdmission">Whether the probe admits the break whatever Samus's pose.</param>
     private static void ActivateCollisionBombableAir(
         RoomTerrain terrain,
         RoomCollisionBlock block,
         BombableReaction reaction,
-        SamusState? owner,
+        SamusState owner,
         bool explicitAdmission)
     {
         // The game's horizontal and vertical air reactions invoke the same setup as solid
@@ -718,20 +706,16 @@ public static class SamusBlockCollision
         terrain.RoomObjects.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.At, change);
     }
 
-    /// <summary>
-    /// The contact attack a move makes as it meets the blocks Samus lies in (#2558): <paramref name="owner"/>'s live one, or
-    /// none for a move with no Samus, which carries no attack of its own.
-    /// </summary>
-    private static SamusBodyAttack BodyAttackOf(SamusState? owner) =>
-        owner is null ? SamusBodyAttack.None : owner.HorizontalSpeed.BodyAttack;
+    /// <summary>The contact attack a move makes as it meets the blocks Samus lies in (#2558): <paramref name="owner"/>'s live one.</summary>
+    private static SamusBodyAttack BodyAttackOf(SamusState owner) => owner.HorizontalSpeed.BodyAttack;
 
     /// <summary>
     /// The bomb-block setup reads the live boost stage and pose for every scan that reaches it,
     /// independently of the movement owner; this includes the observational wall-jump
-    /// probe. Explicit admissions remain for ownerless probes.
+    /// probe. A move that breaks bomb blocks whatever Samus's pose, as a shinespark's, admits the break explicitly.
     /// </summary>
-    private static bool CanBreakCollisionBombBlock(SamusState? owner, bool explicitAdmission) =>
-        explicitAdmission || (owner is not null && SamusPoseMetadata.BreaksCollisionBombBlocks(owner));
+    private static bool CanBreakCollisionBombBlock(SamusState owner, bool explicitAdmission) =>
+        explicitAdmission || SamusPoseMetadata.BreaksCollisionBombBlocks(owner);
 
     /// <summary>
     /// Resolves a non-square slope against Samus's leading vertical boundary and retains

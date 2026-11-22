@@ -99,7 +99,9 @@ internal static class ScrollObjectsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), body, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+        // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+        SamusState probeSamus = InstalledFixtures.CreateSamus();
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), body, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),

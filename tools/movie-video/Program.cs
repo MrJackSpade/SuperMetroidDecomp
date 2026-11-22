@@ -38,8 +38,10 @@ internal static class Program
     {
         using var video = new MovieVideoRecorder(outputPath);
         using var session = ConvertedMovieSession.Open(movie, ReplayMovieFixture.Of(movie).TraceDirectory, video: video);
+        var progress = new RenderProgress();
         while (session.NextInput() is { } input)
         {
+            progress.Frame(session.Position);
             MovieReplayPosition position = session.Position
                 ?? throw new InvalidOperationException("The replay handed a frame without saying where it comes from.");
             try

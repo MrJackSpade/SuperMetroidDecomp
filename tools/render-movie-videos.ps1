@@ -44,16 +44,30 @@ foreach ($movie in $Movies) {
     $runs[$movie] = $process
 }
 
+# Every ten seconds, one line with each running movie's latest progress report; each movie's result as it finishes.
 $failed = @()
-foreach ($movie in $runs.Keys) {
-    $runs[$movie].WaitForExit()
-    if ($runs[$movie].ExitCode -eq 0) {
-        Write-Output ("[{0:hh\:mm\:ss}] {1}: {2}" -f $watch.Elapsed, $movie, (Get-Content (Join-Path $output "$movie.log") -Tail 1))
+$pending = [Collections.Generic.List[string]]::new([string[]]$runs.Keys)
+while ($pending.Count -gt 0) {
+    Start-Sleep -Seconds 10
+    foreach ($movie in @($pending)) {
+        if (-not $runs[$movie].HasExited) { continue }
+        $runs[$movie].WaitForExit()
+        $pending.Remove($movie) | Out-Null
+        if ($runs[$movie].ExitCode -eq 0) {
+            Write-Output ("[{0:hh\:mm\:ss}] {1}: {2}" -f $watch.Elapsed, $movie, (Get-Content (Join-Path $output "$movie.log") -Tail 1))
+        }
+        else {
+            $failed += $movie
+            Write-Output ("[{0:hh\:mm\:ss}] {1} failed (exit {2}); see {3}.err" -f $watch.Elapsed, $movie, $runs[$movie].ExitCode, (Join-Path $output "$movie.log"))
+        }
     }
-    else {
-        $failed += $movie
-        Write-Output ("[{0:hh\:mm\:ss}] {1} failed (exit {2}); see {3}.err" -f $watch.Elapsed, $movie, $runs[$movie].ExitCode, (Join-Path $output "$movie.log"))
+    $status = foreach ($movie in $pending) {
+        $report = Select-String -Path (Join-Path $output "$movie.log") -Pattern '^progress: frame (\d+), movie frame (\d*), (\d+) fps now' |
+            Select-Object -Last 1
+        if ($null -eq $report) { "${movie}: starting" }
+        else { '{0}: frame {1}, {2} fps' -f $movie, $report.Matches[0].Groups[1].Value, $report.Matches[0].Groups[3].Value }
     }
+    if ($pending.Count -gt 0) { Write-Output ("[{0:hh\:mm\:ss}] {1}" -f $watch.Elapsed, ($status -join ' | ')) }
 }
 if ($failed.Count -gt 0) {
     $details = $failed | ForEach-Object { "${_}:`n" + (Get-Content (Join-Path $output "$_.log.err") -Raw) }

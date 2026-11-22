@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Text;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.Diagnostics.Configuration;
@@ -459,6 +460,77 @@ internal static partial class DebuggerStateLayoutVerification
             AssertEqual(expected, StepDeath(restored), $"death update {update + 1} after the restore draws as the captured death draws");
             AssertEqual(samus.DeathSequence.ExplosionFrame, restored.Player.Samus.DeathSequence.ExplosionFrame,
                 $"death update {update + 1} after the restore shows the captured explosion picture");
+            if (!GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)))
+                Console.WriteLine($"PROBE digests differ after death update {update + 1}");
+        }
+        // TEMPORARY PROBE (#2554 diagnosis): which runtime parts' digests differ.
+        (string Name, Func<SuperMetroidRuntime, object?> Part)[] parts =
+        [
+            ("LiquidWaveAndStatueDescent", r => r.LiquidWaveAndStatueDescent),
+            ("LiquidWaveAndStatueDescentOrder", r => r.LiquidWaveAndStatueDescentOrder),
+            ("DoorFrameCounting", r => r.DoorFrameCounting),
+            ("Freeze", r => r.Freeze),
+            ("RoomObjectPhase", r => r.RoomObjectPhase),
+            ("HudSetup", r => r.HudSetup),
+            ("BackgroundPhase", r => r.BackgroundPhase),
+            ("FrameBoundary", r => r.FrameBoundary),
+            ("MessageBoxes", r => r.MessageBoxes),
+            ("DeathSequence", r => r.DeathSequence),
+            ("SamusPhases", r => r.SamusPhases),
+            ("RoomLoader", r => r.RoomLoader),
+            ("EnemyRoomEffects", r => r.EnemyRoomEffects),
+            ("AttractSession", r => r.AttractSession),
+            ("AudioRequests", r => r.AudioRequests),
+            ("Display", r => r.Display),
+            ("Player", r => r.Player),
+            ("Room", r => r.Room),
+            ("Clock", r => r.Clock),
+            ("Options", r => r.Options),
+            ("Assists", r => r.Assists),
+            ("RoomObjectVisuals", r => r.RoomObjectVisuals),
+            ("ActorDrawing", r => r.ActorDrawing),
+            ("YardKickDistance", r => r.YardKickDistance),
+            ("FadeStepCount", r => r.FadeStepCount),
+            ("UnauthoredBoostCadence", r => r.UnauthoredBoostCadence),
+            ("CameraFractions", r => r.CameraFractions),
+            ("SamusOverreads", r => r.SamusOverreads),
+            ("Xray", r => r.Xray),
+            ("ScreenLayers", r => r.ScreenLayers),
+            ("EscapeEffects", r => r.EscapeEffects),
+            ("EnemyPhase", r => r.EnemyPhase),
+            ("AttractDemo", r => r.AttractDemo),
+            ("DoorTransition", r => r.DoorTransition),
+            ("Artwork", r => r.Artwork),
+            ("System", r => r.System),
+            ("GameTime", r => r.GameTime),
+            ("PlayerActions", r => r.PlayerActions),
+            ("PlayerButtons", r => r.PlayerButtons),
+            ("PauseHeldButtonRepeat", r => r.PauseHeldButtonRepeat),
+            ("EscapeTimer", r => r.EscapeTimer),
+            ("ColourEffectSession", r => r.ColourEffectSession),
+            ("DoorFade", r => r.DoorFade),
+            ("FadeOut", r => r.FadeOut),
+            ("Sprites", r => r.Sprites),
+            ("DisplayedSprites", r => r.DisplayedSprites),
+            ("EnemySession", r => r.EnemySession),
+            ("BossArtwork", r => r.BossArtwork),
+            ("BeamCharge", r => r.BeamCharge),
+            ("MessageBox", r => r.MessageBox),
+            ("SuitPickup", r => r.SuitPickup),
+            ("Hud", r => r.Hud),
+            ("BackgroundScroll", r => r.BackgroundScroll),
+            ("TourianStatueDependencies", r => r.TourianStatueDependencies),
+        ];
+        foreach ((string name, Func<SuperMetroidRuntime, object?> part) in parts)
+        {
+            object? left = part(runtime), right = part(restored);
+            if (left is null || right is null)
+            {
+                Console.WriteLine($"PROBE {name}: {(left is null ? "null" : "set")} / {(right is null ? "null" : "set")}");
+                continue;
+            }
+            bool same = GraphDigestVerification.GraphDigest(left, content).SequenceEqual(GraphDigestVerification.GraphDigest(right, content));
+            Console.WriteLine($"PROBE {name}: {(same ? "same" : "DIFFERENT")}");
         }
         AssertTrue(GraphDigestVerification.GraphDigest(restored, content).SequenceEqual(GraphDigestVerification.GraphDigest(runtime, content)),
             "the captured and restored deaths run to the same graph digest");

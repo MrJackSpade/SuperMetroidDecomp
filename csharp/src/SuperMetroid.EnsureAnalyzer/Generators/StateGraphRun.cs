@@ -375,7 +375,7 @@ internal sealed partial class StateGraphRun
             ExpressionSyntax? getter = declaration.ExpressionBody?.Expression ?? declaration.AccessorList?.Accessors
                 .Where(accessor => accessor.IsKind(SyntaxKind.GetAccessorDeclaration))
                 .Select(accessor => accessor.ExpressionBody?.Expression ??
-                    (accessor.Body?.Statements is [ReturnStatementSyntax { Expression: { } returned }] ? returned : null))
+                    (accessor.Body is { Statements.Count: 1 } body && body.Statements[0] is ReturnStatementSyntax { Expression: { } returned } ? returned : null))
                 .FirstOrDefault();
             if (getter is AssignmentExpressionSyntax assignment && assignment.IsKind(SyntaxKind.CoalesceAssignmentExpression) &&
                 assignment.Left.IsKind(SyntaxKind.FieldExpression))

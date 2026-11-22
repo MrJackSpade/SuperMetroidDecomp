@@ -27,7 +27,7 @@ internal static class PoseTransitionSetupVerification
     internal static void VerifyPoseTransitionSetups()
     {
         int transitions = 0;
-        foreach (SamusPoseId pose in SamusPoseDefinitions.Poses.Keys)
+        foreach (SamusPoseId pose in Enum.GetValues<SamusPoseId>())
         {
             for (int heldBits = 1; heldBits < 1 << ChordActions.Length; heldBits++)
             {
@@ -59,7 +59,7 @@ internal static class PoseTransitionSetupVerification
         }
         AssertTrue(transitions > 0, "The input transitions choose poses");
 
-        foreach (SamusPoseId drained in SamusPoseDefinitions.Poses.Keys.Where(SamusPoseMetadata.IsDrainedPose))
+        foreach (SamusPoseId drained in Enum.GetValues<SamusPoseId>().Where(SamusPoseMetadata.IsDrainedPose))
         {
             AssertEqual(SamusNoTransitionSetup.StopTurn, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningOnGround),
                 $"{drained} stored over a ground turn keeps the turn's stop");

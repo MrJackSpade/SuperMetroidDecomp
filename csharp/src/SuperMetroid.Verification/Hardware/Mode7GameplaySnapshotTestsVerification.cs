@@ -76,7 +76,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
             (aboveOrigin.LowerBand ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
             "the floor band's background scroll above the origin is signed");
         // The getaway flies its remaining steps, and the update after its last leaves the turning floor.
-        for (; flown <= SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Duration; flown++)
+        for (; flown <= SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Steps.Count; flown++)
             escape.RunGetawayRoomMain(runtime.Player.Samus, arena, flown);
         AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);

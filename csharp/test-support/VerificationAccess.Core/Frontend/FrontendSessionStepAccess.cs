@@ -13,19 +13,34 @@ internal static class FrontendSessionStepAccess
     extension(FrontendSession self)
     {
         /// <summary>The title sequence's step.</summary>
-        internal TitleStep TitleStep => self.RunningPhase is TitleGameSequence title ? title.CurrentStep : TitleStep.Starting;
+        internal TitleStep TitleStep => self.RunningPhase is TitleGameSequence title ? title.Current.Step : TitleStep.Starting;
 
-        /// <summary>The step of choosing a game.</summary>
-        internal FileSelectStep FileSelectStep => self.RunningPhase is FileSelectGameSequence fileSelect ? fileSelect.CurrentStep : FileSelectStep.SaveSlots;
+        /// <summary>The step of choosing a game: the screen its running stage shows, the map's preparation naming the map.</summary>
+        internal FileSelectStep FileSelectStep => self.RunningPhase is FileSelectGameSequence fileSelect
+            ? fileSelect.Current switch
+            {
+                FileSelectGameSequence.Stage.SaveSlots => FileSelectStep.SaveSlots,
+                FileSelectGameSequence.Stage.Options => FileSelectStep.Options,
+                FileSelectGameSequence.Stage.PreparingMap or FileSelectGameSequence.Stage.Map => FileSelectStep.AreaMap,
+                var stage => throw new InvalidOperationException($"Choosing a game runs an unnamed stage {stage.Name}."),
+            }
+            : FileSelectStep.SaveSlots;
 
         /// <summary>The pause's step.</summary>
-        internal PauseStep PauseStep => self.RunningPhase is PauseGameSequence pause ? pause.CurrentStep : PauseStep.DarkeningGameplay;
+        internal PauseStep PauseStep => self.RunningPhase is PauseGameSequence pause ? pause.Current.Step : PauseStep.DarkeningGameplay;
 
         /// <summary>The death sequence's step.</summary>
-        internal DeathSequenceStep DeathStep => self.RunningPhase is DeathGameSequence death ? death.CurrentStep : DeathSequenceStep.FinalGameplayPass;
+        internal DeathSequenceStep DeathStep => self.RunningPhase is DeathGameSequence death ? death.Current.Step : DeathSequenceStep.FinalGameplayPass;
 
-        /// <summary>The time-up's step.</summary>
-        internal TimeUpStep TimeUpStep => self.RunningPhase is TimeUpGameSequence timeUp ? timeUp.CurrentStep : TimeUpStep.WhiteningOut;
+        /// <summary>The time-up's step: the stage it runs.</summary>
+        internal TimeUpStep TimeUpStep => self.RunningPhase is TimeUpGameSequence timeUp
+            ? timeUp.Current switch
+            {
+                TimeUpGameSequence.Stage.WhiteningOut => TimeUpStep.WhiteningOut,
+                TimeUpGameSequence.Stage.FadingToBlack => TimeUpStep.FadingToBlack,
+                var stage => throw new InvalidOperationException($"The time-up runs an unnamed stage {stage.Name}."),
+            }
+            : TimeUpStep.WhiteningOut;
 
         /// <summary>The attract demo's step.</summary>
         internal AttractDemoStep AttractDemoStep => self.RunningPhase is AttractDemoGameSequence demo ? demo.StepName : AttractDemoStep.Loading;

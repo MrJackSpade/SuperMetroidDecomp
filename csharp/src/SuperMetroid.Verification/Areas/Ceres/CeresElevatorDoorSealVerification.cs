@@ -45,7 +45,7 @@ internal static class CeresElevatorDoorSealVerification
             "before the escape the elevator room holds no room object");
         foreach (RoomCollisionBlock block in door)
             AssertEqual(RoomCollisionType.DoorBlock, block.Terrain.Collision, $"before the escape block {block.At} is a door block");
-        AssertTrue(ReferenceEquals(CeresDoorDefinitions.CeresElevatorToFallingTile, WalkRightIntoTheDoor(runtime, beforeEscape, out _)),
+        AssertTrue(ReferenceEquals(CeresDoorDefinitions.CeresElevatorToFallingTile, WalkRightIntoTheDoor(runtime, out _)),
             "before the escape Samus walking right into the door starts the door back to the Falling Tile room");
 
         runtime.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
@@ -70,7 +70,7 @@ internal static class CeresElevatorDoorSealVerification
             CollectedItems = default, PowerBombExplosionActive = false,
         });
         AssertTrue(!runtime.RoomObjects.Places.InUpdateOrder.Any(place => place.Active), "the seal leaves the room on its first update");
-        AssertTrue(WalkRightIntoTheDoor(runtime, duringEscape, out int rightmostPixel) is null,
+        AssertTrue(WalkRightIntoTheDoor(runtime, out int rightmostPixel) is null,
             "during the escape Samus walking right into the sealed door starts no door");
         AssertEqual(DoorBlocks[0].X * 16 - 1, rightmostPixel,
             "during the escape the sealed door's blocks stop Samus flush against them, her body ending on the column left of the door");
@@ -88,18 +88,18 @@ internal static class CeresElevatorDoorSealVerification
     }
 
     /// <summary>
-    /// Stands Samus in the doorway left of the door's blocks and walks her right a pixel at a time against the level's
-    /// blocks alone, returning the door her collision starts, or null when none, and the rightmost pixel column her body covers
-    /// where she ends.
+    /// Stands Samus in the doorway left of the door's blocks and walks her right a pixel at a time against the loaded room's
+    /// terrain, as gameplay gives it to her movement, returning the door her collision starts, or null when none, and the
+    /// rightmost pixel column her body covers where she ends.
     /// </summary>
-    private static DoorDefinition? WalkRightIntoTheDoor(SuperMetroidRuntime runtime, RoomLevelData level, out int rightmostPixel)
+    private static DoorDefinition? WalkRightIntoTheDoor(SuperMetroidRuntime runtime, out int rightmostPixel)
     {
         SamusState samus = runtime.Player.Samus;
         samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(224, 640));
         samus.Kinematics.Radius = new(5, 16);
         for (int pixel = 0; pixel < 32 && runtime.RoomObjects.DoorContacts.EnteredDoor is null; pixel++)
         {
-            SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, runtime.RoomObjects), samus.Kinematics,
+            SamusBlockCollision.MoveHorizontal(runtime.Room.LoadedScope.SamusTerrain, samus.Kinematics,
                 samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         }
         rightmostPixel = samus.Kinematics.Position.X.Whole + samus.Kinematics.Radius.X - 1;

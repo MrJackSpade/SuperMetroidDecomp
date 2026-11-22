@@ -241,7 +241,7 @@ internal static class CoreAccess
                         SaveStationObject save => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
                             Kind: null, save.SavePhase == SaveStationPhase.Touched, save.SavePhase, lockedOut)],
                         AccessStationObject station => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
-                            station.Kind, station.OperationPhase is StationOperationPhase.TouchAccepted, SaveStationPhase.Idle, lockedOut)],
+                            station.Rule.Kind, station.OperationPhase is StationOperationPhase.TouchAccepted, SaveStationPhase.Idle, lockedOut)],
                         _ => Array.Empty<StationObjectSnapshot>(),
                     })
                     .ToArray();

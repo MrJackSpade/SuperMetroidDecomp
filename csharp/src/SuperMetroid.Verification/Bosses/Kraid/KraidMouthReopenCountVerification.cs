@@ -35,15 +35,24 @@ internal static class KraidMouthReopenCountVerification
         }
         state.MarkMouthReopen();
         AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "the last marked close leaves no reopen pending");
-        AssertTrue(!state.MouthReopenMarked && state.PendingMouthReopens == 0, "spending the last reopen forgets the mouth's hits");
+        AssertEqual(0, state.PendingMouthReopens, "spending the last reopen leaves none pending");
+        // A mark the last close kept would make the next armed close, with no mouth hit, spend a reopen.
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "spending the last reopen forgets the mouth's hits");
 
         state.ArmMouthReopens();
         state.MarkMouthReopen();
         state.ClearMouthReactions();
-        AssertTrue(!state.MouthReopenMarked, "clearing the mouth clears the reopen mark");
-        state.MarkMouthReopen();
-        AssertTrue(!state.MouthReopenMarked, "clearing the mouth disarms its reopens: a mark after it marks nothing");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "clearing the mouth clears the reopen mark: the next armed close, with no mouth hit, spends nothing");
+
+        state.ArmMouthReopens();
+        state.MarkMouthReopen();
+        state.ClearMouthReactions();
+        state.MarkMouthReopen();
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "clearing the mouth disarms its reopens: a mark after it marks nothing");
 
         VerifyKraidHurtFlash();
 

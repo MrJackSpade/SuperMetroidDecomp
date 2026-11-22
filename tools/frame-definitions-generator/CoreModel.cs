@@ -56,6 +56,16 @@ internal sealed class CoreModel
     private readonly HashSet<INamedTypeSymbol> _families = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, Behaviour> _behaviours = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _creationContexts = new(SymbolEqualityComparer.Default);
+
+    /// <summary>
+    /// For each type the species composition constructs, the types whose construction there it is handed to, each
+    /// construction's own receivers in turn; null once one construction of it is handed anywhere else (a member of the
+    /// composition, a call, a conditional), which leaves it the composition's shared code.
+    /// </summary>
+    private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>?> _compositionHandoffs = new(SymbolEqualityComparer.Default);
+
+    /// <summary>The attribute marking the one composition that builds the room's species and hands each its collaborators.</summary>
+    private readonly INamedTypeSymbol _speciesComposition;
     private readonly Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>?> _owners = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
@@ -96,6 +106,7 @@ internal sealed class CoreModel
         INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
         TimelineAnimation = timelineAnimation;
         _projectileBehaviour = SingleType("EnemyProjectileBehavior");
+        _speciesComposition = SingleType("SpeciesCompositionAttribute");
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
         foreach (string name in MemberSpawnerTypeNames)
@@ -1094,12 +1105,106 @@ internal sealed class CoreModel
                     if (!_creationContexts.TryGetValue(key2, out List<INamedTypeSymbol>? contexts))
                         _creationContexts.Add(key2, contexts = []);
                     contexts.Add(contextType.OriginalDefinition);
+                    if (IsSpeciesComposition(contextType))
+                        RecordCompositionHandoff(model, creation, key2);
                     // A family constructed in code, not by a typed-start entry its kind names, must be spawned by some code.
                     if (_families.Contains(key2) && !node.Ancestors().Any(_startEntries.Contains))
                         _constructedFamilies.Add(key2);
                     break;
             }
         }
+    }
+
+    /// <summary>Whether <paramref name="type"/> is the species composition (<c>[SpeciesComposition]</c>).</summary>
+    private bool IsSpeciesComposition(INamedTypeSymbol type) =>
+        type.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _speciesComposition));
+
+    /// <summary>
+    /// Records whom the species composition hands its construction of <paramref name="created"/> to (#2554): a
+    /// construction held in a local is handed to every construction the local is an argument or initializer value of; any
+    /// other construction to the construction it is itself an argument or initializer value of. A construction handed
+    /// anywhere else leaves <paramref name="created"/> the composition's shared code.
+    /// </summary>
+    private void RecordCompositionHandoff(SemanticModel model, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol created)
+    {
+        List<INamedTypeSymbol>? receivers = CompositionReceivers(model, creation);
+        if (!_compositionHandoffs.TryGetValue(created, out List<INamedTypeSymbol>? known))
+            _compositionHandoffs.Add(created, receivers);
+        else if (known is not null)
+        {
+            if (receivers is null)
+                _compositionHandoffs[created] = null;
+            else
+                known.AddRange(receivers);
+        }
+    }
+
+    /// <summary>The constructions the composition hands <paramref name="creation"/> to, or null when it hands it elsewhere too.</summary>
+    private List<INamedTypeSymbol>? CompositionReceivers(SemanticModel model, BaseObjectCreationExpressionSyntax creation)
+    {
+        if (creation.Parent is EqualsValueClauseSyntax { Parent: VariableDeclaratorSyntax declarator }
+            && model.GetDeclaredSymbol(declarator) is ILocalSymbol local)
+        {
+            BlockSyntax scope = declarator.FirstAncestorOrSelf<BlockSyntax>()
+                ?? throw new InvalidDataException($"{RelativePath(creation.SyntaxTree)}: local {local.Name} is declared outside a block.");
+            var receivers = new List<INamedTypeSymbol>();
+            foreach (IdentifierNameSyntax use in scope.DescendantNodes().OfType<IdentifierNameSyntax>())
+            {
+                if (use.Identifier.ValueText != local.Name || !SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(use).Symbol, local))
+                    continue;
+                if (ReceivingConstruction(model, use) is not { } receiver)
+                    return null;
+                receivers.Add(receiver);
+            }
+            return receivers.Count == 0 ? null : receivers;
+        }
+        return ReceivingConstruction(model, creation) is { } direct ? [direct] : null;
+    }
+
+    /// <summary>
+    /// The type whose construction takes <paramref name="value"/> as an argument or as an initializer's value; null for a
+    /// value used any other way.
+    /// </summary>
+    private INamedTypeSymbol? ReceivingConstruction(SemanticModel model, ExpressionSyntax value)
+    {
+        BaseObjectCreationExpressionSyntax? receiver = value.Parent switch
+        {
+            ArgumentSyntax { Parent: ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax construction } } => construction,
+            AssignmentExpressionSyntax { Parent: InitializerExpressionSyntax { Parent: BaseObjectCreationExpressionSyntax construction } } assignment
+                when assignment.Right == value => construction,
+            _ => null,
+        };
+        return receiver is not null && model.GetSymbolInfo(receiver).Symbol is IMethodSymbol { ContainingType: { } received } && IsSource(received)
+            ? received.OriginalDefinition
+            : null;
+    }
+
+    /// <summary>
+    /// The one behaviour whose code <paramref name="type"/> is because the species composition, its only constructor,
+    /// hands every construction of it only to that behaviour's code (#2554: Phantoon's combat and Kraid's encounter access,
+    /// projectiles and combat, which the composition builds and passes in as it builds Crocomire's access); null otherwise.
+    /// It is that behaviour's code as it was while the behaviour constructed it itself.
+    /// </summary>
+    private INamedTypeSymbol? CompositionHandedOwner(INamedTypeSymbol type)
+    {
+        if (!_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites) || sites.Count == 0
+            || !sites.All(IsSpeciesComposition)
+            || !_compositionHandoffs.TryGetValue(type, out List<INamedTypeSymbol>? receivers) || receivers is not { Count: > 0 })
+            return null;
+        _owners.Add(type, Resolving);
+        var owners = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        bool resolved = true;
+        foreach (INamedTypeSymbol receiver in receivers)
+        {
+            if (ResolveOwners(receiver) is not { Count: > 0 } receiverOwners || ReferenceEquals(receiverOwners, Resolving))
+            {
+                resolved = false;
+                break;
+            }
+            owners.UnionWith(receiverOwners);
+        }
+        _owners.Remove(type);
+        return resolved && owners.Count == 1 ? owners.First() : null;
     }
 
     /// <summary>Records a typed-start entry: <paramref name="kind"/> starts the family its lambda constructs.</summary>
@@ -1136,6 +1241,12 @@ internal sealed class CoreModel
         {
             _owners.Add(type, placing);
             return placing;
+        }
+        if (CompositionHandedOwner(type) is { } handedOwner)
+        {
+            var handed = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { handedOwner };
+            _owners.Add(type, handed);
+            return handed;
         }
         var contexts = new List<INamedTypeSymbol>();
         if (_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites))

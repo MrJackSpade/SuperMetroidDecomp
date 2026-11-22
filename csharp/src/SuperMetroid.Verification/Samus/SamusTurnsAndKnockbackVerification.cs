@@ -656,7 +656,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         SamusPoseMetadata.ReadMovementType(samus),
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
-    AssertEqual((SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection?)SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "damage boost preserves knockback direction");
+    AssertTrue(samus.Knockback is SamusKnockback.HandedBack, "damage boost hands the knockback back to her pose");
     AssertEqual(4, samus.KnockbackHold.UpdatesLeft, "damage boost preserves hurt timer");
     AssertEqual(4, samus.Kinematics.VerticalVelocity.Speed.Whole, "damage boost retains whole speed");
     AssertEqual(0xe400, samus.Kinematics.VerticalVelocity.Speed.Fraction, "damage boost retains subspeed");

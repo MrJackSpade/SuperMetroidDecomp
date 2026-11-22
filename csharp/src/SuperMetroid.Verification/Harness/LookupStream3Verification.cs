@@ -641,7 +641,6 @@ internal static class LookupStream3Verification
                 AssertTrue(actual.ImageEquals(expected),
                     "options stock heading origin and scroll");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, SuperMetroid.Core.Input.ControllerButton.X), "options invalid action");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {

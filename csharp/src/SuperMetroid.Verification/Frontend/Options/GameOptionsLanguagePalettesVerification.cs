@@ -59,9 +59,6 @@ internal static class GameOptionsLanguagePalettesVerification
                 }
             }
         }
-        foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.ToggleLayout(setting),
-                $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 

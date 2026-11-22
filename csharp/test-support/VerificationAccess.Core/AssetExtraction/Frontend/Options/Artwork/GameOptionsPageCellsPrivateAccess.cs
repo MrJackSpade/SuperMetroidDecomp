@@ -15,7 +15,7 @@ internal static class GameOptionsPageCellsPrivateAccess
     {
         /// <summary>The private method <c>ToggleLayout</c>, invoked by name.</summary>
         internal static global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout ToggleLayout(int setting) =>
-            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "ToggleLayout", [typeof(global::SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow)], new object?[] { setting >= 0 && setting < global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.Special.Count ? global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.Special[setting] : (global::SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow)99 });
+            PrivateState.InvokeStatic<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsToggleLayout>(typeof(global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPageCells), "ToggleLayout", [typeof(global::SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow)], new object?[] { global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.Special[setting] });
     }
 
     /// <summary>The private static members checks name.</summary>

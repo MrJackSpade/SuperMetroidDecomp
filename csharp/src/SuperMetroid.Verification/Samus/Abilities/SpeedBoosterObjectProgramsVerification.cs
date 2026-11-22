@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -72,12 +72,10 @@ internal static class SpeedBoosterObjectProgramsVerification
         SpeedBoosterObjectProgramsEntry[] entries =
             [new SpeedBoosterObjectProgramsEntry(0x0e,-1,0x949155),new SpeedBoosterObjectProgramsEntry(0x0f,-1,0x949157),new SpeedBoosterObjectProgramsEntry(0x82,1,0x9491fd),
              new SpeedBoosterObjectProgramsEntry(0x83,1,0x9491ff),new SpeedBoosterObjectProgramsEntry(0x84,1,0x949201),new SpeedBoosterObjectProgramsEntry(0x85,1,0x949203)];
-        for (int area = 0; area <= byte.MaxValue; area++)
+        for (int area = 0; area < AreaNumberCodec.Count; area++)
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            AreaId retail = RetailArea(area);
-            if (retail == UnknownArea)
-                continue;
+            AreaId retail = AreaNumberCodec.At(area);
             int tableAddress = 0;
             foreach (var entry in entries)
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))

@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Video;

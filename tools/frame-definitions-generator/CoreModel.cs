@@ -101,6 +101,7 @@ internal sealed class CoreModel
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
         RoomEnemyOccupant = SingleType("RoomEnemyOccupant");
+        EnemyOccupant = SingleType("EnemyOccupant");
         AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
         IdentityTable = SingleType("IdentityTable", arity: 2);
         _entity = SingleType("IEnemyEntity");
@@ -190,6 +191,35 @@ internal sealed class CoreModel
 
     /// <summary>The enemy holding a place, which carries its definition (#2558).</summary>
     public INamedTypeSymbol RoomEnemyOccupant { get; }
+
+    /// <summary>What an enemy's creation builds for its place: its entity and the setup and main AI it runs.</summary>
+    public INamedTypeSymbol EnemyOccupant { get; }
+
+    /// <summary>
+    /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s factory code: its entity factory
+    /// (<see cref="UnitScanner.IsCreate"/>), or one of the creations that factory hands the registrar or offers a part, each a
+    /// named method building one enemy from its occupant and place (#2554: <c>Spawns([EtecoonEscape], CreateEtecoon)</c>,
+    /// <c>Offer(BabyTurtle, new FamilyJoining(...).CreateBaby)</c>), declared by the behaviour or a type nested in it. A
+    /// creation is dispatch code: it runs for the definitions the registrar call or the offer handing it names, and the
+    /// entity it constructs is theirs.
+    /// </summary>
+    public bool IsFactoryCode(Unit unit, Behaviour behaviour) => UnitScanner.IsCreate(unit, behaviour) || IsCreation(unit, behaviour);
+
+    /// <summary>Whether <paramref name="unit"/> is a creation of <paramref name="behaviour"/> (see <see cref="IsFactoryCode"/>).</summary>
+    private bool IsCreation(Unit unit, Behaviour behaviour)
+    {
+        if (unit is not { Kind: UnitKind.Member, Symbol: IMethodSymbol { MethodKind: MethodKind.Ordinary } method }
+            || !SymbolEqualityComparer.Default.Equals(method.ReturnType.OriginalDefinition, EnemyOccupant)
+            || !method.Parameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, RoomEnemyOccupant))
+            || !method.Parameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, RoomEnemyPlace)))
+            return false;
+        for (INamedTypeSymbol? type = method.ContainingType; type is not null; type = type.ContainingType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, behaviour.Type))
+                return true;
+        }
+        return false;
+    }
 
     /// <summary>
     /// The play of the segments a family's typed animations declare, each segment's beats showing frames and raising cues: the

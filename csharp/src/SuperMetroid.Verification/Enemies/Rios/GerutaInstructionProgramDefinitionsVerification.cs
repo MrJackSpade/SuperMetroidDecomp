@@ -73,20 +73,13 @@ internal static class GerutaInstructionProgramDefinitionsVerification
 )
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        parent.SetUpAsPlaced();
+        // The room's population load sets up the parent and then its flame follower (#2554).
+        _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)), PopulationPlacementAccess.Entry(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
         AssertEqual(new AnimationPlayback<GerutaSegment>(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
             enemies.Places.InUpdateOrder[0].EntityState<GerutaEntity, GerutaEnemyState>()?.Playback,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
-        follower.Bind(EnemyDefinitionId.Geruta, follower.KeptDefinition);
-        follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        follower.SetUpAsPlaced();
         // The follower shows the first picture of the ascending flames its setup started on its next animation step; the
         // room spawn primes the instruction timer before the species' setup runs.
         follower.AnimationClock.StepOnNextUpdate();
@@ -101,12 +94,8 @@ internal static class GerutaInstructionProgramDefinitionsVerification
             ImportEnemyArtwork? art = null)
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.BindPlaced(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        place.Bind(EnemyDefinitionId.Geruta, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The Rio is set up as its room's population sets it up, then plays the animation the check starts it at.
-        place.SetUpAsPlaced();
+        RoomEnemyPlace place = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)))[0];
         GerutaEnemyState state = place.RequireSpeciesState<GerutaEnemyState>();
         state.Playback = new(GerutaAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();

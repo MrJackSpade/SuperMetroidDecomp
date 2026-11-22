@@ -33,29 +33,30 @@ internal static class CeresEscapeWarningAccess
         internal void RunRidleysStep(int ridleyFrameCounter) => escape.RunRidleysStep(ridleyFrameCounter, escape.FixtureWarning);
 
         /// <summary>
-        /// Runs the update of the warning's wait for the title on which the wait runs out, which shows the English title on
-        /// the check's warning as the game shows it.
+        /// Shows the warning's EMERGENCY title on the check's warning, as the update its wait for the title runs out on shows
+        /// it.
         /// </summary>
-        internal void ShowTitleAsItsWaitRunsOut()
+        internal void ShowTitle()
         {
             escape.Warning.PhaseWait.LastFor(1);
-            escape.RunWaitingForTitle(escape.FixtureWarning);
+            _ = escape.RunWaitingForTitle(escape.FixtureWarning);
         }
 
         /// <summary>
-        /// Runs the update of the Japanese subtitle phase on which its wait runs out, which shows the subtitle's lines on the
-        /// check's warning as the game shows them. The phase's typewriter has already typed its whole text, so the update
-        /// types nothing beside the subtitle.
+        /// Shows the Japanese subtitle on the check's warning, as the update its wait for the subtitle runs out on shows it,
+        /// with <paramref name="message"/> already typed to its end, so that the update types nothing further on the warning.
         /// </summary>
-        internal void ShowJapaneseSubtitleAsItsWaitRunsOut()
+        /// <param name="message">The installed Ceres warning text.</param>
+        internal void ShowJapaneseSubtitle(SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessage message)
         {
-            var typewriter = new EscapeTypewriterState(new EscapeTypewriterMessage(EscapeTypewriterMessageId.Ceres,
-                [new EscapeTypewriterLine(Position16<PlanePixels>.Zero, "A")]));
-            while (typewriter.Step() is not EscapeTypewriterStep.Complete)
-            {
-            }
+            var typed = new SuperMetroid.Core.Escape.EscapeTypewriterState(message);
+            // The typewriter types until an update finds the warning complete.
+            SuperMetroid.Core.Escape.EscapeTypewriterStep step;
+            do
+                step = typed.Step();
+            while (step is not SuperMetroid.Core.Escape.EscapeTypewriterStep.Complete);
             escape.Warning.PhaseWait.LastFor(1);
-            escape.RunJapaneseSubtitle(0, typewriter, escape.FixtureWarning);
+            _ = escape.RunJapaneseSubtitle(0, typed, escape.FixtureWarning);
         }
     }
 }

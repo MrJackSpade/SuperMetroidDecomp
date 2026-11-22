@@ -136,9 +136,6 @@ internal static class RoomObjectSystemAccess
         }
 
 
-        /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-        internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
-
         /// <summary>The live glass, or null once it has left the room.</summary>
         internal MotherBrainGlassObject? LiveMotherBrainGlass => LiveGlass(self);
 
@@ -481,5 +478,5 @@ internal static class RoomObjectSystemAccess
 
     /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
     private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>
-        roomObjects.MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
+        RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
 }

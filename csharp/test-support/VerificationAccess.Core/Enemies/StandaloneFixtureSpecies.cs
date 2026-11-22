@@ -10,7 +10,7 @@ internal sealed class StandaloneFixtureSpecies : IEnemyEntityFactory
     internal static IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.DraygonBody, EnemyPlaceFixtures.StandIn];
 
     /// <summary>The registry of standalone places a check binds an enemy in, built after the definitions it places.</summary>
-    internal static EnemySpeciesRegistry Registry { get; } = EnemyPlaceRegistries.Of(new StandaloneFixtureSpecies());
+    internal static EnemySpeciesRegistry Registry { get; } = EnemyPlaceFixtures.RegistryOf(new StandaloneFixtureSpecies());
 
     /// <inheritdoc/>
     public void OfferCreations(EnemySpeciesRegistrar registrar) =>

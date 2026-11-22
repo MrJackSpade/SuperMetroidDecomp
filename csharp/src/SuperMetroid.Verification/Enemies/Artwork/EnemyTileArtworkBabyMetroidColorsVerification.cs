@@ -60,9 +60,10 @@ internal static class EnemyTileArtworkBabyMetroidColorsVerification
                         BabyMetroidColorDefinitions.TargetColorCount * sizeof(ushort)),
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        Type type = typeof(RoomEnemySystem);
+        // The room's population load sets the Baby Metroid up as its entry places it.
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        BabyMetroidBehavior.InitializeBabyMetroid(place, 0);
+        place.SetSpawnParameter1(EnemyDefinitionId.BabyMetroid, 0);
+        _ = enemies.LoadAuthoredPopulation();
         BabyMetroidEnemyState state = place.RequireSpeciesState<BabyMetroidEnemyState>();
         // The Baby Metroid draws in its entry's target colours, which the import pre-colours its sheets in (#1512); the drained
         // corpses' target is the corpses' own drained shade.

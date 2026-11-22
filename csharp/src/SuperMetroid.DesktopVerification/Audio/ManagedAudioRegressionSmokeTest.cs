@@ -228,7 +228,7 @@ public static class ManagedAudioRegressionSmokeTest
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         int reportedAt = 1;
         foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
-            reported[reportedAt++] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
+            reported[reportedAt++] = SoundEffectPortBytes.PortByte(library, acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

@@ -28,6 +28,12 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     /// <summary>The colour the Zebetites' pulse starts at: the second enemy row's colour twelve.</summary>
     private const int PulseFirstColour = 0xac;
 
+    /// <summary>The place the room's population loads the primary half in.</summary>
+    private const int PrimaryPlace = 0;
+
+    /// <summary>The place the room's population loads the linked half in.</summary>
+    private const int LinkedPlace = 1;
+
     /// <summary>Compares live pulse frames with cartridge colors, then checks the engine gates and malformed asset rejection.</summary>
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, ImportEnemyArtwork stock)
@@ -78,9 +84,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         AssertEqual((counterBeforeGate + 1) % ZebetitePulse.All.Count, Counter(selected),
             "the Zebetite pulse steps again once the door fade completes");
         counterBeforeGate = Counter(selected);
-        // The place now holds a linked half, which the pulse skips.
-        selected.Places.InUpdateOrder[0].SetSpeciesState(new ZebetiteEnemyState(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, ZebetiteDefinitions.Generations[0])));
-        Cycle(selected);
+        // The linked half's update skips the pulse.
+        RunActive(selected, LinkedPlace);
         AssertEqual(counterBeforeGate, Counter(selected),
             "Zebetite secondary-half gate remains an engine-owned condition");
 
@@ -96,10 +101,12 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies),
                 RoomEnemyCompatibilityFixtures.ForNewRoom(fadeStepCount, new UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-            RoomEnemyPlace primaryPlace = enemies.Places.InUpdateOrder[0];
-            primaryPlace.BindPlaced(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-            var primary = new ZebetiteEnemyState(primaryPlace.HeldOccupant().Spawn);
-            primaryPlace.SetSpeciesState(primary);
+            // The room's population load sets up a primary half, which steps the pulse, and a linked half, which does not,
+            // in their first generation: no Zebetite has been destroyed.
+            enemies.VerificationServices().ReadZebetitesDestroyed = () => 0;
+            _ = enemies.LoadPopulation(
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary)),
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Linked)));
             return enemies;
         }
 
@@ -142,9 +149,15 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             return cgram;
         }
 
-        static void Cycle(RoomEnemySystem enemies)
+        // One update of the primary half's active main AI, which steps the pulse.
+        static void Cycle(RoomEnemySystem enemies) => RunActive(enemies, PrimaryPlace);
+
+        // One update of the active main AI of the Zebetite half in <place>, at full health, which it keeps.
+        static void RunActive(RoomEnemySystem enemies, int place)
         {
-            enemies.ZebetiteBehavior.CycleZebetiteColours(enemies.Places.InUpdateOrder[0]);
+            ZebetiteEntity zebetite = enemies.Places.InUpdateOrder[place].EntityOf<ZebetiteEntity>();
+            zebetite.State.Action = ZebetiteAction.Active;
+            enemies.ZebetiteBehavior.RunZebetiteMainAi(zebetite.Occupant, zebetite.State);
         }
     }
 }

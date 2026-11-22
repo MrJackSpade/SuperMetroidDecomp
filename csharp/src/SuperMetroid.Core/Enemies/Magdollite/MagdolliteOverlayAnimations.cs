@@ -75,8 +75,6 @@ internal static partial class MagdolliteOverlayAnimations
         [P.PillarCap] = new([Segments.Whole(P.PillarCap)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteOverlaySegment> StartingWith(MagdolliteOverlaySegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteOverlayCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteOverlayCue>.Frame(frame, duration);

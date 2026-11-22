@@ -84,7 +84,7 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         kept.Check("Mother Brain's glass", Solid, [glass], level =>
         {
             RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
-            roomObjects.MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass));
+            RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass));
         });
         var wall = new Position16<RoomBlocks>(8, 2);
         kept.Check("the Shitroid's wall", Solid, [.. Enumerable.Range(0, 10).Select(row => wall + new Offset16<RoomBlocks>(0, row))],

@@ -32,8 +32,6 @@ internal static class EnemyEntityStates
             return held18;
         if (entity is global::SuperMetroid.Core.Bosses.Kraid.KraidNailEntity entity19 && entity19.Part is T held19)
             return held19;
-        if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneEntity entity20 && entity20.Baby is T held20)
-            return held20;
         if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidEntity entity21 && entity21.State is T held21)
             return held21;
         if (entity is global::SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodyEntity entity22 && entity22.Encounter is T held22)
@@ -80,6 +78,14 @@ internal static class EnemyEntityStates
             return held60;
         if (entity is global::SuperMetroid.Core.Enemies.Evir.EvirSpitEntity entity61 && entity61.State is T held61)
             return held61;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67a && entity67a.State is T held67a)
+            return held67a;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67b && entity67b.State.Ship is T held67b)
+            return held67b;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67c && entity67c.State.Hull is T held67c)
+            return held67c;
+        if (entity is global::SuperMetroid.Core.Enemies.Gunship.GunshipTopEntity entity67d && entity67d.State.Pieces is T held67d)
+            return held67d;
         if (entity is global::SuperMetroid.Core.Enemies.KiHunters.KiHunterWingsEntity entity73 && entity73.State is T held73)
             return held73;
         if (entity is global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptEntity entity76 && entity76.State is T held76)

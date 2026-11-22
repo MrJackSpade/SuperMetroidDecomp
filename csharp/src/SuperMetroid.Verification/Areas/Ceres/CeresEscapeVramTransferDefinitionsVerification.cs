@@ -96,8 +96,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         AssertEqual(backgroundList.Length, CeresSelfDestructWarningDefinitions.BeforeTitleUpdates, "the wait for the title lasts one update a timer-background record");
 
         // The Japanese subtitle's lines are written over BG1 at exactly the four compiled records' destinations, two rows each.
-        // They show as the subtitle phase's wait runs out.
-        escape.ShowJapaneseSubtitleAsItsWaitRunsOut();
+        escape.ShowJapaneseSubtitle(system.BossArtworkBinding.EscapeTypewriterPresentation.Get(SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessageId.Ceres));
         var written = new bool[TwoScreenTilemapCells.Count];
         for (int index = 0; index < 4; index++)
         {
@@ -106,7 +105,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
-        ImmutableArray<int> shownWords = escape.FixtureWarning.Text.WordsIn(overlay);
+        ImmutableArray<int> shownWords = escape.FixtureWarning.ShownText().WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
             AssertEqual(written[word], shownWords[word] != RoomWarningText.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");

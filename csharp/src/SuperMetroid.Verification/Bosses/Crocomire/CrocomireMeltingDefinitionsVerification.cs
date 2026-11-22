@@ -172,12 +172,11 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        var vram = new SnesVram();
-        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
-        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
+        // His room's population load sets him up, and his setup attaches the body his melt image shows on (#1355, #1466,
+        // #1515).
+        enemies.BossArtworkBinding.BodySheets = InstalledFixtures.BossBodySheets;
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(0, 0));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         enemies.CrocomireBehavior.Melting.ShowCrocomireMeltImage(state, source);
         AssertEqual(CrocomireBodyAnimations.StartingWith(bodyProgram), state.BodyPlayback.Animation,

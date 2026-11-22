@@ -45,14 +45,20 @@ internal static class CeresRidleyPicturesVerification
             escape.RunRidleysStep(ridleyFrameCounter);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWarningText overlay = escape.FixtureWarning.Text;
+        RoomWarningText overlay = escape.FixtureWarning.ShownText();
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
         ShownRoomWarning shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Warning
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
-        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;
+        // The warning's words read only the characters its look copies over the table, as the import composes that look.
+        byte[] page = new byte[SuperMetroid.AssetExtraction.Enemies.SpriteCharacterTableLayout.TableByteCount];
+        var warning = SuperMetroid.AssetExtraction.Enemies.ComposedLook.Of(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
+            SuperMetroid.Core.Areas.Ceres.CeresEscapeWarningLookDefinitions.WarningLook);
+        foreach (SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload upload in SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads
+            .Steps(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, EnemySheetFixtures.Inputs).CopiesOf(warning))
+            upload.ApplyTo(page);
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {

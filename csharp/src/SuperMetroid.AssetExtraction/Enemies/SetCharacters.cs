@@ -60,7 +60,7 @@ internal sealed partial class SetCharacters
     }
 
     /// <summary>The characters as the room load leaves them.</summary>
-    internal SpriteArtwork Loaded { get; }
+    private SpriteArtwork Loaded { get; }
 
     /// <summary>
     /// The finished pictures of <paramref name="frame"/>, named for <paramref name="name"/> (#1538): for each encounter

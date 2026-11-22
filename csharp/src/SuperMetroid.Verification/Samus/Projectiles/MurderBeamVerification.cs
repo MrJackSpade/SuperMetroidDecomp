@@ -21,6 +21,8 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Bounded cartridge comparison for the left-facing Murder Beam setup and its explicitly unsupported unsafe variants.</summary>
 internal static class MurderBeamVerification
@@ -95,16 +97,12 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)116, shot.Position.X.Whole, "persistent Murder Beam remains fixed in world X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
-        EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
+        // An ordinary enemy, a Skultera reacting to shots as every ordinary enemy does, set up as its room's population
+        // load sets it up (#2554).
+        EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1], CompiledRoomEnemyDefinitions.Instance,
+            [PopulationPlacementAccess.Entry(EnemyDefinitionId.Skultera, EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Skultera,
+                EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.Skultera) with { Parameter1 = 3 }, Position16<RoomPixels>.Zero))]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        // An ordinary enemy, a Skultera reacting to shots as every ordinary enemy does, set up as its room sets it up.
-        target.Bind(EnemyDefinitionId.Skultera, target.KeptDefinition);
-        target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
-        {
-            Shot = EnemyReaction.OrdinaryShot,
-        });
-        target.SetSpawnParameter1(EnemyDefinitionId.Skultera, 3);
-        target.InitializeAsPlaced(samus);
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);
         target.Health = 1000;

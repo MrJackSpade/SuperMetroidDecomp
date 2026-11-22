@@ -16,7 +16,7 @@ internal sealed partial class BabyMetroidCutsceneEntity(BabyMetroidCutsceneBehav
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
     /// <summary>The Baby, set up as it arrives.</summary>
-    internal BabyMetroidCutsceneState Baby { get; } = BabyMetroidCutsceneBehavior.InitializeMotherBrainBabyMetroid(place, baby);
+    private BabyMetroidCutsceneState Baby { get; } = BabyMetroidCutsceneBehavior.InitializeMotherBrainBabyMetroid(place, baby);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidCutsceneMainAi(Place, Baby, frame);

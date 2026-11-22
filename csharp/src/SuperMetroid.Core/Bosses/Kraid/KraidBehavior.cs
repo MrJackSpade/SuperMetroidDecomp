@@ -68,7 +68,7 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<
     internal KraidBodyLayer BodyLayer { get; }
 
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
-    internal KraidRise Rise { get; }
+    private KraidRise Rise { get; }
 
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     internal KraidEncounterAccess Access { get; }

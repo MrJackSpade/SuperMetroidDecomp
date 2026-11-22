@@ -1681,7 +1681,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var actual=new SnesCgram(); var vram=new SnesVram();
-                enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody).Place.SetUpAsPlaced();
+                _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonBody));
                 // The initializer shows his opening's colours: the shading he publishes, laid in the import's shades (#1512).
                 DraygonEnemyState initialized = enemies.Draygon ?? throw new InvalidOperationException("Verification requires enemies.Draygon.");
                 LayDraygonShading(actual, selected, initialized.Colours);
@@ -1930,8 +1930,7 @@ internal static class LookupStream4Verification
                 var artworkBosses = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { NorfairRidleyColors = selected };
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-                place.SetUpAsPlaced();
+                RoomEnemyPlace place = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Ridley))[0];
                 NorfairRidleyState state = enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.");
                 state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; enemies.NorfairRidleyBehavior.BeginRoarHold(state);
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
@@ -2003,9 +2002,7 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artworkBosses);
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.VerificationServices().IsAreaBossDefeated = () => false;
-                RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-                place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-                place.SetUpAsPlaced();
+                _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Ridley));
                 ushort[] shown = RidleyLaidColours.Of(enemies.Ridley() ?? throw new InvalidOperationException("Verification requires the initialized Ridley."),
                     RidleySheetShades.NorfairSprites(selected), RidleySheetShades.NorfairRoom(selected), 0x1234);
                 for (int color = 0; color < 256; color++)
@@ -2133,29 +2130,35 @@ internal static class LookupStream4Verification
             rom.ReadCartridgeWord((0xa60000 | (rom.ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
+            // His room's population load places him and fills every other place with an enemy that stands in it; the
+            // places the breakup may take are then emptied by kills (#2554).
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            foreach (RoomEnemyPlace place in enemies.Places.InUpdateOrder) place.Bind(EnemyPlaceFixtures.StandIn, place.KeptDefinition);
+            (RoomEnemyPlace body, NorfairRidleyState state) = NorfairRidleyDeathFixtures.PlaceRidley(enemies,
+                [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn), EnemyPlaceOrder.Capacity - 1)]);
             for (int index = 1; index <= freeSlots; index++) enemies.Places.InUpdateOrder[index].Clear();
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
-            var state = new NorfairRidleyState();
             for (int index = 0; index < 7; index++)
                 state.Tail.Links[index].Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index));
-            // Each part joins the breakup of his encounter and his body as it spawns (#2231).
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            void Spawn() => enemies.NorfairRidleyBehavior.Death.SpawnNorfairRidleyBreakupActors(body, state);
-            if (freeSlots < expected.Length)
-                AssertThrows<InvalidOperationException>(Spawn, "Breakup preserves partial allocation before pool exhaustion");
-            else Spawn();
+            // The last update of his death's explosions, in his body's main AI, spawns his pieces, each joining the breakup
+            // of his encounter and his body as it spawns (#2231).
+            void Spawn() => NorfairRidleyDeathFixtures.RunPhase(body, state, NorfairRidleyPhase.DeathExplosions, 1, RoomEnemyFrameFixtures.StandaloneSamus());
+            // A full pool spawns no piece, and the breakup goes on with the pieces it spawned.
+            Spawn();
+            AssertEqual(freeSlots, NorfairRidleyDeathFixtures.Pieces(enemies).Length, "Breakup keeps the pieces it spawned before the pool ran out");
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
             {
                 RoomEnemyPlace fragment = enemies.Places.InUpdateOrder[index + 1];
                 AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.HeldOccupant().Spawn.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
-                RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
-                    ?? throw new InvalidOperationException("A spawned fragment has no state.");
-                AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");
-                AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])), fragmentState.Lifetime.CartridgeCount, "Actual breakup preserves each unresolved native lifetime");
+                // Each piece flies by its own main AI: its first move carries the speed its random draw gave it, and it
+                // expires on the update its native lifetime runs out on.
+                FixedPosition<RoomPixels> spawned = fragment.Position;
+                fragment.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+                AssertEqual(NorfairRidleyDeathFixtures.FirstMove(spawned, new SignedEightEight((ushort)((0x100 + 0x10 * index) & 0x130))), fragment.Position,
+                    "Actual breakup maps each random draw to its original fragment");
+                AssertEqual(rom.ReadCartridgeWord((0xa6c6ce + expected[index])) + 1, 1 + NorfairRidleyDeathFixtures.FlyUntilExpiry(fragment, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    "Actual breakup preserves each unresolved native lifetime");
             }
         }
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion pass.");
@@ -2253,7 +2256,7 @@ internal static class LookupStream4Verification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             // Ceres Ridley is placed as his room's population places him, holding the Baby; the Baby's animation runs as the
             // enemy pass ends before his reveal starts his animation, and after the actors' drawing steps once it has.
-            CeresRidleyState placed = enemies.Places.InUpdateOrder[0].PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None,
+            CeresRidleyState placed = enemies.PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None,
                 RoomEnemyFrameFixtures.StandaloneSamus()).Encounter;
             Func<CeresRidleyState, ushort> advance = ridley =>
             {

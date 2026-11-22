@@ -63,11 +63,13 @@ internal static class ShaktoolOwnedStateVerification
 
         // The chain's death deletes the first seven slots, so a chain starting anywhere else is refused (#1500).
         var misplacedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // An enemy stands in the first place, before the chain.
+        _ = misplacedEnemies.Places.InUpdateOrder[0].BindPlaced(EnemyPlaceFixtures.StandIn, EnemySpawnSettings.None);
         RoomEnemyPlace misplaced = misplacedEnemies.Places.InUpdateOrder[1];
         misplaced.Bind(EnemyDefinitionId.Shaktool, misplaced.KeptDefinition);
         misplaced.Bind(misplaced.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         misplaced.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-        AssertThrows<InvalidDataException>(() => misplaced.SetUpAsPlaced(),
+        AssertThrows<InvalidDataException>(() => misplacedEnemies.LoadAuthoredPopulation(),
             "a Shaktool chain starting after the first slot is refused");
 
         // The chain moves as one, so a segment placed moving otherwise than its leading saw is refused (#2452).
@@ -81,8 +83,7 @@ internal static class ShaktoolOwnedStateVerification
                 index == 0 ? ShaktoolChainMotion.CurlingClockwise : ShaktoolChainMotion.CurlingClockwise with { OrbitDirection = RotationDirection.Counterclockwise },
                 ShaktoolSegmentDefinitions.Segments[index]));
         }
-        mismatchedEnemies.Places.InUpdateOrder[0].SetUpAsPlaced();
-        AssertThrows<InvalidDataException>(() => mismatchedEnemies.Places.InUpdateOrder[1].SetUpAsPlaced(),
+        AssertThrows<InvalidDataException>(() => mismatchedEnemies.LoadAuthoredPopulation(),
             "a Shaktool segment placed moving otherwise than its leading saw is refused");
         Console.WriteLine("Shaktool owned state: orbit wrap, reversed orientation, wall reversal, the first-slot chain and the one chain motion match.");
     }
@@ -140,6 +141,8 @@ internal static class ShaktoolOwnedStateVerification
             place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
         }
+        // The room's population load sets up the chain, its leading saw first (#2554).
+        _ = enemies.LoadAuthoredPopulation();
         return (enemies, enemies.HoldShaktoolChain());
     }
 

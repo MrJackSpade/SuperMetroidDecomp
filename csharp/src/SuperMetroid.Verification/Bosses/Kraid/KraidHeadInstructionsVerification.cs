@@ -32,6 +32,16 @@ internal static class KraidHeadInstructionsVerification
             "Kraid head programs: the 19 native records of the three started lists, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
     }
 
+    /// <summary>
+    /// Starts Kraid's death as the first update of his dying does: his body enters his death's first phase, whose update
+    /// starts the death beside <paramref name="samus"/>.
+    /// </summary>
+    internal static void StartKraidDeath(KraidBehavior behavior, KraidEnemyState state, SuperMetroid.Core.Samus.SamusState samus)
+    {
+        state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
+        behavior.Death.RunKraidDeathPhase(state.Parts.Body, state, (KraidStageRun.Dying)state.BodyState.Run, samus);
+    }
+
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>
     private static void VerifyProductionInterpreter(CartridgeImportAddressSpace rom)
     {
@@ -44,6 +54,7 @@ internal static class KraidHeadInstructionsVerification
             Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.PlayToNextPose;
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
+            state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
             state.HeadPlayback = record.Playback;
 
             KraidHeadAnimationResult result = execute(state);
@@ -83,18 +94,23 @@ internal static class KraidHeadInstructionsVerification
     private static void VerifyTimerAndGrowthConsumers(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<KraidEnemyState>(glowState => enemies.KraidBehavior.Head.InitializeKraidEyeGlow(glowState, (KraidStageRun.Fighting)glowState.BodyState.Run));
-        var death = new Action<KraidEnemyState>(deathState => enemies.KraidBehavior.Death.InitializeKraidDeath(deathState, RoomEnemyFrameFixtures.StandaloneSamus()));
+        var death = new Action<KraidEnemyState>(deathState => StartKraidDeath(enemies.KraidBehavior, deathState, RoomEnemyFrameFixtures.StandaloneSamus()));
         var combat = new Action<RoomEnemyPlace, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
             enemies.KraidBehavior.RunKraidBodyStage(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         state.InitialHealth = 1000;
-        // A thinking wait at zero has run out and holds (#2538): only the update its last count runs out on roars.
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // A thinking wait at zero has run out and holds (#2538): only the update its last count runs out on roars. The counts
+        // are the run-out wait, its last count, the counts either side of the sign bit and the widest, where a wrapping or
+        // signed wait would differ.
+        foreach (int raw in (int[])[0, 1, 2, 3, 0x7ffe, 0x7fff, 0x8000, 0x8001, 0xfffe, ushort.MaxValue])
         {
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
             state.ThinkingWait.SetUpdatesLeft(raw);

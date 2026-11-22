@@ -17,16 +17,11 @@ internal static class HibashiOwnedStateVerification
     internal static void VerifyHibashiOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
-        graphics.SetSpawnParameter1(EnemyDefinitionId.Hibashi, ushort.MaxValue);
-        graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.KeptDefinition);
-        graphics.Position = graphics.Position.WithWhole(new(0x0040, 0x0120));
-        graphics.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-        RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
-        hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.KeptDefinition);
-        hitbox.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
+        IReadOnlyList<RoomEnemyPlace> geyser = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: ushort.MaxValue), new(0x0040, 0x0120)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings()));
+        RoomEnemyPlace graphics = geyser[0];
+        RoomEnemyPlace hitbox = geyser[1];
 
         AssertTrue(graphics.Entity is HibashiEntity && hitbox.Entity is HibashiCollisionPartEntity,
             "parameter two selects the collision part");

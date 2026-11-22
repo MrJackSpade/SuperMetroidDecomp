@@ -66,7 +66,6 @@ internal static class EnemySystemFixtures
             Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),
         });
         system.BossArtwork = installedBosses;
-        EnemyPlaceRegistries.Register(system.Species);
         return system;
     }
 
@@ -96,10 +95,4 @@ internal static class EnemySystemFixtures
     /// <exception cref="InvalidOperationException">The check built the enemies for another room.</exception>
     internal static TourianUnlockBehavior UnlockEffects(RoomEnemySystem enemies) => enemies.TourianUnlockEffects
         ?? throw new InvalidOperationException("The check built its enemies without the statue room, which alone holds the unlock effects.");
-
-    /// <summary>Initializes the statue scene's placement <paramref name="place"/> holds, as the room's enemy load does.</summary>
-    /// <exception cref="InvalidOperationException">The place holds no statue scene placement.</exception>
-    internal static void InitializeStatuePlacement(RoomEnemyPlace place) =>
-        (place.Entity as TourianEntranceStatueEntity
-            ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no Tourian statue scene placement.")).Initialize();
 }

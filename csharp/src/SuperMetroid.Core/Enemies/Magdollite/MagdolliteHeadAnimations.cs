@@ -131,8 +131,6 @@ internal static partial class MagdolliteHeadAnimations
         [P.RightEmerge] = new([Segments.Whole(P.RightEmerge), Segments.Repeated(P.RightLowerPillar, PillarTravel), Segments.Whole(P.RightSurfacing)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteHeadSegment> StartingWith(MagdolliteHeadSegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MagdolliteHeadCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MagdolliteHeadCue>.Frame(frame, duration);

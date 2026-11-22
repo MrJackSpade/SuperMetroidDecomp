@@ -144,7 +144,7 @@ internal static class LookupStream5Verification
                 floor: RoomBackgroundsFixtures.CeresFloor());
             var place = system.Places.InUpdateOrder[0];
             // The intact door is set up as its room places it.
-            place.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None, origin);
             place.Position = place.Position.WithWhole(origin);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
@@ -329,7 +329,7 @@ internal static class LookupStream5Verification
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new StandaloneRoomEnemyServices(() => 0), floor: floor);
         var places = (RoomEnemyPlace[])system.Places.InUpdateOrder;
         // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
-        places[0].StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+        system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
         IEnemyAiFrame aiFrame = CeresDoorAiFrame();
         foreach (ushort tick in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfffe, 0xffff, 0 })
         {
@@ -437,11 +437,11 @@ internal static class LookupStream5Verification
         {
             var result = CeresEscapeOverlays.Load(new MemoryStream(CeresEscapeOverlays.Write(source)));
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")));
-            system.CeresEscape.ShowTitleAsItsWaitRunsOut();
+            system.CeresEscape.ShowTitle();
             int first = ReadVerificationWord(rom, 0xa6c162) - GameplayVramLayout.Bg1TilemapWord;
             int count = ReadVerificationWord(rom, 0xa6c15d) / sizeof(ushort);
             // The getaway writes the title's picture by name (#1466); the words it stands for are the page's.
-            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.FixtureWarning.Text.WordsIn(result);
+            System.Collections.Immutable.ImmutableArray<int> shownWords = system.CeresEscape.FixtureWarning.ShownText().WordsIn(result);
             AssertEqual(count, shownWords.Count(word => word != RoomWarningText.Unwritten), "Native emergency word extent");
             AssertEqual(source.Pages["emergency"].Length, count, "Emergency page keeps its native extent");
             for (int index = 0; index < count; index++)
@@ -1704,7 +1704,7 @@ internal static class LookupStream5Verification
                 var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 var place = system.Places.InUpdateOrder[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                system.StartCeresDoorOrWall(actor, settings);
                 // The initializer shows the normal colours as the door's shade, which the import paints from this paint (#1512).
                 AssertEqual(CeresDoorShades.InNormalColours, place.Shading, "Actual normal/target initializer shows the normal colours");
             }
@@ -1750,7 +1750,7 @@ internal static class LookupStream5Verification
                 system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 var place = system.Places.InUpdateOrder[0];
                 (EnemyDefinitionId actor, EnemySpawnSettings settings) = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(variant);
-                place.StartCeresDoorOrWall(actor, settings);
+                system.StartCeresDoorOrWall(actor, settings);
                 // Once the self-destruct starts, the initializer shows the escaping colours as the door's shade (#1512).
                 AssertEqual(CeresDoorShades.InEscapingColours, place.Shading, "Actual escape initializer shows the escaping colours");
             }
@@ -1797,7 +1797,7 @@ internal static class LookupStream5Verification
             system.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             RoomEnemyPlace door = system.Places.InUpdateOrder[0];
             // The intact door, set up as its room places it, cycles the glow and platform on each of its updates (#2482).
-            door.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
+            system.StartCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             IEnemyAiFrame aiFrame = CeresDoorAiFrame();
             foreach (int counter in Enumerable.Range(0, 64))
             {

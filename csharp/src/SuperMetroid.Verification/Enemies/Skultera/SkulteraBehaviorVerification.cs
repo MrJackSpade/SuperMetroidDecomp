@@ -32,7 +32,7 @@ internal static class SkulteraBehaviorVerification
             place.SetSpawnParameter1(EnemyDefinitionId.Skultera, startsLeft ? SkulteraNativeValues.StartsLeftParameter : (ushort)0);
             // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its
             // state; the room spawn primes the instruction timer, which the setup leaves as it is.
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             place.AnimationClock.StepOnNextUpdate();
             // The Skultera's setup builds the state its steps and its animation, which the check plays, run on.
             SkulteraEnemyState state = SkulteraBehavior.InitializeSkultera(place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>());

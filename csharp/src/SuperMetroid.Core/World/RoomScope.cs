@@ -155,6 +155,32 @@ internal sealed partial record RoomScope
         TourianStatues?.StepBlockAnimations();
     }
 
+    /// <summary>
+    /// The room's gameplay shading (#1512): each owner of a colour effect names the shades and effects its state shows,
+    /// each later one showing over the earlier: the room's colour effects and the effect overlay colours, then its
+    /// bosses', then <paramref name="shownOver"/>, the display's fades, over all of them.
+    /// </summary>
+    /// <param name="shownOver">The owners of the fades of the whole display, in the order they are laid.</param>
+    internal GameplayShading Shading(IEnumerable<IGameplayShadingSource> shownOver)
+    {
+        var shading = new GameplayShadingBuilder();
+        foreach (IGameplayShadingSource source in ShadingSources.Concat(Ensure.NotNull(shownOver)))
+            source.ShadeGameplay(shading);
+        return shading.Build(Assets.BlockSheet.Sheet.Image, Assets.BlockSheet.Backdrop);
+    }
+
+    /// <summary>The owners of the colour effects the room shows, in the order they are laid over each other.</summary>
+    private IEnumerable<IGameplayShadingSource> ShadingSources
+    {
+        get
+        {
+            yield return ColourEffects;
+            yield return FxOverlay;
+            foreach (IGameplayShadingSource boss in Enemies.DisplaySources.ShadingSources)
+                yield return boss;
+        }
+    }
+
     /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>
     internal IEnumerable<IActorInFrontOfSamus> ActorsInFrontOfSamus => CeresElevatorArrival is { } arrival ? [arrival] : [];
 

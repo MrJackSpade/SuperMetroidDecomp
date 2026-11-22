@@ -73,7 +73,7 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
 
     /// <summary>The shared participation every entity built in the place composes.</summary>
-    internal EnemyCommonParticipation Common { get; }
+    private EnemyCommonParticipation Common { get; }
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity => BoundEntity?.Entity;

@@ -72,7 +72,7 @@ internal static class SoundAcceptanceClockVerification
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
             acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
-                acknowledgementBytes.Add(SoundEffectPortBytes.PortByte(sessionAcknowledgements[library]));
+                acknowledgementBytes.Add(SoundEffectPortBytes.PortByte(library, sessionAcknowledgements[library]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
             AssertSequenceEqual(expected, events, $"frame {frame} events equal the port model's writes, ticks and polls");

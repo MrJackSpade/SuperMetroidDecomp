@@ -94,9 +94,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
     internal DraygonCannonObjects DraygonCannons { get; }
 
-    /// <summary>Runs Bomb Torizo's hand and statue room object sequences.</summary>
-    internal BombTorizoHandObjects BombTorizoHand { get; }
-
     /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
     internal NoobTubeObjects NoobTube { get; }
 
@@ -108,9 +105,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 
     /// <summary>Opens and closes colored gates after their matching triggers.</summary>
     internal GateObjects Gates { get; }
-
-    /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
-    internal MotherBrainGlassObjects MotherBrainGlass { get; }
 
     /// <summary>Builds a room's room-object population into its places, in spawn order.</summary>
     internal RoomObjectPopulationLoader PopulationLoader { get; }
@@ -170,10 +164,8 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
         ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = reachedByEnemies.BombTorizoHand;
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, Places, Sounds);
-        MotherBrainGlass = reachedByEnemies.MotherBrainGlass;
         Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
@@ -181,7 +173,7 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         CeresEscape = new CeresEscapeObjects(Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = reachedByEnemies.BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = reachedByEnemies.MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls });
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }

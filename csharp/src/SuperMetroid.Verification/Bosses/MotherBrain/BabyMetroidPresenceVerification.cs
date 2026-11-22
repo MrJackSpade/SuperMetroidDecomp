@@ -49,23 +49,38 @@ internal static class BabyMetroidPresenceVerification
         }
 
         baby.Phase = new BabyMetroidCutscenePhase.Flying.DeathSequence();
+        // Each update's presence is checked against the phase the Baby's main AI left it in that update.
         int frame = 0;
         while (baby.Phase is BabyMetroidCutscenePhase.Flying.DeathSequence)
         {
-            if (frame == 1000)
-                throw new InvalidOperationException("The Baby's fade to black never finished.");
-            RunMain(frame);
-            bool flickering = place.RequireSpeciesState<BabyMetroidCutsceneState>().Phase is BabyMetroidCutscenePhase.Flying.DeathSequence;
+            bool flickering = baby.Phase is BabyMetroidCutscenePhase.Flying.DeathSequence;
             EnemyPresence expected = flickering && frame % 2 == 1 ? EnemyPresence.None : EnemyPresence.Hidden;
             AssertEqual(expected, place.Presence, flickering
                 ? $"enemy frame {frame}: the death's flicker shows the Baby on odd frames and hides it on even"
                 : $"enemy frame {frame}: the finished fade hides the Baby");
             frame++;
+            if (!flickering)
+                break;
+            if (frame == 1000)
+                throw new InvalidOperationException("The Baby's fade to black never finished.");
+            RunMain(frame);
         }
         AssertTrue(frame > 2, "the flicker ran on both parities before the fade finished");
 
         while (baby.Phase is not BabyMetroidCutscenePhase.Flying.FinalCutscene)
         {
+            if (baby.Phase == BabyMetroidCutscenePhase.FinalCutscene)
+            {
+                lights++;
+                AssertEqual(EnemyPresence.Hidden, place.Presence, $"recovery step {lights}: the Baby stays hidden and in its place");
+                AssertTrue(!baby.IsDeleted, $"recovery step {lights}: Mother Brain's rings still look for the Baby");
+                if (lights == 8)
+                    throw new InvalidOperationException("The final cutscene did not end after the room lights' seven recovery steps.");
+                RunMain(frame++);
+                continue;
+            }
+            if (lights > 0)
+                break;
             if (frame == 2000)
                 throw new InvalidOperationException("Mother Brain's readying never reached the final cutscene.");
             RunMain(frame);

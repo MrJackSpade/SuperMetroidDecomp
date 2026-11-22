@@ -93,9 +93,9 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.Places.InUpdateOrder[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
-            ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()).Phase = KraidLintPhase.Inactive;
+            state.Lint(KraidLintPart.Top).Phase = KraidLintPhase.Inactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint.HeldOccupant(), state.Lint(KraidLintPart.Top), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");
@@ -106,7 +106,8 @@ internal static class KraidReportedCollisionsVerification
             body.Position = body.Position.WithWhole(new(176, 457));
             state.BodyState.RisePhase = KraidRisePhase.RaiseBody;
             state.DisplayedHeadFrame = null;
-            runtime.Enemies.KraidBehavior.Rise.RunKraidRisePhase(body, state, samus);
+            // The rise's last update, his body's main AI as the enemy pass runs it.
+            body.RunMainAi(samus);
             AssertEqual((AnimationPlayback<KraidHeadSegment>?)KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Playback, state.HeadPlayback, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Shots[0];
             var held = shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false), 40, FixedPosition<RoomPixels>.Zero);

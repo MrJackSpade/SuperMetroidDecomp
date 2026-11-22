@@ -61,12 +61,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        body.Position = body.Position.WithWhole(new(128, 624));
+        // His room's population load sets him up where his room places him.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new(128, 624)))[0];
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.

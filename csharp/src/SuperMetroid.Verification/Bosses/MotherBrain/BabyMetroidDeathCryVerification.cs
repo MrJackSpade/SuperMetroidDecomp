@@ -25,11 +25,12 @@ internal static class BabyMetroidDeathCryVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
         MotherBrainEnemyState motherBrain = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
-        BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(MotherBrainBabyArrival.BringInBaby(motherBrain, samus));
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(motherBrain, samus);
+        BabyMetroidCutsceneEntity entity = MotherBrainBabyArrival.BabyOf(lateFight);
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, InstalledFixtures.BossArtwork,
             [.. Enumerable.Range(0, 256).Select(index => (ushort)(index + 1))]);
         // The Baby's health lives in the place the final beam's spawn makes it in (#2572).
-        BabyMetroidCutsceneState baby = entity.Baby;
+        BabyMetroidCutsceneState baby = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         baby.Phase = new BabyMetroidCutscenePhase.Flying.FinalCharge();
         baby.Health = 79;
         // The room shows the colours the Baby's arrival laid over it; the fatal blow and the recovery change only the

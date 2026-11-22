@@ -88,7 +88,7 @@ public static partial class GameAssetInstaller
     /// this importer's format and the supported source. Hosts bind these resources to a mutable-memory-only runtime; no
     /// gameplay ROM reader exists.
     /// </summary>
-    public static GameInstallation? TryOpenExtractedContent(string root) =>
+    private static GameInstallation? TryOpenExtractedContent(string root) =>
         HoldsCurrentExtractedContent(root) ? new GameInstallation(Path.GetFullPath(root)) : null;
 
     /// <summary>

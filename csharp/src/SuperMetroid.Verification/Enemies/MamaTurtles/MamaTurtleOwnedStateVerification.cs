@@ -37,16 +37,9 @@ internal static class MamaTurtleOwnedStateVerification
         // the last of them, placed after her as a room places them, completes the family (#2375): one listed second still
         // finds them and falls asleep on her first step.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];
-        mama.Bind(EnemyDefinitionId.MamaTurtle, mama.KeptDefinition);
-        mama.SetUpAsPlaced();
-        for (int place = 2; place < 6; place++)
-        {
-            RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
-            baby.Bind(EnemyDefinitionId.BabyTurtle, baby.KeptDefinition);
-            baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
-            baby.SetUpAsPlaced();
-        }
+        // The room's population load places an enemy that stands in the first place, then Mama and her four babies.
+        RoomEnemyPlace mama = enemies.LoadPopulation([PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn), PopulationPlacementAccess.Entry(EnemyDefinitionId.MamaTurtle, new Position16<RoomPixels>(0x0100, 0x0100)),
+            .. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyDefinitionId.BabyTurtle, new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right), new(0x0100, 0x0100)), 4)])[1];
         var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama.HeldOccupant(), mama.RequireSpeciesState<MamaTurtleEnemyState>(), new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },

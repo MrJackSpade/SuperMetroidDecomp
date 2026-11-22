@@ -58,13 +58,9 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                     CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
-        Type type = typeof(RoomEnemySystem);
-        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.KeptDefinition);
-        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body.HeldOccupant(), body);
-        CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
+        // His room's population load sets him up, his encounter built by his body's setup.
+        CrocomireEnemyState state = SuperMetroid.Verification.Bosses.Crocomire.CrocomirePlacement.PlaceCrocomire(enemies, new(0, 0));
+        RoomEnemyPlace body = state.Body;
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation),

@@ -481,15 +481,15 @@ internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFa
 
     /// <summary>Starts <paramref name="segment"/>'s animation only when it differs from the one the head plays (#2145).</summary>
     private static void StartMagdolliteAnimation(RoomEnemyPlace place, MagdolliteHeadState state, MagdolliteHeadSegment segment) =>
-        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteHeadAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteHeadAnimations.StartingAt[segment]);
 
     /// <summary>Starts <paramref name="segment"/>'s animation only when it differs from the one the body plays (#2145).</summary>
     private static void StartMagdolliteAnimation(RoomEnemyPlace place, MagdolliteBodyState state, MagdolliteBodySegment segment) =>
-        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteBodyAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteBodyAnimations.StartingAt[segment]);
 
     /// <summary>Starts <paramref name="segment"/>'s animation only when it differs from the one the overlay plays (#2145).</summary>
     private static void StartMagdolliteAnimation(RoomEnemyPlace place, MagdolliteOverlayState state, MagdolliteOverlaySegment segment) =>
-        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteOverlayAnimations.StartingWith(segment));
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteOverlayAnimations.StartingAt[segment]);
 
     /// <summary>
     /// Counts down the room's lava glow once a Magdollite has started it, after the enemies' update; when the frame's

@@ -105,7 +105,8 @@ internal static class FxOverlayFixtures
     internal static AtmosphereArtwork Rows(LayeredPicture plane, int firstRow, int rows)
     {
         Ensure.NotNull(plane);
-        Extent16<ImagePixels> pictured = plane.Size ?? throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
+        if (!plane.ShowsSomething(out Extent16<ImagePixels> pictured))
+            throw new InvalidOperationException("An overlay fixture's plane installs neither part.");
         var offset = new Offset16<ImagePixels>(0, firstRow * TilePixels);
         var size = new Extent16<ImagePixels>(pictured.X, checked((ushort)(rows * TilePixels)));
         if (offset.Y + size.Y > pictured.Y)

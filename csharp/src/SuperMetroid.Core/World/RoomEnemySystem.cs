@@ -109,7 +109,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     internal RoomEnemySpecies SpeciesComposition { get; }
 
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
-    internal EnemySpeciesRegistry Species => SpeciesComposition.Registry;
+    private EnemySpeciesRegistry Species => SpeciesComposition.Registry;
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; }

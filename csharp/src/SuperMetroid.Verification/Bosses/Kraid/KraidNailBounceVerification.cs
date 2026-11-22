@@ -16,21 +16,31 @@ internal static class KraidNailBounceVerification
     /// <summary>A flying nail moves in whole pixels, so each reflection is the plain opposite speed; the nail's positions after each.</summary>
     internal static void VerifyKraidNailBounce()
     {
-        var terrain = new RoomTerrainBlock[32 * 32];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]), RoomLevelData.NothingBeyondGrid(), []);
+        // An open room holding Kraid where his room's population places him.
+        var terrain = new RoomTerrainBlock[64 * 64];
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        _ = enemies.PlaceKraid();
         Action<RoomEnemyPlace, RoomLevelData> tick = (place, room) => enemies.KraidBehavior.Projectiles.TickKraidNailFlight(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()), room);
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = new(4, 4);
+        // His body's contour stands where his body stands: the nail flies beside his lowest ledge, one move short of it.
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        KraidNailLedge lowest = KraidNailContourDefinitions.Ledges[0];
+        int contourX = body.Position.X.Whole + lowest.Left;
+        ushort nailY = (ushort)(body.Position.Y.Whole + lowest.Top + 1);
         for (int speed = 1; speed <= 4; speed++)
         {
-            nail.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
+            ushort start = (ushort)(contourX - nail.Radius.X - speed);
+            nail.Position = FixedPosition<RoomPixels>.FromWhole(new(start, nailY));
             ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new(speed, 0));
             tick(nail, level);
             AssertEqual(SignedSixteenSixteen.FromWholePixels(-speed), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X, "the contour reverses the nail's speed");
-            AssertEqual((ushort)(128 + speed), nail.Position.X.Whole, "the bounce follows the current horizontal move");
+            AssertEqual((ushort)(start + speed), nail.Position.X.Whole, "the bounce follows the current horizontal move");
             AssertEqual((ushort)0, nail.Position.X.Fraction, "a whole-pixel move keeps the nail on a whole pixel");
         }
         var wallTerrain = new RoomTerrainBlock[32 * 32];

@@ -27,17 +27,19 @@ internal static class TourianStatueSceneLookVerification
         RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles),
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
             statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
+        // The room's population load sets up the scene's first placement, which spawns its three decorations.
         RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
-        placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
         placement.Bind(EnemyDefinitionId.TourianStatue, placement.KeptDefinition);
+        placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
+        _ = enemies.LoadAuthoredPopulation();
+        // A Tourian statue place the scene never set up, beside it.
         RoomEnemyPlace unplaced = enemies.Places.InUpdateOrder[1];
         unplaced.Bind(EnemyDefinitionId.TourianStatue, unplaced.KeptDefinition);
 
         EnemyProjectile stranger = enemies.Projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DustOrExplosion, DustExplosionProjectileBehavior.Instance, SpriteGraphics.SharedStandard, new SuperMetroid.Core.Enemies.Projectiles.DustExplosionProjectileAnimation(SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation.SmallExplosion))
-            ?? throw new InvalidOperationException("A new room has a free enemy-projectile place.");
+            ?? throw new InvalidOperationException("The room has a free enemy-projectile place.");
 
         TourianEntranceStatueBehavior scene = EnemySystemFixtures.StatueScene(enemies);
-        EnemySystemFixtures.InitializeStatuePlacement(placement);
         EnemyProjectile[] decorations = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile =>
             projectile.IsActive && !ReferenceEquals(projectile, stranger))];
         AssertEqual(3, decorations.Length, "the scene's first placement spawns its three decorations");

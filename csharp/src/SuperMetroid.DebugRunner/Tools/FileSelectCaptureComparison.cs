@@ -28,9 +28,10 @@ internal static class FileSelectCaptureComparison
         ClipAudioLibrary clips = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         var installation = RepositoryInstallation.Installation;
         var game = new SuperMetroidGame(
-            SaveRamCodec.Decode(recording.InitialSaveRam, installation.LoadMaps()), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips),
-            installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()),
-            recording.GameOptions.ToAssists());
+            SaveRamCodec.Decode(recording.InitialSaveRam, installation.LoadMaps()), recording.GameOptions.ToAssists(),
+            SuperMetroidGameHostServices.Default, new SuperMetroid.Core.Compatibility.SharedRandom(),
+            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips),
+            installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()));
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var muted = new ClipAudioBackend(clips);
         var suppressed = new short[AudioSession.PcmSamplesPerFrame];

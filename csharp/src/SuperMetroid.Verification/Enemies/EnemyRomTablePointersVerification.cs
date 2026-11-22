@@ -94,9 +94,10 @@ internal static class EnemyRomTablePointersVerification
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
+            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            // The room's population load builds the placement and initializes it.
+            _ = system.LoadAuthoredPopulation();
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");

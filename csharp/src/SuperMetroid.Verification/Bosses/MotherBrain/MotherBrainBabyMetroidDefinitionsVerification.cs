@@ -57,8 +57,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         enemies.VerificationServices().NextRandom = () => 0;
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
-        MotherBrainEnemyState state = enemies.Places.InUpdateOrder[0].PlaceAs<MotherBrainBodyEntity>(EnemyDefinitionId.MotherBrainBody, EnemySpawnSettings.None, samus).Encounter;
-        enemies.Places.InUpdateOrder[1].PlaceAs<MotherBrainHeadEntity>(EnemyDefinitionId.MotherBrainHead, EnemySpawnSettings.None, samus);
+        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, samus);
         MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, samus);
 
         BabyMetroidCutsceneState madeBaby = lateFight.Baby ??
@@ -70,7 +69,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.HeldOccupant().Spawn,
             "Mother Brain Baby retained population snapshot");
-        AssertTrue(ReferenceEquals(madeBaby, baby.SpeciesState<BabyMetroidCutsceneState>()),
+        AssertTrue(baby.Entity is BabyMetroidCutsceneEntity,
             "Mother Brain Baby's place holds the Baby its late fight made");
         AssertEqual(3, enemies.Places.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");

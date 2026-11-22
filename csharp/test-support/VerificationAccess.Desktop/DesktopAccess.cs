@@ -107,7 +107,7 @@ internal static class DesktopAccess
         string fullRomPath = Path.GetFullPath(romPath);
         string root = Path.Combine(Path.GetDirectoryName(fullRomPath)
             ?? throw new InvalidOperationException("Cartridge path has no parent directory."), InstallationDirectoryName);
-        return GameAssetInstaller.TryOpenExtractedContent(root) ?? throw new InvalidOperationException(
+        return GameAssetInstaller.HoldsCurrentExtractedContent(root) ? new GameInstallation(root) : throw new InvalidOperationException(
             $"No complete installation was placed beside {fullRomPath} at {root}.");
     }
 

@@ -20,14 +20,11 @@ internal static class NorfairLavaJumperOwnedStateVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.BindPlaced(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Health = 10;
-        parent.SetUpAsPlaced();
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Squeept, follower.KeptDefinition);
-        follower.SetUpAsPlaced();
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
+        RoomEnemyPlace parent = places[0];
+        RoomEnemyPlace follower = places[1];
         SqueeptState parentState = enemies.SqueeptStates[0] ?? throw new InvalidOperationException("The parent has no state.");
         AssertTrue(parent.Entity is SqueeptEntity && follower.Entity is NorfairLavaJumperFollowerEntity,
             "parameter one's sign bit selects the follower: the placement builds each part's own entity (#2164)");

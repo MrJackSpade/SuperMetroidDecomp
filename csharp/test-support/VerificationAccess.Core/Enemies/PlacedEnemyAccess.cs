@@ -8,54 +8,15 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A check's enemy, set up and run as the game sets it up and runs it (#2554): its population entry is bound through the
-/// place's registry and its species builds its entity as the population load does, and its main AI runs as the enemy pass
-/// runs it, so a check drives the species through the entity the game builds rather than through its private steps.
+/// A check's enemy, run as the game runs it (#2554): a check places it through its room's population load
+/// (<see cref="PopulationPlacementAccess"/>), and its main AI runs as the enemy pass runs it, so a check drives the species
+/// through the entity the game builds rather than through its private steps.
 /// </summary>
 internal static class PlacedEnemyAccess
 {
     /// <summary>The enemy a fixture place holds.</summary>
     extension(RoomEnemyPlace self)
     {
-        /// <summary>
-        /// Binds <paramref name="species"/> placed with <paramref name="settings"/> in the place and sets it up as the population
-        /// load does with <paramref name="samus"/>, returning the entity its species built.
-        /// </summary>
-        /// <typeparam name="TEntity">The entity the species builds for the enemy.</typeparam>
-        /// <exception cref="InvalidOperationException">The species built another entity.</exception>
-        internal TEntity PlaceAs<TEntity>(EnemyDefinitionId species, EnemySpawnSettings settings, SamusState samus) where TEntity : class, IEnemyEntity
-        {
-            self.BindPlaced(species, settings);
-            self.InitializeAsPlaced(samus);
-            return self.EntityOf<TEntity>();
-        }
-
-        /// <summary>
-        /// Binds <paramref name="species"/> placed with <paramref name="settings"/> at <paramref name="at"/> in the place, as
-        /// its population entry places it there, and sets it up as the population load does with <paramref name="samus"/>.
-        /// </summary>
-        /// <typeparam name="TEntity">The entity the species builds for the enemy.</typeparam>
-        /// <exception cref="InvalidOperationException">The species built another entity.</exception>
-        internal TEntity PlaceAs<TEntity>(EnemyDefinitionId species, EnemySpawnSettings settings, SamusState samus, Position16<RoomPixels> at)
-            where TEntity : class, IEnemyEntity =>
-            self.PlaceAs<TEntity>(species, settings, samus, at, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
-
-        /// <summary>
-        /// Binds <paramref name="species"/> placed with <paramref name="settings"/> at <paramref name="at"/> in the place and
-        /// sets it up as the population load does in a room whose terrain is <paramref name="level"/>.
-        /// </summary>
-        /// <typeparam name="TEntity">The entity the species builds for the enemy.</typeparam>
-        /// <exception cref="InvalidOperationException">The species built another entity.</exception>
-        internal TEntity PlaceAs<TEntity>(EnemyDefinitionId species, EnemySpawnSettings settings, SamusState samus, Position16<RoomPixels> at, RoomLevelData level)
-            where TEntity : class, IEnemyEntity
-        {
-            self.BindEntry(RoomEnemyPlaceSpawnParameters.PlacementFor(species, settings) with { Placing = EnemyPlacing.At(at) }, self.KeptDefinition);
-            // The population load places the enemy where its entry places it before its setup runs.
-            self.Position = FixedPosition<RoomPixels>.FromWhole(at);
-            self.InitializeAsPlaced(samus, level);
-            return self.EntityOf<TEntity>();
-        }
-
         /// <summary>The entity the place's enemy is.</summary>
         /// <typeparam name="TEntity">The entity a check expects.</typeparam>
         /// <exception cref="InvalidOperationException">The place holds no such entity.</exception>

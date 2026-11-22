@@ -130,20 +130,18 @@ internal static class EvirInstructionProgramDefinitionsVerification
     }
 
     /// <summary>
-    /// Places an Evir as its room's population places it: its body, then its arms, then its spit, each placed and set up
-    /// in turn, the arms and spit finding the body listed before them.
+    /// Places an Evir as its room's population places it: the room's load sets up its body, then its arms, then its spit,
+    /// the arms and spit finding the body listed before them (#2554).
     /// </summary>
     private static void PlaceEvir(RoomEnemySystem enemies)
     {
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[BodyPlace];
         body.BindPlaced(EnemyDefinitionId.Evir, PlacedBody);
-        body.SetUpAsPlaced();
         RoomEnemyPlace arms = enemies.Places.InUpdateOrder[BodyPlace + 1];
         arms.BindPlaced(EnemyDefinitionId.Evir, PlacedBody with { Part = EvirBodyPart.Arms });
-        arms.SetUpAsPlaced();
         RoomEnemyPlace spit = enemies.Places.InUpdateOrder[SpitPlace];
         spit.Bind(EnemyDefinitionId.EvirProjectile, spit.KeptDefinition);
-        spit.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
     }
 
     /// <summary>

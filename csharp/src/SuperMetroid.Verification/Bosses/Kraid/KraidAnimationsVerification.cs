@@ -166,8 +166,11 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         // The parts bind before the encounter begins, so each holds it as its setup would.
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
     }
@@ -234,9 +237,6 @@ internal static class KraidAnimationsVerification
         }
 
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
-        // The foot binds after the encounter began, and joins it as its setup would.
-        foot.SetUpAsPlaced();
         // The walks' cues raise, lower and step the body: it stands clear of the room's edges while they do.
         body.Position = body.Position.WithWhole(new(512, 512));
         foreach (KraidPartSegment walk in new[] { KraidPartSegment.FootWalkingForward, KraidPartSegment.FootLungeForward, KraidPartSegment.FootWalkingBackward })
@@ -265,9 +265,6 @@ internal static class KraidAnimationsVerification
     {
         (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
-        foot.Bind(EnemyDefinitionId.KraidFoot, foot.KeptDefinition);
-        // The foot binds after the encounter began, and joins it as its setup would.
-        foot.SetUpAsPlaced();
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
@@ -300,17 +297,16 @@ internal static class KraidAnimationsVerification
         // #2213: a lint's stopped clock never steps its animation, through any number of updates and a lengthened hold,
         // until its owner steps it again.
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
-        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.KeptDefinition);
-        // The lint binds after the encounter began, and joins it as its setup would.
-        lint.SetUpAsPlaced();
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
         int stoppedHold = lint.AnimationClock.Hold;
+        // His room's population load leaves the lint showing the empty frame it loads with.
+        EnemyFrameId? stoppedFrame = lint.Frame;
         for (int update = 0; update < 256; update++)
         {
             Pass(lint);
-            if (lint.Frame is not null || lint.AnimationClock.ShowsNewFrame || lint.AnimationClock.Hold != stoppedHold ||
+            if (lint.Frame != stoppedFrame || lint.AnimationClock.ShowsNewFrame || lint.AnimationClock.Hold != stoppedHold ||
                 state.TopLintState.Playback != Started(KraidPartSegment.LintInitial))
                 throw new InvalidOperationException($"Verification failed: the stopped lint's animation stepped at update {update}.");
         }
@@ -366,7 +362,6 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, _) = NewKraid();
         KraidNailState part = state.Nail(KraidNailPart.First);
         RoomEnemyPlace nail = part.Place;
-        nail.Bind(EnemyDefinitionId.KraidFirstNail, nail.KeptDefinition);
         KraidProjectiles.InitializeKraidNail(nail, KraidNailPart.First, state);
         AssertEqual((EnemyFrameId?)EnemyFrameId.KraidNailTurned0, nail.Frame, "a fingernail set up shows its spin's first pose");
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.NailLoop), part.Playback.Animation, "the pose is its spin's");
@@ -466,11 +461,20 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
-        random = 0;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
-        random = 16;
-        enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
+        // His growth breaks the ceiling with a rising rock every eighth update of his body, which his main AI runs as the
+        // enemy pass runs it; no ceiling rock is left to fall.
+        (RoomEnemySystem growing, KraidEnemyState growth, RoomEnemyPlace growingBody, _) = NewKraid();
+        ushort growingRandom = 0;
+        growing.VerificationServices().ReadRandom = () => growingRandom;
+        growth.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
+        growth.BodyState.NextCeilingRock = null;
+        growingBody.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 600));
+        foreach (ushort sample in new ushort[] { 0, 16 })
+        {
+            growingRandom = sample;
+            growingBody.FrameCounter = 0;
+            growingBody.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        }
         random = 2;
         enemies.KagoBehavior.SpawnKagoBug(source.BoundFor(EnemyDefinitionId.Kago), source);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KagoBug),
@@ -485,7 +489,7 @@ internal static class KraidAnimationsVerification
             AssertTrue(projectile.Animation is KraidRockAnimation started && started.Program == program, $"{kind} starts the {program} program");
         }
         // Both rising rocks are one kind, the random sample's side choosing each one's pose (#2278).
-        EnemyProjectile[] rising = [.. enemies.Projectiles.EnemyProjectiles.Where(item => item.Kind == RoomEnemyProjectileKind.KraidRisingRock)];
+        EnemyProjectile[] rising = [.. growing.Projectiles.EnemyProjectiles.Where(item => item.Kind == RoomEnemyProjectileKind.KraidRisingRock)];
         AssertEqual(2, rising.Length, "both rising rocks spawn as one kind");
         foreach (KraidRockSegment pose in new[] { KraidRockSegment.SharedPose, KraidRockSegment.RisingRightPose })
             AssertEqual(1, rising.Count(rock => rock.Animation is KraidRockAnimation started && started.Program == pose),

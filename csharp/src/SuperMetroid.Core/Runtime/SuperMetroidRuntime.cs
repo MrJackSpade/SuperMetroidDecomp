@@ -1165,25 +1165,14 @@ internal sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
-    /// state shows, each later one showing over the earlier: the room's colour effects and the effect overlay colours,
-    /// then its bosses', then the door's fade over all of them.
+    /// The published frame's gameplay shading (#1512): the room's shading, with the door's fade and the death sequence's
+    /// or the fade-out's over all of it.
     /// </summary>
-    private GameplayShading PublishShading(RoomScope room, SamusState samus)
-    {
-        var shading = new GameplayShadingBuilder();
-        foreach (IGameplayShadingSource source in ShadingSources(room, samus))
-            source.ShadeGameplay(shading);
-        return shading.Build(room.Assets.BlockSheet.Sheet.Image, room.Assets.BlockSheet.Backdrop);
-    }
+    private GameplayShading PublishShading(RoomScope room, SamusState samus) => room.Shading(DisplayFades(samus));
 
-    /// <summary>The owners of the colour effects the frame shows, in the order they are laid over each other.</summary>
-    private IEnumerable<IGameplayShadingSource> ShadingSources(RoomScope room, SamusState samus)
+    /// <summary>The fades of the whole display the frame shows over the room's shading, in the order they are laid.</summary>
+    private IEnumerable<IGameplayShadingSource> DisplayFades(SamusState samus)
     {
-        yield return room.ColourEffects;
-        yield return room.FxOverlay;
-        foreach (IGameplayShadingSource boss in room.Enemies.DisplaySources.ShadingSources)
-            yield return boss;
         yield return DoorFade;
         // The death explosion's whiteout writes over the colours the death fade left black, so it shows instead of it.
         if (samus.DeathSequence.Whiteout is not null)

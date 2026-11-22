@@ -12,14 +12,13 @@ internal static class CeresDoorOrWallPlaces
     }
 
     /// <summary>
-    /// Binds <paramref name="place"/> to the Ceres door or wall <paramref name="actor"/> placed with <paramref name="settings"/>
-    /// and sets it up as its room's population sets it up.
+    /// Places the Ceres door or wall <paramref name="actor"/> with <paramref name="settings"/> at <paramref name="at"/> as
+    /// <paramref name="enemies"/>' only enemy, as its room's population load places and sets it up (#2554).
     /// </summary>
-    internal static void StartCeresDoorOrWall(this RoomEnemyPlace place, EnemyDefinitionId actor, EnemySpawnSettings settings)
-    {
-        place.BindCeresDoorOrWall(actor, settings);
-        place.SetUpAsPlaced();
-    }
+    /// <returns>The place holding it.</returns>
+    internal static RoomEnemyPlace StartCeresDoorOrWall(this World.RoomEnemySystem enemies, EnemyDefinitionId actor, EnemySpawnSettings settings,
+        Position16<RoomPixels> at = default) =>
+        enemies.LoadPopulation(PopulationPlacementAccess.Entry(actor, settings, at))[0];
 
     /// <summary>The elevator door <paramref name="place"/> holds.</summary>
     internal static CeresElevatorDoorEntity ElevatorDoor(this RoomEnemyPlace place) =>

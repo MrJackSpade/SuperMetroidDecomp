@@ -83,7 +83,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                 AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
                     state.Playback,
                     $"{name} keeps native animation selection");
-                AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
+                // The native PLM request is the statue's hand, which every site asks its room for (#2562).
+                AssertTrue(enemies.PassEvents.Published.OfType<SuperMetroid.Core.Enemies.Chozo.ChozoStatueHandAsked>().Any(),
                     $"{name} still publishes its native PLM request");
             }
         }

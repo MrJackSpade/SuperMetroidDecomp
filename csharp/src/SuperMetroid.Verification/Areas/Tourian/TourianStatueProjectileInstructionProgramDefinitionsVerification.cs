@@ -167,9 +167,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             if (!enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.IsActive && projectile.Kind == kind))
             {
                 RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
-                placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
                 placement.Bind(EnemyDefinitionId.TourianStatue, placement.KeptDefinition);
-                EnemySystemFixtures.InitializeStatuePlacement(placement);
+                placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
+                _ = enemies.LoadAuthoredPopulation();
             }
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.IsActive && projectile.Kind == kind);
         }

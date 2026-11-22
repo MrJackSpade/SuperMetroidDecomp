@@ -313,7 +313,7 @@ internal static partial class EnemySheetComposer
     /// </summary>
     internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
-        LoadedGraphicsSet loaded = Load(inputs, set);
+        LoadedGraphicsSet loaded = LoadedGraphicsSet.Of(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
         IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set, inputs.SetMembers);
         // A spawned-object sheet with no picture to show is not installed (#1513): nothing draws from it.
@@ -377,23 +377,6 @@ internal static partial class EnemySheetComposer
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
                 RowShades: [.. loaded.Shades.SharedSelectedBy(enemy), .. rowShades], Blank: [.. blank.Order(StringComparer.Ordinal)]), changes, corpses);
         }
-    }
-
-    /// <summary>
-    /// Graphics set <paramref name="set"/> as a room load leaves it: its enemy graphics, its OBJ page, its sprite colours,
-    /// and the enemies drawn under it, its members in record order, then each enemy its rooms place without the set
-    /// loading it, then the enemies those enemies' encounters spawn.
-    /// </summary>
-    internal static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
-    {
-        Ensure.NotNull(inputs);
-        Ensure.NotNull(set);
-        RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(set, inputs.SetMembers);
-        GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(members);
-        LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
-        EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Encounters(inputs, members), RottingCorpseCells.Of(drawn)),
-            colours, new EnemySheetShades(inputs, colours, Placements(set)), drawn);
     }
 
     /// <summary>
@@ -477,7 +460,25 @@ internal static partial class EnemySheetComposer
     /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
     internal sealed partial record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
-        IReadOnlyList<EnemyDefinitionId> Drawn);
+        IReadOnlyList<EnemyDefinitionId> Drawn)
+    {
+        /// <summary>
+        /// Graphics set <paramref name="set"/> as a room load leaves it, from <paramref name="inputs"/>: its enemy graphics,
+        /// its OBJ page, its sprite colours, and the enemies drawn under it, its members in record order, then each enemy its
+        /// rooms place without the set loading it, then the enemies those enemies' encounters spawn.
+        /// </summary>
+        internal static LoadedGraphicsSet Of(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+        {
+            Ensure.NotNull(inputs);
+            Ensure.NotNull(set);
+            RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(set, inputs.SetMembers);
+            GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(members);
+            LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
+            EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
+            return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Encounters(inputs, members), RottingCorpseCells.Of(drawn)),
+                colours, new EnemySheetShades(inputs, colours, Placements(set)), drawn);
+        }
+    }
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, GraphicsSetCharacterLayout layout)

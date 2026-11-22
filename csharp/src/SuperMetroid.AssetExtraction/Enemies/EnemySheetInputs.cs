@@ -48,6 +48,7 @@ internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, 
         };
     }
 
+
     /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
     internal required InstalledBeamPalettes BeamPalettes { get; init; }
 

@@ -271,7 +271,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             LeadingPartPlacement.Prepare(place, definition);
             place.Bind(definition, HeaderOf(definition));
-            place.SetUpAsPlaced();
+            _ = enemies.LoadAuthoredPopulation();
             Check(definition, enemies, place);
         }
 

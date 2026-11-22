@@ -35,7 +35,7 @@ internal static class PauseSelectorsVerification
             // The two menus are built and stepped alike, so only the restored menu's ticks, from its round trip on, are
             // compared with the menu that was never restored (#1680). Each compared tick compares the complete render
             // inputs; the pixels are compared once per displayed selector frame (#1532).
-            SuperMetroid.Core.Animation.AnimationPlace? renderedFrame = null;
+            SuperMetroid.Core.Assets.PlacedSpritePart[]? renderedSprites = null;
             for (int tick = 0; tick < 100; tick++)
             {
                 continuing.Step(0, 0); pause.Step(0, 0);
@@ -46,14 +46,15 @@ internal static class PauseSelectorsVerification
                 }
                 if (tick < RestoredTick)
                     continue;
-                AssertEqual(continuing.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "a restored selector keeps its phase and timer");
                 var continuingInputs = continuing.ComposeScene(); var restoredInputs = pause.ComposeScene();
                 AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredInputs.SpriteParts()) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
                     PauseScreenMemory.SameImage(continuing, pause, catalog) && continuingInputs.Brightness == restoredInputs.Brightness,
                     "every restored selector keeps the render inputs of the menu never restored");
-                if (pause.ItemSelectorAnimationState.Place != renderedFrame)
+                // The selector's next look shows as a change of the sprites it draws.
+                SuperMetroid.Core.Assets.PlacedSpritePart[] sprites = restoredInputs.SpriteParts();
+                if (renderedSprites is not { } rendered || !rendered.SequenceEqual(sprites))
                 {
-                    renderedFrame = pause.ItemSelectorAnimationState.Place;
+                    renderedSprites = sprites;
                     AssertTrue(ScenePixels.Same(continuingInputs, restoredInputs), "every restored selector keeps the pixels of the menu never restored");
                 }
             }

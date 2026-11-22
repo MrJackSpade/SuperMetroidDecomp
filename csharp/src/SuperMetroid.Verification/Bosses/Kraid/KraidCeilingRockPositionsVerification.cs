@@ -34,10 +34,14 @@ internal static class KraidCeilingRockPositionsVerification
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemyPlace, KraidEnemyState> step = (growthBody, growthState) => enemies.KraidBehavior.Rise.RunKraidGrowthPhase(growthBody, growthState);
+        // Each growth update is his body's main AI, as the enemy pass runs it, in one frame of an open room.
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
@@ -49,7 +53,7 @@ internal static class KraidCeilingRockPositionsVerification
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.NextCeilingRock = ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, index);
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
-            step(body, state);
+            body.RunMainAi(frame);
             int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");

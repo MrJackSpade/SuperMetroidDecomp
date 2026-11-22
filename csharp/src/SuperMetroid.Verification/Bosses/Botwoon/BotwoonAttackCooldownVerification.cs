@@ -126,8 +126,8 @@ internal static class BotwoonAttackCooldownVerification
         new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
     /// <summary>
-    /// A head in slot zero bound as Botwoon, away from every hole, with its thirteen body segments spawned by the
-    /// production spawner and its health palette complete so the update reads no artwork.
+    /// A head in slot zero bound as Botwoon, away from every hole, set up as the room's spawn sets him up, his thirteen
+    /// body segments with him, and his health palette complete so the update reads no artwork.
     /// </summary>
     private static NewBotwoonHeadResult NewBotwoon()
     {
@@ -138,6 +138,8 @@ internal static class BotwoonAttackCooldownVerification
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.KeptDefinition);
         head.Position = head.Position.WithWhole(new(1000, 1000));
+        // His room's load reads whether its mini-boss is defeated; this room's is not.
+        enemies.VerificationServices().IsAreaMiniBossDefeated ??= () => false;
         // His setup builds the state his main AI runs on and spawns his body; the check then stands him clear of his holes,
         // past his first action.
         BotwoonEnemyState state = enemies.BotwoonBehavior.InitializeBotwoon(head.HeldOccupant(), head);

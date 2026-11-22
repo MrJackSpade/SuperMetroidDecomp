@@ -61,8 +61,6 @@ internal static partial class MagdolliteBodyAnimations
         [P.EightSegmentPillar] = new([Segments.Whole(P.EightSegmentPillar)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MagdolliteBodySegment> StartingWith(MagdolliteBodySegment segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

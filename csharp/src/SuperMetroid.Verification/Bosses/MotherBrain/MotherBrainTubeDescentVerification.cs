@@ -63,10 +63,10 @@ internal static class MotherBrainTubeDescentVerification
             AssertEqual(MotherBrainAscentPhase.DrawMural, state.AscentPhase, $"the mural is still drawing at update {update}");
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
-        AssertEqual(string.Join(",", Enumerable.Range(0, 12)),
-            string.Join(",", enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request =>
-                request is MotherBrainMuralRowReveal reveal ? reveal.Row.Place.ToString(System.Globalization.CultureInfo.InvariantCulture) : request.ToString())),
-            "the mural's twelve rows are revealed in order");
+        // The rows show in the order their blocks lie in, the second assertion below.
+        AssertEqual(string.Join(",", Enumerable.Repeat(nameof(MotherBrainMuralRowReveal), 12)),
+            string.Join(",", enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.GetType().Name)),
+            "the mural's twelve rows are revealed");
         AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
                 new Position16<RoomBlocks>(2, 2 + row))),
             "each of the mural's rows is revealed a block below the last, from block row two of column two");

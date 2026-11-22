@@ -24,8 +24,11 @@ internal static class KraidFootCollisionDefinitionsVerification
         // shows each recorded pose, which its collision reads (#2210).
         installed.VerificationServices().IsAreaBossDefeated = () => false;
         installed.VerificationServices().SetRoomScrollState = (_, _) => { };
-        installed.Places.BindKraidPartsInRoomOrder();
-        _ = installed.KraidBehavior.BeginEncounterInRoomOrder(installed.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        installed.VerificationServices().IsAreaBossDefeated ??= () => false;
+        installed.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        _ = installed.PlaceKraid();
         RoomEnemyPlace installedFoot = installed.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KraidFoot));
         ushort[] frames =
         [

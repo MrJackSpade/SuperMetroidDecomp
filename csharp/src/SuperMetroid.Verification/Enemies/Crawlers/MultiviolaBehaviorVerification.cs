@@ -17,11 +17,9 @@ internal static class MultiviolaBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Multiviola, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Multiviola, words => words);
         // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
-        place.SetUpAsPlaced();
+        _ = enemies.LoadAuthoredPopulation();
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Segments, MultiviolaSegment.Flying, MultiviolaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Segments, MultiviolaSegment.Flying)),

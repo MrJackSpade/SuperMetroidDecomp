@@ -19,18 +19,10 @@ internal static class CrocomirePlacement
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         // His room's screens' scrolls are the room's own; the check keeps no room around him.
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-        // Each is bound with its species' definition and takes its hitbox from it, as the population load copies it.
-        foreach ((RoomEnemyPlace place, EnemyDefinitionId species) in new[] { (body, EnemyDefinitionId.Crocomire), (tongue, EnemyDefinitionId.CrocomireTongue) })
-        {
-            RoomEnemyDefinition definition = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(species);
-            place.Bind(species, definition);
-            place.Radius = new(definition.Radius.X, definition.Radius.Y);
-        }
-        body.Position = body.Position.WithWhole(at);
-        body.SetUpAsPlaced();
-        tongue.SetUpAsPlaced();
+        // The room's population load sets up his body at the place the check asks and his tongue after it, each with its
+        // species' definition and the hitbox it gives (#2554).
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Crocomire, at),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.CrocomireTongue))[0];
         // His setup moves him where his arena has him; the check stands him where it asks.
         body.Position = body.Position.WithWhole(at);
         return body.EntityOf<CrocomireBodyEntity>().Encounter;

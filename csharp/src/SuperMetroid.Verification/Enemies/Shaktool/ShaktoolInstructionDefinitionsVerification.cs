@@ -150,6 +150,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
             place.SetSpawnSettings(new ShaktoolSpawnSettings(ShaktoolChainMotion.CurlingClockwise, ShaktoolSegmentDefinitions.Segments[index]));
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
         }
+        // The room's population load sets up the chain, its leading saw first (#2554).
+        _ = enemies.LoadAuthoredPopulation();
         return (enemies, enemies.HoldShaktoolChain());
     }
 

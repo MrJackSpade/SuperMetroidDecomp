@@ -74,7 +74,7 @@ internal static class CeresRidleyColorsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         // Ceres Ridley is placed as his room's population places him: his body begins the encounter it holds as it is set
         // up (#2231).
-        place.PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");

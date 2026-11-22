@@ -27,23 +27,24 @@ internal static class KraidPartsAccess
                 partPlace.Bind(PartsInRoomOrder[place], partPlace.KeptDefinition);
             }
         }
+
     }
 
-    /// <summary>Fixture set-up of Kraid's encounter.</summary>
-    extension(KraidBehavior kraid)
+    /// <summary>A room's enemies, which a check places Kraid in.</summary>
+    extension(World.RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Begins Kraid's encounter as his body's setup does, in the first place of <paramref name="enemies"/>, and sets up
-        /// the enemies holding the next seven, which the fixture has bound to his parts in the order his room lists them,
-        /// through the creations his body offers them (#2218, #2554), each joining the encounter as it is set up.
+        /// Places Kraid as his room's population places him (#2218, #2554): the room's load of his room's eight entries, his
+        /// body first, whose entity begins his encounter, and each part after it, which joins it through the creation his body
+        /// offers it, beside a lone Samus. The enemies load a room once, so a check places him in enemies of their own.
         /// </summary>
-        /// <returns>The encounter begun.</returns>
-        internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
-        {
-            KraidEnemyState state = kraid.BeginKraid(enemies.InUpdateOrder[0]);
-            for (int place = 1; place < PartsInRoomOrder.Length; place++)
-                enemies.InUpdateOrder[place].SetUpAsPlaced();
-            return state;
-        }
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState PlaceKraid() => enemies.PlaceKraid(RoomEnemyFrameFixtures.StandaloneSamus());
+
+        /// <summary>Places Kraid as his room's population places him as the parameterless placing does beside <paramref name="samus"/>.</summary>
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState PlaceKraid(Samus.SamusState samus) =>
+            enemies.LoadRoom(World.RoomStates.RoomEnemyPopulationDefinitions.Kraid, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0]
+                .EntityOf<KraidBodyEntity>().Encounter;
     }
 }

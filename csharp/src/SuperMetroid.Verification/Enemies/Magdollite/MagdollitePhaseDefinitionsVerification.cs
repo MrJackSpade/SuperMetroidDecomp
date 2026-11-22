@@ -29,7 +29,6 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
         // Each part runs its own main AI: the arm rises or falls as its action has it, and the overlay tracks the rising arm.
         SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
 
@@ -40,8 +39,9 @@ internal static class MagdollitePhaseDefinitionsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
             place.Bind(EnemyDefinitionId.Magdollite, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(0x0200, 0x0300));
-            initialize(place, RoomEnemyFrameFixtures.StandaloneSamus());
         }
+        // The room's population load sets up the three parts in order (#2554).
+        _ = enemies.LoadAuthoredPopulation();
 
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];

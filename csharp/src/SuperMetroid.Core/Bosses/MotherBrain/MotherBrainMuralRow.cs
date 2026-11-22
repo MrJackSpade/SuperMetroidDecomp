@@ -14,7 +14,7 @@ public readonly partial record struct MotherBrainMuralRow
     }
 
     /// <summary>The row's place in the mural, counting from its top border row.</summary>
-    public int Place { get; }
+    private int Place { get; }
 
     /// <summary>The mural's rows, top row first.</summary>
     internal static IReadOnlyList<MotherBrainMuralRow> All { get; } =

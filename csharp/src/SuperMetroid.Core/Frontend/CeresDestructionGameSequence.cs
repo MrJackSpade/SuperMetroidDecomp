@@ -20,7 +20,7 @@ internal sealed partial class CeresDestructionGameSequence(FrontendSession sessi
     internal CeresDestructionCinematicState Screen { get; } = Ensure.NotNull(destruction);
 
     /// <summary>Whether Samus escaped Ceres or is aboard it.</summary>
-    internal CeresDestructionOutcome Outcome { get; } = outcome;
+    private CeresDestructionOutcome Outcome { get; } = outcome;
 
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.CeresDestruction;

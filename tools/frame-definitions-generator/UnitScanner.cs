@@ -161,11 +161,12 @@ internal sealed class UnitScanner(CoreModel model)
         model.IsEntityType(unit.Type) || IsCreate(unit, behaviour);
 
     /// <summary>
-    /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory: its creations (#2553), or the
-    /// method that creates every one of its definitions' entities alike.
+    /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory: its creations (#2553), the method
+    /// that creates every one of its definitions' entities alike, or the method handing the registrar each definition's
+    /// creation (#2554).
     /// </summary>
     public static bool IsCreate(Unit unit, Behaviour behaviour) =>
-        unit is { Kind: UnitKind.Member, Symbol: IMethodSymbol { Name: "Create" } or IPropertySymbol { Name: "Creations" } }
+        unit is { Kind: UnitKind.Member, Symbol: IMethodSymbol { Name: "Create" or "OfferCreations" } or IPropertySymbol { Name: "Creations" } }
         && SymbolEqualityComparer.Default.Equals(unit.Symbol.ContainingType.OriginalDefinition, behaviour.Type);
 
     /// <summary>The unevaluated scan of <paramref name="unit"/>.</summary>

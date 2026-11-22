@@ -50,6 +50,8 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _presentation = dependencies.Presentation;
         _cameraFloor = dependencies.CameraFloor;
+        Spore = new SporeSpawnSporeBehavior(dependencies.DeathsAndDrops);
+        Spawner = new SporeSpawnSpawnerBehavior(dependencies.Room, dependencies.Projectiles, Spore);
     }
 
     /// <summary>The room camera's floor, which his live fight holds at his arena's top (#2243).</summary>
@@ -259,10 +261,10 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
     }
 
     /// <summary>A spore (#1760, #2410): it drifts from its spawn, and a shot one bursts, harmless, then drops and deletes itself.</summary>
-    internal SporeSpawnSporeBehavior Spore => field ??= new SporeSpawnSporeBehavior(_deathsAndDrops);
+    internal SporeSpawnSporeBehavior Spore { get; }
 
     /// <summary>A ceiling spore spawner (#1760, #2410): it releases spores on its random cadence, and a shot one restarts closed.</summary>
-    internal SporeSpawnSpawnerBehavior Spawner => field ??= new SporeSpawnSpawnerBehavior(_room, _projectiles, Spore);
+    internal SporeSpawnSpawnerBehavior Spawner { get; }
 
     /// <summary>The links of his stalk (#1760): each holds still, and a shot one restarts its pose.</summary>
     internal SporeSpawnStalkBehavior Stalk => field ??= new SporeSpawnStalkBehavior(Spawner);

@@ -17,10 +17,10 @@ internal abstract partial class RipperEntity(RipperBehavior species, RoomEnemyOc
     internal RipperEnemyState State { get; } = state;
 
     /// <summary>The Rippers' own shot reaction, built once for this Ripper.</summary>
-    private EnemyShotReaction OwnShot => RipperBehavior.RipperShotReaction(this);
+    private EnemyShotReaction OwnShot => field ??= RipperBehavior.RipperShotReaction(this);
 
     /// <summary>The Rippers' own bomb stages, built once for this Ripper.</summary>
-    private EnemyBombReaction OwnBomb => RipperBehavior.RipperBombReaction(this);
+    private EnemyBombReaction OwnBomb => field ??= RipperBehavior.RipperBombReaction(this);
 
     /// <summary>Pins a grapple or jet Ripper's frozen frame after a shot's common damage.</summary>
     /// <param name="context">The shot's hit.</param>

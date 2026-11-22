@@ -22,16 +22,14 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
     private static readonly SpriteGraphics TubePieceGraphics =
         SpriteGraphics.SharedIn(PictureShading.Shaded(ChozoAndTubeShades.TubeCracks));
 
-    /// <summary>Provides room-load state and the RNG for shard and bubble launch angles.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds projectile initialization to the loaded room and its projectiles.</summary>
     internal NoobTubeBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
-        _room = room;
         _projectiles = projectiles;
+        TubePieces = new NoobTubeProjectileBehavior(room);
     }
 
     /// <summary>What <see cref="SpawnNoobTubeProjectile"/> does for each <see cref="NoobTubeProjectileDefinition"/> member, each member's own arm.</summary>
@@ -145,7 +143,7 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
     }
 
     /// <summary>The tube's crack, shards and released-air bubbles (#1760): their spawner starts their animations.</summary>
-    internal NoobTubeProjectileBehavior TubePieces => field ??= new NoobTubeProjectileBehavior(_room);
+    internal NoobTubeProjectileBehavior TubePieces { get; }
 
     /// <summary>The enemy projectile each n00b-tube piece spawns as (#2553): its crack, a glass shard or a released bubble.</summary>
     private static IdentityTable<NoobTubeProjectileDefinition, RoomEnemyProjectileKind> PieceKinds { get; } = new(new Dictionary<NoobTubeProjectileDefinition, RoomEnemyProjectileKind>

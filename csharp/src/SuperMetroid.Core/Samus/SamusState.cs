@@ -957,7 +957,7 @@ public sealed partial class SamusState
         PreviousPositionCorrections.HandOver(previous);
 
     /// <summary>Persistent low-energy warning state, shared by the movement phase and reserve recovery.</summary>
-    public SamusHealthWarningState HealthWarning => field ??= new();
+    public SamusHealthWarningState HealthWarning { get; } = new();
 
     /// <summary>
     /// What Samus carries, read or replaced whole (#2557): what a save keeps of her, and what she keeps when she is set up

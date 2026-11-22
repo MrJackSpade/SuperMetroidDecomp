@@ -89,11 +89,11 @@ internal sealed partial class EyeDoorBehavior
     /// The eye's shot (#1760): it flies until it strikes the room or its door opens; a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    internal EyeDoorProjectileBehavior Shot => field ??= new EyeDoorProjectileBehavior(
+    internal EyeDoorProjectileBehavior Shot { get; } = new EyeDoorProjectileBehavior(
         initial: null, shot: EyeDoorProjectileSegment.Shot);
 
     /// <summary>A sweat drop (#1760): it falls from its spawn and splashes on the floor.</summary>
-    internal EyeDoorProjectileBehavior Sweat => field ??= new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
+    internal EyeDoorProjectileBehavior Sweat { get; } = new EyeDoorProjectileBehavior(EyeDoorProjectileMotion.SweatFalling);
 
     /// <summary>
     /// An eye door's shot or sweat: the shot's flight, which its animation starts, the sweat's fall, which its spawn starts,

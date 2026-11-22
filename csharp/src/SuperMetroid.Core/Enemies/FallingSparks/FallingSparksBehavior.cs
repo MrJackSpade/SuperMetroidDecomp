@@ -26,6 +26,7 @@ internal sealed partial class FallingSparksBehavior
         _projectiles = projectiles;
         _effectActors = effectActors;
         _floorProbe = floorProbe;
+        Spark = new(FallFallingSpark);
     }
 
     /// <summary>Allocates and initializes a falling spark projectile.</summary>
@@ -127,7 +128,7 @@ internal sealed partial class FallingSparksBehavior
     }
 
     /// <summary>A falling spark (#1760): it drops under gravity, bouncing on the floor and leaving a trail.</summary>
-    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark => field ??= new(FallFallingSpark);
+    internal StatefulSingleMotionProjectileBehavior<FallingSparkState> Spark { get; }
 
     /// <summary>Moves a falling spark (<see cref="Spark"/>).</summary>
     private void FallFallingSpark(EnemyProjectileMotionContext context) =>

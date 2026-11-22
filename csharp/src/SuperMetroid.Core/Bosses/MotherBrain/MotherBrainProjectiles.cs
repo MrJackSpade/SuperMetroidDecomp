@@ -35,20 +35,22 @@ internal sealed partial class MotherBrainProjectiles
             Encounter = motherBrainEncounter,
             RoomActors = roomActors,
         };
+        Projectile = new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet);
+        OnionRing = new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet,
+            spawned: Projectile, touch: MotherBrainEffectSegment.OnionRingHit);
     }
 
     /// <summary>
     /// Mother Brain's projectiles other than the onion rings and the turrets' bullets (#1760): her bombs, drool, breath,
     /// beams, glass, tubes, turrets, explosions, door fragments and escape subtitle. Their spawners start their animations.
     /// </summary>
-    internal MotherBrainProjectileBehavior Projectile => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet);
+    internal MotherBrainProjectileBehavior Projectile { get; }
 
     /// <summary>
     /// An onion ring (#1760): its spawner starts its animation, and touching Samus runs its typed impact animation, the
     /// animation its definition names.
     /// </summary>
-    internal MotherBrainProjectileBehavior OnionRing => field ??= new MotherBrainProjectileBehavior(_behaviorDependencies, TurretBullet,
-        spawned: Projectile, touch: MotherBrainEffectSegment.OnionRingHit);
+    internal MotherBrainProjectileBehavior OnionRing { get; }
 
     /// <summary>
     /// A room turret's bullet (#1760): its spawner starts its animation, and a shot or Samus's touch runs the turret

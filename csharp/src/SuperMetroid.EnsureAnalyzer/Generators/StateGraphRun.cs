@@ -9,7 +9,9 @@ namespace SuperMetroid.EnsureAnalyzer.Generators;
 /// One compilation's state-graph members (#2602). Each covered type is a level of the objects that derive from it: its own
 /// fields (its declared instance fields, the values its auto-properties keep and, for a class with a primary constructor,
 /// the parameters it captures) are written, visited and restored by its own members, so a derived type calls its base's
-/// without reaching anything private to it.
+/// without reaching anything private to it. A field marked <see cref="NonSerializedAttribute"/> and the value a get-only
+/// lazy cache keeps (<c>X => field ??= …</c>) are no game state: a state leaves them out and the restored object builds
+/// the cache again on first use.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -297,7 +299,7 @@ internal sealed partial class StateGraphRun
             {
                 if (symbol is not IFieldSymbol { IsStatic: false, IsConst: false } field)
                     continue;
-                if (IsNonSerialized(field))
+                if (IsNonSerialized(field) || field.AssociatedSymbol is IPropertySymbol cached && IsLazyCache(cached))
                     continue;
                 if (field.IsFixedSizeBuffer || field.Type.TypeKind is TypeKind.Pointer or TypeKind.FunctionPointer || field.RefKind != RefKind.None)
                 {
@@ -354,6 +356,33 @@ internal sealed partial class StateGraphRun
 
     private bool IsNonSerialized(IFieldSymbol field) =>
         nonSerialized is not null && field.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, nonSerialized));
+
+    /// <summary>
+    /// Whether a property is a get-only lazy cache, whose getter is only <c>field ??= …</c>: what it keeps is derived from
+    /// the object's other state, so a state leaves it out as it leaves out a <see cref="NonSerializedAttribute"/> field. It
+    /// is not written, visited or restored, and the restored object builds it again the first time it is read. Reading it
+    /// to write or check it would build it: writing a state of an object would change the object, and a derived primary
+    /// constructor's restore would compare the stored value with one it had just built.
+    /// </summary>
+    private static bool IsLazyCache(IPropertySymbol property)
+    {
+        if (property.IsStatic || property.SetMethod is not null || property.GetMethod is null)
+            return false;
+        foreach (SyntaxReference reference in property.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not PropertyDeclarationSyntax declaration)
+                continue;
+            ExpressionSyntax? getter = declaration.ExpressionBody?.Expression ?? declaration.AccessorList?.Accessors
+                .Where(accessor => accessor.IsKind(SyntaxKind.GetAccessorDeclaration))
+                .Select(accessor => accessor.ExpressionBody?.Expression ??
+                    (accessor.Body?.Statements is [ReturnStatementSyntax { Expression: { } returned }] ? returned : null))
+                .FirstOrDefault();
+            if (getter is AssignmentExpressionSyntax assignment && assignment.IsKind(SyntaxKind.CoalesceAssignmentExpression) &&
+                assignment.Left.IsKind(SyntaxKind.FieldExpression))
+                return true;
+        }
+        return false;
+    }
 
     /// <summary>The type's primary constructor, the one its declaration's parameter list declares.</summary>
     internal static IMethodSymbol? PrimaryConstructor(INamedTypeSymbol type) =>

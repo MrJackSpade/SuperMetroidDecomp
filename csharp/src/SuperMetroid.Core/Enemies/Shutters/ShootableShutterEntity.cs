@@ -31,7 +31,7 @@ internal partial class ShootableShutterEntity(ShuttersBehavior species, RoomEnem
     }
 
     /// <summary>The shutter's own shot reaction, built once for this shutter.</summary>
-    private EnemyShotReaction OwnShot => ShuttersBehavior.ShootableShutterShotReaction(this);
+    private EnemyShotReaction OwnShot => field ??= ShuttersBehavior.ShootableShutterShotReaction(this);
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == ShutterReactions.Shot ? OwnShot : base.ShotReaction;
 

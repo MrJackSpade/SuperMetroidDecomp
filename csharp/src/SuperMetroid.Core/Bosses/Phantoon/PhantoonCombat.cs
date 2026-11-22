@@ -22,8 +22,6 @@ internal sealed partial class PhantoonCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Resolves Phantoon and flame contact bounds.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal PhantoonCombat(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
@@ -32,7 +30,8 @@ internal sealed partial class PhantoonCombat
         _earthquake = earthquake;
         _audio = audio;
         _collision = collision;
-        _deathsAndDrops = deathsAndDrops;
+        DestroyableFlame = new PhantoonFlameBehavior(audio, deathsAndDrops, StartsCasualFalling, PhantoonFlameSegment.Dying);
+        StartingFlame = new PhantoonFlameBehavior(audio, deathsAndDrops, StartsIntroWaiting, PhantoonFlameSegment.Burning);
     }
 
     /// <summary>The bomb hit response for vulnerable Phantoon phases.</summary>
@@ -59,8 +58,7 @@ internal sealed partial class PhantoonCombat
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one dies, leaves its drop and is
     /// deleted, the animation its definition names.
     /// </summary>
-    internal PhantoonFlameBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        StartsCasualFalling, PhantoonFlameSegment.Dying);
+    internal PhantoonFlameBehavior DestroyableFlame { get; }
 
     /// <summary>A destroyable flame starts falling to the floor.</summary>
     private static EnemyProjectileOwnedMotion StartsCasualFalling(PhantoonFlameBehavior flames) => flames.CasualFalling;
@@ -72,8 +70,7 @@ internal sealed partial class PhantoonCombat
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one burns as the destroyable
     /// flame idles, the animation its definition names.
     /// </summary>
-    internal PhantoonFlameBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_audio, _deathsAndDrops,
-        StartsIntroWaiting, PhantoonFlameSegment.Burning);
+    internal PhantoonFlameBehavior StartingFlame { get; }
 
     /// <summary>
     /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame

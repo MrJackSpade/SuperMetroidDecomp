@@ -24,23 +24,17 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Creates the parent's drop requested by a shot Kago bug.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-
-    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
-    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus, EnemyAudioQueue audio)
     {
-        _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
-        _deathsAndDrops = deathsAndDrops;
         _roomStatus = roomStatus;
+        Bug = new BugBehavior(room, audio, deathsAndDrops);
     }
 
     /// <summary>Initializes the Kago.</summary>
@@ -94,7 +88,7 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<K
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    internal BugBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    internal BugBehavior Bug { get; }
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot

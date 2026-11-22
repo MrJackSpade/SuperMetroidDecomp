@@ -63,9 +63,9 @@ internal sealed class ConvertedMovieSession : IDisposable
     {
         if (movie == ReplayMovieId.Ridley)
         {
-            if (traceFromUpdate is not null || video is not null)
-                throw new NotSupportedException("The Ridley showcase replay has no update trace or video export.");
-            return new ConvertedMovieSession(new RidleyShowcaseReplay(Path.GetFullPath(traceDirectory)));
+            if (traceFromUpdate is not null)
+                throw new NotSupportedException("The Ridley showcase replay has no update trace.");
+            return new ConvertedMovieSession(new RidleyShowcaseReplay(Path.GetFullPath(traceDirectory), recorded: video is not null));
         }
         ReplayMovie recording = ReplayMovieFixture.Of(movie).Load();
         IConvertedMovieChecks? checks = movie switch
@@ -116,6 +116,9 @@ internal sealed class ConvertedMovieSession : IDisposable
 
     /// <summary>The game the host steps; a console reset in the movie replaces it.</summary>
     internal SuperMetroidGame Game => replay.Game;
+
+    /// <summary>Where the frame the host runs comes from in the movie, or <see langword="null"/> before the first frame.</summary>
+    internal MovieReplayPosition? Position => replay.Position;
 
     /// <summary>The next frame's controller input, or null when the movie is finished. Sets this frame's recorded-evidence expectations.</summary>
     internal ControllerButton? NextInput()

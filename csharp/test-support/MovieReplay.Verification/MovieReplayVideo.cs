@@ -1,104 +1,156 @@
 using SuperMetroid.Core.Assets;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.TestSupport.MovieReplay.Verification;
 
 /// <summary>
-/// Records a movie replay's port output: every production update is captured, rasterized and
-/// mixed exactly as the desktop host presents it, then encoded with ffmpeg into one MP4.
+/// Records one segment of a movie replay's port output: the frames from <c>firstFrame</c> on, for <c>frameCount</c>
+/// frames, each rasterized as the desktop host presents it with a caption band below it naming the frame, its update,
+/// its movie frame and the room, and each frame's mixed sound. The picture is encoded with ffmpeg into an MP4 with no
+/// sound track and the sound is kept as raw PCM beside it, so a movie's segments join without re-encoding the picture
+/// and with no gap or overlap in the sound.
 /// </summary>
 /// <remarks>
 /// Each update yields one stereo frame at the session's PCM rate (<see cref="AudioSession.SampleRate"/>), so the video runs at exactly
 /// 60 frames per second to stay aligned with the audio. Pixels are upscaled 4x with
-/// nearest-neighbour sampling; the native image is never reduced.
+/// nearest-neighbour sampling; the native image is never reduced. Frames before the segment still run, mix their sound
+/// and are discarded, so the game reaches the segment exactly as the whole replay does.
 /// </remarks>
 internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
 {
     private const int Scale = 4;
-    private readonly string outputPath;
     private readonly string videoPath;
     private readonly string audioPath;
-    private readonly FileStream audio;
+    private readonly long firstFrame;
+    private readonly long endFrame;
     private readonly short[] samples = new short[AudioSession.PcmSamplesPerFrame];
+    private FileStream? audio;
     private Process? encoder;
     private Extent16<ScreenPixels> size;
     private long sequence;
 
-    /// <summary>Prepares temporary streams beside <paramref name="outputPath"/>.</summary>
-    internal MovieReplayVideo(string outputPath)
+    /// <summary>Prepares the segment's picture at <paramref name="videoPath"/> and its sound beside it.</summary>
+    /// <param name="videoPath">The MP4 the segment's picture is written to; its sound goes to the same path plus <c>.pcm</c>.</param>
+    /// <param name="firstFrame">The first frame recorded, counting the movie's frames from zero.</param>
+    /// <param name="frameCount">How many frames the segment records at most.</param>
+    internal MovieReplayVideo(string videoPath, long firstFrame, long frameCount)
     {
-        this.outputPath = Path.GetFullPath(outputPath);
-        Directory.CreateDirectory(Path.GetDirectoryName(this.outputPath)!);
-        videoPath = this.outputPath + ".video.mp4";
-        audioPath = this.outputPath + ".audio.pcm";
-        audio = File.Create(audioPath);
+        if (firstFrame < 0) throw new ArgumentOutOfRangeException(nameof(firstFrame), firstFrame, "A segment starts at frame zero or later.");
+        if (frameCount <= 0) throw new ArgumentOutOfRangeException(nameof(frameCount), frameCount, "A segment records at least one frame.");
+        this.videoPath = Path.GetFullPath(videoPath);
+        audioPath = this.videoPath + ".pcm";
+        this.firstFrame = firstFrame;
+        endFrame = firstFrame + frameCount;
+        Directory.CreateDirectory(Path.GetDirectoryName(this.videoPath)!);
     }
 
     /// <summary>The synthesized audio a recorded game mixes, built in before its first update.</summary>
-    public SuperMetroid.Core.Audio.ClipAudioLibrary Audio { get; } = 
+    public SuperMetroid.Core.Audio.ClipAudioLibrary Audio { get; } =
         SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips().Clips;
 
-    /// <summary>Runs one production update and appends its picture and sound.</summary>
-    internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)
+    /// <summary>Whether every frame of the segment has been recorded.</summary>
+    internal bool Done => sequence >= endFrame;
+
+    /// <summary>How many frames have run, recorded or not.</summary>
+    internal long FramesRun => sequence;
+
+    /// <summary>Runs one production frame, and records its picture and sound when it lies in the segment.</summary>
+    /// <param name="game">The game the replay steps.</param>
+    /// <param name="input">The frame's controller input.</param>
+    /// <param name="position">Where the frame comes from in the movie.</param>
+    internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input, MovieReplayPosition position)
     {
-        sequence++;
+        long frame = sequence++;
         CapturedFrontendFrame captured = game.StepCaptured(input);
+        game.CopyAudioFrame(samples);
+        if (frame < firstFrame)
+            return captured.Frame;
         DisplayPacket snapshot = captured.Snapshot;
-        RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
         if (encoder is null)
         {
             size = snapshot.Size;
             encoder = StartEncoder(size);
+            audio = File.Create(audioPath);
         }
         else if (snapshot.Size != size)
-            throw new InvalidDataException($"Update {sequence} produced a {snapshot.Size.X}x{snapshot.Size.Y} frame; the video is {size.X}x{size.Y}.");
+            throw new InvalidDataException($"Frame {frame} produced a {snapshot.Size.X}x{snapshot.Size.Y} picture; the video is {size.X}x{size.Y}.");
+        RgbaPixel[] pixels = MovieReplayOverlay.Captioned(DisplayRendering.Render(snapshot), size.X, size.Y,
+            FormattableString.Invariant($"FRAME {frame}  UPDATE {position.Update}  MOVIE {position.SourceFrame}"),
+            Place(game));
         encoder.StandardInput.BaseStream.Write(MemoryMarshal.AsBytes(pixels.AsSpan()));
-        game.CopyAudioFrame(samples);
-        audio.Write(MemoryMarshal.AsBytes(samples.AsSpan()));
+        audio!.Write(MemoryMarshal.AsBytes(samples.AsSpan()));
         return captured.Frame;
     }
 
-    /// <summary>Finishes the video stream and muxes it with the recorded audio into the output file.</summary>
+    /// <summary>Finishes the segment's picture and sound.</summary>
     internal void Complete()
     {
-        if (encoder is null) throw new InvalidOperationException("The replay produced no frames.");
+        if (encoder is null)
+            throw new InvalidOperationException($"The movie has {sequence} frames, so the segment from frame {firstFrame} recorded none.");
         encoder.StandardInput.Close();
         encoder.WaitForExit();
         if (encoder.ExitCode != 0) throw new InvalidOperationException($"ffmpeg video encoding failed with exit code {encoder.ExitCode}.");
-        audio.Flush();
+        audio!.Flush();
         audio.Close();
-        RunFfmpeg($"-y -hide_banner -loglevel error -i \"{videoPath}\" -f s16le -ar {AudioSession.SampleRate} -ac 2 -i \"{audioPath}\" " +
-            $"-map 0:v -map 1:a -c:v copy -c:a aac -b:a 256k -movflags +faststart \"{outputPath}\"");
-        File.Delete(videoPath);
-        File.Delete(audioPath);
-        Console.WriteLine($"Wrote {sequence} frames ({sequence / 60.0:F1} s) to {outputPath}");
+        long recorded = sequence - firstFrame;
+        Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
+            $"Wrote frames {firstFrame}-{sequence - 1} ({recorded} frames, {recorded / 60.0:F1} s) to {videoPath} and {audioPath}"));
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
-        audio.Dispose();
+        audio?.Dispose();
         encoder?.Dispose();
     }
 
-    private Process StartEncoder(Extent16<ScreenPixels> frameSize) =>
-        Process.Start(new ProcessStartInfo("ffmpeg",
-            $"-y -hide_banner -loglevel error -f rawvideo -pix_fmt rgba -s {frameSize.X}x{frameSize.Y} -framerate 60 -i - " +
-            $"-vf scale={frameSize.X * Scale}:{frameSize.Y * Scale}:flags=neighbor -c:v libx264 -preset medium -crf 14 " +
-            $"-pix_fmt yuv420p \"{videoPath}\"")
-        { RedirectStandardInput = true, UseShellExecute = false })
-        ?? throw new InvalidOperationException("ffmpeg did not start.");
-
-    private static void RunFfmpeg(string arguments)
+    /// <summary>The caption's second line: the area and room Samus is in, and the game's state when it is not plain gameplay.</summary>
+    private static string Place(SuperMetroidGame game)
     {
-        using var process = Process.Start(new ProcessStartInfo("ffmpeg", arguments) { UseShellExecute = false })
+        SuperMetroidGameState state = game.GameState;
+        string screen = state == SuperMetroidGameState.MainGameplay ? "" : Words(state.ToString());
+        return game.GameplayActiveRoom is { } room
+            ? $"{Words(room.Area.ToString())}: {Words(room.Name)}" + (screen.Length == 0 ? "" : $" - {screen}")
+            : screen;
+    }
+
+    /// <summary><paramref name="name"/> with a space before each capital and digit run that starts a word.</summary>
+    private static string Words(string name)
+    {
+        var words = new StringBuilder(name.Length + 8);
+        for (int index = 0; index < name.Length; index++)
+        {
+            char c = name[index];
+            if (c == '_')
+            {
+                words.Append(' ');
+                continue;
+            }
+            bool startsWord = index > 0 && (char.IsUpper(c) && !char.IsUpper(name[index - 1])
+                || char.IsDigit(c) && !char.IsDigit(name[index - 1]));
+            if (startsWord)
+                words.Append(' ');
+            words.Append(c);
+        }
+        return words.ToString();
+    }
+
+    private Process StartEncoder(Extent16<ScreenPixels> frameSize)
+    {
+        int height = frameSize.Y + MovieReplayOverlay.Height;
+        return Process.Start(new ProcessStartInfo("ffmpeg",
+            $"-y -hide_banner -loglevel error -f rawvideo -pix_fmt rgba -s {frameSize.X}x{height} -framerate 60 -i - " +
+            $"-vf scale={frameSize.X * Scale}:{height * Scale}:flags=neighbor -c:v libx264 -preset veryfast -crf 14 " +
+            $"-pix_fmt yuv420p -an \"{videoPath}\"")
+        { RedirectStandardInput = true, UseShellExecute = false })
             ?? throw new InvalidOperationException("ffmpeg did not start.");
-        process.WaitForExit();
-        if (process.ExitCode != 0) throw new InvalidOperationException($"ffmpeg mux failed with exit code {process.ExitCode}.");
     }
 }

@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.TestSupport.MovieReplay;
 using System.Globalization;
-using SuperMetroid.TestSupport.MovieReplay.Verification;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>
@@ -11,15 +10,15 @@ namespace SuperMetroid.Verification.Harness;
 internal static class FullMovieReplayVerification
 {
     /// <summary>Checks the 100% power-on playthrough against its converted input trace and WRAM checkpoints.</summary>
-    internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null) =>
-        HeadlessMovieReplay.Run(ReplayMovieId.Full100, traceDirectory, traceFromUpdate, video);
+    internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        HeadlessMovieReplay.Run(ReplayMovieId.Full100, traceDirectory, traceFromUpdate);
 
     /// <summary>
     /// The 13% Speed Booster lsnes TAS, captured on bsnes v085. Its intro updates also check the
     /// phase handoffs and Samus milestones of <see cref="LowPercentIntroReplayChecks"/>.
     /// </summary>
-    internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null) =>
-        HeadlessMovieReplay.Run(ReplayMovieId.LowPercent13, traceDirectory, traceFromUpdate, video);
+    internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+        HeadlessMovieReplay.Run(ReplayMovieId.LowPercent13, traceDirectory, traceFromUpdate);
 
     /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
     internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
@@ -49,26 +48,6 @@ internal static class FullMovieReplayVerification
     internal static int FullPlaythroughMovieCommand(string fullTraceDirectory)
     {
      VerifyFullPlaythroughMovie(fullTraceDirectory); return 0;
-    }
-
-    /// <summary>Replays and verifies the 13% movie while recording the port's picture and sound to an MP4.</summary>
-    [VerificationCommand("--export-lsmv-playthrough-video", "lowTraceDirectory", "outputPath")]
-    internal static int LsmvPlaythroughVideoCommand(string lowTraceDirectory, string outputPath)
-    {
-        using var video = new MovieReplayVideo(outputPath);
-        VerifyLowPercentPlaythroughMovie(lowTraceDirectory, video: video);
-        video.Complete();
-        return 0;
-    }
-
-    /// <summary>Replays and verifies the 100% movie while recording the port's picture and sound to an MP4.</summary>
-    [VerificationCommand("--export-full-playthrough-video", "fullTraceDirectory", "outputPath")]
-    internal static int FullPlaythroughVideoCommand(string fullTraceDirectory, string outputPath)
-    {
-        using var video = new MovieReplayVideo(outputPath);
-        VerifyFullPlaythroughMovie(fullTraceDirectory, video: video);
-        video.Complete();
-        return 0;
     }
 
     /// <summary>Runs the issue 1275 power-on Samus recording against its native trace.</summary>

@@ -53,14 +53,15 @@ internal static class NativeSnapshotImport
     /// <param name="memory">The 128 KiB native WRAM image at the movie's first input boundary.</param>
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
+    /// <param name="renderGameplayFrames">Whether the game composites its gameplay frames, as a recorded replay needs.</param>
     internal static ImportNativeSnapshotResult
-        ImportNativeSnapshot(byte[] memory, byte[] saveRam, SuperMetroidGameHostServices? hostServices = null)
+        ImportNativeSnapshot(byte[] memory, byte[] saveRam, SuperMetroidGameHostServices? hostServices = null, bool renderGameplayFrames = false)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SaveSlotStore saves = SaveRamCodec.Decode(saveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         var random = new SharedRandom();
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: renderGameplayFrames, hostServices: hostServices, random: random);
         var runtime = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.CreateRuntime(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);

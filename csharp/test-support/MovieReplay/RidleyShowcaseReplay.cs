@@ -55,8 +55,20 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
     /// <summary>The final report, once every update matched.</summary>
     private string? report;
 
+    /// <summary>Whether a recorder records the replay, so its game composites its gameplay frames.</summary>
+    private readonly bool recorded;
+
     /// <summary>Prepares a replay of the movie against the compact trace in <paramref name="directory"/>.</summary>
-    internal RidleyShowcaseReplay(string directory) => this.directory = directory;
+    /// <param name="directory">The committed compact trace of the movie.</param>
+    /// <param name="recorded">Whether a recorder records the replay.</param>
+    internal RidleyShowcaseReplay(string directory, bool recorded)
+    {
+        this.directory = directory;
+        this.recorded = recorded;
+    }
+
+    /// <inheritdoc/>
+    public MovieReplayPosition? Position { get; private set; }
 
     /// <inheritdoc/>
     public SuperMetroidGame Game
@@ -99,7 +111,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         }
         NativeCheckpointMemory memory = ReadFrame(0);
         ushort W(int address) => memory.Word(address);
-        var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
+        var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam, renderGameplayFrames: recorded);
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
         var pointers = new RidleyNativeInstructionPointers(bus);
@@ -1080,6 +1092,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     "apu-upload-continuation" or "apu-upload-tail-continuation")
                     throw new InvalidDataException($"SMV source frame {updates[frame].GetProperty("sourceFrame").GetInt32()} is an APU upload continuation; hardware-wait input normalization is not implemented.");
                 previousBodyRecord = BodyRecord();
+                Position = new MovieReplayPosition(frame, updates[frame].GetProperty("sourceFrame").GetInt32());
                 yield return ControllerWordCodec.FromJoypadWord((ushort)updates[frame].GetProperty("input").GetInt32(), $"movie update {frame}");
             }
         }

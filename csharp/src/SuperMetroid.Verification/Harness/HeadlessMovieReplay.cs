@@ -13,32 +13,68 @@ internal static class HeadlessMovieReplay
     /// <param name="movie">The movie to replay.</param>
     /// <param name="traceDirectory">The movie's compact native trace.</param>
     /// <param name="traceFromUpdate">Diagnostic only: from this update on, print port and native state field by field.</param>
-    /// <param name="video">When supplied, records every update's picture and sound as the desktop host presents it.</param>
-    internal static void Run(ReplayMovieId movie, string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null)
+    internal static void Run(ReplayMovieId movie, string traceDirectory, int? traceFromUpdate = null)
     {
-        using var session = ConvertedMovieSession.Open(movie, traceDirectory, traceFromUpdate, video);
-        RunToEnd(session, video);
+        using var session = ConvertedMovieSession.Open(movie, traceDirectory, traceFromUpdate);
+        RunToEnd(session);
         Console.WriteLine(session.Finish());
     }
 
     /// <summary>Runs every remaining frame of <paramref name="session"/>, comparing each completed one.</summary>
     /// <param name="session">The session to run.</param>
-    /// <param name="video">When supplied, each frame is run through it so it records the frame's picture and sound.</param>
-    internal static void RunToEnd(ConvertedMovieSession session, MovieReplayVideo? video = null)
+    internal static void RunToEnd(ConvertedMovieSession session)
     {
         while (session.NextInput() is { } input)
         {
-            try
-            {
-                // Recording presents each update exactly as the host does; otherwise frames are not rasterized.
-                if (video is null) session.Game.Step(input);
-                else video.Step(session.Game, input);
-            }
-            catch (Exception exception) when (session.NamedProductionFailure(exception) is { } named)
-            {
-                throw named;
-            }
+            RunFrame(session, () => session.Game.Step(input));
             session.FrameCompleted();
+        }
+    }
+
+    /// <summary>
+    /// Records the frames of <paramref name="movie"/> that <paramref name="video"/>'s segment covers, comparing every
+    /// frame up to the segment's end as the whole replay does.
+    /// </summary>
+    /// <param name="movie">The movie to record.</param>
+    /// <param name="video">The segment to record.</param>
+    internal static void Record(ReplayMovieId movie, MovieReplayVideo video)
+    {
+        using var session = ConvertedMovieSession.Open(movie, ReplayMovieFixture.Of(movie).TraceDirectory, video: video);
+        while (!video.Done && session.NextInput() is { } input)
+        {
+            MovieReplayPosition position = session.Position
+                ?? throw new InvalidOperationException("The replay handed a frame without saying where it comes from.");
+            RunFrame(session, () => video.Step(session.Game, input, position));
+            session.FrameCompleted();
+        }
+        video.Complete();
+    }
+
+    /// <summary>The number of frames <paramref name="movie"/>'s replay runs, which is the length of its video.</summary>
+    /// <param name="movie">The movie to count.</param>
+    internal static long FrameCount(ReplayMovieId movie)
+    {
+        using var session = ConvertedMovieSession.Open(movie);
+        long frames = 0;
+        while (session.NextInput() is { } input)
+        {
+            RunFrame(session, () => session.Game.Step(input));
+            session.FrameCompleted();
+            frames++;
+        }
+        Console.WriteLine(session.Finish());
+        return frames;
+    }
+
+    private static void RunFrame(ConvertedMovieSession session, Action frame)
+    {
+        try
+        {
+            frame();
+        }
+        catch (Exception exception) when (session.NamedProductionFailure(exception) is { } named)
+        {
+            throw named;
         }
     }
 }

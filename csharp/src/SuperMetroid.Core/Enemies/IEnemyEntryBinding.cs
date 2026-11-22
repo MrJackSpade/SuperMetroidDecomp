@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// How the population entries of a definition bind to the creation that builds their enemies (#2554): the creation a
+/// How the enemies a room places for a definition bind to the creation that builds them (#2554): the creation a
 /// species registered for the definition, or the one a part already placed offered it. The binding is the shared creation
 /// object itself, so a copy of the game's state holds it by reference rather than as a closure over it.
 /// </summary>

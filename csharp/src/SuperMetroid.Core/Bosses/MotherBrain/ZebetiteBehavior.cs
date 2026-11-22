@@ -246,7 +246,7 @@ internal sealed partial class ZebetiteBehavior : IEnemySpecies, IEnemySpawnFacto
     /// <param name="linkedTo">The half the spawned one shares its health with, when it has one.</param>
     private sealed partial class LinkedSpawn(ZebetiteBehavior species, RoomEnemyPlace? linkedTo)
     {
-        /// <summary>The spawned half, linked to <c>linkedTo</c>.</summary>
+        /// <summary>The spawned half, linked to the half it shares its health with, when it has one.</summary>
         internal EnemyOccupant CreateZebetite(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             EnemyOccupant.Running(new ZebetiteEntity(species, occupant, place, common, linkedTo));
     }

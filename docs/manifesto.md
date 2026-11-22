@@ -187,9 +187,10 @@ and SPC equivalents, each with a reason naming the layer). Understand what a bou
 
 ## 5. Code analysis
 
-The port's Roslyn analyzers, audits and asynchronous cleanup were removed after v0.9.0, when this code was locked as
-the reference version. The principles above are kept by review. The Godot project gets its own code analysis
-and rules.
+The SNES port's Roslyn analyzers, audits and asynchronous cleanup (everything under `csharp/` that only policed or
+cleaned up the code) were removed on 2026-11-22. The v0.9.0 bugs are still fixed in `csharp/`; once they are, that
+code is frozen as the reference version and new work happens only in the Godot project (`godot/`, also C#), which
+gets its own code analysis and rules later. Until then the principles above are kept by review.
 
 ## 6. Rules for agents
 

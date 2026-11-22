@@ -18,8 +18,9 @@
 - The C# port is legacy reference material: it documents what the game does. It is not a
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
-- The port's code analysis and cleanup tooling are gone; the Godot project gets its own code analysis and rules
-  later.
+- The SNES port's (`csharp/`) code analysis and cleanup tooling were removed on 2026-11-22. The v0.9.0 bugs are
+  still fixed in `csharp/`; after that it is frozen as a reference. The Godot project (`godot/`, also C#) gets its
+  own code analysis and rules later, when the owner sets them.
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (manifesto, section 4). The parity wording below describes
   the C# port.

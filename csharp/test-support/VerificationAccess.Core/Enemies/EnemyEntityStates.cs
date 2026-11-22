@@ -14,6 +14,8 @@ internal static class EnemyEntityStates
     {
         if (entity is null)
             return null;
+        if (entity is global::SuperMetroid.Core.Bosses.Botwoon.BotwoonEntity botwoon && botwoon.State is T heldBotwoon)
+            return heldBotwoon;
         if (entity is global::SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyEntity entity8 && entity8.Encounter is T held8)
             return held8;
         if (entity is global::SuperMetroid.Core.Bosses.Crocomire.CrocomireEntity entity9 && entity9.Encounter is T held9)

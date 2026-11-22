@@ -35,25 +35,25 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
     private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(this);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly BotwoonEnemyState state = state;
+    internal BotwoonEnemyState State { get; } = state;
 
     /// <summary>Finishes a shot's hit on Botwoon's head, after its common damage.</summary>
     /// <param name="context">The shot's hit.</param>
-    internal void FinishHit(EnemyShotHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
+    internal void FinishHit(EnemyShotHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <summary>Finishes a bomb's hit on Botwoon's head, after its common damage.</summary>
     /// <param name="context">The bomb's hit.</param>
-    internal void FinishHit(EnemyBombHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
+    internal void FinishHit(EnemyBombHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <summary>Finishes a Power Bomb's hit on Botwoon's head, after its common damage.</summary>
     /// <param name="context">The blast meeting the head.</param>
-    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(context.Enemy, state);
+    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(context.Enemy, State);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, State);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BotwoonReactions.Touch || base.ReactsToTouch;
@@ -63,7 +63,7 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BotwoonReactions.Touch)
-            species.ReactToBotwoonTouch(context, state);
+            species.ReactToBotwoonTouch(context, State);
         else
             base.ReactToTouch(context);
     }

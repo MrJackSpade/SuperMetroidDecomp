@@ -33,15 +33,15 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal MotherBrainPresentationFixture(ImportEnemyArtwork artwork)
         {
             Inner = new EnemyAnimationFixture(artwork);
-            EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
-            Body.Bind(bodyId, Body.KeptDefinition);
-            Body.Bind(Body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
+            // Her body and brain as her room's population places them, her glass set up first; the encounter is the one her
+            // body's setup began, here in the form the Baby drains her in, her body shown as her phase-two transition shows it.
+            State = MotherBrainPlacement.PlaceMotherBrain(Inner.Enemies, Inner.Samus);
+            State.Form = MotherBrainForm.DrainedByBabyMetroid;
+            Body.Presence = Body.Presence.Without(EnemyPresence.Hidden);
             Body.Position = Body.Position.WithWhole(new(128, 128));
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).
-            SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
-            State = new MotherBrainEnemyState(Body.HeldOccupant(), Inner.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { Form = MotherBrainForm.DrainedByBabyMetroid };
-            Inner.Enemies.MotherBrainEncounter.BeginAsSetUp(State);
+            SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, EnemyDefinitionId.MotherBrainBody, Body);
             // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
             // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
             bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);

@@ -69,16 +69,14 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static NewMotherBrainResult NewMotherBrainOverInstalledSheets() => NewMotherBrain(MotherBrainBrainDraws.Session());
 
-    /// <summary>Creates Mother Brain's body and head in a fresh enemy system of <paramref name="session"/>.</summary>
+    /// <summary>
+    /// Places Mother Brain's body and head in a fresh enemy system of <paramref name="session"/> as her room's population
+    /// places them, her glass set up first; the encounter is the one her body's setup began.
+    /// </summary>
     private static NewMotherBrainResult NewMotherBrain(EnemySession session)
     {
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
-        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.KeptDefinition);
-        RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
-        headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.KeptDefinition);
-        var state = new MotherBrainEnemyState(bodyPlace.HeldOccupant(), headPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         return new NewMotherBrainResult(enemies, state);
     }
 

@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -282,6 +283,15 @@ internal static class EnemyExtendedFrameArtworkVerification
             _ = KraidPartsFixtures.PlaceKraid(enemies);
             place = enemies.Places.InUpdateOrder.Single(candidate => candidate.Holds(shower));
         }
+        else if (shower is EnemyDefinitionId.Ridley)
+        {
+            // Ridley is placed as his room's population places him, in a room whose Ridley is not beaten. His scene draws his
+            // tail and wings before his body while his movement animation runs, which this fixture stops, and his AI latches
+            // whether his body draws in the hurt flash, which holds his own colours here.
+            enemies.VerificationServices().IsAreaBossDefeated = () => false;
+            place = enemies.LoadFirstEntries(RoomEnemyPopulationDefinitions.Ridley, 1, RoomEnemyFrameFixtures.StandaloneSamus())[0];
+            (enemies.NorfairRidley() ?? throw new InvalidOperationException("Ridley's setup began his encounter.")).Motion = RidleyMotion.Still;
+        }
         else
         {
             place = enemies.Places.InUpdateOrder[0];
@@ -296,12 +306,6 @@ internal static class EnemyExtendedFrameArtworkVerification
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.HeldOccupant().DefinitionId));
             place.Shading = PictureShading.Standard;
-        }
-        // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
-        // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
-        if (place.Holds(EnemyDefinitionId.Ridley))
-        {
-            place.HoldRidley(new NorfairRidleyState());
         }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;

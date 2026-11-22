@@ -1,44 +1,26 @@
-using System.Runtime.CompilerServices;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// A check's reach to the species state of the enemy a fixture place holds (#2554): production keeps each enemy's state in
-/// its entity, built with it as the enemy is set up, and hands it to its species' behaviour. A check reads the state its
-/// enemy's entity holds, or holds a state it built itself for the occupant it bound, as a check that drives the behaviour
-/// without the enemy's own setup does.
+/// A check's reach to the species state of the enemy a place holds (#2554): production keeps each enemy's state in its
+/// entity, built with it as the enemy is set up, and hands it to its species' behaviour, so a check reads the state its
+/// enemy's entity holds.
 /// </summary>
 internal static class EnemySpeciesStateAccess
 {
-    /// <summary>The states checks hold for the occupants they bound, by occupant.</summary>
-    private static readonly ConditionalWeakTable<RoomEnemyOccupant, List<object>> heldStates = new();
-
     /// <summary>The species states of the enemy a place holds.</summary>
-    /// <param name="place">The fixture place.</param>
+    /// <param name="place">The place.</param>
     extension(RoomEnemyPlace place)
     {
-        /// <summary>
-        /// The <typeparamref name="T"/> the place's enemy holds: the one a check holds for its occupant, or the one its entity
-        /// holds; none while it holds no such state.
-        /// </summary>
+        /// <summary>The <typeparamref name="T"/> the place's enemy's entity holds; none while it holds no such state.</summary>
         /// <typeparam name="T">The species state.</typeparam>
         internal T? SpeciesState<T>() where T : class =>
-            place.Occupant is not { } occupant ? null
-            : heldStates.TryGetValue(occupant, out List<object>? held) && held.OfType<T>().LastOrDefault() is { } state ? state
-            : EntityState<T>(place.Entity);
+            place.Occupant is null ? null : EntityState<T>(place.Entity);
 
-        /// <summary>The <typeparamref name="T"/> the place's enemy holds.</summary>
+        /// <summary>The <typeparamref name="T"/> the place's enemy's entity holds.</summary>
         /// <typeparam name="T">The species state.</typeparam>
         /// <exception cref="InvalidOperationException">The place's enemy holds no such state.</exception>
         internal T RequireSpeciesState<T>() where T : class =>
             place.SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no {typeof(T).Name}.");
-
-        /// <summary>Holds <paramref name="state"/> for the occupant the check bound in the place.</summary>
-        /// <typeparam name="T">The species state.</typeparam>
-        /// <param name="state">The state the check built.</param>
-        /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
-        internal void SetSpeciesState<T>(T state) where T : class =>
-            heldStates.GetOrCreateValue(place.HeldOccupant()).Add(Ensure.NotNull(state));
 
         /// <summary>
         /// The <typeparamref name="T"/> the enemy another enemy finds in the place holds: the enemy holding it, or the one a

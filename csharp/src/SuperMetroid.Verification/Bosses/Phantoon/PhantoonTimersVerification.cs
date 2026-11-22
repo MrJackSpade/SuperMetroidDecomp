@@ -21,12 +21,9 @@ internal static class PhantoonTimersVerification
             AssertEqual(rom.ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding.ChosenOn(new SuperMetroid.Core.UpdateCycle(8, 1), i), "Native rain timer");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        var eye = enemies.Places.InUpdateOrder[1];
-        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        enemies.BeginPhantoonAsSetUp(state);
-        // His initialization shows his body black before any pattern fades it (#1512).
-        state.Colours.Show(PhantoonBodyLook.Black);
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began, which shows
+        // his body black before any pattern fades it (#1512).
+        PhantoonEnemyState state = enemies.PlacePhantoon();
         var open = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.BeginPhantoonEyeTracking);
         var second = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.PickPhantoonSecondRoundPattern);
         var first = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern);

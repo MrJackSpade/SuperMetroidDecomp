@@ -26,13 +26,12 @@ internal static class PhantoonPatternsVerification
         for (int pattern = 0; pattern < 8; pattern++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+            PhantoonEnemyState state = enemies.PlacePhantoon();
+            RoomEnemyPlace body = state.Body;
             ushort random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = () => { calls++; return random; };
-            var body = enemies.Places.InUpdateOrder[0];
-            var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-            enemies.BeginPhantoonAsSetUp(state);
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
@@ -57,9 +56,8 @@ internal static class PhantoonPatternsVerification
         PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(rom);
         var eyeEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
-        RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody.BoundFor(EnemyDefinitionId.PhantoonBody), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState eyeState = eyeEnemies.PlacePhantoon();
+        RoomEnemyPlace eyeBody = eyeState.Body;
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -72,8 +70,8 @@ internal static class PhantoonPatternsVerification
                 $"production Phantoon eye direction {direction}");
         }
         var shotEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var shotBody = shotEnemies.Places.InUpdateOrder[0];
-        var shotState = new PhantoonEnemyState(shotBody.BoundFor(EnemyDefinitionId.PhantoonBody), shotBody, shotEnemies.Places.InUpdateOrder[1], shotEnemies.Places.InUpdateOrder[2], shotEnemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState shotState = shotEnemies.PlacePhantoon();
+        RoomEnemyPlace shotBody = shotState.Body;
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             shotEnemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort shotRandom = 0;

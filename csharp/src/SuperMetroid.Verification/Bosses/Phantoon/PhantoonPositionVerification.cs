@@ -24,10 +24,9 @@ internal static class PhantoonPositionVerification
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
         var capEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var capBody = capEnemies.Places.InUpdateOrder[0];
-        var capTentacles = capEnemies.Places.InUpdateOrder[2];
-        var capState = new PhantoonEnemyState(capBody.BoundFor(EnemyDefinitionId.PhantoonBody), capBody, capEnemies.Places.InUpdateOrder[1], capTentacles, capEnemies.Places.InUpdateOrder[3]);
-        capEnemies.BeginPhantoonAsSetUp(capState);
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+        PhantoonEnemyState capState = capEnemies.PlacePhantoon();
+        RoomEnemyPlace capBody = capState.Body;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
         PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);

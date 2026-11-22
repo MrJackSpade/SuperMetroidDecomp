@@ -78,14 +78,12 @@ internal static class CrocomireRumbleDefinitionsVerification
         // The cartridge's code starts the rumble with ten repeats at one pixel an update: the first oscillation's.
         AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
         AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = (new CrocomireEnemyState(body.BoundFor(EnemyDefinitionId.Crocomire), body, enemies.Places.InUpdateOrder[1])
-        {
-            RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations),
-            RumbleTowardExtreme = false,
-            DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>()
-        });
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        // His body and tongue as his room's population sets them up; the encounter is the one his body's setup built, here
+        // rumbling the hidden wall from its first oscillation.
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, Position16<RoomPixels>.Zero);
+        state.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
+        state.RumbleTowardExtreme = false;
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>();
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);

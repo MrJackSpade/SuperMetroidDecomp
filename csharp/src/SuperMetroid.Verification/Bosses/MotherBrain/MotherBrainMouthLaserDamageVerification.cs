@@ -24,12 +24,12 @@ internal static class MotherBrainMouthLaserDamageVerification
     internal static void VerifyMotherBrainMouthLaserDamage()
     {
         var enemies = EnemySystemFixtures.New(MotherBrainBrainDraws.Session(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
-        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, EnemyDefinitionFixtures.Blank with { Damage = BodyDamage });
-        RoomEnemyPlace brainPlace = enemies.Places.InUpdateOrder[1];
-        brainPlace.Bind(EnemyDefinitionId.MotherBrainHead, EnemyDefinitionFixtures.Blank with { Damage = BrainDamage });
-        var state = new MotherBrainEnemyState(bodyPlace.HeldOccupant(), brainPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        // Her room's definitions give her body and her brain damages unlike each other's, and her room's population builds
+        // each from its definition, her glass set up first; the encounter is the one her body's setup began.
+        AuthoredEnemyDefinitions definitions = AuthoredEnemyDefinitions.Of(enemies);
+        definitions.Author(EnemyDefinitionId.MotherBrainBody, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.MotherBrainBody) with { Damage = BodyDamage });
+        definitions.Author(EnemyDefinitionId.MotherBrainHead, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.MotherBrainHead) with { Damage = BrainDamage });
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
 
         int draws = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.Laser)

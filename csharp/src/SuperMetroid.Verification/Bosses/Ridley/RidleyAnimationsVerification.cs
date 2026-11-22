@@ -47,10 +47,9 @@ internal static class RidleyAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(definition, body.KeptDefinition);
-        RidleyEncounterState state = definition == EnemyDefinitionId.RidleyCeres ? new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) : new NorfairRidleyState();
+        // Ridley is placed as his room's population places him; his body animates the encounter his setup begins.
+        RidleyEncounterState state = body.PlaceAs<RidleyEntity>(definition, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus()).Encounter;
         state.Flight.FacingDirection = facing;
-        body.HoldRidley(state);
         return new NewRidleyResult(enemies, state, body);
     }
 

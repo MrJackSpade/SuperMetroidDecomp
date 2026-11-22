@@ -34,7 +34,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         rio.Bind(rio.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         // The room spawn primes the instruction timer before the species initializer runs.
         rio.AnimationClock.StepOnNextUpdate();
-        RioBehavior.InitializeRio(rio);
+        rio.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
         // Idle shows its tucked wingbeat, then runs into the post-swoop hover's tucked wingbeat three times and its hanging
         // wingbeat twice, which return to idle (#2451, #2512).

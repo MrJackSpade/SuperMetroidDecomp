@@ -87,12 +87,15 @@ internal static class PhantoonAnimationsVerification
         PhantoonPartFramesConstants.Spritemap(RoomEnemyPlaceFrameAccess.FrameAt(PartBankNumber, word)
             ?? throw new InvalidDataException($"Phantoon's part lists show no frame at ${PartBankNumber:X2}:{word:X4}."));
 
-    /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemyPlace part, bool forceExpiry = false)
+    /// <summary>
+    /// Runs one part update as the shared enemy animation runs a Phantoon part's, over the part the check's encounter
+    /// holds, optionally expiring the current frame first.
+    /// </summary>
+    private static void Pass(RoomEnemySystem enemies, RoomEnemyPlace part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(part.RequireSpeciesState<PhantoonPart>());
     }
 
     /// <summary>
@@ -108,11 +111,11 @@ internal static class PhantoonAnimationsVerification
         eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
         {
-            Pass(eye, forceExpiry: true);
+            Pass(enemies, eye, forceExpiry: true);
             AssertEqual(PhantoonPartFramesConstants.Spritemap(OpeningEyeFrames[frame]), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
         AssertTrue(enemies.Audio.LatestSound is null, "the materialization sound waits for the last frame to expire");
-        Pass(eye, forceExpiry: true);
+        Pass(enemies, eye, forceExpiry: true);
         AssertTrue(enemies.Audio.LatestSound is not null, "the opened eye queues its materialization sound");
         AssertEqual(PhantoonPartSegment.Body, PartProgram(enemies, state.Body), "the opened eye restarts the body's picture");
         state.BodyPictureShown();
@@ -133,10 +136,10 @@ internal static class PhantoonAnimationsVerification
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace mouth = state.Mouth;
         mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthSpawnFlame);
-        Pass(mouth, forceExpiry: true);
-        Pass(mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");
-        Pass(mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
         AssertEqual(1, ActiveFlames(enemies), "the mouth spawns one casual flame");
         AssertEqual(PhantoonPartSegment.MouthInitial, PartProgram(enemies, mouth), "the mouth runs on into its initial program");
         AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonMouthOpen), mouth.SpritemapPointer, "the mouth shows its closed frame at once");

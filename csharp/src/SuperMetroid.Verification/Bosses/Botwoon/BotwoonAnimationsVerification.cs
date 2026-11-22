@@ -282,7 +282,8 @@ internal static class BotwoonAnimationsVerification
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
-            EnemyAnimationPlayer.AdvanceAnimation(head, samus: inputs.Samus, level: inputs.Level, Position16<RoomPixels>.Zero, controllerInput: 0);
+            // The head's animation runs as the shared enemy animation runs Botwoon's, over the state the check built.
+            enemies.BotwoonBehavior.AdvanceBotwoonTypedAnimation(head, state);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, head.AnimationClock, at);

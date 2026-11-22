@@ -90,25 +90,32 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         place.AnimationClock.StepOnNextUpdate();
 
         var playback = new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation);
+        // The animation runs as the shared enemy animation runs a Fune's or Namihe's, over the state the check built.
+        RoomEnemyOccupant spitter = place.HeldOccupant();
+        FuneNamiheSpawnSettings settings = spitter.SpawnSettings<FuneNamiheSpawnSettings>();
+        Action animate;
         if (program.Namihe)
         {
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
+            var namihe = new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
             {
                 Playback = playback,
-            });
+            };
+            place.SetSpeciesState(namihe);
+            animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, namihe);
         }
         else
         {
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
+            var fune = new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
             {
                 Playback = playback,
-            });
+            };
+            place.SetSpeciesState(fune);
+            animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, fune);
         }
 
-        object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            animate();
 
         return new RunFuneNamiheProgramResult(enemies, place);
     }

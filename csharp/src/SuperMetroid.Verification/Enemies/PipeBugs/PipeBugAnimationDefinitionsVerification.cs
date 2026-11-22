@@ -22,13 +22,9 @@ internal static class PipeBugAnimationDefinitionsVerification
         {
             bool strong = kind == BrinstarPipeBugKind.Strong;
             var initializedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace initializedPlace = initializedEnemies.Places.InUpdateOrder[0];
-            initializedPlace.Bind(strong
-                ? EnemyDefinitionId.Zebbo
-                : EnemyDefinitionId.Zeb, initializedPlace.KeptDefinition);
-            initializedPlace.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
-            initializedPlace.Position = initializedPlace.Position.WithWhole(new(0x0100, 0x0080));
-            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedPlace.HeldOccupant().SpawnSettings<BrinstarPipeBugSpawnSettings>(), initializedPlace);
+            // The pipe bug of its kind, set up as its room's population sets it up (#2554).
+            _ = initializedEnemies.LoadPopulation(PopulationPlacementAccess.Entry(strong ? EnemyDefinitionId.Zebbo : EnemyDefinitionId.Zeb,
+                new BrinstarPipeBugSpawnSettings(kind), new(0x0100, 0x0080)));
             AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
                     PipeBugAnimationChoices.Rising(kind, HorizontalDirection.Left)), AnimationPlace.StartOfAnimation),
                 (initializedEnemies.BrinstarPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Playback,

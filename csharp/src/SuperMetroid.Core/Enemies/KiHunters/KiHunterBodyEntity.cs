@@ -39,23 +39,23 @@ internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomE
     internal KiHunterSpawnSettings Settings { get; } = settings;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly KiHunterBodyState state = state;
+    internal KiHunterBodyState State { get; } = state;
 
     /// <summary>Runs the body's wing detachment after a shot's common damage.</summary>
     /// <param name="context">The shot's hit.</param>
     internal void DetachWings(EnemyShotHitContext context) =>
-        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, state);
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <summary>Runs the body's wing detachment after a bomb's common damage.</summary>
     /// <param name="context">The bomb's hit.</param>
     internal void DetachWings(EnemyBombHitContext context) =>
-        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, state);
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, state, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, state);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, State);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? OwnKiHunterShotReaction : base.ShotReaction;

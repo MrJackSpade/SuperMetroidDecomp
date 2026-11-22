@@ -421,13 +421,15 @@ internal static class EnemyDropsVerification
 
     /// <summary>
     /// Loads a one-block room with ROM-shaped pickup programs and a controlled random queue, placing no enemies, or the
-    /// <paramref name="population"/> a check places (#2554).
+    /// <paramref name="population"/> a check places (#2554), each species named in <paramref name="authored"/> built with
+    /// the definition the check gives it there.
     /// </summary>
     internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues,
         IRoomEnemyDefinitionSource? definitions = null,
-        IReadOnlyList<RoomEnemyPlacement>? population = null)
+        IReadOnlyList<RoomEnemyPlacement>? population = null,
+        IReadOnlyDictionary<EnemyDefinitionId, RoomEnemyDefinition>? authored = null)
     {
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
@@ -436,6 +438,8 @@ internal static class EnemyDropsVerification
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
+        foreach ((EnemyDefinitionId species, RoomEnemyDefinition definition) in authored ?? new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>())
+            AuthoredEnemyDefinitions.Of(system).Author(species, definition);
         if (population is null)
             system.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram()), level, samus));
         else

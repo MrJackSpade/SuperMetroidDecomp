@@ -167,7 +167,8 @@ internal static class DoorTransitionAutosaveVerification
                 SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
                 runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
                 game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
-                game.Session.Enter(DoorTransitionStep.EnteringDoor);
+                // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+                game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
             }
             // The door block leading from a source room to a destination, found in the room's cartridge level the first
             // time that door is asked for (#1532): a repeated door reuses it instead of loading the room once more to

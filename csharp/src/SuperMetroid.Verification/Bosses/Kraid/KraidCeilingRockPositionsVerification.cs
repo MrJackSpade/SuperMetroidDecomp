@@ -34,11 +34,7 @@ internal static class KraidCeilingRockPositionsVerification
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.PlaceKraid();
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         enemies.VerificationServices().ReadRandom = () => 63;
         // Each growth update is his body's main AI, as the enemy pass runs it, in one frame of an open room.
         IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());

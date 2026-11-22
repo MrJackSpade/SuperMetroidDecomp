@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -181,12 +182,11 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            // His fight binds the installed body sheets and attaches the body his body frames show on.
-            BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Crocomire);
-            enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Crocomire, place.KeptDefinition);
-            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+            // His room places him, his fight attaching the body his body frames show on, showing nothing (#2554).
+            CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(0x0080, 0x0080));
+            BossBodyParts image = state.BodyParts;
+            RoomEnemyPlace place = state.Body;
+            enemies.Drawing.Enqueue(place, reached: true);
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             place.Shading = PictureShading.Standard;

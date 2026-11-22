@@ -82,15 +82,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "owner audit recognizes the translated retail initializer surface");
         AssertTrue(owned.Count > 90,
             "owner audit reaches the translated instruction-processing surface");
-        HashSet<ushort> unresolvedDefinitions = unresolved
-            .Select(entry => ushort.Parse(
-                entry.AsSpan(1, 4),
-                NumberStyles.AllowHexSpecifier,
-                CultureInfo.InvariantCulture))
-            .ToHashSet();
-        AssertEqual(0, unresolvedDefinitions.Count,
-            "every translated instruction-processing enemy runs a typed animation; actual=" +
-            string.Join(", ", unresolved.Distinct()));
+        // Each entry names its definition by identity (#2554), no longer by a header address.
+        AssertEqual("", string.Join(", ", unresolved.Distinct()),
+            "every translated instruction-processing enemy runs a typed animation");
 
         // Every definition the game names is one it places, and a species owns it (#2010); the Torizo orbs' headers, which
         // hold the chances a broken orb's drop rolls, are named by the orbs' own chances instead (#2332, #2364).
@@ -100,8 +94,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
             $"{translated.Count} translated initializers, {owned.Count} compiled " +
-            $"instruction-processing owners, and {unresolvedDefinitions.Count} " +
-            "explicitly inventoried pending families.");
+            "instruction-processing owners, each running a typed animation.");
     }
 
     /// <summary>What auditing one definition's records found.</summary>

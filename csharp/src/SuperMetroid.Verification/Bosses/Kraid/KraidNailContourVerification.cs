@@ -21,11 +21,7 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
         var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.PlaceKraid();
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()));
         var body = enemies.Places.InUpdateOrder[0];
         var nail = enemies.Places.InUpdateOrder[6];

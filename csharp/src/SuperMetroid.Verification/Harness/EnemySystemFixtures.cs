@@ -54,7 +54,7 @@ internal static class EnemySystemFixtures
             Compatibility = compatibility,
             Looks = new EncounterLooks(),
             Definitions = definitions ?? CompiledRoomEnemyDefinitions.Instance,
-            Services = services ?? new VerificationRoomEnemyServices(null),
+            Services = services ?? new VerificationRoomEnemyServices(null, area),
             Area = area,
             BossArtwork = new BossArtworkBinding(InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays, InstalledFixtures.Maps.EscapeTypewriter,
                 InstalledFixtures.Maps.MotherBrainRainbowBeamColours, InstalledFixtures.KraidEyes, InstalledFixtures.BossBodySheets),

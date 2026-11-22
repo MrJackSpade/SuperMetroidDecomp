@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -14,9 +15,17 @@ internal static class DoorTransitionStepAccess
     /// <param name="transition">The door transition.</param>
     extension(DoorTransitionState transition)
     {
-        /// <summary>Starts the transition through the door Samus entered in the runtime's loaded room.</summary>
+        /// <summary>
+        /// Enters the transition through the door Samus's collision entered in the runtime's loaded room and starts it, as
+        /// the game enters a door as she reaches it and then begins its transition (#2554).
+        /// </summary>
         /// <param name="runtime">The runtime.</param>
-        internal void Begin(SuperMetroidRuntime runtime) => transition.Begin(runtime, runtime.Room.LoadedScope);
+        /// <exception cref="InvalidOperationException">Samus's collision entered no door in the loaded room.</exception>
+        internal void Begin(SuperMetroidRuntime runtime)
+        {
+            transition.Enter(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
+            transition.Begin(runtime, runtime.Room.LoadedScope);
+        }
 
         /// <summary>Advances one update of the transition in the runtime's loaded room.</summary>
         /// <param name="runtime">The runtime.</param>

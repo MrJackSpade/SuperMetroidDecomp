@@ -48,18 +48,25 @@ internal static class CeresDoorInitializationDefinitionsVerification
             AssertEqual(1, place.AnimationClock.Hold,
                 $"production Ceres {actor} {settings} instruction timer");
             // The cartridge's instruction list names the animation the actor starts; the actor shows that animation's first
-            // picture on its next animation step (#2424).
+            // picture on its next animation step (#2424), and a wall whose animation shows none, being unseen, shows none.
             ushort list = rom.ReadCartridgeWord(instructionTable + selector * 2);
-            EnemyFrameId[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
+            EnemyFrameId?[] firstPictures = [.. CeresDoorNativeListAddresses.EntriesBySide
                 .SelectMany(side => CeresDoorAnimationsConstants.StartingAt(side.Key).Keys
-                    .Where(segment => NativeEnemyAnimationOracle.EntryOf(side.Value, segment) == list)
-                    .Select(segment => CeresDoorAnimations.Segments(side.Key).FirstFrameShown(CeresDoorAnimations.StartingWith(side.Key, segment))))
+                    // A segment one side's native lists never name is no animation that side's list starts.
+                    .Where(segment => side.Value.Where(entry => entry.Program == segment).Select(entry => (ushort?)entry.Entry).FirstOrDefault() == list)
+                    .Select(segment => FirstPicture(side.Key, segment)))
                 .Distinct()];
             AssertEqual(1, firstPictures.Length, $"Ceres instruction selector {selector} names one animation's first picture");
             place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(firstPictures[0], place.Frame,
                 $"production Ceres {actor} {settings} animation, instruction selector {selector}");
         }
+
+        // The picture the animation starting at the segment shows on its first step: past the cues it opens with, its first
+        // frame, or none when it first waits unseen or shows nothing at all.
+        static EnemyFrameId? FirstPicture(HorizontalDirection side, CeresDoorSegment segment) =>
+            CeresDoorAnimations.Segments(side).PlayedBeats(CeresDoorAnimations.StartingWith(side, segment))
+                .FirstOrDefault(beat => beat.ShownFrame is not null || beat is AnimationBeat<EnemyFrameId, CeresDoorCue>.Pause)?.ShownFrame;
 
         AssertThrows<InvalidDataException>(
             () => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(7),

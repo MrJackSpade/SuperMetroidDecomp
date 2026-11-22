@@ -1081,6 +1081,11 @@ internal sealed class CoreModel
             _owners.Add(type, own);
             return own;
         }
+        if (SpeciesOwners(type) is { } placing)
+        {
+            _owners.Add(type, placing);
+            return placing;
+        }
         var contexts = new List<INamedTypeSymbol>();
         if (_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites))
             contexts.AddRange(sites);
@@ -1095,6 +1100,17 @@ internal sealed class CoreModel
             var single = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { derivedOwner };
             _owners[type] = single;
             return single;
+        }
+        // An entity base of one species family, whose derived entities, all in its own namespace, are all behaviours' code,
+        // is theirs (#2554: RidleyEntity under Norfair Ridley's entity and Ceres Ridley's, each placed by a factory of its
+        // own): dispatch into it is the engine running whichever enemy holds the place, never another behaviour's code. A
+        // base every family's entities derive from, as the common participation, stays shared.
+        if (contexts.Count == 0 && IsEntityType(type) && DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? family)
+            && family.All(derivedType => SymbolEqualityComparer.Default.Equals(derivedType.ContainingNamespace, type.ContainingNamespace))
+            && DerivedOwners(type) is { } derivedOwners)
+        {
+            _owners[type] = derivedOwners;
+            return derivedOwners;
         }
         HashSet<INamedTypeSymbol>? owners = new(SymbolEqualityComparer.Default);
         bool contributed = false;
@@ -1124,20 +1140,7 @@ internal sealed class CoreModel
     /// </summary>
     private INamedTypeSymbol? SingleDerivedOwner(INamedTypeSymbol type)
     {
-        if (_derived is null)
-        {
-            _derived = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
-            foreach (INamedTypeSymbol candidate in Types)
-            {
-                if (candidate.BaseType is { } baseType && IsSource(baseType.OriginalDefinition))
-                {
-                    if (!_derived.TryGetValue(baseType.OriginalDefinition, out List<INamedTypeSymbol>? derived))
-                        _derived.Add(baseType.OriginalDefinition, derived = []);
-                    derived.Add(candidate.OriginalDefinition);
-                }
-            }
-        }
-        if (!_derived.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
+        if (!DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
             return null;
         INamedTypeSymbol? owner = null;
         foreach (INamedTypeSymbol derivedType in derivedTypes)
@@ -1154,7 +1157,95 @@ internal sealed class CoreModel
     }
 
     /// <summary>Every Core type deriving directly from each Core class, built on first use.</summary>
+    private Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> DerivedTypes
+    {
+        get
+        {
+            if (_derived is null)
+            {
+                _derived = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+                foreach (INamedTypeSymbol candidate in Types)
+                {
+                    if (candidate.BaseType is { } baseType && IsSource(baseType.OriginalDefinition))
+                    {
+                        if (!_derived.TryGetValue(baseType.OriginalDefinition, out List<INamedTypeSymbol>? derived))
+                            _derived.Add(baseType.OriginalDefinition, derived = []);
+                        derived.Add(candidate.OriginalDefinition);
+                    }
+                }
+            }
+            return _derived;
+        }
+    }
+
+    /// <summary>Every Core type deriving directly from each Core class (<see cref="DerivedTypes"/>), once built.</summary>
     private Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>? _derived;
+
+    /// <summary>
+    /// The behaviours whose code the types deriving directly from <paramref name="type"/> are, together; null when no type
+    /// derives from it, or one is shared code or still being resolved.
+    /// </summary>
+    private HashSet<INamedTypeSymbol>? DerivedOwners(INamedTypeSymbol type)
+    {
+        if (!DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
+            return null;
+        var owners = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (INamedTypeSymbol derivedType in derivedTypes)
+        {
+            // The marker of a type still being resolved is empty, so it, like shared code, gives no owners.
+            if (ResolveOwners(derivedType) is not { Count: > 0 } derivedOwners)
+                return null;
+            owners.UnionWith(derivedOwners);
+        }
+        return owners;
+    }
+
+    /// <summary>
+    /// The behaviours whose code a species is when factories of its own place its enemies (#2554): a type behaviours are
+    /// handed at their construction, which the enemy entities are handed too, as their species, as Mother Brain's species is
+    /// handed to her body's factory and to her parts' entities. It is those behaviours' code, as it was while the species
+    /// placed its enemies itself, never shared code every walk's dispatch reaches; null for any other type.
+    /// </summary>
+    private IReadOnlySet<INamedTypeSymbol>? SpeciesOwners(INamedTypeSymbol type)
+    {
+        if (_speciesOwners is null)
+        {
+            var handedTo = new Dictionary<INamedTypeSymbol, HashSet<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            foreach (INamedTypeSymbol behaviour in _behaviours.Keys)
+            {
+                foreach (IParameterSymbol parameter in behaviour.InstanceConstructors.SelectMany(constructor => constructor.Parameters))
+                {
+                    if (parameter.Type is not INamedTypeSymbol handed || !IsSource(handed.OriginalDefinition))
+                        continue;
+                    if (!handedTo.TryGetValue(handed.OriginalDefinition, out HashSet<INamedTypeSymbol>? behaviours))
+                        handedTo.Add(handed.OriginalDefinition, behaviours = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+                    behaviours.Add(behaviour);
+                }
+            }
+            // An entity is handed its species first, before its occupant, place and anything else it is built with.
+            var entitySpecies = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            foreach (INamedTypeSymbol candidate in Types)
+            {
+                if (!candidate.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _entity)))
+                    continue;
+                foreach (IMethodSymbol constructor in candidate.InstanceConstructors)
+                {
+                    if (constructor.Parameters is [{ Type: INamedTypeSymbol species }, ..])
+                        entitySpecies.Add(species.OriginalDefinition);
+                }
+            }
+            _speciesOwners = new Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            foreach ((INamedTypeSymbol species, HashSet<INamedTypeSymbol> behaviours) in handedTo)
+            {
+                if (entitySpecies.Contains(species) && !_behaviours.ContainsKey(species))
+                    _speciesOwners.Add(species, behaviours);
+            }
+        }
+        return _speciesOwners.TryGetValue(type, out IReadOnlySet<INamedTypeSymbol>? owners) ? owners : null;
+    }
+
+    /// <summary>Each species factories of its own place, with those factories (<see cref="SpeciesOwners"/>), built on first use.</summary>
+    private Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>>? _speciesOwners;
 
     /// <summary>Indexes, for every Core interface and overridable member, the Core members implementing or overriding it.</summary>
     private void BuildDispatch()

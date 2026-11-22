@@ -128,6 +128,11 @@ internal static class SoundAcceptanceClockVerification
                     ports.PauseForMusicLoad();
                     expected.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
                     break;
+                case AudioRequest.InstallSharedSounds:
+                    // Power-on installs the sounds every data set shares, a bank load like a data-set change (#2554).
+                    ports.PauseForMusicLoad();
+                    expected.Add(new AudioEvent.InstallSharedSounds());
+                    break;
                 case AudioRequest.PlayMusicTrack play:
                     expected.Add(new AudioEvent.SelectMusicTrack(play.Track));
                     break;

@@ -70,6 +70,8 @@ internal static class CeresSteamCollisionDefinitionsVerification
         compiledPlace.Bind(EnemyDefinitionId.SteamVent, EnemyDefinitionFixtures.Blank);
 
         compiledPlace.Bind(EnemyDefinitionId.SteamVent, compiledPlace.KeptDefinition);
+        // The steam answers for its own frames' hitboxes, as the population load builds it (#2554).
+        compiledPlace.SetUpAsPopulated();
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

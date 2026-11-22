@@ -92,9 +92,10 @@ internal static class RoomTerrainBlockAddressingVerification
                     RoomTerrainBlock.Of(0, BlockMirroring.None, vertical ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension),
                     RoomBlockBehavior.Extending(offset));
                 RoomCollisionBlock linked = room.Level.LinkedBlockOrEdgeSolid(extension);
+                // Outside the grid the link reads the edge-solid block where it named one (#2554), the block its step reached.
                 RoomCollisionBlock linkedExpected = expected is { } at
                     ? room.Level.GetCollisionBlock(at)
-                    : RoomCollisionBlock.OutsideRoom(default, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
+                    : RoomCollisionBlock.OutsideRoom(reachedBlock, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
                 if (linked != linkedExpected)
                     AssertEqual(linkedExpected, linked, $"the grapple's read of {context}");
             }

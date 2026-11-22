@@ -120,6 +120,9 @@ internal static class EnemyHitBurstVerification
         silver.Bind(EnemyDefinitionId.PirateSilverNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateSilverNinja));
         RoomEnemyPlace gold = enemies.Places.InUpdateOrder[1];
         gold.Bind(EnemyDefinitionId.PirateGoldNinja, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PirateGoldNinja));
+        // Each Ninja is the species the population load builds (#2554).
+        silver.SetUpAsPopulated();
+        gold.SetUpAsPopulated();
         foreach ((RoomEnemyPlace pirate, EnemyReaction reaction, bool shows) in new[]
         {
             (silver, EnemyReaction.OrdinaryShot, true),
@@ -315,6 +318,9 @@ internal static class EnemyHitBurstVerification
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(id, definition);
+        // The enemy reacts to shots as the species the population load builds (#2554); the check then stands it where it
+        // asks, in the state it asks for.
+        place.SetUpAsPopulated();
         place.Position = FixedPosition<RoomPixels>.FromWhole(Place);
         place.Radius = definition.Radius;
         place.Health = health;

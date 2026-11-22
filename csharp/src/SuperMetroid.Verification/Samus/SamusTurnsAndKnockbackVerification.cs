@@ -95,7 +95,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         {
             Position = new(new(x, 0x4321), new(48, 0x1234)), Radius = new(5, 5),
         };
-        var result = SamusBlockCollision.ProbeWallHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), probeState, null, null, SignedSixteenSixteen.FromParts(distance, 0));
+        // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+        SamusState probeSamus = InstalledFixtures.CreateSamus();
+        var result = SamusBlockCollision.ProbeWallHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), probeState, probeSamus, probeSamus.Pose, SignedSixteenSixteen.FromParts(distance, 0));
         AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
         AssertEqual(x, probeState.Position.X.Whole, "wall probe preserves whole-pixel X");
         AssertEqual(fraction, probeState.Position.X.Fraction, "wall probe preserves native fractional write");

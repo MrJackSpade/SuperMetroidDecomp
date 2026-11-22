@@ -311,8 +311,10 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, un
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
+                    // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+                    SamusState probeSamus = InstalledFixtures.CreateSamus();
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,

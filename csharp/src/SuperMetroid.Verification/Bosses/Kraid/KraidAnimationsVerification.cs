@@ -166,11 +166,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         // The parts bind before the encounter begins, so each holds it as its setup would.
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        KraidEnemyState state = enemies.PlaceKraid();
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
     }

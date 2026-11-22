@@ -20,11 +20,7 @@ internal static class KraidNailBounceVerification
         var terrain = new RoomTerrainBlock[64 * 64];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        _ = enemies.PlaceKraid();
+        _ = KraidPartsFixtures.PlaceKraid(enemies);
         Action<RoomEnemyPlace, RoomLevelData> tick = (place, room) => enemies.KraidBehavior.Projectiles.TickKraidNailFlight(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()), room);
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = new(4, 4);

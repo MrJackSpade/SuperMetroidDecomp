@@ -69,9 +69,11 @@ internal static class TourianElevatorDoorsVerification
             };
             var bus = NewDoorNoReadAddressSpace();
             ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
+            // The probe moves as a Samus the game builds, whose collision reactions act on her, in the pose checked (#2554).
+            SamusState probeSamus = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateSamus();
             BlockMoveResult result = horizontal
-                ? SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), state, null, pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
-                : SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), state, null, pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+                ? SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(level, roomObjects), state, probeSamus, pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
+                : SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(level, roomObjects), state, probeSamus, pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
             AssertEqual(elevator && SamusPoseNumbers.Number(pose) < 9, roomObjects.DoorContacts.ElevatorStand.Take(), "native elevator pose gating");
             if (elevator)

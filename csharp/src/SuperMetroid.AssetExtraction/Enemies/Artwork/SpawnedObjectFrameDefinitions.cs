@@ -1211,8 +1211,8 @@ internal static partial class SpawnedObjectFrameDefinitions
     /// <summary>The room effect actors <c>Bosses/MotherBrain/BabyMetroidCutsceneBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomEffectActorKind[] BabyMetroidCutsceneSharedEffectActors = [];
 
-    /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly EnemyProjectileFrameId[] MotherBrainSharedProjectiles =
+    /// <summary>The projectile frames <c>Bosses/MotherBrain/MotherBrainBodyFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] MotherBrainBodySharedProjectiles =
     [
         EnemyProjectileFrameId.RidleyFireballSpark,
         EnemyProjectileFrameId.RidleyFireballFireCloud,
@@ -1514,8 +1514,8 @@ internal static partial class SpawnedObjectFrameDefinitions
         EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
     ];
 
-    /// <summary>The room effect actors <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
-    private static readonly RoomEffectActorKind[] MotherBrainSharedEffectActors = KraidSharedEffectActors;
+    /// <summary>The room effect actors <c>Bosses/MotherBrain/MotherBrainBodyFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] MotherBrainBodySharedEffectActors = KraidSharedEffectActors;
 
     /// <summary>The projectile frames <c>Bosses/MotherBrain/RinkaBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] RinkaSharedProjectiles = BotwoonSharedProjectiles;
@@ -1534,6 +1534,62 @@ internal static partial class SpawnedObjectFrameDefinitions
 
     /// <summary>The room effect actors <c>Bosses/Phantoon/PhantoonBehavior.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly RoomEffectActorKind[] PhantoonSharedEffectActors = KraidSharedEffectActors;
+
+    /// <summary>The projectile frames <c>Bosses/Ridley/CeresRidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly EnemyProjectileFrameId[] CeresRidleyEntitySharedProjectiles =
+    [
+        EnemyProjectileFrameId.RidleyFireballTurned0,
+        EnemyProjectileFrameId.RidleyFireballTurned90,
+        EnemyProjectileFrameId.RidleyFireballTurned180,
+        EnemyProjectileFrameId.RidleyFireballTurned270,
+        EnemyProjectileFrameId.RidleyFireballSpark,
+        EnemyProjectileFrameId.RidleyFireballFireCloud,
+        EnemyProjectileFrameId.RidleyFireballFireCloudSpreading,
+        EnemyProjectileFrameId.RidleyFireballFireCloudBreaking,
+        EnemyProjectileFrameId.RidleyFireballFireCloudEmbers,
+        EnemyProjectileFrameId.EnemyDeathFireballSmall,
+        EnemyProjectileFrameId.EnemyDeathFireballLarge,
+        EnemyProjectileFrameId.EnemyDeathFlamingRing,
+        EnemyProjectileFrameId.EnemyDeathFireballHuge,
+        EnemyProjectileFrameId.EnemyDeathWideRing,
+        EnemyProjectileFrameId.EnemyDeathWideRingFading,
+        EnemyProjectileFrameId.EnemyDeathSpark,
+        EnemyProjectileFrameId.EnemyDeathStarburst,
+        EnemyProjectileFrameId.EnemyDeathEmbers,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallDark,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallRinged,
+        EnemyProjectileFrameId.EnemyPickupEnergySmallBright,
+        EnemyProjectileFrameId.EnemyPickupEnergyScattered,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigBright,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigRinged,
+        EnemyProjectileFrameId.EnemyPickupEnergyBigDark,
+        EnemyProjectileFrameId.EnemyPickupMissile,
+        EnemyProjectileFrameId.EnemyPickupMissileFlashing,
+        EnemyProjectileFrameId.EnemyPickupSuperMissile,
+        EnemyProjectileFrameId.EnemyPickupSuperMissileFlashing,
+        EnemyProjectileFrameId.EnemyPickupPowerBombBright,
+        EnemyProjectileFrameId.EnemyPickupPowerBombFading,
+        EnemyProjectileFrameId.EnemyPickupPowerBombDim,
+        EnemyProjectileFrameId.EnemyPickupPowerBombFlashing,
+        EnemyProjectileFrameId.EnemyDeathFireballCluster,
+        EnemyProjectileFrameId.EnemyDeathStarburstCluster,
+        EnemyProjectileFrameId.EnemyDeathEmbersCluster,
+        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidEmbers,
+        EnemyProjectileFrameId.EnemyDeathFourFireballsAmidAsh,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersFlyingApart,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersSpreading,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersCooling,
+        EnemyProjectileFrameId.EnemyDeathFourEmbersDimming,
+        EnemyProjectileFrameId.EnemyDeathFourAshDrifting,
+        EnemyProjectileFrameId.EnemyDeathFourAshSpreading,
+        EnemyProjectileFrameId.EnemyDeathFourAshSinking,
+        EnemyProjectileFrameId.EnemyDeathFourAshFalling,
+        EnemyProjectileFrameId.EnemyDeathFourAshSettling,
+        EnemyProjectileFrameId.EnemyDeathFourAshDispersing,
+    ];
+
+    /// <summary>The room effect actors <c>Bosses/Ridley/CeresRidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
+    private static readonly RoomEffectActorKind[] CeresRidleyEntitySharedEffectActors = CeresSteamSharedEffectActors;
 
     /// <summary>The projectile frames <c>Bosses/Ridley/RidleyEntityFactory.cs</c> spawns onto its sets' shared sheet.</summary>
     private static readonly EnemyProjectileFrameId[] RidleyEntitySharedProjectiles =
@@ -2617,22 +2673,22 @@ internal static partial class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.FakeKraid] = new(FakeKraidProjectiles, FakeKraidEffectActors),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonProjectiles, PhantoonEffectActors),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonProjectiles, PhantoonEffectActors),
-            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonEffectActors),
             [EnemyDefinitionId.PhantoonTentacles] = new(PhantoonProjectiles, PhantoonEffectActors),
+            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonProjectiles, PhantoonEffectActors),
             [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnProjectiles, SporeSpawnEffectActors),
             [EnemyDefinitionId.BombTorizo] = new(TorizoProjectiles, TorizoEffectActors),
             [EnemyDefinitionId.GoldenTorizo] = new(TorizoProjectiles, TorizoEffectActors),
             [EnemyDefinitionId.Alcoon] = new(AlcoonProjectiles, AlcoonEffectActors),
             [EnemyDefinitionId.Cacatac] = new(CacatacProjectiles, CacatacEffectActors),
             [EnemyDefinitionId.Dragon] = new(DragonProjectiles, DragonEffectActors),
-            [EnemyDefinitionId.Fune] = new(FuneNamiheProjectiles, FuneNamiheEffectActors),
             [EnemyDefinitionId.Namihe] = new(FuneNamiheProjectiles, FuneNamiheEffectActors),
+            [EnemyDefinitionId.Fune] = new(FuneNamiheProjectiles, FuneNamiheEffectActors),
             [EnemyDefinitionId.Kago] = new(KagoProjectiles, KagoEffectActors),
             [EnemyDefinitionId.KihunterGreen] = new(KiHunterProjectiles, KiHunterEffectActors),
-            [EnemyDefinitionId.KihunterGreenWings] = new(KiHunterProjectiles, KiHunterEffectActors),
             [EnemyDefinitionId.KihunterRed] = new(KiHunterProjectiles, KiHunterEffectActors),
-            [EnemyDefinitionId.KihunterRedWings] = new(KiHunterProjectiles, KiHunterEffectActors),
             [EnemyDefinitionId.KihunterYellow] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterGreenWings] = new(KiHunterProjectiles, KiHunterEffectActors),
+            [EnemyDefinitionId.KihunterRedWings] = new(KiHunterProjectiles, KiHunterEffectActors),
             [EnemyDefinitionId.KihunterYellowWings] = new(KiHunterProjectiles, KiHunterEffectActors),
             [EnemyDefinitionId.Magdollite] = new(MagdolliteProjectiles, MagdolliteEffectActors),
             [EnemyDefinitionId.Metaree] = new(MetareeProjectiles, MetareeEffectActors),
@@ -2657,10 +2713,10 @@ internal static partial class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.Botwoon] = new(BotwoonSharedProjectiles, BotwoonSharedEffectActors),
             [EnemyDefinitionId.Crocomire] = new(CrocomireSharedProjectiles, CrocomireSharedEffectActors),
             [EnemyDefinitionId.CrocomireTongue] = new(CrocomireSharedProjectiles, CrocomireSharedEffectActors),
-            [EnemyDefinitionId.DraygonArms] = new(DraygonSharedProjectiles, DraygonSharedEffectActors),
             [EnemyDefinitionId.DraygonBody] = new(DraygonSharedProjectiles, DraygonSharedEffectActors),
             [EnemyDefinitionId.DraygonEye] = new(DraygonSharedProjectiles, DraygonSharedEffectActors),
             [EnemyDefinitionId.DraygonTail] = new(DraygonSharedProjectiles, DraygonSharedEffectActors),
+            [EnemyDefinitionId.DraygonArms] = new(DraygonSharedProjectiles, DraygonSharedEffectActors),
             [EnemyDefinitionId.FakeKraid] = new(FakeKraidSharedProjectiles, FakeKraidSharedEffectActors),
             [EnemyDefinitionId.Kraid] = new(KraidSharedProjectiles, KraidSharedEffectActors),
             [EnemyDefinitionId.KraidArm] = new(KraidSharedProjectiles, KraidSharedEffectActors),
@@ -2672,17 +2728,17 @@ internal static partial class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.KraidSecondNail] = new(KraidSharedProjectiles, KraidSharedEffectActors),
             [EnemyDefinitionId.BabyMetroid] = new(BabyMetroidSharedProjectiles, BabyMetroidSharedEffectActors),
             [EnemyDefinitionId.BabyMetroidCutscene] = new(BabyMetroidCutsceneSharedProjectiles, BabyMetroidCutsceneSharedEffectActors),
-            [EnemyDefinitionId.MotherBrainBody] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
-            [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
-            [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainSharedProjectiles, MotherBrainSharedEffectActors),
+            [EnemyDefinitionId.MotherBrainBody] = new(MotherBrainBodySharedProjectiles, MotherBrainBodySharedEffectActors),
+            [EnemyDefinitionId.MotherBrainHead] = new(MotherBrainBodySharedProjectiles, MotherBrainBodySharedEffectActors),
+            [EnemyDefinitionId.MotherBrainTubes] = new(MotherBrainBodySharedProjectiles, MotherBrainBodySharedEffectActors),
             [EnemyDefinitionId.Rinka] = new(RinkaSharedProjectiles, RinkaSharedEffectActors),
             [EnemyDefinitionId.Zebetite] = new(ZebetiteSharedProjectiles, ZebetiteSharedEffectActors),
             [EnemyDefinitionId.PhantoonBody] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
             [EnemyDefinitionId.PhantoonEye] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
-            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
             [EnemyDefinitionId.PhantoonTentacles] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
+            [EnemyDefinitionId.PhantoonMouth] = new(PhantoonSharedProjectiles, PhantoonSharedEffectActors),
+            [EnemyDefinitionId.RidleyCeres] = new(CeresRidleyEntitySharedProjectiles, CeresRidleyEntitySharedEffectActors),
             [EnemyDefinitionId.Ridley] = new(RidleyEntitySharedProjectiles, RidleyEntitySharedEffectActors),
-            [EnemyDefinitionId.RidleyCeres] = new(RidleyEntitySharedProjectiles, RidleyEntitySharedEffectActors),
             [EnemyDefinitionId.RidleyBreakupPiece] = new(RidleyEntitySharedProjectiles, RidleyEntitySharedEffectActors),
             [EnemyDefinitionId.SporeSpawn] = new(SporeSpawnSharedProjectiles, SporeSpawnSharedEffectActors),
             [EnemyDefinitionId.BombTorizo] = new(TorizoSharedProjectiles, TorizoSharedEffectActors),
@@ -2699,22 +2755,22 @@ internal static partial class SpawnedObjectFrameDefinitions
             [EnemyDefinitionId.Evir] = new(EvirSharedProjectiles, EvirSharedEffectActors),
             [EnemyDefinitionId.EvirProjectile] = new(EvirSharedProjectiles, EvirSharedEffectActors),
             [EnemyDefinitionId.Fireflea] = new(FirefleaSharedProjectiles, FirefleaSharedEffectActors),
-            [EnemyDefinitionId.ShipBottomEntrance] = new(GunshipSharedProjectiles, GunshipSharedEffectActors),
             [EnemyDefinitionId.ShipTop] = new(GunshipSharedProjectiles, GunshipSharedEffectActors),
+            [EnemyDefinitionId.ShipBottomEntrance] = new(GunshipSharedProjectiles, GunshipSharedEffectActors),
             [EnemyDefinitionId.Kago] = new(KagoSharedProjectiles, KagoSharedEffectActors),
             [EnemyDefinitionId.Magdollite] = new(MagdolliteSharedProjectiles, MagdolliteSharedEffectActors),
-            [EnemyDefinitionId.BabyTurtle] = new(MamaTurtleSharedProjectiles, MamaTurtleSharedEffectActors),
             [EnemyDefinitionId.MamaTurtle] = new(MamaTurtleSharedProjectiles, MamaTurtleSharedEffectActors),
+            [EnemyDefinitionId.BabyTurtle] = new(MamaTurtleSharedProjectiles, MamaTurtleSharedEffectActors),
             [EnemyDefinitionId.Oum] = new(OumSharedProjectiles, OumSharedEffectActors),
             [EnemyDefinitionId.Metroid] = new(MetroidSharedProjectiles, MetroidSharedEffectActors),
             [EnemyDefinitionId.Mochtroid] = new(MochtroidSharedProjectiles, MochtroidSharedEffectActors),
             [EnemyDefinitionId.NoobTubeCrack] = new(NoobTubeSharedProjectiles, NoobTubeSharedEffectActors),
             [EnemyDefinitionId.Powamp] = new(PowampSharedProjectiles, PowampSharedEffectActors),
             [EnemyDefinitionId.Shaktool] = new(ShaktoolSharedProjectiles, ShaktoolSharedEffectActors),
-            [EnemyDefinitionId.Kamer] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
-            [EnemyDefinitionId.ShutterDestroyable] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
             [EnemyDefinitionId.ShutterGrowing] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
             [EnemyDefinitionId.ShutterShootable] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
+            [EnemyDefinitionId.Kamer] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
+            [EnemyDefinitionId.ShutterDestroyable] = new(ShuttersSharedProjectiles, ShuttersSharedEffectActors),
             [EnemyDefinitionId.Skree] = new(SkreeSharedProjectiles, SkreeSharedEffectActors),
             [EnemyDefinitionId.PirateGoldNinja] = new(NinjaSpacePirateSharedProjectiles, NinjaSpacePirateSharedEffectActors),
             [EnemyDefinitionId.PirateSilverNinja] = new(NinjaSpacePirateSharedProjectiles, NinjaSpacePirateSharedEffectActors),

@@ -24,7 +24,7 @@ internal static class OldTourianEscapeShaftWallVerification
     internal static void VerifyOldTourianEscapeShaftWall()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        VerifyWallExplosionProgramAgainstRom(bus);
+        WallExplosionList explosionList = VerifyWallExplosionListAgainstRom(bus);
         VerifyWallListAgainstRom(bus);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
@@ -50,7 +50,6 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(0x0110, explosion.Position.X.Whole, "the explosion is centred on the wall's X");
         AssertEqual(0x0888, explosion.Position.Y.Whole, "the explosion is centred on the wall's Y");
         AssertTrue(explosion.Animation is OldTourianWallExplosionAnimation, "the explosion plays its typed program");
-        AssertTrue(explosion.Animation is not null, "the explosion runs no native list");
         RoomLevelData level = runtime.Room.LoadedLevelData;
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)
@@ -58,66 +57,87 @@ internal static class OldTourianEscapeShaftWallVerification
             RoomTerrainBlock word = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)(0x10 + column)), checked((ushort)(0x87 + row))))).Terrain;
             AssertEqual(BlankAirBlock.Value, word, $"wall block ({column},{row}) opens to blank air");
         }
+        VerifyWallExplosionPlays(runtime, explosion, explosionList);
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");
     }
 
     /// <summary>
-    /// The typed wall-explosion segments and animation against the retail list at $86:B443-$B46F, word by word: the
-    /// cleared movement, the burst count, the scatter masks, the sound, each pose's duration and operand position, the
-    /// counted repeat back to $86:B449 and the delete, after which the explosion holds.
+    /// The retail wall-explosion list at $86:B443-$B46F, word by word: it clears the movement, loads the burst count, and
+    /// each burst scatters, sounds and shows six poses, each for the duration its word holds with its operand after it,
+    /// counts down back to $86:B449 and finally deletes the explosion. Returns what the list shows: each burst's poses with
+    /// their durations, and how many bursts it plays, which the explosion the game spawns is observed showing (#2554).
     /// </summary>
-    private static void VerifyWallExplosionProgramAgainstRom(CartridgeImportAddressSpace rom)
+    private static WallExplosionList VerifyWallExplosionListAgainstRom(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
-        var segments = OldTourianWallExplosionAnimation.AllSegments;
-        Animation<OldTourianWallExplosionSegment> animation = OldTourianWallExplosionAnimation.AllAnimations[OldTourianWallExplosionSegment.Start];
-        AssertEqual(3, animation.Phases.Count, "the animation plays the setup, the burst and the delete");
-
-        var start = segments.Beats(OldTourianWallExplosionSegment.Start);
-        AssertEqual(1, start.Count, "the setup has one beat");
-        AssertEqual(new AnimationPhase<OldTourianWallExplosionSegment>(OldTourianWallExplosionSegment.Start, 0, 1, 1), animation.Phases[0],
-            "the animation first plays the setup");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsConstants.InitialAnimationScript, (ushort)0xb443, "the setup starts the list");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.ClearFrameBehavior, Word(0xb443), "the list first clears the movement");
-        AssertEqual(OldTourianWallExplosionCue.StopMoving, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(start[0], "the setup raises an event").Raised, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
-        AnimationPhase<OldTourianWallExplosionSegment> counted = animation.Phases[1];
-        AssertEqual(Word(0xb447), counted.Plays, "the burst plays as many times as the list's timer load counts");
-        AssertEqual(OldTourianWallExplosionSegment.Burst, counted.Segment, "the setup runs on into the burst");
-        AssertEqual(0, counted.FirstBeat, "the burst plays from the burst's start");
-
-        var burst = segments.Beats(OldTourianWallExplosionSegment.Burst);
+        int bursts = Word(0xb447);
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)0xb449, "the burst starts at the loop label");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius, Word(0xb449), "the burst first scatters");
-        AssertEqual(OldTourianWallExplosionCue.Scatter, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(burst[0], "the burst raises an event").Raised, "the burst scatters");
         EnemyProjectileScatter scatter = OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter;
         AssertEqual(LittleEndianBytes.Word(checked((byte)(scatter.Span.X - 1)), checked((byte)scatter.Center.X)), Word(0xb44b), "the X scatter mask and centre");
         AssertEqual(LittleEndianBytes.Word(checked((byte)(scatter.Span.Y - 1)), checked((byte)scatter.Center.Y)), Word(0xb44d), "the Y scatter mask and centre");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, Word(0xb44f), "the burst then sounds");
-        AssertEqual(OldTourianWallExplosionCue.ExplosionSound, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(burst[1], "the burst raises an event").Raised, "the burst sounds");
 
+        var poses = new List<(EnemyProjectileFrameId Frame, int Duration)>();
         int cursor = 0xb452;
         for (int frame = 0; frame < 6; frame++, cursor += 4)
         {
-            var show = AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Frame>(burst[2 + frame], $"pose {frame} is shown");
-            AssertEqual(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Beats[frame].Frame, show.Shown, $"pose {frame} order");
-            AssertEqual(Word(cursor), show.Duration, $"pose {frame} duration");
             AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
                 $"pose {frame} operand follows its duration");
+            poses.Add((OldTourianEscapeShaftWallExplosionAnimationDefinitions.Beats[frame].Frame, Word(cursor)));
         }
 
         AssertEqual((ushort)NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero, Word(cursor), "the burst then counts down");
         AssertEqual(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, Word(cursor + 2), "the repeat returns to the loop label");
-        AssertEqual(8, counted.BeatCount, "the counted burst ends at the count-down, after its six poses");
-        AssertEqual(8, burst.Count, "the burst has eight beats");
-        var deletion = segments.Beats(OldTourianWallExplosionSegment.Deletion);
         AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, Word(cursor + 4), "the list ends by deleting the explosion");
-        AssertEqual(1, deletion.Count, "the deletion has one beat");
-        AssertEqual(OldTourianWallExplosionCue.Delete, AssertIs<AnimationBeat<EnemyProjectileFrameId, OldTourianWallExplosionCue>.Event>(deletion[0], "the deletion raises an event").Raised, "the deletion deletes the explosion");
-        AssertEqual(new AnimationPhase<OldTourianWallExplosionSegment>(OldTourianWallExplosionSegment.Deletion, 0, 1, 1), animation.Phases[2],
-            "after its last burst the animation plays the deletion");
-        AssertEqual(AnimationEnd.Holds, animation.End, "the deleted explosion holds");
+        return new WallExplosionList(poses, bursts);
+    }
+
+    /// <summary>What the retail wall-explosion list shows: one burst's poses, each with its duration, and how many bursts play.</summary>
+    /// <param name="Poses">One burst's poses in order, each with the updates it shows for.</param>
+    /// <param name="Bursts">How many times the burst plays before the explosion is deleted.</param>
+    private sealed record WallExplosionList(IReadOnlyList<(EnemyProjectileFrameId Frame, int Duration)> Poses, int Bursts);
+
+    /// <summary>
+    /// Runs the room on from the update that spawned <paramref name="explosion"/> until it is deleted, sampling the frame it
+    /// shows after each update (#2554): it shows <paramref name="expected"/>'s poses in order, each for its duration, as many
+    /// bursts as the list counts, and is then deleted, the room never reusing its place meanwhile.
+    /// </summary>
+    private static void VerifyWallExplosionPlays(SuperMetroidRuntime runtime, EnemyProjectile explosion, WallExplosionList expected)
+    {
+        var shown = new List<(EnemyProjectileFrameId Frame, int Duration)>();
+        int totalUpdates = expected.Bursts * expected.Poses.Sum(pose => pose.Duration);
+        void Sample()
+        {
+            if (explosion.Frame is not { } frame)
+                return;
+            if (shown.Count > 0 && shown[^1].Frame == frame)
+                shown[^1] = (frame, shown[^1].Duration + 1);
+            else
+                shown.Add((frame, 1));
+        }
+
+        Sample();
+        for (int update = 0; explosion.IsActive && update <= totalUpdates; update++)
+        {
+            AssertEqual(RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion, explosion.Kind, "the explosion holds its place while it plays");
+            runtime.StepFrame(0);
+            if (explosion.IsActive)
+                Sample();
+        }
+
+        AssertTrue(!explosion.IsActive, "the explosion is deleted after its last burst");
+        (EnemyProjectileFrameId Frame, int Duration)[] played = [.. Enumerable.Repeat(expected.Poses, expected.Bursts).SelectMany(poses => poses)];
+        AssertEqual(played.Length, shown.Count, "the explosion shows each burst's six poses, burst after burst");
+        for (int pose = 0; pose < played.Length; pose++)
+        {
+            AssertEqual(played[pose].Frame, shown[pose].Frame, $"shown pose {pose} is the list's pose {pose % expected.Poses.Count}");
+            AssertEqual(played[pose].Duration, shown[pose].Duration, $"shown pose {pose} shows for the list's duration");
+        }
     }
 
     /// <summary>

@@ -306,11 +306,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
     private static RoomEnemySystem NewKraidRoom(ImportEnemyArtwork artwork)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
-        // scrolls his fight frames, which this room takes.
-        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
-        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
-        _ = enemies.PlaceKraid();
+        _ = KraidPartsFixtures.PlaceKraid(enemies);
         return enemies;
     }
 
@@ -441,6 +437,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         var colours = new RgbColor[SnesCgram.ColorCount];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
+        // His setup sets his room's screens' scrolls, which are the room's own; the check keeps no room around him (#2554).
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
         // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
         // scrolls his fight frames, which this room takes.
@@ -494,7 +492,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
                 state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
-                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, (KraidStageRun.Fighting)state.BodyState.Run);
+                // His eye glows only once he fights: his setup begins his rise, which ends in his first phase's thinking (#2554).
+                var fighting = new KraidStageRun.Fighting(KraidFightPhase.FirstPhaseThinking, KraidRisenHead.SelectingRoar());
+                state.BodyState.Run = fighting;
+                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, fighting);
                 ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];

@@ -114,6 +114,19 @@ internal sealed class DefinitionPruner
                 }
                 return taken;
             }
+            // A factory's creations name the definitions each builds (#2554): a registrar's Spawns or Loads names the
+            // definitions its creation builds, a part offer the one part its creation builds. Under another definition the
+            // call runs only those names, never the creation, unless the creation offers that definition's own, as Mama
+            // Turtle's creation offers her babies theirs.
+            case InvocationExpressionSyntax { ArgumentList.Arguments: [var named, var creation, ..] } invocation
+                when UnitScanner.IsCreate(_unit, _context.Behaviour) && CreationNames(invocation, named) is { } names:
+                return names.Any(name => Equal(name, DispatchConstant.Of(_context.Definition)) != false) || OffersOwnDefinition(creation)
+                    ? null
+                    : [invocation.Expression, named];
+            // Under a definition one of the factory's part offers builds, a block making that offer runs only the statements
+            // making it (#2554): the part is built by the creation it is offered, not by the code building whoever offers it.
+            case BlockSyntax block when UnitScanner.IsCreate(_unit, _context.Behaviour) && block.Statements.Any(OffersOwnDefinition):
+                return [.. block.Statements.Where(OffersOwnDefinition)];
             case ConditionalExpressionSyntax conditional when Truth(conditional.Condition) is { } truth:
                 return [conditional.Condition, truth ? conditional.WhenTrue : conditional.WhenFalse];
             case IfStatementSyntax ifStatement when Truth(ifStatement.Condition) is { } truth:
@@ -279,7 +292,10 @@ internal sealed class DefinitionPruner
                 || UnitScanner.IsCreate(Unit.Member(owner.OriginalDefinition), _context.Behaviour)
                 // A creation in the factory's creations (#2553) is handed the factory's own slot.
                 || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol { AssociatedSymbol: IPropertySymbol creations } }
-                    && UnitScanner.IsCreate(Unit.Member(creations.OriginalDefinition), _context.Behaviour)),
+                    && UnitScanner.IsCreate(Unit.Member(creations.OriginalDefinition), _context.Behaviour))
+                // So is a creation the factory hands the registrar or offers a part (#2554).
+                || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol creating }
+                    && UnitScanner.IsCreate(Unit.Member(creating.OriginalDefinition), _context.Behaviour)),
             _ => InEntityChain(symbol!.ContainingType),
         };
     }
@@ -294,6 +310,36 @@ internal sealed class DefinitionPruner
         }
         return false;
     }
+
+    /// <summary>The registrar's creation calls, which name the definitions their creation builds.</summary>
+    private static readonly string[] RegistrarCreationCalls = ["Spawns", "Loads"];
+
+    /// <summary>The part offers, which name the one part their creation builds.</summary>
+    private static readonly string[] PartOfferCalls = ["Offer", "OfferLoaded"];
+
+    /// <summary>
+    /// The definitions <paramref name="invocation"/>, a registrar's creation call or a part offer, names in its first
+    /// argument <paramref name="named"/>, each as a constant or unknown (null); null for any other call, or one whose
+    /// definitions are no list written in place nor one constant.
+    /// </summary>
+    private IReadOnlyList<DispatchConstant?>? CreationNames(InvocationExpressionSyntax invocation, ArgumentSyntax named)
+    {
+        if (_semantic.GetSymbolInfo(invocation).Symbol is not IMethodSymbol { ContainingType.Name: var owner, Name: var name } method || !_model.IsSource(method))
+            return null;
+        if (owner == "EnemySpeciesRegistrar" && RegistrarCreationCalls.Contains(name) && named.Expression is CollectionExpressionSyntax list)
+            return [.. list.Elements.Select(element => element is ExpressionElementSyntax { Expression: var definition } ? Value(definition) : null)];
+        if (owner == "EnemyPartOffers" && PartOfferCalls.Contains(name))
+            return [Value(named.Expression)];
+        return null;
+    }
+
+    /// <summary>Whether <paramref name="node"/> makes a part offer naming the dispatched definition, or holds code that does.</summary>
+    private bool OffersOwnDefinition(SyntaxNode node) =>
+        node.DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().Any(invocation =>
+            invocation.ArgumentList.Arguments is [var named, _, ..]
+            && _semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { ContainingType.Name: "EnemyPartOffers", Name: var name } method
+            && _model.IsSource(method) && PartOfferCalls.Contains(name)
+            && Equal(Value(named.Expression), DispatchConstant.Of(_context.Definition)) == true);
 
     /// <summary>Whether two constants are the same value, or null when either is unknown.</summary>
     private static bool? Equal(DispatchConstant? left, DispatchConstant? right) =>

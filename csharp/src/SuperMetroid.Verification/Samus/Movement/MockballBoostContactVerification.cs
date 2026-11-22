@@ -29,7 +29,13 @@ internal static class MockballBoostContactVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
                 EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
             }.InPose(pose);
-            var fixture = CreateEnemyDropFixture(samus, [1]);
+            // The enemy Samus meets is set up as its room's population sets it up (#2554), so its entity answers her touch:
+            // a stand-in whose definition gives it the ordinary touch.
+            var fixture = CreateEnemyDropFixture(samus, [1], population: [PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn)],
+                authored: new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
+                {
+                    [EnemyPlaceFixtures.StandIn] = EnemyDefinitionFixtures.Blank with { Touch = EnemyReaction.OrdinaryTouch },
+                });
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[32 * 8];
             for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
@@ -39,11 +45,6 @@ internal static class MockballBoostContactVerification
             speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
-            {
-                Touch = EnemyReaction.OrdinaryTouch,
-            });
             enemy.Radius = new(8, 8);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight; // Contact admits only an enemy showing a frame.
             for (int frame = 0; frame < 3; frame++)

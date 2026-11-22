@@ -49,7 +49,8 @@ internal static class EndingLogoVerification
             // the crossfade's last step hands off, as the ending reads it.
             completed = logo.Step(screen.Colours);
             frame++;
-            if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
+            // The grey-out cue that begins the crossfade turns the logo's sprites to glowing, as the ending presents them.
+            if (logo.Sprites == SpriteBlend.Glows && fadeStart == 0) fadeStart = frame;
             // The screen names the step the logo shows (#2560); the import's shade of that step holds the cartridge's table entry (#1512).
             var latest = screen.Colours.Shading.Shades[^1];
             if (EndingLogoCrossfadeStep.All.Where(candidate => EndingShades.LogoCrossfade(candidate) == latest).ToArray() is [var shownStep])

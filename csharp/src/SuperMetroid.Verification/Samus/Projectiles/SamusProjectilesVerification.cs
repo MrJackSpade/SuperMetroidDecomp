@@ -160,9 +160,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         }.InPose(pose);
         var bombs = CreateSyntheticBombs();
         var projectiles = CreateSyntheticProjectiles();
-        bombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+        bombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
         SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
-        SoundRequest? result = projectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+        SoundRequest? result = projectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
 
         AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
@@ -207,9 +207,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         }.InPose(rightPose);
         var combinedBombs = CreateSyntheticBombs();
         var combinedProjectiles = CreateSyntheticProjectiles();
-        combinedBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedSamus, 0, 0);
+        combinedBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
-        SoundRequest? combinedResult = combinedProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
+        SoundRequest? combinedResult = combinedProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedBombs, new SharedGameState(new SharedRandom()));
 
         SamusProjectile combinedSlot = combinedProjectiles.Shots[0];
         AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
@@ -246,8 +246,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     // The shot shows the installed Spazer compositions, which the Spazer sheet holds (#1513): the synthetic bindings give
     // the Spazer shot's first frame the power beam's composition, which the Spazer sheet does not hold (#1534).
     var spazerFlickerProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-    spazerFlickerBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), spazerFlickerSamus, 0, 0);
-    spazerFlickerProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), spazerFlickerBombs, new SharedGameState(new SharedRandom()));
+    spazerFlickerBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), spazerFlickerSamus, 0, 0);
+    spazerFlickerProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), spazerFlickerBombs, new SharedGameState(new SharedRandom()));
     ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork();
     OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, spazerArtwork));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
@@ -275,12 +275,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         }.InPose(rightPose);
         var cadenceBombs = CreateSyntheticBombs();
         var cadenceProjectiles = CreateSyntheticProjectiles();
-        cadenceBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, 0, 0);
-        cadenceProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
+        cadenceBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, 0, 0);
+        cadenceProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         for (int frame = 0; frame < 3; frame++)
         {
-            cadenceBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, 0, 0);
-            cadenceProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
+            cadenceBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, 0, 0);
+            cadenceProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), cadenceBombs, new SharedGameState(new SharedRandom()));
         }
         AssertEqual<int?>(expectedReload, cadenceProjectiles.Shots[0].HeldShot().Trail?.UpdatesLeft,
             $"wave combination {beamType} reloads native trail cadence");
@@ -298,9 +298,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool flareBecameVisible = false;
     for (int frame = 0; frame < 60; frame++)
     {
-        chargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
+        chargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
-        SoundRequest? chargeFrame = chargeProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+        SoundRequest? chargeFrame = chargeProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
         if (frame == 0)
             AssertEqual(0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
@@ -349,12 +349,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         frame < BeamChargeDefinitions.ChargeSoundStartCounter;
         frame++)
     {
-        rejectedReleaseBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, 0, 0);
-        rejectedReleaseProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
+        rejectedReleaseBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, 0, 0);
+        rejectedReleaseProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
-    SoundRequest? rejectedRelease = rejectedReleaseProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
+    SoundRequest? rejectedRelease = rejectedReleaseProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rejectedReleaseBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SamusSoundStop.Any,
@@ -385,11 +385,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     var rotatedMode7Projectiles = CreateSyntheticProjectiles();
     for (int frame = 0; frame < 15; frame++)
     {
-        baselineMode7Bombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), baselineMode7Samus, 0, 0);
-        rotatedMode7Bombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), rotatedMode7Samus, 0, 0);
+        baselineMode7Bombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), baselineMode7Samus, 0, 0);
+        rotatedMode7Bombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), rotatedMode7Samus, 0, 0);
         GameplayAction newInput = frame == 0 ? GameplayAction.Shoot : 0;
-        baselineMode7Projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), baselineMode7Samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newInput, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), baselineMode7Bombs, new SharedGameState(new SharedRandom()));
-        rotatedMode7Projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newInput, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rotatedMode7Bombs, new SharedGameState(new SharedRandom()));
+        baselineMode7Projectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), baselineMode7Samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newInput, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), baselineMode7Bombs, new SharedGameState(new SharedRandom()));
+        rotatedMode7Projectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newInput, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), rotatedMode7Bombs, new SharedGameState(new SharedRandom()));
     }
     var baselineMode7FlareOam = new OamBuffer();
     var rotatedMode7FlareOam = new OamBuffer();
@@ -466,9 +466,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         "active grapple resets the charge-palette step");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
-    chargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
+    chargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
     SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
-    SoundRequest? chargedRelease = chargeProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    SoundRequest? chargedRelease = chargeProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectile chargedSlot = chargeProjectiles.Shots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
@@ -542,17 +542,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     var bridgeProjectiles = CreateSyntheticProjectiles();
     for (int frame = 0; frame < 60; frame++)
     {
-        bridgeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, 0, 0);
-        bridgeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bridgeBombs, new SharedGameState(new SharedRandom()));
+        bridgeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, 0, 0);
+        bridgeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bridgeBombs, new SharedGameState(new SharedRandom()));
     }
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: GameplayAction.Shoot);
     AssertEqual<SamusTransitionShot?>(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Right), bridgeSamus.TransitionShot.Handed,
         "normal-jump initializer hands over the new pose's shot direction");
-    bridgeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, 0, 0);
+    bridgeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
-    bridgeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), samusBombs: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
+    bridgeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), bridgeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, cameraPosition: new(0, 0), samusBombs: bridgeBombs, progression: new SharedGameState(new SharedRandom()));
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
@@ -579,14 +579,14 @@ internal static void VerifySamusPowerBeamProjectiles()
         var combinedChargeProjectiles = CreateSyntheticProjectiles();
         for (int frame = 0; frame < 60; frame++)
         {
-            combinedChargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, 0, 0);
-            combinedChargeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
+            combinedChargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, 0, 0);
+            combinedChargeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
         }
 
-        combinedChargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, 0, 0);
+        combinedChargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombinedChargedRelease =
             combinedChargeProjectiles.ObserveSlots();
-        SoundRequest? combinedChargedRelease = combinedChargeProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
+        SoundRequest? combinedChargedRelease = combinedChargeProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combinedChargeBombs, new SharedGameState(new SharedRandom()));
         int? combinedChargedReleaseSlot =
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
@@ -622,9 +622,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     BindSyntheticSamusRendering(bus, hyperSamus);
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
-    hyperBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), hyperSamus, 0, 0);
+    hyperBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), hyperSamus, 0, 0);
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
-    SoundRequest? hyperResult = hyperProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
+    SoundRequest? hyperResult = hyperProjectiles.StepFrameFiringSound(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), hyperSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), hyperBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile hyperSlot = hyperProjectiles.Shots[0];
     AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), hyperSlot.HeldShot().Type, "Hyper Beam is a charged Plasma beam");
@@ -708,14 +708,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     // The release frame has already changed trail timer 4 to 3. Three more alpha passes
     // reach zero and allocate native trail byte index `$22` before the third pass moves the
     // projectile. Handling the draw immediately must consume only the populated left stream.
-    chargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
-    chargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    chargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    chargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
     ushort trailSourceX = chargedSlot.Position.X.Whole;
     ushort trailSourceY = chargedSlot.Position.Y.Whole;
-    chargeBombs.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
+    chargeBombs.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), chargeBombs, new SharedGameState(new SharedRandom()));
 
     AssertEqual(1, chargeProjectiles.LiveTrails.Count,
         "charged power leaves one trail every fourth alpha pass");
@@ -841,9 +841,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool waveReportedExplosion = false;
     for (int frame = 0; frame < 12; frame++)
     {
-        waveWallBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), waveWallSamus, 0, 0);
+        waveWallBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), waveWallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveFrame = waveWallProjectiles.ObserveSlots();
-        waveWallProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), waveWallBombs, new SharedGameState(new SharedRandom()));
+        waveWallProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), waveWallBombs, new SharedGameState(new SharedRandom()));
         waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
@@ -863,8 +863,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     }.InPose(rightPose);
     var wallBombs = CreateSyntheticBombs();
     var wallProjectiles = CreateSyntheticProjectiles();
-    wallBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
-    wallProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
+    wallBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
+    wallProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(79, wallProjectiles.Shots[0].Position.X.Whole,
         "right beam starts eleven pixels beyond Samus then moves four whole pixels");
     AssertEqual(0x1000, wallProjectiles.Shots[0].Position.X.Fraction,
@@ -873,9 +873,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool wallExploded = false;
     for (int frame = 0; frame < 16 && !wallExploded; frame++)
     {
-        wallBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
+        wallBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWallFrame = wallProjectiles.ObserveSlots();
-        wallProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
+        wallProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
         wallExploded = beforeWallFrame.CollisionStartedExplosion(wallProjectiles);
     }
     AssertTrue(wallExploded, "power beam reaches type-eight wall");
@@ -889,8 +889,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867b); frame++)
     {
-        wallBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
-        wallProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
+        wallBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, 0, 0);
+        wallProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), wallBombs, new SharedGameState(new SharedRandom()));
     }
     AssertEqual(0, wallProjectiles.Pool.ShotCount.Count,
         "explosion delete decrements ordinary counter");
@@ -918,9 +918,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool solidShotExploded = false;
     for (int frame = 0; frame < 16 && !solidShotExploded; frame++)
     {
-        solidShotBombs.StepFrame(SamusTerrain.InRoom(solidShotWall, SamusRoomObjectFixtures.Uninstalled), solidShotSamus, 0, 0);
+        solidShotBombs.StepFrame(new RoomTerrain(solidShotWall, SamusRoomObjectFixtures.Uninstalled), solidShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
-        solidShotProjectiles.StepFrame(SamusTerrain.InRoom(solidShotWall, solidShotObjects), solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), solidShotBombs, new SharedGameState(new SharedRandom()));
+        solidShotProjectiles.StepFrame(new RoomTerrain(solidShotWall, solidShotObjects), solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), solidShotBombs, new SharedGameState(new SharedRandom()));
         solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
     }
     AssertTrue(solidShotExploded,
@@ -956,9 +956,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool waveShotReportedExplosion = false;
     for (int frame = 0; frame < 12; frame++)
     {
-        waveShotBombs.StepFrame(SamusTerrain.InRoom(waveShotWall, SamusRoomObjectFixtures.Uninstalled), waveShotSamus, 0, 0);
+        waveShotBombs.StepFrame(new RoomTerrain(waveShotWall, SamusRoomObjectFixtures.Uninstalled), waveShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
-        waveShotProjectiles.StepFrame(SamusTerrain.InRoom(waveShotWall, waveShotObjects), waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), waveShotBombs, new SharedGameState(new SharedRandom()));
+        waveShotProjectiles.StepFrame(new RoomTerrain(waveShotWall, waveShotObjects), waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), waveShotBombs, new SharedGameState(new SharedRandom()));
         waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
@@ -988,9 +988,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     }.InPose(rightPose);
     var missileBombs = CreateSyntheticBombs();
     var missileProjectiles = CreateSyntheticProjectiles();
-    missileBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
+    missileBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
-    SoundRequest? missileFired = missileProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+    SoundRequest? missileFired = missileProjectiles.StepFrameFiringSound(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile missile = missileProjectiles.Shots[0];
     AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
@@ -1033,8 +1033,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     // publishes its first four-frame `$2A48` record while the empty right stream terminates.
     for (int frame = 0; frame < 3; frame++)
     {
-        missileBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
-        missileProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+        missileBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
     }
     AssertEqual(1, missileProjectiles.LiveTrails.Count,
         "missile leaves one trail every fourth alpha pass");
@@ -1055,9 +1055,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool missileExploded = false;
     for (int frame = 0; frame < 32 && !missileExploded; frame++)
     {
-        missileBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
+        missileBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
         SamusProjectileSlotObservation beforeMissileFrame = missileProjectiles.ObserveSlots();
-        missileProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+        missileProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
         missileExploded = beforeMissileFrame.CollisionStartedExplosion(missileProjectiles);
     }
     AssertTrue(missileExploded,
@@ -1074,8 +1074,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867f); frame++)
     {
-        missileBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
-        missileProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+        missileBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
     }
     AssertEqual(0, missileProjectiles.Pool.ShotCount.Count,
         "missile explosion delete decrements ordinary counter");
@@ -1094,7 +1094,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "Select wrap chooses the ordinary beam producer");
     missileBombs.Reset();
     SamusProjectileSlotObservation beforePostMissileBeam = missileProjectiles.ObserveSlots();
-    missileProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
+    missileProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), missileSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), missileBombs, new SharedGameState(new SharedRandom()));
     int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
     AssertTrue(postMissileBeamSlot.HasValue,
         "Shoot after missile deselection allocates a new beam");
@@ -1133,9 +1133,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         }.InPose(rightPose);
         var pointBombs = CreateSyntheticBombs();
         var pointProjectiles = CreateSyntheticProjectiles();
-        pointBombs.StepFrame(SamusTerrain.InRoom(terrain, SamusRoomObjectFixtures.Uninstalled), pointSamus, 0, 0);
+        pointBombs.StepFrame(new RoomTerrain(terrain, SamusRoomObjectFixtures.Uninstalled), pointSamus, 0, 0);
         SamusProjectileSlotObservation beforePointMissile = pointProjectiles.ObserveSlots();
-        pointProjectiles.StepFrame(SamusTerrain.InRoom(terrain, SamusRoomObjectFixtures.Uninstalled), pointSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), pointBombs, new SharedGameState(new SharedRandom()));
+        pointProjectiles.StepFrame(new RoomTerrain(terrain, SamusRoomObjectFixtures.Uninstalled), pointSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), pointBombs, new SharedGameState(new SharedRandom()));
         return beforePointMissile.CollisionStartedExplosion(pointProjectiles);
     }
 
@@ -1406,9 +1406,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     var contactDoorBombs = CreateSyntheticBombs();
     var contactDoorProjectiles = CreateSyntheticProjectiles();
     var contactDoorObjects = RoomObjectFixtures.Unbound();
-    contactDoorBombs.StepFrame(SamusTerrain.InRoom(contactDoor, SamusRoomObjectFixtures.Uninstalled), contactDoorSamus, 0, 0);
+    contactDoorBombs.StepFrame(new RoomTerrain(contactDoor, SamusRoomObjectFixtures.Uninstalled), contactDoorSamus, 0, 0);
     SamusProjectileSlotObservation beforeContactDoor = contactDoorProjectiles.ObserveSlots();
-    contactDoorProjectiles.StepFrame(SamusTerrain.InRoom(contactDoor, contactDoorObjects), contactDoorSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), contactDoorBombs, new SharedGameState(new SharedRandom()));
+    contactDoorProjectiles.StepFrame(new RoomTerrain(contactDoor, contactDoorObjects), contactDoorSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), contactDoorBombs, new SharedGameState(new SharedRandom()));
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
     AssertEqual(1, contactDoorObjects.Places.ActiveCount,
@@ -1429,9 +1429,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool blueDoorExploded = false;
     for (int frame = 0; frame < 16 && !blueDoorExploded; frame++)
     {
-        blueDoorBombs.StepFrame(SamusTerrain.InRoom(blueDoor, SamusRoomObjectFixtures.Uninstalled), blueDoorSamus, 0, 0);
+        blueDoorBombs.StepFrame(new RoomTerrain(blueDoor, SamusRoomObjectFixtures.Uninstalled), blueDoorSamus, 0, 0);
         SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
-        blueDoorProjectiles.StepFrame(SamusTerrain.InRoom(blueDoor, blueDoorObjects), blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), blueDoorBombs, new SharedGameState(new SharedRandom()));
+        blueDoorProjectiles.StepFrame(new RoomTerrain(blueDoor, blueDoorObjects), blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), blueDoorBombs, new SharedGameState(new SharedRandom()));
         blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
     }
     AssertTrue(blueDoorExploded,
@@ -1470,9 +1470,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     var superBombs = CreateSyntheticBombs();
     var superEarthquake = new RoomEarthquake();
     var superProjectiles = CreateSyntheticProjectilesShaking(superEarthquake);
-    superBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
+    superBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
-    SoundRequest? superFired = superProjectiles.StepFrameFiringSound(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
+    SoundRequest? superFired = superProjectiles.StepFrameFiringSound(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
     SamusProjectile super = superProjectiles.Shots[0];
     SamusProjectile superLink = superProjectiles.Shots[1];
     AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
@@ -1514,8 +1514,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < 3; frame++)
     {
-        superBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
-        superProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
+        superBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
+        superProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
     }
     AssertEqual(1, superProjectiles.LiveTrails.Count,
         "super's initial four-count leaves its first exhaust trail");
@@ -1525,9 +1525,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool superExploded = false;
     for (int frame = 0; frame < 24 && !superExploded; frame++)
     {
-        superBombs.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
+        superBombs.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, 0, 0);
         SamusProjectileSlotObservation beforeSuperFrame = superProjectiles.ObserveSlots();
-        superProjectiles.StepFrame(SamusTerrain.InRoom(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
+        superProjectiles.StepFrame(new RoomTerrain(wall, SamusRoomObjectFixtures.Uninstalled), superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), superBombs, new SharedGameState(new SharedRandom()));
         superExploded = beforeSuperFrame.CollisionStartedExplosion(superProjectiles);
     }
     AssertTrue(superExploded,
@@ -1558,7 +1558,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     }.InPose(rightPose);
     var pillarBombs = CreateSyntheticBombs();
     var pillarProjectiles = CreateSyntheticProjectiles();
-    pillarProjectiles.StepFrame(SamusTerrain.InRoom(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), pillarBombs, new SharedGameState(new SharedRandom()));
+    pillarProjectiles.StepFrame(new RoomTerrain(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     var pillarOwner = pillarProjectiles.Shots[0];
     var pillarLink = pillarProjectiles.Shots[1];
     pillarLink.HeldShot().Position = pillarLink.Position.WithWholeY(0xd1);
@@ -1568,17 +1568,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     pillarLink.HeldShot().Position = pillarLink.Position.WithWholeX(0x128);
     pillarLink.HeldShot().Radius = pillarLink.Radius.WithX(8);
     // Native explosion timing remains live long enough for this three-frame sequence.
-    pillarProjectiles.StepFrame(SamusTerrain.InRoom(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
+    pillarProjectiles.StepFrame(new RoomTerrain(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(0x139, pillarLink.Position.X.Whole,
         "native missile helper impact does not apply the beam leading-edge radius");
     AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.HeldShot().Type.Family,
         "supplemental pillar collision explodes the helper, not its owner");
-    pillarProjectiles.StepFrame(SamusTerrain.InRoom(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
+    pillarProjectiles.StepFrame(new RoomTerrain(pillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(0x14b, pillarLink.Position.X.Whole,
         "original ROM repositions an exploded helper over air");
     pillarWords[853] = RoomTerrainBlock.Of(281, BlockMirroring.None, RoomCollisionType.SolidBlock);
     var secondPillarRoom = CreateRoom(new(64, 16), pillarWords, new RoomBlockBehavior[pillarWords.Length]);
-    pillarProjectiles.StepFrame(SamusTerrain.InRoom(secondPillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
+    pillarProjectiles.StepFrame(new RoomTerrain(secondPillarRoom, SamusRoomObjectFixtures.Uninstalled), pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0x100, 0), pillarBombs, new SharedGameState(new SharedRandom()));
     AssertTrue(!pillarLink.IsActive,
         "native second collision deletes the explosion instead of restarting it");
     AssertEqual(1, pillarProjectiles.Pool.ShotCount.Count,
@@ -1609,10 +1609,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool integratedSuperExploded = false;
     for (int frame = 0; frame < 32 && !integratedSuperExploded; frame++)
     {
-        integratedSuperBombs.StepFrame(SamusTerrain.InRoom(integratedSuperWall, SamusRoomObjectFixtures.Uninstalled), integratedSuperSamus, 0, 0);
+        integratedSuperBombs.StepFrame(new RoomTerrain(integratedSuperWall, SamusRoomObjectFixtures.Uninstalled), integratedSuperSamus, 0, 0);
         SamusProjectileSlotObservation beforeIntegratedSuperFrame =
             integratedSuperProjectiles.ObserveSlots();
-        integratedSuperProjectiles.StepFrame(SamusTerrain.InRoom(integratedSuperWall, integratedSuperObjects), integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), integratedSuperBombs, new SharedGameState(new SharedRandom()));
+        integratedSuperProjectiles.StepFrame(new RoomTerrain(integratedSuperWall, integratedSuperObjects), integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), integratedSuperBombs, new SharedGameState(new SharedRandom()));
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
@@ -1649,8 +1649,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     var skippedObjects = RoomObjectFixtures.Unbound();
     for (int frame = 0; frame < 3; frame++)
     {
-        skippedBombs.StepFrame(SamusTerrain.InRoom(skippedWall, SamusRoomObjectFixtures.Uninstalled), skippedSamus, 0, 0);
-        skippedProjectiles.StepFrame(SamusTerrain.InRoom(skippedWall, skippedObjects), skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
+        skippedBombs.StepFrame(new RoomTerrain(skippedWall, SamusRoomObjectFixtures.Uninstalled), skippedSamus, 0, 0);
+        skippedProjectiles.StepFrame(new RoomTerrain(skippedWall, skippedObjects), skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
     }
     SamusProjectile skippedOwner = skippedProjectiles.Shots[0];
     SamusProjectile skippedLink = skippedProjectiles.Shots[1];
@@ -1659,8 +1659,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     skippedLink.HeldShot().Position = skippedLink.Position.WithWholeX(0x5c);
     skippedOwner.HeldShot().Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
     skippedOwner.HeldShot().Velocity = skippedOwner.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x1400));
-    skippedBombs.StepFrame(SamusTerrain.InRoom(skippedWall, SamusRoomObjectFixtures.Uninstalled), skippedSamus, 0, 0);
-    skippedProjectiles.StepFrame(SamusTerrain.InRoom(skippedWall, skippedObjects), skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
+    skippedBombs.StepFrame(new RoomTerrain(skippedWall, SamusRoomObjectFixtures.Uninstalled), skippedSamus, 0, 0);
+    skippedProjectiles.StepFrame(new RoomTerrain(skippedWall, skippedObjects), skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), skippedBombs, new SharedGameState(new SharedRandom()));
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.HeldShot().Type.Family,
         "the owner explodes on the column-seven wall");
     AssertTrue(skippedObjects.Places.ActiveCount > 0,

@@ -27,7 +27,7 @@ internal static class SamusBombCountVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
             new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]),
             RoomLevelData.NothingBeyondGrid(), []);
-        var terrain = SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
+        var terrain = new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled);
 
         // A bomb spread fills every place, and the count holds every place's bomb.
         SamusBombProjectileSystem range = CreateBombFixture();

@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// his breakup pieces. His body runs the parts both Ridleys share (<see cref="RidleyBody"/>); none runs through Ceres
 /// Ridley's encounter.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncounter<NorfairRidleyState>
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>

@@ -13,7 +13,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>

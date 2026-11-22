@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonTurrets
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

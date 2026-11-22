@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 public static partial class CeresFloors
 {
     /// <summary>The name of <paramref name="shot"/>'s picture in the installed Ceres floor sheet.</summary>
-    [InstalledKey]
     public static string FrameName(CeresFloorShot shot) => CeresFloorShotKeys.Installed.Of(shot);
 
     /// <summary>The floor <paramref name="shot"/> shows.</summary>

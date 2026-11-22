@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.World;
 /// Owns the four statue animations and the statues' descent into the floor, each update. Boss victories and grey-statue
 /// events stay separate: visiting the room plays each release before opening the elevator route.
 /// </summary>
-[RoomLifetime]
 public sealed partial class TourianStatueSequence : IDisplayLatch
 {
 

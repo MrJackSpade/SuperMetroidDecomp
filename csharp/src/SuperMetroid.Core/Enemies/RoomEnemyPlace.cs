@@ -37,7 +37,6 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
     /// fixed for the place's lifetime: the place's position in allocation and processing order.
     /// </summary>
-    [IntegerQuantity("place among the room's enemy places")]
     public int Ordinal { get; }
     /// <summary>
     /// What the place has held since its room loaded (#2558): nothing yet, or the history of a populated place, which

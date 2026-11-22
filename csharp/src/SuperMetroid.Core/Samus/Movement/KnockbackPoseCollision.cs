@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <param name="FrameCounter">The update's frame counter, which picks the collision's scan direction.</param>
 internal readonly partial record struct KnockbackPoseCollision(
     SamusTerrain Terrain,
-    [property: IntegerQuantity("the update's frame counter")] int FrameCounter);
+    int FrameCounter);

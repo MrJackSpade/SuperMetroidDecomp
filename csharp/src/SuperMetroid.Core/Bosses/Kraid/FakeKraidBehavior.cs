@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Fake Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
 

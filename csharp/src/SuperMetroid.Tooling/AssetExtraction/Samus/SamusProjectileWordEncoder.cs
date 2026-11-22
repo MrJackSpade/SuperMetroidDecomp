@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Writes Samus projectile state as the cartridge's bomb type and direction words (#1470), for tools that export native
 /// traces beside the cartridge's. The game never reads these words.
 /// </summary>
-[EncodingOwner("Samus bomb type and projectile direction words, as tools write them")]
 public static class SamusProjectileWordEncoder
 {
     /// <summary>The position of a type word's family row.</summary>

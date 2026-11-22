@@ -7,7 +7,6 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body: what it shows, the rows of it the acid hides, the melt's stretch of it, the tongue placed with it and the acid smoke drawn with it.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireBodyLayer
 {
     /// <summary>Allocates arena debris and cinematic effect actors.</summary>

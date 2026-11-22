@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Fx;
 /// liquid's surface is first published and moves it from then on; a room whose liquid has no surface has none, so a reader
 /// that holds one always has a surface to read.
 /// </summary>
-[RoomLifetime]
 public sealed partial class RoomLiquidSurfaceLine
 {
     /// <summary>Publishes a liquid's first surface on room line <paramref name="line"/>.</summary>

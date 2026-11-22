@@ -17,7 +17,6 @@ internal sealed partial class OrdinaryDoorTransition : DoorTransitionStage
     /// <param name="destinationIsolated">Whether the destination room selects the isolated door transition.</param>
     /// <param name="sourceSamus">Samus's source-room position as the transition begins.</param>
     /// <param name="fadeOut">The steps of the source room's fade out.</param>
-    [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal OrdinaryDoorTransition(
         DoorDefinition door,
         bool sourceIsolated,

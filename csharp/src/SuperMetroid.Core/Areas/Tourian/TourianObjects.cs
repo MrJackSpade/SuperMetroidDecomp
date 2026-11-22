@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// Tourian's room objects: the access floor, the Metroid rooms' clearance watches, the old escape shaft's fake wall and
 /// the acid trigger of the escape room before it.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class TourianObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

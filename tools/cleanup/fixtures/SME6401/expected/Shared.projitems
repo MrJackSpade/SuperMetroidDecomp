@@ -1,5 +1,0 @@
-<Project>
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Shared/Helper.cs" />
-  </ItemGroup>
-</Project>

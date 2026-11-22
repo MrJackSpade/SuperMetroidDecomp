@@ -6,7 +6,6 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the white hold, the stars and the fade.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class EndingFlyaway
 {
     /// <summary>Controls the animals' escape detail in the planet cinematic.</summary>

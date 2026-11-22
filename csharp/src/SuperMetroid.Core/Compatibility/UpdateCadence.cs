@@ -14,8 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// actions by testing its counters' low bits, reading a negative counter in two's complement, and a cadence reproduces
 /// each action's test update for update; the SMV replays compare the counters and the outcomes they pace on every update.
 /// </remarks>
-[EncodingOwner("update counter cadences")]
-[CompatibilityService("on which updates a counter-paced action happens, exactly as the game paced it")]
 public readonly partial record struct UpdateCadence
 {
     /// <summary>A cadence that falls due once every <paramref name="period"/> updates, on the given phase.</summary>

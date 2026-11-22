@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// sixteen-bit number and takes the branch on whether it is negative, never on an unsigned comparison; the SMV replays compare the
 /// random value and these bosses' outcomes on every update.
 /// </remarks>
-[CompatibilityService("a boss's coin-flip roll passes for the half of the random range that starts at its threshold, read by the sign of the sample less the threshold")]
 public static partial class BossRandomRolls
 {
     /// <summary>The samples in half the random range: a roll passes for this many consecutive samples.</summary>

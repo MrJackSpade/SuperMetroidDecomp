@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// What both Ridleys' bodies do to Samus and how they flash when hurt (#2229): his hand-authored extended body meets her
 /// after the ordinary touch pass, and his body, tail and wings show the hurt flash.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyBodyContact
 {
     /// <summary>Performs Samus's touch response against Ridley's extended body.</summary>

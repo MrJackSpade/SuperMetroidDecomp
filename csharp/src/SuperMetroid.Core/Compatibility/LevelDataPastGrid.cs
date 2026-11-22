@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// grid and then the solid fill lie there; a door's bottom-edge column fill below a short room shows the following data.
 /// </remarks>
 /// <typeparam name="TTerrain">The room's terrain block.</typeparam>
-[CompatibilityService("a probe past a room's grid finds the level data that followed the grid, then solid blocks to the end of the room's level space")]
 public sealed partial record LevelDataPastGrid<TTerrain>
 {
     /// <summary>Keeps the following data and the level space past the grid.</summary>

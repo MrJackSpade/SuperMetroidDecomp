@@ -7,11 +7,9 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static partial class GrappleSheets
 {
     /// <summary>The endpoint showing <paramref name="frame"/>.</summary>
-    [InstalledKey]
     public static string EndpointFrame(GrappleEndpointFrame frame) => $"Endpoint.{GrappleEndpointFrameKeys.Installed.Of(frame)}";
 
     /// <summary>A rope segment of an orientation showing rope picture <paramref name="picture"/>, as the rope's direction mirrors it.</summary>
-    [InstalledKey]
     public static string RopeFrame(GrappleRopeOrientation orientation, GrappleRopePicture picture, SpriteMirror mirror) =>
         $"Rope.{GrappleRopeOrientationKeys.Installed.Of(orientation)}.{GrappleRopePictureKeys.Installed.Of(picture)}.{MirrorName(mirror)}";
 

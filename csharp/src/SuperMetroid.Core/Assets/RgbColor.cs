@@ -36,7 +36,7 @@ public readonly partial record struct RgbColor
     public int Blue { get; }
 
     /// <summary>The host pixel showing this colour, opaque.</summary>
-    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue); // cartridge-encoding: allow(HostPixelFormat) - each channel is held to 0-255 by the constructor, and the host RGBA8888 pixel stores it in one byte
+    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue);
 
     /// <inheritdoc />
     public override string ToString() => $"Rgb(r{Red}, g{Green}, b{Blue})";

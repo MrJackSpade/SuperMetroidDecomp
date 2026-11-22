@@ -94,7 +94,6 @@ internal sealed class CoreModel
         EnemyProjectileMotionBehavior = SingleType("EnemyProjectileMotionBehavior", arity: 1);
         EnemyProjectile = SingleType("EnemyProjectile");
         EnemyDefinitionId = SingleType("EnemyDefinitionId");
-        ArchitectureReview = SingleType("ArchitectureReviewAttribute");
         EnemySheetDraw = SingleType("EnemySheetDraw");
         SpriteGraphics = SingleType("SpriteGraphics");
         WeightedRandomChoice = SingleType("WeightedRandomChoice", arity: 1);
@@ -297,9 +296,6 @@ internal sealed class CoreModel
         EnemyDefinitionId.GetMembers(name) is [IFieldSymbol field]
             ? field
             : throw new InvalidDataException($"EnemyDefinitionId has no single member {name}.");
-
-    /// <summary>The attribute the generated classes carry.</summary>
-    public INamedTypeSymbol ArchitectureReview { get; }
 
     /// <summary>Every enemy behaviour, ordered by the path of the file declaring its definitions.</summary>
     public IReadOnlyList<Behaviour> Behaviours { get; }

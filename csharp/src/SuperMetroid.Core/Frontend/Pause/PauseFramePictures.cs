@@ -9,14 +9,12 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static partial class PauseFramePictures
 {
     /// <summary>The frame name of <paramref name="area"/>'s backdrop, its area lettering included, without the button rows.</summary>
-    [InstalledKey]
     internal static string BackdropFrame(AreaId area) => $"Pause.Backdrop.{AreaIdKeys.Installed.Of(area)}";
 
     /// <summary>The frame name of the button rows without their labels.</summary>
     internal const string ButtonRowsFrame = "Pause.ButtonRows";
 
     /// <summary>The frame name of <paramref name="label"/>, lit or dim.</summary>
-    [InstalledKey]
     internal static string ButtonFrame(PauseButtonLabel label, PauseButtonLabelShade shade) =>
         $"Pause.Button.{PauseButtonLabelKeys.Installed.Of(label)}.{PauseButtonLabelShadeKeys.Installed.Of(shade)}";
 

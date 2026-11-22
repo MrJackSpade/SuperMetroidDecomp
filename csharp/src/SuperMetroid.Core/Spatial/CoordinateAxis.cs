@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Spatial;
 /// a small distance away; and a coordinate stored above the origin reads as a negative offset in the sign tests that
 /// clamp cameras and despawn actors. Every axis computation that the game wraps states it here, once.
 /// </remarks>
-[EncodingOwner("sixteen-bit wrapping coordinate axis")]
 public static partial class CoordinateAxis
 {
     /// <summary>

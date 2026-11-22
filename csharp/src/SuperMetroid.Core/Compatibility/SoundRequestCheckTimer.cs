@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// requests (<c>$1621</c>) when the counter overflows; the sound acceptance clock check compares the acceptance this
 /// timer paces with the emulated sound program's, and the SMV replays compare the acknowledgements the game reads back.
 /// </remarks>
-[CompatibilityService("the request-check timer: every clock step adds an eighth of a period, and the overflow, with its remainder carried, checks the sound requests")]
 public readonly partial record struct SoundRequestCheckTimer
 {
     /// <summary>Counts per check: the timer checks the requests and wraps back to zero after this many.</summary>

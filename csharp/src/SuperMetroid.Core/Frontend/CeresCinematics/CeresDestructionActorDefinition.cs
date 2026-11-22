@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <param name="SlideAcceleration">How fast the actor's upward slide grows as the reveal slides away, or null for one that does not slide.</param>
 /// <param name="CompletesScene">Whether the actor's leaving the screen ends the reveal.</param>
 /// <param name="DrawnLast">Whether the scene over Ceres draws the actor after every other actor, so the others overlap it.</param>
-[IndependentFlag("independent authored actor facts: whether the actor drifts round the drift loop, whether it completes the scene and whether it is drawn after the others")]
 internal readonly partial record struct CeresDestructionActorDefinition(
     CeresAnimation Animation,
     CeresSpriteColouring Colouring,

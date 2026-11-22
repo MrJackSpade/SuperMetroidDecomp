@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class SparkBehavior : IEnemySpecies, IEnemySpawnFactory<SparkSpawnSettings>
 {
     /// <summary>The pass-through shot reaction for this species' private shot reaction.</summary>

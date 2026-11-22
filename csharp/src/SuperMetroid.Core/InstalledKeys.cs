@@ -41,7 +41,6 @@ public sealed partial class InstalledKeys<TIdentity>
     public IReadOnlyDictionary<TIdentity, string> ByIdentity => keys;
 
     /// <summary>The installed key of <paramref name="identity"/>, which the table built from every member holds.</summary>
-    [InstalledKey]
     public string Of(TIdentity identity) => keys[identity];
 
     /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member, read without allocating.</summary>

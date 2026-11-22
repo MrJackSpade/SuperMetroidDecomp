@@ -17,17 +17,14 @@ namespace SuperMetroid.Core.Rooms;
 public readonly partial record struct ShownMessage(GameplayMessageId Message, ControllerButton? Button, SaveChoice? Choice)
 {
     /// <summary>The name of the installed image of this form.</summary>
-    [InstalledKey]
     public string FrameName => GameplayMessageIdKeys.Installed.Of(Message) + ButtonName + ChoiceName;
 
     /// <summary>The button part of <see cref="FrameName"/>.</summary>
-    [InstalledKey]
     private string ButtonName => Button is not { } button ? ""
         : button == ControllerButton.None ? ".Unbound"
         : "." + ControllerButtonKeys.Installed.Of(button);
 
     /// <summary>The choice part of <see cref="FrameName"/>.</summary>
-    [InstalledKey]
     private string ChoiceName => Choice switch
     {
         null => "",

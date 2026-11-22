@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Progression;
 public sealed partial class LockedDoor
 {
     /// <summary>Creates the door named <paramref name="name"/>.</summary>
-    internal LockedDoor([InstalledKey] string name) => Name = Ensure.NotNull(name);
+    internal LockedDoor(string name) => Name = Ensure.NotNull(name);
 
     /// <summary>The door's name, which saves keep it by.</summary>
     public string Name { get; }

@@ -125,7 +125,6 @@ internal sealed partial class SamusPoseTransitionPhase
     /// drop and release poses, the finished Shinespark crash, hurt expiry and a pending hit, a published bomb jump, the
     /// windup's launch pose, X-ray's activation and grapple's connection. Returns whether a transition has been applied.
     /// </summary>
-    [IndependentFlag("An earlier transition this frame and a pending hit expiry are independent pose-update states.")]
     private bool ApplyInterruptionTransitions(SamusControlFrame frame, SamusState samus, bool alreadyApplied,
         bool hitInterruptionExpiryPending, SamusTerrain terrain)
     {

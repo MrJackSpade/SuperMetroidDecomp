@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Progression;
 public sealed partial class ItemLocation
 {
     /// <summary>Creates the item location named <paramref name="name"/>.</summary>
-    internal ItemLocation([InstalledKey] string name) => Name = Ensure.NotNull(name);
+    internal ItemLocation(string name) => Name = Ensure.NotNull(name);
 
     /// <summary>The location's name, which saves keep it by.</summary>
     public string Name { get; }

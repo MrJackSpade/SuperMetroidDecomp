@@ -7,5 +7,4 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="Statue">The statue's room objects, which the Lower Norfair hand reports to.</param>
 /// <param name="Level">The room's blocks.</param>
 /// <param name="Block">The object's block.</param>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly partial record struct ChozoStatueObjectSpawn(ChozoStatueObjects Statue, RoomLevelData Level, Position16<RoomBlocks> Block);

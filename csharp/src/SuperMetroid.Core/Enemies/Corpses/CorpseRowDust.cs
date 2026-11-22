@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The dust a dead monster raises as each of its corpse's pixel rows falls out of it (dead Sidehoppers and Tourian
 /// corpses), and the dust sound the family requests. Each corpse rots its own rows; this only raises their dust.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CorpseRowDust
 {
     /// <summary>Receives the family's dust sound, queued as the family makes it.</summary>

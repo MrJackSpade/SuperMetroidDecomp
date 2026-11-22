@@ -23,7 +23,6 @@ public readonly partial record struct AngularSpeed : IComparable<AngularSpeed>, 
         FractionsOfStep = Ensure.BetweenInclusive(-MostWholeSteps * FractionsPerStep, MostWholeSteps * FractionsPerStep - 1, fractionsOfStep);
 
     /// <summary>The speed in fractions of a step an update: negative toward decreasing angles.</summary>
-    [IntegerQuantity("signed angular speed in 256ths of a step an update")]
     public int FractionsOfStep { get; }
 
     /// <summary>No turning at all.</summary>
@@ -63,7 +62,6 @@ public readonly partial record struct AngularSpeed : IComparable<AngularSpeed>, 
     /// The speed's whole steps, rounded toward decreasing angles: a speed of a fraction of a step toward decreasing
     /// angles reads minus one step, as an angle stepped by whole steps turns.
     /// </summary>
-    [IntegerQuantity("signed whole steps an angle turns an update")]
     public int WholeSteps
     {
         get

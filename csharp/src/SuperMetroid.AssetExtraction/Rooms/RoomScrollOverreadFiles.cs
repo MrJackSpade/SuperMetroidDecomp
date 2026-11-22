@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// bytes after them, and past a table that holds only the room's screens the data stored after it. Each byte reads as the
 /// camera reads a cell: zero closed, one open with the camera aligned to the screen's top, and any other value open.
 /// </remarks>
-[EncodingOwner("room scroll cell bytes past a room's screens")]
 public static partial class RoomScrollOverreadFiles
 {
     /// <summary>

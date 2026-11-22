@@ -834,7 +834,6 @@ internal sealed partial class SuperMetroidRuntime
     /// <param name="roomMain">What the update's room main did: took Samus onto the Ceres elevator, or nothing the update follows.</param>
     /// <param name="samus">The update's Samus.</param>
     /// <param name="room">The room the update runs in.</param>
-    [IndependentFlag("independent update facts: whether the countdown started the time-up and whether room main took Samus onto the Ceres elevator")]
     private GameplayUpdateTransition DecideTransition(
         GameplayUpdateStart start,
         GameplayUpdateOwner owner,

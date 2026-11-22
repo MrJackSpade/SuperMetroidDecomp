@@ -19,7 +19,6 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// </list>
 /// The two read the same bytes everywhere else.
 /// </remarks>
-[EncodingOwner("cartridge little-endian words and longs")]
 public static partial class CartridgeWordReads
 {
     /// <summary>

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Encounter">The encounter whose look it is.</param>
 /// <param name="Name">The look's installed name.</param>
-internal readonly partial record struct ComposedLook(ComposedEncounter Encounter, [InstalledKey] string Name)
+internal readonly partial record struct ComposedLook(ComposedEncounter Encounter, string Name)
 {
     /// <summary>The look <paramref name="encounter"/> shows as its room loads, until it shows another.</summary>
     internal static ComposedLook Loaded(ComposedEncounter encounter) => new(encounter, EncounterLook.LoadedName);

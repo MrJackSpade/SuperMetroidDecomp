@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The bridge giving way under Crocomire: its fragments, the sink into the acid, the rise and the final sink.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireBridgeCollapse
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>

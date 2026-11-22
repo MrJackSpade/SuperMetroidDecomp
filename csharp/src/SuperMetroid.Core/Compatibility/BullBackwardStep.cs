@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// check moves a Bull at every angle and every speed-word boundary class from two origins and compares each position with
 /// that negation over the game's sines.
 /// </remarks>
-[CompatibilityService("a Bull's step up or left with no fraction lies one 65536th of a pixel further than its step down or right reversed")]
 public static partial class BullBackwardStep
 {
     /// <summary>The finest distance a position tells apart: one 65536th of a pixel.</summary>

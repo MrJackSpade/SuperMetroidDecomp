@@ -5,7 +5,6 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Signed whole-pixel visual muzzle displacement from Samus's render center, applied before camera subtraction and the renderer's separate pose-graphics Y adjustment.</summary>
-[SpatialComponents("External format: the placement JSON stores each muzzle displacement as signed x/y words.")]
 public sealed partial record ChargeFlareOffset
 {
     /// <summary>The displacement as one spatial value.</summary>

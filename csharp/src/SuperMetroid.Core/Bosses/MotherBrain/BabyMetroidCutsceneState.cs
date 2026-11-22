@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// curved entrance follows the shared trigonometry (<see cref="SpeedAlongAngle.Along"/>). Those steps decide the update
 /// on which the Baby's hit area reaches Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
-[ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
 public sealed partial class BabyMetroidCutsceneState
 {
     /// <summary>

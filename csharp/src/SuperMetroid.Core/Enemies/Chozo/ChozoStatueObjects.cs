@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statues' room objects: the Wrecked Ship and Lower Norfair hand checks and the room objects the statues spawn.</summary>
-[RoomLifetime]
 internal sealed partial class ChozoStatueObjects : IChozoStatueHand
 {
     /// <summary>The room's system and event state.</summary>

@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// where each run starts and end at their last run; this codec is the one place a run's continuation is derived, for
 /// import checks against the cartridge's draw lists.
 /// </summary>
-[EncodingOwner("PLM block-run continuation word")]
 internal static partial class RoomObjectRunContinuationCodec
 {
     /// <summary>The offset word the cartridge stores after run <paramref name="run"/> of a pictured frame's <paramref name="layout"/> (#1557).</summary>

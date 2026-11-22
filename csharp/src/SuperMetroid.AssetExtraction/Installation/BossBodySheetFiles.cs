@@ -159,7 +159,7 @@ public static partial class BossBodySheetFiles
     internal sealed partial record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(BossBodyDepthJsonConverter))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)][InstalledKey] string? Dissolve = null);
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Dissolve = null);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

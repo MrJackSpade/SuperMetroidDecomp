@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// What a room's setup reaches as it composes its own parts into the room being loaded (#2485): once the room's effect is
 /// loaded and before the room composes its main.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal sealed partial record RoomSetupComposition
 {
     /// <summary>The room being loaded, which the setup composes its parts into.</summary>

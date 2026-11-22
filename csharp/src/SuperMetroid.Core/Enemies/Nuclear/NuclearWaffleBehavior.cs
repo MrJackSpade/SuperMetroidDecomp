@@ -6,7 +6,6 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class NuclearWaffleBehavior : IEnemySpecies, IEnemySpawnFactory<NuclearWaffleSpawnSettings>
 {
 

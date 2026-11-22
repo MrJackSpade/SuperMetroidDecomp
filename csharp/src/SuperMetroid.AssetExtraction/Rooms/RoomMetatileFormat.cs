@@ -23,7 +23,6 @@ public static partial class RoomMetatileFormat
     public const string CreFileName = "room-blocks-cre.json";
 
     /// <summary>The editable JSON file name of a block table; graphics sets that share a table share one file.</summary>
-    [InstalledKey]
     public static string FileName(RoomBlockSet set) =>
         $"room-blocks-{SuperMetroid.AssetExtraction.Assets.InstalledArtworkNames.Hyphenated(RoomBlockSetKeys.Installed.Of(set))}.json";
 

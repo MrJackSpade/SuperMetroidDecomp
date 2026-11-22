@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Spatial;
 /// points right and <c>64</c> up (negative Y). This is the angle the game's sine and cosine take
 /// (<see cref="Trigonometry"/>); <see cref="RotationAngle"/> is the form with a fraction, whose whole steps are this value.
 /// </summary>
-[EncodingOwner("sine-table byte angle")]
 public readonly partial record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 {
     /// <summary>Orders angles by how far they lie through the turn from zero.</summary>

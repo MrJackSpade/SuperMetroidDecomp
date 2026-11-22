@@ -27,7 +27,6 @@ public readonly partial record struct BoyonCurvePlace : IComparable<BoyonCurvePl
 
     /// <summary>The entry from the top whose sample the Boyon's multiplier scales here.</summary>
     /// <exception cref="InvalidOperationException">The place is past the top, where no entry is read.</exception>
-    [IntegerQuantity("entry of a Boyon's bounce curve, counted from the top of the arc")]
     public int EntryFromTop => IsPastTheTop
         ? throw new InvalidOperationException("A Boyon past the top of its arc stands at no entry of its bounce curve.")
         : entry;

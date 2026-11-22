@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall cannons: which room objects they are, their setup, and the firing a destroyed cannon stops.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonCannonObjects
 {
     /// <summary>The enemy effects room objects trigger.</summary>

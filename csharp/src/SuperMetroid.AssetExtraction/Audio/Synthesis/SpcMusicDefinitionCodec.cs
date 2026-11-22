@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Address arithmetic and playback remain managed-driver mechanics; definitions retain their
 /// native fixed slots so edits cannot silently relocate into adjacent music or sample data.
 /// </summary>
-[EncodingOwner("sound driver music track, phrase and channel program bytecode")]
 internal static partial class SpcMusicDefinitionCodec
 {
     /// <summary>

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// that count toward the hits that drive him off, and his handoff to the station's escape. His body runs the parts both Ridleys share
 /// (<see cref="RidleyBody"/>); none runs through Lower Norfair Ridley's encounter.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleyState>
 {
     /// <summary>The room's view of Ridley and the station's escape progress, which gates his movement and the Baby.</summary>

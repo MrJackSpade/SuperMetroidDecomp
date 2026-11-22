@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// faintest, and then stays there (#2573). A
 /// haze shown as the room appears at once starts holding, at the strength a finished fade-in shows.
 /// </summary>
-[RoomLifetime]
 public sealed partial class CeresHazeState
 {
     /// <summary>Mutually exclusive per-frame phases of the room-owned haze.</summary>

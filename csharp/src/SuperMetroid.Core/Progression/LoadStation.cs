@@ -11,7 +11,7 @@ public sealed partial class LoadStation
     /// <summary>Names one load station.</summary>
     /// <param name="name">The station's name.</param>
     /// <param name="area">The area the station is in.</param>
-    internal LoadStation([InstalledKey] string name, AreaId area)
+    internal LoadStation(string name, AreaId area)
     {
         Name = Ensure.NotNull(name);
         Area = area;

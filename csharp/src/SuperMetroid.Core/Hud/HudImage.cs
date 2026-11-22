@@ -8,6 +8,5 @@ namespace SuperMetroid.Core.Hud;
 public abstract partial record HudImage
 {
     /// <summary>The installed frame that pictures the image.</summary>
-    [InstalledKey]
     public abstract string FrameName { get; }
 }

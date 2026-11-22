@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Escape;
 public readonly partial record struct EscapeTypewriterGlyph(Position16<PlanePixels> Corner, string Picture)
 {
     /// <summary>The name of the picture of <paramref name="character"/> as <paramref name="message"/>'s typewriter types it.</summary>
-    [InstalledKey]
     public static string PictureOf(EscapeTypewriterMessageId message, char character) =>
         $"{EscapeTypewriterMessageIdKeys.Installed.Of(message)}Typed.{character}";
 

@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// zero last. Both spawn routines were read from the retail cartridge's room-object spawns.
 /// </para>
 /// </remarks>
-[CompatibilityService("a crumbling plug's block shows what its spawn last held: block 416 mirrored both ways after a spawn at a fixed block, block zero after a spawn at a found block")]
 public static partial class CrumblePlugLeftBlock
 {
     /// <summary>How a crumbling plug was spawned, which decides the picture its setup leaves.</summary>

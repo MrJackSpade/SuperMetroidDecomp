@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// its body's and its sand heap's rows show in, and so where each lies in its pictures (#1539); the game rots and draws the
 /// corpse whole.
 /// </summary>
-[EncodingOwner("bank-$A9 dead-Torizo row upload lists")]
 internal static partial class DeadTorizoRowUploadDefinitions
 {
     /// <summary>First destination word for the twelve clipped ten-tile body rows in VRAM.</summary>

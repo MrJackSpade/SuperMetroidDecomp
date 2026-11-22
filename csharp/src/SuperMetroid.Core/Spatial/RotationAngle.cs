@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Spatial;
 /// the trigonometry angle (<see cref="ToTrigonometryAngle"/>) the sine and cosine lookups read, the angle's whole steps. Keeping
 /// the fraction lets grapple and neck motion turn at sub-step precision while whole-step callers share the same turns.
 /// </summary>
-[EncodingOwner("8.8 rotation angle word")]
 public readonly partial record struct RotationAngle : IComparable<RotationAngle>, System.Numerics.IUnaryNegationOperators<RotationAngle, RotationAngle>
 {
     /// <summary>Number of whole steps in one complete turn.</summary>

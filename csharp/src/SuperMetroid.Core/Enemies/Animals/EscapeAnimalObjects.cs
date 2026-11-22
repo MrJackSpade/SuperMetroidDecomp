@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The critters-escape room objects: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
-[RoomLifetime]
 internal sealed partial class EscapeAnimalObjects : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>

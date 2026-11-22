@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// <summary>The statue sequence's operations over the entrance statue and the unlock effects.</summary>
 /// <param name="statue">The entrance statue.</param>
 /// <param name="unlock">The unlock effects.</param>
-[RoomLifetime]
 internal sealed partial class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <summary>The unlock effects.</summary>

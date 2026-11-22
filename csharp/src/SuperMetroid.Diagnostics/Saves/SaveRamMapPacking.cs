@@ -12,7 +12,6 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// plane's page-first order, the areas one after another; Ceres is not packed. The lists are calculated from stock map
 /// occupancy (<see cref="SavedMapExplorationRuns.IsKept"/>), so edits to the installed map artwork never move a byte.
 /// </summary>
-[EncodingOwner("legacy save image packed explored-map field")]
 public static class SaveRamMapPacking
 {
     /// <summary>The Zebes areas whose explored maps the field packs, in packing order.</summary>

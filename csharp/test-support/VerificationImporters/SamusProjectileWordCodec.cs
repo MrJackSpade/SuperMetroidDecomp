@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// is known for checks that compare the game's state with the cartridge's. The game never reads these words; tools that
 /// write them use Tooling's <c>SamusProjectileWordEncoder</c>.
 /// </summary>
-[EncodingOwner("Samus projectile type, direction and missile variable words, as checks decode them")]
 internal static class SamusProjectileWordCodec
 {
     /// <summary>The beam combination bits of a type word.</summary>

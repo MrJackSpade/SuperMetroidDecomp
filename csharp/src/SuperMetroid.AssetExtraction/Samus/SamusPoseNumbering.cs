@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// names none, and neither does a number past the records, which reads adjacent code no path gives Samus (#2457). This
 /// is the one place a number becomes its pose; <see cref="SamusPoseNumbers"/> turns a pose back into its number.
 /// </summary>
-[EncodingOwner("pose numbers of the cartridge's Samus pose tables")]
 internal static partial class SamusPoseNumbering
 {
     /// <summary>The number of records in the cartridge's pose tables, including the records of poses no path reaches.</summary>

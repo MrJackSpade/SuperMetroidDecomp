@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Maridia's glass tube: its setup and what its break does to Samus, the events, the water, the earthquake and the debris.</summary>
-[RoomLifetime]
 internal sealed partial class NoobTubeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

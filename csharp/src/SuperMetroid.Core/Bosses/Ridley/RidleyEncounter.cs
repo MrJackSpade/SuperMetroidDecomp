@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// attached himself to the room for its own Ceres reads, the door of his Ceres room, and the Ceres escape progress the
 /// session keeps across rooms. His parts hold their own encounter from their initialization and never read it here.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyEncounter : ICeresEscapeStatus
 {
     /// <summary>Starts the room's view of Ridley's encounters; his body and Ceres's door attach as they initialize.</summary>

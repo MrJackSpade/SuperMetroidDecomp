@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// bit 3 the hidden half of a region and bits 0-2 the facing octant. The game holds typed segment programs; checks
 /// that walk the cartridge's selector table translate through this codec.
 /// </summary>
-[EncodingOwner("Botwoon segment selector byte offsets")]
 internal static class BotwoonSegmentSelectorCodec
 {
     /// <summary>The bytes of one selector-table entry.</summary>

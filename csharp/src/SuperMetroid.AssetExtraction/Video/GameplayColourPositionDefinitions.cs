@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// knowledge, which decodes the installed starting image and native colour images into owners. Core never addresses a
 /// colour by these positions.
 /// </summary>
-[EncodingOwner("colour positions of gameplay's 256-colour image")]
 internal static partial class GameplayColourPositionDefinitions
 {
 

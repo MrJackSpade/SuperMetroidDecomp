@@ -172,9 +172,9 @@ public sealed partial class ManagedSpcPlayer
             channels[index].Index = unchecked((byte)index);
         Music.SetupEchoDelay(SpcDriverDefinitions.Echo.InitialDelay);
         Voices.dspFlags = Voices.dspFlags | SpcDriverDefinitions.Echo.WriteDisable;
-        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
-        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
-        Voices.Dsp.Global.WriteSourceDirectory(0x6d); // cartridge-encoding: allow(HardwareAddress) - cartridge BRR directory page
+        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60);
+        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60);
+        Voices.Dsp.Global.WriteSourceDirectory(0x6d);
         Music.tempo = SpcFixedPoint.WithWhole(Music.tempo, SpcDriverDefinitions.Music.InitialTempo);
         LoopPartOne();
     }
@@ -193,7 +193,7 @@ public sealed partial class ManagedSpcPlayer
         Voices.Dsp.Global.WriteNoiseEnable(new DspVoiceMask(Voices.noiseEnable));
         Voices.Dsp.Global.KeyOff(DspVoiceMask.None);
         Voices.Dsp.Global.KeyOn(new DspVoiceMask(Voices.keyOn));
-        if ((Music.echoStoredTime & 0x80) == 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
+        if ((Music.echoStoredTime & 0x80) == 0)
         {
             Voices.Dsp.Global.WriteFlags(DspFlags.FromDriverByte(Voices.dspFlags));
             if (Music.echoStoredTime == Music.echoDelay)
@@ -221,7 +221,7 @@ public sealed partial class ManagedSpcPlayer
 
         int musicAccumulator = Music.mainTempoAccumulator + unchecked((byte)(ticks * SpcFixedPoint.Whole(Music.tempo)));
         Music.mainTempoAccumulator = unchecked((byte)musicAccumulator);
-        if (musicAccumulator >= 0x100) // cartridge-encoding: allow(HardwareMagnitude) - eight-bit timer carry
+        if (musicAccumulator >= 0x100)
         {
             int fastForwardIterations = 0;
             do

@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// passes the carry on exactly when the whole pixels are minus one. The Mama Turtle reversal check compares both with
 /// that arithmetic for every whole and fraction class.
 /// </remarks>
-[CompatibilityService("a Mama Turtle reversing at a wall complements its speeds' whole pixels, and lowers its acceleration a pixel more after a hit at under a pixel an update leftward")]
 internal static partial class MamaTurtleWallReversal
 {
     /// <summary>The whole pixels of a velocity moving left by less than a pixel an update.</summary>

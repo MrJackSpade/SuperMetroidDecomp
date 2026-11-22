@@ -53,7 +53,6 @@ internal static class BgArtworkFixtures
     /// A VRAM holding the image a capture shows of <paramref name="vram"/>, for renderers that read a VRAM: what was bound
     /// over it and what its room's appearance shows, read through <paramref name="artwork"/>.
     /// </summary>
-    [WholeImageFixture("a composed VRAM image")]
     internal static SnesVram ComposedVram(SnesVram vram, BgArtworkBytes artwork)
     {
         var composed = new SnesVram();
@@ -62,7 +61,6 @@ internal static class BgArtworkFixtures
     }
 
     /// <summary>The image a capture shows of <paramref name="vram"/>: what was bound over it and what its room's appearance shows.</summary>
-    [WholeImageFixture("a composed VRAM image")]
     internal static byte[] Composed(SnesVram vram, BgArtworkBytes artwork)
     {
         RoomAppearance appearance = For(vram);
@@ -75,7 +73,6 @@ internal static class BgArtworkFixtures
     }
 
     /// <summary>The image a capture shows: <paramref name="vram"/> with <paramref name="bindings"/> composed over it.</summary>
-    [WholeImageFixture("a composed VRAM image")]
     internal static byte[] Composed(SnesVram vram, BgArtworkBindings bindings, BgArtworkBytes artwork)
     {
         byte[] image = vram.Bytes.ToArray();

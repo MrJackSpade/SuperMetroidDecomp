@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
 /// <param name="warning">The room's foreground warning.</param>
-[RoomLifetime]
 internal sealed partial class CeresRidleyEntityFactory(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomWarning warning) : IEnemyEntityFactory
 {
     /// <summary>Ceres Ridley, built the same way wherever he is set up.</summary>

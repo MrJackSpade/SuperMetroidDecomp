@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// row on the 32-column character sheet, its colour variant, priority and mirroring. Only the import reads these documents;
 /// this is the only place a placed tile meets the cell that stores it (#2556).
 /// </summary>
-[EncodingOwner("import-data background tilemap cell")]
 public sealed partial record RoomBackgroundTilemapCell
 {
     /// <summary>The cell that stores <paramref name="tile"/>.</summary>

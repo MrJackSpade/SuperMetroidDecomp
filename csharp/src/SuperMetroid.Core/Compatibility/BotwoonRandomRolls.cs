@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// original masking and shifting of the shared random word, which a field reproduces bit for bit; the SMV replays
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
-[CompatibilityService("which part of the shared random number Botwoon's walk reads to choose its destination, exactly as the game read it")]
 internal static partial class BotwoonRandomRolls
 {
     /// <summary>

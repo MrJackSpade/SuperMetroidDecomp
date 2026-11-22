@@ -31,6 +31,5 @@ public readonly partial record struct SpeedShare
     }
 
     /// <summary>The share in 256ths of the whole, 1 through 256.</summary>
-    [IntegerQuantity("a share of a move or a speed in 256ths of it")]
     public int TwoHundredFiftySixths { get; }
 }

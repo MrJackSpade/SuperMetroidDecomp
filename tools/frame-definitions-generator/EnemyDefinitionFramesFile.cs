@@ -7,7 +7,7 @@ internal static class EnemyDefinitionFramesFile
     public static GeneratedFile Create(string repository, CoreModel model, SpawnAnalysis analysis)
     {
         var lines = new List<string>();
-        lines.AddRange(CoreModel.Usings(model.ArchitectureReview, model.EnemyDefinitionId, model.EnemyFrameId));
+        lines.AddRange(CoreModel.Usings(model.EnemyDefinitionId, model.EnemyFrameId));
         lines.AddRange(
         [
             "",
@@ -17,8 +17,6 @@ internal static class EnemyDefinitionFramesFile
             "/// The frames each enemy definition can show (#1392): the frames its behaviour's code reaches, which its pre-coloured",
             $"/// sheets hold. Generated from the enemy behaviours by {GeneratedFile.GeneratorPath}; regenerate rather than edit.",
             "/// </summary>",
-            "[ArchitectureReview(\"large\", \"Generated data: the two thousand frames the enemy definitions show; it holds no logic, "
-                + "and splitting it by family would only scatter one table the sheet composer reads as a whole.\")]",
             "internal static partial class EnemyDefinitionFrameDefinitions",
             "{",
         ]);

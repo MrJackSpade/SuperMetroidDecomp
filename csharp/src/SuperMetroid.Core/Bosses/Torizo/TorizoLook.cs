@@ -13,7 +13,6 @@ public readonly partial record struct TorizoLook(TorizoLookKind Kind, GoldenTori
     /// colouring the health colouring's key with its band's after it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The colouring is a health colouring that names no band.</exception>
-    [InstalledKey]
     public string Key => Band is { } band ? $"{TorizoLookKindKeys.Installed.Of(TorizoLookKind.GoldenHealth)}-{band.Key}"
         : Kind == TorizoLookKind.GoldenHealth ? throw new InvalidOperationException("A Torizo health colouring names no band.")
         : TorizoLookKindKeys.Installed.Of(Kind);

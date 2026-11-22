@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps each table Samus's codecs read (#1411): the import pipeline's private knowledge of the
 /// cartridge, decoded once, as typed source addresses with their meaning named.
 /// </summary>
-[EncodingOwner("cartridge addresses of the tables Samus's codecs read")]
 internal static partial class SamusSourceDefinitions
 {
     /// <summary>$90:C9D9, where the arm cannon drawing window starts in bank $90: its first pose descriptor.</summary>

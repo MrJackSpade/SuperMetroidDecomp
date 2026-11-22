@@ -24,7 +24,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// steps add their offsets to the same place.
 /// </para>
 /// </remarks>
-[CompatibilityService("a step along a room's rows past a row's end continues on the next row, and one before a row's start on the row above")]
 public static partial class RoomReadingOrder
 {
     /// <summary>

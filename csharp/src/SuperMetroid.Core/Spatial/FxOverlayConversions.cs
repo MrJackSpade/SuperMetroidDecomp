@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>The room effects' relations between the foreground and the effect overlay.</summary>
-[EncodingOwner("effect-overlay effect plane coordinates")]
 public static partial class FxOverlayConversions
 {
     /// <summary>

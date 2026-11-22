@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Uncharged">After an uncharged shot fired with Charge equipped or on a fresh press.</param>
 /// <param name="Charged">After a charged shot.</param>
 /// <param name="HeldFire">After an uncharged shot repeated by holding the button without Charge.</param>
-[CompatibilityService("the cooldowns a Spazer and Plasma beam's shots wait, read past the cooldown rows")]
 public sealed partial record BeamShotCooldowns(int Uncharged, int Charged, int HeldFire)
 {
     /// <summary>Which of a beam combination's cooldowns a shot sets.</summary>

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// broken open, makes that block the hand's special block and leaves the room on that update.
 /// </summary>
 /// <param name="statue">The room's Chozo statue objects, which hold the acid and the lowered-acid event.</param>
-[RoomLifetime]
 internal sealed partial class LowerNorfairChozoHandObject(ChozoStatueObjects statue) : RoomObjectBehaviour
 {
     /// <summary>The room's Chozo statue objects.</summary>

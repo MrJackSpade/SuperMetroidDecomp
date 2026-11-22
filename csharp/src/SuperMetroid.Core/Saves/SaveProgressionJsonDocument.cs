@@ -10,7 +10,6 @@ public sealed partial record SaveProgressionJsonDocument
     /// The story events that have happened, by name (schema six, #1553), written in the order the save lists them and read
     /// in any order (#2543).
     /// </summary>
-    [InstalledKey]
     public required string[] Events { get; init; }
 
     /// <summary>How many Zebetites have been destroyed, up to <see cref="PersistentProgress.ZebetiteCount"/> (schema five, #1527).</summary>

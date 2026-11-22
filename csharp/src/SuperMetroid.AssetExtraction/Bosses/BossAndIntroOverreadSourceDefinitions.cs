@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Where on the cartridge, and how, Kraid's fingernails, Crocomire's volley and the opening cinematic's egg shell read past
 /// their data: extraction's private knowledge, which it decodes once into the boss and intro overread services (#1500).
 /// </summary>
-[EncodingOwner("cartridge tables Kraid's nails, Crocomire's volley and the egg shell read past")]
 internal static partial class BossAndIntroOverreadSourceDefinitions
 {
     /// <summary>$A7:BF1D: Kraid's nail contour, a left-offset word then a bound word per record, the ledges first.</summary>

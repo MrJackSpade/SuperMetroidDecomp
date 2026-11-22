@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// destroyed terrain and starts its smoke. A cannon set up destroyed does that on its first update.
 /// Other projectiles' strikes stay unread until a missile's replaces them.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class DraygonCannonObject : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>Sets up a cannon facing <paramref name="orientation"/> that controls <paramref name="cannon"/>.</summary>

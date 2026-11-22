@@ -43,8 +43,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// codecs read its stored count through test-support.
 /// </para>
 /// </summary>
-[CompatibilityService("a countdown that keeps the value it wrapped to, so a timer decremented past zero reads as a large or negative count")]
-[EncodingOwner("wrapping countdown of 0 through 65535")]
 public readonly partial record struct WrappingCountdown
 {
     /// <summary>The frames at which a countdown reads as negative: it has run past zero.</summary>
@@ -57,7 +55,6 @@ public readonly partial record struct WrappingCountdown
     public const int LongestStart = (1 << 16) - 1;
 
     /// <summary>The countdown's count, 0 through 65535.</summary>
-    [IntegerQuantity("the countdown's remaining count")]
     private readonly ushort count;
 
     /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/>.</summary>

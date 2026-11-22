@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend;
 /// One phase for every sequence of the game (#2571), each a typed member: the session holds the running phase, and a
 /// sequence that hands over names the phase it hands over to, so no update looks its phase up by the game-state word.
 /// </summary>
-[ArchitectureReview("back-reference", "The session makes its phases once and owns them for its whole life, and each phase " +
-    "runs the session it was made for, so the two share one lifetime; the set keeps no reference to the session itself.")]
 internal sealed partial class GamePhases
 {
     /// <summary>Builds every sequence's phase for <paramref name="session"/>.</summary>

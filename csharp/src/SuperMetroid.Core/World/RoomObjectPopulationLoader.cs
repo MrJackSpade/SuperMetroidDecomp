@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>Loads a room-object population: installs the room bindings, gives each placement a place and runs each family setup in placement order.</summary>
-[RoomLifetime]
 internal sealed partial class RoomObjectPopulationLoader
 {
     /// <summary>The room-object families whose setups keep state of their own, and the room's places.</summary>

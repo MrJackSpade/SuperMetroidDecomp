@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// installed colour documents store colours in this form, so only the import and the checks that read those stores
 /// decode or encode it. Core holds plain colours and never sees the word.
 /// </summary>
-[EncodingOwner("RGB5 colour word of the cartridge and the installed colour documents")]
 internal static partial class ColourWordCodec
 {
     /// <summary>Bytes in one stored colour word.</summary>

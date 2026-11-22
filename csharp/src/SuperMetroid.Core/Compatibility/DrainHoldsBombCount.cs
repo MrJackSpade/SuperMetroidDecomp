@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>$90:C0AB</c>), the bomb spread (<c>$90:D849</c>), X-ray's setup (<c>$91:E17B</c>) and the enemy projectiles'
 /// bomb check (<c>$86:C1B8</c>) read the same counter.
 /// </remarks>
-[CompatibilityService("the Baby Metroid's drain holds Samus's bomb count full on every update it drains her, refusing her bombs, and clears it as it lets her go")]
 internal static partial class DrainHoldsBombCount
 {
     /// <summary>The count of Samus's bombs out the drain holds on every update it drains her: a bomb in each of her five places.</summary>

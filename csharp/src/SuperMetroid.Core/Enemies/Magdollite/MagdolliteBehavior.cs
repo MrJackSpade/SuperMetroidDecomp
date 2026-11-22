@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class MagdolliteBehavior : IEnemySpecies, IEnemyLoadedFactory<MagdolliteSpawnSettings>, IRoomGlow
 {
 

@@ -31,7 +31,6 @@ internal static class RepositoryInstallation
         new(() => SharedFixtureTiming.Load("Fixture: repository installation", InstallShared));
 
     /// <summary>Opens, repairs or extracts the one installation every check in the process shares.</summary>
-    [PrivateInstallation("The shared repository installation itself: every other check reads it or copies it instead of installing.")]
     private static GameInstallation InstallShared()
     {
         string root = Path.GetFullPath(Path.Combine(CacheRoot, "verification-installed-content"));

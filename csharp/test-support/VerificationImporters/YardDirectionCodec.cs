@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The codec between a Yard's <see cref="YardDirection"/> and the direction number the cartridge stores and indexes its
 /// eight direction records by (#1472), for the checks that compare with those records.
 /// </summary>
-[EncodingOwner("Yard direction number")]
 internal static class YardDirectionCodec
 {
     /// <summary>The directions in the cartridge's numbering.</summary>

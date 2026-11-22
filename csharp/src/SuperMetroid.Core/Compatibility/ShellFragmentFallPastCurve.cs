@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// land on their third update past it. The intro egg motion check decodes the steps from the cartridge, compares them
 /// with this service and follows every fragment to the floor.
 /// </remarks>
-[CompatibilityService("the two highest egg-shell fragments fall by the steps read past the gravity curve before they land")]
 public sealed partial class ShellFragmentFallPastCurve
 {
     /// <summary>The steps, in the order the updates past the curve read them.</summary>

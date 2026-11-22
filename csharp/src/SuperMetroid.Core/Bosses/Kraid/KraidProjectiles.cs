@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's lints, nails and spat rocks.</summary>
-[RoomLifetime]
 internal sealed partial class KraidProjectiles
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>

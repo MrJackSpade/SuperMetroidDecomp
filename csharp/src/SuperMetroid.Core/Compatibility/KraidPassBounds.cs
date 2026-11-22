@@ -22,7 +22,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// contour test overwrite and never reload within the pass; the Kraid mouth damage and body contour checks and the
 /// Kraid recorded movie confirm the leftovers.
 /// </remarks>
-[CompatibilityService("a later projectile in the same Kraid collision pass is tested against the bounds the previous hit left behind")]
 public partial struct KraidPassBounds
 {
     /// <summary>The bottom a mouth hit that does no damage leaves per place its dud flash takes.</summary>

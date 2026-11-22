@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// main behaviour later sweeps the tilt clockwise and back. The turn it last reached is what the following room's main
 /// inherits: the pre-elevator hall reads it as its first wait for falling debris (<see cref="ShaftTurnSetsDebrisWait"/>).
 /// </remarks>
-[RoomLifetime]
 public sealed partial class CeresElevatorShaftRoomMainState
 {
     /// <summary>The last tilt of the forward sweep, one step short of the full clockwise tilt; the turn reverses after it.</summary>
@@ -67,7 +66,6 @@ public sealed partial class CeresElevatorShaftRoomMainState
     /// departure starts. The update that takes her moves the game to the departure, so no later update allows it again.
     /// </param>
     /// <returns>The update's turn, and whether the elevator took Samus, which the gameplay update acts on (#2545).</returns>
-    [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState samus,
         bool elevatorDoorDestroyed,

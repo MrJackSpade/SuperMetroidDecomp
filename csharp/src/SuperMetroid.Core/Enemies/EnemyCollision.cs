@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Enemies;
 /// Samus-to-enemy interaction: Samus's touch, shots, bombs and Power Bombs tested against each interactive enemy, its
 /// frame hitboxes, vulnerability and freezing, and the reactions they run.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyCollision
 {
     /// <summary>Lists the enemies admitted to interaction this frame, whose reactions touch and projectile contact select.</summary>
@@ -839,7 +838,6 @@ internal sealed partial class EnemyCollision
     /// beam freezes the enemy instead of killing it unless <see cref="PreventsLethalFreeze"/>, which the beam entry
     /// decides; non-beam families never prevent it.
     /// </summary>
-    [IndependentFlag("independent facts of an ordinary shot's vulnerability: immediate freeze, and lethal-freeze prevention")]
     internal readonly partial record struct NormalShotVulnerability(
         WeaponDamageFactor Multiplier,
         bool FreezeImmediately,

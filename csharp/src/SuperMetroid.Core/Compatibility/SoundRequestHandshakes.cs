@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// waiting requests on every update (the movie desync comparison prints both), and whose timing the Ridley full-movie and
 /// 13% replays depend on through the door transition's wait for empty queues.
 /// </remarks>
-[CompatibilityService("each sound library's request is repeated until accepted, held and withdrawn, and the withdrawal repeated until accepted, before the library's next queued sound is requested")]
 public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : notnull, IEquatable<TSound>

@@ -21,7 +21,6 @@ internal static class MapInstallationVerification
     /// same whatever components it extracts, so the map component keeps each extraction small. All ROM and fixture data
     /// stays in ignored test-temp.
     /// </summary>
-    [PrivateInstallation("Installs the map component alone into a private scratch root and upgrades it, to check the installer's transaction: startup that never opens the ROM, cancelled and real format upgrades, the no-op restart and player-data preservation.")]
     internal static void VerifyMapInstallation(string sourceRom)
     {
         using var scratch = new TestScratchDirectory("map-installation");

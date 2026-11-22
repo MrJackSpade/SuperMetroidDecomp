@@ -29,7 +29,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// them and the steps it took (<see cref="ChangedBy"/>, <see cref="StepsChanged"/>).
 /// </para>
 /// </remarks>
-[CompatibilityService("the Wrecked Ship ghost's brightening carries a channel passing full into the next, and its fades step all sixteen of its colours a level at a time, so when each ends decides when its AI moves on")]
 public readonly partial struct WreckedShipGhostFade
 {
     /// <summary>The colours the ghost's fades move: the fifteen its pictures draw and colour zero, which none draws.</summary>

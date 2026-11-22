@@ -23,11 +23,9 @@ public sealed partial class UpdateCountdown
     }
 
     /// <summary>The updates the wait lasts, as it was last started: none for a wait made over.</summary>
-    [IntegerQuantity("updates the wait lasts")]
     public int Length { get; internal set; }
 
     /// <summary>The updates the wait has left, the one it ends on included: none once it is over.</summary>
-    [IntegerQuantity("updates the wait has left")]
     public int UpdatesLeft { get; internal set; }
 
     /// <summary>The updates the wait has counted so far, from none at its start to <see cref="Length"/> once it is over.</summary>

@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// last shot and a fragment that falls past the curve read the data after it; the Kraid nail contour, Crocomire last
 /// shot and intro egg motion checks decode that data from the player's game and compare it with the services held here.
 /// </remarks>
-[CompatibilityService("Kraid's fingernails, Crocomire's volley and the intro egg shell read what lies past their authored data")]
 public sealed partial class BossAndIntroOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>

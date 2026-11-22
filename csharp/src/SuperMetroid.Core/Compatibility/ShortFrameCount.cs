@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the original counts the short count on every shown frame and returns it to zero after its period; the
 /// Ridley full-movie check reads it on every update of a door transition, and the SMV replays' enemy cadences sample it.
 /// </remarks>
-[CompatibilityService("the short frame count, which returns to zero at the end of its period and which a door's scroll restarts")]
 public readonly partial record struct ShortFrameCount
 {
     /// <summary>How many frames the count counts before it returns to zero.</summary>

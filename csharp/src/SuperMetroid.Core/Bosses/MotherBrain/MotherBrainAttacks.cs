@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's second-phase attacks: choosing one, the bomb walk, the lasers and the hand beam.</summary>
-[RoomLifetime]
 internal sealed partial class MotherBrainAttacks
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

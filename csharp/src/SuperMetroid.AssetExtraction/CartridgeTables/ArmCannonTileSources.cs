@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// only place a cover picture meets the bank-$9A source a queued transfer names it by, and the order the import's cover
 /// page holds the pictures in.
 /// </summary>
-[EncodingOwner("bank-$9A sources of the arm cannon's cover pictures")]
 internal static partial class ArmCannonTileSources
 {
     /// <summary>The bytes between one cover picture's source and the next.</summary>

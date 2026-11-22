@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// animations a shot or Samus's touch starts, and the power bomb that catches them. Draygon's parts and turrets bind these
 /// behaviours to the shots they spawn.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class DraygonShots
 {
     /// <summary>Builds the component from the collaborators it uses.</summary>

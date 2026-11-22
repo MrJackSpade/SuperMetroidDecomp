@@ -26,7 +26,6 @@ public static partial class RoomBackgroundTilemapArtworkFiles
     private const int FormatVersion = 3;
 
     /// <summary>The import-data JSON file name of <paramref name="tilemap"/>, named for the background it pictures (#1414).</summary>
-    [InstalledKey]
     public static string FileName(RoomBackgroundTilemap tilemap) =>
         $"room-background-{InstalledArtworkNames.Hyphenated(RoomBackgroundTilemapKeys.Installed.Of(tilemap))}.json";
 
@@ -117,7 +116,7 @@ public static partial class RoomBackgroundTilemapArtworkFiles
     };
 
     /// <summary>One stock tilemap's name, decompressed length in bytes, and JSON digest.</summary>
-    internal sealed partial record RoomBackgroundFileEntry([InstalledKey] string Tilemap, int ByteCount, string Sha256);
+    internal sealed partial record RoomBackgroundFileEntry(string Tilemap, int ByteCount, string Sha256);
     /// <summary>Records cartridge provenance and complete stock background tilemap coverage.</summary>
     internal sealed partial record RoomBackgroundFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomBackgroundFileEntry> Entries);

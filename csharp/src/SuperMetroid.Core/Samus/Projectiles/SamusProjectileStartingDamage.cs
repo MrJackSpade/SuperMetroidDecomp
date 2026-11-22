@@ -19,7 +19,6 @@ internal abstract partial record SamusProjectileStartingDamage
     /// <summary>A beam shot of <paramref name="Beams"/>: its beams' uncharged damage, tripled when it is charged.</summary>
     /// <param name="Beams">The beams the shot fires.</param>
     /// <param name="Charged">Whether the shot is charged.</param>
-    [IndependentFlag("whether a beam shot is charged is a fact of its kind, independent of the beams it fires")]
     internal sealed partial record BeamShot(SamusBeamCombination Beams, bool Charged) : SamusProjectileStartingDamage
     {
         /// <inheritdoc/>

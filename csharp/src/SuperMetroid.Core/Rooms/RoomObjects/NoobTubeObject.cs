@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// once the open tube's time is up the broken event is set, the water returns, Samus is released and the tube leaves.
 /// </summary>
 /// <param name="owner">The room's tube owner, which reaches Samus, the events, the water, the earthquake and the debris.</param>
-[RoomLifetime]
 internal sealed partial class NoobTubeObject(NoobTubeObjects owner) : SilentSequencedRoomObject<NoobTubeSegment, TerrainChangeFrame>(NoobTubeAnimations.Segments), IShootableRoomObject
 {
     /// <summary>The room's tube owner.</summary>

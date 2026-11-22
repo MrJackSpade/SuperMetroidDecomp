@@ -28,7 +28,6 @@ internal static class NativeColouredPictures
     /// A picture coloured again from the same colours under the same row is the copy coloured last (#1757): the copy is a
     /// function of the picture, the colours and the row, and a check comparing many frames colours the same pictures again.
     /// </remarks>
-    [WholeImageFixture("a picture coloured from a 256-colour native colour image")]
     internal static SpriteImage OfSheet(SpriteImage picture, ReadOnlySpan<RgbColor> nativeColours, int drawRow)
     {
         Ensure.NotNull(picture);

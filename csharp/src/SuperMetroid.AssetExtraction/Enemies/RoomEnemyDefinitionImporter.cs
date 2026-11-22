@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads native 64-byte bank-$A0 enemy headers during cartridge import.</summary>
-[EncodingOwner("cartridge enemy header words")]
 public static partial class RoomEnemyDefinitionImporter
 {
 

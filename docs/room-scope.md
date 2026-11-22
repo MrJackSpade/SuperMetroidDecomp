@@ -7,24 +7,12 @@ room; an over-eager clear dropped state the cartridge keeps. #1329 replaced the 
 the values a destination reads from the previous room named in `RoomTransitionCarryOver`.
 
 This document records the load order, the deliberate carry-overs and the deliberate resets, with their evidence.
-[`room-scope-inventory.json`](room-scope-inventory.json) classifies every step of the room-load bodies and every
-`Reset*` and `Clear*` declaration in Core. Both were produced by static source inspection; no room-lifetime reset
-remains.
 
-## Enforcement
+## Session and room state
 
-Every room-lifetime type carries `[RoomLifetime]`: the scope, its parts, and the components those parts hold.
+Every room-lifetime type belongs to the room scope: the scope, its parts, and the components those parts hold.
 Session state lives on session owners (`EnemySession`, `PaletteFxSessionState`, `BeamChargeState`,
-`ActiveRoomState`'s session words). The blocking `RoomLifetimeAnalyzer` keeps the split:
-
-- **SME6409**: a room-lifetime type is constructed only inside another room-lifetime type or a `[RoomScopeBoundary]`
-  type. The boundaries are `RoomLoader`, which builds each scope, `ActiveRoomState`, `RoomTransitionCarryOver`, the
-  per-call inputs that pass room parts for one call, and the cinematic scenes that own a level, projectiles or palette
-  FX while no gameplay room is loaded. Each boundary states its reason.
-- **SME6410**: a type that is neither room-lifetime nor a boundary holds no field or auto-property of a room-lifetime
-  type, including as a generic or array element. Session code receives the room's parts as parameters or reads them
-  through `ActiveRoomState` at a frame root.
-- **SME6411**: no `ResetForRoom*`, `Reset*RoomState` or `ResetForRoomLoad` method is declared.
+`ActiveRoomState`'s session words).
 
 `ActiveRoomState` has no settable per-room property. The load station that established a room is an input of its
 scope's construction, and the Ceres elevator arrival begins in, and ends with, the room it began in.

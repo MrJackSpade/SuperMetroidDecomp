@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// and reused by Mother Brain's afterburn. It is the fireballs' and afterburns' projectile behaviour (#1801): their
 /// flights and cues spawn the rest of the chain this spawns.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFireballMotion>, IEnemyProjectileCues<RidleyFireballCue>
 {
     /// <summary>How many afterburns each fireball and afterburn has left to raise, given as it spawns.</summary>

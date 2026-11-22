@@ -33,7 +33,6 @@ namespace SuperMetroid.Core.World;
 /// Room loading: saved games and new sessions, rooms and doors, room setup, colours, the HUD minimap,
 /// enemies and room objects of the loaded room.
 /// </summary>
-[RoomScopeBoundary("Builds each room's scope in the game's load order.")]
 internal sealed partial class RoomLoader
 {
     /// <summary>Supplies decoded graphics and colour assets for the room being entered.</summary>
@@ -377,7 +376,6 @@ internal sealed partial class RoomLoader
     /// background layer is always hidden; the foreground is hidden too when either room
     /// selects the isolated door transition.
     /// </summary>
-    [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal void BeginDoorTransitionDisplay(bool sourceIsolated, bool destinationIsolated)
     {
         bool suppressForeground = sourceIsolated || destinationIsolated;

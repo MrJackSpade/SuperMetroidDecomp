@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// confirms the edges at every update of a Varia transformation.
 /// </para>
 /// </remarks>
-[CompatibilityService("the suit pickup's closing line carries its left edge from the screen's right side round to its left, which sets when the pickup releases Samus")]
 public static partial class SuitPickupClosingLineWrap
 {
     /// <summary>The columns of the screen's row the line's edges move within.</summary>

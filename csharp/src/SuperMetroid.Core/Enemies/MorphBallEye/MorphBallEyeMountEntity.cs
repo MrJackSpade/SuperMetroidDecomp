@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="place">The place the mount occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
-[RoomLifetime]
 internal sealed partial class MorphBallEyeMountEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {

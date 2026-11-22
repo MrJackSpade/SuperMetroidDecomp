@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// request matches; the sound
 /// acceptance clock check compares these replies on every update with a recording of the emulated sound program's.
 /// </remarks>
-[CompatibilityService("what one sound library reports back as acknowledged")]
 public readonly partial record struct SoundAcknowledgement<TSound>
     where TSound : notnull, IEquatable<TSound>
 {

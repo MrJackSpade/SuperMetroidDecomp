@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// and steps carry arbitrary values; the cartridge's numbering, which gives several steps of one sequence a number each,
 /// lives only here.
 /// </summary>
-[EncodingOwner("game-state number")]
 internal static class GameStateNumberCodec
 {
     /// <summary>

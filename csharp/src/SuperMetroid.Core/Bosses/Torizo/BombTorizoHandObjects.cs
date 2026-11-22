@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The Bomb Torizo statue's hand: its setup, the fragments and music it requests, and whether it still stands, which
 /// Bomb Torizo waits on.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

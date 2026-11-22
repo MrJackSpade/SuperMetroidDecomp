@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Shaktool's room controller: its spawn and the room's scroll setup.</summary>
-[RoomLifetime]
 internal sealed partial class ShaktoolObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

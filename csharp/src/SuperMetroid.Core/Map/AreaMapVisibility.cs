@@ -8,7 +8,6 @@ public static partial class AreaMapVisibility
     /// state. The map separately retains <paramref name="explored"/> so entered cells can
     /// continue using their distinct colours in every reveal mode.
     /// </summary>
-    [IndependentFlag("Exploration, map acquisition, station reveal and discoverability are independent per-tile facts.")]
     public static bool IsVisible(
         bool explored,
         bool areaMapAcquired,

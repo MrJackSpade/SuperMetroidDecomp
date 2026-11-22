@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Independently regular fields of rain $8A:A100 and fog $8A:A940.</summary>
-[EncodingOwner("rain and fog layer-three tilemap word fields")]
 public static partial class RoomFxAtmosphereTilemapDefinitions
 {
     /// <summary>Rain's palette field: bits 10 to 12; other fields remain separate content.</summary>

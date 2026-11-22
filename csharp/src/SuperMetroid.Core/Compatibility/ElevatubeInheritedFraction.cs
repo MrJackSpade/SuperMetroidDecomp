@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// main moves its height in that word.
 /// </remarks>
 /// <param name="carryover">The value the room mains share.</param>
-[CompatibilityService("the Maridia elevatube's tracked height starts from the fraction the previous room's main left and leaves its own for the next")]
 public sealed partial class ElevatubeInheritedFraction(RoomMainCarryover carryover)
 {
     /// <summary>The value the room mains share.</summary>

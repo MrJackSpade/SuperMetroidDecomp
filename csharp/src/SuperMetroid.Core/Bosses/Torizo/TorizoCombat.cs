@@ -6,7 +6,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to each of them (#2240).</summary>
-[RoomLifetime]
 internal sealed partial class TorizoCombat
 {
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>

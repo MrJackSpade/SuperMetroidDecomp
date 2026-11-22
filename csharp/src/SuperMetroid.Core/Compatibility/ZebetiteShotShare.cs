@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// health and flash to the enemy record its link value names, and the spawn records and a kill leave that value naming
 /// the first record; only a linked pair's spawn writes it.
 /// </remarks>
-[CompatibilityService("a shot on a Zebetite with no linked half shares its health and flash with the first enemy placed in its room, which in Tourian is Mother Brain's body")]
 public static partial class ZebetiteShotShare
 {
     /// <summary>The enemy the struck Zebetite shares its health and flash with.</summary>

@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// cartridge's work memory store them in: a count is its word read as a signed value. The legacy save-image codec and
 /// the checks that compare with native state convert through it; nothing in the game knows the word form.
 /// </summary>
-[EncodingOwner("Samus's count words in saves and snapshots")]
 public static partial class SamusCountWords
 {
     /// <summary>A stored word, 0 through 65535, as a count, reading it as the signed value the cartridge compares.</summary>

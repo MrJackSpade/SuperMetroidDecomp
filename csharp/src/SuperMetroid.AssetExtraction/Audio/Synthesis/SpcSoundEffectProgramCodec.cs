@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Routing, voice allocation and program addresses remain compiled engine definitions;
 /// authored instrument/note/envelope/timing operands are editable content.
 /// </summary>
-[EncodingOwner("sound driver sound-effect channel program bytecode")]
 internal static partial class SpcSoundEffectProgramCodec
 {
     /// <summary>The opcode byte of each instruction; every other byte begins a note packet.</summary>

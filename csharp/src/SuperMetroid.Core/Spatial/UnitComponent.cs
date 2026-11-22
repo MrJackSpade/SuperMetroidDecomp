@@ -17,7 +17,6 @@ public readonly partial record struct UnitComponent
     private UnitComponent(int twoFiftySixths) => TwoFiftySixths = Ensure.BetweenInclusive(-Whole, Whole, twoFiftySixths);
 
     /// <summary>The share in 256ths of the whole, -256 through 256: negative toward the axis's decreasing side.</summary>
-    [IntegerQuantity("signed share of a unit direction in 256ths")]
     private int TwoFiftySixths { get; }
 
     /// <summary>The game's sine of <paramref name="angle"/>: the share of its direction along the axis a quarter turn on from zero.</summary>

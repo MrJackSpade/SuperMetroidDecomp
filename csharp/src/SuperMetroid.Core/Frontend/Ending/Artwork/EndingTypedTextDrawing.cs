@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 public static partial class EndingTypedTextDrawing
 {
     /// <summary>The sheet's frame for the letter <paramref name="typed"/> types: the last of its text's letters it shows.</summary>
-    [InstalledKey]
     public static string LetterFrameName(EndingTextTyping typed) =>
         $"{CinematicSpriteFamilyKeys.Installed.Of(EndingSpriteSheets.Cinematic(EndingTextAnimations.Family))}.{EndingTypedTextKeys.Installed.Of(typed.Text)}.Letter{typed.Letters}";
 

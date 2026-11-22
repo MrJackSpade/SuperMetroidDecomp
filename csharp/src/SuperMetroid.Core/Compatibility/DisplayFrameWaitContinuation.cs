@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// continues there on that frame without a pass of the loop. The save-load random audit compares the random number on
 /// each such update.
 /// </remarks>
-[CompatibilityService("an update that finishes a menu, loading or cinematic step waiting out a frame of the display draws no random number and runs no music or sound processing")]
 public static partial class DisplayFrameWaitContinuation
 {
     /// <summary>Whether the update draws the frontend's random number before its state's step.</summary>

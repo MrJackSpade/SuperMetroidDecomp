@@ -10,7 +10,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// (-128, -16) terminator followed by padding no walk reaches. The game holds typed paths of steps; this is the one
 /// place the table's layout is known, for checks.
 /// </summary>
-[EncodingOwner("Botwoon movement samples")]
 internal static class BotwoonPathCodec
 {
     /// <summary>The table's first sample, the opening separator.</summary>

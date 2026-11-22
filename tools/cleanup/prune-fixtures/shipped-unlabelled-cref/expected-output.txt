@@ -1,1 +1,0 @@
-Removed 3 declarations of 3 findings;

@@ -6,5 +6,4 @@ namespace SuperMetroid.Core.Progression;
 /// Whether the area's machinery has power only once its boss is defeated: until then its on-foot conveyors stand still and
 /// its heavy spike blocks are harmless.
 /// </param>
-[IndependentFlag("independent facts of one area: whether it allows pausing and whether its machinery waits for its boss's defeat")]
 internal sealed partial record AreaDefinition(bool AllowsPausing, bool PoweredFromBossDefeat);

@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The ceiling tiles that fall in Ceres station's escape, light and dark: their spawn into the room's enemy projectiles,
 /// and their fall under gravity until each strikes the room, where it raises dust and sounds its fall.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CeresFallingTiles
 {
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>

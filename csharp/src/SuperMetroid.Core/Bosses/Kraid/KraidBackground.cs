@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
-[RoomLifetime]
 internal sealed partial class KraidBackground
 {
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>

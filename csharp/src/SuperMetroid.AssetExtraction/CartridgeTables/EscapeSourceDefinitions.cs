@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the escape warning text and timer spritemaps the escape extractors read.</summary>
-[EncodingOwner("cartridge addresses of the escape warning text and timer spritemaps")]
 internal static partial class EscapeSourceDefinitions
 {
     /// <summary>$A6:C450 TypewriterText_CeresEscapeTimer: the Ceres escape warning program.</summary>

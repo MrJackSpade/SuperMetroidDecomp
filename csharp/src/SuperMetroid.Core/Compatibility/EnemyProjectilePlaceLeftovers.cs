@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// and room loading deletes every projectile without clearing them. The 13%, 100%, lowc and Ridley movies diverge in
 /// enemy projectiles without the values carried across rooms.
 /// </remarks>
-[CompatibilityService("a new enemy projectile starts from the whole position and velocity its place's previous projectile left, the room before's until this room spawns into the place")]
 public sealed partial class EnemyProjectilePlaceLeftovers
 {
     /// <summary>What the room before left in each place, in place order; rest at the origin before any room has left one.</summary>

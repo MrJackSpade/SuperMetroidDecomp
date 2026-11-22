@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI behaviours and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The hopper definitions this species owns.</summary>

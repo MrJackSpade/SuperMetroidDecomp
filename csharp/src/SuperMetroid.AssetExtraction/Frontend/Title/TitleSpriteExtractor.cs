@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// Decodes the title compositions from the bank-$8C spritemaps the four native title text lists select. This codec is
 /// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/> and each card's typing step.
 /// </summary>
-[EncodingOwner("cartridge title sprite instruction words")]
 internal static partial class TitleSpriteExtractor
 {
     /// <summary>Decodes the logo's and the copyright's ordered OAM parts, keyed by their semantic names.</summary>

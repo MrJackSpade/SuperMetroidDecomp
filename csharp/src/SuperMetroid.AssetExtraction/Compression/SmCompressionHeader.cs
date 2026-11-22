@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
-[EncodingOwner("Super Metroid compression command header")]
 public readonly partial record struct SmCompressionHeader
 {
     /// <summary>The commands by their three-bit command number.</summary>

@@ -83,7 +83,6 @@ internal sealed partial class SamusPoseAnimation
     /// <paramref name="frame"/>'s name, as the installation keys a frame of this animation: its segment's name and the frame
     /// within the segment.
     /// </summary>
-    [InstalledKey]
     internal string NameOf(SamusAnimationFrame frame)
     {
         SamusAnimationFrame named = Require(frame);

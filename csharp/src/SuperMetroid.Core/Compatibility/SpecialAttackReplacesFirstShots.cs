@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// extra speed that grows by the same sixteenth (<c>$90:973E</c>), so the beam is still in view, about 170 pixels ahead
 /// of her, when the attack starts.
 /// </remarks>
-[CompatibilityService("a special attack's particles replace whatever shots hold Samus's first shot places")]
 internal static partial class SpecialAttackReplacesFirstShots
 {
     /// <summary>

@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// and four each put back half of what the X-ray covered and advance to the next state, one update apiece (each would
 /// wait for room to send its half, which there always is then); state five releases Samus on the update after them.
 /// </remarks>
-[CompatibilityService("X-ray's beam spends two updates of frozen time closing after Run is released before Samus is released, and its window closes after the first of them")]
 public readonly partial record struct XrayClosing
 {
     /// <summary>The updates the closing lasts.</summary>

@@ -10,7 +10,6 @@ public static partial class RoomCharacterSheetFiles
     public const string CreFileName = "room-characters-cre.png";
 
     /// <summary>The editable PNG file name of a character sheet; graphics sets that share a sheet share one PNG.</summary>
-    [InstalledKey]
     public static string FileName(RoomCharacterSet set) =>
         $"room-characters-{InstalledArtworkNames.Hyphenated(RoomCharacterSetKeys.Installed.Of(set))}.png";
 }

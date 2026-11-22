@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 /// that partner by construction. The population load binds an entry whose enemy is offered through the offer, and a
 /// respawn rebuilds it the same way; the latest offer for a definition stands for the rest of the room.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyPartOffers
 {
     /// <summary>How each offered definition's entries bind, by the creation the offer carries.</summary>

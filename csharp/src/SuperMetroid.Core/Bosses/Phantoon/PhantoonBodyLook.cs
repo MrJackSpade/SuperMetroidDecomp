@@ -39,6 +39,5 @@ public readonly partial record struct PhantoonBodyLook
     /// The colouring's name in its installed shades' names (#2472), written out where each colouring is made so renaming a
     /// colouring's identity never changes a name on disk, as Torizo's are (#2409); a health colouring is named by its band.
     /// </summary>
-    [InstalledKey]
     public string Key { get; }
 }

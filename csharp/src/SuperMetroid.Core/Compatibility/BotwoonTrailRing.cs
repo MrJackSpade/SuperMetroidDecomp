@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// compares the remembered crossing's cursor with each segment's with nothing counting the ring's turns, so the match
 /// recurs with the ring's period.
 /// </remarks>
-[CompatibilityService("Botwoon's body trails his head through a ring of 256 moving positions, so a remembered hole crossing recurs at the same place every 256 moving updates")]
 public static partial class BotwoonTrailRing
 {
     /// <summary>The ring's places: the head's last 256 moving positions.</summary>

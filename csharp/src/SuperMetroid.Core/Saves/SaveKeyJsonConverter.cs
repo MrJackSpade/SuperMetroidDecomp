@@ -33,7 +33,6 @@ internal partial class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity
 
     /// <inheritdoc />
     /// <exception cref="JsonException">The value is not a string naming the identity.</exception>
-    [SuppressMessage("Design", "SME6426", Justification = "System.Text.Json's JsonConverter contract fixes the signature; a converter of one identity needs neither the type it converts nor the options.")]
     public override TIdentity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         reader.TokenType == JsonTokenType.String
             ? Named(reader.GetString() ?? throw new JsonException($"A save's {typeof(TIdentity).Name} has no name."))

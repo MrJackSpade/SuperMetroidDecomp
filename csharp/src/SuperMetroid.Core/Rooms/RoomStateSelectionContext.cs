@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="HasMorphBallAndMissiles">Whether Samus carries the morph ball and missiles.</param>
 /// <param name="HasPowerBombs">Whether Samus carries power bombs.</param>
 /// <exception cref="ArgumentNullException"><paramref name="Events"/> is null.</exception>
-[IndependentFlag("independent equipment facts the room-state tests read")]
 public sealed partial record RoomStateSelectionContext(
     ProgressSet<StoryEvent> Events,
     DefeatedBosses DefeatedBosses,

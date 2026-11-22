@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// starts with the fractions the one before left. The Samus drunk movie's game-over reload confirms it (#1275), and the
 /// Ceres save startup check reloads a game over with the dead game's fractions.
 /// </remarks>
-[CompatibilityService("a game, demo or continued game starts its first room's camera from the fractions of a pixel the previous one's camera left, which decide on which update the camera following Samus reaches each next whole pixel")]
 public sealed partial class CameraFractionsKeptAcrossGames
 {
     /// <summary>The kept fractions, on a position of zero whole pixels; zero until a game leaves its camera's.</summary>

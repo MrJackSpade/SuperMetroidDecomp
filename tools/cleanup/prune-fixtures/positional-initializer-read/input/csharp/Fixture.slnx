@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="src/SuperMetroid.Core/SuperMetroid.Core.csproj" />
-  <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
-  <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />
-</Solution>

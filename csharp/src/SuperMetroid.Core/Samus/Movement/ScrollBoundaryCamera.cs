@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Each direction's travel stops at a closed screen or the room's edge; Samus's horizontal and vertical tracking supply
 /// the proposed position, ideal position and camera speed they read.
 /// </remarks>
-[RoomLifetime]
 public sealed partial class ScrollBoundaryCamera
 {
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>

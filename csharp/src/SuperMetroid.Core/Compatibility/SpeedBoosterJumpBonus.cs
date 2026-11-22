@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// check (<c>VerifySamusHorizontalSpeed</c>) starts a boosted jump whose fraction sum passes a whole pixel from an odd
 /// whole extra speed.
 /// </remarks>
-[CompatibilityService("Speed Booster's jump bonus adds half the dash's whole extra speed and its whole fraction to the jump's speed each on its own, a fraction past a pixel losing its carry")]
 internal static partial class SpeedBoosterJumpBonus
 {
     /// <summary>

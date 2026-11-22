@@ -14,18 +14,14 @@ public static partial class ProjectileSheetFrames
         Sheets[beams];
 
     /// <summary>The frame of a timed projectile or bomb composition.</summary>
-    [InstalledKey]
     public static string ProjectileFrame(ProjectileSpriteId composition) => "Projectile." + composition.Name;
 
     /// <summary>The frame of a charge-flare composition.</summary>
-    [InstalledKey]
     public static string FlareFrame(ProjectileSpriteId composition) => "Flare." + composition.Name;
 
     /// <summary>The frame of a trail pose.</summary>
-    [InstalledKey]
     public static string TrailFrame(ProjectileTrailFrame pose) => "Trail." + ProjectileTrailFrameKeys.Installed.Of(pose);
 
     /// <summary>The frame of a composition of the burst a hit shows at an enemy it hurts (#1713).</summary>
-    [InstalledKey]
     public static string HitBurstFrame(ProjectileSpriteId composition) => "Hit." + composition.Name;
 }

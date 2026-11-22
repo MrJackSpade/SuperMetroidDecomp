@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The Sbug species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class SbugBehavior : IEnemySpecies, IEnemySpawnFactory<SbugSpawnSettings>
 {
 

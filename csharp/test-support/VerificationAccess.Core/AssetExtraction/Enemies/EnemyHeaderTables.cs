@@ -6,7 +6,6 @@ using static SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Decodes the bank-$B4 item-drop and vulnerability tables an enemy header's words select.</summary>
-[EncodingOwner("cartridge enemy drop and vulnerability tables")]
 internal static class EnemyHeaderTables
 {
     /// <summary>The item-drop chances a header word selects, or null for a zero word, which drops nothing.</summary>

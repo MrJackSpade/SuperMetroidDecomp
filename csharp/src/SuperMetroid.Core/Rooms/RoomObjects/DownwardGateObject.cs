@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="DownwardGateImage.Starts"/>). A trigger a shot sets while the gate moves stays until the gate next rests.
 /// </summary>
 /// <param name="owner">The room's gates, which reach Samus and the gate projectiles.</param>
-[RoomLifetime]
 internal sealed partial class DownwardGateObject(GateObjects owner) : SilentSequencedRoomObject<DownwardGateSegment, DownwardGateImage>(DownwardGateAnimations.Segments)
 {
     /// <summary>The room's gates.</summary>

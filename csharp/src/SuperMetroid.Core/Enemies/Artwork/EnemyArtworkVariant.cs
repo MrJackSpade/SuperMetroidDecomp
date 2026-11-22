@@ -49,13 +49,13 @@ public sealed partial class EnemyArtworkVariant<TSheet>
     /// holds the frame's finished picture of each look they show while it is drawn. None for a frame no encounter's look
     /// changes, which has one picture.
     /// </summary>
-    public IReadOnlyList<EncounterArtwork> ChangingEncounters([InstalledKey] string frame) =>
+    public IReadOnlyList<EncounterArtwork> ChangingEncounters(string frame) =>
         changingEncounters.TryGetValue(frame, out EncounterArtwork[]? changing) ? changing : [];
 
     /// <summary>
     /// Where a rotting corpse lies in picture <paramref name="picture"/> of the sheet (#1539), which the picture is drawn
     /// whole through as the corpse's own rot leaves it; none for a picture that shows no rotting corpse.
     /// </summary>
-    public CorpsePicturePlacement? CorpsePlacement([InstalledKey] string picture) =>
+    public CorpsePicturePlacement? CorpsePlacement(string picture) =>
         corpsePictures.TryGetValue(picture, out CorpsePicturePlacement? placement) ? placement : null;
 }

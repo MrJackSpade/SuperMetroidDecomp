@@ -32,7 +32,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// compares this service's answers with that byte layout for constructed explorations.
 /// </remarks>
 /// <typeparam name="TArea">An area of the game.</typeparam>
-[CompatibilityService("a camera scroll check past the room's scroll cells reads the explored maps the game last stored")]
 public sealed partial class StoredExploredMaps<TArea>
     where TArea : struct, Enum
 {

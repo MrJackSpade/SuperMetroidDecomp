@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// instruction's operands taken from the bytes after it. The Baby's Hyper Beam freeze and rainbow stop set frames that land
 /// on such places in the programs laid out after a transition's.
 /// </summary>
-[SuperMetroid.Core.EncodingOwner("Samus animation program bytes: a delay byte, or an instruction whose low four bits select its handler")]
 internal static partial class SamusAnimationCueValueDecoding
 {
     /// <summary>
@@ -107,7 +106,6 @@ internal static partial class SamusAnimationCueValueDecoding
     };
 
     /// <summary>The names of every item in <paramref name="items"/>.</summary>
-    [InstalledKey]
     private static string[] ItemNames(SamusEquipmentFlags items) =>
         [.. SamusEquipmentFlagsKeys.ListedOrder.Where(item => items.HasFlag(item)).Select(SamusEquipmentFlagsKeys.Installed.Of)];
 }

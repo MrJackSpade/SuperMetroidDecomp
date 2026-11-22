@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonGrab
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

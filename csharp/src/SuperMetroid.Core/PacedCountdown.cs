@@ -8,7 +8,6 @@ namespace SuperMetroid.Core;
 public sealed partial class PacedCountdown
 {
     /// <summary>The count left: it runs out once a pace takes it below zero.</summary>
-    [IntegerQuantity("the count left before the countdown runs below zero")]
     internal int Left { get; set; }
 
     /// <summary>Starts the countdown again at <paramref name="count"/>.</summary>

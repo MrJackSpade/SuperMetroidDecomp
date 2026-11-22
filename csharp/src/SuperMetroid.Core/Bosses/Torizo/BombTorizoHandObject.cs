@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
 /// <param name="fragments">The room's enemy projectiles, among which the hand's fragments spawn.</param>
-[RoomLifetime]
 internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner, IBombTorizoStatueFragmentSpawner fragments) : RoomObjectBehaviour
 {
     /// <summary>The room's hand owner.</summary>

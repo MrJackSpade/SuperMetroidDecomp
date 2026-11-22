@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
-[RoomLifetime]
 internal sealed partial class PhantoonPatterns
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>

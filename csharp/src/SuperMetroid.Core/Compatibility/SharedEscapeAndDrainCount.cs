@@ -25,7 +25,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 /// <typeparam name="TStage">A suit pickup stage.</typeparam>
-[CompatibilityService("Crystal Flash's ammunition countdown, Draygon's escape presses and the suit pickup's stage are one count")]
 public sealed partial class SharedEscapeAndDrainCount<TStage>
     where TStage : notnull
 {

@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// one through four of every data set, and each set's own songs follow from <see cref="AreaThemeTrack"/>, so the same
 /// number names a different song in each set.
 /// </summary>
-[EncodingOwner("track numbers of the sound driver's music data sets")]
 internal static partial class MusicTrackNumbers
 {
     /// <summary>The track number the sound driver stops the music for: zero, which names no song.</summary>

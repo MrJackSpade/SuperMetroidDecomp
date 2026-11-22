@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// each of the six loading updates after the source fade, the two of this wait among them.
 /// The transition holds the wait as an <see cref="UpdateCountdown"/> of <see cref="Updates"/>.
 /// </remarks>
-[CompatibilityService("a door transition spends two updates between aligning its camera and moving Samus to the scroll's start, each a whole update of the transition with its own random draw")]
 public static partial class DoorDestinationSetupWait
 {
     /// <summary>The updates the wait lasts.</summary>

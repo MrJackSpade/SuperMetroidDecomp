@@ -24,7 +24,6 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// the bits of events three, four and five, lowest bit first (#1527); reading takes those bits out of the story events
 /// into <see cref="PersistentProgress.ZebetitesDestroyed"/>, and writing puts the count back into them.
 /// </remarks>
-[EncodingOwner("cartridge persistent progress tables")]
 public static partial class ProgressionTableCodec
 {
     /// <summary>Bytes of the story-event table.</summary>

@@ -18,7 +18,6 @@ internal static class MenuScreenFixtures
     private const int ScreenCells = 1024;
 
     /// <summary>A VRAM holding the world map <paramref name="graphics"/> shows, its pages read from <paramref name="maps"/>.</summary>
-    [WholeImageFixture("the menu's 64 KiB VRAM image")]
     internal static SnesVram Vram(FileSelectAreaMapGraphics graphics, InstalledScreenContent maps)
     {
         Ensure.NotNull(graphics);
@@ -30,7 +29,6 @@ internal static class MenuScreenFixtures
     }
 
     /// <summary>A VRAM holding the room map <paramref name="graphics"/> shows, its frame read from <paramref name="maps"/>.</summary>
-    [WholeImageFixture("the menu's 64 KiB VRAM image")]
     internal static SnesVram Vram(FileSelectRoomMapGraphics graphics, InstalledScreenContent maps)
     {
         Ensure.NotNull(graphics);

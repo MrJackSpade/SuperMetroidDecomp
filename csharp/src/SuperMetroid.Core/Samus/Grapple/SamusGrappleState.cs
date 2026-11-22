@@ -36,7 +36,6 @@ public sealed partial class SamusGrappleState
     /// <see cref="GrappleBeamDefinitions.Physics.LongestRopeLength"/>; other writes are rejected, which keeps every
     /// signed length test an ordinary comparison.
     /// </summary>
-    [IntegerQuantity("rope length in pixels")]
     public int RopeLength
     {
         get;

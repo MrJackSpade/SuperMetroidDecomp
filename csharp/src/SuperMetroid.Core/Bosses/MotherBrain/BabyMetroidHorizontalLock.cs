@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed partial class BabyMetroidHorizontalLock
 {
     /// <summary>How far the lock has built: none until the Baby Metroid first keeps within reach.</summary>
-    [IntegerQuantity("how far the lock has built")]
     public int Built { get; internal set; }
 
     /// <summary>Builds or decays the lock for one update.</summary>

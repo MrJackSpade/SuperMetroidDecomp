@@ -15,7 +15,6 @@ public readonly partial record struct FloorZoom : IComparable<FloorZoom>
     internal FloorZoom(int twoHundredFiftySixths) => TwoHundredFiftySixths = Ensure.AtLeastZero(twoHundredFiftySixths);
 
     /// <summary>The zoom in 256ths of a floor pixel per screen pixel, zero or more.</summary>
-    [IntegerQuantity("turning-floor zoom in 256ths of a floor pixel per screen pixel")]
     internal int TwoHundredFiftySixths { get; }
 
     /// <summary>The zoom that shows the floor at its own size: one floor pixel to each screen pixel.</summary>
@@ -35,7 +34,6 @@ public readonly partial record struct FloorZoom : IComparable<FloorZoom>
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerFloorPixel));
 
     /// <summary>The whole floor pixels one screen pixel spans, the fraction dropped.</summary>
-    [IntegerQuantity("whole floor pixels per screen pixel of a turning-floor zoom")]
     public int WholeFloorPixelsPerScreenPixel => TwoHundredFiftySixths / TwoHundredFiftySixthsPerFloorPixel;
 
     /// <summary>How many floor pixels one screen pixel spans, fraction included.</summary>

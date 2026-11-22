@@ -9,7 +9,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The branches Bomb and Golden Torizo's animations take on Samus's position, and their walk steps.</summary>
-[RoomLifetime]
 internal sealed partial class TorizoChoices
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>

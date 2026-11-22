@@ -19,7 +19,6 @@ public readonly partial record struct NuclearWaffleSweepAngle : IComparable<Nucl
         FractionsOfStep = Ensure.AtLeastZero(fractionsOfStep);
 
     /// <summary>The angle in fractions of a step from zero, counted on past each full turn.</summary>
-    [IntegerQuantity("sweep angle in 256ths of a step, counted on past each full turn")]
     internal int FractionsOfStep { get; }
 
     /// <summary>The angle <paramref name="steps"/> whole steps on from zero, counted on past each full turn, with no fraction.</summary>

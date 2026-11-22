@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.World;
 /// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329).
 /// </summary>
-[RoomLifetime]
 internal sealed partial record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>

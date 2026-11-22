@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// than pre-rendered sound effects. It is the chip model: the byte register file, the signed eight-bit volumes and
 /// the sixteen-bit sample arithmetic whose clamps and wraps the output reproduces live here at the chip's widths.
 /// </summary>
-[EncodingOwner("S-DSP register file and its signed sample arithmetic")]
 public sealed partial class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>

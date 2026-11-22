@@ -24,8 +24,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 /// <typeparam name="TStage">A suit pickup stage.</typeparam>
-[CompatibilityService("a shinespark windup after a suit pickup accelerates by the light beam's last recorded progress")]
-[EncodingOwner("suit pickup light beam progress the shinespark reads")]
 public sealed partial class SuitPickupSparkCarryover<TStage>
     where TStage : notnull
 {

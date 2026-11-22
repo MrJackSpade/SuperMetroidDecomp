@@ -26,7 +26,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// The Yapping Maw grab cooldown check counts the production cooldown through two full rounds.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Yapping Maw may grab Samus only in alternate runs of 32768 updates after its cooldown runs out, the first starting as the cooldown runs out")]
 public readonly partial record struct YappingMawGrabCooldown
 {
     /// <summary>The countdown whose sign decides whether the Maw may grab.</summary>

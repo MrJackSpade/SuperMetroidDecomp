@@ -8,7 +8,6 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's hitboxes and touch, and what Samus's weapons do to his mouth and body.</summary>
-[RoomLifetime]
 internal sealed partial class KraidCombat
 {
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>

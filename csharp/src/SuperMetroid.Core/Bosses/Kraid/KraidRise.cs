@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
-[RoomLifetime]
 internal sealed partial class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

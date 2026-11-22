@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 

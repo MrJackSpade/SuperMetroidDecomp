@@ -29,7 +29,6 @@ public static partial class AreaMapCatalogFormat
     /// <param name="area">One of the seven retail area identities.</param>
     /// <returns>The area's installed key in lower case followed by <c>.json</c>, without a directory.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
-    [InstalledKey]
     public static string FileName(AreaId area)
     {
         return AreaIdKeys.Installed.Of(area).ToLowerInvariant() + ".json";

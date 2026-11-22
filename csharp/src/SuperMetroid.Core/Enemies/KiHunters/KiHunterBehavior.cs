@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>The Ki-Hunter species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>

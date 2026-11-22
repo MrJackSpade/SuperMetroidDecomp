@@ -22,7 +22,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// service and request read (<c>$1621</c>), confirmed against the emulated sound program and the SMV recordings'
 /// acknowledgement traces.
 /// </remarks>
-[CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
 public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : notnull, IEquatable<TSound>

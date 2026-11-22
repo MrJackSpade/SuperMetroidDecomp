@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// and bomb directions, which nothing reads. The other reserve rows take their tables from scratch other code left,
 /// which only full memory emulation could reproduce, and stay refused under #1500.
 /// </remarks>
-[CompatibilityService("A same-frame equipment toggle into the first reserve row sets part of the last spread bomb's whole vertical speed")]
 public static partial class ReserveRowToggleSpreadBombSpeed
 {
     /// <summary>The whole pixels below which the speed keeps its own part.</summary>

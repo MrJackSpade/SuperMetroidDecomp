@@ -28,7 +28,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// colour step while the count is nonzero, and the door fade routines, which run the room's enemies between steps.
 /// </para>
 /// </remarks>
-[CompatibilityService("every gradual fade counts its steps on one shared count, starting where the last fade left it, so a fade left part-way shortens the next: the Torizos' death fades and Samus's death fade among them")]
 public sealed partial class SharedFadeStepCount
 {
     /// <summary>

@@ -24,7 +24,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// the steps they reach; the Kraid replays confirm the roar's timing.
 /// </para>
 /// </remarks>
-[CompatibilityService("colours that glow and fade a step a channel an update, of the thirty-two steps a channel holds, so a colour's steps time Kraid's roar, a ghost's appearing and the Morph Ball eye beam's removal")]
 public readonly partial record struct FadeLevelColour
 {
     /// <summary>A channel's highest step.</summary>

@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// that place, or reports none free; Kraid's mouth pass keeps the
 /// returned value in the working value it tests the next projectile's top edge against.
 /// </remarks>
-[CompatibilityService("a dud shot on Kraid's mouth bounds the rest of its collision pass by the place its flash takes among the room's thirty-two effect-actor places")]
 public sealed partial class EffectActorPlaces
 {
     /// <summary>How many places the room's effect actors take; a spawn while every place is taken takes none.</summary>

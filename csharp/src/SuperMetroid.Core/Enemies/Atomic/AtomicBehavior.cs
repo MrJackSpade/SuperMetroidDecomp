@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicSpawnSettings>
 {
     /// <inheritdoc/>

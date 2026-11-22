@@ -195,7 +195,6 @@ internal sealed partial class WindowsGamepadInput
 
     /// <summary>Blittable WinMM JOYCAPSW fields used for joystick identity and axis calibration.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
     internal struct JoystickCapabilities
     {
         /// <summary>Driver-reported manufacturer identifier used to choose button layout.</summary>
@@ -288,7 +287,6 @@ internal sealed partial class WindowsGamepadInput
 
     /// <summary>Blittable WinMM JOYINFOEX result for axes, buttons, and POV hat.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
     internal struct JoystickPosition
     {
         /// <summary>Byte size passed to WinMM to select this JOYINFOEX layout.</summary>

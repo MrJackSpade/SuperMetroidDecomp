@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class BoulderBehavior : IEnemySpecies, IEnemySpawnFactory<BoulderSpawnSettings>
 {
 

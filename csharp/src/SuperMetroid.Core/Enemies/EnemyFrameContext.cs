@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// deferred-camera flags for the current enemy pass. Samus, her projectiles, her colours and her bombs reach enemies
 /// through each update's own context (#2159).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyFrameContext
 {
     /// <summary>Binds the enemy pass to the session that holds the count of enemy passes that outlives each room.</summary>

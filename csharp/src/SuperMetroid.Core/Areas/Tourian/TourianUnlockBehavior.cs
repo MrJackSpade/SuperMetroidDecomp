@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// statue's dust, the eyes' glows, the released souls, the particles and their tails, and the splashes at the room's water
 /// surface. The release's cues spawn more of the effects it spawns.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class TourianUnlockBehavior : TourianStatueProjectileBehavior<TourianStatueEffectMotion>
 {
     /// <summary>The room's randomness, which aims the particles.</summary>

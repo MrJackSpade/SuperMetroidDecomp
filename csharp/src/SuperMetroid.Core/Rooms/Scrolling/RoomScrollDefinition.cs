@@ -17,15 +17,15 @@ public abstract partial record RoomScrollDefinition
     public string Name { get; }
 
     /// <summary>An implicit layout: the camera scrolls over every cell except the bottom row, which is <paramref name="bottomRow"/>.</summary>
-    public static RoomScrollDefinition Implicit([InstalledKey] string name, RoomScrollState bottomRow) => new ImplicitLayout(name, bottomRow);
+    public static RoomScrollDefinition Implicit(string name, RoomScrollState bottomRow) => new ImplicitLayout(name, bottomRow);
 
     /// <summary>An explicit list of the room's screens.</summary>
     /// <param name="Name">The list's name.</param>
     /// <param name="Cells">The room's own screens, row by row.</param>
-    public sealed partial record ExplicitLayout([InstalledKey] string Name, IReadOnlyList<RoomScrollState> Cells) : RoomScrollDefinition(Name);
+    public sealed partial record ExplicitLayout(string Name, IReadOnlyList<RoomScrollState> Cells) : RoomScrollDefinition(Name);
 
     /// <summary>The implicit layout: every row of the room open except the bottom row.</summary>
     /// <param name="Name">The layout's name.</param>
     /// <param name="BottomRow">The bottom row's state.</param>
-    public sealed partial record ImplicitLayout([InstalledKey] string Name, RoomScrollState BottomRow) : RoomScrollDefinition(Name);
+    public sealed partial record ImplicitLayout(string Name, RoomScrollState BottomRow) : RoomScrollDefinition(Name);
 }

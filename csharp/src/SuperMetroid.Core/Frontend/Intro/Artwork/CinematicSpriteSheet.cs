@@ -15,7 +15,6 @@ internal sealed partial class CinematicSpriteSheet(SpriteSheet sheet, CinematicS
 {
 
     /// <summary>The sheet's frame for <paramref name="family"/>'s composition of <paramref name="pose"/>.</summary>
-    [InstalledKey]
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) =>
         $"{CinematicSpriteFamilyKeys.Installed.Of(family)}.{CinematicSpritePoseKeys.Installed.Of(pose)}";
 

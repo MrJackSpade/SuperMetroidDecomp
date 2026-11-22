@@ -18,7 +18,6 @@ public abstract partial record BlockReaction
     public abstract BlockReactionFamily Family { get; }
 
     /// <summary>The reaction's installed key (#2520), as its family's written-out keys spell it.</summary>
-    [InstalledKey]
     public abstract string Key { get; }
 
     /// <summary>The behaviour of a block whose family's reaction is this one.</summary>
@@ -59,7 +58,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.Shootable;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => ShootableReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>
@@ -74,7 +72,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.Bombable;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => BombableReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>
@@ -89,7 +86,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.Special;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => SpecialBlockReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>
@@ -104,7 +100,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.SpecialAir;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => SpecialAirReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>
@@ -119,7 +114,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.Spike;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => SpikeReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>
@@ -134,7 +128,6 @@ public abstract partial record BlockReaction
         public override BlockReactionFamily Family => BlockReactionFamily.Grapple;
 
         /// <inheritdoc/>
-        [InstalledKey]
         public override string Key => GrappleReactionKeys.Installed.Of(Reaction);
 
         /// <inheritdoc/>

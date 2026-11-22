@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="state">Draygon's encounter.</param>
 /// <param name="samus">Samus, whom the fight reads and moves.</param>
 /// <param name="frameCounter">The frame counter Draygon times his turrets and smoke by.</param>
-[RoomLifetime]
 internal sealed partial class DraygonPhaseUpdate(DraygonBehavior draygon, DraygonEnemyState state, SamusState samus, int frameCounter)
 {
     /// <summary>Draygon's behaviour, whose components run the phase.</summary>

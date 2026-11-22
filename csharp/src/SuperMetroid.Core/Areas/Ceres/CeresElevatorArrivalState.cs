@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres elevator arrival a new game starts with: the moving pad that lowers Samus and the stationary platform behind
 /// it, which hides the landing recess until she lands and both leave.
 /// </summary>
-[RoomLifetime]
 public sealed partial class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>

@@ -53,12 +53,12 @@ public sealed partial class BossBodySheet
 
     /// <summary>The frame named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
-    public BossBodyFrame Frame([InstalledKey] string name) =>
+    public BossBodyFrame Frame(string name) =>
         frames.TryGetValue(name, out BossBodyFrame? frame) ? frame : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name}.");
 
     /// <summary>The frame named <paramref name="name"/>, which a dissolve erases.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame that a dissolve erases.</exception>
-    public DissolvingBossBodyFrame Dissolving([InstalledKey] string name) =>
+    public DissolvingBossBodyFrame Dissolving(string name) =>
         dissolving.TryGetValue(name, out DissolvingBossBodyFrame? frame) ? frame
             : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name} that a dissolve erases.");
 }

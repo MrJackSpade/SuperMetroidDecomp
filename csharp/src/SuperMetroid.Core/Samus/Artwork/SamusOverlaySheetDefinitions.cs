@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static partial class SamusOverlaySheetDefinitions
 {
     /// <summary>The arm cannon's cover aimed in <paramref name="direction"/>, showing picture <paramref name="frame"/>.</summary>
-    [InstalledKey]
     public static string ArmCannonFrame(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
         $"ArmCannon.{SamusProjectileDirectionKeys.Installed.Of(direction)}.{SamusArmCannonCoverFrameKeys.Installed.Of(frame)}";
 }

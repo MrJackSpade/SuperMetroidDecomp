@@ -8,7 +8,6 @@ namespace SuperMetroid.Core;
 public sealed partial class ElapsedUpdates
 {
     /// <summary>The updates counted since the count began.</summary>
-    [IntegerQuantity("updates counted since the count began")]
     public int Age { get; internal set; }
 
     /// <summary>Counts one update.</summary>

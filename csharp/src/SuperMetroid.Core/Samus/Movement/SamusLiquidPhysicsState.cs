@@ -40,7 +40,6 @@ public sealed partial class SamusLiquidPhysicsState
     /// <summary>What Samus's physics reads of the room effect's liquid as the effect is applied.</summary>
     /// <param name="Surface">The liquid's surface as her physics sees it (<see cref="LiveSurface"/>), or null when none shows.</param>
     /// <param name="IgnoresSurfaceUntilEnabled">Whether the effect's water ignores its surface until the surface is enabled.</param>
-    [IndependentFlag("Whether the water ignores its surface until it is enabled is the effect's own property, read as it is applied.")]
     private readonly partial record struct RoomLiquidReading(int? Surface, bool IgnoresSurfaceUntilEnabled);
 
     /// <summary>The two water effects, each as its room effect type.</summary>
@@ -270,7 +269,6 @@ public sealed partial class SamusLiquidPhysicsState
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
     /// lava/acid damage accumulation.
     /// </summary>
-    [IndependentFlag("Boss presence is an independent fact of the room the frame runs in.")]
     public void PrepareAnimationFrame(
         SamusState samus,
         RoomGround ground,

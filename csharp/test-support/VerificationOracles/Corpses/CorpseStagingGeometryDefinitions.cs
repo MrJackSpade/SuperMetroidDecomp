@@ -8,7 +8,6 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// artwork stages as the cartridge's does.
 /// </summary>
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
-[EncodingOwner("bank-$A9 corpse work-memory and staging layout")]
 internal static class CorpseStagingGeometryDefinitions
 {
     /// <summary>

@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The gunship: its top and bottom initialization, landing, save prompt, Samus boarding and exit, and the
 /// post-Ceres and escape lift-offs, with the frame events it publishes.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class GunshipBehavior : IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

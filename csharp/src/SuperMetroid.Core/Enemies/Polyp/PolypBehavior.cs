@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 

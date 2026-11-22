@@ -10,5 +10,4 @@ namespace SuperMetroid.Core.Bosses;
 /// </summary>
 /// <param name="Surfaces">The room's enemy colours, artwork and background presentation.</param>
 /// <param name="Artwork">The session's installed boss artwork and presentation catalogs.</param>
-[RoomLifetime]
 internal sealed partial record BossPresentation(EnemyPresentation Surfaces, BossArtworkBinding Artwork);

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Spatial;
 /// <see cref="Samus.Movement.SamusVerticalVelocity"/>, and her running speed taken toward her side), and how a speed slowed
 /// past zero reads is <see cref="SamusSpeedMagnitude"/>'s.
 /// </summary>
-[EncodingOwner("unsigned 16.16 fixed-point number")]
 public readonly partial record struct UnsignedSixteenSixteen
 {
     /// <summary>Holds the two parts, each checked to lie in 0 through 65535.</summary>
@@ -17,7 +16,6 @@ public readonly partial record struct UnsignedSixteenSixteen
     }
 
     /// <summary>The whole part, 0 through 65535.</summary>
-    [IntegerQuantity("whole-pixel part of an unsigned distance")]
     public int Whole { get; }
 
     /// <summary>The fraction, 0 through 65535.</summary>

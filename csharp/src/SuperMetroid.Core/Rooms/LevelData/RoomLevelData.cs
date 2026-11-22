@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// through such a state.
 /// </para>
 /// </remarks>
-[RoomLifetime]
 public sealed partial class RoomLevelData
 {
     /// <summary>Each foreground block's terrain, row by row; collision and room objects read and change it.</summary>

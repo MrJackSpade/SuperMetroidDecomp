@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public sealed partial class RidleyHurtCarryLag
 {
     /// <summary>The lag built, none through <see cref="NorfairRidleyMotionDefinitions.HurtCarryLag"/>.</summary>
-    [IntegerQuantity("the hurt carry lag built")]
     public int Built { get; private set; }
 
     /// <summary>Whether the lag is full, so the hurt update carries a grabbed Samus.</summary>

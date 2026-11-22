@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// ended in the same update. Evidence: the block and door reactions read the place's projectile type word without
 /// testing whether the place still holds a projectile, and a cleared place's word is zero, an uncharged Power beam's.
 /// </remarks>
-[CompatibilityService("a shot cleared during its own update strikes the blocks its update goes on to reach as an uncharged Power beam")]
 public static partial class ClearedShotPlaceType
 {
     /// <summary>

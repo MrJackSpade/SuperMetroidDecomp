@@ -22,7 +22,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// holds their number and the order spawns search them and every pass runs them.
 /// </para>
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyProjectileEngine
 {
     /// <summary>What <see cref="ApplyCommonCue"/> does for each <see cref="EnemyProjectileCommonCueKind"/> member, each member's own arm.</summary>

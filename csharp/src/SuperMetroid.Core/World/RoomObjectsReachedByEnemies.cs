@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.World;
 /// glass, with the room-object places and sounds they share with every room object. They are built before the room's
 /// enemies and its room-object system both, so the enemies are built before the room objects that reach them.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RoomObjectsReachedByEnemies
 {
     /// <summary>Builds the room's shared room-object places and sounds and the room objects its enemies reach.</summary>

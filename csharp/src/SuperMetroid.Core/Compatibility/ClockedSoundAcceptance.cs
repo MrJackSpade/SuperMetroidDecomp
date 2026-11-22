@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// at its request checks on its own timer, never as the request is made; the sound acceptance clock check compares the
 /// acknowledgements the game session's clock reports on every update with a recording of the emulated sound program's.
 /// </remarks>
-[CompatibilityService("each update's sound queues see the requests the session's clock has accepted")]
 public sealed partial class ClockedSoundAcceptance<TLibrary, TSound> : ISoundAcceptanceTiming<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : notnull, IEquatable<TSound>

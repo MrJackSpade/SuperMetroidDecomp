@@ -19,7 +19,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// reading cell's stead, every block-shot, bombed, grappled, collision and inside reaction table sending both extension
 /// types there; a zero parameter returns no collision.
 /// </remarks>
-[CompatibilityService("a cell that continues a several-cell block collides and reacts as the block its link leads to, at that block, as that block stands then; a zero link behaves as air")]
 public static partial class ContinuedBlocks
 {
     /// <summary>

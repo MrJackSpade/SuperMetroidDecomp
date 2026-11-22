@@ -9,7 +9,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomObjectPopulationLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
 internal sealed partial record RoomObjectPopulationLoaderDependencies
 {
     /// <summary>The Bomb Torizo statue's hand, which sets up by whether the Torizo is beaten.</summary>

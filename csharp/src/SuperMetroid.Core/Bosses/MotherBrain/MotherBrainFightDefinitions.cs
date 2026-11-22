@@ -22,7 +22,6 @@ internal static partial class MotherBrainFightDefinitions
     internal const int SecondPhaseHealth = 18000;
 
     /// <summary>The health her brain takes once the Baby has drained her to grey, for her third phase.</summary>
-    [SuppressMessage("Design", "SME6447", Justification = "Her third phase's health, a count of hit points; only its size makes this rule flag it (owner ruling, 2026-11-16).")]
     internal const int ThirdPhaseHealth = 36000;
 
     /// <summary>The health at or above which her second phase chooses its moves at full strength.</summary>

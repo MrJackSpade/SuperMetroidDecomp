@@ -9,7 +9,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Crawlers species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>

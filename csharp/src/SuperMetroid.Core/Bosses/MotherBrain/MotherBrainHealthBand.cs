@@ -10,7 +10,7 @@ public sealed partial class MotherBrainHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal MotherBrainHealthBand(int minimumHealth, [InstalledKey] string key)
+    internal MotherBrainHealthBand(int minimumHealth, string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;

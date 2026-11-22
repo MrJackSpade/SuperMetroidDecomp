@@ -11,7 +11,6 @@ public readonly partial record struct SidehopperDrainStage
     private SidehopperDrainStage(int stage) => Stage = stage;
 
     /// <summary>How many steps into the drain the stage is, from none (untouched) through eight (drained).</summary>
-    [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
     public int Stage { get; }
 
     /// <summary>Before Baby Metroid feeds: the victim still hops.</summary>

@@ -2,5 +2,4 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-  <Import Project="../../tools/RuntimeCartridgeBoundary.targets" />
 </Project>

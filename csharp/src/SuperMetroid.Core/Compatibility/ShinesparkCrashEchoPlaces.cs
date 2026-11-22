@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted by the crash as it releases its echoes. Evidence: the original crash's echo setup writes its two echoes
 /// into the last two of Samus's projectile slots without searching for free ones, replacing whatever holds them.
 /// </remarks>
-[CompatibilityService("a shinespark crash's two echoes take Samus's last two shot places over whatever shots hold them")]
 public static partial class ShinesparkCrashEchoPlaces
 {
     /// <summary>The place the crash's first echo takes among <paramref name="placeCount"/> shot places: the one before the last.</summary>

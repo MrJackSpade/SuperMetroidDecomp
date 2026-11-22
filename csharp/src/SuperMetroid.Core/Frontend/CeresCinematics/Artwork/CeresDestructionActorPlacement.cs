@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable whole-pixel spawn position for one persistent Ceres destruction actor; its animation and motion identity remain fixed.</summary>
-[SpatialComponents("External format: the actor layout JSON stores each spawn position as signed x/y screen pixels.")]
 public sealed partial record CeresDestructionActorPlacement
 {
     /// <summary>The validated spawn position as one screen-pixel value.</summary>

@@ -12,7 +12,6 @@ public abstract partial record MapScreenPageId
     }
 
     /// <summary>The page's key in the map-screen document.</summary>
-    [InstalledKey]
     public abstract string Name { get; }
 
     /// <summary>The world map's foreground, shared by every area.</summary>

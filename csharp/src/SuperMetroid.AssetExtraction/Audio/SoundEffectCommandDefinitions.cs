@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// unnamed because nothing asks for them: library one's 0x2b to 0x2d and 0x3a, library two's 0x41 and 0x44, and library
 /// three's 0x12, 0x18, 0x1a, 0x20 and 0x2f.
 /// </summary>
-[EncodingOwner("request numbers of the sound driver's three sound libraries")]
 internal static partial class SoundEffectCommandDefinitions
 {
     /// <summary>Each library-one sound's request number.</summary>

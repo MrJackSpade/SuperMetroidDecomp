@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// pipeline's knowledge (#1410): the game names a data set, and only this catalog knows the index a room header or an
 /// override's song identity stores for it.
 /// </summary>
-[EncodingOwner("cartridge SPC upload stream data indices, byte offsets into the room-header music pointer table")]
 public static partial class AudioAssetCatalogDefinitions
 {
     /// <summary>The resident driver, sound effects, BRR directory, and shared samples.</summary>

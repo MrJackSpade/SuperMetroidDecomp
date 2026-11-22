@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// original thaw branch stores the remaining AI state into the freeze timer as well as the AI state, as the
 /// frozen-pass comment in <c>RoomEnemySystem</c> records.
 /// </remarks>
-[CompatibilityService("a thawing enemy is left one freeze update while grappled and two while hurt instead of none")]
 public static partial class ThawedFreezeLeftover
 {
     /// <summary>The freeze updates left while the grapple beam holds the thawing enemy.</summary>

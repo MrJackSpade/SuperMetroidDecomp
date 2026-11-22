@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Enemies;
 /// Selects the enemies the enemy pass processes this frame: the processing window, on-screen tests, and the active and
 /// interactive enemies, each in <see cref="EnemyPlaceOrder"/>.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>A room's terrain (#2553): its level and the room objects its reacting blocks reach.</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal sealed partial class RoomTerrain : SamusTerrain
 {
     /// <summary>Creates the terrain of a room.</summary>

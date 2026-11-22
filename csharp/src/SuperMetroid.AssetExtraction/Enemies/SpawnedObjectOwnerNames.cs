@@ -16,7 +16,6 @@ internal static partial class SpawnedObjectOwnerNames
     private const string TankGlassName = "MotherBrainTankGlass";
 
     /// <summary>The manifest name of <paramref name="owner"/>.</summary>
-    [InstalledKey]
     internal static string Name(SpawnedObjectOwner owner) => owner.IsMotherBrainTankGlass ? TankGlassName
         : owner.Spawner is { } spawner ? EnemyDefinitionIdKeys.Installed.Of(spawner) : SharedName;
 

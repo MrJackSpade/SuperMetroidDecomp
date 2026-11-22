@@ -7,6 +7,5 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public static partial class PauseSelectorAnchors
 {
     /// <summary>The pause sheet's frame for the selector presentation's frame <paramref name="frame"/>.</summary>
-    [InstalledKey]
-    public static string SheetFrameName([InstalledKey] string frame) => $"Selector.{frame}";
+    public static string SheetFrameName(string frame) => $"Selector.{frame}";
 }

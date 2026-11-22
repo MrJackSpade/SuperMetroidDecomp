@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Extracts the six safe English narration pages from native bank-$8C scripts.</summary>
-[EncodingOwner("cartridge intro narration script words")]
 public static partial class IntroNarrationExtractor
 {
     /// <summary>Decodes all six English opening narration pages from checked bank-$8C character scripts into editable text lines.</summary>

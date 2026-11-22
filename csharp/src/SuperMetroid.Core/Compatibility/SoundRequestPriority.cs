@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// library's waiting requests with its own fixed limit (one, three, six, nine or fifteen); the five priorities are those
 /// limits, and #1478 replaced the per-call routines with them at every requester.
 /// </remarks>
-[CompatibilityService("how many waiting requests a sound request tolerates in its library's queue")]
 public readonly partial record struct SoundRequestPriority
 {
     /// <summary>A priority that admits a request while fewer than <paramref name="requests"/> requests wait.</summary>

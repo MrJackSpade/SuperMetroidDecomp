@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// legacy save translation and the checks that compare with native state convert through it; nothing in the game knows
 /// these numbers.
 /// </summary>
-[EncodingOwner("story event numbering")]
 public static partial class StoryEventNumbers
 {
     /// <summary>How many numbers the event table holds, 0 through 63.</summary>

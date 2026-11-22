@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// then his body one shade at a time; the final body shade ends his ignoring Samus's touch and starts the Ridley and
 /// Draygon battle music; he roars, holds as his encounter decides, and takes off. His lift-off ends the reveal.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyReveal
 {
     /// <summary>Samus's passage through a door, which holds his opening wait.</summary>

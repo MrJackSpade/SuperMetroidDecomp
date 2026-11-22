@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// original's word arithmetic and fires the production laser from a robot on screen above and below the room's top
 /// screen.
 /// </remarks>
-[CompatibilityService("a Work Robot's laser requests its sound only while the robot reaches into the camera's columns, reaches down to the camera's top and has its top edge less than a screen's height below the room's top, so a robot lower in its room fires silently")]
 internal static partial class WorkRobotLaserSoundRange
 {
     /// <summary>

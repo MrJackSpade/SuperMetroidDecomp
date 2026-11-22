@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// she has Bombs), then looks at its door again. The cap lives in its room's object places, with the lock its setup resolved
 /// for that room (#2486).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>

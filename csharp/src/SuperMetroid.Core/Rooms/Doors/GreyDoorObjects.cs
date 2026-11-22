@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// the setup that places a cap with its lock (<see cref="GreyDoorLock"/>): an area boss, mini-boss or Torizo defeated, the
 /// room's enemy quota, the Tourian statue finished, the critters escaped, or never.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class GreyDoorObjects
 {
     /// <summary>The room's system and event state.</summary>

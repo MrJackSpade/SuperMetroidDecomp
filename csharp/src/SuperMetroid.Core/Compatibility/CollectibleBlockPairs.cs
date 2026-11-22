@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// blocks of its allocation; the import compares every pair's blocks with the original draw lists' level words and
 /// decodes how each one straddles.
 /// </remarks>
-[CompatibilityService("a room's collectibles that show their own picture write their frames into four pairs of terrain blocks taken in turn, which a Wave shot's straddled read sees")]
 public sealed partial class CollectibleBlockPairs
 {
     /// <summary>

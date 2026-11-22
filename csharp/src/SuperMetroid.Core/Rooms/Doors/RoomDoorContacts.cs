@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// Both belong to the room: the door waits through a message box the same update opened, the pause's last darkening
 /// updates and the transition's own updates until the destination loads, and a room left behind takes both with it.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RoomDoorContacts
 {
     /// <summary>

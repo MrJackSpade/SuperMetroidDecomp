@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the bottom piece's original setup reads the vertical position from the enemy record two records before its
 /// own, not the hull's by name.
 /// </remarks>
-[CompatibilityService("the gunship's entrance pad starts one pixel above the enemy listed two places before it")]
 public static partial class GunshipPadBorrowedHeight
 {
     /// <summary>How many places before the pad the room lists the enemy whose height it borrows.</summary>

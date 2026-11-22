@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.World;
 /// The statue room's parts its statue sequence acts on (#2486), which the room's load hands it as it builds them: the
 /// sequence reads the room it is built for, never the active room's views.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal sealed partial record TourianStatueSequenceRoom
 {
     /// <summary>The statue room, whose statue the sequence lowers.</summary>

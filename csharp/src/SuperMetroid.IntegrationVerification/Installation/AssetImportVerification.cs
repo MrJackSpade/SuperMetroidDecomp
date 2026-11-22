@@ -15,10 +15,6 @@ internal static class AssetImportVerification
 /// Exercises invalid imports first, then one retail import that every reading check shares, ROM-free startup and the
 /// rejection of outdated content on a copy of it, one repair, and cancellation and recovery that extract nothing (#1680).
 /// </summary>
-[PrivateInstallation("Checks the importer itself. Two runs extract: the import of a headered, user-named ROM, which every " +
-    "reading check shares, and the repair from the installed copy once that document is gone, which only a completed " +
-    "extraction can show regenerates damaged content exactly. ROM-free startup and cancellation work on copies of the " +
-    "import, and every rejection and the cancelled repair stop before any component extracts.")]
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");

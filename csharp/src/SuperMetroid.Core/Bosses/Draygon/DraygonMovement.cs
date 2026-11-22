@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>How Draygon moves along an angle or horizontally, and the breath bubbles it trails.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonMovement
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>

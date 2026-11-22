@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// between occupants.
 /// </remarks>
 /// <typeparam name="TOccupant">The state of one occupant of the kind that inherits.</typeparam>
-[CompatibilityService("an actor that takes over a place starts the values its setup leaves alone from where the place's previous occupant of its kind left them")]
 public sealed partial class PlaceInheritance<TOccupant>
     where TOccupant : class
 {

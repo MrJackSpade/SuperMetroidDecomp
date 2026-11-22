@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// preserve the game's behavior; editable text and fonts come from installed assets. Each named phase is one stage of
 /// the ending, and the scene passes from one to the next on the update the game does.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class EndingCreditsState : IFrontendScreen, IEndingActorScene
 {
     /// <inheritdoc/>

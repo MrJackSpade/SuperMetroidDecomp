@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// there is no separately authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, IComposedFrontendScene<LayeredScene>
 {
     /// <inheritdoc/>
@@ -137,7 +136,6 @@ internal sealed partial class CeresDestructionCinematicState : IFrontendScreen, 
     /// That restart is load-bearing: the fade-in clears the picture once before the removal's first step, so the reveal
     /// pixelates a second time from the coarsest blocks, and lasts that much longer, before it ends.
     /// </summary>
-    [IntegerQuantity("pixelation block width in screen pixels, one through sixteen")]
     private int revealBlockWidth = 1;
     /// <summary>
     /// The scene's wait, black, before it sets the station up, of <see cref="CeresDestructionSceneDefinitions.InitialFrameWaits"/>

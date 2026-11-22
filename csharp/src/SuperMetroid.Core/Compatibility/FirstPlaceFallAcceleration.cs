@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// projectile in the first place keeps no acceleration a piece could read in its terms, so that case is refused rather
 /// than given an invented value.
 /// </remarks>
-[CompatibilityService("Bomb Torizo's falling statue pieces gain speed by the first projectile place's piece acceleration, so they fall at constant speed while that place is free")]
 public static partial class FirstPlaceFallAcceleration
 {
     /// <summary>The acceleration a falling piece adds this update.</summary>

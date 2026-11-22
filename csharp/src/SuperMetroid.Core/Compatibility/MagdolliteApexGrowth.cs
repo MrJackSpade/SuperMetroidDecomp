@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// word from the player's game data and compares it with this service; the recorded Crateria arm in place two grows its
 /// final segment.
 /// </remarks>
-[CompatibilityService("a Magdollite arm reaching its full height grows one final segment or not depending on the enemy place it occupies")]
 public sealed partial class MagdolliteApexGrowth
 {
     /// <summary>Whether an arm in each place grows its final segment, by place.</summary>

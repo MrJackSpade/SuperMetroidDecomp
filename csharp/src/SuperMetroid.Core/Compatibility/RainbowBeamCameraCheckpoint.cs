@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// speed routine subtracts the full sub-pixel words; the 100% movie's fall into the floor clamp established the
 /// complete case. The rainbow-beam movement check confirms both cases.
 /// </remarks>
-[CompatibilityService("Mother Brain's rainbow-beam push hides only the coarse part of its sub-pixel movement from the camera's speed")]
 public sealed partial class RainbowBeamCameraCheckpoint
 {
     /// <summary>The horizontal sub-pixel the push recorded this update.</summary>

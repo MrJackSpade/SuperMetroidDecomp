@@ -9,7 +9,6 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Torizo species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class DeadTorizoBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 

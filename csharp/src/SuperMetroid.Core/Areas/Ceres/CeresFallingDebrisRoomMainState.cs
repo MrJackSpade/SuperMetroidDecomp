@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// set up when the room loads; it is what the previous room's main left, normally the elevator shaft's last turn step
 /// (<see cref="ShaftTurnSetsDebrisWait"/>), and every later tile falls <see cref="FallInterval"/> updates after the one before it.
 /// </summary>
-[RoomLifetime]
 public sealed partial class CeresFallingDebrisRoomMainState
 {
     /// <summary>The updates from one falling tile to the next once the first has fallen.</summary>

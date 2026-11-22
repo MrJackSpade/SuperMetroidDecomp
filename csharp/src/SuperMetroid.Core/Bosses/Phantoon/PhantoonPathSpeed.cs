@@ -28,7 +28,6 @@ public readonly partial record struct PhantoonPathSpeed
         new(SignedSixteenSixteen.FromPixelFraction(numerator, denominator));
 
     /// <summary>The whole places the speed takes each update, its fraction dropped toward fewer places.</summary>
-    [IntegerQuantity("whole places of Phantoon's figure-eight path taken each update")]
     public int WholePlaces => Places.WholePixels;
 
     /// <summary>

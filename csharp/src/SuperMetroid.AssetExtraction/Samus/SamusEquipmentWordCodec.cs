@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// cartridge's work memory store. The flags' values are arbitrary; this type is the one place that knows each item's
 /// and beam's bit in its word, for the save import and export and for checks that compare with native state.
 /// </summary>
-[EncodingOwner("save slot equipment words")]
 public static partial class SamusEquipmentWordCodec
 {
     /// <summary>An item and the word bit that records it.</summary>

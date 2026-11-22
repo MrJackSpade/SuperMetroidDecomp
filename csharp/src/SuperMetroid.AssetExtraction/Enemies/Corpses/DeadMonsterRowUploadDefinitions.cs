@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// from its staged characters after each rot step. Only the extraction reads them, to find the characters the corpse's rows
 /// show in, and so where each corpse lies in its pictures (#1539).
 /// </summary>
-[EncodingOwner("bank-$A9 dead-monster row upload lists")]
 internal static partial class DeadMonsterRowUploadDefinitions
 {
     /// <summary>Where the cartridge holds a list: the species whose lists hold it and its variant among them.</summary>

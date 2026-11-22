@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Runs both Ridleys' body animation and his breakup pieces' animations, and applies their cues (#2229).</summary>
-[RoomLifetime]
 internal sealed partial class RidleyBodyAnimation
 {
     /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>

@@ -40,7 +40,6 @@ internal abstract partial record CeresSteamMotion
     /// turn Samus is drawn with, while it collides where it stands.
     /// </summary>
     /// <param name="Shaft">The shaft's turn, which the shaft's elevator door starts as the room loads.</param>
-    [RoomLifetime]
     internal sealed partial record RidesShaftTurn(CeresElevatorShaftRoomMainState Shaft) : CeresSteamMotion
     {
         /// <inheritdoc/>

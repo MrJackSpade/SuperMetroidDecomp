@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// sweat and smoke the eye spawns, its sounds, and the move of the destroyed eye onto its blue cap. The eye
 /// (<see cref="EyeDoorEyeObject"/>) and its body and bottom (<see cref="EyeDoorPartObject"/>) are typed room objects.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EyeDoorObjects
 {
     /// <summary>The room's system and event state.</summary>

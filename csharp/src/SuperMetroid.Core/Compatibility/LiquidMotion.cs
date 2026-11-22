@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// runs on every later frame, so its first frame moves nothing and swaps nothing; the recorded lava-room snapshots begin
 /// past that run, which the replay import restores as <see cref="Moving"/> or <see cref="Stopped"/>.
 /// </remarks>
-[CompatibilityService("a room's liquid first moves, and lava or acid first swaps the shared random number's halves, on its second motion pass after the room loads")]
 public readonly partial record struct LiquidMotion
 {
     /// <summary>The motion's stage.</summary>

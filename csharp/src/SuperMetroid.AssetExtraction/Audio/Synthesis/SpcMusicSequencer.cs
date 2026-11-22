@@ -23,17 +23,17 @@ internal sealed partial class SpcMusicSequencer
     /// <summary>Applies the driver's high/low note correction before DSP pitch conversion.</summary>
     private void WritePitch(ManagedSpcMusicChannel channel, int pitch)
     {
-        if (SpcFixedPoint.Whole(pitch) >= 0x34) // cartridge-encoding: allow(HardwareMagnitude) - native high-note correction threshold
-            pitch = AddWord(pitch, SpcFixedPoint.Whole(pitch) - 0x34); // cartridge-encoding: allow(HardwareMagnitude) - native high-note correction threshold
-        else if (SpcFixedPoint.Whole(pitch) < 0x13) // cartridge-encoding: allow(HardwareMagnitude) - native low-note correction threshold
-            pitch = AddWord(pitch, unchecked((byte)((SpcFixedPoint.Whole(pitch) - 0x13) * 2)) - 256); // cartridge-encoding: allow(HardwareMagnitude) - native low-note correction
+        if (SpcFixedPoint.Whole(pitch) >= 0x34)
+            pitch = AddWord(pitch, SpcFixedPoint.Whole(pitch) - 0x34);
+        else if (SpcFixedPoint.Whole(pitch) < 0x13)
+            pitch = AddWord(pitch, unchecked((byte)((SpcFixedPoint.Whole(pitch) - 0x13) * 2)) - 256);
         _voices.WritePitchInner(channel, pitch);
     }
 
     /// <summary>Restores eight music voices, fades, transposition and tempo to the driver's track defaults.</summary>
     private void ResetMusicChannels()
     {
-        for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // cartridge-encoding: allow(BitMask) - highest voice bit
+        for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1)
         {
             ManagedSpcMusicChannel channel = channels[index];
             _voices.currentChannelBit = unchecked((byte)bit);
@@ -104,7 +104,7 @@ internal sealed partial class SpcMusicSequencer
                 break;
             case SpcMusicEffect.SetPan:
                 channel.PanFlags = argument;
-                channel.PanValue = SpcFixedPoint.FromWhole((argument & 0x1f)); // cartridge-encoding: allow(BitMask) - five-bit pan value
+                channel.PanValue = SpcFixedPoint.FromWhole((argument & 0x1f));
                 break;
             case SpcMusicEffect.FadePan:
                 channel.PanTicks = argument;
@@ -271,7 +271,7 @@ internal sealed partial class SpcMusicSequencer
             }
             else
             {
-                while ((command & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
+                while ((command & 0x80) == 0)
                     command = NextSequenceByte(ref pointer);
                 if (command == SpcDriverDefinitions.Music.TieNote)
                     return false;
@@ -298,7 +298,7 @@ internal sealed partial class SpcMusicSequencer
     /// <summary>Folds the tremolo wave and applies depth before recalculating final voice volume.</summary>
     private void CalculateTremolo(ManagedSpcMusicChannel channel, int value)
     {
-        value = (value & 0x80) != 0 // cartridge-encoding: allow(BitMask) - tremolo waveform phase
+        value = (value & 0x80) != 0
             ? unchecked((byte)((value * 2) ^ byte.MaxValue))
             : unchecked((byte)(value * 2));
         value = (byte)SpcFixedPoint.Scale(value, channel.TremoloDepth);
@@ -316,11 +316,11 @@ internal sealed partial class SpcMusicSequencer
     private void CalculateVibratoPitch(ManagedSpcMusicChannel channel, int pitch, int value)
     {
         int scaled = value << 2;
-        scaled ^= (scaled & 0x100) != 0 ? byte.MaxValue : 0; // cartridge-encoding: allow(BitMask) - folded vibrato phase
-        int delta = channel.VibratoDepth >= 0xf1 // cartridge-encoding: allow(HardwareMagnitude) - native deep-vibrato threshold
-            ? unchecked((byte)scaled) * (channel.VibratoDepth & 0x0f) // cartridge-encoding: allow(BitMask) - deep-vibrato fractional depth
+        scaled ^= (scaled & 0x100) != 0 ? byte.MaxValue : 0;
+        int delta = channel.VibratoDepth >= 0xf1
+            ? unchecked((byte)scaled) * (channel.VibratoDepth & 0x0f)
             : SpcFixedPoint.Scale(unchecked((byte)scaled), channel.VibratoDepth);
-        WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // cartridge-encoding: allow(BitMask) - vibrato direction
+        WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta));
     }
 
     /// <summary>Interpolates active pan and pitch sweeps between full music ticks and publishes affected DSP registers.</summary>
@@ -423,9 +423,9 @@ internal sealed partial class SpcMusicSequencer
             if (channel.TremoloDelayTicks == channel.TremoloHoldCount)
             {
                 volumeDirty = volumeDirty | _voices.currentChannelBit;
-                channel.TremoloCount = (channel.TremoloCount & 0x80) != 0 && // cartridge-encoding: allow(BitMask) - tremolo phase
+                channel.TremoloCount = (channel.TremoloCount & 0x80) != 0 &&
                     channel.TremoloDepth == byte.MaxValue
-                    ? (byte)0x80 // cartridge-encoding: allow(BitMask) - tremolo phase origin
+                    ? (byte)0x80
                     : unchecked((byte)(channel.TremoloCount + channel.TremoloRate));
                 CalculateTremolo(channel, channel.TremoloCount);
             }
@@ -522,7 +522,7 @@ internal sealed partial class SpcMusicSequencer
             else
             {
                 blockCount = SpcDriverWrap.Byte(blockCount - 1);
-                if ((blockCount & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed block-counter underflow
+                if ((blockCount & 0x80) != 0)
                     blockCount = unchecked((byte)record);
                 int loopPointer = _voices.ReadWord(musicTopLevelPointer);
                 musicTopLevelPointer = SpcDriverWrap.Word(musicTopLevelPointer + 2);
@@ -574,14 +574,14 @@ internal sealed partial class SpcMusicSequencer
                             ? channel.SavedPatternPointer : channel.PatternStartPointer;
                         continue;
                     }
-                    if ((noteCommand & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
+                    if ((noteCommand & 0x80) == 0)
                     {
                         channel.NoteLength = noteCommand;
                         noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
-                        if ((noteCommand & 0x80) == 0) // cartridge-encoding: allow(BitMask) - music-command marker
+                        if ((noteCommand & 0x80) == 0)
                         {
                             channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentage((noteCommand >> 4) & 7);
-                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // cartridge-encoding: allow(BitMask) - volume nibble
+                            channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f);
                             noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                         }
                     }
@@ -799,7 +799,7 @@ internal sealed partial class SpcMusicSequencer
         if (requestedDelay != lastWrittenEchoDelay)
         {
             int countdown = unchecked((byte)(SnesDspControls.EchoDelayOf(lastWrittenEchoDelay) ^ byte.MaxValue));
-            if ((echoStoredTime & 0x80) != 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
+            if ((echoStoredTime & 0x80) != 0)
                 countdown = unchecked((byte)(countdown + echoStoredTime));
             echoStoredTime = countdown;
 

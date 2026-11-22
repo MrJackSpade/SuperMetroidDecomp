@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// station (<see cref="SaveStationObject"/>), or a map, energy or missile station used through its access arm
 /// (<see cref="AccessStationObject"/>, #2484). What a station does in a room-object step joins that step's outcome (#2514).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class StationObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

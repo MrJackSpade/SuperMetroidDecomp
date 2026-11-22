@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// The room's doors as room objects: the coloured caps' setup, the blue cap a shot opens, the record of a door opened for
 /// good, and the closing behind Samus after a door transition.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>

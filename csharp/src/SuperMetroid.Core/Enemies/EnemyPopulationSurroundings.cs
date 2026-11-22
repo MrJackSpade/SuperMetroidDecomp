@@ -14,5 +14,4 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Samus">Samus, as the load hands her to its enemies.</param>
 /// <param name="ControllerInput">The frame's controller input.</param>
 /// <param name="Camera">The destination camera's position.</param>
-[RoomScopeBoundary("A per-call input, built for one population load and never kept.")]
 internal sealed partial record EnemyPopulationSurroundings(RoomLevelData Level, SamusState Samus, GameplayAction ControllerInput, Position16<RoomPixels> Camera);

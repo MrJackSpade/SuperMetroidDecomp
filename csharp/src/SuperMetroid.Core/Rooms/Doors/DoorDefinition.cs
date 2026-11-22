@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <param name="SamusSpeed">How far the transition pushes Samus on each step of the door-opening scroll.</param>
 /// <param name="Setup">The setup the door runs while Samus passes through it.</param>
 public sealed partial record DoorDefinition(
-    [InstalledKey] string Name,
+    string Name,
     RoomDefinition DestinationRoom,
     DoorOrientation Orientation,
     Position16<RoomBlocks>? RoomObjectBlock,

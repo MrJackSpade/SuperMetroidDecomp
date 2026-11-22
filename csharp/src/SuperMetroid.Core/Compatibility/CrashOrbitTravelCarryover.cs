@@ -25,7 +25,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// horizontal position the same way, but only the drawn copies read it, so the crash keeps its own.
 /// </para>
 /// </remarks>
-[CompatibilityService("a shinespark crash's orbit counts on from the travel the last orbit or its first released echo left, which can shorten the orbit and moves when Samus regains control")]
 public sealed partial class CrashOrbitTravelCarryover
 {
     /// <summary>The largest travel held; one more step continues from zero.</summary>

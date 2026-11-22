@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Cartridge layout and list-format constants the extraction decoders rely on.</summary>
-[EncodingOwner("cartridge bank sizes and native list terminator words")]
 internal static partial class CartridgeFormatDefinitions
 {
     /// <summary>$FFFF: the word that ends native pointer and header lists.</summary>

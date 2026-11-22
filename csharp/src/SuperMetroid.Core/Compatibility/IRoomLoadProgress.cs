@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted during each door-scroll update of a transition, before loading-time writes are applied. Evidence: the door
 /// loader (<c>$82:E4A9</c>, <c>Initialise_Enemies</c>) in the SMV recordings' traces.
 /// </remarks>
-[CompatibilityService("how far room loading has progressed when each enemy initializes")]
 public interface IRoomLoadProgress
 {
     /// <summary>True once loading has initialized the enemy in place <paramref name="place"/>.</summary>

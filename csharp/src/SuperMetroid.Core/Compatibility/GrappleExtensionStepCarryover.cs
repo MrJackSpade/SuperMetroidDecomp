@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>GrappleExtensionArithmeticVerification</c>) compares the step for every speed over previous steps that cover each
 /// kept part with the arithmetic it replaced.
 /// </remarks>
-[CompatibilityService("the extending grapple rope's step keeps parts of the update before's step, so its four substeps need not add up to its speed")]
 public static partial class GrappleExtensionStepCarryover
 {
     /// <summary>The substeps the extending rope moves and probes in each update, each by a quarter of its speed.</summary>

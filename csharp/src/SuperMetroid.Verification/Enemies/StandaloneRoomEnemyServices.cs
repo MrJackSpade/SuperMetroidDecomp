@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Enemies;
 /// tools. The RNG generator is required; each other service is installed explicitly, and an AI routine
 /// that reaches an uninstalled one fails at that exact dependency instead of reading a false default.
 /// </summary>
-[ArchitectureReview("context-bag", "A verification host's implementation of the room enemy services contract, which is a set of service capabilities by definition; each capability is installed explicitly or fails at the dependency.")]
 internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 {
     /// <summary>Only RNG generation is mandatory; reading or seeding its current word needs explicit delegates.</summary>

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Mochtroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
 

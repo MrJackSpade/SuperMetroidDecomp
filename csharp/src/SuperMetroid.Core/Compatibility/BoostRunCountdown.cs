@@ -11,5 +11,4 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <param name="Stage">The boost stage.</param>
 /// <param name="Countdown">The runs left before the next stage.</param>
-[CompatibilityService("a Speed Booster boost after one completed run, a stage lower with the borrow's runs ahead when its countdown was empty")]
 public readonly partial record struct BoostRunCountdown(int Stage, int Countdown);

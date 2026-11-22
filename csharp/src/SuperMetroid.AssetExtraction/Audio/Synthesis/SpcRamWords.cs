@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Little-endian words in the SPC700's 64 KiB audio RAM (#223). The SPC's address bus is sixteen bits wide with no
 /// banks, so a word at <c>$FFFF</c> takes its high byte from <c>$0000</c>.
 /// </summary>
-[EncodingOwner("audio RAM little-endian words")]
 internal static partial class SpcRamWords
 {
     /// <summary>The SPC700 address-bus mask: sixteen bits, wrapping at the end of audio RAM.</summary>

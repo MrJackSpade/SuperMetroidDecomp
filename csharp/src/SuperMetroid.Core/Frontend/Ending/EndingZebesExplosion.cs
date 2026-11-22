@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Zebes exploding in the ending: its setup and the colour crossfade into it.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class EndingZebesExplosion
 {
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>

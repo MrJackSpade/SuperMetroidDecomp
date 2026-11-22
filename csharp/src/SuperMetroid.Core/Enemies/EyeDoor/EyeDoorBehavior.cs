@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye doors' projectiles: the shots the eye fires, the sweat it drips and the smoke it leaves.</summary>
-[RoomLifetime]
 internal sealed partial class EyeDoorBehavior
 {
     /// <summary>Provides the loaded room and random seed for smoke placement.</summary>

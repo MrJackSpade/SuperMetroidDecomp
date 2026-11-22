@@ -12,7 +12,6 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-[RoomLifetime]
 internal sealed partial class MotherBrainRainbowAndDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

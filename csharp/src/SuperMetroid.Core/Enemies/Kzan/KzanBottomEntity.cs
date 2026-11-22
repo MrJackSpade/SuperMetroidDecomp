@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="place">The place the bottom occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="top">What the enemy's setup built (#2554).</param>
-[RoomLifetime]
 internal sealed partial class KzanBottomEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RoomEnemyPlace top)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi
 {

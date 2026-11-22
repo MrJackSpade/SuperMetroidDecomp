@@ -17,9 +17,6 @@ namespace SuperMetroid.Core.World;
 /// The room's shared enemy services the composition of its species (<see cref="RoomEnemySpecies"/>) builds every owner from
 /// (#2571), handed to it by the room's enemy system once those services exist, so the composition reaches no enemy system.
 /// </summary>
-[ArchitectureReview("wide-dependencies", "The composition seam for every species of the room: each owner is built from a " +
-    "different subset of the room's shared enemy services, and the composition is the one place that names the species.")]
-[RoomLifetime]
 internal sealed partial record RoomEnemySpeciesDependencies
 {
     /// <summary>The enemy state and installed artwork that outlive each room.</summary>

@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The gold and silver ninja Space Pirates, each with the settings its placement gives it.</summary>

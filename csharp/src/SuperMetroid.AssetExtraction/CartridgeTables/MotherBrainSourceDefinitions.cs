@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the Baby Metroid. The import pipeline's private knowledge of the cartridge, decoded once into the installed colour
 /// documents and definitions.
 /// </summary>
-[EncodingOwner("cartridge addresses of the Tourian encounter's tables")]
 internal static partial class MotherBrainSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>

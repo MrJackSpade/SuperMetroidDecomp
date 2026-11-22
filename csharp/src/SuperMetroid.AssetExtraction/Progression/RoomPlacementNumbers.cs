@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// table. The progression table codec, SpaceTime's overwrite, the legacy save translation and the checks that compare
 /// with native state convert through it; nothing in the game knows these numbers.
 /// </summary>
-[EncodingOwner("room-data door and item location numbering")]
 public static partial class RoomPlacementNumbers
 {
     /// <summary>How many numbers each of the opened-door and collected-item tables holds, 0 through 511.</summary>

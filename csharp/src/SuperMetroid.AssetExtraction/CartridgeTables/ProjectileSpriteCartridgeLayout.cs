@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where each Samus projectile and charge-flare composition group begins in bank $93.</summary>
-[EncodingOwner("bank-$93 addresses of the projectile and charge-flare spritemap groups")]
 internal static partial class ProjectileSpriteCartridgeLayout
 {
     /// <summary>$93:AB6C, ProjectileFlareSpritemaps_Flare_Charge_Hyper_Grapple_0: the first of four seven-byte main flares.</summary>

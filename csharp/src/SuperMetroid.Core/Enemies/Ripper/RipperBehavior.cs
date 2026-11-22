@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The grapple Ripper, the ordinary Ripper or the jet Ripper (#2146).</summary>

@@ -15,7 +15,6 @@ namespace SuperMetroid.AssetExtraction;
 /// as, which a Wave shot's read landing halfway through a block takes from two neighbouring words; the import decodes
 /// what every such read finds into the installed straddled terrain (#1612).
 /// </summary>
-[EncodingOwner("room level data word")]
 public static partial class RoomLevelWordCodec
 {
     /// <summary>The bits naming the block shown.</summary>

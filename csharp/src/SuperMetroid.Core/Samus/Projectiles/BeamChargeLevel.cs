@@ -40,7 +40,7 @@ public abstract partial record BeamChargeLevel
     /// <summary>A charge held for <paramref name="Updates"/> updates.</summary>
     /// <param name="Updates">The updates the charge has been held.</param>
     internal sealed partial record CountedCharge(
-        [property: IntegerQuantity("updates the charge flare has shown")] int Updates) : BeamChargeLevel
+        int Updates) : BeamChargeLevel
     {
         /// <inheritdoc/>
         public override int UpdatesHeld => Updates;

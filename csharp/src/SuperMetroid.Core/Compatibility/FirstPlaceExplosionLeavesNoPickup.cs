@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted once per explosion, by its become-pickup cue after the drop roll. Evidence: the become-pickup cue branches
 /// on the restored enemy-projectile index, and index zero takes the no-drop path.
 /// </remarks>
-[CompatibilityService("an enemy's death explosion in the first enemy-projectile place never becomes a pickup")]
 public static partial class FirstPlaceExplosionLeavesNoPickup
 {
     /// <summary>Whether a finished death explosion in the enemy-projectile place <paramref name="projectilePlace"/> becomes a pickup.</summary>

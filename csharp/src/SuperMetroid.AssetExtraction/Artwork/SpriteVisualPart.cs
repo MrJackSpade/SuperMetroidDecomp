@@ -5,7 +5,6 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>One ordered region in an indexed tile sheet. Null palette inherits its drawing owner's current palette.</summary>
-[SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed partial record SpriteVisualPart
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
@@ -17,7 +16,6 @@ public sealed partial record SpriteVisualPart
     /// <summary>Zero-based tile row in the presentation's indexed artwork atlas.</summary>
     public required int TileRow { get; init; }
     /// <summary>Square OBJ size in pixels, either 8 or 16.</summary>
-    [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
     /// <summary>Where the part draws among the room's layers.</summary>
     [JsonConverter(typeof(ActorDepthJsonConverter))]

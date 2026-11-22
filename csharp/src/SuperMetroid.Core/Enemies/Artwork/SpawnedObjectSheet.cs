@@ -54,7 +54,7 @@ public sealed partial class SpawnedObjectSheet
 
     /// <summary>The picture named <paramref name="picture"/>, from the sheet holding it.</summary>
     /// <exception cref="InvalidDataException">No sheet of the owner's holds the picture.</exception>
-    public SpriteSheetFrame Frame([InstalledKey] string picture) =>
+    public SpriteSheetFrame Frame(string picture) =>
         frames.TryGetValue(picture, out SpriteSheetFrame? frame) ? frame
             : throw new InvalidDataException($"No spawned-object sheet of {string.Join(", ", Sheets.Select(sheet => sheet.Image.Name))} holds picture {picture}.");
 
@@ -63,7 +63,7 @@ public sealed partial class SpawnedObjectSheet
     /// pixel, so no sheet holds it and the draw that chooses it draws nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The owner has no such picture.</exception>
-    public bool ShowsNothing([InstalledKey] string picture)
+    public bool ShowsNothing(string picture)
     {
         if (empty.Contains(picture))
             return true;

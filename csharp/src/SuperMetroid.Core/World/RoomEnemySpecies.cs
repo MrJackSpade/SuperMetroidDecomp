@@ -97,7 +97,6 @@ namespace SuperMetroid.Core.World;
 /// in the game's reset order (<see cref="FrameParticipants"/>).
 /// </remarks>
 [SpeciesComposition]
-[RoomLifetime]
 internal sealed partial class RoomEnemySpecies
 {
     /// <summary>Builds every owner the room's scenery lets it build and registers each with its contracts.</summary>

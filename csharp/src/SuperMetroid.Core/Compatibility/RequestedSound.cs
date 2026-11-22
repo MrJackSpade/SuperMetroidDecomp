@@ -12,6 +12,5 @@ namespace SuperMetroid.Core.Compatibility;
 /// handshakes' acknowledgements. Evidence: the original sound program's request ports carry one sound number or
 /// nothing, which the sound acceptance clock check compares with a recording of the emulated sound program.
 /// </remarks>
-[CompatibilityService("a sound one library is asked for")]
 public readonly partial record struct RequestedSound<TSound>(TSound Sound)
     where TSound : notnull, IEquatable<TSound>;

@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// update marks the escape outrun.
 /// </summary>
 /// <param name="owner">The room's escape owner, which reaches Samus, the lava, the earthquake and the events.</param>
-[RoomLifetime]
 internal sealed partial class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's escape owner.</summary>

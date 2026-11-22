@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// compares with this service's landings.
 /// </remarks>
 /// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
-[CompatibilityService("the Chainsaw beam's Power Bomb fuse moves its animation as far as a bomb's fast animation lies")]
 public sealed partial class ChainsawFuseAnimationShift<TCursor>
     where TCursor : notnull
 {

@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// direction words, which hold the enemy's place offset or all ones, and compares the result with the shutter's own
 /// offset; the offsets are the positions shifted left, so the combination is the same in positions.
 /// </remarks>
-[CompatibilityService("An idle shutter takes Samus to be pressing against the enemy whose place the places of the solid enemies she met this update, combined bit by bit, name")]
 public static partial class SolidContactPlaceCombination
 {
     /// <summary>

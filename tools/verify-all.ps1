@@ -28,8 +28,6 @@ $projects = [ordered]@{
     'SuperMetroid.IntegrationVerification' = 'net10.0'
     'SuperMetroid.RenderVerification'      = 'net10.0-windows'
     'SuperMetroid.DesktopVerification'     = 'net10.0-windows'
-    'SuperMetroid.EnsureVerification'      = 'net10.0'
-    'SuperMetroid.BuildPolicyVerification' = 'net10.0'
 }
 
 # Pinned public reference sources several audits read (README.md lists the pins).

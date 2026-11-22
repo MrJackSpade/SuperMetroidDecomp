@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// a <see cref="SpriteVisualPart"/>'s, but its palette is always present, so a document piece with no row is rejected where
 /// the document is read rather than where the piece is first drawn.
 /// </summary>
-[SpatialComponents("External format: sprite composition JSON stores each OAM part displacement as offsetX/offsetY.")]
 public sealed partial record SpriteVisualPiece
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
@@ -22,7 +21,6 @@ public sealed partial record SpriteVisualPiece
     /// <summary>Zero-based tile row in the presentation's indexed artwork atlas.</summary>
     public required int TileRow { get; init; }
     /// <summary>Square OBJ size in pixels, either 8 or 16.</summary>
-    [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
     /// <summary>Where the part draws among the room's layers.</summary>
     [JsonConverter(typeof(ActorDepthJsonConverter))]

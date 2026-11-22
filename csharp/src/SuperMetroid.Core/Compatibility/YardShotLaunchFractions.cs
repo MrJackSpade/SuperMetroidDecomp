@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// every update of a shot flight, so a second shot mid-flight launches with them. The Yard shot launch check shoots a
 /// flying Yard through the production launch with each fraction class and both facings and requires these words.
 /// </remarks>
-[CompatibilityService("a Yard shot into the air takes the launch's whole pixels of speed and keeps the fractions of a pixel its flight before the shot left, which decide the updates on which its new flight reaches each whole pixel")]
 internal static partial class YardShotLaunchFractions
 {
     /// <summary>

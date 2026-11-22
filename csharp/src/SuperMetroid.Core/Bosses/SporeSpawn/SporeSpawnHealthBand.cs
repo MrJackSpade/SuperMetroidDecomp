@@ -10,7 +10,7 @@ public sealed partial class SporeSpawnHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal SporeSpawnHealthBand(int minimumHealth, [InstalledKey] string key)
+    internal SporeSpawnHealthBand(int minimumHealth, string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;

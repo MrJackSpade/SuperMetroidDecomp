@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// the coordinate space in 2048 columns and rows. The shot and projectile squares check compares every coordinate's
 /// square with that mask.
 /// </remarks>
-[CompatibilityService("a shot meets an enemy projectile only when both stand in the same 32-pixel square of the room, whatever their sizes")]
 internal static partial class ShotAndProjectileSquares
 {
     /// <summary>The pixels along each side of a square a shot and an enemy projectile meet in.</summary>

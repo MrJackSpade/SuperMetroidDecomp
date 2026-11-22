@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// set record, a spawn and an enemy slot's identity hold, decoded once here. Each entry's comment is the header's label in
 /// the pinned disassembly. A cleared slot's zero names no definition: the slot holds no enemy.
 /// </summary>
-[EncodingOwner("bank-$A0 enemy header pointer words")]
 internal static partial class EnemyHeaderWords
 {
 

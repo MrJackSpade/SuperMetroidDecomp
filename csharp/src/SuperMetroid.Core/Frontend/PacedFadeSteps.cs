@@ -21,19 +21,15 @@ internal sealed partial class PacedFadeSteps
     }
 
     /// <summary>The updates the fade takes from one step to the next.</summary>
-    [IntegerQuantity("updates between fade steps")]
     private readonly int updatesPerStep;
 
     /// <summary>The updates the fade takes to its next step, the update that takes it included.</summary>
-    [IntegerQuantity("updates to the next fade step")]
     private readonly UpdateCountdown stepWait;
 
     /// <summary>The fade's steps from its start to its goal.</summary>
-    [IntegerQuantity("colour fade steps from start to goal")]
     internal int Steps { get; }
 
     /// <summary>The steps the fade has taken, from none at its start to <see cref="Steps"/> at its goal.</summary>
-    [IntegerQuantity("colour fade steps taken")]
     internal int Taken { get; private set; }
 
     /// <summary>The steps the fade has still to take before its goal.</summary>

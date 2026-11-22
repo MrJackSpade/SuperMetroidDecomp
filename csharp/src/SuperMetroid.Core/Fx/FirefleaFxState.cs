@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Fx;
 /// room's effect creates it as the room loads, showing its flash's first look in an undarkened room, and it lives as long
 /// as that room (#2053, #2367).
 /// </summary>
-[RoomLifetime]
 public sealed partial class FirefleaFxState
 {
     /// <summary>Where the flash plays on from while the darkness holds it: its brightest look.</summary>

@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers enemy and enemy-projectile codecs resolve.</summary>
-[EncodingOwner("cartridge regions and addresses of the enemy and enemy-projectile tables")]
 internal static partial class EnemySourceDefinitions
 {
     /// <summary>

@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Read by <see cref="FirstPlaceFallAcceleration"/>. Evidence: the piece's update at <c>$86:A8EF</c> adds the acceleration
 /// word it reads without the place index, the first place's word, which a free place leaves at zero.
 /// </remarks>
-[CompatibilityService("what the first enemy projectile place holds decides a falling statue piece's acceleration")]
 public abstract partial record FirstPlaceHolding
 {
     /// <summary>The place holds nothing.</summary>

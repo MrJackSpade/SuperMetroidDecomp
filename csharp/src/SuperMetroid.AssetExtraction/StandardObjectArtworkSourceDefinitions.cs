@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Where the cartridge stores the standard sprite sheet.</summary>
-[EncodingOwner("cartridge address of the standard sprite sheet")]
 internal static partial class StandardObjectArtworkSourceDefinitions
 {
     /// <summary>The standard sprite sheet at $9A:D200, shared by gameplay and cinematics.</summary>

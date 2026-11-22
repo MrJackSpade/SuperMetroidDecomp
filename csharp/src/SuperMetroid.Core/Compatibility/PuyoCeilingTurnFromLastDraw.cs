@@ -41,7 +41,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// the minimap, grapple's beam palette, room-object drawing). Interrupts never write those bytes.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Puyo that strikes a ceiling while rising turns back unless an enemy or an effect actor in view was the last thing drawn and the charge flare has not drawn since the HUD's last redraw")]
 public sealed partial class PuyoCeilingTurnFromLastDraw
 {
     /// <summary>How far left of the view the area effect actors are drawn in begins, in pixels.</summary>

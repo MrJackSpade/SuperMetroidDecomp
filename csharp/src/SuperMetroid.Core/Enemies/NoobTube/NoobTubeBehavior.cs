@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSettings>
 {
 

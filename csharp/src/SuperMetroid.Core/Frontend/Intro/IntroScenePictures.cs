@@ -15,11 +15,9 @@ public static partial class IntroScenePictures
     public const string Portrait = "portrait";
 
     /// <summary>The name of scene page <paramref name="page"/>'s picture.</summary>
-    [InstalledKey]
     internal static string Page(IntroScenePage page) => $"page-{IntroScenePageKeys.Installed.Of(page)}";
 
     /// <summary>The name of eye frame <paramref name="frame"/>'s picture.</summary>
-    [InstalledKey]
     internal static string Eye(IntroEyeFrame frame) => $"eye-{IntroEyeFrameKeys.Installed.Of(frame)}";
 
     /// <summary>The plane showing scene page <paramref name="page"/> in <paramref name="shading"/> (#1512).</summary>

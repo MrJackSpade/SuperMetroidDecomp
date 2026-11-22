@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// pickup with its message, fanfare and inventory, and each collectible's picture where it lies. Each item is a typed
 /// room object (<see cref="CollectibleObject"/>) that holds and advances its own state.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CollectibleObjects
 {
 

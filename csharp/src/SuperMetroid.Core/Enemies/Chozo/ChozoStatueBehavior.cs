@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statue species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class ChozoStatueBehavior : IEnemySpecies, IEnemySpawnFactory<ChozoStatueSpawnSettings>
 {
 

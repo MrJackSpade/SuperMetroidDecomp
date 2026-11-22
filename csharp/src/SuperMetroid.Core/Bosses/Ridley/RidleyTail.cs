@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// terrain probing, Samus contact, and the projectile-blocking joints shared by the Ceres and
 /// Lower Norfair encounters.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyTail
 {
     /// <summary>Replaces shots blocked by tail joints with dust or dud effects.</summary>

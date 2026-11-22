@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// anchors (#1416, #1615): the import pipeline's private knowledge of the cartridge, decoded once into the installed
 /// options presentation.
 /// </summary>
-[EncodingOwner("cartridge addresses of the options screen pages, labels, headings and anchors")]
 internal static partial class GameOptionsSourceDefinitions
 {
     /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>

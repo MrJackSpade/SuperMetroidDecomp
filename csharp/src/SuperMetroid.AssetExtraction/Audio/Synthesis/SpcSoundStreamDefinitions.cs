@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Native SPC instruction-list sets selected by one-based sound commands.</summary>
-[EncodingOwner("audio RAM addresses of the sound driver's sound-effect instruction lists")]
 internal static partial class SpcSoundStreamDefinitions
 {
     /// <summary>SPC library 1 instruction-list identities.</summary>

@@ -153,7 +153,6 @@ internal static partial class RoomDoorBlockFiles
         SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>> Rooms);
 
     /// <summary>A door block: its column and row in its level's grid.</summary>
-    [SpatialComponents("External format: the room door-blocks JSON stores each door block as its x/y block in the level's grid.")]
     internal sealed partial record DoorBlockDocument(int X, int Y)
     {
         /// <summary>The block, which must be a 16-bit column and row.</summary>

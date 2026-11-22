@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The collaborators Mother Brain's projectile behaviour is constructed with, built once by
 /// <see cref="MotherBrainProjectiles"/>, which creates it (#1801).
 /// </summary>
-[RoomLifetime]
 internal sealed partial record MotherBrainProjectileDependencies
 {
     /// <summary>The loaded room, whose random numbers scatter the glass and the hand beams and time the turrets.</summary>

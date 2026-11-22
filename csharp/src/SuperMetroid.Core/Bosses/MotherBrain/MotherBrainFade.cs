@@ -15,7 +15,7 @@ public sealed partial class MotherBrainFade
     /// <param name="imageCount">The images it shows, in order.</param>
     /// <param name="imageUpdates">The updates each image shows for before the next, or before the fade is over.</param>
     /// <param name="layer">The colouring of the encounter its images show on.</param>
-    internal MotherBrainFade([InstalledKey] string key, int imageCount, int imageUpdates, MotherBrainFadeLayer layer)
+    internal MotherBrainFade(string key, int imageCount, int imageUpdates, MotherBrainFadeLayer layer)
     {
         Key = Ensure.NotNull(key);
         Layer = layer;

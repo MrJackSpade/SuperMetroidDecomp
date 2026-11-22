@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// standing turn while she walks toward her target, so the credit is not bounded by one step; the Mother Brain
 /// encoding-domain check (<c>MotherBrainEncodingDomainsVerification</c>) exercises both rules at the count's ends and on both sides of the point where a remainder reads below zero.
 /// </remarks>
-[CompatibilityService("Mother Brain's walk credit wraps past its top when earned, and a hit that leaves it reading below zero empties it")]
 public readonly partial record struct MotherBrainWalkCredit
 {
     /// <summary>Credit for one walking step: earning reaches it to step forward, and an ordinary hit costs it.</summary>

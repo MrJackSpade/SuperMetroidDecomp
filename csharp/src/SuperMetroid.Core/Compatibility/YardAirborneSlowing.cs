@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// compares every whole word with each fraction on both sides of both carries, and every fraction with whole words either
 /// side of no speed and at both ends, with that addition.
 /// </remarks>
-[CompatibilityService("a Yard in the air slows by a sixteenth of a pixel an update, but a slowing that would leave its whole pixels at nothing keeps the whole pixels it had, so its flight never slows to a stop")]
 internal static partial class YardAirborneSlowing
 {
     /// <summary>The slowing each update takes from the Yard's sideways speed: a sixteenth of a pixel an update.</summary>

@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// first index into the projectile table and loop down to zero inclusive; the table entry past the five shot places is
 /// the first bomb's.
 /// </remarks>
-[CompatibilityService("Kraid's shot passes count from Samus's shot count, so they test the place past her counted shots and, with every place counted, her first bomb")]
 public static partial class KraidShotPassReach
 {
     /// <summary>The projectiles each of Kraid's shot passes tests, in the order it tests them.</summary>

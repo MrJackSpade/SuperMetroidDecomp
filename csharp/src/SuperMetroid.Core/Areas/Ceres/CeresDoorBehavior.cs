@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// getaway chamber by <see cref="CeresDoorFactory"/>, and the elevator room's blocked door, which a room with a turning
 /// floor places, by <see cref="CeresElevatorDoorFactory"/>.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadingSource
 {
 

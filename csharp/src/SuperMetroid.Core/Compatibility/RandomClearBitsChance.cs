@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// the choice decides. Evidence: each choice's original tests of its random word's bits, which the chance reproduces for
 /// every one of the 65536 samples; the SMV replays compare the random value and every outcome it drives on every update.
 /// </remarks>
-[CompatibilityService("which random numbers take a chance the game took only when separate places of its random number were all clear")]
 public sealed partial class RandomClearBitsChance
 {
     /// <summary>For each bit the chance needs clear, the chance its one-bit field reads zero.</summary>

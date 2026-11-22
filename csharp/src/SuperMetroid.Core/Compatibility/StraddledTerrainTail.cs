@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// reads the first half of the next block's stored terrain, which only that block's number decides.
 /// </summary>
 /// <param name="name">The class's installed name, for diagnostics.</param>
-[CompatibilityService("one class of second blocks a Wave shot's scan past the room's ceiling straddles into")]
 public sealed partial class StraddledTerrainTail(string name)
 {
     /// <summary>The class's installed name.</summary>

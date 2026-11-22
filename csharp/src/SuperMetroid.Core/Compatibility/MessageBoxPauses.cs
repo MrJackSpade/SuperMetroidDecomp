@@ -40,7 +40,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// with the native capture's message-box entry and return and the random number on every update.
 /// </para>
 /// </remarks>
-[CompatibilityService("gameplay stays paused eight updates before a message box opens, five before the gunship's completion notice and six after a box closes, each running the music and sound queues a set number of times, one of them after closing also advancing the liquid wave, the statues' descent and a power bomb's explosion")]
 public sealed partial class MessageBoxPauses
 {
 

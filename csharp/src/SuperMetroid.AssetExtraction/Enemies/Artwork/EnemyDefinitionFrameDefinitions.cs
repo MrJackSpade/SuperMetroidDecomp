@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -8,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The frames each enemy definition can show (#1392): the frames its behaviour's code reaches, which its pre-coloured
 /// sheets hold. Generated from the enemy behaviours by tools/frame-definitions-generator; regenerate rather than edit.
 /// </summary>
-[ArchitectureReview("large", "Generated data: the two thousand frames the enemy definitions show; it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.")]
 internal static partial class EnemyDefinitionFrameDefinitions
 {
     /// <summary>The frames <c>Areas/Ceres/CeresDoorFactory.cs</c> shows for <c>CeresDoor</c>.</summary>

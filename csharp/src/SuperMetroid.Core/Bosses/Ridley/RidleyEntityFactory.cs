@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// builds (<see cref="CeresRidleyEntityFactory"/>).
 /// </summary>
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
-[RoomLifetime]
 internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair) : IEnemyEntityFactory
 {
     /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>

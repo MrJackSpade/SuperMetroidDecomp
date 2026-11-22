@@ -10,7 +10,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The Baby Metroid Ceres Ridley carries: its fall, its animation and its picture.</summary>
-[RoomLifetime]
 internal sealed partial class CeresRidleyBabyScene
 {
     /// <summary>Provides room randomness.</summary>

@@ -6,8 +6,7 @@ namespace SuperMetroid.AssetExtraction.Assets;
 internal static partial class InstalledArtworkNames
 {
     /// <summary>The hyphenated form of a PascalCase name: <c>RedBrinstarKraid</c> becomes <c>red-brinstar-kraid</c>.</summary>
-    [InstalledKey]
-    internal static string Hyphenated([InstalledKey] string name)
+    internal static string Hyphenated(string name)
     {
         var text = new System.Text.StringBuilder(name.Length + 8);
         for (int index = 0; index < name.Length; index++)

@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Extraction places the cartridge's text patches by these offsets once; the installed presentation carries the resulting
 /// cells and anchors.
 /// </summary>
-[EncodingOwner("bank-$81 file-select tilemap offsets and border and helmet spritemaps")]
 internal static partial class FileSelectNativeLayout
 {
     /// <summary>

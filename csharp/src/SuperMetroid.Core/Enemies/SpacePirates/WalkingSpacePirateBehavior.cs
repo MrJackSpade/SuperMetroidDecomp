@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactory<WalkingSpacePirateSpawnSettings>
 {
 

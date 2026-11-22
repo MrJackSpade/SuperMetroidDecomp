@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Address geometry of the SNES 65C816 CPU bus.</summary>
-[EncodingOwner("24-bit SNES CPU bus address fields")]
 internal static partial class SnesCpuAddressLayout
 {
     /// <summary>The 24-bit CPU address bus wraps after $FF:FFFF, independently of cartridge mapping.</summary>

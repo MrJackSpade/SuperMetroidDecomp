@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The Tourian entrance statue scene: the statues, their decorations and unlock effects, and the eye glows, blacked-out
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawnFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
 {
 

@@ -60,7 +60,7 @@ internal sealed partial record SamusOverreadDocument(
     /// For each frame of the later animation the cue read there names, by that frame's name, the name of the frame of the
     /// animation read past that the cue moves it to; empty when the step read names no frame.
     /// </param>
-    internal sealed partial record ReadPast([InstalledKey] string Animation, [InstalledKey] string Frame, IReadOnlyDictionary<string, string> Moves);
+    internal sealed partial record ReadPast(string Animation, string Frame, IReadOnlyDictionary<string, string> Moves);
 
     /// <summary>The step the animation reads at a cue value's place: what the game does on reaching that frame (#1535).</summary>
     /// <param name="Kind">What the step does.</param>
@@ -76,8 +76,8 @@ internal sealed partial record SamusOverreadDocument(
     /// grounded and equipped airborne poses; a vertical-speed transition's grounded and airborne poses; null for any other
     /// kind.
     /// </param>
-    internal sealed partial record CueValueStep([InstalledKey] string Kind, int? Ticks, [InstalledKey] IReadOnlyList<string>? Frames,
-        [InstalledKey] IReadOnlyList<string>? Items, [InstalledKey] IReadOnlyList<string>? Poses);
+    internal sealed partial record CueValueStep(string Kind, int? Ticks, IReadOnlyList<string>? Frames,
+        IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
 
     /// <summary>What the step at a cue value's place does, as the game does on reading that value as a step.</summary>
     internal enum CueValueStepKind
@@ -139,17 +139,17 @@ internal sealed partial record SamusOverreadDocument(
         DecidedMembers OpenedDoors,
         DecidedMembers UsedStations,
         IReadOnlyDictionary<string, bool> AreaMaps,
-        [InstalledKey] string? SavedStartupRoute);
+        string? SavedStartupRoute);
 
     /// <summary>What an overwrite decides for one kind of progress: the members whose state it decides, and those it leaves on.</summary>
     /// <param name="Decided">The names of the members whose state the overwrite decides; every other member keeps its state.</param>
     /// <param name="Set">The names of the decided members the overwrite leaves on; the other decided members it turns off.</param>
-    internal sealed partial record DecidedMembers([InstalledKey] IReadOnlyList<string> Decided, [InstalledKey] IReadOnlyList<string> Set);
+    internal sealed partial record DecidedMembers(IReadOnlyList<string> Decided, IReadOnlyList<string> Set);
 
     /// <summary>An animation position: an animation and its step.</summary>
     /// <param name="Animation">The animation's name.</param>
     /// <param name="Position">The step's position in the animation.</param>
-    internal sealed partial record Cursor([InstalledKey] string Animation, int Position);
+    internal sealed partial record Cursor(string Animation, int Position);
 
     /// <summary>The speeds a beam launches at, each in pixels per update with its fraction of a pixel kept exactly.</summary>
     /// <param name="Cardinal">The horizontal and vertical speed.</param>

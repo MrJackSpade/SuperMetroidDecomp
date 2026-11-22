@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The bank-$8F pointer the cartridge stores for each room-specific X-ray overlay.</summary>
-[EncodingOwner("bank-$8F pointers of the room X-ray overlays")]
 internal static partial class XrayRoomOverlaySourceDefinitions
 {
     /// <summary>Each overlay, by its bank-$8F pointer.</summary>

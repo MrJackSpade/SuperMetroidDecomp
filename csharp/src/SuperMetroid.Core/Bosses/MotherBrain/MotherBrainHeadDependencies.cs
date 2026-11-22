@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="MotherBrainHead"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
 internal sealed partial record MotherBrainHeadDependencies
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

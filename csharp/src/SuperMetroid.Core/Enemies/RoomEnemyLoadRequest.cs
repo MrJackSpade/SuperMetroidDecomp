@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>A validated <see cref="IRoomEnemyLoad"/>; required capabilities are non-null at construction.</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 public sealed partial record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/> into the room whose load <paramref name="appearance"/> shows over.</summary>

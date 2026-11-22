@@ -25,7 +25,6 @@ public sealed partial record RoomDefinition
         Place = new RoomPlace(name, area, mapPosition, size);
 
     /// <summary>The room's name.</summary>
-    [InstalledKey]
     public string Name => Place.Name;
 
     /// <summary>The room's area.</summary>

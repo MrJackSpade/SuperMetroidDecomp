@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// them, and the boost restart words. The game holds typed delay lists; this is the one place their layout is known,
 /// for checks.
 /// </summary>
-[EncodingOwner("cartridge Samus running cadences")]
 internal static class SamusRunningCadenceCodec
 {
     /// <summary>The bank holding the cadences; each stream word names a place in it.</summary>

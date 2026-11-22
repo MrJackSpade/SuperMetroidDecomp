@@ -19,14 +19,12 @@ internal sealed partial record SpawnedObjectSheetDocument
     public required Dictionary<string, List<string>> CommonPictures { get; init; }
 
     /// <summary>The enemies whose spawned objects it holds, by definition name.</summary>
-    [InstalledKey]
     public required List<string> Spawners { get; init; }
 
     /// <summary>The owner whose sheet it is, which the sheet is composed for, by owner name.</summary>
     public required string Owner { get; init; }
 
     /// <summary>On the shared sheet, the enemies whose room-graphics spawns it holds, by definition name.</summary>
-    [InstalledKey]
     public required List<string> SharedSpawners { get; init; }
 
     /// <summary>On the shared sheet, the common spawners whose objects it holds, by spawner name (#1513).</summary>

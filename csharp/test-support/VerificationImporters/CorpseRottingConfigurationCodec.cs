@@ -10,7 +10,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// rotting-heap bytes the cartridge places the corpse's rot schedule in, which only the check that no two coexisting
 /// corpses share heap bytes reads.
 /// </summary>
-[EncodingOwner("corpse rotting configuration record")]
 internal static class CorpseRottingConfigurationCodec
 {
     /// <summary>The bank the records and the row layout tables they name lie in.</summary>

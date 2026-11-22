@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// negative result; Draygon's leftward goop pass (<c>$A5:8DB2</c>) compares his X with <c>$FFB0</c> by the sign of
 /// their difference; the Draygon, Phantoon, Mother Brain and Ridley recorded movies replay those tests on every update.
 /// </remarks>
-[CompatibilityService("distances and side tests between two places are taken the short way across the ends of the room's coordinates, so an actor past the room's top or left lies a short distance from one inside, on its own side")]
 public static partial class DistanceAcrossRoomEdge
 {
     /// <summary>

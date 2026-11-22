@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape shaft's fake wall: the explosion that goes off as it breaks.</summary>
-[RoomLifetime]
 internal sealed partial class OldTourianEscapeShaftWallBehavior
 {
     /// <summary>The room's enemy projectiles, which the wall's explosion spawns.</summary>

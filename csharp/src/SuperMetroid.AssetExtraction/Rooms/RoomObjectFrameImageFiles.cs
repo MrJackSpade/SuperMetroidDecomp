@@ -223,6 +223,5 @@ internal static partial class RoomObjectFrameImageFiles
     /// One pictured cell: its place from the object's origin, the block it shows, or null where it shows nothing, and how it
     /// is mirrored.
     /// </summary>
-    [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
     internal sealed partial record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
 }

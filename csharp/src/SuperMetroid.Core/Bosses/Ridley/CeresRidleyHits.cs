@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>What Samus's weapons do to Ceres Ridley: each accepted shot or bomb counts toward the hits that end his fight (<see cref="CeresRidleyFightDefinitions.HitsToDriveOff"/>).</summary>
-[RoomLifetime]
 internal sealed partial class CeresRidleyHits
 {
     /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the station's escape progress.</summary>

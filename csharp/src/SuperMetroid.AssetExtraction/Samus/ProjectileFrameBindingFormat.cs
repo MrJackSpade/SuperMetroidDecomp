@@ -20,6 +20,5 @@ public static partial class ProjectileFrameBindingFormat
     /// <summary>Formats a timed record as the canonical JSON key: its frame's name, such as PowerUp for the Power beam fired up.</summary>
     /// <param name="record">The timed record's frame.</param>
     /// <returns>The frame's name.</returns>
-    [InstalledKey]
     internal static string FrameName(SamusProjectileFrameId record) => SamusProjectileFrameIdKeys.Installed.Of(record);
 }

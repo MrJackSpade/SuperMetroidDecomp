@@ -37,7 +37,6 @@ namespace SuperMetroid.Core.World;
 /// the rules that reproduce a reach by placement itself (a struck part's follow-up, the gunship pad's height taken from its neighbour's place, the
 /// Baby Metroid's victim) are compatibility services that read the places in order. A compacted list would lose those.
 /// </remarks>
-[RoomLifetime]
 public sealed partial class RoomEnemySystem : IEnemyDisplaySources
 {
     /// <summary>The enemies' draw phase: the live enemies the enemy pass queues to draw, and the frames each one shows.</summary>

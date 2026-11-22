@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="rinkas">The Rinkas.</param>
 /// <param name="pirates">The walking Pirates, whose laser Mother Brain shares.</param>
 /// <param name="ridleyProjectiles">Ridley's projectiles, whose afterburn Mother Brain's explosions reuse.</param>
-[RoomLifetime]
 internal sealed partial class MotherBrainRoomActors(
     BabyMetroidCutsceneBehavior babyMetroid,
     RinkaBehavior rinkas,

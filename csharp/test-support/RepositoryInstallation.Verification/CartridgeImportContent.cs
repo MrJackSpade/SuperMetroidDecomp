@@ -32,7 +32,6 @@ internal static class CartridgeImportContent
         SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.LoadForImport(ImportData(GameInstallationLayout.EnemyTileDirectoryName));
 
     /// <summary>Extracts every extraction component from the repository cartridge into a new scratch directory.</summary>
-    [PrivateInstallation("The character and tile pages are import data no installation holds (#1636): checks that need characters read this cartridge-derived extraction, made once per process.")]
     private static string Extract()
     {
         var scratch = new TestScratchDirectory("cartridge-import");

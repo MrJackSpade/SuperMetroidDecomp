@@ -10,7 +10,7 @@ public sealed partial class GoldenTorizoHealthBand
     /// <summary>Defines a band.</summary>
     /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shades' names.</param>
-    internal GoldenTorizoHealthBand(int minimumHealth, [InstalledKey] string key)
+    internal GoldenTorizoHealthBand(int minimumHealth, string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;

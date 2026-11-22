@@ -6,7 +6,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
-[RoomLifetime]
 internal sealed partial class ProjectileTerrainCollision
 {
     /// <summary>Ends shots when the kill step rejects an already converted family.</summary>

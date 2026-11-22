@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>The pipe bugs species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>

@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.World;
 /// effects and the room's room-object population. Defeated bosses belong to the room's area; the scroll zones are those of
 /// the room the services are built for (#2486), and the control lock acts on the introduced Samus.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RoomEnemyRuntimeServices(
     SharedGameState system,
     RoomScrollGrid scrolls,

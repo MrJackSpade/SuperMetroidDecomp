@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// cartridge and compares it with this service. Nails thrown upward fly through the upper screen of Kraid's room, more
 /// than 128 pixels above his body, so the record is read in play.
 /// </remarks>
-[CompatibilityService("a fingernail higher than Kraid's four contour ledges is pushed back at the record that follows them")]
 public sealed partial class KraidNailPastLedges
 {
 

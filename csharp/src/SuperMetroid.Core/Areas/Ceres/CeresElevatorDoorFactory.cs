@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 /// <param name="floor">The room's turning floor.</param>
-[RoomLifetime]
 internal sealed partial class CeresElevatorDoorFactory(CeresDoorBehavior doors, RoomFloor floor) : IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <summary>The room's owner of the Ceres doors and walls.</summary>

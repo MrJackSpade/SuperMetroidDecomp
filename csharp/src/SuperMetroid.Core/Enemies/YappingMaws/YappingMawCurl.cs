@@ -20,7 +20,6 @@ public readonly partial record struct YappingMawCurl
     public static YappingMawCurl FromWholeUnits(int units) => new(SignedSixteenSixteen.FromWholePixels(units));
 
     /// <summary>The curl's whole angle units, its fraction dropped toward fewer units.</summary>
-    [IntegerQuantity("whole angle units of a Yapping Maw's tongue curl")]
     public int WholeUnits => Units.WholePixels;
 
     /// <summary>Whether the curl has passed back below none: its whole units are negative.</summary>

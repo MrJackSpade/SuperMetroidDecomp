@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// with none; Spore Spawn's live fight holds his arena's top and releases it as he dies. The camera keeps to it once it has
 /// tracked Samus on both axes, before anything reads where it stands.
 /// </summary>
-[RoomLifetime]
 public sealed partial class RoomCameraFloor
 {
     /// <summary>The lowest Y, in room pixels, the camera's top edge may take, or null while nothing holds the camera.</summary>

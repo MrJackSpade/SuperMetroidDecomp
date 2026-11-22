@@ -3,7 +3,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Speed Booster escape: its setup and what its lavaquake does to the lava, the earthquake and the events.</summary>
-[RoomLifetime]
 internal sealed partial class SpeedBoosterEscapeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>

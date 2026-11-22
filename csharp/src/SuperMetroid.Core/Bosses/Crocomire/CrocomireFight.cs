@@ -14,7 +14,6 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's setup, its body and tongue animations and their cues, and the invisible wall that holds Samus back.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireFight
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>

@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// none; the sound acceptance clock check requires the session's sound starts to be exactly the changed requests a model
 /// of those checks sees.
 /// </remarks>
-[CompatibilityService("one clock step's request check of each sound library")]
 public readonly partial struct SoundRequestChecks<TLibrary, TSound> : IEquatable<SoundRequestChecks<TLibrary, TSound>>
     where TLibrary : struct, Enum
     where TSound : notnull, IEquatable<TSound>

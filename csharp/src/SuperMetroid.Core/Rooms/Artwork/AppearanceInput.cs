@@ -13,7 +13,6 @@ public abstract partial record AppearanceInput
     /// How a picture's name spells the input. Each input spells it once, as it is made: composition and the room read it
     /// for every picture they name.
     /// </summary>
-    [InstalledKey]
     public abstract string Token { get; }
 
     /// <summary>The value the input takes in <paramref name="appearance"/>, as a picture's name spells it.</summary>

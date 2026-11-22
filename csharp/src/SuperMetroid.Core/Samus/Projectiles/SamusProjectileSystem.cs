@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Samus's ordinary shots in their places (see <see cref="SamusShotPool"/> for the place order).
 /// </summary>
 /// <remarks>Firing, damage and animation, and terrain movement each keep their own seam.</remarks>
-[RoomLifetime]
 public sealed partial class SamusProjectileSystem
 {
     /// <summary>Tracks held charge, flare components, and charge glow state across room transitions.</summary>

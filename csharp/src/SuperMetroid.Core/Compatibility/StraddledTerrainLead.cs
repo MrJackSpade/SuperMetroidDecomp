@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// stored second halves agree make the same terrain with every next block.
 /// </summary>
 /// <typeparam name="TTerrain">The terrain a room holds.</typeparam>
-[CompatibilityService("one class of first blocks a Wave shot's scan past the room's ceiling straddles, with the terrain it makes with each class of second blocks")]
 public sealed partial class StraddledTerrainLead<TTerrain>
     where TTerrain : notnull
 {

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// whose closing room object spawns after the room's room objects and whose destination assets a door transition may have
 /// built before consuming its door.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal abstract partial record RoomEntry
 {
     /// <summary>Only the three entries below are room entries.</summary>

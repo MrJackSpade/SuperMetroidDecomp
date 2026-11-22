@@ -32,11 +32,9 @@ public sealed partial class ScreenFade
     public DisplayBrightness Level { get; private set; }
 
     /// <summary>The updates waited between one step and the next.</summary>
-    [IntegerQuantity("updates waited between fade steps")]
     private int stepDelay;
 
     /// <summary>The updates still to wait before the next step.</summary>
-    [IntegerQuantity("updates still waited before the next fade step")]
     private readonly UpdateCountdown wait = UpdateCountdown.Ended();
 
     /// <summary>Whether the screen is black.</summary>

@@ -456,6 +456,6 @@ public static partial class RoomLevelStreamFiles
     /// The collision kinds, each reaction family's reactions, and the slope shapes, by the position the level files write
     /// them at, under the document's schema revision.
     /// </summary>
-    internal sealed partial record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
+    internal sealed partial record CollisionKindDocument(int Version, string[] CollisionKinds, Dictionary<string, string[]> Reactions,
         string[] SlopeShapes);
 }

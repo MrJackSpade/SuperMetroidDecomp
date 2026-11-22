@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the original's glow and fade routines read each colour channel as one of its thirty-two steps and step it from
 /// there (<see cref="FadeLevelColour"/>); the Kraid replays confirm the roar those steps time.
 /// </remarks>
-[CompatibilityService("a plain colour read in the colour steps the colours that glow and fade a step an update count in")]
 public static partial class RgbColorFadeLevels
 {
     /// <summary>A plain colour's steps.</summary>

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.World;
 /// unlocks the statues, has one; its load builds it before the room's room objects, whose grey door waits for the statue
 /// to finish (#2486), and before its enemies, which take it as theirs, and its statue sequence lowers the statue.
 /// </summary>
-[RoomLifetime]
 public sealed partial class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
 {
     /// <summary>The live surface of the room effect's water, which the liquid step moves.</summary>

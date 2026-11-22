@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="owner">The room's glass owner, which throws the shards and holds the boss and event state.</param>
 /// <param name="shards">The room's enemy projectiles, among which the glass's shards spawn.</param>
-[RoomLifetime]
 internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects owner, IMotherBrainGlassShardSpawner shards) : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>The room's glass owner.</summary>

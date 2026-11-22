@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's body layer (#1352, #1466, #1515, #1540): his body as he now appears, from his installed body sheet, with his
 /// head at its current pose above it, or the head his body rises with before his head shows a pose.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class KraidBodyLayer : IBossBodyDisplay
 {
     /// <inheritdoc />

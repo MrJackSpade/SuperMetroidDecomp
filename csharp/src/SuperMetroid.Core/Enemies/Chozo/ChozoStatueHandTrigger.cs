@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// What triggering a Chozo statue's hand wakes: the statue that spawned the hand, the first enemy its room lists (#2554). The hand's spawn carries it to the room's statue objects, which hold it while the
 /// hand's block can be touched.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class ChozoStatueHandTrigger
 {
     /// <summary>The Chozo statue species owner, which runs the hand's activation.</summary>

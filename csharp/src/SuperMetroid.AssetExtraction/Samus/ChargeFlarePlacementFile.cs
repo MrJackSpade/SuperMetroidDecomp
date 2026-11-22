@@ -23,7 +23,6 @@ public static partial class ChargeFlarePlacementFile
     /// <param name="placement">The movement mode, and the direction whose muzzle or the turn whose placement the flare takes.</param>
     /// <returns>A key such as <c>standing-UpFacingRight</c>, <c>running-UpFacingLeft</c> or <c>standing-turning-Down</c>.</returns>
     /// <exception cref="ArgumentException">The placement names neither a muzzle nor a turn.</exception>
-    [InstalledKey]
     internal static string Key(ChargeFlarePlacement placement)
     {
         string mode = placement.Running ? "running" : "standing";

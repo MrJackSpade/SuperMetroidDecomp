@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: Samus's.
 /// </remarks>
 /// <typeparam name="TPose">Samus's pose.</typeparam>
-[CompatibilityService("an animation's pose-transition cue names the pose her pose handling installs")]
 public sealed partial class AnimationCuePose<TPose>
     where TPose : struct
 {

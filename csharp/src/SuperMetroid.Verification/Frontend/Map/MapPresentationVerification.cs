@@ -340,7 +340,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
-    [PrivateInstallation("Runs MapPresentationExtractor into the copy's already-populated stock map directory to check that the importer refuses to overwrite existing stock files; reading the installed maps never runs the extractor.")]
     private static void VerifyStockMapImporterRefusesOverwrite(ISnesAddressSpace bus, string stock) =>
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
 

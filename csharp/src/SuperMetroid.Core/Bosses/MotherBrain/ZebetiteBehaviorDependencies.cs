@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="ZebetiteBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
 internal sealed partial record ZebetiteBehaviorDependencies
 {
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>

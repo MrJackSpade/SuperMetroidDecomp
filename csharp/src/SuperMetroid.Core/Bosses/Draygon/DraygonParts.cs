@@ -12,7 +12,6 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonParts
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

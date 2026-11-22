@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// update, before installing the beam's main step, and its blending step first runs together with the second call; the
 /// X-ray special-state check steps the beam through exactly eight warm-up updates before its first widening step.
 /// </remarks>
-[CompatibilityService("X-ray's beam waits eight updates of frozen time after X-ray starts before its first step, and the room shows the X-ray's blend from the third of them")]
 public readonly partial record struct XrayWarmUp
 {
     /// <summary>The updates the warm-up lasts.</summary>

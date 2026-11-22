@@ -53,7 +53,6 @@ internal abstract partial record SporeSpawnCue
 
     /// <summary>Starts or stops spore generation.</summary>
     /// <param name="SporeGenerationSuppressed">Whether a <see cref="SetSporeGeneration"/> cue stops the ceiling spore emitters.</param>
-    [IndependentFlag("whether an authored cue suppresses spore generation, a fact of the cue data")]
     internal sealed partial record SetSporeGeneration(bool SporeGenerationSuppressed) : SporeSpawnCue
     {
         /// <inheritdoc/>

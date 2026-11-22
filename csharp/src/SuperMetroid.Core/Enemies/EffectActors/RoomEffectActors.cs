@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// object; the room steps and draws the live ones in the order they spawned, and forgets each once it ends. There is no
 /// limit on how many are live at once.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RoomEffectActors
 {
     /// <summary>Publishes the objects from the room's enemy artwork.</summary>

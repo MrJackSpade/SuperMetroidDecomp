@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Squeept species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class SqueeptBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
 

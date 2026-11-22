@@ -33,7 +33,6 @@ public static partial class RoomBlockPictureNames
     /// The name of the picture of <paramref name="collectible"/>'s look (#1538, #1994), which depends on no input: its kind
     /// and its look spelled by their installed keys (#2544).
     /// </summary>
-    [InstalledKey]
     public static string OfCollectible(CollectiblePicture collectible) =>
         string.Create(CultureInfo.InvariantCulture,
             $"collectible {InWorldCollectibleKindKeys.Installed.Of(collectible.Kind)} {CollectibleLookKeys.Installed.Of(collectible.Look)}");

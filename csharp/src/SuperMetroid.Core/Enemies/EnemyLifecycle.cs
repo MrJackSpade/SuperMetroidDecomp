@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Enemies;
 /// Puts populations into places and runs their AI: place setup from a definition, initialization and main AI
 /// through each place's entity, spawns into the first free place, and the places Samus can touch this frame.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyLifecycle : IEnemyLifecycle
 {
     /// <summary>The room whose definitions spawns read.</summary>

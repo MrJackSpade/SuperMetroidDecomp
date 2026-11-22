@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// What Bomb and Golden Torizo cues read: the Torizo playing them, Samus, the room, controller input and the frame
 /// counter that times the attack choice (<see cref="TorizoChoices.InFirstAttackPhase"/>) (#633).
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly partial record struct TorizoCueInputs
 {
     /// <summary>The Torizo playing the cues, whose belly the glow its fight's start lights watches (#2420).</summary>

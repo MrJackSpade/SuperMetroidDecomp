@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <param name="Bindings">The bindings the controller page's labels name.</param>
 /// <param name="IconCancelEnabled">Whether the special page selects Icon Cancel's enabled choice.</param>
 /// <param name="MoonwalkEnabled">Whether the special page selects Moonwalk's enabled choice.</param>
-[IndependentFlag("Icon Cancel and Moonwalk are two independent saved options the page shows.")]
 internal sealed partial record ShownOptionsPage(GameOptionsPage Page, TextLanguage Language, ControllerBindings Bindings,
     bool IconCancelEnabled, bool MoonwalkEnabled)
 {

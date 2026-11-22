@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// The Wrecked Ship ghost's own colours, which <see cref="WreckedShipGhostFade"/> fades it toward (#1544, #2550). Evidence:
 /// the original game's fade routines step all sixteen of the ghost's colours toward these.
 /// </summary>
-[CompatibilityService("the Wrecked Ship ghost's own colours, which its fades step all sixteen of toward")]
 internal static partial class WreckedShipGhostFadeDefinitions
 {
     /// <summary>

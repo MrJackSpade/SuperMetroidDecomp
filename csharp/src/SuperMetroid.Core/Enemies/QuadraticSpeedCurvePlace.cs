@@ -22,7 +22,6 @@ public readonly partial record struct QuadraticSpeedCurvePlace : IComparable<Qua
     private QuadraticSpeedCurvePlace(int twoHundredFiftySixthsOfMark) => InTwoHundredFiftySixthsOfMark = twoHundredFiftySixthsOfMark;
 
     /// <summary>The place in 256ths of a mark, below zero only for a mover that keeps a place it took before the start.</summary>
-    [IntegerQuantity("place along the quadratic speed curve in 256ths of a mark")]
     public int InTwoHundredFiftySixthsOfMark { get; }
 
     /// <summary>The curve's start, its first mark with no fraction: the place an accelerating mover starts from.</summary>
@@ -55,7 +54,6 @@ public readonly partial record struct QuadraticSpeedCurvePlace : IComparable<Qua
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerMark));
 
     /// <summary>The whole marks of the place, its fraction dropped toward negative infinity.</summary>
-    [IntegerQuantity("whole marks of a quadratic speed curve place")]
     public int WholeMarks => InTwoHundredFiftySixthsOfMark >> TwoHundredFiftySixthsPerMarkExponent;
 
     /// <summary>The speed that applies at this place: the speed of its whole marks.</summary>

@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// definition (<c>$82:E2F7</c>) stops them, and the door's updates up to the destination's load draw their random number
 /// without them. The Ridley full-movie check compares the random number on every update of a door transition.
 /// </remarks>
-[CompatibilityService("the room liquid's wave and the Tourian statues' descent advance before each update's random draw, and stop from the update that reads a door's definition until its destination loads")]
 public sealed partial class LiquidWaveAndStatueDescentOrder
 {
     /// <summary>Whether an update that draws its random number advances the liquid wave and the statues' descent first.</summary>

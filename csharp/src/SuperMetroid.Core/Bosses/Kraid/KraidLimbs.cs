@@ -8,7 +8,6 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arm and foot: their setup, animations, lunges, retreats and walks.</summary>
-[RoomLifetime]
 internal sealed partial class KraidLimbs
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>

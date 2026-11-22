@@ -14,7 +14,7 @@ internal static class SpawnedObjectFramesFile
         var sharing = analysis.Behaviours.Where(s => s.SharedProjectileFrames.Count > 0 || s.SharedEffectActors.Count > 0).ToList();
         var lines = new List<string>();
         var written = new Dictionary<string, string>(StringComparer.Ordinal);
-        lines.AddRange(CoreModel.Usings(model.ArchitectureReview, model.EnemyProjectileFrameId, model.RoomEffectActorKind, model.EnemyDefinitionId));
+        lines.AddRange(CoreModel.Usings(model.EnemyProjectileFrameId, model.RoomEffectActorKind, model.EnemyDefinitionId));
         lines.AddRange(
         [
             "",
@@ -25,8 +25,6 @@ internal static class SpawnedObjectFramesFile
             "/// outside the enemy behaviours) spawns (#1392), which the pre-coloured spawned-object sheets hold, each on the sheet its spawn's graphics name (#1513).",
             $"/// Generated from the source by {GeneratedFile.GeneratorPath}; regenerate rather than edit.",
             "/// </summary>",
-            "[ArchitectureReview(\"large\", \"Generated data: the projectile frames and effect-actor kinds each enemy definition spawns; "
-                + "it holds no logic, and splitting it by family would only scatter one table the sheet composer reads as a whole.\")]",
             "internal static partial class SpawnedObjectFrameDefinitions",
             "{",
         ]);

@@ -9,5 +9,4 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="SourceView">What the source room showed as its destination's load began.</param>
 /// <param name="Destination">The loaded destination room.</param>
-[RoomLifetime]
 internal sealed partial record DoorDestinationLoad(DoorOpeningSourceView SourceView, RoomScope Destination);

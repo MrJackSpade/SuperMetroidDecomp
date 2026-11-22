@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// room's main left, because the door behaviours do not set it, and is left for the following room's main
 /// (<see cref="ElevatubeInheritedFraction"/>).
 /// </summary>
-[RoomLifetime]
 public sealed partial class MaridiaElevatubeRoomMainState
 {
     /// <summary>

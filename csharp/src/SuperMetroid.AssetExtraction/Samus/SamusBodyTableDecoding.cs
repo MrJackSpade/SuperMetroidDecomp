@@ -17,7 +17,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the first pose frame that shows it; and into the compositions the suit explosion and the diving splash and bubbles
 /// show, named by their sheet frames. Record numbers, selector indexes and table entries stay inside this decoding.
 /// </summary>
-[EncodingOwner("Samus's bank-$92 body definition, frame selector and spritemap tables")]
 internal static partial class SamusBodyTableDecoding
 {
     /// <summary>Number of records in the cartridge's pose tables.</summary>

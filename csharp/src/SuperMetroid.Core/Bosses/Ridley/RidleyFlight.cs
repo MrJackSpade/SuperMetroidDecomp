@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Ridley's body flies in both encounters (#2229): his movement within his arena, his swoop's heading and
 /// speed, the box tests his phases hand off on, his wing beat and starting his body's animations.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RidleyFlight
 {
     /// <summary>The room's earthquake, which a fast Ceres Ridley striking his chamber's wall starts.</summary>

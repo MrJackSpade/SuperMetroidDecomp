@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TCell">A scroll cell's state.</typeparam>
 /// <typeparam name="TArea">An area of the game, by which the stored explored maps are kept.</typeparam>
-[CompatibilityService("a room's scroll cells past its own keep what earlier rooms left there, and checks past every cell read the stored explored maps")]
 public sealed partial class ScrollCellsKeptAcrossRooms<TCell, TArea>
     where TCell : struct, Enum
     where TArea : struct, Enum

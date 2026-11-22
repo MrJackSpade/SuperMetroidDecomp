@@ -20,7 +20,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// then the self-destruct warning, which runs in his place in the enemy update. It owns its own floor, warning and colour
 /// effects for the room; Ridley's state plays no part once he is hidden.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CeresEscape : IGameplayShadingSource
 {
     /// <summary>The enemy pass's results, which the self-destruct writes.</summary>

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// number of times (#1994), each a run of images some of which bite first; then it releases Samus with her release
 /// immunity, shows its fangs out, then its idle image for one update, and leaves the room.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class SamusEaterObject : SilentSequencedRoomObject<SamusEaterSegment, SamusEaterChewFrame>
 {
     /// <summary>A plant that has just caught Samus.</summary>

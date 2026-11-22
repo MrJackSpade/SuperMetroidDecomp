@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Where on the cartridge enemies read past their authored data: extraction's private knowledge, which it decodes once
 /// into the enemy overread services (#1500).
 /// </summary>
-[EncodingOwner("cartridge regions enemies read past their authored data")]
 internal static partial class EnemyOverreadSourceDefinitions
 {
     /// <summary>

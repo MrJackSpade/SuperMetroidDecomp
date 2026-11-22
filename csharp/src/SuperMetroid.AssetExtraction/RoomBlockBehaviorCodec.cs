@@ -25,7 +25,6 @@ namespace SuperMetroid.AssetExtraction;
 /// the installation holds each block's behaviour as the reading its collision kind takes, and the X-ray reveals' rules by
 /// their reactions' names (#1709, #1722), so nothing the game loads holds the byte.
 /// </summary>
-[EncodingOwner("room block behaviour byte")]
 public static partial class RoomBlockBehaviorCodec
 {
     /// <summary>The number of behaviour bytes.</summary>

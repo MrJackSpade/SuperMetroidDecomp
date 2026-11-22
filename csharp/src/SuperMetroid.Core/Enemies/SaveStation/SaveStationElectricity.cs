@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The electricity a save station shows while it saves: its spawn into the room's enemy projectiles.</summary>
-[RoomLifetime]
 internal sealed partial class SaveStationElectricity
 {
     /// <summary>The room's enemy projectiles, which hold the electricity.</summary>

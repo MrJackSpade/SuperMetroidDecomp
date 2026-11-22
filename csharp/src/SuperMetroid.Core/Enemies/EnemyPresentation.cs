@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Enemies;
 /// (<see cref="SharedFadeStepCount"/>), and drawing from the installed pre-coloured sheets under each draw's shading
 /// (#1512).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyPresentation
 {
     /// <summary>The enemy session, which holds the installed sheets.</summary>

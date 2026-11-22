@@ -231,8 +231,8 @@ internal static partial class JsonAssetDocument
         /// <summary>Folds one ASCII character into an FNV-1a hash; declines a non-ASCII character.</summary>
         private static bool Mix(int value, bool ignoreCase, ref ulong hash)
         {
-            if (value >= 0x80) return false; // cartridge-encoding: allow(Text) - first non-ASCII character
-            int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
+            if (value >= 0x80) return false;
+            int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value;
             hash = (hash ^ (uint)folded) * 1099511628211;
             return true;
         }

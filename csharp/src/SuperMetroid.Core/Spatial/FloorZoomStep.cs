@@ -11,7 +11,6 @@ public readonly partial record struct FloorZoomStep
         TwoHundredFiftySixths = Ensure.BetweenInclusive(1, int.MaxValue, twoHundredFiftySixths);
 
     /// <summary>The step in 256ths of a floor pixel per screen pixel, at least one.</summary>
-    [IntegerQuantity("turning-floor zoom step in 256ths of a floor pixel per screen pixel")]
     public int TwoHundredFiftySixths { get; }
 
     /// <summary>

@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Progression;
 /// and its item and, where two would share that name, its block. Regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-[NumberedIdentities("Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.")]
 public static partial class ItemLocationDefinitions
 {
     /// <summary>The Power Bomb Tank lying in the open at column 29, row 7 of the Crateria Power Bombs room.</summary>

@@ -14,7 +14,6 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// relative-copy, or inverted-relative-copy behavior. The decoder owns the stream's byte widths: an incrementing fill
 /// wraps at a byte and every copy reads the bytes already emitted.
 /// </remarks>
-[EncodingOwner("compressed asset command stream")]
 public static partial class SmCompression
 {
     /// <summary>

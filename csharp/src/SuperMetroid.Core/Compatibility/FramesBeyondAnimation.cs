@@ -36,7 +36,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TFrame">A named frame of an animation.</typeparam>
 /// <typeparam name="TPlace">The name of a frame paths write onto, or compare with, whatever animation they meet.</typeparam>
 /// <typeparam name="TStep">A step of an animation, which a cue value's frame reads.</typeparam>
-[CompatibilityService("a frame past an animation's end reads a frame of an animation laid out after it, a frame on a value one of its cues carries reads that value as a step, and a frame named for one animation lands where its number falls in another")]
 public sealed partial class FramesBeyondAnimation<TAnimation, TFrame, TPlace, TStep>
     where TAnimation : notnull
     where TFrame : notnull

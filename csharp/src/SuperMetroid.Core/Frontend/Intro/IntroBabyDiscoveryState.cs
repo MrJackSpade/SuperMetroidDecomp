@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>
 /// Setup and first actor phase of the SR388 baby-Metroid discovery scene.
 /// </summary>
-[RoomScopeBoundary("A cinematic scene that owns its own level for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class IntroBabyDiscoveryState
 {
 

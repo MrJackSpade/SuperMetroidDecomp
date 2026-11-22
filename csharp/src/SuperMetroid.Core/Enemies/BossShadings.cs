@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// boss set up again replacing what it attached, and the room keeps them for its lifetime. The display reads them here,
 /// never through a boss's species.
 /// </summary>
-[Rooms.RoomLifetime]
 internal sealed partial class BossShadings
 {
     /// <summary>The layers in the order their colour effects are laid over each other: a later one wins where they overlap.</summary>

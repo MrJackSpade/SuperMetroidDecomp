@@ -7,7 +7,6 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// The control words of the cartridge's escape typewriter programs (#2556): the words between a program's character bytes
 /// that set its delay, start a line or end it. This is the only place the typewriter's commands meet their cartridge words.
 /// </summary>
-[EncodingOwner("escape typewriter program control words")]
 internal static partial class EscapeTypewriterControlWords
 {
     /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>

@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// Converts the retail credits row program into bounded, editable UTF-8 content.
 /// </summary>
-[EncodingOwner("cartridge credits instruction words")]
 public static partial class CreditsPresentationExtractor
 {
     /// <summary>The bank-$8B instruction word naming each credits row command.</summary>

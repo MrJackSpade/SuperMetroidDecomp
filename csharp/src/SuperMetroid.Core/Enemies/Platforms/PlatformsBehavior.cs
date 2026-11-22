@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>The Platforms species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class PlatformsBehavior : IEnemySpecies, IEnemySpawnFactory<PlatformSpawnSettings>
 {
 

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// an update when every link of the tail is active, so the order survives the updates the tail spends on another
 /// action (#1940).
 /// </remarks>
-[CompatibilityService("Ridley's ordered tail whip waits for his tail's neutral control with all its links active")]
 public sealed partial class RidleyTailWhipOrder
 {
     /// <summary>Whether an ordered whip waits for his tail's neutral control.</summary>

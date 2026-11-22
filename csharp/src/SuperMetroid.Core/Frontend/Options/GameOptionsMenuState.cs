@@ -59,7 +59,6 @@ public sealed partial class GameOptionsMenuState : IMenuFrontendScreen, ICompose
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="language">The text language initially chosen, whose page variants the menu shows.</param>
-    [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
         AudioQueues audio,
         InstalledScreenContent screenContent,

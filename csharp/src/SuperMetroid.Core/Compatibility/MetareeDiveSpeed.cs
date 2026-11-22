@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// sixteen-bit difference of the two heights, never checking which is lower, by 24 and adds four; the Metaree dive check
 /// compares this speed with that arithmetic for a Samus below and above the Metaree.
 /// </remarks>
-[CompatibilityService("a Metaree springing at a Samus above it measures her distance round the room's height and dives enormously fast")]
 public static partial class MetareeDiveSpeed
 {
     /// <summary>The pixels of Samus's distance below that add one pixel to the dive's speed.</summary>

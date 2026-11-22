@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// Where Torizo's posture latches sit in its spawn parameter words, for checks and fixtures that author or read them: the
 /// top three bits of parameter 1.
 /// </summary>
-[EncodingOwner("Torizo spawn parameter latch words, as checks read them")]
 internal static class TorizoParameterFlagWords
 {
     /// <summary>The bits of parameter 1 below the posture latches, which name no behaviour.</summary>

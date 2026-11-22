@@ -64,8 +64,8 @@ internal sealed partial class SpcVoices
     /// <summary>The pan flag that inverts <paramref name="side"/>'s phase: bit 7 the left's, bit 6 the right's.</summary>
     private static int PhaseInversionBit(DspStereoSide side) => side switch
     {
-        DspStereoSide.Left => 0x80, // cartridge-encoding: allow(BitMask) - left phase-inversion bit
-        DspStereoSide.Right => 0x40, // cartridge-encoding: allow(BitMask) - right phase-inversion bit
+        DspStereoSide.Left => 0x80,
+        DspStereoSide.Right => 0x40,
         _ => throw new ArgumentOutOfRangeException(nameof(side), side, "Undefined stereo side."),
     };
 

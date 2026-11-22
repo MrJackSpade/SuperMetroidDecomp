@@ -4,7 +4,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps each graphics set's room artwork sources.</summary>
-[EncodingOwner("cartridge addresses of the graphics sets' room artwork")]
 internal static partial class RoomTilesetSourceDefinitions
 {
     /// <summary><c>$B9:8000 Tiles_CRE</c>: the compressed common room element characters every Zebes room loads.</summary>

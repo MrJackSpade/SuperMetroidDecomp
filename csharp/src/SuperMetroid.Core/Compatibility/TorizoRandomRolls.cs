@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// original masking and shifting of the shared random word, which a field reproduces bit for bit; the SMV replays
 /// compare the random value and every outcome it drives on every update.
 /// </remarks>
-[CompatibilityService("which part of the shared random number each of the Torizos' random choices reads, exactly as the game read it")]
 internal static partial class TorizoRandomRolls
 {
     /// <summary>

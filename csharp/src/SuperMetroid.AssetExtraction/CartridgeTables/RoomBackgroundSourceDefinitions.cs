@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the library backgrounds' sources and where their transfers write (#1414): the import
 /// pipeline's private knowledge of the cartridge, decoded once into the installed background tilemaps and images.
 /// </summary>
-[EncodingOwner("cartridge addresses of the library background tilemaps and their transfer destinations")]
 internal static partial class RoomBackgroundSourceDefinitions
 {
     /// <summary>Where each compressed background tilemap is stored, as the disassembly labels it.</summary>

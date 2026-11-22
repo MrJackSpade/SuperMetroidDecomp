@@ -30,7 +30,7 @@ public sealed partial class SlopeShape
     /// <param name="crawlerTangentShare">The share of a crawler's tangent speed that carries along the shape.</param>
     /// <exception cref="ArgumentException">The name is blank or the profile does not hold one height per column.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A height is out of its range.</exception>
-    internal SlopeShape([InstalledKey] string name, SlopeShapeKind kind, ImmutableArray<int> heights, SpeedShare groundedSpeedShare, SpeedShare crawlerTangentShare)
+    internal SlopeShape(string name, SlopeShapeKind kind, ImmutableArray<int> heights, SpeedShare groundedSpeedShare, SpeedShare crawlerTangentShare)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (heights.IsDefault || heights.Length != Columns)

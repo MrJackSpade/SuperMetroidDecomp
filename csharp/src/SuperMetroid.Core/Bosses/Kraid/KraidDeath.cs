@@ -10,7 +10,6 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-[RoomLifetime]
 internal sealed partial class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

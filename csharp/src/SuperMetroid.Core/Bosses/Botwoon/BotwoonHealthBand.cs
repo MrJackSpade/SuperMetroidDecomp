@@ -11,7 +11,7 @@ public sealed partial class BotwoonHealthBand
     /// <param name="healthBelow">The health his health must fall below for the band to show.</param>
     /// <param name="key">The band's name in its shade's name.</param>
     /// <param name="next">The band he shows after this one; null for his last.</param>
-    internal BotwoonHealthBand(int healthBelow, [InstalledKey] string key, BotwoonHealthBand? next)
+    internal BotwoonHealthBand(int healthBelow, string key, BotwoonHealthBand? next)
     {
         HealthBelow = healthBelow;
         Key = key;

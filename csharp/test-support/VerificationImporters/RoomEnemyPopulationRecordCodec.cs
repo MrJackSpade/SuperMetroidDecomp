@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// entry (#1472), for the checks that compare compiled populations with the cartridge and the fixtures that seed native
 /// records. The definition pointer is the caller's: this type takes and gives the resolved identity.
 /// </summary>
-[EncodingOwner("room enemy population entry words")]
 internal static class RoomEnemyPopulationRecordCodec
 {
     /// <summary>The typed entry the words of a native population entry describe.</summary>

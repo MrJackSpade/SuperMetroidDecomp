@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: Samus's.
 /// </remarks>
 /// <typeparam name="TShot">The shot handed: its direction and the pose it was fired from.</typeparam>
-[CompatibilityService("a pose transition hands a shot to the next update's weapon firing")]
 public sealed partial class TransitionShot<TShot>
     where TShot : struct
 {

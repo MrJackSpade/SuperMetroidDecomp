@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// original mouth tests read the shape words just behind the head animation's place, a cue's or the previous animation's
 /// last record included; the head-animation check compares every place's reads with the cartridge's.
 /// </remarks>
-[CompatibilityService("Kraid's mouth tests take the shapes of the head step just passed: a cry between poses lends its preceding pose's inner shape to the outer test and leaves the inner test no pose, as an animation's start does")]
 internal static partial class KraidMouthTrailsHead
 {
     /// <summary>The shapes Kraid's two mouth tests take at <paramref name="place"/> of a head animation.</summary>

@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="common">The shared participation.</param>
 /// <param name="state">What the enemy's setup built (#2554).</param>
 /// <param name="followUpRecipients">What the enemy's setup built (#2554).</param>
-[RoomLifetime]
 internal sealed partial class EvirArmsEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EvirArmsState state,
     IReadOnlyList<RoomEnemyPlace> followUpRecipients)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction

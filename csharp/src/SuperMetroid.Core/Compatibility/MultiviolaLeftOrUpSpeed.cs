@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// carrying the fraction's increment into the whole pixels; the Multiviola left-or-up speed check runs the production
 /// update at every heading and every authored speed and compares both moves with that arithmetic.
 /// </remarks>
-[CompatibilityService("a Multiviola turning a speed left or up complements its whole pixels, so an axis without speed still moves it a pixel an update left or up")]
 internal static partial class MultiviolaLeftOrUpSpeed
 {
     /// <summary>

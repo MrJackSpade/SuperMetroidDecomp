@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// the projectile characters its spawner's sheet is composed from, where it lies from the composition's origin, its size,
 /// colour row, depth and reflections. Null palette inherits its drawing owner's current palette.
 /// </summary>
-[SpatialComponents("External format: the enemy-projectile composition JSON stores each part's displacement as offsetX/offsetY.")]
 public sealed partial record EnemyProjectilePartDocument
 {
     /// <summary>Signed horizontal pixel displacement from the composition origin.</summary>
@@ -26,7 +25,6 @@ public sealed partial record EnemyProjectilePartDocument
     public required int Character { get; init; }
 
     /// <summary>Square part size in pixels, either 8 or 16.</summary>
-    [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
 
     /// <summary>Where the part draws among the room's layers.</summary>

@@ -10,7 +10,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory, IEnemyJoiningFactory<BabyMetroidCutsceneState, EnemySpawnSettings>
 {
     /// <summary>The cutscene Baby, only spawned joining the late fight that makes it (<see cref="SpawnMotherBrainBabyMetroid"/>).</summary>

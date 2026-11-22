@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// reaction that does nothing, and the inert hurt. An entity answers from them for every contact its definition names a
 /// shared response for; a species' own reactions are its entity's, which it checks before these.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyCommonParticipation
 {
     /// <summary>The enemy system's collision, resolved at use because the system builds it after its species.</summary>

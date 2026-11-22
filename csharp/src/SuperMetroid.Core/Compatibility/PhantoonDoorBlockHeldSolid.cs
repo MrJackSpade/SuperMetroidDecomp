@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// only the solid bit of the block's collision kind, so the door's transition block becomes a solid block; their
 /// animations draw the door on their first update and end on the next.
 /// </remarks>
-[CompatibilityService("each of Phantoon's door changes makes the door's top transition block solid from its spawn until its first update draws the door")]
 public static partial class PhantoonDoorBlockHeldSolid
 {
     /// <summary>The room-object updates the door's top block stays solid: from the change's spawn to its first update.</summary>

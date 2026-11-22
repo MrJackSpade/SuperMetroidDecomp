@@ -19,8 +19,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Ridley full movie and the 13% SMV) step every counter here and match the recording on every update.
 /// </para>
 /// </summary>
-[CompatibilityService("counters that wrap at their width instead of saturating, so an expired timer keeps counting from the top")]
-[EncodingOwner("wrapping and saturating counters of 0 through 65535")]
 public static partial class WrappingCounter
 {
     /// <summary>The largest count a wrapping counter holds: a count stepped past it continues from zero.</summary>

@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire melting in the acid: the melt images and the dissolve passes.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireMelting
 {
     /// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>

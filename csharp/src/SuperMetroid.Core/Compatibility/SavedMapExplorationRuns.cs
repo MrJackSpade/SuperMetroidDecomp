@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// area's exploration byte by byte through a list of the bytes the area's stock map occupies, each byte holding eight
 /// cells of a row; the explored-map packing check compares the runs this service keeps with those lists.
 /// </remarks>
-[CompatibilityService("a save keeps a map's exploration in whole runs of eight cells of a row, and loses every run the stock map cannot be explored in")]
 public static partial class SavedMapExplorationRuns
 {
     /// <summary>The neighbouring cells of a map row a save keeps or loses together.</summary>

@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <param name="Shift">The position of the field's lowest bit in the sample.</param>
 /// <param name="Width">How many bits the field holds, 0 through 16; a field of no bits reads zero, a choice with one outcome.</param>
-[EncodingOwner("random sample bit fields")]
-[CompatibilityService("which part of the shared random number each random choice reads, exactly as the game's choices read it")]
 public readonly partial record struct RandomSampleField(int Shift, int Width)
 {
     /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random number itself (#1619).</summary>

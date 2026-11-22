@@ -12,7 +12,6 @@ public readonly partial record struct RidleyTailTurn : IComparable<RidleyTailTur
     private RidleyTailTurn(int steps) => Steps = Ensure.AtLeastZero(steps);
 
     /// <summary>The turn in steps of the turn, zero or more.</summary>
-    [IntegerQuantity("turn of a Ridley tail link in 256ths of a turn")]
     public int Steps { get; }
 
     /// <summary>No turn: a link given it does not swing.</summary>

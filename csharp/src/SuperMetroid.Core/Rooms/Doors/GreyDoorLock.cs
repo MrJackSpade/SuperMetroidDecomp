@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// cap makes on each update, with what that test reads. The Tourian statue's lock holds the statue room's statue, which
 /// only the statue room has, so a cap waiting for the statue can be placed only there.
 /// </summary>
-[RoomLifetime]
 internal abstract partial class GreyDoorLock
 {
     /// <summary>Whether the condition holds on this update.</summary>

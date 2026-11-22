@@ -335,7 +335,6 @@ internal static partial class SamusPoseInputRules
     }
 
     /// <summary>The priority order of the crouching left input list.</summary>
-    [MirroredAsymmetry("the left-facing crouch list exchanges the diagonal aim-up and aim-down chords as well as the directions")]
     internal static SamusPoseInputMatch MatchCrouchingLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up) && Has(held, AimUp | AimDown))
@@ -430,7 +429,6 @@ internal static partial class SamusPoseInputRules
     }
 
     /// <summary>The priority order of the right-facing moonwalk poses' input list, whatever their aim.</summary>
-    [MirroredAsymmetry("the right-facing moonwalk list exchanges the diagonal aim-up and aim-down chords and aimed poses as well as the directions")]
     internal static SamusPoseInputMatch MatchMoonwalkRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))

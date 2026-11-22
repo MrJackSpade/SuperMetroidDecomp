@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// unsigned words, and move the base word by the speed, wrapping as a word; a room effect record that names no surface or
 /// target stores the word 65535, the largest word.
 /// </remarks>
-[CompatibilityService("a room liquid's rise reads a missing surface or target as lying below every line of the room")]
 public static partial class AbsentLiquidSurfaceDepth
 {
     /// <summary>The line a missing surface or target is compared and moved at: the deepest line a surface can hold.</summary>

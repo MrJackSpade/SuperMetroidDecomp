@@ -96,7 +96,6 @@ internal sealed partial class XInputGamepadInput
 
     /// <summary>Blittable <c>XINPUT_GAMEPAD</c>.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    [SpatialComponents("Win32 interop: xinput's XINPUT_GAMEPAD declares each thumbstick axis as a separate field.")]
     private struct XInputNativeGamepad
     {
         /// <summary>Digital controls held.</summary>

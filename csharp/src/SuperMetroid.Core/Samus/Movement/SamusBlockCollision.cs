@@ -406,7 +406,6 @@ public static partial class SamusBlockCollision
     }
 
     /// <summary>Vertical scan result including sand contact, which can affect motion without blocking travel.</summary>
-    [IndependentFlag("independent scan facts: a collision, and sand contact")]
     private readonly partial record struct VerticalTerrainScan(SignedSixteenSixteen AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>

@@ -27,26 +27,8 @@ requiring domain context at the owning boundary. Such checks often use
 `InvalidDataException`, `InvalidOperationException`, or a detailed diagnostic
 message and do not become `Ensure` calls merely because they compare numbers.
 
-## Analyzer
-
-`SME6201` reports standard argument throw helpers (`ThrowIfNull`, `ThrowIfNegative`)
-and simple immediate-throw null, sign, range and length guards on a visible member's
-parameters. `SME6202` reports an `Ensure` call that passes its parameter name by hand
-or casts the validated value to fit an overload. Both are build errors (#677). The
-analyzer deliberately leaves compound conditions, private routines' state checks and
-custom state or parser exceptions alone.
-
-The IDE code fix rewrites each recognized guard to its `Ensure` operation when the
-value's type fits exactly, and removes a manual parameter name. A value that does not
-fit (for example a `long` range or an unconstrained generic) stays diagnostic-only:
-add the missing typed overload instead of casting.
+## Adding an operation
 
 When a new reusable rule appears, add the operation to `Ensure` with a
 type-preserving return value, caller-expression capture, documented boundaries,
-and focused verification. Then extend the analyzer's semantic guard matcher and
-its positive and negative fixtures. Do not add a text-only rule that matches
-unrelated domain behavior.
-
-Run `dotnet run --project csharp/src/SuperMetroid.EnsureVerification --no-restore`
-to verify the API and analyzer. The analyzer project uses the Roslyn assemblies
-shipped with the selected .NET SDK, so no new NuGet package is required.
+and focused verification. Do not add a text-only rule that matches unrelated domain behavior.

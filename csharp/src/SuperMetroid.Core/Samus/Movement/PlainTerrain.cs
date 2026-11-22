@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// A terrain of air, solid blocks and slopes alone (#2553), as the opening cinematic's collision rooms are: no block of it
 /// reacts, so nothing Samus or her shots meet in it reaches a room object, and it has none.
 /// </summary>
-[RoomScopeBoundary("A cinematic scene's terrain, kept for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class PlainTerrain : SamusTerrain
 {
     /// <summary>The collision each plain block has.</summary>

@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Fixed SPC-RAM locations, protocol values, and timing constants used by Super Metroid's
 /// uploaded sound driver. These are addresses in the game's own APU program, not host policy.
 /// </summary>
-[EncodingOwner("sound driver audio RAM locations and protocol values")]
 internal static partial class SpcDriverDefinitions
 {
     /// <summary>Complete sixteen-bit APU address range available to the uploaded driver.</summary>

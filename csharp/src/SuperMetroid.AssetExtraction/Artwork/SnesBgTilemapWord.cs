@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <see cref="SuperMetroid.AssetExtraction.Artwork.BackgroundTile"/>.
 /// </summary>
 /// <param name="Raw">The complete 16-bit entry, including character, palette, priority, and flip fields.</param>
-[EncodingOwner("background tilemap entry word")]
 public readonly partial record struct SnesBgTilemapWord(ushort Raw)
 {
     /// <summary>Bits 0 through 9 address one of 1024 background characters.</summary>

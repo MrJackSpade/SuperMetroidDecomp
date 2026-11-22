@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>One editable initial screen placement for a fixed rear-view Ceres actor; coordinates are signed screen pixels, not motion parameters.</summary>
-[SpatialComponents("External format: the actor layout JSON stores each spawn position as signed x/y screen pixels.")]
 public sealed partial record CeresFlightActorPlacement
 {
     /// <summary>The validated spawn position as one screen-pixel value.</summary>

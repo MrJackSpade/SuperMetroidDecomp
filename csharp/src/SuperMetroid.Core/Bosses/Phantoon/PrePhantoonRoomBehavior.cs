@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// The pre-Phantoon room's own effect (#1851): its setup holds an enemy-projectile place for its first projectile updates
 /// (<see cref="PrePhantoonRoomHeldProjectilePlace"/>). No projectile stands in the place: it shows and touches nothing.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class PrePhantoonRoomBehavior
 {
     /// <summary>Shared pool in which the setup holds its place.</summary>

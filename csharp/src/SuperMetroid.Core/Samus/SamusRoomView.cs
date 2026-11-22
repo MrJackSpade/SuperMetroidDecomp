@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>Samus as room objects read and change her (#1395); every member reads or writes <paramref name="samus"/>.</summary>
-[ArchitectureReview("back-reference", "A stateless view of its owner: Samus holds the view she presents to room objects, and every member reads or writes her.")]
 internal sealed partial class SamusRoomView(SamusState samus) : IRoomSamus
 {
     /// <inheritdoc/>

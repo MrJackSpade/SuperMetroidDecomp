@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.World;
 /// the room's objects and before its enemies, and Samus, whom the elevatube's setups place and release. It presents them to
 /// the door's room event as <see cref="IDoorEventRoom"/>.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal sealed partial class DoorSetupRoom : IDoorEventRoom
 {
     /// <summary>The destination's level, which the setup's room objects edit.</summary>

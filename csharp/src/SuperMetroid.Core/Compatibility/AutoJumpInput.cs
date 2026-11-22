@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// auto-jump as the game's own state.
 /// Lifetime: Samus's.
 /// </remarks>
-[CompatibilityService("a landing installs the one-shot auto-jump as Samus's pose input for her next update")]
 public sealed partial class AutoJumpInput
 {
     /// <summary>Whether the auto-jump is Samus's pose input.</summary>

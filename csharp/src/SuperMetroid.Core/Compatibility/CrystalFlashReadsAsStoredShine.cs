@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// on reaching zero, so the timer never reads zero while the handler is installed; the footstep, draw and jump tests
 /// read that timer without testing which handler owns it.
 /// </remarks>
-[CompatibilityService("Samus reads as holding a stored shine while Crystal Flash's colouring runs")]
 public static partial class CrystalFlashReadsAsStoredShine
 {
     /// <summary>Whether Samus holds a stored shine as the game's shine tests see it.</summary>

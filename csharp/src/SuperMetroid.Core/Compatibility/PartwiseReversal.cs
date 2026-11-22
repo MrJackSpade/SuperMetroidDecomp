@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// <c>$A3:D4F6</c>); the Yard airborne reversal check compares the first form, and the Mama Turtle wall reversal and
 /// Multiviola left-or-up speed checks the second, with that arithmetic.
 /// </remarks>
-[CompatibilityService("a speed reversed one part at a time: its whole pixels negated or complemented and its fraction negated on its own, the fraction's carry never reaching the whole pixels")]
 internal static partial class PartwiseReversal
 {
     /// <summary>

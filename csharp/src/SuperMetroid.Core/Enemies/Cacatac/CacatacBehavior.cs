@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The Cacatac species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class CacatacBehavior : IEnemySpecies, IEnemySpawnFactory<CacatacSpawnSettings>
 {
 

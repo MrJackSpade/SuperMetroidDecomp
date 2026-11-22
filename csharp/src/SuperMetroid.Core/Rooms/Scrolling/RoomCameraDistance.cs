@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// and Crocomire request boss tracking for their fights, Crocomire the right edge while his skeleton waits behind the
 /// wall, and both normal tracking again once they are done.
 /// </summary>
-[RoomLifetime]
 public sealed partial class RoomCameraDistance
 {
     /// <summary>The distance mode the camera aims by.</summary>

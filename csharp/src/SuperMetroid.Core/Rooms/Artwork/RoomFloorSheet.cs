@@ -43,7 +43,6 @@ public sealed partial class RoomFloorSheet
     /// The name under which a floor's sheet marks <paramref name="frame"/> as the picture its actor rests in on the floor
     /// (#2573), the picture <paramref name="frame"/> shows.
     /// </summary>
-    [InstalledKey]
     public static string RestingNameOf(CeresFloorActorPicture frame) => $"Ceres.Resting.{CeresFloorActorPictureKeys.Installed.Of(frame)}";
 
     /// <summary>The Ceres tileset.</summary>
@@ -62,10 +61,8 @@ public sealed partial class RoomFloorSheet
     public SpriteSheetFrame Picture(CeresFloorActorPicture frame) => pictures[frame];
 
     /// <summary>The installed name of <paramref name="tileset"/>'s floor.</summary>
-    [InstalledKey]
     public static string NameOf(TilesetDefinition tileset) => $"Floor.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>The name <paramref name="frame"/>'s picture is installed under in a floor's sheet.</summary>
-    [InstalledKey]
     public static string PictureNameOf(CeresFloorActorPicture frame) => $"Ceres.{CeresFloorActorPictureKeys.Installed.Of(frame)}";
 }

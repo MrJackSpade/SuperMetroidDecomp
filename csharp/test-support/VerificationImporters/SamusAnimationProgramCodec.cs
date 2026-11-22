@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// their operands, each instruction taking the frame numbers of its own byte and its operands. The game holds typed
 /// programs; this is the one place their byte layout is known, for checks.
 /// </summary>
-[EncodingOwner("cartridge Samus pose animation programs")]
 internal static class SamusAnimationProgramCodec
 {
     /// <summary>The table of words naming each pose's program.</summary>

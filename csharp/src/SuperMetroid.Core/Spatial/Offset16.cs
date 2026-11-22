@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Spatial;
 /// and its operators are the only place it is computed (<c>docs/spatial-types.md</c>).
 /// </remarks>
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>
-[SpatialComponents("Spatial value type: owns its X and Y words.")]
-[EncodingOwner("sixteen-bit signed coordinate difference")]
 public readonly partial record struct Offset16<TSpace> : System.Numerics.IUnaryNegationOperators<Offset16<TSpace>, Offset16<TSpace>>
     where TSpace : ISpatialSpace
 {
@@ -24,11 +22,9 @@ public readonly partial record struct Offset16<TSpace> : System.Numerics.IUnaryN
     }
 
     /// <summary>The horizontal displacement, -32768 through 32767.</summary>
-    [IntegerQuantity("horizontal displacement")]
     public short X { get; init; }
 
     /// <summary>The vertical displacement, -32768 through 32767.</summary>
-    [IntegerQuantity("vertical displacement")]
     public short Y { get; init; }
 
     /// <summary>No displacement.</summary>

@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// bank-$8D spritemap pointer the frame draws, sorted by operand. The import reads each frame's spritemap through its
 /// operand once, and the installed artwork file keys the frame by its name.
 /// </summary>
-[EncodingOwner("bank-$86 instruction-list operands of the enemy-projectile program frames")]
 internal static partial class EnemyProjectileProgramFrameDefinitions
 {
     /// <summary>

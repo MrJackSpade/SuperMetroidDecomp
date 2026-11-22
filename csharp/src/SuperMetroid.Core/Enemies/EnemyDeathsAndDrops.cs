@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Enemies;
 /// and pickup collection with its resource restoration. It is the death explosions' and pickups' projectile behaviour
 /// (#1801): it runs the projectiles it spawns.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyDeathsAndDrops
     : EnemyProjectileMotionBehavior<SingleMotion>, IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>
 {

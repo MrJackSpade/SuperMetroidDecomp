@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
-[RoomLifetime]
 internal sealed partial class MotherBrainHead
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

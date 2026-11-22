@@ -26,7 +26,6 @@ namespace SuperMetroid.Core.World;
 /// load's later steps built, so a finished scope is never missing one. The load runs within one host call, so no frame
 /// observes a partial construction.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
     RoomEntry entry, ScrollBoundaryCamera camera, SamusBombProjectileSystem bombProjectiles,
     RoomMainHandOvers handOvers) : IDoorEventLoad
@@ -159,7 +158,6 @@ internal sealed partial class RoomScopeConstruction(DoorDefinition door, Selecte
     /// <summary>Composes the Ceres haze the room's setup spawns (#2485).</summary>
     /// <param name="tint">The haze's tint: red once Ceres Ridley is dead, blue before.</param>
     /// <param name="immediateViewport">Whether the room shows its first view at once, which shows the haze at once.</param>
-    [IndependentFlag("independent load facts: whether the area's boss is dead and whether the room shows its first view at once")]
     internal void ComposeCeresHaze(CeresHazeTint tint, bool immediateViewport) =>
         CeresHaze = new CeresHazeState(tint, immediateViewport);
 

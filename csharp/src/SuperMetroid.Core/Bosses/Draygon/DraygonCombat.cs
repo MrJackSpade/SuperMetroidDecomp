@@ -7,7 +7,6 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonCombat
 {
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>The downward gates: each gate moving down to close, closed, and rising again when woken.</summary>
-[RoomLifetime]
 internal sealed partial class DownwardGateBehavior
 {
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>

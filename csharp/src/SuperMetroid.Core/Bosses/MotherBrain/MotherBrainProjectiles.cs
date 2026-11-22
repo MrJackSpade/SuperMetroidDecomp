@@ -11,7 +11,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
-[RoomLifetime]
 internal sealed partial class MotherBrainProjectiles
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>

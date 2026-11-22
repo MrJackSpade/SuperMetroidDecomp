@@ -28,7 +28,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// shot fired after controller-driven movement.
 /// </para>
 /// </remarks>
-[CompatibilityService("a projectile's launch velocity inherits Samus's last movement in its direction, with its fraction taken from the movement recorded before that direction")]
 public sealed partial class ProjectileLaunchInheritance
 {
     /// <summary>The steps of a fraction of a pixel in a recorded distance or the camera subspeed.</summary>

@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="common">The shared participation.</param>
 /// <param name="chain">The chain the segment is in, which its leading saw started (#2452, #2554).</param>
 /// <param name="course">How the segment moves, holding the state its setup built (#2554).</param>
-[RoomLifetime]
 internal sealed partial class ShaktoolEntity(ShaktoolBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
     EnemyCommonParticipation common, ShaktoolChain chain, IShaktoolCourse course)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction

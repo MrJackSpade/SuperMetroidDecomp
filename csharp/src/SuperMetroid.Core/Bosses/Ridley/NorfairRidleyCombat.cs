@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, the wall sweep, the pogo attack and grabbing Samus.</summary>
-[RoomLifetime]
 internal sealed partial class NorfairRidleyCombat
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>

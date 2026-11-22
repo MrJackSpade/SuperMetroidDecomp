@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.Core.Enemies.Grapple;
 
 /// <summary>The grapple beam's hold on enemies: the enemy its end catches and what a caught enemy does.</summary>
-[RoomLifetime]
 internal sealed partial class GrappleBehavior : IGrappleTargets
 {
     /// <summary>Provides the interactive enemies in order and runs their main AI under the grapple's frame.</summary>

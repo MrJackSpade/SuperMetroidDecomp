@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="CeresRidleyFlight"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
 internal sealed partial record CeresRidleyFlightDependencies
 {
     /// <summary>Sets up the enemies Ridley's flight spawns and runs their initialization.</summary>

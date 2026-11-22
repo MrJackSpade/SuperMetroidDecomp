@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Fx;
 /// (<see cref="ColourEffectId.SamusInHeat"/>) observes. Any number of effects run at once.
 /// </para>
 /// </remarks>
-[RoomLifetime]
 public sealed partial class ColourEffectSystem : IGameplayShadingSource
 {
     /// <summary>

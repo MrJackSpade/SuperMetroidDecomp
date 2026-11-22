@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// property and installs the eye-hitbox animation for the next update, and his projectile collision runs before his body's
 /// animation on each update. His eye, tentacles and mouth always ignore Samus, so the same point on their looks is never read.
 /// </remarks>
-[CompatibilityService("a shot or a bomb at the centre of Phantoon's body is spent on the update his body turns solid")]
 public static partial class PhantoonSolidifyingCentre
 {
     /// <summary>

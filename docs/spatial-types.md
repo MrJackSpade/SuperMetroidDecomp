@@ -2,7 +2,7 @@
 
 Spatial data — positions, displacements, velocities, sizes and radii — is carried as one typed
 value, never as parallel X/Y, width/height or horizontal/vertical scalars. The types live in
-`csharp/src/SuperMetroid.Core/Spatial` and the analyzer rules SME6280-SME6283 (errors) enforce them.
+`csharp/src/SuperMetroid.Core/Spatial`.
 
 A spatial type keeps a sixteen-bit representation only where its wrap is gameplay-observable, and its summary says
 which behaviour the wrap produces; every other spatial value stores `int`. The types that keep the width are the
@@ -17,8 +17,8 @@ wrapping coordinate family and its fixed-point axes:
 - `FixedCoordinate`, `SignedSixteenSixteen`, `SignedEightEight`: the per-axis fixed-point words, whose
   carries and 32-bit wraps the movement routines reproduce.
 
-These types are each the single owner of their representation (`[EncodingOwner]`), and SME6347 allows a narrow
-width nowhere else in gameplay (`docs/cartridge-encoding.md`). A value that only passes through a coordinate (a
+These types are each the single owner of their representation, and gameplay holds a narrow width nowhere else.
+A value that only passes through a coordinate (a
 local holding one axis, a parameter carrying a whole word) is an `int`: the owner's
 operations take `int` and check that the value is already a word (`Position16.WithX`, `FixedCoordinate.WithWhole`,
 `FixedPosition.WithWholeX`, `SignedSixteenSixteen.FromParts`), so the wrap stays in the arithmetic that produces
@@ -80,15 +80,14 @@ The native per-axis arithmetic lives once in `SignedSixteenSixteen` and `FixedCo
 types delegate to it and never re-derive it.
 
 Sixteen-bit storage is a property of the owner types above, not of the values that flow through gameplay code.
-Non-spatial gameplay quantities follow `docs/cartridge-encoding.md`'s "Narrow storage" rule.
 
 Integer arithmetic that builds a coordinate wraps explicitly where the game wraps it, through the one coordinate rule
 (#1480): `CoordinateAxis.Wrap` where native code works in 16-bit words and a later bounds check rejects the wrapped value
 (collision and PLM grid probes), `CoordinateAxis.Difference`/`Distance` for the signed wrapped distance between two
 coordinates, `CoordinateAxis.AsSigned` for a coordinate read as a signed offset, `Position16.Wrapped`,
 `Offset16.Wrapped` and `FixedPosition.WithWrappedWholeX/Y` for whole positions, or a stepped coordinate decremented or
-incremented through the compatibility counter (`WrappingCounter`). No inline narrowing cast reproduces the wrap
-(SME6453). Outside the spatial namespace those members are called only by compatibility services (SME6463, #2568),
+incremented through the compatibility counter (`WrappingCounter`). No inline narrowing cast reproduces the wrap.
+Outside the spatial namespace those members are called only by compatibility services (#2568),
 each named for the gameplay behaviour its wrap reproduces: `OffRoomPlaces` (an actor placed or moved above or left of
 the room, and the off-room tests that read its place as signed), `DistanceAcrossRoomEdge` (distances and side tests
 taken the short way across the room's coordinates), `CameraPastRoomEdge` (the camera carried before the room's origin,
@@ -151,10 +150,9 @@ left unwrapped fails where it is stored instead of being truncated there.
   (BG2's per-line scrolls, `Bg2LineScrolls`) are one type that stores positions and answers per-line values.
 - Components are split only at exact boundaries — native WRAM/save-state/snapshot codecs,
   hardware registers, rendering-backend and P/Invoke adapters, and external file formats (the
-  JSON document record itself) — through one named codec operation, and those declarations carry
-  `[SpatialComponents("reason")]`.
+  JSON document record itself) — through one named codec operation.
 - Enemy family state owns typed storage (#1325). The common enemy slot has no multipurpose words
-  (`VariableA`-`F`, `Parameter1`/`2`; SME6408 blocks them): a family stores each value it keeps, spatial values
+  (`VariableA`-`F`, `Parameter1`/`2`): a family stores each value it keeps, spatial values
   included, as a typed field of its own state, and reads its authored spawn parameters from the slot's spawn
   record. The cartridge's words exist only where a native snapshot is translated into that state. Per-slot
   arrays that hold both axes store the typed value (one array, shared by the enemy system and the family).

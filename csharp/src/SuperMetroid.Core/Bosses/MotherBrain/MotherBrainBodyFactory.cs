@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <param name="species">Mother Brain's species owner.</param>
 /// <param name="zebesWarning">The room's background warning.</param>
-[RoomLifetime]
 internal sealed partial class MotherBrainBodyFactory(MotherBrainBehavior species, RoomWarning zebesWarning) : IEnemyEntityFactory
 {
     /// <summary>The definitions this factory places or joins, which a room without the warning picture sheet cannot place.</summary>

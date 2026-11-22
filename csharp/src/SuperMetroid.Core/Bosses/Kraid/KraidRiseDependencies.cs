@@ -7,7 +7,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collaborators a <see cref="KraidRise"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
 internal sealed partial record KraidRiseDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>

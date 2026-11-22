@@ -6,7 +6,6 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="CeresRidleyBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
 internal sealed partial record CeresRidleyBehaviorDependencies
 {
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>

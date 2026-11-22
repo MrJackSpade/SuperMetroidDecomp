@@ -19,7 +19,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// view tests subtract the layer's position from the actor's as words; the Ridley full-movie and 100% recorded movies
 /// replay the camera's place on every update.
 /// </remarks>
-[CompatibilityService("the camera carried above or left of the room's origin reads as lying before the room and is clamped back, and places are measured from the camera the short way across the ends of the room's coordinates")]
 public static partial class CameraPastRoomEdge
 {
     /// <summary>

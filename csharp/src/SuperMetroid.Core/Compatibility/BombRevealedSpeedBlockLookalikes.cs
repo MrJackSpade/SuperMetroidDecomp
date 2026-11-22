@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TReaction">A special block's reaction.</typeparam>
 /// <typeparam name="TChange">What a bomb sets off at the block.</typeparam>
-[CompatibilityService("a normal bomb shows four plain solid special blocks as Speed Booster blocks in every area, as it shows Brinstar's")]
 public sealed partial class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
     where TReaction : notnull
     where TChange : class

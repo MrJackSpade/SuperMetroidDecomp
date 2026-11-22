@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Spatial;
 /// promotion to a displacement (<see cref="ToDisplacement"/>), or summed update by update with its fractions kept.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the velocity is measured in.</typeparam>
-[SpatialComponents("Spatial value type: owns its X and Y velocity axes.")]
 public readonly partial record struct PixelVelocity<TSpace>(SignedEightEight X, SignedEightEight Y)
     where TSpace : ISpatialSpace
 {

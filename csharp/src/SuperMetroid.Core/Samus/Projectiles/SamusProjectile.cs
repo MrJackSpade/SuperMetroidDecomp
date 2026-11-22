@@ -24,7 +24,6 @@ public sealed partial class SamusProjectile
     /// update and draw from the highest down, a special attack's particles take the first four, the crash echoes the
     /// last two, and a Super Missile names its link's place (<see cref="SamusShotPool"/>).
     /// </summary>
-    [IntegerQuantity("ordinal of the projectile's place in Samus's shot pool")]
     public int Place { get; }
 
     /// <summary>

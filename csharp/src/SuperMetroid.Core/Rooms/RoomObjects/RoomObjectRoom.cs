@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The room a room-object population is installed into (#633): the level they edit, the system state that records what they open and collect,
 /// and the area.
 /// </summary>
-[RoomLifetime]
 public sealed partial record RoomObjectRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>

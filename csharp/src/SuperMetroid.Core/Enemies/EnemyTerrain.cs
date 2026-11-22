@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 /// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its room object
 /// among the room's room objects.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyTerrain
 {
     /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into.</summary>

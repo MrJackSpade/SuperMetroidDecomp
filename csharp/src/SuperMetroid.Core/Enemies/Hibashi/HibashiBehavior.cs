@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
 internal sealed partial class HibashiBehavior : IEnemySpecies, IEnemySpawnFactory<HibashiSpawnSettings>
 {
 

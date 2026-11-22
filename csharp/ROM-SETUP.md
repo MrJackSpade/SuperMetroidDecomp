@@ -296,10 +296,7 @@ object allocation, cycle timing, color destinations and scene transitions.
 
 Developer dependency boundary: `ColourEffectSystem.Step` reads no colours: each colour effect
 names the frame it shows, and the owner of the pictures it recolours names that frame's pre-coloured
-shade. Restored states keep the effects' places and timers. The compiler contract checks the effects'
-start and frame handoff, not the contents of external JSON: resource loaders still validate those files.
-Run the focused compiler contract with
-`dotnet run --project csharp/src/SuperMetroid.EnsureVerification -- --palette-fx-contract`.
+shade. Restored states keep the effects' places and timers. Resource loaders validate the external JSON.
 
 Mother Brain's rainbow and drained-phase colors are pre-coloured into her sheets; the
 import reads them from its import data's `mother-brain-rainbow-palette.json`, which is

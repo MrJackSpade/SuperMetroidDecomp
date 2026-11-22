@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain encounter state shared across Tourian: her setup's attachment to the room, the warning Zebes's escape
 /// shows, and the encounter's sound and music requests.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class MotherBrainEncounter
 {
     /// <summary>Receives the encounter's sound and music requests.</summary>

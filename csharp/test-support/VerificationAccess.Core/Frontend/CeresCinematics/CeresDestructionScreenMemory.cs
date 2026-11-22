@@ -22,7 +22,6 @@ internal static class CeresDestructionScreenMemory
     /// <paramref name="zebesRevealed"/>; with <paramref name="clearedWithSamusAboard"/>, the image the final explosion
     /// leaves with Samus still aboard, which clears both views and so shows no floor.
     /// </summary>
-    [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(ImportIntroCinematicArtwork artwork, CeresFloorShot? floor, bool zebesRevealed, bool clearedWithSamusAboard = false)
     {
         if (clearedWithSamusAboard && floor is not null)
@@ -58,7 +57,6 @@ internal static class CeresDestructionScreenMemory
     /// The image <paramref name="scene"/>'s state leaves over the import's artwork its bound catalog came from (#1616). A scene with Samus aboard that shows no
     /// floor after its final explosion has cleared it.
     /// </summary>
-    [WholeImageFixture("the Ceres destruction's memory image")]
     internal static byte[] Compose(CeresDestructionCinematicState scene) =>
         Compose((scene.Artwork ?? throw new InvalidOperationException("Ceres destruction rendering requires installed cinematic artwork.")).ImportSource,
             scene.FloorShot, scene.ZebesRevealed, scene.FloorShot is null && scene.WithSamus && (scene.Phase == CeresDestructionPhase.FlyingAwayFromExplosion

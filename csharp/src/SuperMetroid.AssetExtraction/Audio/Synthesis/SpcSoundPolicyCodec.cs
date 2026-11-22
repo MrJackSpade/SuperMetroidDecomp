@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// them (#2556): each policy's number in its library's handler table, and the written-out installed key the manifest
 /// spells it by. The policies themselves are identities whose backing values nothing reads.
 /// </summary>
-[EncodingOwner("the sound driver's voice-allocation policy numbers and the installed keys that name each policy")]
 internal static partial class SpcSoundPolicyCodec
 {
     /// <summary>Each library-1 policy's installed key, which the audio manifest names it by.</summary>

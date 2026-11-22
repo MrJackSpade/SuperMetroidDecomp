@@ -28,7 +28,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// runtime's scrolling into a loaded room's kick.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Yard kicked by Samus flies sideways at the distance the camera last measured her moving, plus one pixel, and upward at the speed that distance's whole pixels select")]
 public sealed partial class YardKickTrackingDistance
 {
     /// <summary>

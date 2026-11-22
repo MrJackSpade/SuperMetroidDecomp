@@ -209,6 +209,6 @@ public static partial class SamusShades
     public static PictureShade DeathWhiteout(SamusWhiteoutShade shade) => new("DeathWhiteout", shade.Step);
 
     /// <summary>The <paramref name="count"/> shades of the run <paramref name="effect"/>, in the order the run shows them.</summary>
-    private static PictureShade[] Run([InstalledKey] string effect, int count) =>
+    private static PictureShade[] Run(string effect, int count) =>
         [.. Enumerable.Range(0, count).Select(step => new PictureShade(effect, step))];
 }

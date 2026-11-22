@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// difference before shifting and clamping it; a Metroid closes from the touch that starts it at three pixels an update
 /// whatever Samus does, so a Speed Booster run or a fall leaves it behind by more than 127 pixels.
 /// </remarks>
-[CompatibilityService("a Metroid closing on Samus reckons its distance to her within a 256-pixel span, so a target 128 pixels or more away reads as lying the other way")]
 public static partial class MetroidClosingDistance
 {
     /// <summary>The span of coordinates the distance tells apart.</summary>

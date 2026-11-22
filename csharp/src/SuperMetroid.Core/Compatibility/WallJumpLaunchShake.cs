@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Lifetime: Samus's, naming an enemy of the room it was made in.
 /// </remarks>
 /// <typeparam name="TEnemy">The solid enemy launched from.</typeparam>
-[CompatibilityService("the enemy a wall jump launched from shakes at the next update's enemies")]
 public sealed partial class WallJumpLaunchShake<TEnemy>
     where TEnemy : class
 {

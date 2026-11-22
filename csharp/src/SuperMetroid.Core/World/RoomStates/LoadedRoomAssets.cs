@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// This is the data-only portion of a room load. It deliberately runs no room-specific setup; that behaviour belongs to
 /// each room's own code.
 /// </remarks>
-[RoomLifetime]
 public sealed partial class LoadedRoomAssets
 {
     /// <summary>Retains the selected definition, the room's grid, scroll grid, and installed graphics.</summary>

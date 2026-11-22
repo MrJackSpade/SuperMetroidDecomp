@@ -156,7 +156,6 @@ public sealed partial class SamusHorizontalSpeedState
     /// Booster is held at its boosted cap and starts its boost counter at its first stage. Their shared running
     /// momentum survives release and jumps.
     /// </summary>
-    [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
         SamusMovementType movementType,
         GameplayAction controllerInput,

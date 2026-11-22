@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="room">Supplies the shared random sample the quake's strength is read from.</param>
 /// <param name="earthquake">Receives the shake and its length.</param>
 /// <param name="escape">Supplies how far the station's escape has gone.</param>
-[RoomLifetime]
 internal sealed partial class CeresEscapeQuake(EnemyRoomBinding room, RoomEarthquake earthquake, ICeresEscapeStatus escape)
 {
     /// <summary>

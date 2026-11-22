@@ -41,7 +41,6 @@ public sealed partial class RoomBlockSheet
     public RoomBlockAppearances Inputs { get; }
 
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
-    [InstalledKey]
     public static string NameOf(TilesetDefinition tileset) => RoomGraphicsSetKeys.Installed.Of(tileset.GraphicsSet);
 
     /// <summary>
@@ -49,7 +48,7 @@ public sealed partial class RoomBlockSheet
     /// tiles and its part drawn in front of them (#1634); either part, or both, may show nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet holds no such picture, or a part is not one block.</exception>
-    public LayeredPicture Picture([InstalledKey] string name)
+    public LayeredPicture Picture(string name)
     {
         LayeredPicture picture = Sheet.Picture(name);
         foreach (SpriteSheetFrame part in picture.Parts)

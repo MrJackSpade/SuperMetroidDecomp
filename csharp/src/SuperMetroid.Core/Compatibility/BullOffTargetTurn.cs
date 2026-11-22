@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the original subtracts the captured heading from the bearing as whole angle values and takes a negative
 /// difference's magnitude as it stands, folding only a positive difference of a half turn or more back the short way.
 /// </remarks>
-[CompatibilityService("a charging Bull reckons the turn to Samus the long way round when her bearing lies more than half a turn behind its heading")]
 public static partial class BullOffTargetTurn
 {
     /// <summary>The turn a Bull heading at <paramref name="heading"/> reckons to <paramref name="bearing"/>.</summary>

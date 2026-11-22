@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// (a quarter turn's after a horizontal block, three quarters' after a vertical one) instead of subtracting it from a half
 /// or a whole turn; the Multiviola bounce check compares every heading with that toggle.
 /// </remarks>
-[CompatibilityService("a Multiviola's heading bounces into the neighbouring quarter turn across the surface, keeping its place within the quarter")]
 public static partial class MultiviolaQuarterBounce
 {
     /// <summary>The quarter turns of a full turn.</summary>

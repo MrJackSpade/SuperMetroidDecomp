@@ -36,5 +36,5 @@ internal static partial class BlockAnimationFrames
     internal static ArtworkAnimation Of(BlockAnimation animation) => new(Keys[animation]);
 
     /// <summary>The frame of <paramref name="animation"/> named <paramref name="name"/>.</summary>
-    internal static ArtworkFrame Frame(BlockAnimation animation, [InstalledKey] string name) => new(Of(animation), Ensure.NotNull(name));
+    internal static ArtworkFrame Frame(BlockAnimation animation, string name) => new(Of(animation), Ensure.NotNull(name));
 }

@@ -29,7 +29,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// clear does not; the 100% movie diverges in enemy damage at update 23200 without the carried fractions.
 /// </para>
 /// </remarks>
-[CompatibilityService("a beam fired to the left starts its muzzle check from the horizontal sub-pixel position its shot place kept from the projectile that held it when Samus's shots were last cleared")]
 public sealed partial class LeftBeamStartFromLastShot
 {
     /// <summary>What each place keeps for its next projectile, in place order.</summary>

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Defines one arrow's screen anchor.</summary>
-[SpatialComponents("External format: map-arrows.json stores each arrow anchor as flat x/y fields.")]
 public sealed partial record MapArrowEntry
 {
     /// <summary>The authored screen-pixel anchor.</summary>

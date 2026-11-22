@@ -11,7 +11,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's flames as projectiles, its hitboxes and body touch, and what Samus's weapons do to it.</summary>
-[RoomLifetime]
 internal sealed partial class PhantoonCombat
 {
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>

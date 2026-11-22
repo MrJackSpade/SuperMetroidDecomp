@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The motions of the turning elevator shaft's steam vents (#2480): built only for the room whose scope holds the
 /// shaft's turn, which its rotating-elevator vents ride; any other vent there holds its place.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class CeresShaftSteamVentMotions : CeresSteamVentMotions
 {
     /// <summary>Creates a <see cref="CeresShaftSteamVentMotions"/>.</summary>

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>What a placed room object's family setup reaches as the room's population places it (#2288).</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal sealed partial record RoomObjectSetupContext
 {
     /// <summary>The room's level, progress and area.</summary>

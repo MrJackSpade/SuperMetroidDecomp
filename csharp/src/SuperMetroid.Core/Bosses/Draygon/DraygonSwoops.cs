@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's swoops across the room and its climb straight up.</summary>
-[RoomLifetime]
 internal sealed partial class DraygonSwoops
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>

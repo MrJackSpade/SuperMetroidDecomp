@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// <c>$80:9823</c>) store a word of zero over the short counter; the Ridley full-movie check reads the counter at zero
 /// through the scroll's 61 updates and at one on the first destination drawing update.
 /// </remarks>
-[CompatibilityService("a door's scroll restarts the short frame counter on every update from Samus's placement to the scroll's end")]
 public sealed partial class DoorTransitionFrameCounting
 {
     /// <summary>Whether the transition's scroll is restarting the short counter on each update.</summary>

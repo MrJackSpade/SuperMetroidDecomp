@@ -309,7 +309,6 @@ public sealed partial class SamusState
     /// adds an update to every frame of her animation (<see cref="ExtraAnimationDelay"/>). The setter rejects values
     /// outside that range.
     /// </summary>
-    [IntegerQuantity("halvings of Samus's horizontal speed, zero when she is not slowed")]
     public int SlowdownLevel
     {
         get => HorizontalSpeed.SlowdownLevel;

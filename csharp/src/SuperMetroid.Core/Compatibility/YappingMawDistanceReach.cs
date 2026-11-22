@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// both axis distances fit its radius byte, and takes the axis's distance itself otherwise; the Maw's checks compare the
 /// measured distance for targets on both sides of the reach.
 /// </remarks>
-[CompatibilityService("a Yapping Maw measures its distance to Samus by one axis alone from 255 pixels on that axis, the reach of the short products it otherwise sums")]
 public static partial class YappingMawDistanceReach
 {
     /// <summary>The axis distance, in pixels, from which the Maw measures by that axis alone.</summary>

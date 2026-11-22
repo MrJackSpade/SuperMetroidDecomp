@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// and the choice toggle (<c>$85:8532</c>) waits one more displayed frame before redrawing; the save-station and gunship
 /// confirmations in the SMV recordings consume their inputs on exactly these updates.
 /// </remarks>
-[CompatibilityService("the save confirmation reads the controller every second update, and a moved choice delays the next read by one update")]
 public sealed partial class SaveChoiceInputCadence
 {
     /// <summary>The updates an opened confirmation waits before its first read.</summary>

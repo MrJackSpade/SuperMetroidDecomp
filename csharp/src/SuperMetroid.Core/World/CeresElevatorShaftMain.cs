@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.World;
 /// elevator, which may take Samus to the Ceres elevator only while main gameplay runs it.
 /// </summary>
 /// <param name="shaft">The shaft's turn and elevator.</param>
-[RoomLifetime]
 internal sealed partial class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) : IRoomMain
 {
     /// <summary>The shaft's turn and elevator, which the main steps and checks read.</summary>

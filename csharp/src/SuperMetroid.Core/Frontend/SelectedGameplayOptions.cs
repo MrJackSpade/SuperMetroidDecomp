@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="ControllerBindings">The controller layout chosen in the options menu.</param>
 /// <param name="MoonwalkEnabled">Whether moonwalking is enabled.</param>
 /// <param name="IconCancelEnabled">Whether the HUD selection cancels automatically.</param>
-[IndependentFlag("independent options the player chose on the options screen")]
 internal sealed partial record SelectedGameplayOptions(
     TextLanguage Language,
     ControllerBindings ControllerBindings,

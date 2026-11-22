@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// its count reaches 256, the setup's update counting; the body spawns hand the segments the free projectile places in
 /// the allocator's own order.
 /// </remarks>
-[CompatibilityService("Botwoon's dying body segments fall in the order of the enemy-projectile places they were spawned into, later places sooner")]
 public static partial class BotwoonSegmentFallDelay
 {
     /// <summary>The updates a dying segment in the first projectile place waits before it falls.</summary>

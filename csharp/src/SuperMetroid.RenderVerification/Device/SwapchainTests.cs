@@ -199,7 +199,6 @@ internal static partial class SwapchainTests
 
     /// <summary>Blittable Win32 MSG payload used to keep hidden verification windows responsive.</summary>
     [StructLayout(LayoutKind.Sequential)]
-    [SpatialComponents("Win32 interop: the blittable MSG layout flattens its POINT cursor field into two ints.")]
     private struct WindowMessage
     {
         /// <summary>Target HWND supplied by the Win32 message queue.</summary>

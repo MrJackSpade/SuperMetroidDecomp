@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// byte past the three authored states, such as one a short explicit table reaches in the data stored after it, reads as
 /// open.
 /// </remarks>
-[EncodingOwner("room scroll grid byte")]
 internal static class RoomScrollStates
 {
     /// <summary>The byte the original stores for <paramref name="state"/>.</summary>

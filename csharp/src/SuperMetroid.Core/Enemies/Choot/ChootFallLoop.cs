@@ -21,11 +21,9 @@ internal abstract partial class ChootFallLoop
         private readonly ChootFallSample[] _samples;
 
         /// <summary>Which of <see cref="_samples"/> the loop is at.</summary>
-        [IntegerQuantity("sample along the falling path")]
         private readonly int _sample;
 
         /// <summary>How many of the sample's updates the loop has already counted.</summary>
-        [IntegerQuantity("updates the loop has counted at its sample")]
         private readonly int _updatesIntoSample;
 
         /// <summary>Creates the loop at a sample within its path.</summary>

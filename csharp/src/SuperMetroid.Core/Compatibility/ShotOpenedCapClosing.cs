@@ -19,7 +19,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 /// <typeparam name="TDoor">The game's door identity.</typeparam>
-[CompatibilityService("a blue cap a shot opened never closes behind Samus once the Landing Site's green door has been opened for good")]
 public sealed partial class ShotOpenedCapClosing<TDoor>
     where TDoor : class
 {

@@ -238,7 +238,7 @@ internal sealed partial class SpcSoundLibraries
         {
             int occupied = library.VoicesRemaining;
             library.VoicesRemaining = SpcDriverWrap.Byte(library.VoicesRemaining << 1);
-            if ((occupied & 0x80) != 0) // cartridge-encoding: allow(BitMask) - high-to-low hardware voice scan
+            if ((occupied & 0x80) != 0)
                 continue;
             if (library.VoicesToSetup == 0)
                 return;
@@ -402,7 +402,7 @@ internal sealed partial class SpcSoundLibraries
         {
             int next = soundChannel.Subnote - soundChannel.SubnoteDelta;
             soundChannel.Subnote = unchecked((byte)next);
-            if ((next & 0x100) != 0) // cartridge-encoding: allow(BitMask) - subnote borrow
+            if ((next & 0x100) != 0)
             {
                 soundChannel.Note = SpcDriverWrap.Byte(soundChannel.Note - 1);
                 if (soundChannel.Note == soundChannel.TargetNote)
@@ -413,7 +413,7 @@ internal sealed partial class SpcSoundLibraries
         {
             int next = soundChannel.Subnote + soundChannel.SubnoteDelta;
             soundChannel.Subnote = unchecked((byte)next);
-            if ((next & 0x100) != 0) // cartridge-encoding: allow(BitMask) - subnote carry
+            if ((next & 0x100) != 0)
             {
                 soundChannel.Note = SpcDriverWrap.Byte(soundChannel.Note + 1);
                 if (soundChannel.Note == soundChannel.TargetNote)

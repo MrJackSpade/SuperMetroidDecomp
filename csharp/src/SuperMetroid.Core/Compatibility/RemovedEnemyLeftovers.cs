@@ -29,7 +29,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// kill clears the whole record, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>
 /// <typeparam name="TEnemy">The enemies a place holds.</typeparam>
-[CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
 public sealed partial class RemovedEnemyLeftovers<TEnemy>
     where TEnemy : class
 {

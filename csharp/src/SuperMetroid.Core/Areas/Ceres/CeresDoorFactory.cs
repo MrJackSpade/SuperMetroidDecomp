@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// Ceres doors and walls.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
-[RoomLifetime]
 internal sealed partial class CeresDoorFactory(CeresDoorBehavior doors) : IEnemyEntityFactory
 {
     /// <summary>The room's owner of the Ceres doors and walls.</summary>

@@ -33,7 +33,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// A special attack's particles keep their own angle in the word (<c>$90:CDCB</c>, <c>$90:CEBD</c>, <c>$90:DBA6</c>; the
 /// Wave attack's zero, <c>$90:CD41</c>) and hold only the first four places, which a beam takes only while free.
 /// </remarks>
-[CompatibilityService("a beam fired with every shot place held takes the last place over the shot holding it and starts its Power Bomb fuse from the count that shot leaves")]
 public static partial class BeamFiredOverLastShot
 {
     /// <summary>

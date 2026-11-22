@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Where a room's tileset, common-room-element and collectible graphics live in gameplay VRAM and CGRAM (#630).</summary>
-[EncodingOwner("room graphics VRAM and colour allocations")]
 internal static partial class RoomGraphicsLayout
 {
     /// <summary>

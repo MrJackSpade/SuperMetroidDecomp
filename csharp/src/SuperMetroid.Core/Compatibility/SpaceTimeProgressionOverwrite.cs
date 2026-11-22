@@ -25,7 +25,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
 /// <typeparam name="TOverwrite">What one copy does to progress, in the progress's own terms.</typeparam>
-[CompatibilityService("an uncharged SpaceTime shot overwrites saved progression, by its place and where its animation stands")]
 public sealed partial class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>
     where TCursor : notnull
     where TOverwrite : class

@@ -30,7 +30,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TTerrain">The room's terrain block.</typeparam>
 /// <typeparam name="TBehavior">The room's block behaviour.</typeparam>
-[CompatibilityService("room objects and probes that reach past a room's grid find the level data that followed it, then solid terrain, and their writes there persist")]
 public sealed partial class TerrainBeyondRoom<TTerrain, TBehavior>
     where TTerrain : struct
     where TBehavior : struct

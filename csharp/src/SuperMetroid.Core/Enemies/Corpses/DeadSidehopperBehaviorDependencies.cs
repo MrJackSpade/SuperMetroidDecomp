@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The collaborators a <see cref="DeadSidehopperBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
 internal sealed partial record DeadSidehopperBehaviorDependencies
 {
     /// <summary>The loaded room's binding, whose random numbers scatter each fallen row's dust.</summary>

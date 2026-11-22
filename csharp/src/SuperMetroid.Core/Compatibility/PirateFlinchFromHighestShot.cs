@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// last shot place down, take the first entry whose projectile type is set and return without testing a lower entry
 /// when that projectile lies outside the flinch box.
 /// </remarks>
-[CompatibilityService("a Space Pirate flinches only from the shot in Samus's highest occupied shot place, even when a lower shot is closer")]
 public static partial class PirateFlinchFromHighestShot
 {
     /// <summary>The one shot a pirate's flinch check tests, or null when no place holds a shot it reacts to.</summary>

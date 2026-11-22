@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="HitboxShot">The shot reaction that runs: the overlapping hitbox's, or the definition's on the radius path.</param>
 /// <param name="Camera">The camera's position as the shot pass runs.</param>
 /// <remarks>The stages from vulnerability on receive it as an <see cref="EnemyShotHitContext"/>, which adds the sampled health.</remarks>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal partial record EnemyShotContext(
     RoomEnemyOccupant Occupant,
     SamusProjectileOccupant Shot,

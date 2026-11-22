@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>A lossless view over the two-byte attribute word in one low-OAM record.</summary>
 /// <param name="Raw">The packed tile number and OBJ attributes, preserving all 16 native bits.</param>
-[EncodingOwner("sprite attribute word")]
 public readonly partial record struct SnesObjAttributeWord(ushort Raw)
 {
     /// <summary>Bits 0 through 8 select the OBJ character, including its tile page.</summary>

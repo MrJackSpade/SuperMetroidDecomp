@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// word's low byte is not an engine property: a few species keep their own settings there, which the species' settings
 /// and state hold typed.
 /// </summary>
-[EncodingOwner("enemy property and extra-property words")]
 internal static class EnemyPropertyWordCodec
 {
     /// <summary>The property word's bits that hold engine properties: its high byte.</summary>

@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// blocks reach the room's objects (<see cref="RoomTerrain"/>), or a plain terrain of air, solid blocks and slopes alone,
 /// which holds no block that reacts (<see cref="PlainTerrain"/>). These two are the only terrains.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal abstract partial class SamusTerrain
 {
     /// <summary>Creates the terrain of <paramref name="level"/>.</summary>

@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The progression the Spacetime shot's overwrite turns story events, bosses, items, doors, stations, maps and the saved
 /// startup route on and off in (<see cref="SpacetimeShotOverwrite"/>).
 /// </param>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly partial record struct SamusShotUpdate(
     SamusProjectileOccupant Held,
     SamusProjectileSystem Shots,

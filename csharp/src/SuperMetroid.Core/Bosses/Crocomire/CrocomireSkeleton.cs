@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireSkeleton
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>

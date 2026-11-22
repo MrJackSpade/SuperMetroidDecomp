@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the original fatal-shot reaction reads the chain owner's offset from the killed segment's record after the
 /// common death cleared it, and deletes the seven records from that offset.
 /// </remarks>
-[CompatibilityService("a Shaktool chain's death deletes the seven enemies the room lists first")]
 public static partial class ShaktoolDeathDeletesFirstListed
 {
     /// <summary>The enemies a chain's death deletes, in the order the room lists them.</summary>

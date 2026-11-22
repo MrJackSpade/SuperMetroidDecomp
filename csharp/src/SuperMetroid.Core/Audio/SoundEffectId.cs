@@ -24,7 +24,6 @@ public abstract partial record SoundEffectId
     /// The request's installed key (#2520): its list's name, a dot and the sound's or stop's own key, as the clip index keys
     /// each request.
     /// </summary>
-    [InstalledKey]
     internal abstract string Key { get; }
 
     /// <summary>A sound of Samus's library.</summary>
@@ -56,7 +55,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "SamusSound." + SamusSoundKeys.Installed.Of(Sound);
     }
 
@@ -68,7 +66,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "EnemySound." + EnemySoundKeys.Installed.Of(Sound);
     }
 
@@ -80,7 +77,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Room;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "RoomSound." + RoomSoundKeys.Installed.Of(Sound);
     }
 
@@ -92,7 +88,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "SamusSoundStop." + SamusSoundStopKeys.Installed.Of(Stop);
     }
 
@@ -104,7 +99,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "EnemySoundStop." + EnemySoundStopKeys.Installed.Of(Stop);
     }
 
@@ -116,7 +110,6 @@ public abstract partial record SoundEffectId
         public override SoundEffectLibrary Library => SoundEffectLibrary.Room;
 
         /// <inheritdoc />
-        [InstalledKey]
         internal override string Key => "RoomSoundStop." + RoomSoundStopKeys.Installed.Of(Stop);
     }
 }

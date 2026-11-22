@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Which of Mother Brain's Rinka spawn points are reserved in this room, and how a special Rinka reserves one (#1699).
 /// A point stays reserved until the Rinka holding it releases it, so no two Rinkas share a point.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class RinkaSpawnReservations
 {
     /// <summary>The points reserved and not yet released.</summary>

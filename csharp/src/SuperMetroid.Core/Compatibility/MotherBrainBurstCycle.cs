@@ -21,7 +21,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// every enemy projectile's position, these bursts among them, so the place each starts from is observable to them: with
 /// the death explosions starting a cycle of their own, the 13% replay diverges at her death on an explosion's position.
 /// </remarks>
-[CompatibilityService("Mother Brain's ascent dust, death explosions and escape-door dust take their positions from one place each continues from where the effect before left it, and the door's dust continues the death explosions' interval")]
 public sealed partial class MotherBrainBurstCycle
 {
     /// <summary>

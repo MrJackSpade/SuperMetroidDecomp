@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// bomb place whose X position is zero before reading its type, the test it uses for an empty place; the radius bomb
 /// collision has no such test.
 /// </remarks>
-[CompatibilityService("an enemy that collides by its frames' hitboxes never meets a bomb lying on the room's leftmost pixel column")]
 public static partial class LeftEdgeBombMissesFrameHitboxes
 {
     /// <summary>The room pixel column whose bombs enemies that collide by their frames' hitboxes pass over.</summary>

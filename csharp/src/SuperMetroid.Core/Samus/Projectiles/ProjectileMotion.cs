@@ -6,7 +6,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Per-update projectile movement: the beam, Wave Beam, Hyper Beam, missile and Super Missile flights, Super Missile links, and the movement-window deletion check.</summary>
-[RoomLifetime]
 internal sealed partial class ProjectileMotion
 {
     /// <summary>Clears shots that expire or leave the movement window.</summary>

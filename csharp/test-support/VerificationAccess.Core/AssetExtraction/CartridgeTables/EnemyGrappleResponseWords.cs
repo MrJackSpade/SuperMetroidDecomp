@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge words naming the enemies' grapple reactions, which only verification's header decode reads (#1411).</summary>
-[EncodingOwner("enemy grapple response words")]
 internal static class EnemyGrappleResponseWords
 {
     /// <summary>The bank-$A0 routine an enemy header's grapple word names for each reaction.</summary>

@@ -15,7 +15,6 @@ internal static class RomlessDesktopStartupTest
     /// <summary>Copies the repository installation into a temporary directory, removes that copy's
     /// ROM, and verifies host startup, frame advance, debugger state, and replay
     /// recover the same pixels without cartridge data.</summary>
-    [PrivateInstallation("Checks that OpenOrRepair accepts a complete extracted installation whose ROM has been removed, as the Windows host's startup does.")]
     public static void Run()
     {
         string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

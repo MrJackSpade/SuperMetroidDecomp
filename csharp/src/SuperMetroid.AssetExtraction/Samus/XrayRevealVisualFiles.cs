@@ -21,7 +21,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts the blocks the retail X-ray reveal table shows. Rule selection,
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
-[EncodingOwner("retail X-ray reveal table words")]
 public static partial class XrayRevealVisualFiles
 {
     /// <summary>
@@ -487,7 +486,6 @@ public static partial class XrayRevealVisualFiles
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
     /// struct's legal zero/default value during deserialization.</remarks>
-    [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
     internal sealed partial record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
     {
         /// <summary>The tile's block column, 0 through 255.</summary>

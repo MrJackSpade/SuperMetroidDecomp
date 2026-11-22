@@ -10,5 +10,4 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 /// <param name="State">The sky's drifting bands and vertical scroll.</param>
 /// <param name="Image">Resolves what the sky's rows show on the background.</param>
-[RoomLifetime]
 internal sealed partial record RoomSky(ScrollingSkyState State, RoomBackgroundImageResolver Image);

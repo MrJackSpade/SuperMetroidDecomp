@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 /// is still the one reached, as the game expects. The rules that reproduce a reach by placement itself (a struck part's
 /// follow-up, the gunship pad's borrowed height) read the places after and before an enemy here too.
 /// </summary>
-[EncodingOwner("a room population's listing of its enemies: the members of a multipart enemy together, and the places after and before an enemy")]
 internal static partial class EnemyCompositeListing
 {
     /// <summary>The member of <paramref name="self"/>'s composite that plays <paramref name="role"/>.</summary>

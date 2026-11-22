@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// compares every radius with speeds either side of the hold, and every speed with radii either side of it, with the
 /// original's sixteen-bit sum; the Power Bomb radius check runs whole explosions against the original's arithmetic.
 /// </remarks>
-[CompatibilityService("a Power Bomb's blast stops growing short of 256 pixels while it shows its authored ovals: an update whose growth would reach 256 pixels leaves the radius and its speed as they were")]
 internal static partial class PowerBombGrowthHold
 {
     /// <summary>The whole pixels of radius a growth may not reach: a growth that would reach them holds instead.</summary>

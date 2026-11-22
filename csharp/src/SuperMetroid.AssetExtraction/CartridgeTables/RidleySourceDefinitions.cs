@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Ridley data extraction reads (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed colour documents.
 /// </summary>
-[EncodingOwner("cartridge addresses of Ridley's colour tables")]
 internal static partial class RidleySourceDefinitions
 {
     /// <summary>Ceres Ridley's bank-$A6 colour sources.</summary>

@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// and only the ticks on which its request-check counter overflows read the requests; the sound acceptance clock check
 /// matches the acknowledgements and the sound these steps schedule against a recording of the emulated sound program.
 /// </remarks>
-[CompatibilityService("one step of the sound acceptance clock, with the request checks it ran")]
 public readonly partial record struct SoundClockStep<TLibrary, TSound>(
     int SampleOffset,
     int Steps,

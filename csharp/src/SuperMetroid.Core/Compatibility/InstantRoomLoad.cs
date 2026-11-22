@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// door alignment, elevator and first-entry checks step every transition with, and a replay supplies the progress its
 /// recording shows through its own <see cref="IRoomLoadProgress"/>.
 /// </remarks>
-[CompatibilityService("a room loads completely within the first door-scroll update")]
 public sealed partial class InstantRoomLoad : IRoomLoadProgress
 {
     /// <summary>The shared, stateless instance every session uses.</summary>

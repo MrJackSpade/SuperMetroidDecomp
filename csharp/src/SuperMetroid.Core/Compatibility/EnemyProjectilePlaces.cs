@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// register its caller may keep, and the projectile, collision and drawing loops index the same slots from the last
 /// down, reading each slot when they reach it.
 /// </remarks>
-[CompatibilityService("the room's enemy projectiles take eighteen places, searched and run from the last down, and a spawn leaves the place it took for a death explosion to read")]
 public sealed partial class EnemyProjectilePlaces
 {
     /// <summary>How many enemy projectiles the room holds at once.</summary>

@@ -17,8 +17,7 @@ public static partial class PictureParts
 
     /// <summary>The installed name of the in-front part of the picture named <paramref name="name"/>.</summary>
     /// <exception cref="ArgumentException">The name is empty.</exception>
-    [InstalledKey]
-    public static string InFront([InstalledKey] string name)
+    public static string InFront(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         return name + InFrontMark;

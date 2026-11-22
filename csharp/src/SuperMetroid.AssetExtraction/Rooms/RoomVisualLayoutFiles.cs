@@ -192,7 +192,6 @@ public static partial class RoomVisualLayoutFiles
     }
 
     /// <summary>Editable initial foreground and background appearances with fixed level identity and block dimensions.</summary>
-    [SpatialComponents("External format: per-level room-layout JSON stores widthInBlocks/heightInBlocks.")]
     internal sealed partial record RoomVisualLayoutDocument(int FormatVersion, string Level,
         int WidthInBlocks, int HeightInBlocks, RoomLayoutPlaneDocument Foreground,
         RoomLayoutPlaneDocument Background)

@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.World;
 /// The loaded room's live state: room, door, level data, camera, scrolling sky, load station, Ceres elevator arrival,
 /// effects, statues, enemies and bombs, what one room leaves the next, and the layers the door transition shows.
 /// </summary>
-[RoomScopeBoundary("Holds the loaded room and the room under construction.")]
 internal sealed partial class ActiveRoomState
 {
 

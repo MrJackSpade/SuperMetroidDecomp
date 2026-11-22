@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// <c>$86:F3F0</c> and <c>$86:F3F2</c> as its whole and fractional drift. The falling-spark launch check decodes them
 /// from the player's game data, compares them with this service, and spawns a spark for every random number.
 /// </remarks>
-[CompatibilityService("a falling spark whose random launch choice lies past the seven authored launches drifts by the code stored after them")]
 public sealed partial class FallingSparkUnauthoredLaunch
 {
     /// <summary>Keeps the decoded drift.</summary>

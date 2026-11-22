@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge banks whose bank-relative pointers the room-effect extractors resolve (#1415).</summary>
-[EncodingOwner("cartridge banks of the room-effect tables")]
 internal static partial class RoomFxBankSourceDefinitions
 {
     /// <summary>Bank $8A, which holds the layer-three effect tilemaps.</summary>

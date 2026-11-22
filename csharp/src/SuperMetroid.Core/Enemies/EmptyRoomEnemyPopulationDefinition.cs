@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies;
 /// before anything after it is read (#2584).
 /// </summary>
 /// <param name="name">The list's name.</param>
-public sealed partial class EmptyRoomEnemyPopulationDefinition([InstalledKey] string name) : RoomEnemyPopulationDefinition(name, []);
+public sealed partial class EmptyRoomEnemyPopulationDefinition(string name) : RoomEnemyPopulationDefinition(name, []);

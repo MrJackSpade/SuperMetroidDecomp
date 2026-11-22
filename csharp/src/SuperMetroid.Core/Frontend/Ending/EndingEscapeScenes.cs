@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed partial class EndingEscapeScenes
 {
     /// <summary>Queues the authored ending music transitions.</summary>

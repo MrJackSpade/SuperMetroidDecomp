@@ -179,7 +179,6 @@ internal static partial class SamusOverreadDecoding
         new([.. kind.Where(decided.Decided.Contains).Select(name)], [.. kind.Where(decided.Set.Contains).Select(name)]);
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
-    [InstalledKey]
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
         DefeatedBossesKeys.ListedOrder.Where(flag => bosses.HasFlag(flag))
             .Select(DefeatedBossesKeys.Installed.Of);

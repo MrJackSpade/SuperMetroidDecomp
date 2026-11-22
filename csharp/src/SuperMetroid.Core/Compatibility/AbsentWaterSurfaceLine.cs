@@ -15,7 +15,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// its sign, and a room effect that names no surface stores the word 65535, which a signed comparison reads as the line
 /// above the room.
 /// </remarks>
-[CompatibilityService("Samus's air-bubble test and diving splash in a room with no water surface behave as though the surface lay just above the room")]
 public static partial class AbsentWaterSurfaceLine
 {
     /// <summary>The line the game's tests find a missing surface on: one pixel above the room's top.</summary>

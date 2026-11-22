@@ -34,7 +34,6 @@ public sealed partial record GameplayBlendLayer : DisplayLayer
     /// <param name="blend">The effect the blend shows.</param>
     /// <param name="overlayBehind">The effect overlay lying behind what blends, or null for none.</param>
     /// <param name="backgroundBehind">Whether the room's background lies behind what blends.</param>
-    [IndependentFlag("independent facts of the frame: the X-ray block reveal, and the background lying behind the blend")]
     public GameplayBlendLayer(GameplaySceneLayer gameplay, ScreenWindow window, bool revealBlocks, GameplayBlend blend,
         OverlayBlendLayer? overlayBehind = null, bool backgroundBehind = false)
     {

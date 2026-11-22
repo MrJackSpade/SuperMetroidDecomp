@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// the first.
 /// </remarks>
 /// <typeparam name="TExplosion">An enemy's death explosion.</typeparam>
-[CompatibilityService("an enemy death that takes its explosion from a leftover number dies in the explosion the number names in the authored order, or in the small explosion past the last")]
 public sealed partial class LeftoverNumberDeathExplosion<TExplosion>
 {
     /// <summary>Creates a <see cref="LeftoverNumberDeathExplosion{TExplosion}"/>.</summary>

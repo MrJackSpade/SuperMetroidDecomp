@@ -23,7 +23,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Crocomire state-quantity check runs a resting and a clamped sink, and a resting, a stalled and a finer-carrying rise,
 /// beside that byte arithmetic every update.
 /// </remarks>
-[CompatibilityService("Crocomire's sinking and rising body and spike-wall pieces gain or lose their acceleration's whole 256ths of a pixel each update, and a speed gained past its fastest keeps the fastest's whole pixels with its own fraction")]
 internal static partial class CrocomireSpeedGain
 {
     /// <summary>

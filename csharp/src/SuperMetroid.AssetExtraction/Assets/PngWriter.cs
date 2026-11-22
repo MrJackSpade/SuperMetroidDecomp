@@ -21,7 +21,7 @@ public static partial class PngWriter
         output.Write(type);
         output.Write(data);
 
-        uint crc = 0xffffffff; // cartridge-encoding: allow(Hash) - PNG CRC-32 preset register
+        uint crc = 0xffffffff;
         foreach (int value in type) crc = UpdateCrc(crc, value);
         foreach (int value in data) crc = UpdateCrc(crc, value);
         Span<byte> checksum = stackalloc byte[4];
@@ -34,7 +34,7 @@ public static partial class PngWriter
     {
         crc ^= (uint)Ensure.BetweenInclusive(0, byte.MaxValue, value);
         for (int bit = 0; bit < 8; bit++)
-            crc = (crc & 1) != 0 ? (crc >> 1) ^ 0xedb88320 : crc >> 1; // cartridge-encoding: allow(Hash) - reflected CRC-32 polynomial
+            crc = (crc & 1) != 0 ? (crc >> 1) ^ 0xedb88320 : crc >> 1;
         return crc;
     }
 }

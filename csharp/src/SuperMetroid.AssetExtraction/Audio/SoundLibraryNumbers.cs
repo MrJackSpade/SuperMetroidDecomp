@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// libraries, into the library it names, and encodes a library back to that number (#1553). This is the only place the
 /// game's sound libraries meet their cartridge numbering.
 /// </summary>
-[EncodingOwner("library numbers of the sound driver's three sound libraries")]
 internal static partial class SoundLibraryNumbers
 {
     /// <summary>Each library's number.</summary>

@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <!-- Cleanup fixture (tools/cleanup/check-fixtures.ps1): the second project compiling the shared files, without a
-       global using of Fixture.Shapes, so Shared/Corners.cs needs its own. -->
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-  </PropertyGroup>
-  <Import Project="../Shared.projitems" />
-</Project>

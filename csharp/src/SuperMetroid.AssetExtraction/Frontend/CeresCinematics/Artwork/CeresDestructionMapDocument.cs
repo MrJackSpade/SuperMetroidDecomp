@@ -3,7 +3,6 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable three-slice Mode 7 map schema for Ceres destruction; each cell is an eight-bit character index without ordinary BG palette, priority, or flip attributes.</summary>
-[SpatialComponents("External format: the destruction-maps JSON stores its declared grid dimensions as width/height integers.")]
 public sealed partial record CeresDestructionMapDocument
 {
     /// <summary>Map schema revision; loading currently requires version 1.</summary>

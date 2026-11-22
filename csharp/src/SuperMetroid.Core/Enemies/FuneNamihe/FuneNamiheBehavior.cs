@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// The Fune and Namihe species owner: their per-room behaviour, the animations and fireball they share, and the
 /// interactions they register. A Fune spits on its cooldown, a Namihe when Samus comes level with it (#2063).
 /// </summary>
-[RoomLifetime]
 internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>A Fune or a Namihe, each from its own settings.</summary>

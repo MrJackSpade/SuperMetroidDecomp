@@ -17,7 +17,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// each power-on case. The comparison leaves the carry set for a completed game and for a power-on that found no valid
 /// save, and clear when the save file's history holds neither.
 /// </remarks>
-[CompatibilityService("the save file found at power-on adds one frame to every rising-liquid and Tourian-statue earthquake rumble's delay")]
 public sealed partial class PowerOnEarthquakeSoundDelay
 {
     /// <summary>A session whose power-on check adds no frame.</summary>
@@ -32,7 +31,6 @@ public sealed partial class PowerOnEarthquakeSoundDelay
     /// Whether the save file's history holds anything: a completed game or an earlier power-on that found no valid save.
     /// </param>
     /// <returns><see cref="OneFrame"/> when no slot is valid or the history holds either; otherwise <see cref="None"/>.</returns>
-    [IndependentFlag("Power-on reads two independent facts from the save file: whether a slot is valid, and whether its history holds anything.")]
     public static PowerOnEarthquakeSoundDelay FoundAtPowerOn(bool validSaveFound, bool historyKept) =>
         !validSaveFound || historyKept ? OneFrame : None;
 

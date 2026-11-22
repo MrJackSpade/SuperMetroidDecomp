@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="ShortCounter">The enemies' short update count for the pass, which cadences sample.</param>
 /// <param name="FrameCounter">The game's update count for the pass, which cadences sample.</param>
 /// <param name="SamusBombs">Samus's bombs, for behaviours that react to them.</param>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly partial record struct EnemyProjectileMotionContext(
     EnemyProjectile Projectile,
     RoomLevelData Level,

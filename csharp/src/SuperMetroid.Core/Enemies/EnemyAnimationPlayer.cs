@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy animation player (#1624): advances each animating enemy's typed animation through its entity, and shows
 /// the body frames bosses show on their bodies.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyAnimationPlayer
 {
     /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>

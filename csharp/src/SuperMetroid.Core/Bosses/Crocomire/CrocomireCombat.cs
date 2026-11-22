@@ -8,7 +8,6 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's hitboxes, touch, projectiles and hurt flash, and what Samus's weapons do to it.</summary>
-[RoomLifetime]
 internal sealed partial class CrocomireCombat
 {
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>

@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.World;
 /// enemy's frame and supplemental sprites with the boss body frames the draw pass shows. Each draw shows at its frame's
 /// depth; the display culls what lies off screen.
 /// </summary>
-[RoomLifetime]
 internal sealed partial class EnemyDrawList
 {
     /// <summary>The encounters' sprites drawn after every queued enemy, in their order (#2571).</summary>

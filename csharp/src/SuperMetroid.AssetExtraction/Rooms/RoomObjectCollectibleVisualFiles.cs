@@ -77,7 +77,6 @@ public static partial class RoomObjectCollectibleVisualFiles
     /// the file does not hold, the name its native checks report.
     /// </summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
-    [InstalledKey]
     internal static string VisualId(CollectibleDraw draw) => Enum.IsDefined(draw)
         ? JsonNamingPolicy.KebabCaseLower.ConvertName(CollectibleDrawKeys.Installed.Of(draw))
         : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");

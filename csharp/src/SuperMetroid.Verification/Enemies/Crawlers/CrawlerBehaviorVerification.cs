@@ -39,12 +39,12 @@ internal static class CrawlerBehaviorVerification
             // The population entry names the surface; InitAI_Viola reads its block side instead.
             if (family == CrawlerAnimationFamily.Viola)
                 place.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+            else if (definition == EnemyDefinitionId.OrangeZoomer)
+                place.SetSpawnSettings(new OrangeZoomerSpawnSettings(orientation, CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
                 place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
-            if (definition == EnemyDefinitionId.OrangeZoomer)
-                CrawlersBehavior.InitializeOrangeZoomer(place.HeldOccupant().SpawnSettings<OrangeZoomerSpawnSettings>(), place);
-            else
-                CrawlersBehavior.InitializeCrawler(place.HeldOccupant().SpawnSettings<CrawlerSpawnSettings>(), place, family);
+            // The crawler is set up as the population load sets it up, its species building its entity.
+            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerSegment program = CrawlerSurfaceAnimations.AnimationFor(family, orientation);
             string context = $"{family} {orientation}";

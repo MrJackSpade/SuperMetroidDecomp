@@ -156,7 +156,7 @@ internal static partial class SpawnedObjectSheetComposer
             .Concat(EffectActorFrames(spawned.EffectActors).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EffectActorFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, 0),
+                    : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, EffectActorRow(frame)),
                 Drawn(FrameDrawings.Of(frame)))))
             .Concat(EncounterFrames(plan.Spawners, plan.Owner == SpawnedObjectOwner.Shared).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
@@ -273,6 +273,20 @@ internal static partial class SpawnedObjectSheetComposer
             }
         }
         return new SharedSpawnerFrames(spawnersOf);
+    }
+
+    /// <summary>
+    /// The row the effect actors showing <paramref name="frame"/> draw it in (#2641): the row their spawn ORs into every part
+    /// (<see cref="EffectActorPaletteRowDefinitions.Rows"/>), or none, so its parts show their own rows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two effect actors showing the frame draw it in different rows.</exception>
+    private static int EffectActorRow(EnemyFrameId frame)
+    {
+        int[] rows = [.. RoomEffectActorSegment.Kinds
+            .Where(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)).Any(picture => picture.EnemyFrame == frame))
+            .Select(kind => EffectActorPaletteRowDefinitions.Rows.GetValueOrDefault(kind, 0)).Distinct()];
+        return rows.Length == 1 ? rows[0]
+            : throw new InvalidDataException($"Room effect-actor frame {frame} is drawn in {rows.Length} rows by the effect actors showing it, not one.");
     }
 
     /// <summary>

@@ -30,8 +30,17 @@ internal sealed partial class NoobTubeProjectileAnimation
     private protected override IUnpausedAnimationPlay<NoobTubeProjectileSegment, NoobTubeProjectileFrame, NoobTubeProjectileCue> Segments => NoobTubeProjectileAnimations.Segments;
 
     /// <inheritdoc/>
-    private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame) =>
-        ShowsMirroredFrame && frame.Mirrored is { } mirrored ? mirrored : frame.Shown;
+    private protected override EnemyProjectileFrameId Present(NoobTubeProjectileFrame frame)
+    {
+        Showing = frame;
+        return ShowsMirroredFrame && frame.Mirrored is { } mirrored ? mirrored : frame.Shown;
+    }
+
+    /// <summary>
+    /// The beat the animation shows now: the shard's frame and, for a shard with one, its mirror image's, which a shard drawn
+    /// whole draws both of on every update (#2639).
+    /// </summary>
+    internal NoobTubeProjectileFrame? Showing { get; private set; }
 
     /// <summary>
     /// Whether the last flicker cue chose the shard's mirror image: a mirroring flicker shows it on even updates and the

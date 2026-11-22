@@ -61,6 +61,16 @@ internal partial class EnemyProjectileBehavior
     /// <param name="projectile">A projectile this behaviour is bound to.</param>
     internal virtual bool IsHidden(EnemyProjectile projectile) => false;
 
+    /// <summary>
+    /// The pictures the projectile shows on this update (#2639): its frame at its own place, or none while its flicker hides
+    /// it or it shows no frame.
+    /// </summary>
+    /// <param name="projectile">A projectile this behaviour is bound to.</param>
+    internal virtual IEnumerable<EnemyProjectileShownPicture> ShownPictures(EnemyProjectile projectile) =>
+        Ensure.NotNull(projectile).Frame is { } frame && !IsHidden(projectile)
+            ? [new EnemyProjectileShownPicture(projectile.Position.Whole, frame)]
+            : [];
+
     /// <summary>Whether a projectile of the kind shows the glow its thrower shows, as Magdollite lava does.</summary>
     internal virtual bool ShowsThrowersGlow => false;
 

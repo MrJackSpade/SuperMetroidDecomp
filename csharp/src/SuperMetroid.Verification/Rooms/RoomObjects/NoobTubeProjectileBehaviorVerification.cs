@@ -175,6 +175,12 @@ internal static class NoobTubeProjectileBehaviorVerification
                     ushort column = projectile.NoobTubeDebris.X.Whole;
                     AssertEqual(oddFrame ? column : unchecked((ushort)(256 - column)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
+                    // The shard is drawn whole on every update (#2639): itself at its column and its mirror image.
+                    EnemyProjectileShownPicture[] shown = [.. projectile.Behavior.ShownPictures(projectile)];
+                    AssertEqual(2, shown.Length, $"reflected flicker at $86:{entry:X4} draws the shard and its mirror image");
+                    AssertEqual(column, shown[0].At.X, $"reflected flicker at $86:{entry:X4} draws the shard at its column");
+                    AssertEqual(unchecked((ushort)(256 - column)), unchecked((ushort)shown[1].At.X),
+                        $"reflected flicker at $86:{entry:X4} draws its mirror image across the tube");
                 }
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
@@ -182,6 +188,9 @@ internal static class NoobTubeProjectileBehaviorVerification
                     AssertEqual(projectile.NoobTubeDebris.X.Whole, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
                     AssertEqual(!oddFrame, projectile.NoobTubeDebris.IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
+                    // The shard is drawn on every update all the same (#2639).
+                    AssertEqual(1, projectile.Behavior.ShownPictures(projectile).Count(),
+                        $"hiding flicker at $86:{entry:X4} draws the shard on every update");
                 }
             }
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);

@@ -167,6 +167,33 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
         /// <inheritdoc/>
         internal override bool IsHidden(EnemyProjectile projectile) => Pieces.Of(projectile).IsHidden;
 
+        /// <summary>
+        /// A shard is drawn whole on every update (#2639): under its reflected flicker, the shard at its column and its mirror
+        /// image across the tube, and under its hiding flicker, the shard at its column, where the game shows each on
+        /// alternate updates, which flickers them. The flicker still places the shard as the game does. The crack keeps its
+        /// own flicker and a bubble never flickers.
+        /// </summary>
+        internal override IEnumerable<EnemyProjectileShownPicture> ShownPictures(EnemyProjectile projectile)
+        {
+            Ensure.NotNull(projectile);
+            NoobTubeDebrisState piece = Pieces.Of(projectile);
+            if (projectile.Kind != RoomEnemyProjectileKind.NoobTubeShard || piece.Flicker == NoobTubeShardFlicker.None
+                || projectile.Animation is not NoobTubeProjectileAnimation { Showing: { } showing })
+                return base.ShownPictures(projectile);
+            int column = piece.X.Whole;
+            var own = new EnemyProjectileShownPicture(projectile.Position.Whole.WithX(column), showing.Shown);
+            return piece.Flicker == NoobTubeShardFlicker.Reflected && showing.Mirrored is { } mirrored
+                ? [own, new EnemyProjectileShownPicture(projectile.Position.Whole.WithX(MirrorColumn(column)), mirrored)]
+                : [own];
+        }
+
+        /// <summary>
+        /// The column of the mirror image across the tube of a shard at <paramref name="column"/>. A column past the room's
+        /// left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image lies as far past the
+        /// room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
+        /// </summary>
+        private static int MirrorColumn(int column) => OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column);
+
         /// <summary>A shard flies from its spawn; the crack and the bubbles hold still until their animations start them.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, NoobTubePieceMotion?> StartingMotions = new()
         {
@@ -216,20 +243,18 @@ internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSe
         {
             [NoobTubeProjectileCueKind.FlickerReflected] = (projectile, mirroring, atOwnColumn) =>
             {
-                // The shard shows itself at its column, or its mirror image mirrored across the tube. A column past the
-                // room's left edge lies at the end of the room's axis (AdvanceNoobTubeShardX), and its mirror image
-                // lies as far past the room's right edge, on the axis as OffRoomPlaces keeps it (#2537).
+                // The shard shows itself at its column, or its mirror image mirrored across the tube (MirrorColumn).
                 int column = Pieces.Of(projectile).X.Whole;
-                projectile.Position = projectile.Position.WithWholeX(atOwnColumn
-                    ? column
-                    : OffRoomPlaces.Place(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
+                projectile.Position = projectile.Position.WithWholeX(atOwnColumn ? column : MirrorColumn(column));
                 mirroring.ShowsMirroredFrame = !atOwnColumn;
+                Pieces.Of(projectile).Flicker = NoobTubeShardFlicker.Reflected;
             },
             [NoobTubeProjectileCueKind.FlickerHidden] = (projectile, mirroring, atOwnColumn) =>
             {
                 // The shard shows at its column on odd updates and is hidden on even ones.
                 projectile.Position = projectile.Position.WithWholeX(Pieces.Of(projectile).X.Whole);
                 Pieces.Of(projectile).IsHidden = !atOwnColumn;
+                Pieces.Of(projectile).Flicker = NoobTubeShardFlicker.Hiding;
             },
             [NoobTubeProjectileCueKind.AssignShardFallingAngle] = (projectile, mirroring, atOwnColumn) =>
             {

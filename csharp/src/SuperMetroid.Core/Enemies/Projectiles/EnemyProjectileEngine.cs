@@ -325,17 +325,16 @@ internal sealed partial class EnemyProjectileEngine
         Offset16<RoomPixels> shake = _earthquake.GetEnemyProjectileShake(timeIsFrozen);
         foreach (int place in EnemyProjectilePlaces.InRunOrder)
         {
-            if (ProjectilesInPlaces[place] is not { IsActive: true } projectile ||
-                projectile.Behavior.IsHidden(projectile) ||
-                projectile.Depth != depth ||
-                projectile.Frame is not { } frame)
+            if (ProjectilesInPlaces[place] is not { IsActive: true } projectile || projectile.Depth != depth)
                 continue;
 
-            // Every placement is published wherever it lies; the display clips it to the view (#1520).
-            Offset16<ScreenPixels> screen = (projectile.Position.Whole + projectile.FramePlacement + shake).RelativeToCamera(camera);
-
-            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
-                EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);
+            foreach (EnemyProjectileShownPicture picture in projectile.Behavior.ShownPictures(projectile))
+            {
+                // Every placement is published wherever it lies; the display clips it to the view (#1520).
+                Offset16<ScreenPixels> screen = (picture.At + projectile.FramePlacement + shake).RelativeToCamera(camera);
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
+                    EnemySheetDefinitions.ProjectileFrameName(picture.Frame), screen, projectile.ShownGraphics);
+            }
         }
     }
 

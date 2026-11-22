@@ -19,6 +19,9 @@ internal sealed partial class NoobTubeDebrisState : EnemyProjectileState
     /// <summary>Whether the crack's or a shard's flicker hides it on this update (#2455); a bubble never hides.</summary>
     public bool IsHidden { get; internal set; }
 
+    /// <summary>The flicker a shard's animation last ran, which places it but never keeps it from being drawn (#2639).</summary>
+    internal NoobTubeShardFlicker Flicker { get; set; }
+
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
     internal FixedCoordinate X { get; set; }
 

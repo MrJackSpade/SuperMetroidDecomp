@@ -26,7 +26,7 @@ internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, Roo
 
     /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The blast meeting the corpse.</param>
-    internal void StartRot(EnemyPowerBombContext context) => DeadTourianBehavior.ResolveDeadTourianCorpsePowerBomb(Ensure.NotNull(context).Enemy, state);
+    internal void StartRot(EnemyPowerBombContext context) => DeadTourianBehavior.ResolveDeadTourianCorpsePowerBomb(context.Enemy, state);
 
     /// <summary>Marks a shot's hit on the corpse and starts its rot, with no damage or impact.</summary>
     /// <param name="c">The shot meeting the corpse.</param>

@@ -14,6 +14,12 @@ internal sealed partial class EvirArmsEntity(EvirBehavior species, RoomEnemyOccu
     RoomEnemyPlace body)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The constructor's <c>species</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly EvirBehavior species = species;
+
+    /// <summary>The constructor's <c>body</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly RoomEnemyPlace body = body;
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly EvirArmsState state = species.InitializeEvirArms(place, body);
 
@@ -34,7 +40,7 @@ internal sealed partial class EvirArmsEntity(EvirBehavior species, RoomEnemyOccu
     /// <summary>Carries the part's Power Bomb hit on to the enemies its follow-up reaches, after the common damage.</summary>
     /// <param name="context">The blast meeting the enemy.</param>
     internal void PassHitOn(EnemyPowerBombContext context) =>
-        EvirBehavior.ResolveEvirCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+        EvirBehavior.ResolveEvirCombatAfterCommon(context.Enemy, FollowUpRecipients);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirArmsMainAi(Place, state);

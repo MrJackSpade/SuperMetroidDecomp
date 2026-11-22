@@ -34,7 +34,7 @@ internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupa
     /// <summary>Runs Rinka's own death after a Power Bomb's common damage leaves this Rinka without health.</summary>
     /// <param name="context">The blast meeting the Rinka.</param>
     internal void ResolveCombatAfterCommon(EnemyPowerBombContext context) =>
-        species.ResolveRinkaCombatAfterCommon(Occupant, Settings, Ensure.NotNull(context).Enemy, state);
+        species.ResolveRinkaCombatAfterCommon(Occupant, Settings, context.Enemy, state);
 
     /// <summary>
     /// Runs Rinka's own death after a shot's common damage leaves this Rinka without health; a shot that froze it at once

@@ -21,7 +21,7 @@ public sealed partial class ShinesparkCrashEcho(ShinesparkCrashEchoRelease relea
     /// The shot that carries the echo with the flight it departed on, or none before the echo first departs and after
     /// Samus's shots are cleared.
     /// </summary>
-    internal Carrier? _carrier;
+    private Carrier? _carrier;
 
     /// <summary>
     /// Where the echo is shown, or none once no shot carries it: once its shot's place no longer holds the flight it

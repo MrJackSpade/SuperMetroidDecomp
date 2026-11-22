@@ -10,6 +10,9 @@ internal sealed partial class GunshipTopEntity(GunshipBehavior species, RoomEnem
     EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+
     /// <summary>The ship the top hull holds from its setup (#2554).</summary>
     internal GunshipTop State { get; } = species.InitializeGunshipTop(place, surroundings.Samus);
 

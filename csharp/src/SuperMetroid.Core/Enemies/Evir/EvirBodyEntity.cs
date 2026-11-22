@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed partial class EvirBodyEntity(EvirBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, EvirSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal EvirSpawnSettings Settings { get; } = settings;
 
@@ -44,7 +47,7 @@ internal sealed partial class EvirBodyEntity(EvirBehavior species, RoomEnemyOccu
     /// <summary>Carries the part's Power Bomb hit on to the enemies its follow-up reaches, after the common damage.</summary>
     /// <param name="context">The blast meeting the enemy.</param>
     internal void PassHitOn(EnemyPowerBombContext context) =>
-        EvirBehavior.ResolveEvirCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+        EvirBehavior.ResolveEvirCombatAfterCommon(context.Enemy, FollowUpRecipients);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => EvirBehavior.RunEvirBodyMainAi(Settings, Place, State, frame);

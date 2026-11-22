@@ -62,6 +62,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="scene">The scene the demo plays.</param>
     internal sealed partial class AwaitingScene(FrontendSession session, AttractDemoScene scene) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Loading;
 
@@ -85,6 +88,9 @@ internal abstract partial class AttractDemoGameSequence
     internal sealed partial class LoadingScene(FrontendSession session, UpdateCountdown waits, int duration)
         : AttractDemoGameSequence(session), IStepPhase, IRuntimePhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Loading;
 
@@ -104,6 +110,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="duration">How long the scene's scripted input lasts once it plays.</param>
     internal sealed partial class Starting(FrontendSession session, int duration) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Starting;
 
@@ -124,6 +133,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="playback">The scripted input left, counted once each scripted update.</param>
     internal sealed partial class Playing(FrontendSession session, UpdateCountdown playback) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Playing;
 
@@ -145,6 +157,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="hold">The still-frame hold left.</param>
     internal sealed partial class Holding(FrontendSession session, UpdateCountdown hold) : AttractDemoGameSequence(session), IStepPhase, IGameplayPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Holding;
 
@@ -166,6 +181,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="end">How the scene ended: played to its end, or cancelled by a press (#2560).</param>
     internal sealed partial class Unloading(FrontendSession session, AttractPlaybackEnd end) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Unloading;
 
@@ -184,6 +202,9 @@ internal abstract partial class AttractDemoGameSequence
     /// <param name="route">Where the attract mode goes after the scene.</param>
     internal sealed partial class Routing(FrontendSession session, AttractDemoRoute route) : AttractDemoGameSequence(session), IStepPhase, IFrontendPhase
     {
+        /// <summary>The constructor's <c>session</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly FrontendSession session = session;
+
         /// <inheritdoc/>
         public override AttractDemoStep StepName => AttractDemoStep.Routing;
 

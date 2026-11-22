@@ -17,7 +17,7 @@ internal sealed partial class MetroidEntity(MetroidBehavior species, RoomEnemyOc
 
     /// <summary>Clears the Metroid's outer body before a lethal Power Bomb's generic death.</summary>
     /// <param name="context">The blast meeting the Metroid.</param>
-    internal void FinishDeath(EnemyPowerBombContext context) => MetroidBehavior.FinishMetroidDeath(state, Ensure.NotNull(context).Samus);
+    internal void FinishDeath(EnemyPowerBombContext context) => MetroidBehavior.FinishMetroidDeath(state, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its hit.</summary>
     /// <param name="c">The shot meeting the Metroid.</param>

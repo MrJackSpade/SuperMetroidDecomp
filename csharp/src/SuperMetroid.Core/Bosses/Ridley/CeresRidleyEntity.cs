@@ -21,6 +21,9 @@ internal sealed partial class CeresRidleyEntity(CeresRidleyBehavior ceres, ICere
     RoomEnemyPlace place, EnemyCommonParticipation common)
     : RidleyEntity(ceres.Body, occupant, place, common), IEnemyShotAdmission
 {
+    /// <summary>The constructor's <c>warning</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly RoomWarning warning = warning;
+
     /// <summary>The Ceres encounter his body holds from its initialization.</summary>
     internal override CeresRidleyState Encounter { get; } = ceres.Flight.InitializeCeresRidley(place, warning);
 

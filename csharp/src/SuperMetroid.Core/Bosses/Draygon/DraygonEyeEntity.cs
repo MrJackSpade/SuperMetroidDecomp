@@ -14,6 +14,9 @@ internal sealed partial class DraygonEyeEntity(DraygonBehavior species, RoomEnem
     DraygonEnemyState draygon)
     : DraygonEntity(species, occupant, place, common, bossArtwork)
 {
+    /// <summary>The constructor's <c>draygon</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly DraygonEnemyState draygon = draygon;
+
     /// <summary>The eye's part of the encounter it joined as it set up.</summary>
     internal override DraygonPart Part { get; } = DraygonParts.InitializeDraygonEye(place, draygon);
 

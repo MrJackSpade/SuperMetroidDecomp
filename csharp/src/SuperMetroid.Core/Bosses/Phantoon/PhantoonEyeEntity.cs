@@ -14,6 +14,9 @@ internal sealed partial class PhantoonEyeEntity(PhantoonBehavior species, RoomEn
     PhantoonEnemyState encounter)
     : PhantoonEntity(species, occupant, place, common, bossArtwork, PhantoonBehavior.InitializePhantoonEye(encounter))
 {
+    /// <summary>The constructor's <c>encounter</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly PhantoonEnemyState encounter = encounter;
+
     /// <summary>Takes no action of its own: the eye plays its own animation.</summary>
     /// <param name="frame">The enemy frame.</param>
     public override void RunMainAi(IEnemyAiFrame frame)

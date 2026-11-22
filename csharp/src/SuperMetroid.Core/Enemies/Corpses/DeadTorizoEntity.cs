@@ -22,7 +22,7 @@ internal sealed partial class DeadTorizoEntity(DeadTorizoBehavior species, RoomE
 
     /// <summary>Starts the corpse rotting on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The blast meeting the corpse.</param>
-    internal void StartRot(EnemyPowerBombContext context) => DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(Ensure.NotNull(context).Enemy, State);
+    internal void StartRot(EnemyPowerBombContext context) => DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(context.Enemy, State);
 
     /// <summary>Marks a shot's hit on the corpse and starts it rotting, with no damage or explosion.</summary>
     /// <param name="c">The shot meeting the corpse.</param>

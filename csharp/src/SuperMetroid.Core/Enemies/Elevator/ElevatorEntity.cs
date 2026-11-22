@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 internal sealed partial class ElevatorEntity(ElevatorBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings, ElevatorSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal ElevatorSpawnSettings Settings { get; } = settings;
 

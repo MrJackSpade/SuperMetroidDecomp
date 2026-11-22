@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>One Yard occupant: its own AI, with the shared reactions.</summary>

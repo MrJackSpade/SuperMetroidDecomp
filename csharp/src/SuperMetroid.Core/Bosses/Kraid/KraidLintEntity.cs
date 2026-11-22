@@ -11,8 +11,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
 internal sealed partial class KraidLintEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, KraidLintPart lint,
     KraidEnemyState encounter)
-    : KraidEntity(species, occupant, place, common, () => species.Projectiles.InitializeKraidLint(place, lint, encounter)), IEnemyTypedAnimation
+    : KraidEntity(species, occupant, place, common, species.Projectiles.InitializeKraidLint(place, lint, encounter)), IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>encounter</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly KraidEnemyState encounter = encounter;
+
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidLintMain(Occupant, Encounter.Lint(lint), frame.Samus, frame.PseudoScrew);

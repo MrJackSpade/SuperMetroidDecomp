@@ -15,6 +15,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed partial class CeresDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HorizontalDirection facing)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>facing</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly HorizontalDirection facing = facing;
+
     /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
     private readonly CeresDoorAnimationState state = doors.Start(place, facing, CeresDoorSegment.Door);
 

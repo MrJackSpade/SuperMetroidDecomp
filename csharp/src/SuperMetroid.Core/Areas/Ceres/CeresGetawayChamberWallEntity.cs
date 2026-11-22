@@ -14,6 +14,9 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed partial class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment side)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>side</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly CeresDoorSegment side = side;
+
     /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>
     private readonly CeresDoorAnimationState state = doors.Start(place, HorizontalDirection.Right, side);
 

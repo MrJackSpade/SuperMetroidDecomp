@@ -40,7 +40,7 @@ internal abstract partial class DragonPartEntity(DragonBehavior species, RoomEne
     /// <summary>Carries the part's Power Bomb hit on to the enemy its follow-up reaches, after the common damage.</summary>
     /// <param name="context">The blast meeting the enemy.</param>
     internal void CarryHitOn(EnemyPowerBombContext context) =>
-        EnemyPartnerHits.CarryOnto(Ensure.NotNull(context).Enemy, FollowUpRecipient);
+        EnemyPartnerHits.CarryOnto(context.Enemy, FollowUpRecipient);
 
     /// <summary>Whether the part's definition leaves Samus's touch to the species.</summary>
     private bool LeavesTouchToDragon => Occupant.Definition.Touch == DragonReactions.Touch;

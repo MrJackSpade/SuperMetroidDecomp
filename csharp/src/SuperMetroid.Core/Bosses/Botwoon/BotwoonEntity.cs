@@ -32,7 +32,7 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
 
     /// <summary>Finishes a Power Bomb's hit on Botwoon's head, after its common damage.</summary>
     /// <param name="context">The blast meeting the head.</param>
-    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, state);
+    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(context.Enemy, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, state, frame);

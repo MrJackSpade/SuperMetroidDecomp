@@ -26,7 +26,11 @@ internal abstract partial class YardMotion
 
     /// <summary>A movement on or against a surface, which needs nothing beyond the Yard's state.</summary>
     /// <param name="movement">The movement.</param>
-    private sealed partial class Grounded(YardMovement movement) : YardMotion(movement);
+    private sealed partial class Grounded(YardMovement movement) : YardMotion(movement)
+    {
+        /// <summary>The constructor's <c>movement</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly YardMovement movement = movement;
+    }
 
     /// <summary>The Yard's shell flies, falling, bouncing and slowing until it lands.</summary>
     /// <param name="landing">The animation the Yard hides with once it lands.</param>

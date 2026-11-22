@@ -46,7 +46,7 @@ internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemy
 
     /// <summary>Carries a Power Bomb's hit on from the body to its balloon, after the common damage.</summary>
     /// <param name="context">The blast meeting the body.</param>
-    internal void CarryPowerBombOnToBalloon(EnemyPowerBombContext context) => EnemyPartnerHits.CarryOnto(Ensure.NotNull(context).Enemy, balloon.Place);
+    internal void CarryPowerBombOnToBalloon(EnemyPowerBombContext context) => EnemyPartnerHits.CarryOnto(context.Enemy, balloon.Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, state, balloon, frame.Level, frame.Samus);

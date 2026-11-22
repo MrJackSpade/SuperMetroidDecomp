@@ -15,6 +15,9 @@ internal abstract partial class VerticalShutterEntity(ShuttersBehavior species, 
     ShutterSpawnSettings settings, ShutterSegment pose)
     : ShuttersEntity(species, occupant, place, common)
 {
+    /// <summary>The constructor's <c>pose</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly ShutterSegment pose = pose;
+
     /// <summary>What the shutter's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal ShutterSpawnSettings Settings { get; } = settings;
 
@@ -26,7 +29,7 @@ internal abstract partial class VerticalShutterEntity(ShuttersBehavior species, 
 
     /// <summary>Sets the shutter off on a Power Bomb, in place of its common damage.</summary>
     /// <param name="context">The Power Bomb's blast meeting the shutter.</param>
-    internal void ReactToPowerBomb(EnemyPowerBombContext context) => Species.ReactVerticalShutter(Settings, Ensure.NotNull(context).Enemy, State, context.Camera);
+    internal void ReactToPowerBomb(EnemyPowerBombContext context) => Species.ReactVerticalShutter(Settings, context.Enemy, State, context.Camera);
 
     /// <summary>
     /// Marks a shot's collision with the shootable shutter and sets it off, after the Super Missile quake: a shot deals the

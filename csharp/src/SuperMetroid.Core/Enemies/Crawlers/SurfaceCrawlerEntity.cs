@@ -13,6 +13,12 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed partial class SurfaceCrawlerEntity(CrawlersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, CrawlerAnimationFamily family, CrawlerSpawnSettings settings)
     : CrawlerEntity(occupant, place, common, CrawlersBehavior.InitializeCrawler(settings, place, family))
 {
+    /// <summary>The constructor's <c>family</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly CrawlerAnimationFamily family = family;
+
+    /// <summary>The constructor's <c>settings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly CrawlerSpawnSettings settings = settings;
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => species.RunCrawlerMainAi(Place, State, frame);
 }

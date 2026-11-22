@@ -15,6 +15,9 @@ internal sealed partial class CrocomireTongueEntity(CrocomireBehavior species, R
     CrocomireEnemyState encounter)
     : CrocomireEntity(species, occupant, place, common)
 {
+    /// <summary>The constructor's <c>encounter</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly CrocomireEnemyState encounter = encounter;
+
     /// <summary>The tongue's state, which holds the encounter it joined, from its setup (#2554).</summary>
     private readonly CrocomireTongueState tongue = species.Fight.InitializeCrocomireTongue(place, encounter);
     /// <summary>The encounter the tongue joined as it set up.</summary>

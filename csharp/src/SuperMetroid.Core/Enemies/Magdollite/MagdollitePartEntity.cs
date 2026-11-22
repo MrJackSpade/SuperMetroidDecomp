@@ -39,7 +39,7 @@ internal abstract partial class MagdollitePartEntity(MagdolliteBehavior species,
     /// <summary>Passes the part's fate on to the enemies its follow-up reaches, after a Power Bomb's common damage.</summary>
     /// <param name="context">The blast meeting the part.</param>
     internal void PassFateOn(EnemyPowerBombContext context) =>
-        MagdolliteBehavior.ResolveMagdolliteCombatAfterCommon(Ensure.NotNull(context).Enemy, FollowUpRecipients);
+        MagdolliteBehavior.ResolveMagdolliteCombatAfterCommon(context.Enemy, FollowUpRecipients);
 
     /// <summary>The Magdollite the part belongs to, which it holds from its setup.</summary>
     internal abstract MagdollitePartners Partners { get; }

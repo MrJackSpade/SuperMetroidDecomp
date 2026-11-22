@@ -56,6 +56,9 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation.</param>
     public sealed partial class Fighting(KraidFightPhase phase, KraidRisenHead head) : Risen(head)
     {
+        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly KraidRisenHead head = head;
+
         /// <summary>The phase of his fight the body runs.</summary>
         public KraidFightPhase Phase { get; internal set; } = phase;
 
@@ -74,6 +77,9 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation.</param>
     public sealed partial class Growing(KraidGrowthPhase phase, KraidRisenHead head) : Risen(head)
     {
+        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly KraidRisenHead head = head;
+
         /// <summary>The phase of his growth the body runs.</summary>
         public KraidGrowthPhase Phase { get; internal set; } = phase;
 
@@ -92,6 +98,9 @@ public abstract partial class KraidStageRun
     /// <param name="head">His head's animation, which plays his dying cry.</param>
     public sealed partial class Dying(KraidDeathPhase phase, KraidRisenHead head) : Risen(head)
     {
+        /// <summary>The constructor's <c>head</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+        private readonly KraidRisenHead head = head;
+
         /// <summary>The phase of his death the body runs.</summary>
         public KraidDeathPhase Phase { get; internal set; } = phase;
 

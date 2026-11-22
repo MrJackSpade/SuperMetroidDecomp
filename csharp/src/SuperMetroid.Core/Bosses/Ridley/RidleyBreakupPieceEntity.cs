@@ -17,6 +17,12 @@ internal sealed partial class RidleyBreakupPieceEntity(NorfairRidleyDeath death,
     RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
+    /// <summary>The constructor's <c>settings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly RidleyExplosionSpawnSettings settings = settings;
+
+    /// <summary>The constructor's <c>breakup</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly RidleyBreakupSource breakup = breakup;
+
     /// <summary>The piece's flight, which its setup builds from the breakup it joins.</summary>
     internal RidleyExplosionFragmentState Fragment { get; } = death.InitializeNorfairRidleyExplosion(settings, place, breakup);
 

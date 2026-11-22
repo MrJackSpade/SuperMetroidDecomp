@@ -55,7 +55,7 @@ public sealed partial class SamusParticle
     public SamusParticleKind Kind { get; }
 
     /// <summary>Where the particle stands: waiting hidden, or showing its animation's pictures.</summary>
-    internal SamusParticleStage Stage { get; internal set; }
+    internal SamusParticleStage Stage { get; set; }
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.

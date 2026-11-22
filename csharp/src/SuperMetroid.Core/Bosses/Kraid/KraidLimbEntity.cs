@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the limb occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="setUp">The part\'s setup once it has joined Kraid, which returns the encounter it joined.</param>
+/// <param name="encounter">The encounter the limb joined, which its setup returned as the limb was built.</param>
 internal abstract partial class KraidLimbEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    Func<KraidEnemyState> setUp)
-    : KraidEntity(species, occupant, place, common, setUp), IEnemyTypedAnimation, IPlacedEnemyPicture
+    KraidEnemyState encounter)
+    : KraidEntity(species, occupant, place, common, encounter), IEnemyTypedAnimation, IPlacedEnemyPicture
 {
     /// <summary>Where the limb's pose places its picture: the foot's step along its walk (#2210).</summary>
     public Offset16<RoomPixels> PicturePlacement => Pose?.Placement ?? Offset16<RoomPixels>.Zero;

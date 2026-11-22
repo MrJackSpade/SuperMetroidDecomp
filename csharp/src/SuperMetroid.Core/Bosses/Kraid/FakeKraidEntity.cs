@@ -11,6 +11,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed partial class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, EnemyPopulationSurroundings surroundings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>The constructor's <c>surroundings</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly EnemyPopulationSurroundings surroundings = surroundings;
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly FakeKraidEnemyState state = species.InitializeFakeKraid(place, surroundings.Samus);
 

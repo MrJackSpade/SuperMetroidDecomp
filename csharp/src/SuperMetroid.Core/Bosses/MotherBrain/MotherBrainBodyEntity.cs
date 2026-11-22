@@ -21,6 +21,9 @@ internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species,
     BossArtworkBinding bossArtwork, RoomWarning zebesWarning)
     : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
 {
+    /// <summary>The constructor's <c>zebesWarning</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly RoomWarning zebesWarning = zebesWarning;
+
     /// <summary>The encounter the body begins as it is set up, which her head joins (#2218, #2554).</summary>
     internal override MotherBrainEnemyState Encounter { get; } = species.BeginEncounter(occupant, zebesWarning);
 

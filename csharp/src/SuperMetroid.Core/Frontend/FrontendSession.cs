@@ -685,13 +685,13 @@ internal sealed partial class FrontendSession
     /// <summary>The session's random number generator, which the frontend and every gameplay runtime share.</summary>
     internal SharedRandom Random { get; }
     /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
-    internal void DiscardRuntime() => Runtime = null;
+    internal void DiscardRuntime() => runtime = null;
     /// <summary>Transfers the camera position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntime()
     {
         // File-map selection may release when no runtime was ever created.
-        Runtime?.LeaveCameraFractions();
-        Runtime = null;
+        runtime?.LeaveCameraFractions();
+        runtime = null;
     }
 
     /// <summary>

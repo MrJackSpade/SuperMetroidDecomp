@@ -13,6 +13,9 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 internal sealed partial class MorphBallEyeMountEntity(MorphBallEyeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, MorphBallEyeMountSpawnSettings settings)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>species</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly MorphBallEyeBehavior species = species;
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal MorphBallEyeMountSpawnSettings Settings { get; } = settings;
 

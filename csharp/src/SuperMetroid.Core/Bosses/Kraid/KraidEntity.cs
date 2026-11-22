@@ -11,16 +11,16 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="setUp">The part's setup once it has joined Kraid, which returns the encounter it joined.</param>
+/// <param name="encounter">The encounter the part joined, which its setup returned as the part was built.</param>
 internal abstract partial class KraidEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    Func<KraidEnemyState> setUp)
+    KraidEnemyState encounter)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyFrameHitboxes
 {
     /// <summary>The Kraid species owner.</summary>
     protected KraidBehavior Species => species;
 
     /// <summary>The encounter the part is part of, which it holds from its setup (#2218, #2554).</summary>
-    internal KraidEnemyState Encounter { get; } = Ensure.NotNull(setUp)();
+    internal KraidEnemyState Encounter { get; } = Ensure.NotNull(encounter);
 
 
     /// <inheritdoc/>

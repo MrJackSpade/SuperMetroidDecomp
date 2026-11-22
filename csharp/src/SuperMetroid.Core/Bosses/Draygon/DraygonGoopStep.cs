@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="exit">The swoop setup the pass leads into.</param>
 internal abstract partial class DraygonGoopStep(DraygonPhase phase, DraygonPhaseStep exit) : DraygonPhaseStep(phase)
 {
+    /// <summary>The constructor's <c>phase</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly DraygonPhase phase = phase;
+
     /// <summary>The swoop setup the pass leads into once it leaves the screen.</summary>
     internal DraygonPhaseStep Exit { get; } = exit;
 }

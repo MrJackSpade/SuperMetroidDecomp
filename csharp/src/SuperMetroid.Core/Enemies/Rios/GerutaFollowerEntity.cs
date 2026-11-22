@@ -13,6 +13,9 @@ internal sealed partial class GerutaFollowerEntity(GerutaBehavior species, RoomE
     GerutaEntity parent)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>The constructor's <c>parent</c>, kept so a debugger state rebuilds the object through it (#2602).</summary>
+    private readonly GerutaEntity parent = parent;
+
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
     private readonly GerutaFollowerState state = species.InitializeGerutaFollower(place, parent);
 

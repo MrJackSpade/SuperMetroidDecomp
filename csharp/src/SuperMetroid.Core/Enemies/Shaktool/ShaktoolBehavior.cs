@@ -102,60 +102,79 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>
-    /// How the segment in <paramref name="place"/> moves while its motion runs, as its definition names it (#2452): the
-    /// leading saw is the chain's fixed anchor; every later segment orbits the one its chain lists before it, the centre
-    /// facing the one listed after it and the trailing saw driving the chain through the terrain.
+    /// How the segment in <paramref name="place"/>, whose setup gave it <paramref name="state"/>, moves while its motion runs,
+    /// as its definition names it (#2452): the leading saw is the chain's fixed anchor; every later segment orbits the one its
+    /// chain lists before it, the centre facing the one listed after it and the trailing saw driving the chain through the
+    /// terrain.
     /// </summary>
     /// <exception cref="InvalidDataException">The definition names a motion Shaktool has no behaviour for.</exception>
-    internal IShaktoolCourse CourseOf(RoomEnemyPlace place, ShaktoolSegmentDefinition definition, ShaktoolChain chain) =>
+    internal IShaktoolCourse CourseOf(RoomEnemyPlace place, ShaktoolSegmentState state, ShaktoolSegmentDefinition definition, ShaktoolChain chain) =>
         definition.Motion switch
         {
-            ShaktoolSegmentMotion.Idle => new Anchored(),
-            ShaktoolSegmentMotion.OrbitPreviousSegment => new Orbiting(place, chain.Before(definition), chain),
-            ShaktoolSegmentMotion.OrbitAndOrientCenter => new OrientingCenter(place, chain.Before(definition), chain.After(definition), chain),
-            ShaktoolSegmentMotion.DriveTailAndReverseAtWalls => new DrivingTail(this, place, chain.Before(definition), chain),
+            ShaktoolSegmentMotion.Idle => new Anchored(state),
+            ShaktoolSegmentMotion.OrbitPreviousSegment => new Orbiting(place, state, chain.Before(definition), chain),
+            ShaktoolSegmentMotion.OrbitAndOrientCenter => new OrientingCenter(place, state, chain.Before(definition), chain.After(definition), chain),
+            ShaktoolSegmentMotion.DriveTailAndReverseAtWalls => new DrivingTail(this, place, state, chain.Before(definition), chain),
             _ => throw new InvalidDataException($"Shaktool has no motion {definition.Motion}."),
         };
 
     /// <summary>The course of the leading saw, the chain's fixed anchor, which does not move.</summary>
-    private sealed partial class Anchored : IShaktoolCourse
+    /// <param name="state">The leading saw's state.</param>
+    private sealed partial class Anchored(ShaktoolSegmentState state) : IShaktoolCourse
     {
         /// <inheritdoc/>
-        public void Advance(ShaktoolSegmentState state, RoomLevelData level)
+        public ShaktoolSegmentState State => state;
+
+        /// <inheritdoc/>
+        public void Advance(RoomLevelData level)
         {
         }
     }
 
     /// <summary>The course of a segment in <paramref name="place"/> orbiting <paramref name="previous"/>.</summary>
     /// <param name="place">The segment's place.</param>
+    /// <param name="state">The segment's state.</param>
     /// <param name="previous">The place of the segment its chain lists before it.</param>
     /// <param name="chain">The segment's chain.</param>
-    private sealed partial class Orbiting(RoomEnemyPlace place, RoomEnemyPlace previous, ShaktoolChain chain) : IShaktoolCourse
+    private sealed partial class Orbiting(RoomEnemyPlace place, ShaktoolSegmentState state, RoomEnemyPlace previous, ShaktoolChain chain) : IShaktoolCourse
     {
         /// <inheritdoc/>
-        public void Advance(ShaktoolSegmentState state, RoomLevelData level) => AdvanceShaktoolOrbit(place, state, previous, chain);
+        public ShaktoolSegmentState State => state;
+
+        /// <inheritdoc/>
+        public void Advance(RoomLevelData level) => AdvanceShaktoolOrbit(place, state, previous, chain);
     }
 
     /// <summary>The course of the centre in <paramref name="place"/>, orbiting <paramref name="previous"/> and facing toward <paramref name="next"/>.</summary>
     /// <param name="place">The centre's place.</param>
+    /// <param name="state">The centre's state.</param>
     /// <param name="previous">The place of the segment its chain lists before it.</param>
     /// <param name="next">The segment its chain lists after it.</param>
     /// <param name="chain">The centre's chain.</param>
-    private sealed partial class OrientingCenter(RoomEnemyPlace place, RoomEnemyPlace previous, ShaktoolChainSegment next, ShaktoolChain chain) : IShaktoolCourse
+    private sealed partial class OrientingCenter(RoomEnemyPlace place, ShaktoolSegmentState state, RoomEnemyPlace previous, ShaktoolChainSegment next,
+        ShaktoolChain chain) : IShaktoolCourse
     {
         /// <inheritdoc/>
-        public void Advance(ShaktoolSegmentState state, RoomLevelData level) => AdvanceAndOrientShaktoolCenter(place, state, previous, next, chain);
+        public ShaktoolSegmentState State => state;
+
+        /// <inheritdoc/>
+        public void Advance(RoomLevelData level) => AdvanceAndOrientShaktoolCenter(place, state, previous, next, chain);
     }
 
     /// <summary>The course of the trailing saw in <paramref name="place"/>, orbiting <paramref name="previous"/> through the terrain.</summary>
     /// <param name="species">The Shaktool species owner, whose terrain the saw strikes.</param>
     /// <param name="place">The trailing saw's place.</param>
+    /// <param name="state">The trailing saw's state.</param>
     /// <param name="previous">The place of the segment its chain lists before it.</param>
     /// <param name="chain">The trailing saw's chain.</param>
-    private sealed partial class DrivingTail(ShaktoolBehavior species, RoomEnemyPlace place, RoomEnemyPlace previous, ShaktoolChain chain) : IShaktoolCourse
+    private sealed partial class DrivingTail(ShaktoolBehavior species, RoomEnemyPlace place, ShaktoolSegmentState state, RoomEnemyPlace previous,
+        ShaktoolChain chain) : IShaktoolCourse
     {
         /// <inheritdoc/>
-        public void Advance(ShaktoolSegmentState state, RoomLevelData level) => species.DriveShaktoolTail(place, state, level, previous, chain);
+        public ShaktoolSegmentState State => state;
+
+        /// <inheritdoc/>
+        public void Advance(RoomLevelData level) => species.DriveShaktoolTail(place, state, level, previous, chain);
     }
 
     /// <summary>
@@ -198,16 +217,13 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
     }
 
     /// <summary>Runs Shaktool's main behaviour: the segment's course, while its motion runs.</summary>
-    private static void RunShaktoolMain(
-        ShaktoolSegmentState state,
-        IShaktoolCourse course,
-        RoomLevelData level)
+    private static void RunShaktoolMain(IShaktoolCourse course, RoomLevelData level)
     {
         // A segment stands idle while its chain bobs its head at a wall, and otherwise takes the course its definition
         // names (CourseOf), which its motion holds again once the bob ends.
-        if (state.Motion == ShaktoolSegmentMotion.Idle)
+        if (course.State.Motion == ShaktoolSegmentMotion.Idle)
             return;
-        course.Advance(state, level);
+        course.Advance(level);
     }
 
     /// <summary>Places the segment on its orbit around <paramref name="previous"/>, the segment before it in the chain.</summary>
@@ -507,8 +523,8 @@ internal sealed partial class ShaktoolBehavior : IEnemySpecies, IEnemySpawnFacto
     };
 
     /// <summary>Runs Shaktool's main AI: the segment's <paramref name="course"/>, while its motion runs.</summary>
-    internal static void RunShaktoolMainAi(ShaktoolSegmentState state, IShaktoolCourse course, IEnemyAiFrame frame) =>
-        RunShaktoolMain(state, course, frame.Level);
+    internal static void RunShaktoolMainAi(IShaktoolCourse course, IEnemyAiFrame frame) =>
+        RunShaktoolMain(course, frame.Level);
 
     /// <summary>
     /// Advances Shaktool's typed animation. The head's clock stays stopped while its chain orients it, so its animation

@@ -12,9 +12,26 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed partial class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : PhantoonEntity(species, occupant, place, common, bossArtwork, species.InitializePhantoonBody(occupant, place)), IEnemyContactHooks, IEnemyPrivateShotReaction
+/// <param name="part">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, PhantoonPart part)
+    : PhantoonEntity(species, occupant, place, common, bossArtwork, part), IEnemyContactHooks, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Phantoon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    internal PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork)
+        : this(species, occupant, place, common, bossArtwork, species.InitializePhantoonBody(occupant, place))
+    {
+    }
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);
 

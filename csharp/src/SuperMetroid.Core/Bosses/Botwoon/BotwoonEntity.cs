@@ -7,9 +7,24 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BotwoonEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Botwoon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(species, occupant, place, common, species.InitializeBotwoon(occupant, place))
+    {
+    }
+
     /// <summary>The species' BotwoonShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(this);
 
@@ -20,7 +35,7 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
     private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(this);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly BotwoonEnemyState state = species.InitializeBotwoon(occupant, place);
+    private readonly BotwoonEnemyState state = state;
 
     /// <summary>Finishes a shot's hit on Botwoon's head, after its common damage.</summary>
     /// <param name="context">The shot's hit.</param>

@@ -8,16 +8,28 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
-internal sealed partial class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    SqueeptEntity parent)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, NorfairLavaJumperFollowerState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <summary>The <c>parent</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly SqueeptEntity parent = parent;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Squeept species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the follower occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="parent">The parent the room lists right before the follower, which offered it its creation (#2554).</param>
+    internal NorfairLavaJumperFollowerEntity(SqueeptBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        EnemyCommonParticipation common, SqueeptEntity parent)
+        : this(species, occupant, place, common, species.InitializeNorfairLavaJumperFollower(place, parent))
+    {
+    }
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly NorfairLavaJumperFollowerState state = species.InitializeNorfairLavaJumperFollower(place, parent);
+    private readonly NorfairLavaJumperFollowerState state = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNorfairLavaJumperFollowerMain(Place, state);

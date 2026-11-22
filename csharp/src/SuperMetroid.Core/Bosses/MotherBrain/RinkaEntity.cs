@@ -8,9 +8,26 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RinkaSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    RinkaSpawnSettings settings, RinkaEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Rinka species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RinkaSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeRinka(settings, place))
+    {
+    }
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal RinkaSpawnSettings Settings { get; } = settings;
 
@@ -24,7 +41,7 @@ internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupa
     private EnemyPowerBombReaction OwnPowerBomb => field ??= RinkaBehavior.RinkaPowerBombReaction(this);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly RinkaEnemyState state = species.InitializeRinka(settings, place);
+    private readonly RinkaEnemyState state = state;
 
     /// <summary>Runs Rinka's own death after a bomb's common damage leaves this Rinka without health.</summary>
     /// <param name="context">The bomb's hit.</param>

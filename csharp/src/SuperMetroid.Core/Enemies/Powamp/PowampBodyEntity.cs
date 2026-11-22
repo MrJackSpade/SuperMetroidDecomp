@@ -9,17 +9,35 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, PowampBodySpawnSettings settings)
+/// <param name="balloon">What the enemy's setup built (#2554).</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, PowampBodySpawnSettings settings, PowampBalloonEntity balloon, PowampBodyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Powamp species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        PowampBodySpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.PlacedBalloon(place), PowampBehavior.InitializePowampBody(place))
+    {
+    }
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal PowampBodySpawnSettings Settings { get; } = settings;
 
     /// <summary>The balloon the room lists right before the body, which the body receives as it is built (#2554).</summary>
-    private readonly PowampBalloonEntity balloon = species.PlacedBalloon(place);
+    private readonly PowampBalloonEntity balloon = balloon;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly PowampBodyState state = PowampBehavior.InitializePowampBody(place);
+    private readonly PowampBodyState state = state;
 
     /// <summary>The body's own shot reaction, built once for this body.</summary>
     private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(this);

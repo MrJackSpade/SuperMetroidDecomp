@@ -10,16 +10,28 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tongue occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="encounter">The encounter his body began, which the tongue joins as it is built.</param>
-internal sealed partial class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    CrocomireEnemyState encounter)
+/// <param name="tongue">What the enemy's setup built (#2554).</param>
+internal sealed partial class CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, CrocomireTongueState tongue)
     : CrocomireEntity(species, occupant, place, common)
 {
-    /// <summary>The <c>encounter</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly CrocomireEnemyState encounter = encounter;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Crocomire species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the tongue occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter his body began, which the tongue joins as it is built.</param>
+    internal CrocomireTongueEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        CrocomireEnemyState encounter)
+        : this(species, occupant, place, common, species.Fight.InitializeCrocomireTongue(place, encounter))
+    {
+    }
 
     /// <summary>The tongue's state, which holds the encounter it joined, from its setup (#2554).</summary>
-    private readonly CrocomireTongueState tongue = species.Fight.InitializeCrocomireTongue(place, encounter);
+    private readonly CrocomireTongueState tongue = tongue;
     /// <summary>The encounter the tongue joined as it set up.</summary>
     internal override CrocomireEnemyState Encounter => tongue.Crocomire;
 

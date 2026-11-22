@@ -20,7 +20,7 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
     public EnemyOccupant Create(RoomEnemyOccupant occupant, DragonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
     {
         if (Ensure.NotNull(settings).Part == DragonPart.Wing)
-            return EnemyOccupant.PlacedOnly(new DragonWingEntity(this, occupant, place, common, StartingWingState()));
+            return EnemyOccupant.PlacedOnly(DragonWingEntity.SetUp(this, occupant, place, common, StartingWingState()));
         var body = new DragonEntity(this, occupant, place, common);
         _partOffers.Offer<DragonSpawnSettings>(EnemyDefinitionId.Dragon, new WingJoining(this, body).CreateLater);
         return EnemyOccupant.Running(body);
@@ -37,7 +37,7 @@ internal sealed partial class DragonBehavior : IEnemySpecies, IEnemySpawnFactory
         /// <summary>A later entry: the body's wing, or another body.</summary>
         internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, DragonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
             settings.Part == DragonPart.Wing
-                ? EnemyOccupant.PlacedOnly(new DragonWingEntity(species, occupant, place, common, body.State.WingState))
+                ? EnemyOccupant.PlacedOnly(DragonWingEntity.SetUp(species, occupant, place, common, body.State.WingState))
                 : species.Create(occupant, settings, place, common);
     }
 

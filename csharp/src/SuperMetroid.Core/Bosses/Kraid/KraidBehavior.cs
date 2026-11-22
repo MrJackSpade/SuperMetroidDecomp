@@ -61,31 +61,31 @@ internal sealed partial class KraidBehavior : IEnemySpecies, IEnemySpawnFactory<
     {
         /// <summary>His arm, joining his encounter.</summary>
         internal EnemyOccupant CreateArm(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidArmEntity(species, occupant, Listed(EnemyDefinitionId.KraidArm, encounter.Parts.Arm, place), common, encounter));
+            EnemyOccupant.Running(KraidArmEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidArm, encounter.Parts.Arm, place), common, encounter));
 
         /// <summary>His foot, joining his encounter.</summary>
         internal EnemyOccupant CreateFoot(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidFootEntity(species, occupant, Listed(EnemyDefinitionId.KraidFoot, encounter.Parts.Foot, place), common, encounter));
+            EnemyOccupant.Running(KraidFootEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidFoot, encounter.Parts.Foot, place), common, encounter));
 
         /// <summary>His top lint, joining his encounter.</summary>
         internal EnemyOccupant CreateTopLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidLintEntity(species, occupant, Listed(EnemyDefinitionId.KraidLintTop, encounter.Parts.TopLint, place), common, KraidLintPart.Top, encounter));
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintTop, encounter.Parts.TopLint, place), common, KraidLintPart.Top, encounter));
 
         /// <summary>His middle lint, joining his encounter.</summary>
         internal EnemyOccupant CreateMiddleLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidLintEntity(species, occupant, Listed(EnemyDefinitionId.KraidLintMiddle, encounter.Parts.MiddleLint, place), common, KraidLintPart.Middle, encounter));
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintMiddle, encounter.Parts.MiddleLint, place), common, KraidLintPart.Middle, encounter));
 
         /// <summary>His bottom lint, joining his encounter.</summary>
         internal EnemyOccupant CreateBottomLint(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidLintEntity(species, occupant, Listed(EnemyDefinitionId.KraidLintBottom, encounter.Parts.BottomLint, place), common, KraidLintPart.Bottom, encounter));
+            EnemyOccupant.Running(KraidLintEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidLintBottom, encounter.Parts.BottomLint, place), common, KraidLintPart.Bottom, encounter));
 
         /// <summary>His first fingernail, joining his encounter.</summary>
         internal EnemyOccupant CreateFirstNail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidNailEntity(species, occupant, Listed(EnemyDefinitionId.KraidFirstNail, encounter.Parts.FirstNail, place), common, KraidNailPart.First, encounter));
+            EnemyOccupant.Running(KraidNailEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidFirstNail, encounter.Parts.FirstNail, place), common, KraidNailPart.First, encounter));
 
         /// <summary>His second fingernail, joining his encounter.</summary>
         internal EnemyOccupant CreateSecondNail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new KraidNailEntity(species, occupant, Listed(EnemyDefinitionId.KraidSecondNail, encounter.Parts.SecondNail, place), common, KraidNailPart.Second, encounter));
+            EnemyOccupant.Running(KraidNailEntity.SetUp(species, occupant, Listed(EnemyDefinitionId.KraidSecondNail, encounter.Parts.SecondNail, place), common, KraidNailPart.Second, encounter));
 
         /// <summary>
         /// The place a part is built in, <paramref name="place"/>, checked before the part is built to be where his body found

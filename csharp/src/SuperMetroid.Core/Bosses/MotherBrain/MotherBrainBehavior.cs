@@ -60,7 +60,7 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoining
     {
         /// <summary>Her head, joining her encounter.</summary>
         internal EnemyOccupant CreateHead(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-            EnemyOccupant.Running(new MotherBrainHeadEntity(species, occupant, place, common, encounter));
+            EnemyOccupant.Running(MotherBrainHeadEntity.SetUp(species, occupant, place, common, encounter));
     }
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     internal MotherBrainProjectiles Projectiles { get; }

@@ -9,9 +9,26 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings, NinjaSpacePirateEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The ninja Space Pirate species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        EnemyCommonParticipation common, NinjaSpacePirateSpawnSettings settings)
+        : this(species, occupant, place, common, settings, NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place))
+    {
+    }
+
     /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
     internal NinjaSpacePirateSpawnSettings Settings { get; } = settings;
 
@@ -19,7 +36,7 @@ internal partial class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, 
     protected NinjaSpacePirateBehavior Species => species;
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    private readonly NinjaSpacePirateEnemyState state = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place);
+    private readonly NinjaSpacePirateEnemyState state = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunNinjaSpacePirateMainAi(Place, state, frame);

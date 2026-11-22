@@ -10,20 +10,33 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the tube occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">The piece of the tube it is.</param>
 /// <param name="encounter">The encounter the tube joins.</param>
-internal sealed partial class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    MotherBrainTubeSpawnSettings settings, MotherBrainEnemyState encounter)
+/// <param name="tube">What the enemy's setup built (#2554).</param>
+internal sealed partial class MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, MotherBrainEnemyState encounter, MotherBrainFallingTubeState tube)
     : MotherBrainEntity(species, occupant, place, common)
 {
-    /// <summary>The <c>settings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly MotherBrainTubeSpawnSettings settings = settings;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The MotherBrain species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the tube occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">The piece of the tube it is.</param>
+    /// <param name="encounter">The encounter the tube joins.</param>
+    internal MotherBrainTubesEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        MotherBrainTubeSpawnSettings settings, MotherBrainEnemyState encounter)
+        : this(species, occupant, place, common, encounter, MotherBrainFakeDeath.InitializeMotherBrainFallingTube(settings, place))
+    {
+    }
 
     /// <inheritdoc/>
     internal override MotherBrainEnemyState Encounter { get; } = Ensure.NotNull(encounter);
 
     /// <summary>The tube's fall, which its setup builds.</summary>
-    private readonly MotherBrainFallingTubeState tube = MotherBrainFakeDeath.InitializeMotherBrainFallingTube(settings, place);
+    private readonly MotherBrainFallingTubeState tube = tube;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.FakeDeath.RunMotherBrainFallingTubeMain(Place, Encounter, tube);

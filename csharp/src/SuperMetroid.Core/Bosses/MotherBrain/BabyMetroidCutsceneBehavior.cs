@@ -20,7 +20,7 @@ internal sealed partial class BabyMetroidCutsceneBehavior : IEnemyEntityFactory,
     /// <summary>The Baby its late fight made in its place, which it holds from its setup (#2218, #2471, #2554).</summary>
     public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
         BabyMetroidCutsceneState encounter) =>
-        EnemyOccupant.Running(new BabyMetroidCutsceneEntity(this, occupant, place, common, encounter));
+        EnemyOccupant.Running(BabyMetroidCutsceneEntity.SetUp(this, occupant, place, common, encounter));
 
     /// <summary>Initializes the dynamically allocated Baby through the ordinary enemy lifecycle.</summary>
     private readonly IEnemyLifecycle _lifecycle;

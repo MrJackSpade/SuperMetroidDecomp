@@ -11,20 +11,29 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="settings">The part of Ridley the piece is.</param>
-/// <param name="breakup">The breakup the piece joins.</param>
-internal sealed partial class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
+/// <param name="fragment">What the enemy's setup built (#2554).</param>
+internal sealed partial class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, RidleyExplosionFragmentState fragment)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <summary>The <c>settings</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RidleyExplosionSpawnSettings settings = settings;
-
-    /// <summary>The <c>breakup</c> the object was made with, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RidleyBreakupSource breakup = breakup;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="death">Lower Norfair Ridley's death, which spawns the breakup.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the piece occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">The part of Ridley the piece is.</param>
+    /// <param name="breakup">The breakup the piece joins.</param>
+    internal RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
+        : this(death, occupant, place, common, death.InitializeNorfairRidleyExplosion(settings, place, breakup))
+    {
+    }
 
     /// <summary>The piece's flight, which its setup builds from the breakup it joins.</summary>
-    internal RidleyExplosionFragmentState Fragment { get; } = death.InitializeNorfairRidleyExplosion(settings, place, breakup);
+    internal RidleyExplosionFragmentState Fragment { get; } = fragment;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => death.RunNorfairRidleyExplosionMain(Occupant, Fragment, Ensure.NotNull(frame).Samus);

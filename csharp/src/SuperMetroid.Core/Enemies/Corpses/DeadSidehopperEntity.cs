@@ -6,9 +6,26 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="settings">What the enemy's population entry tells its species.</param>
-internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, DeadSidehopperSpawnSettings settings, DeadSidehopperEnemyState state)
     : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The dead Sidehopper species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        DeadSidehopperSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeDeadSidehopper(settings, place))
+    {
+    }
+
     /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(MarkShotWithoutDamage);
 
@@ -19,7 +36,7 @@ internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior specie
     public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal DeadSidehopperEnemyState State { get; } = species.InitializeDeadSidehopper(settings, place);
+    internal DeadSidehopperEnemyState State { get; } = state;
 
     /// <summary>Runs the corpse's own Power Bomb reaction, in place of its common damage.</summary>
     /// <param name="context">The blast meeting the corpse.</param>

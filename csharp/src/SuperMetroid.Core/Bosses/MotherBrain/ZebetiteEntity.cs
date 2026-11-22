@@ -7,13 +7,25 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="linkedTo">The primary half a linked half is spawned linked to; null for a primary half.</param>
-internal sealed partial class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
-    RoomEnemyPlace? linkedTo)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, ZebetiteEnemyState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The primary half the object was made linked to, or none,, which it keeps so it can be made again from what it holds (#2602).</summary>
-    private readonly RoomEnemyPlace? linkedTo = linkedTo;
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Zebetite species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="linkedTo">The primary half a linked half is spawned linked to; null for a primary half.</param>
+    internal ZebetiteEntity(ZebetiteBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomEnemyPlace? linkedTo)
+        : this(species, occupant, place, common, species.InitializeZebetite(occupant, place, linkedTo))
+    {
+    }
 
     /// <summary>The species' ZebetiteShotReaction, built once for this enemy with its state (#2554).</summary>
     private EnemyShotReaction OwnZebetiteShotReaction => field ??= ZebetiteBehavior.ZebetiteShotReaction(ShareDamage);
@@ -22,7 +34,7 @@ internal sealed partial class ZebetiteEntity(ZebetiteBehavior species, RoomEnemy
     private EnemyBombReaction OwnZebetiteBombReaction => field ??= ZebetiteBehavior.ZebetiteBombReaction(ShareDamage);
 
     /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
-    internal ZebetiteEnemyState State { get; } = species.InitializeZebetite(occupant, place, linkedTo);
+    internal ZebetiteEnemyState State { get; } = state;
 
     /// <summary>Shares a shot's common damage across the linked Zebetites' health.</summary>
     /// <param name="context">The shot's hit.</param>

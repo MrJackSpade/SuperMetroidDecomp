@@ -12,11 +12,26 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, CeresDoorAnimationState state)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the wall occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal CeresElevatorRoomWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(doors, occupant, place, common, doors.Start(place, HorizontalDirection.Left, CeresDoorSegment.ElevatorRoomWall))
+    {
+    }
+
     /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>
-    private readonly CeresDoorAnimationState state = doors.Start(place, HorizontalDirection.Left, CeresDoorSegment.ElevatorRoomWall);
+    private readonly CeresDoorAnimationState state = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => doors.EscapeQuake.Keep(EarthquakeReach.RoomBlocksSceneryAndEnemies);

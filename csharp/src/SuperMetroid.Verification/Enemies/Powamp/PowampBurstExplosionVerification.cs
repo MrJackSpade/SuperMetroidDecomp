@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.World;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

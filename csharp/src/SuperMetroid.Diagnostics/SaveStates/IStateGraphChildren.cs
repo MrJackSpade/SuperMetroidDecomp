@@ -4,7 +4,7 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>
 /// Receives each value one object of a debugger state holds that can reach another object (#2602), with the step that
-/// reaches it: a field (<see cref="IStateGraphVisitor.Child"/>), an element's index, or a named part such as a dictionary
+/// reaches it: a field (<c>IStateGraphVisitor.Child</c>), an element's index, or a named part such as a dictionary
 /// entry's key or a loaded part's value.
 /// </summary>
 internal interface IStateGraphChildren : IStateGraphVisitor

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
@@ -140,7 +139,7 @@ internal static class MapStationAccessVerification
             new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(),
             InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
-        var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation("map station fixture", (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPlacement>)([new RoomObjectPlacement(Station, new AccessStationSetup(StationAccessRuleDefinitions.Map))]));
+        var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation("map station fixture", [new RoomObjectPlacement(Station, new AccessStationSetup(StationAccessRuleDefinitions.Map))]);
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, system, StationArea), population,
             RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         return (roomObjects, samus);

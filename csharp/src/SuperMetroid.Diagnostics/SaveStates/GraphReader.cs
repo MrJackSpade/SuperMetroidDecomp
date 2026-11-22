@@ -123,20 +123,6 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
         return created;
     }
 
-    /// <inheritdoc/>
-    public void Created(object instance)
-    {
-        Ensure.NotNull(instance);
-        (int id, bool registered, string name) = creating[^1];
-        if (registered)
-            return;
-        creating[^1] = (id, true, name);
-        if (id == 0)
-            return;
-        Register(id, instance);
-        restoring.Add(instance);
-    }
-
     /// <summary>Publishes a unique positive number so later references can resolve to it.</summary>
     internal object Register(int id, object value)
     {
@@ -253,79 +239,5 @@ internal sealed class GraphReader(BinaryReader input, StateGraphTypes types, Bou
             throw new InvalidDataException(
                 $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the saved {(creating.Count > 0 ? creating[^1].Name : "object")} has {stored} fields where this build has {count}.");
         }
-    }
-
-    /// <inheritdoc/>
-    public void Field(StateGraphField field)
-    {
-        Ensure.NotNull(field);
-        string declaring = ReadName();
-        string name = ReadName();
-        if (declaring != field.DeclaringType || name != field.Name)
-        {
-            throw new InvalidDataException(
-                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the saved state has field {declaring}::{name} where this build has {field}.");
-        }
-    }
-
-    /// <inheritdoc/>
-    public T Argument<T>(int ordinal, int count, StateGraphField field, out T value)
-    {
-        if (ordinal == 0)
-            Fields(count);
-        Field(field);
-        value = Read<T>();
-        return value;
-    }
-
-    /// <inheritdoc/>
-    public void Fixed<T>(T current)
-    {
-        T saved = Read<T>();
-        if (!EqualityComparer<T>.Default.Equals(saved, current))
-        {
-            throw new InvalidDataException(
-                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the saved {(creating.Count > 0 ? creating[^1].Name : "object")} holds a value only its construction sets, and rebuilding it set another.");
-        }
-    }
-
-    /// <summary>Reads a scalar framed as a value of its type, refusing a value of another type.</summary>
-    private T Scalar<T>()
-    {
-        PrimitiveStateType<T> expected = Types.Scalar<T>();
-        var marker = (ObjectMarker)Input.ReadByte();
-        if (marker != ObjectMarker.New)
-            throw Retyped(expected.Name, marker.ToString());
-        _ = Input.ReadInt32();
-        string name = ReadName();
-        if (name != expected.Name)
-            throw Retyped(expected.Name, name);
-        var kind = (PayloadKind)Input.ReadByte();
-        if (kind != PayloadKind.Primitive)
-            throw Retyped(expected.Name, kind.ToString());
-        return expected.ReadValue(Input);
-    }
-
-    private static InvalidDataException Retyped(string expected, string found) => new(
-        $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state holds {found} where this build stores {expected}.");
-
-    /// <inheritdoc/>
-    public T ReadScalar<T>() where T : unmanaged => Scalar<T>();
-
-    /// <inheritdoc/>
-    public TEnum ReadEnum<TEnum>() where TEnum : struct, Enum
-    {
-        EnumStateType<TEnum> expected = Types.EnumOf<TEnum>();
-        var marker = (ObjectMarker)Input.ReadByte();
-        if (marker != ObjectMarker.New)
-            throw Retyped(expected.Name, marker.ToString());
-        _ = Input.ReadInt32();
-        string name = ReadName();
-        if (name != expected.Name)
-            throw Retyped(expected.Name, name);
-        var kind = (PayloadKind)Input.ReadByte();
-        if (kind != PayloadKind.EnumName)
-            throw Retyped(expected.Name, kind.ToString());
-        return expected.Decode(ReadName(), InStructElements);
     }
 }

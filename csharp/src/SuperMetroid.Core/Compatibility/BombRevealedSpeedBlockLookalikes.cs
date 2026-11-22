@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -31,9 +29,6 @@ public sealed partial class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
     /// <summary>The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</summary>
     private readonly HashSet<TReaction> shownAsSpeedBlocks;
 
-    /// <summary>The Speed Booster block's bomb reveal.</summary>
-    private readonly TChange speedBlockReveal;
-
     /// <summary>Names the reactions a bomb shows as Speed Booster blocks and the reveal it sets off at them.</summary>
     /// <param name="shownAsSpeedBlocks">The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</param>
     /// <param name="speedBlockReveal">The Speed Booster block's bomb reveal.</param>
@@ -44,12 +39,12 @@ public sealed partial class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
         this.shownAsSpeedBlocks = [.. Ensure.NotNull(shownAsSpeedBlocks)];
         if (this.shownAsSpeedBlocks.Count == 0)
             throw new ArgumentException("The run-on shows at least one special block as a Speed Booster block.", nameof(shownAsSpeedBlocks));
-        this.speedBlockReveal = Ensure.NotNull(speedBlockReveal);
+        SpeedBlockReveal = Ensure.NotNull(speedBlockReveal);
     }
 
     /// <summary>The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</summary>
     public IReadOnlySet<TReaction> ShownAsSpeedBlocks => shownAsSpeedBlocks;
 
     /// <summary>The Speed Booster block's bomb reveal, which a normal bomb sets off at each of <see cref="ShownAsSpeedBlocks"/>.</summary>
-    public TChange SpeedBlockReveal => speedBlockReveal;
+    public TChange SpeedBlockReveal { get; }
 }

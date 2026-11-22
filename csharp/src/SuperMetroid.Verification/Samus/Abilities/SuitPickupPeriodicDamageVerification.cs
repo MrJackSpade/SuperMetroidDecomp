@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;

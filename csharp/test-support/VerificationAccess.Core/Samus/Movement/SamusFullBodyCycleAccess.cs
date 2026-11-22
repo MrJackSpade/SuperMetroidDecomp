@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Movement;

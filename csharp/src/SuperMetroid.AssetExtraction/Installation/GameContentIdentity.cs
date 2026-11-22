@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;

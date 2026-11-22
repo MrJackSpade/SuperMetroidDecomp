@@ -34,7 +34,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             new(3, 3), scrollChange: TriggerChange);
         var extension = RoomObjectPlacementAccess.Placed(RoomObjectKind.RightwardsScrollExtension,
             new(4, 3));
-        var second = ((trigger with {  }) with { Block = (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(new(5, trigger.Block.Y)) });
+        var second = ((trigger with {  }) with { Block = new(5, trigger.Block.Y) });
         RoomObjectPlacement[] records = [trigger, extension, second];
         var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
         records[0] = second;
@@ -58,7 +58,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertTrue(!roomObjects.ScrollObjectTriggered(new(3, 3)), "the trigger returns to sleep after its last write");
 
         // A population holds any number of placements, in order (#1627); the room's places bound how many objects it holds.
-        RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => ((second with {  }) with { Block = (global::SuperMetroid.Core.Spatial.Position16<global::SuperMetroid.Core.Spatial.RoomBlocks>)(new(checked((ushort)(index % 8)), checked((ushort)(index / 8)))) }))];
+        RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => ((second with {  }) with { Block = new(checked((ushort)(index % 8)), checked((ushort)(index / 8))) }))];
         var large = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{0x9000:X4}", many);
         AssertEqual(300, large.Placements.Length, "a population keeps more than 255 placements");
         AssertTrue(large.Placements.ToArray().Select(placement => placement.Block).SequenceEqual(many.Select(placement => placement.Block)),

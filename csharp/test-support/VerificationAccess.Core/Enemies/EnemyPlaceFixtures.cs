@@ -19,5 +19,5 @@ internal static class EnemyPlaceFixtures
     /// since no species owns it, and any shared reaction the slot is asked for fails loudly.
     /// </summary>
     internal static EnemySpeciesRegistry Registry { get; } = new global::SuperMetroid.Core.Enemies.EnemySpeciesRegistry(new EnemyCommonParticipation(() => throw new InvalidOperationException(
-            "A standalone fixture slot has no enemy system to share reactions with.")), (global::System.Collections.Generic.IEnumerable<global::SuperMetroid.Core.Enemies.IEnemyEntityFactory>)([]));
+            "A standalone fixture slot has no enemy system to share reactions with.")), []);
 }

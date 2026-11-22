@@ -16,8 +16,7 @@ internal abstract partial record KiHunterAcidSpitCue
 
 
     /// <summary>Launches the acid out of the mouth the cue's way (#2163).</summary>
-    /// <param name="Direction">The way the acid leaves.</param>
-    internal sealed partial record Launch(HorizontalDirection Direction) : KiHunterAcidSpitCue
+    internal sealed partial record Launch() : KiHunterAcidSpitCue
     {
         /// <inheritdoc/>
         internal override void React<TContext>(KiHunterAcidSpitCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Launch(this, context);
@@ -31,9 +30,3 @@ internal abstract partial record KiHunterAcidSpitCue
         internal override void React<TContext>(KiHunterAcidSpitCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="KiHunterAcidSpitCue"/> does on each of its cases (#2553).</summary>
-/// <param name="Launch">Reacts to a <see cref="KiHunterAcidSpitCue.Launch"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="KiHunterAcidSpitCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record KiHunterAcidSpitCueReactions<TContext>(Action<KiHunterAcidSpitCue.Launch, TContext> Launch, Action<KiHunterAcidSpitCue.Signal, TContext> Signal);

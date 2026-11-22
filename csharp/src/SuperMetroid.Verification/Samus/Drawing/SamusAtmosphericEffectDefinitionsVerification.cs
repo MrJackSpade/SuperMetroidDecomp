@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;

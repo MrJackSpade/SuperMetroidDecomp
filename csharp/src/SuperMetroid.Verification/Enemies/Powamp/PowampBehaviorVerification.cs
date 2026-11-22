@@ -6,9 +6,9 @@ using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Powamp;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;

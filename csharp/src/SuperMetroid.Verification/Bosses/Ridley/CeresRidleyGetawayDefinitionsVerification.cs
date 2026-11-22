@@ -4,7 +4,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;

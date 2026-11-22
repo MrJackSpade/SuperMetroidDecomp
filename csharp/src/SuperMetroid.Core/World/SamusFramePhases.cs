@@ -1,10 +1,8 @@
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Grapple;

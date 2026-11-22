@@ -13,9 +13,6 @@ public static partial class SamusProjectileFamilies
         /// <summary>What the family is to the rules that test it.</summary>
         private SamusProjectileFamilyRole Role => SamusProjectileFamilyDefinitions.Roles[family];
 
-        /// <summary>Whether the family is an explosion a shot left behind.</summary>
-        public bool IsExplosion => family.Role == SamusProjectileFamilyRole.Explosion;
-
         /// <summary>Whether the family is a bomb or an explosion.</summary>
         public bool IsBombOrExplosion => family.Role != SamusProjectileFamilyRole.FiredShot;
 

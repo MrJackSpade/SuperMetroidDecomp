@@ -14,7 +14,7 @@ internal static partial class KiHunterAcidSpitAnimations
     internal static UnpausedAnimationSegments<KiHunterAcidSpitSegment, EnemyProjectileFrameId, KiHunterAcidSpitCue> Segments { get; } = new(
         new Dictionary<KiHunterAcidSpitSegment, AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>.Unpaused[]>
     {
-        [P.Left] = Spat(EnemyProjectileFrameId.KiHunterAcidSpitLeftDroplet, EnemyProjectileFrameId.KiHunterAcidSpitLeftStreak, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlob, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobTrailing, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobSpattering, HorizontalDirection.Left, EnemyProjectileFrameId.KiHunterAcidSpitLeftBall),
+        [P.Left] = Spat(EnemyProjectileFrameId.KiHunterAcidSpitLeftDroplet, EnemyProjectileFrameId.KiHunterAcidSpitLeftStreak, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlob, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobTrailing, EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobSpattering, EnemyProjectileFrameId.KiHunterAcidSpitLeftBall),
         [P.HitFloor] =
         [
             Cue(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.StopMoving)),
@@ -25,7 +25,7 @@ internal static partial class KiHunterAcidSpitAnimations
             Show(EnemyProjectileFrameId.KiHunterAcidSpitSplashFading, 8),
             Cue(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.Delete)),
         ],
-        [P.Right] = Spat(EnemyProjectileFrameId.KiHunterAcidSpitRightDroplet, EnemyProjectileFrameId.KiHunterAcidSpitRightStreak, EnemyProjectileFrameId.KiHunterAcidSpitRightBlob, EnemyProjectileFrameId.KiHunterAcidSpitRightBlobTrailing, EnemyProjectileFrameId.KiHunterAcidSpitRightBlobSpattering, HorizontalDirection.Right, EnemyProjectileFrameId.KiHunterAcidSpitRightBall),
+        [P.Right] = Spat(EnemyProjectileFrameId.KiHunterAcidSpitRightDroplet, EnemyProjectileFrameId.KiHunterAcidSpitRightStreak, EnemyProjectileFrameId.KiHunterAcidSpitRightBlob, EnemyProjectileFrameId.KiHunterAcidSpitRightBlobTrailing, EnemyProjectileFrameId.KiHunterAcidSpitRightBlobSpattering, EnemyProjectileFrameId.KiHunterAcidSpitRightBall),
     });
 
     /// <summary>
@@ -39,15 +39,15 @@ internal static partial class KiHunterAcidSpitAnimations
         [P.Right] = new([Segments.Whole(P.Right)], AnimationEnd.Holds),
     };
 
-    /// <summary>Acid spat over a facing's pictures and launch, <paramref name="droplet"/>, <paramref name="streak"/>, <paramref name="blob"/>, <paramref name="blobTrailing"/>, <paramref name="blobSpattering"/>, <paramref name="facing"/>, <paramref name="ball"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>.Unpaused[] Spat(EnemyProjectileFrameId droplet, EnemyProjectileFrameId streak, EnemyProjectileFrameId blob, EnemyProjectileFrameId blobTrailing, EnemyProjectileFrameId blobSpattering, HorizontalDirection facing, EnemyProjectileFrameId ball) =>
+    /// <summary>Acid spat over a facing's pictures and launch, <paramref name="droplet"/>, <paramref name="streak"/>, <paramref name="blob"/>, <paramref name="blobTrailing"/>, <paramref name="blobSpattering"/>, <c>facing</c>, <paramref name="ball"/>.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, KiHunterAcidSpitCue>.Unpaused[] Spat(EnemyProjectileFrameId droplet, EnemyProjectileFrameId streak, EnemyProjectileFrameId blob, EnemyProjectileFrameId blobTrailing, EnemyProjectileFrameId blobSpattering, EnemyProjectileFrameId ball) =>
     [
         Show(droplet, 3),
         Show(streak, 3),
         Show(blob, 4),
         Show(blobTrailing, 3),
         Show(blobSpattering, 1),
-        Cue(new KiHunterAcidSpitCue.Launch(facing)),
+        Cue(new KiHunterAcidSpitCue.Launch()),
         Show(blobSpattering, 1),
         Hold(ball),
     ];

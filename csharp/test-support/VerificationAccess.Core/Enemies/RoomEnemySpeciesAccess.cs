@@ -66,7 +66,6 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.OldTourianWall;

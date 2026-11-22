@@ -6,16 +6,12 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public sealed partial class ChootFallLoop
 {
-    /// <summary>The offsets of the whole loop.</summary>
-    private readonly ReadOnlyMemory<Offset16<RoomPixels>> _loop;
-
     /// <summary>The offsets of the loop it has not yet shown.</summary>
     private ReadOnlyMemory<Offset16<RoomPixels>> _unshown;
 
     /// <summary>Starts a loop that shows <paramref name="loop"/>'s offsets in turn.</summary>
     private ChootFallLoop(ReadOnlyMemory<Offset16<RoomPixels>> loop)
     {
-        _loop = loop;
         _unshown = loop;
     }
 
@@ -24,9 +20,6 @@ public sealed partial class ChootFallLoop
 
     /// <summary>A loop of <paramref name="fallingPath"/> that shows none of its offsets yet.</summary>
     internal static ChootFallLoop Of(ChootFallingPath fallingPath) => new(ChootFalls.LoopOf(fallingPath));
-
-    /// <summary>How many of the loop's offsets it has shown: the update of the loop the next falling update takes.</summary>
-    public int Age => _loop.Length - _unshown.Length;
 
     /// <summary>Shows the loop's next offset, or answers false when it has shown every offset and the loop ends.</summary>
     /// <param name="offset">The offset from the falling origin the update shows.</param>

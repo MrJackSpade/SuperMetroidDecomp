@@ -14,11 +14,6 @@ public abstract partial class SamusBombJumpPhase
     /// <param name="FrameCounter">The update's frame counter.</param>
     internal readonly partial record struct SamusBombJumpUpdate(SamusTerrain Terrain, SamusState Samus, int FrameCounter);
 
-    /// <summary>Only the two phases derive.</summary>
-    private protected SamusBombJumpPhase()
-    {
-    }
-
     /// <summary>The bomb jump's one-update start, which sets her velocity and moves her nowhere.</summary>
     public static SamusBombJumpPhase Starting { get; } = new StartingPhase();
 

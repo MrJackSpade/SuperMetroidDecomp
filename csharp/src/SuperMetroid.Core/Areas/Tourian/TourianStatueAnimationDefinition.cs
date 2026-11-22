@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Progression;

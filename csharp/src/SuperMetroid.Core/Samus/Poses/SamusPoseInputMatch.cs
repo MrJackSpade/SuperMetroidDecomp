@@ -17,9 +17,6 @@ internal abstract partial record SamusPoseInputMatch
     /// <summary>The list has no transitions at all.</summary>
     internal static SamusPoseInputMatch NoTransitions { get; } = new EmptyList();
 
-    /// <summary>The transition the first matching condition chose, or null when none did.</summary>
-    internal SamusPoseTransition? Transition => this is Matched matched ? matched.Choice : null;
-
     /// <summary>Whether the list has conditions: it matched one, or exhausted them.</summary>
     internal bool HasConditions => this is not EmptyList;
 

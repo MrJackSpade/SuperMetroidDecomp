@@ -10,16 +10,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed partial class TorizoProjectileAnimation
     : EnemyProjectileFrameAnimation<TorizoProjectileSegment, TorizoProjectileCue>
 {
-    /// <summary>The family's cue owner, which carries out the events the animation raises (#2571).</summary>
-    private readonly IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> owner;
-
     /// <summary>Creates a <see cref="TorizoProjectileAnimation"/>.</summary>
     /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
     /// <param name="animation">The animation the projectile plays from its start.</param>
     public TorizoProjectileAnimation(IEnemyProjectileBranchingCues<TorizoProjectileSegment, TorizoProjectileCue> owner, Animation<TorizoProjectileSegment> animation)
         : base(animation.Phases[0].Segment, animation, EnemyProjectileCueRunner<TorizoProjectileSegment, TorizoProjectileCue>.By(owner))
     {
-        this.owner = owner;
     }
 
     /// <summary>A projectile animation starting at <paramref name="segment"/>.</summary>

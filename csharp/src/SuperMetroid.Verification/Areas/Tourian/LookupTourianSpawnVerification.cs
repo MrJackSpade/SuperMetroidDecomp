@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;

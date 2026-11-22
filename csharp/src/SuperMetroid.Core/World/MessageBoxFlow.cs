@@ -47,9 +47,6 @@ internal sealed partial class MessageBoxFlow
     /// </summary>
     private readonly List<SoundRequest> _sounds = [];
 
-    /// <summary>Whether an outcome waits for the open message box to close.</summary>
-    internal bool HasPendingOutcome => _awaitingClose is not null;
-
     /// <summary>Holds <paramref name="outcome"/> until the message box it opens with closes.</summary>
     /// <exception cref="InvalidDataException">Another outcome already waits: two message boxes opened at once.</exception>
     internal void Await(MessageBoxOutcome outcome)

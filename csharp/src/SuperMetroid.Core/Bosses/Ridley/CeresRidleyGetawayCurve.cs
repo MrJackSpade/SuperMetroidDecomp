@@ -11,9 +11,6 @@ public static partial class CeresRidleyGetawayCurve
     /// <exception cref="InvalidDataException">The zoom and drift curves last different numbers of updates.</exception>
     public static IReadOnlyList<CeresRidleyGetawayStep> Steps { get; } = LaidOut();
 
-    /// <summary>The getaway's duration in updates: every update of its zoom curve, which its drift curve matches.</summary>
-    public static int Duration => Steps.Count;
-
     /// <summary>
     /// The curves laid out one step per update: each update of the zoom curve, with the drift its own curve has reached by
     /// then. The two curves advance side by side, each through its own stretches, and last as long as each other.
@@ -37,11 +34,3 @@ public static partial class CeresRidleyGetawayCurve
         return [.. steps];
     }
 }
-
-/// <summary>One update of Ceres Ridley's getaway (#2247, #2553).</summary>
-/// <param name="Zoom">The floor's zoom on the update.</param>
-/// <param name="Drift">
-/// The floor's drift on the update: its X is subtracted from the floor's horizontal offset, so the image moves right, and
-/// its Y added to the vertical offset.
-/// </param>
-public readonly partial record struct CeresRidleyGetawayStep(FloorZoom Zoom, Offset16<FloorPixels> Drift);

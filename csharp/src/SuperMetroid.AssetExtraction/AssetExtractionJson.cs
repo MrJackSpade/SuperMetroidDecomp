@@ -22,10 +22,6 @@ internal static partial class AssetExtractionJson
     internal static JsonTypeInfo<T> Info<T>(JsonSerializerOptions? options = null) =>
         (JsonTypeInfo<T>)BoundTo(options).GetTypeInfo(typeof(T));
 
-    /// <summary>The metadata of <paramref name="type"/> under <paramref name="options"/>, or the default options when null.</summary>
-    /// <exception cref="NotSupportedException">The context does not register <paramref name="type"/>.</exception>
-    internal static JsonTypeInfo Info(Type type, JsonSerializerOptions? options) => BoundTo(options).GetTypeInfo(type);
-
     /// <summary><paramref name="options"/>' copy bound to the context, or the default options when null.</summary>
     private static JsonSerializerOptions BoundTo(JsonSerializerOptions? options) => options is null
         ? Default

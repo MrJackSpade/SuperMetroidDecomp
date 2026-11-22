@@ -2,7 +2,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Drawing;

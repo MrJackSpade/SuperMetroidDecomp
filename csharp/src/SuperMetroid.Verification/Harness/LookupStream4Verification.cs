@@ -19,7 +19,6 @@ using static SuperMetroid.Verification.Areas.Escape.ZebesEscapeExplosionDefiniti
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonAnimationsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingTextPresentationVerification;
@@ -55,7 +54,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -1222,7 +1220,8 @@ internal static class LookupStream4Verification
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
                 RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+
+        _ = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
         Action<NorfairRidleyState, SamusState> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)

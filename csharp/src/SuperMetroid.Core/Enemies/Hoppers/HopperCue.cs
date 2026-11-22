@@ -31,9 +31,3 @@ internal abstract partial record HopperCue
         internal override void React<TContext>(HopperCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).Signal(this, context);
     }
 }
-
-/// <summary>What the owner of a <see cref="HopperCue"/> does on each of its cases (#2553).</summary>
-/// <param name="PlaySound">Reacts to a <see cref="HopperCue.PlaySound"/>.</param>
-/// <param name="Signal">Reacts to a <see cref="HopperCue.Signal"/>.</param>
-/// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record HopperCueReactions<TContext>(Action<HopperCue.PlaySound, TContext> PlaySound, Action<HopperCue.Signal, TContext> Signal);

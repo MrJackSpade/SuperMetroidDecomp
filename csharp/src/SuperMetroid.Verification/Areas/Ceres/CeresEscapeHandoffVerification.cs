@@ -92,7 +92,7 @@ internal static class CeresEscapeHandoffVerification
         // movie: `$53` on the wall frame, then landing `$A4`).
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
-        AssertEqual((SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection?)null, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
+        AssertEqual(null, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
         AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "$90:DF85 clears Y speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");

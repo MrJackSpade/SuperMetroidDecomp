@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 

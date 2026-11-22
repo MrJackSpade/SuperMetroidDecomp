@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.ReachabilityAudit.Analysis;
 using SuperMetroid.ReachabilityAudit.Declarations;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
@@ -430,9 +429,6 @@ internal static class TestOnlyMembers
         ArgumentSyntax { Parent: TupleExpressionSyntax tuple } when IsAssignedTuple(tuple) => Write,
         _ => Read,
     };
-
-    /// <summary>Whether a name stands where it is written: assigned, incremented or passed by reference.</summary>
-    internal static bool IsWrite(SimpleNameSyntax name) => Access(AccessExpression(name)) is Write or ReadWrite;
 
     /// <summary>Whether a tuple is the target of a deconstructing assignment, however deeply nested.</summary>
     private static bool IsAssignedTuple(TupleExpressionSyntax tuple) => tuple.Parent switch

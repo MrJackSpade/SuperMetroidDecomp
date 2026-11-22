@@ -16,13 +16,6 @@ internal sealed class DelegateStateType<TDelegate>(StateGraphTypes types) : Stat
     /// <summary>Each method by name.</summary>
     private readonly Dictionary<string, Func<object?, TDelegate?>> byName = new(StringComparer.Ordinal);
 
-    /// <summary>Registers a method delegates of the type are made from.</summary>
-    internal void Add(string name, Func<object?, TDelegate?> create)
-    {
-        if (byName.TryAdd(name, create))
-            methods.Add((name, create));
-    }
-
     /// <inheritdoc/>
     protected override string Named() => DelegateName();
 

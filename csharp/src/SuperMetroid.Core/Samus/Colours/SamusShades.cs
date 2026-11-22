@@ -1,9 +1,7 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Death;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Colours;
 

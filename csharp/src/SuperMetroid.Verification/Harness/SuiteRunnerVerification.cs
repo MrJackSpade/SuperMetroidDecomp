@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Installation;

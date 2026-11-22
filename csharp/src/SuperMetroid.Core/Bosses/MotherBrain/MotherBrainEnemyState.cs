@@ -338,16 +338,6 @@ public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.Bo
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence { get; private set; }
 
-    /// <summary>
-    /// Begins her late fight over this encounter, whose walk credit, bursts (#1872) and state it runs, and holds it from
-    /// here.
-    /// </summary>
-    /// <returns>The late fight begun.</returns>
-    /// <summary>Her late fight, which a late-fight stage runs (#2560).</summary>
-    /// <exception cref="InvalidOperationException">Her late fight has not begun, which entering its first stage begins.</exception>
-    internal MotherBrainRainbowBeamAttackSequence LateFight =>
-        RainbowBeamSequence ?? throw new InvalidOperationException($"Mother Brain's body runs her {Stage} stage before her late fight began.");
-
     /// <summary>Begins her late fight (#2560): the rainbow beam's attack sequence, which runs every late-fight stage.</summary>
     internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 

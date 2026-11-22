@@ -7,8 +7,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Frontend.Map;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Input;
 namespace SuperMetroid.TestSupport.MovieReplay;
 

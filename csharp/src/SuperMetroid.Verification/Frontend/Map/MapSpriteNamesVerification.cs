@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;

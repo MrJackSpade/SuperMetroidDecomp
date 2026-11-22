@@ -2,8 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 

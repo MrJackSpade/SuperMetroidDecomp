@@ -1,4 +1,3 @@
-using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 
 namespace SuperMetroid.Rendering.Direct3D11;

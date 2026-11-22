@@ -8,15 +8,10 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal sealed partial class AngledFlightState
     : EnemyProjectileState
 {
-    /// <summary>The direction the projectile flies in.</summary>
-    private readonly TrigonometryAngle heading;
-
     /// <summary>Creates an <see cref="AngledFlightState"/>.</summary>
-    /// <param name="heading">The direction the projectile flies in.</param>
     /// <param name="velocity">The projectile's velocity along its heading.</param>
-    public AngledFlightState(TrigonometryAngle heading, FixedVector<RoomPixels> velocity)
+    public AngledFlightState(FixedVector<RoomPixels> velocity)
     {
-        this.heading = heading;
         this.Velocity = velocity;
     }
 
@@ -27,7 +22,7 @@ internal sealed partial class AngledFlightState
     /// <param name="heading">The direction the projectile flies in.</param>
     /// <param name="speed">The speed in whole pixels per update, zero or more.</param>
     internal static AngledFlightState Launch(TrigonometryAngle heading, int speed) =>
-        new(heading, EnemyMath.VelocityAlong(heading, speed));
+        new(EnemyMath.VelocityAlong(heading, speed));
 
     /// <summary>Moves <paramref name="projectile"/> one update along the heading, wrapping around the coordinate range.</summary>
     internal void Advance(EnemyProjectile projectile) =>

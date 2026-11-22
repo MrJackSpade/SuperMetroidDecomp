@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Samus.Death;
 /// <summary>Game-state phases that own Samus after fatal damage has started the death sequence.</summary>
 public abstract partial record SamusDeathSequencePhase
 {
-    /// <summary>Allows only the cases below.</summary>
-    private SamusDeathSequencePhase()
-    {
-    }
 
     /// <summary>Normal gameplay owns Samus; no death sequence is active.</summary>
     public sealed partial record Inactive : SamusDeathSequencePhase;
@@ -14,10 +10,6 @@ public abstract partial record SamusDeathSequencePhase
     /// <summary>The phases of a death sequence that has begun, its completion included.</summary>
     public abstract partial record Begun : SamusDeathSequencePhase
     {
-        /// <summary>Allows only the cases below.</summary>
-        private Begun()
-        {
-        }
 
         /// <summary>The first death game state advances the fatal pose for <see cref="Abilities.SamusDeathSequenceDefinitions.PreFlashFrameCount"/> before flashing.</summary>
         public sealed partial record PreFlashing : Begun;

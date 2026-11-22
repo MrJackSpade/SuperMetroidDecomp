@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Core.Samus;
 
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 

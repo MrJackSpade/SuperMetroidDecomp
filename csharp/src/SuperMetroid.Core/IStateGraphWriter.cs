@@ -29,7 +29,7 @@ public interface IStateGraphWriter
     void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum;
 
     /// <summary>
-    /// Writes a value of a value type, as <see cref="Write"/> writes it boxed: a writer that knows the type writes its fields
+    /// Writes a value of a value type, as <see cref="Write"/> writes it boxed: a snapshot that knows the type takes its fields
     /// without boxing it.
     /// </summary>
     /// <typeparam name="T">The value's type.</typeparam>

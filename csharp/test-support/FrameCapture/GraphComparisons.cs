@@ -252,7 +252,11 @@ internal sealed class GraphComparisons : IStateGraphRegistry
 
     /// <inheritdoc/>
     public void ReadOnlyMemory<T>() => Put(typeof(ReadOnlyMemory<T>), static (left, right, walk) =>
-        SameRuns(((ReadOnlyMemory<T>)left).Span, ((ReadOnlyMemory<T>)right).Span, walk));
+    {
+        // Two views of one run of one array hold the same values; others are compared element by element.
+        ReadOnlyMemory<T> mine = (ReadOnlyMemory<T>)left, theirs = (ReadOnlyMemory<T>)right;
+        return mine.Equals(theirs) || SameRuns(mine.Span, theirs.Span, walk);
+    });
 
     /// <inheritdoc/>
     public void List<T>() => Put(typeof(List<T>), static (left, right, walk) =>
@@ -279,7 +283,8 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     public void ImmutableArray<T>() => Put(typeof(ImmutableArray<T>), static (left, right, walk) =>
     {
         ImmutableArray<T> mine = (ImmutableArray<T>)left, theirs = (ImmutableArray<T>)right;
-        return mine.IsDefault || theirs.IsDefault ? mine.IsDefault == theirs.IsDefault : SameRuns(mine.AsSpan(), theirs.AsSpan(), walk);
+        // Two views of one array hold the same values; others are compared element by element.
+        return mine.IsDefault || theirs.IsDefault ? mine.IsDefault == theirs.IsDefault : mine == theirs || SameRuns(mine.AsSpan(), theirs.AsSpan(), walk);
     });
 
     /// <inheritdoc/>

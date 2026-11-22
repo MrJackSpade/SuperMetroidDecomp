@@ -469,10 +469,11 @@ internal static class GraphDigestVerification
         }
     }
     /// <summary>
-    /// True when two objects of one type hold equal state: their complete debugger-state graphs, written through the members
-    /// the compiler gave every type of the game (#2602), are the same, so a restore that forgets a field added later fails here.
+    /// True when two objects of one type hold equal state: every value they reach through the members the compiler gave every
+    /// type of the game (#2602) is the same, compared side by side (<see cref="PublishedGraphs"/>), so a restore that forgets
+    /// a field added later fails here. Nothing is serialized and no shared index is written, so workers compare at once.
     /// </summary>
-    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class => SameGraph(actual, expected);
+    internal static bool InstanceStateEquals<T>(T actual, T expected) where T : class => PublishedGraphs.Same(actual, expected);
 
     /// <summary>The pixels a packet shows, for a comparison.</summary>
     internal static RgbaPixel[] RenderForComparison(SuperMetroid.Core.Rendering.DisplayPacket frame) =>

@@ -54,7 +54,7 @@ internal static class CeresRidleyMode7ColorsVerification
         CeresEscape escape = enemies.CeresEscape;
         Action<FloorZoom> select = escape.ShowFloorZoom;
         var visited = new HashSet<int>();
-        for (int index = 0; index < CeresRidleyGetawayCurve.Duration; index++)
+        for (int index = 0; index < CeresRidleyGetawayCurve.Steps.Count; index++)
         {
             FloorZoom zoom = CeresRidleyGetawayCurve.Steps[index].Zoom;
             int row = LittleEndianBytes.HighByte(zoom.TwoHundredFiftySixths);

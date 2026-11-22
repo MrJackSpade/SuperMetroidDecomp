@@ -156,7 +156,7 @@ internal static class BombSpreadFlightVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(RoomSide, RoomSide),
             new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]),
             RoomLevelData.NothingBeyondGrid(), []);
-        return SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled);
+        return new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled);
     }
 
     /// <summary>Samus rolled up at <paramref name="position"/> with bombs, falling under her ordinary gravity.</summary>

@@ -64,7 +64,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertTrue(!shots.Shots[1].IsSpent, "the pair's second slot is not marked");
 
         var level = CreateEmptyRoom(new(16, 16));
-        shots.HandleShots(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
+        shots.HandleShots(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
         head.AiStates = EnemyAiStates.None;
         head.HurtFlash.End();
         head.Invincibility.End();

@@ -16,12 +16,12 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     {
         // The cartridge ends its zoom table with a -1 word after the getaway's last update and nowhere earlier; the
         // curves last exactly that long (#2247).
-        AssertEqual(112, CeresRidleyGetawayCurve.Duration, "Ceres getaway lasts its curves' 112 updates");
-        for (int index = 0; index <= CeresRidleyGetawayCurve.Duration; index++)
+        AssertEqual(112, CeresRidleyGetawayCurve.Steps.Count, "Ceres getaway lasts its curves' 112 updates");
+        for (int index = 0; index <= CeresRidleyGetawayCurve.Steps.Count; index++)
         {
             int offset = index * 2;
             ushort nativeZoom = rom.ReadCartridgeWord(0xa6ae4d + offset);
-            if (index == CeresRidleyGetawayCurve.Duration)
+            if (index == CeresRidleyGetawayCurve.Steps.Count)
             {
                 AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator follows the last update");
                 continue;

@@ -243,7 +243,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertEqual(shown.Scale, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         // The getaway flies its remaining steps, and the update after its last hands on to the self-destruct warning.
-        for (int update = 1; update <= CeresRidleyGetawayCurve.Duration; update++)
+        for (int update = 1; update <= CeresRidleyGetawayCurve.Steps.Count; update++)
             escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
         AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);

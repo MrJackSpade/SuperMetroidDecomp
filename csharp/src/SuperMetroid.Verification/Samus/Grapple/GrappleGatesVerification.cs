@@ -57,7 +57,7 @@ internal static class GrappleGatesVerification
                 if (frame == 2)
                 {
                     SeedStationaryGrappleCollisionProbe(samus);
-                    var result = SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(level, roomObjects), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                    var result = SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(level, roomObjects), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGateObject(roomObjects, level);

@@ -39,7 +39,7 @@ internal static class RetailRidleyCaptureTests
         CeresEscape escape = runtime.Enemies.CeresEscape;
         RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
         escape.BeginGetaway();
-        for (int update = 0; update < CeresRidleyGetawayCurve.Duration; update++)
+        for (int update = 0; update < CeresRidleyGetawayCurve.Steps.Count; update++)
         {
             escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
             if (update % SampleSpacing != 0)
@@ -57,7 +57,7 @@ internal static class RetailRidleyCaptureTests
             retained.Add(new RetainedFrame(packet, expected));
         }
         // The update after the getaway's last hands on to the self-destruct warning, which leaves the turning floor.
-        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, CeresRidleyGetawayCurve.Duration);
+        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, CeresRidleyGetawayCurve.Steps.Count);
         if (escape.ShownFloor is not null)
             throw new InvalidOperationException("The getaway's end leaves the turning floor.");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);

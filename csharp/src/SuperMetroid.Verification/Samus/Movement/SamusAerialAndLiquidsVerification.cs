@@ -64,7 +64,7 @@ internal static void VerifySamusAerialMovement()
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes neutral jump radius");
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     samus.LiquidPhysics.BeginFrameSoundRequests();
     SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
@@ -73,7 +73,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
 
     // The first real airborne frame moves by OLD 4.E000, then stores 4.C400 after gravity.
     AerialMovementResult firstRise = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 1);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 1);
     AssertEqual(72, samus.Position.Y.Whole, "first rise old-speed whole displacement");
     AssertEqual(0x2000, samus.Kinematics.Position.Y.Fraction, "first rise old-speed fraction");
     AssertEqual(0x0004, samus.Kinematics.VerticalVelocity.Speed.Whole, "first rise stored whole speed");
@@ -83,7 +83,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
     // displacement, changes direction to down, and only primes 0.1C00 for the next frame.
     ushort releaseY = samus.Position.Y.Whole;
     ushort releaseSubY = samus.Kinematics.Position.Y.Fraction;
-    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, controllerInput: 0, frameCounter: 2);
+    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, controllerInput: 0, frameCounter: 2);
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.VerticalVelocity.Direction, "jump release starts falling");
     AssertEqual(releaseY, samus.Position.Y.Whole, "jump release stationary whole Y frame");
     AssertEqual(releaseSubY, samus.Kinematics.Position.Y.Fraction, "jump release stationary fractional Y frame");
@@ -95,7 +95,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
     StepUntil(
         () => result.Landed,
         frame => result = SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unchecked((ushort)(frame + 3))),
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unchecked((ushort)(frame + 3))),
         maximumFrames: 197,
         context: "neutral jump solid-floor landing");
     AssertEqual(77, samus.Position.Y.Whole, "aerial radius rests at floor before pose expansion");
@@ -137,7 +137,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
     int spinStartX = (SixteenSixteenConstants2.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         spinLeft,
         (GameplayAction.Left | GameplayAction.Jump),
         frameCounter: 0, controllerNewInput: GameplayAction.None);
@@ -224,20 +224,20 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 77)),
     }.InPose(SamusPoseId.FacingLeftNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(fallLeft);
-    SamusPoseTransitions.ApplyWalkedOffFloorTransition(fallLeft, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
+    SamusPoseTransitions.ApplyWalkedOffFloorTransition(fallLeft, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
     AssertEqual(SamusPoseId.FallingLeftPose, fallLeft.Pose, "walk-off chooses left falling pose");
     AssertEqual(21, fallLeft.Kinematics.Radius.Y, "walk-off commit retains standing radius");
     SamusPoseMetadata.RefreshCollisionRadii(fallLeft);
     AssertEqual(19, fallLeft.Kinematics.Radius.Y, "next alpha publishes falling radius");
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, controllerInput: 0, frameCounter: 0);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, controllerInput: 0, frameCounter: 0);
     AssertEqual(77, fallLeft.Position.Y.Whole, "walk-off starts with stationary fall frame");
     AssertEqual(0x1c00, fallLeft.Kinematics.VerticalVelocity.Speed.Fraction, "first fall frame primes gravity");
     AerialMovementResult fallResult = default;
     StepUntil(
         () => fallResult.Landed,
         frame => fallResult = SamusAerialMovement.StepFalling(SuperMetroid.Core.Samus.Movement.SamusMovement.Falling, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, unchecked((ushort)(frame + 1))),
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, unchecked((ushort)(frame + 1))),
         maximumFrames: 199,
         context: "left falling pose floor landing");
     SamusPoseTransitions.ApplyAerialLanding(fallLeft, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(fallLeft), wasSpinning: false, controllerInput: GameplayAction.None);
@@ -313,8 +313,8 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, un
                     };
                     // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
                     SamusState probeSamus = InstalledFixtures.CreateSamus();
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new RoomTerrain(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new RoomTerrain(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,
@@ -443,7 +443,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     spinFire.HorizontalSpeed.ExtraRunSpeed = spinFire.HorizontalSpeed.ExtraRunSpeed.WithFraction(1);
     // The spin Fire body expansion fits the empty room: the pose below shows it taken.
     spinFire.ApplySpinToNormalJumpFireTransition(
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
         controllerNewInput: GameplayAction.Shoot);
@@ -481,7 +481,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     }.InPose(SamusPoseId.WallJumpRightPose);
     SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(wallFire, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         SamusPoseId.NormalJumpGunExtendedRightPose,
         frameCounter: 0,
         controllerNewInput: GameplayAction.Shoot);
@@ -512,7 +512,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     }.InPose(SamusPoseId.SpinJumpLeftPose);
     SamusAerialPoseTransitions.ApplySpinOrWallJumpToNormalJumpTransition(spinAimDown, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         SamusPoseId.NormalJumpAimDownLeftPose,
         frameCounter: 0,
         controllerNewInput: 0);
@@ -550,7 +550,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x8000);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         minimum,
         GameplayAction.Jump,
         frameCounter: 0,
@@ -563,25 +563,25 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     SamusState below = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x7fff);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
-SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), below, GameplayAction.Jump, 0, GameplayAction.Jump);
+new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), below, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Down, below.Kinematics.VerticalVelocity.Direction, "Space Jump rejects velocity $027F");
 
     SamusState maximum = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 5, subspeed: 0);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
-SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), maximum, GameplayAction.Jump, 0, GameplayAction.Jump);
+new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), maximum, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Down, maximum.Kinematics.VerticalVelocity.Direction, "Space Jump maximum $0500 is exclusive");
 
     SamusState heldOnly = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
-    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), heldOnly, GameplayAction.Jump, 0, controllerNewInput: GameplayAction.None);
+    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), heldOnly, GameplayAction.Jump, 0, controllerNewInput: GameplayAction.None);
     AssertEqual(SamusVerticalDirection.Down, heldOnly.Kinematics.VerticalVelocity.Direction, "Space Jump requires a fresh Jump edge");
 
     // Both item bits retain Space Jump physics while Screw Attack owns art and damage.
     SamusState screwRepeat = CreateFallingSpin(
         SamusPoseId.ScrewAttackRightPose, 0x0208, speed: 3, subspeed: 0);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
-SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump);
+new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, GameplayAction.Jump, 0, GameplayAction.Jump);
     AssertEqual(SamusVerticalDirection.Up, screwRepeat.Kinematics.VerticalVelocity.Direction,
         "Screw Attack with Space Jump repeats upward");
     AssertEqual(SamusBodyAttack.ScrewAttack, screwRepeat.HorizontalSpeed.BodyAttack,
@@ -602,7 +602,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     ushort screwBombY = screwBombSamus.Position.Y.Whole;
     AerialMovementResult screwBombFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(screwBombLevel, screwBombObjects),
+        new RoomTerrain(screwBombLevel, screwBombObjects),
         screwBombSamus,
         controllerInput: 0,
         frameCounter: 0,
@@ -623,7 +623,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     SamusState chargedSpin = CreateFallingSpin(
         SamusPoseId.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     chargedSpin.BeamCharge.SetFlareCount(0x003c);
-    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), chargedSpin, 0, 0, 0);
+    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), chargedSpin, 0, 0, 0);
     AssertEqual(SamusBodyAttack.PseudoScrew, chargedSpin.HorizontalSpeed.BodyAttack,
         "fully charged dry spin publishes the pseudo Screw Attack");
 
@@ -638,7 +638,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     }
     submergedSpin.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(100));
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
-    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), submergedSpin, 0, 0, 0);
+    SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), submergedSpin, 0, 0, 0);
     AssertEqual(SamusBodyAttack.None, submergedSpin.HorizontalSpeed.BodyAttack,
         "full liquid physics suppresses charged-spin contact damage");
     AssertEqual(1, submergedSpin.LiquidPhysics.SoundRequests.Count,
@@ -919,7 +919,7 @@ internal static void VerifySamusLiquidPhysics()
         SamusAerialMovement.ConfigureEnvironmentGravity(released);
         SamusAerialMovement.StepReleasedFromGrapple(
 
-            SamusTerrain.InRoom(releaseRoom, SamusRoomObjectFixtures.Uninstalled),
+            new RoomTerrain(releaseRoom, SamusRoomObjectFixtures.Uninstalled),
             released,
             controllerInput: 0,
             frameCounter: 0);
@@ -943,7 +943,7 @@ internal static void VerifySamusLiquidPhysics()
     fallingRelease.Grapple.ReleasedMovementActive = true;
     SamusAerialMovement.ConfigureEnvironmentGravity(fallingRelease);
     SamusAerialMovement.StepReleasedFromGrapple(
-SamusTerrain.InRoom(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled), fallingRelease, controllerInput: 0, frameCounter: 0);
+new RoomTerrain(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled), fallingRelease, controllerInput: 0, frameCounter: 0);
     AssertEqual(SamusVerticalCollisionResult.Falling, fallingRelease.SolidVerticalCollisionResult,
         "downward release publishes the falling result");
     AssertTrue(!fallingRelease.Grapple.ReleasedMovementActive,
@@ -969,7 +969,7 @@ SamusTerrain.InRoom(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninst
     SamusAerialMovement.ConfigureEnvironmentGravity(partialWaterSpaceJump);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         partialWaterSpaceJump,
         GameplayAction.Jump,
         frameCounter: 0,
@@ -996,7 +996,7 @@ SamusTerrain.InRoom(CreateEmptyRoom(new(16, 16)), SamusRoomObjectFixtures.Uninst
     SamusAerialMovement.ConfigureEnvironmentGravity(fullySubmergedScrew);
     SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         fullySubmergedScrew,
         GameplayAction.Jump,
         frameCounter: 0,

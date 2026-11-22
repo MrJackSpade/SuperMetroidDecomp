@@ -36,7 +36,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
 
-        SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, SamusTerrain.InRoom(runtime.Room.LoadedLevelData, SamusRoomObjectFixtures.Uninstalled), samus,
+        SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, runtime.Room.LoadedScope.SamusTerrain, samus,
             (GameplayAction.Jump | GameplayAction.Dash), frameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");

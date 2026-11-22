@@ -143,7 +143,7 @@ internal static void VerifySamusDrainedController()
     right.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
-    AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right, 0, out _),
+    AssertTrue(right.Drained.TryStepFalling(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), right, 0, out _),
         "the first drained handler call steps her fall");
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
@@ -154,7 +154,7 @@ internal static void VerifySamusDrainedController()
     DrainedSamusMovementResult landing = default;
     StepUntil(
         () => landing.Landed,
-        frame => AssertTrue(right.Drained.TryStepFalling(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), right,
+        frame => AssertTrue(right.Drained.TryStepFalling(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), right,
             unchecked((ushort)(frame + 1)), out landing), "drained Samus falls until she lands"),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
@@ -576,7 +576,7 @@ internal static void VerifySamusSolidEnemyCollision()
     };
     // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
     SamusState probeSamus = InstalledFixtures.CreateSamus();
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -589,7 +589,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual<ISolidEnemy?>(below.Enemy, integratedVertical.EnemyCollision?.Enemy,
@@ -601,7 +601,7 @@ internal static void VerifySamusSolidEnemyCollision()
     integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
-SamusTerrain.InRoom(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, signedDistance: SignedSixteenSixteen.FromParts(1, 0));
+new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, signedDistance: SignedSixteenSixteen.FromParts(1, 0));
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");

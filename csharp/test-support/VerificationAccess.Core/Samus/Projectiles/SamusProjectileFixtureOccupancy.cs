@@ -111,7 +111,7 @@ internal static class SamusProjectileFixtureOccupancy
     {
         /// <summary>A room of sixteen by sixteen blocks with no terrain or room objects.</summary>
         internal SamusTerrain Terrain { get; } =
-            SamusTerrain.InRoom(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
+            new RoomTerrain(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
 
         /// <summary>Samus, new.</summary>
         internal SamusState Samus { get; } = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();

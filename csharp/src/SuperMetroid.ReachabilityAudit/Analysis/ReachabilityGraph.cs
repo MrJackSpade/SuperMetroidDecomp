@@ -18,6 +18,9 @@ internal sealed class ReachabilityGraph
     private readonly Dictionary<string, List<DispatchImplementation>> dispatchImplementations = [];
     /// <summary>Per type, its instance constructors, compiler-declared ones included.</summary>
     private readonly Dictionary<string, List<string>> constructors = [];
+    /// <summary>Per instance member that only constructors give a value, the constructors that write it
+    /// (<see cref="ConstructorStateWriters"/>).</summary>
+    private readonly Dictionary<string, HashSet<string>> stateWriters = [];
 
     /// <summary>Adds a direct reference, ignoring missing or self-referential symbol keys.</summary>
     public void Edge(string? from, string? to)
@@ -74,6 +77,20 @@ internal sealed class ReachabilityGraph
     }
 
     /// <summary>
+    /// Records that <paramref name="memberKey"/>, an instance member with no initializer, gets its value only from the
+    /// constructors <paramref name="writerKeys"/>: once it is reached and none of them is, they are reached
+    /// (<see cref="ConstructorStateWriters"/>).
+    /// </summary>
+    public void StateWriters(string? memberKey, IEnumerable<string> writerKeys)
+    {
+        if (memberKey is null)
+            return;
+        if (!stateWriters.TryGetValue(memberKey, out var writers))
+            stateWriters[memberKey] = writers = [];
+        writers.UnionWith(writerKeys);
+    }
+
+    /// <summary>
     /// Traverses direct and type-implied edges to a fixed point from the supplied roots. A reached type's implementations
     /// of framework interface members are already reached through its type-implied edges, so calls through framework
     /// interfaces add nothing to this walk.
@@ -100,7 +117,7 @@ internal sealed class ReachabilityGraph
     {
         var reached = new HashSet<string>();
         var pending = new Stack<string>(roots);
-        while (pending.Count > 0)
+        while (pending.Count > 0 || PendStateWriters(reached, pending, admits))
         {
             string current = pending.Pop();
             if (!admits(current) || !reached.Add(current))
@@ -122,6 +139,26 @@ internal sealed class ReachabilityGraph
                                 pending.Push(implementation.ImplementationKey);
         }
         return reached;
+    }
+
+    /// <summary>
+    /// Pends the writers of every reached member that only constructors give a value while none of those constructors is
+    /// reached: a type whose state is read keeps a constructor that sets it, so the prune never leaves a read member
+    /// nothing can set. UnsupportedGameStateException's only constructor was called only by a check while the game's error
+    /// reporter read the identity it sets; the prune removed it and the property it alone set no longer compiled (CS8618,
+    /// #2611). Returns whether it pended any.
+    /// </summary>
+    private bool PendStateWriters(HashSet<string> reached, Stack<string> pending, Func<string, bool> admits)
+    {
+        foreach (var (member, writers) in stateWriters)
+        {
+            if (!reached.Contains(member) || writers.Any(reached.Contains))
+                continue;
+            foreach (string writer in writers)
+                if (admits(writer))
+                    pending.Push(writer);
+        }
+        return pending.Count > 0;
     }
 
     /// <summary>The shortest chain of keys from a root to <paramref name="target"/>, or null when unreachable.</summary>

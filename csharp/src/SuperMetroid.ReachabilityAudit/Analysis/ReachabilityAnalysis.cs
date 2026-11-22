@@ -28,6 +28,7 @@ internal static class ReachabilityAnalysis
         var graph = new ReachabilityGraph();
         var declarations = new DeclarationCollector(identity, graph);
         var required = new RequiredDeclarations(identity, graph);
+        var stateWriters = new ConstructorStateWriters(identity, graph);
         var roots = new RootCollector(identity, graph);
         var json = new JsonSerializationScan(identity);
         var reflection = new ReflectionScan(identity, graph);
@@ -47,6 +48,7 @@ internal static class ReachabilityAnalysis
         {
             declarations.Collect(project, compilation);
             required.Collect(compilation);
+            stateWriters.Collect(compilation);
         }
         foreach (var (project, compilation) in analyzed)
         {

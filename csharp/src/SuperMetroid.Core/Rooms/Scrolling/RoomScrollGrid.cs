@@ -83,7 +83,6 @@ public sealed class RoomScrollGrid
             throw new ArgumentException(
                 $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.ScreenCount}.", nameof(scroll));
         RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
-        foreach (RoomScrollState state in loaded)
         cells.LoadAll(loaded);
         return grid;
     }

@@ -12,14 +12,16 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 /// Deletes the declarations of the selected finding categories from repository source. Every
 /// part of a partial declaration is removed; a field declaration only when all of its variables
 /// are removed. A positional record parameter is removed together with the matching argument of
-/// every construction, record base call and <c>with</c> initializer; one only its base call reads becomes a constructor
-/// parameter of a record that loses its parameter list, and one read anywhere else goes too, so the build fails at the
-/// read (#2599). Removed instance fields, including auto-property backing fields, are listed so persisted debugger-state
-/// layouts can retire them.
+/// every construction, record base call and <c>with</c> initializer; one its base call or its members' initializers read
+/// becomes a constructor parameter of a record that loses its parameter list, and when the record cannot, it is never
+/// deleted: its dead property stays (#2599, #2611). Removed instance fields, including auto-property backing fields, are
+/// listed so persisted debugger-state layouts can retire them.
 /// <para>
-/// Nothing selected is kept: a removal that leaves the code not compiling is applied, and the build fails where the
-/// developer has a choice to make (#2599). Documentation that cites a removed declaration keeps its name as code text, which
-/// SME6454 rejects in Core where a sentence must be reworded.
+/// A removal that leaves the code not compiling is applied, and the build fails where the developer has a choice to make
+/// (#2599). Documentation that cites a removed declaration keeps its name as code text, which SME6454 rejects in Core where
+/// a sentence must be reworded. A <c>nameof</c> of a removed declaration becomes the text it produced, which is what it
+/// meant at run time (#2611: the prune removed <c>RidleyTailAction.Stab</c> and three more steps whose names
+/// <c>RidleyPogoTailAction</c> took through <c>nameof</c>, and none of them compiled).
 /// </para>
 /// </summary>
 internal static class SymbolRemover
@@ -74,13 +76,31 @@ internal static class SymbolRemover
                         && !outermost.Any(n => n.FullSpan.Contains(element.Span))
                         && Removed(SymbolIdentity.Normalize(model.GetSymbolInfo(cref.Cref).Symbol), identity, targets))
                     .ToList();
-                if (outermost.Count == 0 && orphanedLinks.Count == 0 && positional?.Conversions.Count is not > 0)
+                // A nameof of a removed declaration becomes the text it produced.
+                var orphanedNames = root.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "nameof" }
+                        && invocation.ArgumentList.Arguments.Count == 1
+                        && !outermost.Any(n => n.Span.Contains(invocation.Span))
+                        && model.GetConstantValue(invocation) is { HasValue: true, Value: string }
+                        && NamedSymbols(model, invocation.ArgumentList.Arguments[0].Expression).Any(symbol => Removed(symbol, identity, targets)))
+                    .ToDictionary(invocation => (SyntaxNode)invocation, invocation => (string)model.GetConstantValue(invocation).Value!);
+                if (outermost.Count == 0 && orphanedLinks.Count == 0 && orphanedNames.Count == 0 && positional?.Conversions.Count is not > 0)
                     continue;
+                // A removed method parameter's param documentation goes, and a paramref to it becomes its name as code text.
+                var parameterDocs = RemovedParameterDocumentation(root, positional?.MethodParameters ?? []);
                 // Removing an enum member must not renumber the members after it: each surviving
                 // implicitly valued member that follows a removed one gets its value written out.
                 var renumbered = ImplicitlyValuedSurvivors(model, outermost);
-                var marked = root.ReplaceNodes(outermost.Concat(renumbered.Keys).Concat(orphanedLinks), (original, rewritten) =>
-                    original is XmlEmptyElementSyntax link
+                var marked = root.ReplaceNodes(outermost.Concat(renumbered.Keys).Concat(orphanedLinks).Concat(orphanedNames.Keys).Concat(parameterDocs.Keys),
+                    (original, rewritten) =>
+                    parameterDocs.TryGetValue(original, out string? parameterName)
+                        ? original is XmlElementSyntax
+                            ? SyntaxFactory.XmlText(RemovedDocumentationLine)
+                            : SyntaxFactory.XmlElement("c", SyntaxFactory.SingletonList<XmlNodeSyntax>(SyntaxFactory.XmlText(parameterName)))
+                    : orphanedNames.TryGetValue(original, out string? name)
+                        ? SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(name))
+                            .WithTriviaFrom(rewritten)
+                    : original is XmlEmptyElementSyntax link
                         ? SyntaxFactory.XmlElement("c", SyntaxFactory.SingletonList<XmlNodeSyntax>(
                             SyntaxFactory.XmlText(link.Attributes.OfType<XmlCrefAttributeSyntax>().First().Cref.ToString())))
                     : renumbered.TryGetValue(original, out var value)
@@ -101,6 +121,12 @@ internal static class SymbolRemover
                 bool bom = File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
                 string text = (edited ?? throw new InvalidOperationException($"{path}: removing members deleted the whole syntax tree."))
                     .ToFullString();
+                if (text.Contains(RemovedDocumentationLine, StringComparison.Ordinal))
+                {
+                    string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+                    text = string.Join(newline, text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n')
+                        .Where(line => !line.Contains(RemovedDocumentationLine, StringComparison.Ordinal)));
+                }
                 if (positional is not null)
                 {
                     text = RemoveParameterDocumentation(text, positional.DocumentedParameters);
@@ -114,6 +140,44 @@ internal static class SymbolRemover
             $"{retired.Count} retired instance fields written to {retiredFieldsPath}.");
     }
 
+    /// <summary>Marks the documentation line of a removed parameter's <c>param</c> element, whose whole line then goes; it
+    /// is text documentation may hold, and no source holds it.</summary>
+    private const string RemovedDocumentationLine = "⟦removed-parameter-documentation⟧";
+
+    /// <summary>
+    /// The <c>param</c> elements and <c>paramref</c>s naming the removed method parameters in the documentation of the
+    /// methods declaring them, each with the parameter's name.
+    /// </summary>
+    private static Dictionary<SyntaxNode, string> RemovedParameterDocumentation(SyntaxNode root, List<MethodParameter> removed)
+    {
+        var found = new Dictionary<SyntaxNode, string>();
+        if (removed.Count == 0)
+            return found;
+        foreach (var node in root.DescendantNodes(descendIntoTrivia: true).OfType<XmlNodeSyntax>())
+        {
+            var attributes = node switch
+            {
+                XmlEmptyElementSyntax { Name.LocalName.ValueText: "paramref" } reference => reference.Attributes,
+                XmlElementSyntax { StartTag.Name.LocalName.ValueText: "param" } element => element.StartTag.Attributes,
+                _ => default,
+            };
+            if (attributes.OfType<XmlNameAttributeSyntax>().FirstOrDefault()?.Identifier.Identifier.ValueText is not { } name ||
+                node.Ancestors(ascendOutOfTrivia: true).OfType<BaseMethodDeclarationSyntax>().FirstOrDefault() is not { } declaration ||
+                !removed.Contains(new MethodParameter(declaration.SpanStart, name)))
+                continue;
+            found[node] = name;
+        }
+        return found;
+    }
+
+    /// <summary>The declarations a <c>nameof</c> operand names: the one it binds to, or every candidate of a method group.</summary>
+    private static IEnumerable<ISymbol> NamedSymbols(SemanticModel model, ExpressionSyntax operand)
+    {
+        SymbolInfo info = model.GetSymbolInfo(operand);
+        return (info.Symbol is { } symbol ? [symbol] : info.CandidateSymbols.AsEnumerable())
+            .Select(SymbolIdentity.Normalize).OfType<ISymbol>();
+    }
+
     /// <summary>Whether a symbol is removed itself or inside a removed type.</summary>
     private static bool Removed(ISymbol? symbol, SymbolIdentity identity, HashSet<string> targets)
     {
@@ -124,7 +188,17 @@ internal static class SymbolRemover
     }
 
     /// <summary>The syntax a set of positional-parameter removals takes out of one file, and the records it converts.</summary>
-    private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<RecordParameter> DocumentedParameters, List<RecordConversion> Conversions);
+    /// <param name="Nodes">The syntax taken out.</param>
+    /// <param name="DocumentedParameters">The removed positional parameters whose record documentation goes.</param>
+    /// <param name="Conversions">The records converted.</param>
+    /// <param name="MethodParameters">The removed parameters of methods and constructors, whose documentation goes.</param>
+    private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<RecordParameter> DocumentedParameters, List<RecordConversion> Conversions,
+        List<MethodParameter> MethodParameters);
+
+    /// <summary>A removed parameter of a method or constructor, named by its declaration's start and its own name.</summary>
+    /// <param name="Declaration">Where the method or constructor's declaration starts in its file.</param>
+    /// <param name="Parameter">The parameter's name.</param>
+    private readonly record struct MethodParameter(int Declaration, string Parameter);
 
     /// <summary>
     /// For every targeted positional record parameter: the parameter itself and the matching
@@ -132,14 +206,15 @@ internal static class SymbolRemover
     /// </summary>
     /// <remarks>
     /// A positional parameter is also a constructor parameter, and code of its record can read it as one (#2599): the
-    /// base call, an initializer, a member. A dead generated property whose parameter is read is retired without the
-    /// read: when every positional property of the record is dead and only the base call reads parameters, the record
-    /// becomes one without a parameter list whose constructor takes the parameters read and passes them to its base
-    /// (<see cref="PositionalRecordConversion"/>). Otherwise the parameter goes anyway, and the build fails at each read
-    /// (CS0103): moving the code that reads it into a constructor is a rewrite of the record, a choice the developer makes
-    /// where the build stops, and the prune never keeps a site it was asked to remove. The cleanup of 0ea41f339b deleted
-    /// <c>KraidColours.BandShade</c>'s parameter <c>Shade</c>, which its base call <c>: BodyShown(Shade)</c> read, and the
-    /// tree no longer compiled (CS0103): that shape is the conversion's. An argument passed to a removed parameter whose
+    /// base call or an initializer (in a record's members the name is the property's). When every positional property of
+    /// the record is dead and only the base call and initializers read parameters, the record becomes one without a
+    /// parameter list whose constructor takes the parameters read, passes them to its base and gives its members their
+    /// initial values (<see cref="PositionalRecordConversion"/>); initializers move into the constructor only where running
+    /// them after the base constructor changes nothing. Otherwise a parameter the record reads is never deleted (#2611):
+    /// its dead property stays, which is the one removal that leaves the record as it behaves. The cleanup of 0ea41f339b
+    /// deleted <c>KraidColours.BandShade</c>'s parameter <c>Shade</c>, which its base call <c>: BodyShown(Shade)</c> read,
+    /// and the cleanup of 418ca79935 <c>TitleFloorSceneDefinition</c>'s <c>startingZoom</c>, which the initializer of its
+    /// live <c>Zoom</c> read; neither tree compiled (CS0103, CS1729). An argument passed to a removed parameter whose
     /// evaluation calls code or writes state stays as written, so the call fails to compile there (CS1729, or CS1739 for
     /// a named one) instead of the effect silently going with the argument.
     /// </remarks>
@@ -148,7 +223,7 @@ internal static class SymbolRemover
         SortedSet<string> retired)
     {
         var edits = new Dictionary<SyntaxTree, PositionalEdits>();
-        PositionalEdits For(SyntaxTree tree) => edits.TryGetValue(tree, out var e) ? e : edits[tree] = new([], [], []);
+        PositionalEdits For(SyntaxTree tree) => edits.TryGetValue(tree, out var e) ? e : edits[tree] = new([], [], [], []);
 
         // Primary constructor documentation id -> its removed parameter ordinals.
         var removedByConstructor = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal);
@@ -175,17 +250,33 @@ internal static class SymbolRemover
                 var reads = targeted.ToDictionary(entry => entry.Symbol.Name, entry => ParameterReads(entry.Symbol, type, compilation), StringComparer.Ordinal);
                 var baseCall = record.BaseList?.Types.OfType<PrimaryConstructorBaseTypeSyntax>().SingleOrDefault();
                 bool InBaseCall(SyntaxNode read) => baseCall is not null && read.SyntaxTree == tree && baseCall.ArgumentList.Span.Contains(read.Span);
-                bool converts = !removedWhole && reads.Values.Any(found => found.Count > 0) && type.DeclaringSyntaxReferences.Length == 1 &&
-                    targeted.Count == list.Parameters.Count && reads.Values.All(found => found.All(InBaseCall));
+                var initializers = PositionalRecordConversion.InstanceInitializers(record).ToList();
+                bool InInitializer(SyntaxNode read) => read.SyntaxTree == tree && initializers.Any(initializer => initializer.Span.Contains(read.Span));
+                var readNodes = reads.Values.SelectMany(found => found).ToList();
+                bool movesInitializers = readNodes.Any(read => !InBaseCall(read));
+                // Initializers run before the base constructor and a constructor's body after it: they move only where
+                // nothing can tell, a record with no base record or initializers that call no code and write no state.
+                bool converts = !removedWhole && readNodes.Count > 0 && type.DeclaringSyntaxReferences.Length == 1 &&
+                    targeted.Count == list.Parameters.Count && readNodes.All(read => InBaseCall(read) || InInitializer(read)) &&
+                    (!movesInitializers || type.BaseType?.SpecialType is SpecialType.System_Object or SpecialType.System_ValueType ||
+                        !initializers.Any(initializer => initializer.Value.DescendantNodesAndSelf().Any(HasEffect)));
                 if (converts)
                 {
                     For(tree).Conversions.Add(new RecordConversion(record.Identifier.Text, [.. list.Parameters.Select(parameter => parameter.Identifier.Text)],
-                        reads.Where(entry => entry.Value.Count > 0).Select(entry => entry.Key).ToHashSet(StringComparer.Ordinal)));
+                        reads.Where(entry => entry.Value.Count > 0).Select(entry => entry.Key).ToHashSet(StringComparer.Ordinal), movesInitializers));
                     Console.WriteLine($"Converted record {type.ToDisplayString()}: its dead properties are retired and the constructor keeps " +
-                        $"what its base call reads ({string.Join(", ", reads.Where(entry => entry.Value.Count > 0).Select(entry => entry.Key))})");
+                        $"what its base call and initializers read ({string.Join(", ", reads.Where(entry => entry.Value.Count > 0).Select(entry => entry.Key))})");
                 }
                 foreach (var (parameter, symbol, property, _) in targeted)
                 {
+                    // A parameter its record still reads is never deleted (#2611): when the record cannot become one whose
+                    // constructor takes it, its dead property stays, which removes nothing the record needs.
+                    if (!converts && reads[symbol.Name].Count > 0)
+                    {
+                        Console.WriteLine($"Kept {type.ToDisplayString()}.{symbol.Name}: its property is dead, but the record reads its " +
+                            "parameter, and the record cannot become one whose constructor takes it");
+                        continue;
+                    }
                     if (RetiredField(property) is { } field)
                         retired.Add($"{RuntimeName(field.ContainingType)}\t{field.Name}");
                     if (converts && reads[symbol.Name].Count > 0)
@@ -207,6 +298,31 @@ internal static class SymbolRemover
         if (removedByConstructor.Count == 0)
             return edits;
 
+        // Removing an argument can leave a parameter of the caller that only the argument read unread, and IDE0060, an
+        // unused parameter, is a build error (#2611: the arguments of KiHunterAcidSpitCue.Launch's and
+        // SpacePirateProjectileCue's dead Direction left the facing and direction parameters of the animations building
+        // them unread). Such a parameter goes too, with its documentation and the argument every call passes it, and so on
+        // up the callers, as the code fixes' unread parameters do.
+        var pending = removedByConstructor.Keys.ToHashSet(StringComparer.Ordinal);
+        bool first = true;
+        while (pending.Count > 0)
+        {
+            var removedArguments = new List<(ArgumentSyntax Argument, SemanticModel Model)>();
+            RemoveArguments(trees, identity, targets, removedByConstructor, pending, first, For, removedArguments);
+            first = false;
+            pending = RemoveUnreadParameters(removedArguments, edits, For, removedByConstructor);
+        }
+        return edits;
+    }
+
+    /// <summary>
+    /// Adds to the edits every argument passed to a removed parameter of the methods <paramref name="pending"/> names, and
+    /// on the first round every <c>with</c> assignment of a removed property; collects the arguments it removes.
+    /// </summary>
+    private static void RemoveArguments(CompiledTree[] trees, SymbolIdentity identity, HashSet<string> targets,
+        Dictionary<string, HashSet<int>> removedByMethod, HashSet<string> pending, bool withAssignments,
+        Func<SyntaxTree, PositionalEdits> For, List<(ArgumentSyntax Argument, SemanticModel Model)> removedArguments)
+    {
         foreach (var (tree, compilation) in trees)
         {
             var model = SemanticModels.Of(compilation, tree);
@@ -216,11 +332,12 @@ internal static class SymbolRemover
                 {
                     // `record with { P = value }` writes a removed property: drop that assignment, unless its value calls code
                     // or writes state, which stays and fails to compile there.
-                    foreach (var assignment in with.Initializer.Expressions.OfType<AssignmentExpressionSyntax>())
-                        if (model.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol property &&
-                            identity.Key(property) is { } key && targets.Contains(key) &&
-                            !assignment.Right.DescendantNodesAndSelf().Any(HasEffect))
-                            For(tree).Nodes.Add(assignment);
+                    if (withAssignments)
+                        foreach (var assignment in with.Initializer.Expressions.OfType<AssignmentExpressionSyntax>())
+                            if (model.GetSymbolInfo(assignment.Left).Symbol is IPropertySymbol property &&
+                                identity.Key(property) is { } key && targets.Contains(key) &&
+                                !assignment.Right.DescendantNodesAndSelf().Any(HasEffect))
+                                For(tree).Nodes.Add(assignment);
                     continue;
                 }
                 (ArgumentListSyntax? arguments, ISymbol? called) = node switch
@@ -228,28 +345,89 @@ internal static class SymbolRemover
                     BaseObjectCreationExpressionSyntax creation => new ArgumentListTarget(creation.ArgumentList, model.GetSymbolInfo(creation).Symbol),
                     PrimaryConstructorBaseTypeSyntax baseType => new ArgumentListTarget(baseType.ArgumentList, model.GetSymbolInfo(baseType).Symbol),
                     ConstructorInitializerSyntax initializer => new ArgumentListTarget(initializer.ArgumentList, model.GetSymbolInfo(initializer).Symbol),
+                    InvocationExpressionSyntax invocation => new ArgumentListTarget(invocation.ArgumentList, model.GetSymbolInfo(invocation).Symbol),
                     _ => new ArgumentListTarget(null, null),
                 };
-                if (arguments is null || called is not IMethodSymbol constructor ||
-                    constructor.OriginalDefinition.GetDocumentationCommentId() is not { } id ||
-                    !removedByConstructor.TryGetValue(id, out var removed))
+                if (arguments is null || called is not IMethodSymbol method)
+                    continue;
+                // A call of an extension method in its reduced form passes no argument to the receiver parameter.
+                IMethodSymbol declared = method.ReducedFrom ?? method;
+                int offset = method.ReducedFrom is null ? 0 : 1;
+                if (declared.OriginalDefinition.GetDocumentationCommentId() is not { } id || !pending.Contains(id) ||
+                    !removedByMethod.TryGetValue(id, out var removed))
                     continue;
                 for (int index = 0; index < arguments.Arguments.Count; index++)
                 {
                     var argument = arguments.Arguments[index];
-                    int ordinal = argument.NameColon is { } name
-                        ? constructor.Parameters.Single(p => p.Name == name.Name.Identifier.Text).Ordinal
-                        : index;
+                    int ordinal = (argument.NameColon is { } name
+                        ? method.Parameters.Single(p => p.Name == name.Name.Identifier.Text).Ordinal
+                        : index) + offset;
                     if (!removed.Contains(ordinal))
                         continue;
                     // An argument with an effect stays, and the call no longer compiles: dropping it would drop the effect.
                     if (!argument.Expression.DescendantNodesAndSelf().Any(HasEffect))
+                    {
                         For(tree).Nodes.Add(argument);
+                        removedArguments.Add((argument, model));
+                    }
                 }
             }
         }
-        return edits;
     }
+
+    /// <summary>
+    /// Takes out every parameter of a method or constructor that the removed arguments read and nothing else in its
+    /// declaration reads: the parameter and its documentation, its ordinal recorded so the next round removes the argument
+    /// every call passes it. Returns the methods whose parameters it took out. A parameter whose method something else
+    /// decides the signature of (virtual, abstract, an override, an interface's, partial or extern), a <c>ref</c>,
+    /// <c>out</c>, <c>in</c> or <c>params</c> one, and a primary constructor's are left, and IDE0060 reports them where the
+    /// developer has a choice to make.
+    /// </summary>
+    private static HashSet<string> RemoveUnreadParameters(List<(ArgumentSyntax Argument, SemanticModel Model)> removedArguments,
+        Dictionary<SyntaxTree, PositionalEdits> edits, Func<SyntaxTree, PositionalEdits> For, Dictionary<string, HashSet<int>> removedByMethod)
+    {
+        var taken = new HashSet<string>(StringComparer.Ordinal);
+        var seen = new HashSet<IParameterSymbol>(SymbolEqualityComparer.Default);
+        var candidates = new List<(IParameterSymbol Parameter, SemanticModel Model)>();
+        foreach (var (argument, argumentModel) in removedArguments)
+            foreach (var name in argument.DescendantNodes().OfType<IdentifierNameSyntax>())
+                if (argumentModel.GetSymbolInfo(name).Symbol is IParameterSymbol read && seen.Add(read))
+                    candidates.Add((read, argumentModel));
+        foreach (var (parameter, model) in candidates)
+        {
+            if (parameter.ContainingSymbol is not IMethodSymbol { MethodKind: MethodKind.Ordinary or MethodKind.Constructor } method ||
+                method.IsVirtual || method.IsAbstract || method.IsOverride || method.IsExtern || method.PartialDefinitionPart is not null ||
+                method.PartialImplementationPart is not null || !method.ExplicitInterfaceImplementations.IsEmpty || ImplementsInterface(method) ||
+                parameter.RefKind != RefKind.None || parameter.IsParams || parameter.IsThis ||
+                parameter.DeclaringSyntaxReferences is not [{ } reference] ||
+                reference.GetSyntax() is not ParameterSyntax { Parent.Parent: BaseMethodDeclarationSyntax declaration } syntax ||
+                method.OriginalDefinition.GetDocumentationCommentId() is not { } id)
+                continue;
+            if (removedByMethod.TryGetValue(id, out var already) && already.Contains(parameter.Ordinal) ||
+                model.SyntaxTree != declaration.SyntaxTree)
+                continue;
+            var removedSpans = edits.TryGetValue(declaration.SyntaxTree, out var treeEdits)
+                ? treeEdits.Nodes.Select(node => node.Span).ToList() : [];
+            bool read = declaration.DescendantNodes().OfType<IdentifierNameSyntax>()
+                .Where(name => SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(name).Symbol, parameter))
+                .Any(name => !removedSpans.Any(span => span.Contains(name.Span)));
+            if (read)
+                continue;
+            For(declaration.SyntaxTree).Nodes.Add(syntax);
+            For(declaration.SyntaxTree).MethodParameters.Add(new MethodParameter(declaration.SpanStart, parameter.Name));
+            if (!removedByMethod.TryGetValue(id, out var ordinals))
+                removedByMethod[id] = ordinals = [];
+            ordinals.Add(parameter.Ordinal);
+            taken.Add(id);
+            Console.WriteLine($"Removed parameter {parameter.Name} of {method.ToDisplayString()}: only removed arguments read it");
+        }
+        return taken;
+    }
+
+    /// <summary>Whether a method implements a member of an interface its type implements.</summary>
+    private static bool ImplementsInterface(IMethodSymbol method) =>
+        method.ContainingType.AllInterfaces.SelectMany(face => face.GetMembers()).Any(member =>
+            SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
     /// <summary>Every read of a positional parameter, as a constructor parameter, in its record's declarations.</summary>
     private static List<SyntaxNode> ParameterReads(IParameterSymbol parameter, INamedTypeSymbol record, Compilation compilation) =>

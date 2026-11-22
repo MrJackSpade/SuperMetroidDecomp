@@ -22,6 +22,7 @@ using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
+using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
@@ -110,17 +111,16 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // The $87:837F grey instruction is reached on re-entry after each
         // defeated-boss statue's grey event. Exercise the actual room program,
         // including its four compiled destination operands.
-        string romPath = Path.GetFullPath("Super Metroid.smc");
-        var installedRoom = CreateGreyRoom(
-            NewTourianStatueColorGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
-        installedRoom.TourianStatues.StepBlockAnimations();
+        RoomScope greyRoomScope = TourianStatueRoomScopeFixture.GreyStatues(stock);
+        TourianStatueSequence greyStatues = greyRoomScope.TourianStatues
+            ?? throw new InvalidOperationException("The retail Tourian statue room enables grey animation programs.");
+        greyStatues.StepBlockAnimations();
         // After the step, the room's pictures under the room's shading and the statue scene's pictures under the scene's
         // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
-        RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
-        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(installedRoom.Enemies).SceneShading);
-        HashSet<int> roomHeld = [.. GameplayShownColours.ComparedIn(installedRoom)];
+        RgbColor[] greyRoom = GameplayShownColours.BackgroundOf(greyRoomScope, greyRoomScope.Shading([]));
+        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(greyRoomScope.Enemies).SceneShading);
+        HashSet<int> roomHeld = [.. GameplayShownColours.BackgroundComparedIn(greyRoomScope)];
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
             AssertEqual((ushort)0x837f, ReadReferenceWord(program + 0x62),
@@ -179,24 +179,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             // The room's population load builds the placement and initializes it.
             _ = enemy.LoadAuthoredPopulation();
-        }
-
-        static SuperMetroidRuntime CreateGreyRoom(
-            ISnesAddressSpace source, ImportEnemyArtwork artwork)
-        {
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.BossArtwork.KraidEyes = (artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The artwork holds Kraid's colours.")).Eyes();
-            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-            runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
-            for (int area = 1; area <= 4; area++)
-                runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
-            foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
-                runtime.System.Progress.Events.Add(greyEvent);
-            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-            AssertTrue(runtime.Room.LoadedScope.TourianStatues is not null,
-                "retail Tourian statue room enables grey animation programs");
-            return runtime;
         }
     }
 

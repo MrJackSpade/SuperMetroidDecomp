@@ -61,6 +61,7 @@ namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -184,16 +185,18 @@ internal static class LookupStream1Verification
         Console.WriteLine("Escape Dachora cadence: 60 native records, 180 uninterrupted ticks and a complete low-tide round trip pass.");
     }
 
-    /// <summary>A room enemy system holding one initialized escape Dachora in slot zero.</summary>
+    /// <summary>
+    /// A room enemy system holding one escape Dachora in slot zero, placed as the Bomb Torizo room's population places it
+    /// once the Zebes timebomb is set, in a game whose critters have not escaped: the room's load builds it and runs its
+    /// setup, which starts its low-tide laps (#2554).
+    /// </summary>
     private static RoomEnemySystem CreateEscapeDachoraProgramSystem()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().HasEvent = _ => false;
-        RoomEnemyPlace dachora = enemies.Places.InUpdateOrder[0];
-        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.KeptDefinition);
-        dachora.Bind(dachora.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        dachora.Position = dachora.Position.WithWhole(new(256, 200));
-        enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
+        RoomEnemyPlacement dachora = CrateriaRoomEnemyPopulationDefinitions.BombTorizoWhenZebesTimebombSet.Placements.Span[0];
+        AssertEqual(EnemyDefinitionId.DachoraEscape, dachora.DefinitionId, "the Bomb Torizo room's escape population places its Dachora first");
+        _ = enemies.LoadPopulation(dachora);
         return enemies;
     }
 

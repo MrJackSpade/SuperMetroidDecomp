@@ -12,7 +12,7 @@ internal static class Program
         try
         {
             var step = new SuperMetroid.Game.Steps.GoopStep(2, 5);
-            Console.WriteLine($"{step.Phase} {step.Exit} {new SuperMetroid.Game.Steps.Crate("a", 4).Label} {new SuperMetroid.Game.Steps.Crate().Label}");
+            Console.WriteLine($"{step.Phase} {step.Exit} {new SuperMetroid.Game.Steps.Crate("a", 4).Label} {new SuperMetroid.Game.Steps.Crate().Label} {new SuperMetroid.Game.Steps.Ticket(" x ").Length}");
             return 0;
         }
         catch (Exception exception)

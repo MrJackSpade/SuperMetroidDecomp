@@ -346,7 +346,7 @@ internal static class SymbolRemover
     /// <item>a parameter that only removed members read is dead with them: it goes, with its documentation and the argument
     /// every construction passes it (and so on up the callers, as a removed argument's unread parameters do);</item>
     /// <item>a parameter something else reads (its base call, a member's initializer) lives on, and when no surviving member
-    /// keeps it, the removed members that keep it (an initializer of just the parameter) stay, which removes nothing the
+    /// keeps it, the removed members that keep it (<see cref="Keeps"/>) stay, which removes nothing the
     /// type needs. A parameter a member's code captures keeps itself.</item>
     /// </list>
     /// The cleanup of 67a5170535 removed the members keeping Draygon's steps' <c>phase</c>, which their base calls read, and
@@ -417,18 +417,35 @@ internal static class SymbolRemover
         !read.Ancestors().Any(ancestor => ancestor is EqualsValueClauseSyntax { Parent: VariableDeclaratorSyntax or PropertyDeclarationSyntax }
             or PrimaryConstructorBaseTypeSyntax);
 
-    /// <summary>Whether <paramref name="member"/> keeps <paramref name="parameter"/>: its initializer is just the parameter.</summary>
-    private static bool Keeps(ISymbol member, IParameterSymbol parameter, Compilation compilation) =>
-        member.DeclaringSyntaxReferences.Any(reference => reference.GetSyntax() switch
+    /// <summary>
+    /// Whether <paramref name="member"/> keeps <paramref name="parameter"/> as the state graph's generator maps it
+    /// (StateGraphRun.MapArgument): an instance field or auto-property whose initializer refers to the parameter (the
+    /// parameter itself, a call on it such as <c>Ensure.NotNull(change)</c>, or anything made from it) and whose type
+    /// converts to the parameter's.
+    /// </summary>
+    private static bool Keeps(ISymbol member, IParameterSymbol parameter, Compilation compilation)
+    {
+        if (member is not (IFieldSymbol { IsStatic: false, IsConst: false } or IPropertySymbol { IsStatic: false }))
+            return false;
+        ITypeSymbol type = member is IFieldSymbol field ? field.Type : ((IPropertySymbol)member).Type;
+        Conversion conversion = compilation.ClassifyConversion(type, parameter.Type);
+        if (!(conversion.IsIdentity || conversion.IsImplicit && (conversion.IsReference || conversion.IsBoxing || conversion.IsNullable)))
+            return false;
+        return member.DeclaringSyntaxReferences.Any(reference => reference.GetSyntax() switch
         {
-            VariableDeclaratorSyntax { Initializer.Value: IdentifierNameSyntax name } => Binds(name, parameter, compilation),
-            PropertyDeclarationSyntax { Initializer.Value: IdentifierNameSyntax name } => Binds(name, parameter, compilation),
+            VariableDeclaratorSyntax { Initializer.Value: { } value } => RefersTo(value, parameter, compilation),
+            PropertyDeclarationSyntax { Initializer.Value: { } value } => RefersTo(value, parameter, compilation),
             _ => false,
         });
+    }
 
-    /// <summary>Whether a name binds to <paramref name="parameter"/>.</summary>
-    private static bool Binds(IdentifierNameSyntax name, IParameterSymbol parameter, Compilation compilation) =>
-        SymbolEqualityComparer.Default.Equals(SemanticModels.Of(compilation, name.SyntaxTree).GetSymbolInfo(name).Symbol, parameter);
+    /// <summary>Whether an expression refers to <paramref name="parameter"/>.</summary>
+    private static bool RefersTo(ExpressionSyntax value, IParameterSymbol parameter, Compilation compilation)
+    {
+        var model = SemanticModels.Of(compilation, value.SyntaxTree);
+        return value.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>()
+            .Any(name => SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(name).Symbol, parameter));
+    }
 
     /// <summary>
     /// <paramref name="declaration"/> without its base list, whose interfaces are all removed: the line keeps the trivia the

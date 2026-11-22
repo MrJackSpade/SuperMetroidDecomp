@@ -34,7 +34,8 @@ internal static class CeresSteamCollisionDefinitionsVerification
             place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)variant);
-            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
+            // The vent is set up as the population load sets it up, its species building its entity.
+            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             object?[] arguments =
                 [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < 90; frame++)

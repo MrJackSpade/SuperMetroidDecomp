@@ -42,8 +42,13 @@ internal static class EnemySoundOrderVerification
         RoomEnemyPlace secondMetroid = MetroidAtItsCry(enemies, 2);
 
         enemies.Audio.BeginFrame();
-        foreach (RoomEnemyPlace place in new[] { firstMetroid, boyon, secondMetroid })
-            EnemyAnimationPlayer.AdvanceAnimation(place, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        // Each enemy's animation runs in place order: the Metroids' as the shared enemy animation runs a Metroid's, over the
+        // state each check built, and the Boyon's through the entity its placement built.
+        void AnimateMetroid(RoomEnemyPlace metroid) =>
+            enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(metroid, metroid.RequireSpeciesState<MetroidEnemyState>());
+        AnimateMetroid(firstMetroid);
+        EnemyAnimationPlayer.AdvanceAnimation(boyon, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        AnimateMetroid(secondMetroid);
 
         SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(CryRandom);
         AssertEqual(EnemyAudioQueueAccess.SoundList([cry, EnemySoundEffectDefinitions.BoyonBounceSound, cry]), enemies.Audio.QueuedSoundList,

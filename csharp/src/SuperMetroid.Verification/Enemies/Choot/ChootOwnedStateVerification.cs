@@ -24,10 +24,14 @@ internal static class ChootOwnedStateVerification
         int initial = state.InitialYSpeedCurvePlace.WholeMarks;
         AssertTrue(initial > 0 && initial % 2 == 0, "the ascent starts at a positive even record index");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(initial), state.YSpeedCurvePlace, "the ascent starts at the calculated index");
+        // The jump runs as the Choot's main AI runs it once the jump has started.
+        ChootSpawnSettings settings = place.HeldOccupant().SpawnSettings<ChootSpawnSettings>();
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
+        state.Action = ChootAction.Jumping;
         int jumpingUpdates = 0;
         while (state.Action != ChootAction.Falling)
         {
-            ChootBehavior.RunChootJump(place.HeldOccupant(), place, state);
+            ChootBehavior.RunChootMainAi(settings, place, state, frame);
             jumpingUpdates++;
             AssertTrue(jumpingUpdates <= initial, "the jump reaches its apex");
         }

@@ -65,8 +65,8 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.Audio.LatestSound,
                 $"Fune/Namihe {program.Entry} sound cue");
             AssertTrue(program.Namihe
-                    ? (enemies.NamiheStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires the Namihe's state.")).Action == NamiheAction.WaitForSamus
-                    : (enemies.FuneStates[place.Ordinal] ?? throw new InvalidOperationException("Verification requires the Fune's state.")).Action == FuneAction.WaitForCooldown,
+                    ? place.RequireSpeciesState<NamiheEnemyState>().Action == NamiheAction.WaitForSamus
+                    : place.RequireSpeciesState<FuneEnemyState>().Action == FuneAction.WaitForCooldown,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
         AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
@@ -90,25 +90,32 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         place.AnimationClock.StepOnNextUpdate();
 
         var playback = new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(program.Entry), AnimationPlace.StartOfAnimation);
+        // The animation runs as the shared enemy animation runs a Fune's or Namihe's, over the state the check built.
+        RoomEnemyOccupant spitter = place.HeldOccupant();
+        FuneNamiheSpawnSettings settings = spitter.SpawnSettings<FuneNamiheSpawnSettings>();
+        Action animate;
         if (program.Namihe)
         {
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
+            var namihe = new NamiheEnemyState(program.Active ? NamiheAction.Spitting : NamiheAction.WaitForSamus)
             {
                 Playback = playback,
-            });
+            };
+            place.SetSpeciesState(namihe);
+            animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, namihe);
         }
         else
         {
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
+            var fune = new FuneEnemyState(program.Active ? FuneAction.Spitting : FuneAction.WaitForCooldown)
             {
                 Playback = playback,
-            });
+            };
+            place.SetSpeciesState(fune);
+            animate = () => enemies.FuneNamiheBehavior.AdvanceFuneNamiheTypedAnimation(spitter, settings, place, fune);
         }
 
-        object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            animate();
 
         return new RunFuneNamiheProgramResult(enemies, place);
     }

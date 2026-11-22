@@ -56,9 +56,17 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-            EnemyProjectile projectile = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.BombTorizoChozoOrb,
-                new SpriteGraphics(SpawnedObjectOwner.Of(EnemyDefinitionId.BombTorizo), torizo.Shading));
-            enemies.TorizoBehavior.Attacks.InitializeTorizoRandomizedProjectile(enemies.TorizoBehavior.Attacks.ChozoOrb, projectile, torizo, definition);
+            // The Torizo faces the way the tuple launches and spawns the projectile the tuple launches, as its attack does.
+            torizo.BindTorizoFixtureState(name.EndsWith(" right", StringComparison.Ordinal) ? 0x8000 : 0);
+            TorizoEnemyState torizoState = torizo.RequireSpeciesState<TorizoEnemyState>();
+            TorizoAttacks attacks = enemies.TorizoBehavior.Attacks;
+            if (name.StartsWith("Bomb orb", StringComparison.Ordinal))
+                attacks.SpawnBombTorizoChozoOrb(torizo.HeldOccupant(), torizo, torizoState);
+            else if (name.StartsWith("Golden orb", StringComparison.Ordinal))
+                attacks.SpawnGoldenTorizoChozoOrb(torizo.HeldOccupant(), torizo, torizoState);
+            else
+                attacks.SpawnGoldenTorizoEgg(torizo.HeldOccupant(), torizo, torizoState);
+            EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
 
             AssertEqual(unchecked((ushort)(1000 + definition.Offset.X)), projectile.Position.X.Whole,
                 $"{name} production X");

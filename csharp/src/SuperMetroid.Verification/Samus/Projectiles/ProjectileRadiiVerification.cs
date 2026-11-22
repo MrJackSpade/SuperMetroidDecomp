@@ -123,10 +123,12 @@ internal static class ProjectileRadiiVerification
             // The bomb owner deliberately rejects zero-duration records, and no bomb shows a still picture. Keep that
             // existing contract instead of treating arbitrary beam records as bombs.
             if (duration == 0 || still) continue;
-            var bomb = new SamusBomb(0);
+            // The bomb holds the bomb system's first place, its fuse burned out, so its update plays its animation.
+            bombs.Reset();
+            SamusBomb bomb = bombs.FirstBomb;
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
+            bombs.HandleBombsInOpenRoom();
             AssertEqual(false, !bomb.IsActive, "Bomb timed record survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Bomb duration unchanged");
             AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");

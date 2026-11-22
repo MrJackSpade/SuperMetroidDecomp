@@ -1,4 +1,6 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -84,5 +86,34 @@ internal static class SamusProjectileFixtureOccupancy
         /// <summary>Takes the place with a bomb of <paramref name="type"/> dealing the damage its family's bomb definition gives.</summary>
         /// <returns>The bomb now holding the place.</returns>
         internal SamusBombOccupant OccupyAsPlaced(SamusProjectileType type) => bomb.Occupy(BombKindOf(type.Family), DamageAsPlaced(type));
+    }
+
+    /// <summary>The room with no terrain and the new Samus each bomb system's fixture passes run in, made once per system.</summary>
+    private static readonly ConditionalWeakTable<SamusBombProjectileSystem, OpenRoomBombPass> OpenRoomPasses = [];
+
+    /// <summary>Fixture runs of Samus's bombs.</summary>
+    extension(SamusBombProjectileSystem bombs)
+    {
+        /// <summary>
+        /// Runs the bombs' share of one projectile pass (<see cref="SamusBombProjectileSystem.HandleBombs"/>) in a room with
+        /// no terrain, beside a new Samus, the bomb-jump overlap left to the pass's end: each placed bomb's fuse runs, and
+        /// it plays the animation its update leaves. Every pass of one system runs in the same room beside the same Samus.
+        /// </summary>
+        internal void HandleBombsInOpenRoom()
+        {
+            OpenRoomBombPass pass = OpenRoomPasses.GetValue(bombs, _ => new OpenRoomBombPass());
+            bombs.HandleBombs(pass.Terrain, pass.Samus, BombJumpOverlapPublication.Deferred);
+        }
+    }
+
+    /// <summary>A room with no terrain and a new Samus, for a bomb system's fixture passes.</summary>
+    private sealed class OpenRoomBombPass
+    {
+        /// <summary>A room of sixteen by sixteen blocks with no terrain or room objects.</summary>
+        internal SamusTerrain Terrain { get; } =
+            SamusTerrain.InRoom(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
+
+        /// <summary>Samus, new.</summary>
+        internal SamusState Samus { get; } = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();
     }
 }

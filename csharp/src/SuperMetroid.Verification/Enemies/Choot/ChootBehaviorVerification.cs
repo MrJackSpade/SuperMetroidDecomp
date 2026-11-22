@@ -37,15 +37,19 @@ internal static class ChootBehaviorVerification
             EnemyInstructionRunner.ShownFrames(place, 3, Animate), "Choot idle pose");
         AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "Choot idle program disables off-screen processing");
 
+        // The preparation's delay runs out on this update, and the Choot's main AI starts the jump.
+        ChootSpawnSettings settings = place.HeldOccupant().SpawnSettings<ChootSpawnSettings>();
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
         state.JumpDelayTimer = UpdateCountdown.Ended();
-        ChootBehavior.PrepareChootJump(place, state);
+        state.Action = ChootAction.PreparingJump;
+        ChootBehavior.RunChootMainAi(settings, place, state, frame);
         ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootSegment.Jumping).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1]], [8, 1]),
             EnemyInstructionRunner.ShownFrames(place, 10, Animate), "Choot real preparation handoff starts the jumping animation");
         AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen), "Choot jumping program enables off-screen processing");
 
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
-        ChootBehavior.RunChootJump(place.HeldOccupant(), place, state);
+        ChootBehavior.RunChootMainAi(settings, place, state, frame);
         ushort[] falling = ChootAnimationsConstants.Spritemaps(ChootSegment.Falling).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([falling[0], falling[1]], [8, 1]),
             EnemyInstructionRunner.ShownFrames(place, 10, Animate), "Choot real apex handoff starts the falling animation");

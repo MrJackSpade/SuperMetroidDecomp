@@ -44,7 +44,8 @@ internal static class AtomicMovementDefinitionsVerification
         {
             place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
-            AtomicBehavior.InitializeAtomic(place.HeldOccupant().SpawnSettings<AtomicSpawnSettings>(), place);
+            // The Atomic is set up as the population load sets it up.
+            place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             // The spinning loop the Atomic shows below is the animation its initializer started.
             AtomicSegment program = DecodedSpin(selector);
 

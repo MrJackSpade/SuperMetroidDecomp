@@ -15,7 +15,10 @@ internal static class BoulderBounceDefinitionsVerification
     internal static void VerifyCompiledBoulderBounces(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace, BoulderEnemyState, RoomLevelData> fall = (fixturePlace, fixtureArg1, fixtureArg2) => enemies.BoulderBehavior.RunBoulderFalling(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2);
+        // The fall runs as the Boulder's main AI runs it while the Boulder falls, over the check's terrain.
+        SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        Action<RoomEnemyPlace, BoulderEnemyState, RoomLevelData> fall = (fixturePlace, fixtureArg1, fixtureArg2) =>
+            enemies.BoulderBehavior.RunBoulderMainAi(fixturePlace.HeldOccupant().SpawnSettings<BoulderSpawnSettings>(), fixturePlace, fixtureArg1, PlacedEnemyAccess.AiFrame(samus, level: fixtureArg2));
         RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
         var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);

@@ -127,7 +127,9 @@ internal static class ProjectileInstructionsVerification
         {
             var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
             slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
-            var bomb = new SamusBomb(0);
+            // The bomb holds the bomb system's first place, its fuse burned out, so each update plays its animation.
+            bombs.Reset();
+            SamusBomb bomb = bombs.FirstBomb;
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
@@ -156,7 +158,7 @@ internal static class ProjectileInstructionsVerification
                 AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
                 {
-                    bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
+                    bombs.HandleBombsInOpenRoom();
                     AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome");
                 }
                 frames++;

@@ -15,7 +15,10 @@ internal static class ChootPatternDefinitionsVerification
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
     internal static void VerifyChootPatternDefinitions(CartridgeImportAddressSpace rom)
     {
-        var runFall = new Action<RoomEnemyPlace, ChootEnemyState>((fixturePlace, fixtureArg1) => ChootBehavior.RunChootFall(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1));
+        // The fall runs as the Choot's main AI runs it while the Choot falls.
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
+        var runFall = new Action<RoomEnemyPlace, ChootEnemyState>((fixturePlace, fixtureArg1) =>
+            ChootBehavior.RunChootMainAi(fixturePlace.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), fixturePlace, fixtureArg1, frame));
         int[] frameCounts = [74, 74, 74, 94, 134];
 
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
@@ -88,6 +91,7 @@ internal static class ChootPatternDefinitionsVerification
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingLoop = ChootFallLoop.Starting(fallingPath);
             fallState.FallingPatternLoopCounter = 2;
+            fallState.Action = ChootAction.Falling;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
@@ -101,9 +105,13 @@ internal static class ChootPatternDefinitionsVerification
                 AssertEqual(unchecked((ushort)(0x5000 + point.Y)),
                     fallPlace.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
-                AssertEqual(frameIndex + 1,
-                    ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
-                    $"Choot production fall cursor {patternIndex}/{frameIndex}");
+                // The path's last sample leaves the loop over, at the native list's end record; an over loop counts no age.
+                if (frameIndex + 1 == frameCounts[patternIndex] - 1)
+                    AssertTrue(fallState.FallingLoop is ChootFallLoop.Over, $"Choot production fall cursor {patternIndex}/{frameIndex} reaches the loop's end");
+                else
+                    AssertEqual(frameIndex + 1,
+                        ChootFallLoopAccess.AgeOf(fallState.FallingLoop),
+                        $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallPlace, fallState);

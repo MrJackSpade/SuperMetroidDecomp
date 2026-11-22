@@ -172,7 +172,10 @@ internal static class CeresSaveStartupVerification
             gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.ScreenAs<GameOverMenuState>();
-        (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).SkipToPhase(GameOverMenuPhase.Main);
+        // The game runs the menu's opening until its fade-in reaches full brightness and it takes answers.
+        GameOverMenuState answering = probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.");
+        while (!answering.ComposeScene().Brightness.IsFull)
+            gameOverProbe.Step(0);
         gameOverProbe.Step(0);
         gameOverProbe.Step(ControllerButton.A);
         AssertTrue(gameOverProbe.IsAt(GameDataLoadRoute.SelectedGame),

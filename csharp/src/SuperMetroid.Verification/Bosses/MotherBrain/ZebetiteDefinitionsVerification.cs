@@ -151,7 +151,10 @@ internal static class ZebetiteDefinitionsVerification
             SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
             ZebetiteEnemyState dying = primary.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus).State;
-            dying.Action = ZebetiteAction.Active;
+            // Its first update, with no door passage under way, makes the unhurt barrier active, as the room's first update does.
+            primary.Health = ZebetiteDefinitions.MaximumHealth;
+            primary.RunMainAi(samus);
+            AssertEqual(ZebetiteAction.Active, dying.Action, "the primary half is active from its first update");
             primary.Health = 0;
             primary.RunMainAi(samus);
             AssertEqual(1, destroyed, "the primary half's death advances the Zebetites destroyed");

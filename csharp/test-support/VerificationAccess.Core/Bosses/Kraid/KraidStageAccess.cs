@@ -121,6 +121,28 @@ internal static class KraidStageAccess
             : throw new InvalidOperationException($"Kraid's body is {state.BodyState.Run.GetType().Name}, which holds no head animation.");
     }
 
+    /// <summary>The head's animation as a check plays it on the head the check's Kraid plays.</summary>
+    /// <param name="head">Kraid's head.</param>
+    extension(KraidHead head)
+    {
+        /// <summary>
+        /// Plays the head on to its next pose as the update its hold runs out on plays it
+        /// (<see cref="KraidHead.AdvanceKraidHeadAnimationToItsEnd"/>): on the head he holds once risen, or the one the check
+        /// named before. Whether it showed a pose, holding it for its duration, or reached its segment's end and holds there.
+        /// </summary>
+        /// <param name="state">Kraid's state, whose head's hold runs out on this update.</param>
+        internal KraidHeadAnimationResult PlayToNextPose(KraidEnemyState state)
+        {
+            KraidRisenHead played = HeadFor(state.BodyState);
+            if (state.BodyState.Run is not KraidStageRun.Risen)
+                namedHeads.AddOrUpdate(state.BodyState, played);
+            state.HeadHold.LastFor(1);
+            return head.AdvanceKraidHeadAnimationToItsEnd(state, played)
+                ? KraidHeadAnimationResult.AnimationEnded
+                : KraidHeadAnimationResult.PoseShown;
+        }
+    }
+
     /// <summary>The head a stage after his rise starts with.</summary>
     private static KraidRisenHead HeadFor(KraidBodyState body) =>
         body.Run is KraidStageRun.Risen risen ? risen.Head

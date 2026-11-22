@@ -49,7 +49,9 @@ internal static class BossDisplayBindingsResourcesVerification
         int transitions = 0;
         for (int frame = 0; frame < frames; frame++)
         {
-            tentacles.Step(); tentacles.Draw();
+            // The tentacles' animation runs as the shared enemy animation runs a Phantoon part's.
+            tentacles.Enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(tentacles.Actor.RequireSpeciesState<PhantoonPart>());
+            tentacles.Draw();
             int index = frame / duration % poseCount;
             AssertEqual(PhantoonPartFramesConstants.Spritemap(AssertIs<AnimationBeat<EnemyFrameId, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
             AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.AnimationClock.Hold, "exact native hold/goto clock");

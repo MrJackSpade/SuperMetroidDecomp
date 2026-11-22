@@ -28,13 +28,17 @@ internal static class RioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyRioInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new VerificationRoomEnemyServices(null));
+        // The Rio's swoop draws the room's random numbers; the check's draw nothing in particular.
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemyPlace rio = enemies.Places.InUpdateOrder[0];
-        rio.Bind(EnemyDefinitionId.Rio, rio.KeptDefinition);
-        rio.Bind(rio.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        // The room spawn primes the instruction timer before the species initializer runs.
-        rio.AnimationClock.StepOnNextUpdate();
-        RioBehavior.InitializeRio(rio);
+        rio.Bind(EnemyDefinitionId.Rio, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Rio));
+        // The Rio, with its own definition's radius, hangs inside the room clear of its edges and is set up as the population
+        // load sets it up: its swoop moves it through the room's terrain.
+        rio.Position = rio.Position.WithWhole(new(256, 256));
+        rio.Radius = rio.HeldOccupant().Definition.Radius;
+        rio.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
         // Idle shows its tucked wingbeat, then runs into the post-swoop hover's tucked wingbeat three times and its hanging
         // wingbeat twice, which return to idle (#2451, #2512).

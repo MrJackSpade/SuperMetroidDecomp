@@ -101,11 +101,10 @@ internal static class CeresEscapeTileArtworkVerification
         AssertTrue(shownWarning.Characters.Span.SequenceEqual(stockChunk.Span[..shownWarning.Characters.Length]),
             "the warning text's first page pictures the installed characters");
 
-        // The pictures of the warning pages are composed from the installed characters; composing them without those
-        // characters fails rather than falling back to cartridge bytes.
-        var missing = new EnemyTileTransfers(new ImportEnemyArtwork(stock.Enemies, stock.Bosses, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork), timer: timer);
-        AssertThrows<InvalidDataException>(() => EncounterLookUploads.Steps(ComposedEncounter.CeresEscape, missing),
-            "Ceres warning pictures reject missing installed character artwork");
+        // The pictures of the warning pages are composed from the installed characters, which the area artwork always holds:
+        // installed Ceres escape artwork without its pages fails to load rather than falling back to cartridge bytes.
+        AssertThrows<InvalidDataException>(() => new CeresEscapeTileArtwork(new Dictionary<TileSheetDefinition, SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas>()),
+            "Ceres escape artwork rejects missing installed warning characters");
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; the seven OBJ " +
             "pages match the cartridge without ROM art reads.");

@@ -156,9 +156,12 @@ internal sealed class UnitScanner(CoreModel model)
         return scan;
     }
 
-    /// <summary>Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's entity factory.</summary>
+    /// <summary>
+    /// Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's
+    /// factory code (<see cref="CoreModel.IsFactoryCode"/>).
+    /// </summary>
     public bool IsDispatch(Unit unit, Behaviour behaviour) =>
-        model.IsEntityType(unit.Type) || IsCreate(unit, behaviour);
+        model.IsEntityType(unit.Type) || model.IsFactoryCode(unit, behaviour);
 
     /// <summary>
     /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory: its creations (#2553), the method
@@ -250,6 +253,8 @@ internal sealed class UnitScanner(CoreModel model)
                     if (reference.GetSyntax() is VariableDeclaratorSyntax { Initializer: { } initializer })
                         Visit(scan, initializer, unit, context);
                 }
+                foreach (ExpressionSyntax construction in model.ConstructionsAssignedTo(field.OriginalDefinition))
+                    Visit(scan, construction, unit, context);
                 break;
             case IPropertySymbol or IEventSymbol or IMethodSymbol:
                 foreach (SyntaxReference reference in member.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
@@ -258,6 +263,11 @@ internal sealed class UnitScanner(CoreModel model)
                     // A positional record's property is its constructor parameter, which has no code of its own.
                     if (declaration is not ParameterSyntax)
                         Visit(scan, declaration, unit, context);
+                }
+                if (member is IPropertySymbol property)
+                {
+                    foreach (ExpressionSyntax construction in model.ConstructionsAssignedTo(property))
+                        Visit(scan, construction, unit, context);
                 }
                 break;
             default:
@@ -342,6 +352,9 @@ internal sealed class UnitScanner(CoreModel model)
             {
                 continue;
             }
+            // A projectile behaviour the constructor builds into one of its type's members is that member's code, read with it (#2554).
+            if (node is AssignmentExpressionSyntax { Right: var assigned } && model.ConstructedMember(semantic, assigned) is not null)
+                continue;
             Bind(scan, semantic, node);
             if (pruner is not null && pruner.TakenChildren(node) is { } taken)
             {

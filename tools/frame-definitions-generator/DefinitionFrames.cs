@@ -133,8 +133,8 @@ internal sealed class DefinitionFrames(CoreModel model, UnitScanner scanner, Beh
     }
 
     /// <summary>
-    /// The dispatch units a definition evaluates: its factory, the entity types the factory constructs for it, and the
-    /// entity code (base types' included) those reach.
+    /// The dispatch units a definition evaluates: its factory, the creations the factory hands the registrar or offers a part
+    /// for it (#2554), the entity types those construct for it, and the entity code (base types' included) those reach.
     /// </summary>
     private HashSet<Unit> DispatchUnits(IReadOnlySet<Unit> units, DefinitionContext context)
     {

@@ -56,6 +56,18 @@ internal sealed class CoreModel
     private readonly HashSet<INamedTypeSymbol> _families = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, Behaviour> _behaviours = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _creationContexts = new(SymbolEqualityComparer.Default);
+
+    /// <summary>For each type, the static methods of its own that construct it: the factories its callers build it through.</summary>
+    private readonly Dictionary<INamedTypeSymbol, HashSet<IMethodSymbol>> _selfFactories = new(SymbolEqualityComparer.Default);
+    /// <summary>
+    /// For each type the species composition constructs, the types whose construction there it is handed to, each
+    /// construction's own receivers in turn; null once one construction of it is handed anywhere else (a member of the
+    /// composition, a call, a conditional), which leaves it the composition's shared code.
+    /// </summary>
+    private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>?> _compositionHandoffs = new(SymbolEqualityComparer.Default);
+
+    /// <summary>The attribute marking the one composition that builds the room's species and hands each its collaborators.</summary>
+    private readonly INamedTypeSymbol _speciesComposition;
     private readonly Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>?> _owners = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
@@ -89,6 +101,7 @@ internal sealed class CoreModel
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
         RoomEnemyOccupant = SingleType("RoomEnemyOccupant");
+        EnemyOccupant = SingleType("EnemyOccupant");
         AnimationSegmentPlay = SingleType("AnimationSegmentPlay", arity: 5);
         IdentityTable = SingleType("IdentityTable", arity: 2);
         _entity = SingleType("IEnemyEntity");
@@ -96,6 +109,7 @@ internal sealed class CoreModel
         INamedTypeSymbol timelineAnimation = SingleType("EnemyProjectileTimelineAnimation", arity: 3);
         TimelineAnimation = timelineAnimation;
         _projectileBehaviour = SingleType("EnemyProjectileBehavior");
+        _speciesComposition = SingleType("SpeciesCompositionAttribute");
         foreach (string name in TableNames)
             _tables.Add(SingleType(name));
         foreach (string name in MemberSpawnerTypeNames)
@@ -177,6 +191,35 @@ internal sealed class CoreModel
 
     /// <summary>The enemy holding a place, which carries its definition (#2558).</summary>
     public INamedTypeSymbol RoomEnemyOccupant { get; }
+
+    /// <summary>What an enemy's creation builds for its place: its entity and the setup and main AI it runs.</summary>
+    public INamedTypeSymbol EnemyOccupant { get; }
+
+    /// <summary>
+    /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s factory code: its entity factory
+    /// (<see cref="UnitScanner.IsCreate"/>), or one of the creations that factory hands the registrar or offers a part, each a
+    /// named method building one enemy from its occupant and place (#2554: <c>Spawns([EtecoonEscape], CreateEtecoon)</c>,
+    /// <c>Offer(BabyTurtle, new FamilyJoining(...).CreateBaby)</c>), declared by the behaviour or a type nested in it. A
+    /// creation is dispatch code: it runs for the definitions the registrar call or the offer handing it names, and the
+    /// entity it constructs is theirs.
+    /// </summary>
+    public bool IsFactoryCode(Unit unit, Behaviour behaviour) => UnitScanner.IsCreate(unit, behaviour) || IsCreation(unit, behaviour);
+
+    /// <summary>Whether <paramref name="unit"/> is a creation of <paramref name="behaviour"/> (see <see cref="IsFactoryCode"/>).</summary>
+    private bool IsCreation(Unit unit, Behaviour behaviour)
+    {
+        if (unit is not { Kind: UnitKind.Member, Symbol: IMethodSymbol { MethodKind: MethodKind.Ordinary } method }
+            || !SymbolEqualityComparer.Default.Equals(method.ReturnType.OriginalDefinition, EnemyOccupant)
+            || !method.Parameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, RoomEnemyOccupant))
+            || !method.Parameters.Any(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, RoomEnemyPlace)))
+            return false;
+        for (INamedTypeSymbol? type = method.ContainingType; type is not null; type = type.ContainingType)
+        {
+            if (SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, behaviour.Type))
+                return true;
+        }
+        return false;
+    }
 
     /// <summary>
     /// The play of the segments a family's typed animations declare, each segment's beats showing frames and raising cues: the
@@ -490,6 +533,8 @@ internal sealed class CoreModel
     /// </summary>
     private Unit? CallerOf(SemanticModel semantic, SyntaxNode node)
     {
+        if (node is ExpressionSyntax expression && ConstructedMember(semantic, expression) is { } constructed)
+            return Unit.Member(constructed);
         foreach (SyntaxNode ancestor in node.Ancestors())
         {
             ISymbol? declared = ancestor switch
@@ -751,6 +796,55 @@ internal sealed class CoreModel
         if (definition.PartialImplementationPart is { } implementation)
             definition = implementation;
         return IsSource(definition) ? definition : null;
+    }
+
+    /// <summary>
+    /// The member of its own type a constructor assigns <paramref name="creation"/>, a projectile behaviour's construction,
+    /// to straight away (<c>Spark = new(…)</c>, an instance field or data property of the constructor's type), or null
+    /// (#2554). Such a construction is the member's code, as a getter building the behaviour on first read was: the code
+    /// reading the member spawns with it and reaches it, and the constructor, which code outside the member's readers runs
+    /// (a combat component the shared enemy composition builds), does not.
+    /// </summary>
+    public ISymbol? ConstructedMember(SemanticModel semantic, ExpressionSyntax creation)
+    {
+        if (creation is not BaseObjectCreationExpressionSyntax
+            || creation.Parent is not AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
+            || assignment.Right != creation || assignment.Parent is not ExpressionStatementSyntax
+            || creation.FirstAncestorOrSelf<ConstructorDeclarationSyntax>() is not { } constructorDeclaration
+            || creation.Ancestors().TakeWhile(ancestor => ancestor != constructorDeclaration).Any(ancestor => ancestor is AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax)
+            || semantic.GetDeclaredSymbol(constructorDeclaration) is not { IsStatic: false } constructor
+            || semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { ContainingType: var created } || !IsProjectileBehaviour(created))
+        {
+            return null;
+        }
+        ISymbol? member = semantic.GetSymbolInfo(assignment.Left).Symbol switch
+        {
+            IFieldSymbol { IsStatic: false, IsImplicitlyDeclared: false } field when IsSource(field) => field.OriginalDefinition,
+            IPropertySymbol { IsStatic: false } property when NormalizeProperty(property) is { } normalized && IsDataProperty(normalized) => normalized,
+            _ => null,
+        };
+        return member is not null && SymbolEqualityComparer.Default.Equals(member.ContainingType.OriginalDefinition, constructor.ContainingType.OriginalDefinition)
+            ? member
+            : null;
+    }
+
+    /// <summary>The constructions <paramref name="member"/>'s type's constructors assign straight to it (<see cref="ConstructedMember"/>).</summary>
+    public IEnumerable<ExpressionSyntax> ConstructionsAssignedTo(ISymbol member)
+    {
+        foreach (IMethodSymbol constructor in GameConstructors.Of(member.ContainingType))
+        {
+            foreach (SyntaxReference reference in constructor.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
+            {
+                if (reference.GetSyntax() is not ConstructorDeclarationSyntax declaration)
+                    continue;
+                SemanticModel semantic = ModelOf(declaration.SyntaxTree);
+                foreach (BaseObjectCreationExpressionSyntax creation in declaration.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(ConstructedMember(semantic, creation), member))
+                        yield return creation;
+                }
+            }
+        }
     }
 
     /// <summary>Whether <paramref name="property"/> is data: an auto-property or one with an initializer.</summary>
@@ -1043,12 +1137,114 @@ internal sealed class CoreModel
                     if (!_creationContexts.TryGetValue(key2, out List<INamedTypeSymbol>? contexts))
                         _creationContexts.Add(key2, contexts = []);
                     contexts.Add(contextType.OriginalDefinition);
+                    if (SymbolEqualityComparer.Default.Equals(contextType.OriginalDefinition, key2)
+                        && node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is { } factory
+                        && model.GetDeclaredSymbol(factory) is { IsStatic: true } factoryMethod)
+                    {
+                        if (!_selfFactories.TryGetValue(key2, out HashSet<IMethodSymbol>? factories))
+                            _selfFactories.Add(key2, factories = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
+                        factories.Add(factoryMethod.OriginalDefinition);
+                    }
+                    if (IsSpeciesComposition(contextType))
+                        RecordCompositionHandoff(model, creation, key2);
                     // A family constructed in code, not by a typed-start entry its kind names, must be spawned by some code.
                     if (_families.Contains(key2) && !node.Ancestors().Any(_startEntries.Contains))
                         _constructedFamilies.Add(key2);
                     break;
             }
         }
+    }
+
+    /// <summary>Whether <paramref name="type"/> is the species composition (<c>[SpeciesComposition]</c>).</summary>
+    private bool IsSpeciesComposition(INamedTypeSymbol type) =>
+        type.GetAttributes().Any(attribute => SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, _speciesComposition));
+
+    /// <summary>
+    /// Records whom the species composition hands its construction of <paramref name="created"/> to (#2554): a
+    /// construction held in a local is handed to every construction the local is an argument or initializer value of; any
+    /// other construction to the construction it is itself an argument or initializer value of. A construction handed
+    /// anywhere else leaves <paramref name="created"/> the composition's shared code.
+    /// </summary>
+    private void RecordCompositionHandoff(SemanticModel model, BaseObjectCreationExpressionSyntax creation, INamedTypeSymbol created)
+    {
+        List<INamedTypeSymbol>? receivers = CompositionReceivers(model, creation);
+        if (!_compositionHandoffs.TryGetValue(created, out List<INamedTypeSymbol>? known))
+            _compositionHandoffs.Add(created, receivers);
+        else if (known is not null)
+        {
+            if (receivers is null)
+                _compositionHandoffs[created] = null;
+            else
+                known.AddRange(receivers);
+        }
+    }
+
+    /// <summary>The constructions the composition hands <paramref name="creation"/> to, or null when it hands it elsewhere too.</summary>
+    private List<INamedTypeSymbol>? CompositionReceivers(SemanticModel model, BaseObjectCreationExpressionSyntax creation)
+    {
+        if (creation.Parent is EqualsValueClauseSyntax { Parent: VariableDeclaratorSyntax declarator }
+            && model.GetDeclaredSymbol(declarator) is ILocalSymbol local)
+        {
+            BlockSyntax scope = declarator.FirstAncestorOrSelf<BlockSyntax>()
+                ?? throw new InvalidDataException($"{RelativePath(creation.SyntaxTree)}: local {local.Name} is declared outside a block.");
+            var receivers = new List<INamedTypeSymbol>();
+            foreach (IdentifierNameSyntax use in scope.DescendantNodes().OfType<IdentifierNameSyntax>())
+            {
+                if (use.Identifier.ValueText != local.Name || !SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(use).Symbol, local))
+                    continue;
+                if (ReceivingConstruction(model, use) is not { } receiver)
+                    return null;
+                receivers.Add(receiver);
+            }
+            return receivers.Count == 0 ? null : receivers;
+        }
+        return ReceivingConstruction(model, creation) is { } direct ? [direct] : null;
+    }
+
+    /// <summary>
+    /// The type whose construction takes <paramref name="value"/> as an argument or as an initializer's value; null for a
+    /// value used any other way.
+    /// </summary>
+    private INamedTypeSymbol? ReceivingConstruction(SemanticModel model, ExpressionSyntax value)
+    {
+        BaseObjectCreationExpressionSyntax? receiver = value.Parent switch
+        {
+            ArgumentSyntax { Parent: ArgumentListSyntax { Parent: BaseObjectCreationExpressionSyntax construction } } => construction,
+            AssignmentExpressionSyntax { Parent: InitializerExpressionSyntax { Parent: BaseObjectCreationExpressionSyntax construction } } assignment
+                when assignment.Right == value => construction,
+            _ => null,
+        };
+        return receiver is not null && model.GetSymbolInfo(receiver).Symbol is IMethodSymbol { ContainingType: { } received } && IsSource(received)
+            ? received.OriginalDefinition
+            : null;
+    }
+
+    /// <summary>
+    /// The one behaviour whose code <paramref name="type"/> is because the species composition, its only constructor,
+    /// hands every construction of it only to that behaviour's code (#2554: Phantoon's combat and Kraid's encounter access,
+    /// projectiles and combat, which the composition builds and passes in as it builds Crocomire's access); null otherwise.
+    /// It is that behaviour's code as it was while the behaviour constructed it itself.
+    /// </summary>
+    private INamedTypeSymbol? CompositionHandedOwner(INamedTypeSymbol type)
+    {
+        if (!_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites) || sites.Count == 0
+            || !sites.All(IsSpeciesComposition)
+            || !_compositionHandoffs.TryGetValue(type, out List<INamedTypeSymbol>? receivers) || receivers is not { Count: > 0 })
+            return null;
+        _owners.Add(type, Resolving);
+        var owners = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        bool resolved = true;
+        foreach (INamedTypeSymbol receiver in receivers)
+        {
+            if (ResolveOwners(receiver) is not { Count: > 0 } receiverOwners || ReferenceEquals(receiverOwners, Resolving))
+            {
+                resolved = false;
+                break;
+            }
+            owners.UnionWith(receiverOwners);
+        }
+        _owners.Remove(type);
+        return resolved && owners.Count == 1 ? owners.First() : null;
     }
 
     /// <summary>Records a typed-start entry: <paramref name="kind"/> starts the family its lambda constructs.</summary>
@@ -1086,11 +1282,31 @@ internal sealed class CoreModel
             _owners.Add(type, placing);
             return placing;
         }
+        if (CompositionHandedOwner(type) is { } handedOwner)
+        {
+            var handed = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { handedOwner };
+            _owners.Add(type, handed);
+            return handed;
+        }
         var contexts = new List<INamedTypeSymbol>();
         if (_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites))
             contexts.AddRange(sites);
         if (type.ContainingType is { } container)
             contexts.Add(container.OriginalDefinition);
+        // A type its own static factory builds (#2554: an entity's SetUp running its species' setup and constructing it) is
+        // built where that factory is called: its callers' code is the code constructing it, as the behaviour constructing
+        // the entity directly was. A call outside every member is shared code.
+        bool calledOutsideMembers = false;
+        foreach (IMethodSymbol factory in _selfFactories.GetValueOrDefault(type) ?? [])
+        {
+            foreach (CallSite site in CallSites(factory))
+            {
+                if (site.Caller is { } caller)
+                    contexts.Add(caller.Type.OriginalDefinition);
+                else
+                    calledOutsideMembers = true;
+            }
+        }
         _owners.Add(type, Resolving);
         // A base never constructed itself, outside every type, whose derived types are all one behaviour's code is that
         // behaviour's code split across types (#2146: CrocomireEntity under the body's and the tongue's entities), as a
@@ -1129,7 +1345,7 @@ internal sealed class CoreModel
             owners.UnionWith(contextOwners);
             contributed = true;
         }
-        IReadOnlySet<INamedTypeSymbol>? result = owners is not null && contributed ? owners : null;
+        IReadOnlySet<INamedTypeSymbol>? result = owners is not null && contributed && !calledOutsideMembers ? owners : null;
         _owners[type] = result;
         return result;
     }

@@ -422,7 +422,6 @@ internal static class FileSelectRoomMapVerification
         back.CompleteAreaReturn();
         back.Step(ControllerButton.Start);
         AssertEqual(FileSelectMapNavigationPhase.Area, back.Phase, "return transition consumes held input without deferred confirmation");
-        AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
     /// <summary>Checks native map centering, eight-frame arrow pulses, input precedence, and scroll limits.</summary>

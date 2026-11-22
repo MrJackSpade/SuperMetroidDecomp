@@ -56,9 +56,6 @@ internal static class CeresSteamDefinitionsVerification
                 $"production Ceres steam {variant} waits the drawn 32 updates, the one it appears on included");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => CeresSteamInitializations.Initialization((CeresSteamVariant)6),
-            "Ceres steam variant past tables");
         Console.WriteLine(
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");
     }

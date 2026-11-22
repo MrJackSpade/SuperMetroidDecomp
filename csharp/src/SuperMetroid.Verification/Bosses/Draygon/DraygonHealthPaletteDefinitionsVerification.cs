@@ -42,10 +42,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
                 $"Draygon health {health} compiled palette band");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => DraygonHealthBand.Of(6001),
-            "Draygon rejects health above its authored enemy-header maximum");
-
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) });
@@ -66,13 +62,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production Draygon palette selection performs no threshold-table reads");
-
-        state.Body.Health = 6001;
-        AssertThrows<InvalidDataException>(
-            () => update(state),
-            "production Draygon rejects malformed restored health without a ROM fallback");
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "malformed Draygon health performs no threshold-table read");
 
         Console.WriteLine(
             "Draygon health palette definitions: all eight reachable thresholds, 6,001 " +

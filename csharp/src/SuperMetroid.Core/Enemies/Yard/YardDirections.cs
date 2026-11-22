@@ -24,7 +24,6 @@ internal static class YardDirections
     internal static bool IsOnWall(YardDirection direction) => IsOnWallByDirection[direction];
 
     /// <summary>The visible and hidden airborne animations of <paramref name="facing"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="facing"/> is neither facing.</exception>
     internal static YardAirborneAnimationDefinition ForAirborneFacing(HorizontalDirection facing) =>
         YardDirectionDefinitions.AirborneFacings[facing];
 }

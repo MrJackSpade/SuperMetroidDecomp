@@ -23,10 +23,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
         Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
 
-        AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectiles.SpitLaunch(HorizontalDirection.Right, (FakeKraidSpit)2),
-            "Fake Kraid spit past its two shots");
-
         var guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83,
             address => $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.");

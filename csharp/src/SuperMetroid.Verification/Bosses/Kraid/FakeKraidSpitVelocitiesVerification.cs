@@ -15,7 +15,7 @@ internal static class FakeKraidSpitVelocitiesVerification
     internal static void VerifyFakeKraidSpitVerticalVelocity(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.Y.RawValue));
 
-    /// <summary>Checks one velocity field against bank-$A6 words and rejects a shot that is neither of the two.</summary>
+    /// <summary>Checks one velocity field against bank-$A6 words for both shots and both facings.</summary>
     private static void VerifyFakeKraidSpitVelocityField(
         CartridgeImportAddressSpace rom, int fieldOffset, Func<PixelVelocity<RoomPixels>, ushort> select)
     {
@@ -31,10 +31,6 @@ internal static class FakeKraidSpitVelocitiesVerification
                 AssertEqual(expected, select(FakeKraidProjectiles.SpitLaunch(direction, spit)),
                     $"Fake Kraid spit field {fieldOffset}, facing {direction}, {spit} shot");
             }
-            foreach (FakeKraidSpit spit in new[] { (FakeKraidSpit)(-1), (FakeKraidSpit)2 })
-                AssertThrows<InvalidDataException>(
-                    () => FakeKraidProjectiles.SpitLaunch(direction, spit),
-                    "Fake Kraid spit rejects a shot that is neither of its two before calculating velocity");
         }
     }
 

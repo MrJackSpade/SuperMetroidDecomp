@@ -42,14 +42,13 @@ internal static class LookupAtmosphereTilemapsVerification
     /// <summary>Checks rain/fog domain, the stock page, and exact page bounds.</summary>
     private static void VerifyAtmosphereTilemapDomain(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
-        // An atmosphere cell's fields are a pure function of its identity, so the identity domain is swept across the cores (#1532).
-        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
+        // Every other room effect has no atmosphere fields; Core makes no effect type that names no member (#2553).
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
         {
-            var type = (RoomFxType)value;
-            if (type is RoomFxType.Rain or RoomFxType.Fog) return;
+            if (type is RoomFxType.Rain or RoomFxType.Fog) continue;
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, 0),
                 "Only rain/fog have these field rules");
-        });
+        }
         foreach (RoomFxType type in new[] { RoomFxType.Rain, RoomFxType.Fog })
         {
             int mask = type == RoomFxType.Rain ? 0x1c00 : 0x3c00;

@@ -107,7 +107,6 @@ public static class BlockAnimationLoops
         BlockAnimationLoopDefinitions.EffectOverlayAnimations.ToDictionary(entry => entry.Key, entry => Require(entry.Value));
 
     /// <summary>The treadmill animation a Wrecked Ship entrance door starts for a belt pushing <paramref name="direction"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="direction"/> is undefined.</exception>
     public static BlockAnimation Treadmill(WreckedShipTreadmillDirection direction) =>
         BlockAnimationLoopDefinitions.TreadmillAnimations[direction];
 

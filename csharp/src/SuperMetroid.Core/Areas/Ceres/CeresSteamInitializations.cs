@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresSteamInitializations
 {
     /// <summary>The animation and action <paramref name="variant"/> selects.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="variant"/> is not one of the six authored variants.</exception>
     internal static CeresSteamInitialization Initialization(CeresSteamVariant variant) =>
         CeresSteamDefinitions.Initializations[variant];
 }

@@ -54,16 +54,15 @@ internal static class LookupLiquidTilemapsVerification
     private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3Pages stock)
     {
         var valid = new HashSet<RoomFxType> { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water };
-        // A liquid page's layout is a pure function of its identity, so the identity domain is swept across the cores (#1532).
-        ParallelSweep.For(0, ushort.MaxValue + 1, value =>
+        // Every other room effect has no liquid layout; Core makes no effect type that names no member (#2553).
+        foreach (RoomFxType type in Enum.GetValues<RoomFxType>())
         {
-            var type = (RoomFxType)value;
-            if (valid.Contains(type)) return;
+            if (valid.Contains(type)) continue;
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.Cell(type, 0),
                 "Only three liquid identities have stock layout algorithms");
             AssertThrows<ArgumentOutOfRangeException>(() => RoomFxLiquidTilemapDefinitions.ComposePage(type),
                 "Transfer rejects unsupported type without expanding domain");
-        });
+        }
         foreach (RoomFxType type in valid)
         {
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.Word(type));

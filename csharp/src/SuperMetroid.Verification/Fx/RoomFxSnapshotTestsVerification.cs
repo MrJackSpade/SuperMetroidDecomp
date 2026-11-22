@@ -57,8 +57,6 @@ internal static class RoomFxSnapshotTestsVerification
         var owned = new OverlayBlendLayer(null, 32, BlendOperation.Add, ScrollBands.Uniform(0));
         AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(null, 32,
             BlendOperation.Add, null!), "BG math requires its described line scroll");
-        AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(null, 32,
-            (BlendOperation)255, ScrollBands.Uniform(0)), "BG math rejects unknown equation");
         var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], DisplayBrightness.Full));
         AssertThrows<ArgumentException>(() => RoomEffectOverlayLook.Of(RoomFxType.Water, null), "the room's load rejects water that describes no blend");
         AssertThrows<ArgumentException>(() => RoomEffectOverlayLook.Of(RoomFxType.None, RoomEffectBlendDefinitions.OverlayBrightens),

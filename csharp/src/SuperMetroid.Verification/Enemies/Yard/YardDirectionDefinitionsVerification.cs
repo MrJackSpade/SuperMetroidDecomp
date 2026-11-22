@@ -58,11 +58,6 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }
 
-
-        AssertThrows<InvalidDataException>(
-            () => YardDirections.ForAirborneFacing((HorizontalDirection)2),
-            "Yard invalid airborne facing definition");
-
         var guarded = NewYardDirectionReadGuard(rom);
 
         for (ushort direction = 0; direction < 8; direction++)

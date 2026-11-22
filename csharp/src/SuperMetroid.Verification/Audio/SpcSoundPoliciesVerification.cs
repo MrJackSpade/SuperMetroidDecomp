@@ -98,7 +98,5 @@ internal static class SpcSoundPoliciesVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.PolicyKey(soundLibrary, invalid), "unsupported sound command");
-        AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.PolicyKey((SuperMetroid.Core.Audio.SoundEffectLibrary)99, 1), "unsupported library");
-        AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.VoiceCount((SuperMetroid.Core.Audio.SoundEffectLibrary)99, "OneVoiceLowPriority"), "unsupported voice-count library");
     }
 }

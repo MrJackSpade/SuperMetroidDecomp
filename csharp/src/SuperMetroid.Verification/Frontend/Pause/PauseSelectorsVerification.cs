@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -34,8 +35,9 @@ internal static class PauseSelectorsVerification
             AssertEqual(control, pause.SelectedControl, "real menu fixture reaches the reported semantic selector");
             // The two menus are built and stepped alike, so only the restored menu's ticks, from its round trip on, are
             // compared with the menu that was never restored (#1680). Each compared tick compares the complete render
-            // inputs; the pixels are compared once per displayed selector frame (#1532).
-            SuperMetroid.Core.Animation.AnimationPlace? renderedFrame = null;
+            // inputs; the pixels are compared once per displayed selector frame (#1532). A restored selector that lost its
+            // phase or timer shows another frame, or changes frame on another tick, than the menu never restored (#2554).
+            PlacedSpritePart[]? renderedParts = null;
             for (int tick = 0; tick < 100; tick++)
             {
                 continuing.Step(0, 0); pause.Step(0, 0);
@@ -46,14 +48,14 @@ internal static class PauseSelectorsVerification
                 }
                 if (tick < RestoredTick)
                     continue;
-                AssertEqual(continuing.ItemSelectorAnimationState, pause.ItemSelectorAnimationState, "a restored selector keeps its phase and timer");
                 var continuingInputs = continuing.ComposeScene(); var restoredInputs = pause.ComposeScene();
-                AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredInputs.SpriteParts()) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
+                PlacedSpritePart[] restoredParts = restoredInputs.SpriteParts();
+                AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredParts) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
                     PauseScreenMemory.SameImage(continuing, pause, catalog) && continuingInputs.Brightness == restoredInputs.Brightness,
-                    "every restored selector keeps the render inputs of the menu never restored");
-                if (pause.ItemSelectorAnimationState.Place != renderedFrame)
+                    "every restored selector keeps its phase, its timer and the render inputs of the menu never restored");
+                if (renderedParts is null || !renderedParts.SequenceEqual(restoredParts))
                 {
-                    renderedFrame = pause.ItemSelectorAnimationState.Place;
+                    renderedParts = restoredParts;
                     AssertTrue(ScenePixels.Same(continuingInputs, restoredInputs), "every restored selector keeps the pixels of the menu never restored");
                 }
             }

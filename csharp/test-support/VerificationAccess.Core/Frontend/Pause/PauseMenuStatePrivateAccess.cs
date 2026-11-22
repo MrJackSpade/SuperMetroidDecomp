@@ -86,8 +86,5 @@ internal static class PauseMenuStatePrivateAccess
         {
             get => PrivateState.Get<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Frontend.Map.MapScroll>(self, "ActiveMapScroll");
         }
-
-        /// <summary>The private field <c>itemSelector</c>, reached by name.</summary>
-        internal global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue> itemSelector => PrivateState.Field<global::SuperMetroid.Core.Frontend.Pause.PauseMenuState, global::SuperMetroid.Core.Animation.AnimationPlayer<global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorSegment, global::SuperMetroid.Core.Frontend.Pause.Artwork.PauseSelectorLook, global::SuperMetroid.Core.Animation.NoAnimationCue>>(self, "itemSelector");
     }
 }

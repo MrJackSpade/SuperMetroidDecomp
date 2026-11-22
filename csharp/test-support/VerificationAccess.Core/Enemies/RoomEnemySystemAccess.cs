@@ -128,7 +128,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<MagdollitePartState?> MagdolliteStates =>
-            [.. self.Places.InUpdateOrder.Select(place => (place.Entity as MagdollitePartEntity)?.State)];
+            [.. self.Places.InUpdateOrder.Select(place => EnemyEntityStates.Of<MagdollitePartState>(place.Entity))];
 
         /// <summary>The state of the one Baby Metroid the room has placed, each Baby Metroid owning its own (#2030).</summary>
         /// <exception cref="InvalidOperationException">The room has placed no Baby Metroid, or more than one.</exception>

@@ -193,18 +193,19 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
             // A zero word is a fight that has not begun; the state keeps the phase it starts in.
+            DraygonPhase phase = DraygonPhase.IntroInitialDelay;
             if (words.A != 0)
             {
                 // The snapshot import enters the step the phase stands for before this import (DraygonStepImport).
-                (_, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
+                (phase, HorizontalDirection? pass) = DraygonNativeWords.Phases.Decode(words.A, "recorded DraygonPhase");
                 // Only a swoop or goop pass names the way it travels (#2165).
                 if (pass is { } passDirection)
                     draygonRecord.PassDirection = passDirection;
             }
-            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Phase))
+            switch (DraygonNativeWords.MeaningOfSharedValue(phase))
             {
                 case DraygonNativeWords.SharedValue.IntroFrames:
-                    draygonRecord.IntroStage = UpdateCountdownAccess.AtAge(draygonRecord.Phase == DraygonPhase.IntroDance
+                    draygonRecord.IntroStage = UpdateCountdownAccess.AtAge(phase == DraygonPhase.IntroDance
                         ? DraygonIntroDanceDefinitions.DurationFrames
                         : DraygonArenaDefinitions.IntroUpdates, words.B);
                     break;
@@ -214,12 +215,12 @@ internal static class NativeEnemyFamilyStateImport
                     break;
                 case DraygonNativeWords.SharedValue.SwoopEntry:
                     // The climb counts its entries up from the first; every other phase counts them down.
-                    draygonRecord.SwoopHalf = draygonRecord.Phase == DraygonPhase.SwoopAscending
+                    draygonRecord.SwoopHalf = phase == DraygonPhase.SwoopAscending
                         ? UpdateCountdownAccess.AtAge(words.C / DraygonNativeWords.SwoopEntryBytes, words.B / DraygonNativeWords.SwoopEntryBytes)
                         : UpdateCountdown.For(words.B / DraygonNativeWords.SwoopEntryBytes);
                     break;
                 default:
-                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Phase}.");
+                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {phase}.");
             }
             // The swoop path's length (word C) is read with the path's heights from the cartridge's table by the snapshot
             // import, which holds the memory the table lies in.
@@ -517,7 +518,7 @@ internal static class NativeEnemyFamilyStateImport
                 else if (recorded)
                     KraidNativeWords.ImportBodyPhase(body, words.A);
                 // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
-                if (body.Stage == KraidBodyStage.Growing && body.GrowthPhase == KraidGrowthPhase.BreakCeilingPlatforms)
+                if (body.Run is KraidStageRun.Growing { Phase: KraidGrowthPhase.BreakCeilingPlatforms })
                 {
                     // A cursor just past the last rock names none: every rock has fallen. One further is rejected.
                     int rock = words.F / sizeof(ushort);

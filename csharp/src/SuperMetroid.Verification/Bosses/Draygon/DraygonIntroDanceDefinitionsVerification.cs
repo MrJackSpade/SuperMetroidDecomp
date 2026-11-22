@@ -166,7 +166,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroStage.Age,
             "Draygon intro exact native duration");
         run(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 1);
-        AssertEqual(DraygonPhase.SwoopSetup, state.Phase,
+        AssertEqual(DraygonPhaseSteps.RightSwoopSetup(), state.Step,
             "Draygon intro transitions to right-swoop setup after the native duration");
         AssertEqual(HorizontalDirection.Right, state.PassDirection, "Draygon's first swoop flies right (#2165)");
     }

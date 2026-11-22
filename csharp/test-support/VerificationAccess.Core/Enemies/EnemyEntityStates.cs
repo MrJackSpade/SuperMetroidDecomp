@@ -94,14 +94,12 @@ internal static class EnemyEntityStates
             return held73;
         if (entity is global::SuperMetroid.Core.Enemies.LavaJumpers.SqueeptEntity entity76 && entity76.State is T held76)
             return held76;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyEntity entity77 && entity77.State is T held77)
+        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyEntity entity77 && entity77.Partners.BodyState is T held77)
             return held77;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadEntity entity79 && entity79.State is T held79)
+        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadEntity entity79 && entity79.Partners.HeadState is T held79)
             return held79;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity entity81 && entity81.State is T held81)
+        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity entity81 && entity81.Partners.OverlayState is T held81)
             return held81;
-        if (entity is global::SuperMetroid.Core.Enemies.Magdollite.MagdollitePartEntity entity83 && entity83.State is T held83)
-            return held83;
         if (entity is global::SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleEntity entity85 && entity85.State is T held85)
             return held85;
         if (entity is global::SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugEntity entity94 && entity94.State is T held94)

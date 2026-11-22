@@ -48,15 +48,14 @@ internal static class RetailKraidCaptureTests
         {
             KraidBodyState state = body.SpeciesState<KraidPartState>() as KraidBodyState ?? throw new InvalidOperationException("Kraid's body has no body state.");
             // His sunk body runs the phases that hide it and fade the room back in.
-            if (state.Run is KraidStageRun.Sunk sunk)
-                return sunk.Phase;
-            return state.Stage switch
+            return state.Run switch
             {
-                KraidBodyStage.Rising => state.RisePhase,
-                KraidBodyStage.Fighting => state.FightPhase,
-                KraidBodyStage.Growing => state.GrowthPhase,
-                KraidBodyStage.Dying => state.DeathPhase,
-                _ => throw new InvalidOperationException($"Undefined {nameof(KraidBodyStage)} {state.Stage}."),
+                KraidStageRun.Rising rising => rising.Phase,
+                KraidStageRun.Fighting fight => fight.Phase,
+                KraidStageRun.Growing growth => growth.Phase,
+                KraidStageRun.Dying dying => dying.Phase,
+                KraidStageRun.Sunk sunk => sunk.Phase,
+                _ => throw new InvalidOperationException($"Undefined Kraid body stage {state.Run.GetType().Name}."),
             };
         }
         // The death has played out once the background fade hands the sunk body to the finished phase.

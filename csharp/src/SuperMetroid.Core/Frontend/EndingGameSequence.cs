@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The ending's first step (<c>EndingStep.LeavingZebes</c>): the gunship leaves Zebes while the screen darkens; the
+/// The ending's first step, leaving Zebes: the gunship leaves Zebes while the screen darkens; the
 /// credits follow, Zebes's destruction, the results and the credits themselves (<see cref="EndingCreditsGamePhase"/>, #2554).
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>

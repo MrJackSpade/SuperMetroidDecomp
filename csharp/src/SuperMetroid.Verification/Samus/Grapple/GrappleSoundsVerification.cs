@@ -26,9 +26,9 @@ internal static class GrappleSoundsVerification
         AssertEqual(new SoundRequest(SamusSound.GrappleStart, SoundRequestPriority.WhenIdle),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "extending does not restart grapple sound");
-        SamusGrappleMovement.StepFiringAndCommit(SamusTerrain.InRoom(anchors, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(anchors, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(new SoundRequest(SamusSound.Grappling, SoundRequestPriority.Normal),
             samus.LiquidPhysics.SoundRequests.Single(), "accepted connection replaces firing sound with attached sound");
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
@@ -40,7 +40,7 @@ internal static class GrappleSoundsVerification
             if (phase == GrapplePhase.CancelPending)
                 SamusGrappleMovement.CompleteFiringCancellation(air, samus);
             else
-                SamusGrappleMovement.StepAndCommit(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepAndCommit(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertEqual(new SoundRequest(SamusSound.GrappleEnd, SoundRequestPriority.Essential),
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }

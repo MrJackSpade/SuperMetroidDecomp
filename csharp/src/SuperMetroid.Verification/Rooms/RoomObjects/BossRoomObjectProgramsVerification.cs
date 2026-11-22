@@ -59,7 +59,7 @@ internal static class BossRoomObjectProgramsVerification
         const string family = "Mother Brain fake death";
         AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length, MotherBrainFakeDeathEntries.Count,
             $"every {family} mutation has a native list");
-        AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count, $"every {family} mutation has a typed change");
+        AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count(), $"every {family} mutation has a typed change");
         AssertEqual(MotherBrainMuralDefinitions.RowCount, MotherBrainMuralRowEntries.Count, "every mural row has a native list");
         int frames = 0;
         foreach ((MotherBrainRoomMutation mutation, ushort entry) in MotherBrainFakeDeathEntries)

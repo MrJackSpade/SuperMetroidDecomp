@@ -97,7 +97,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         };
         // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
         SamusState probeSamus = InstalledFixtures.CreateSamus();
-        var result = SamusBlockCollision.ProbeWallHorizontal(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), probeState, probeSamus, probeSamus.Pose, SignedSixteenSixteen.FromParts(distance, 0));
+        var result = SamusBlockCollision.ProbeWallHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), probeState, probeSamus, probeSamus.Pose, SignedSixteenSixteen.FromParts(distance, 0));
         AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
         AssertEqual(x, probeState.Position.X.Whole, "wall probe preserves whole-pixel X");
         AssertEqual(fraction, probeState.Position.X.Fraction, "wall probe preserves native fractional write");
@@ -148,7 +148,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         SamusPoseId genericTarget = jumping
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
-        SamusAerialPoseTransitions.ApplyAerialTurn(samus, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
+        SamusAerialPoseTransitions.ApplyAerialTurn(samus, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseSpeed.RawValue, "aerial selector folds extra speed");
         AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
@@ -167,9 +167,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
     turn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(turn.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Up);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
-    SamusAerialPoseTransitions.ApplyAerialTurn(turn, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), 0);
+    SamusAerialPoseTransitions.ApplyAerialTurn(turn, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), 0);
     FixedCoordinate turnXBefore = turn.Kinematics.Position.X;
-    SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), turn, 0);
+    SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), turn, 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00010000), turn.Kinematics.Position.X - turnXBefore, "turn retains old rightward momentum after native 0.8000 deceleration");
     AssertEqual(33, turn.Position.X.Whole, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
@@ -248,9 +248,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
     var releasedWallJump = CreateSpinSamus(animationFrame: 0x0b);
-    SamusAerialPoseTransitions.ApplyWallJumpTrigger(releasedWallJump, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
+    SamusAerialPoseTransitions.ApplyWallJumpTrigger(releasedWallJump, new RoomTerrain(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
     FixedCoordinate beforeReleasedWallX = releasedWallJump.Kinematics.Position.X;
-    SamusAerialMovement.StepWallJump(SuperMetroid.Core.Samus.Movement.SamusMovement.WallJumping, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), releasedWallJump, 0, 0);
+    SamusAerialMovement.StepWallJump(SuperMetroid.Core.Samus.Movement.SamusMovement.WallJumping, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), releasedWallJump, 0, 0);
     AssertEqual(SamusAccelerationMode.Decelerating, releasedWallJump.HorizontalSpeed.AccelerationMode,
         "walljump movement promotes zero acceleration mode after speed calculation");
     AssertTrue((releasedWallJump.Kinematics.Position.X - beforeReleasedWallX).IsPositive,
@@ -259,7 +259,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     ineligibleHistory.PoseHistory.Restore(ineligibleHistory.PoseHistory.PreviousPose, ineligibleHistory.PoseHistory.PreviousMovement, SamusMovementType.Standing);
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!rejectedContact.WallJumpTriggered,
         "native history gate rejects before the wall probe");
     AssertEqual(0, ineligibleHistory.AnimationNumber, "rejected history cannot rewind wall animation");
@@ -267,7 +267,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), ineligibleHisto
         "rejected rightward wall probe cannot set real X fraction to FFFF");
     earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping,
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), earlyContact, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationNumber, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
@@ -279,7 +279,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), earlyContact, (
     // particular it must not leak the result-five write from the accepted paths below.
     var heldOnly = CreateSpinSamus(animationFrame: 0x0b);
     AerialMovementResult heldOnlyFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
-SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
+new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0);
     AssertTrue(!heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
     AssertEqual(SamusVerticalCollisionResult.None, heldOnly.SolidVerticalCollisionResult,
@@ -289,7 +289,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     ushort beforeTriggerY = eligible.Position.Y.Whole;
     AerialMovementResult triggerFrame = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         eligible,
         (GameplayAction.Left | GameplayAction.Jump),
         0,
@@ -304,7 +304,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     var opposedRightWall = CreateSpinSamus(animationFrame: 0x0b);
     AerialMovementResult opposedRightWallTrigger = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         opposedRightWall,
         (GameplayAction.Left | GameplayAction.Right | GameplayAction.Jump),
         0,
@@ -320,7 +320,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     SamusState rightOnlyLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
     AerialMovementResult rightOnlyLeftWallTrigger = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         rightOnlyLeftWall,
         (GameplayAction.Right | GameplayAction.Jump),
         0,
@@ -331,7 +331,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     SamusState opposedLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
     AerialMovementResult opposedLeftWallResult = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         opposedLeftWall,
         (GameplayAction.Left | GameplayAction.Right | GameplayAction.Jump),
         0,
@@ -354,7 +354,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     ];
     AerialMovementResult enemyTrigger = SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         enemyEligible,
         (GameplayAction.Left | GameplayAction.Jump),
         0,
@@ -371,7 +371,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     var withdrawn = CreateSpinSamus(animationFrame: 0x0b);
     withdrawn.Kinematics.InteractiveEnemies = [enemyEligible.Kinematics.InteractiveEnemies[0] with { Enemy = withdrawnEnemy }];
     withdrawn.Kinematics.WallJumpLaunch.Launch(withdrawnEnemy);
-    AssertTrue(!SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), withdrawn, (GameplayAction.Left | GameplayAction.Jump), 0, 0).WallJumpTriggered,
+    AssertTrue(!SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), withdrawn, (GameplayAction.Left | GameplayAction.Jump), 0, 0).WallJumpTriggered,
         "held Jump against the enemy without a fresh edge does not launch");
     WallJumpLaunchShakeChecks.AssertEnemyPassShakes(withdrawnRoom, withdrawn, null, "a check that does not launch");
 
@@ -381,7 +381,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     eligible.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(1, 0x7000);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
-    SamusAerialPoseTransitions.ApplyWallJumpTrigger(eligible, SamusTerrain.InRoom(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
+    SamusAerialPoseTransitions.ApplyWallJumpTrigger(eligible, new RoomTerrain(SuperMetroid.Verification.Harness.VerificationHelpersVerification.CreateEmptyRoom(new(64, 64)), SamusRoomObjectFixtures.Uninstalled), 0);
     SamusParticle wallDust = eligible.Presentation.Particles.All[^1];
     AssertEqual(SamusParticleKind.Dust, wallDust.Kind, "wall jump creates dust");
     AssertEqual(0, wallDust.AnimationStep, "wall dust starts at its first frame");
@@ -412,7 +412,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     ushort wallStartY = eligible.Position.Y.Whole;
     AerialMovementResult wallFrame = SamusAerialMovement.StepWallJump(SuperMetroid.Core.Samus.Movement.SamusMovement.WallJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         eligible,
         (GameplayAction.Right | GameplayAction.Jump),
         1);
@@ -424,7 +424,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), heldOnly, (Game
     eligible.AnimationNumber = 0x17;
     SamusAerialMovement.StepWallJump(SuperMetroid.Core.Samus.Movement.SamusMovement.WallJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         eligible,
         (GameplayAction.Right | GameplayAction.Jump),
         2);
@@ -605,7 +605,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes the hurt body's radius before movement.
     FixedCoordinate hurtXBefore = samus.Kinematics.Position.X;
     FixedCoordinate hurtYBefore = samus.Kinematics.Position.Y;
-    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), samus, (SamusKnockback.Moving)samus.Knockback, 0);
+    SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), samus, (SamusKnockback.Moving)samus.Knockback, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
     samus.DecrementHurtTimers();
@@ -636,7 +636,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // impact speed seen by `$91:F078` is the live speed entering this frame.
     int impactYSpeed = downKnockback.Kinematics.VerticalVelocity.Speed.Whole;
     int impactYSubspeed = downKnockback.Kinematics.VerticalVelocity.Speed.Fraction;
-    KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(SamusTerrain.InRoom(floorLevel, SamusRoomObjectFixtures.Uninstalled), downKnockback, (SamusKnockback.Moving)downKnockback.Knockback, frameCounter: 0);
+    KnockbackMovementResult downImpact = SamusKnockbackMovement.Step(new RoomTerrain(floorLevel, SamusRoomObjectFixtures.Uninstalled), downKnockback, (SamusKnockback.Moving)downKnockback.Knockback, frameCounter: 0);
     AssertTrue(downImpact.Landed, "downward knockback collision publishes landing");
     AssertEqual(5, impactYSpeed,
         "downward knockback enters collision with whole impact speed 5");
@@ -656,7 +656,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         SamusPoseMetadata.ReadMovementType(samus),
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
-    AssertEqual((SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection?)SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "damage boost preserves knockback direction");
+    AssertTrue(samus.Knockback is SamusKnockback.HandedBack, "damage boost hands the knockback back to her pose");
     AssertEqual(4, samus.KnockbackHold.UpdatesLeft, "damage boost preserves hurt timer");
     AssertEqual(4, samus.Kinematics.VerticalVelocity.Speed.Whole, "damage boost retains whole speed");
     AssertEqual(0xe400, samus.Kinematics.VerticalVelocity.Speed.Fraction, "damage boost retains subspeed");
@@ -679,7 +679,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     FixedCoordinate boostYBefore = samus.Kinematics.Position.Y;
     SamusAerialMovement.StepDamageBoost(SuperMetroid.Core.Samus.Movement.SamusMovement.DamageBoost, 
 
-        SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled),
         samus,
         GameplayAction.Jump,
         frameCounter: 1);
@@ -729,13 +729,13 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     expires.PoseHistory.Restore(SamusPoseId.KnockbackRightPose, expires.PoseHistory.PreviousMovement, expires.PoseHistory.MovementBeforePrevious);
     for (int frame = 0; frame < 5; frame++)
     {
-        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, (ushort)frame);
+        SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, (ushort)frame);
         AssertTrue(expires.KnockbackActive,
             $"hurt movement frame {frame + 1} remains active");
         expires.DecrementHurtTimers();
     }
     ushort humanoidYBeforeCompletion = expires.Position.Y.Whole;
-    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, 5);
+    SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), expires, (SamusKnockback.Moving)expires.Knockback, 5);
     ushort humanoidYAfterFinalMove = expires.Position.Y.Whole;
     AssertTrue(expires.Position.Y.Whole < humanoidYBeforeCompletion,
         "zero hurt timer still permits final movement before interruption");
@@ -789,7 +789,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
 
         // Native ball rows accelerate at 0.C000, not the humanoid hurt row's 1.8000.
         FixedCoordinate ballXBefore = ball.Kinematics.Position.X;
-        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ball, (SamusKnockback.Moving)ball.Knockback, 0);
+        SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), ball, (SamusKnockback.Moving)ball.Knockback, 0);
         AssertEqual(SixteenSixteenWords.ToDisplacement(hitSide == 0 ? -0xc000 : 0xc000), ball.Kinematics.Position.X - ballXBefore,
             $"hurt movement uses live ball type for pose ${(int)SamusPoseNumbers.Number(pose):X2}");
     }
@@ -810,10 +810,10 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
     {
-        SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, unchecked((ushort)frame));
+        SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, unchecked((ushort)frame));
         ballExpires.DecrementHurtTimers();
     }
-    SamusKnockbackMovement.Step(SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, frameCounter: 5);
+    SamusKnockbackMovement.Step(new RoomTerrain(empty, SamusRoomObjectFixtures.Uninstalled), ballExpires, (SamusKnockback.Moving)ballExpires.Knockback, frameCounter: 5);
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(ballExpires),
         "zero hurt timer ends morphed special handler at interruption");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, ballExpires.Pose,

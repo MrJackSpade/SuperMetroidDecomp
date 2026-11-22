@@ -29,18 +29,18 @@ internal static class SpinChargeVerification
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: frames), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: frames));
             for (int frame = 0; frame < 60; frame++)
-                projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+                projectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(60, projectiles.Charge.UpdatesHeld, "spin charge fixture armed through real producer");
             samus.ChangePoseKeepingAnimation(pose);
             foreach (GameplayAction input in new GameplayAction[] { GameplayAction.Shoot, 0, 0 })
             {
-                projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+                projectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
                 AssertEqual(60, projectiles.Charge.UpdatesHeld, $"pose {(int)SamusPoseNumbers.Number(pose):X2} preserves charge on hold/release");
                 AssertEqual(0, projectiles.Pool.ShotCount.Count, $"pose {(int)SamusPoseNumbers.Number(pose):X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.
             samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
-            projectiles.StepFrame(SamusTerrain.InRoom(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+            projectiles.StepFrame(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(0, projectiles.Charge.UpdatesHeld, "ordinary pose consumes the retained charge");
         }
     }

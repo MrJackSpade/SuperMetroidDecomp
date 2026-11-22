@@ -35,7 +35,7 @@ public sealed partial class IdentityTable<TIdentity, TValue> : IEnumerable<KeyVa
     /// <summary>The value of <paramref name="identity"/>.</summary>
     public TValue this[TIdentity identity] => values[identity];
 
-    /// <summary>The members' values, in the order of <c>Keys</c>.</summary>
+    /// <summary>The members' values, in the order the table enumerates its members.</summary>
     public IEnumerable<TValue> Values => values.Values;
 
     /// <inheritdoc/>

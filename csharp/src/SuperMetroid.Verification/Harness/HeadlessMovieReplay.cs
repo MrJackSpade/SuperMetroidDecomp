@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.TestSupport.MovieReplay.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -26,55 +25,15 @@ internal static class HeadlessMovieReplay
     {
         while (session.NextInput() is { } input)
         {
-            RunFrame(session, () => session.Game.Step(input));
+            try
+            {
+                session.Game.Step(input);
+            }
+            catch (Exception exception) when (session.NamedProductionFailure(exception) is { } named)
+            {
+                throw named;
+            }
             session.FrameCompleted();
-        }
-    }
-
-    /// <summary>
-    /// Records the frames of <paramref name="movie"/> that <paramref name="video"/>'s segment covers, comparing every
-    /// frame up to the segment's end as the whole replay does.
-    /// </summary>
-    /// <param name="movie">The movie to record.</param>
-    /// <param name="video">The segment to record.</param>
-    internal static void Record(ReplayMovieId movie, MovieReplayVideo video)
-    {
-        using var session = ConvertedMovieSession.Open(movie, ReplayMovieFixture.Of(movie).TraceDirectory, video: video);
-        while (!video.Done && session.NextInput() is { } input)
-        {
-            MovieReplayPosition position = session.Position
-                ?? throw new InvalidOperationException("The replay handed a frame without saying where it comes from.");
-            RunFrame(session, () => video.Step(session.Game, input, position));
-            session.FrameCompleted();
-        }
-        video.Complete();
-    }
-
-    /// <summary>The number of frames <paramref name="movie"/>'s replay runs, which is the length of its video.</summary>
-    /// <param name="movie">The movie to count.</param>
-    internal static long FrameCount(ReplayMovieId movie)
-    {
-        using var session = ConvertedMovieSession.Open(movie);
-        long frames = 0;
-        while (session.NextInput() is { } input)
-        {
-            RunFrame(session, () => session.Game.Step(input));
-            session.FrameCompleted();
-            frames++;
-        }
-        Console.WriteLine(session.Finish());
-        return frames;
-    }
-
-    private static void RunFrame(ConvertedMovieSession session, Action frame)
-    {
-        try
-        {
-            frame();
-        }
-        catch (Exception exception) when (session.NamedProductionFailure(exception) is { } named)
-        {
-            throw named;
         }
     }
 }

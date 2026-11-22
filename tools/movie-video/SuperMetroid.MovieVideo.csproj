@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Renders the supplied movies' replays as captioned MP4s for visual review (tools/render-movie-videos.ps1). It lies
+       outside csharp/, so the repository's Directory.Build files, analyzers and module map do not cover it. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- The shared Windows no-dialog policy uses LibraryImport, whose generated stubs are unsafe. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>SuperMetroid.MovieVideo</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../csharp/src/SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../../csharp/src/SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
+    <ProjectReference Include="../../csharp/src/SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
+    <ProjectReference Include="../../csharp/src/SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
+    <ProjectReference Include="../../csharp/src/SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
+  </ItemGroup>
+  <Import Project="../../csharp/test-support/WindowsConsole.projitems" />
+  <Import Project="../../csharp/test-support/RepositoryInstallation.projitems" />
+  <Import Project="../../csharp/test-support/RepositoryInstallation.Verification.projitems" />
+  <Import Project="../../csharp/test-support/VerificationAccess.Core.projitems" />
+  <Import Project="../../csharp/test-support/VerificationAccess.Tooling.projitems" />
+  <Import Project="../../csharp/test-support/FrameRendering.projitems" />
+  <Import Project="../../csharp/test-support/SaveMapFixtures.projitems" />
+  <Import Project="../../csharp/test-support/SamusNativeCodecs.projitems" />
+  <Import Project="../../csharp/test-support/VerificationImporters.projitems" />
+  <Import Project="../../csharp/test-support/Assertions.projitems" />
+  <Import Project="../../csharp/test-support/MovieReplay.projitems" />
+  <ItemGroup>
+    <Using Include="SuperMetroid.Core.Audio" />
+    <Using Include="SuperMetroid.Core.Compatibility" />
+    <Using Include="SuperMetroid.Core.Spatial" />
+  </ItemGroup>
+</Project>

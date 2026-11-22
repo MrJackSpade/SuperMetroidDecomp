@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.TestSupport.MovieReplay.Verification;
+namespace SuperMetroid.MovieVideo;
 
 /// <summary>
 /// The caption band a recorded replay shows under each frame: two lines of 5x7 text in a black band below the picture,
 /// so it never covers the game. It is drawn at the frame's own resolution, and the video scales it with the picture.
 /// </summary>
-internal static class MovieReplayOverlay
+internal static class MovieVideoCaption
 {
     /// <summary>The band's height in frame pixels: two seven-pixel lines with room above, between and below them.</summary>
     internal const int Height = 22;

@@ -9,7 +9,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.RenderVerification.Samus;
-using SuperMetroid.Core;
+
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.TestSupport.FrameRendering;

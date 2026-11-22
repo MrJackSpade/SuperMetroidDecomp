@@ -3,7 +3,6 @@ using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 

@@ -54,7 +54,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// Rain's sideways texture drift each frame, the wind chosen from the random number when the room loads; it only
     /// blows across. The fall is <see cref="RainFall"/>.
     /// </summary>
-    private PixelVelocity<OverlayPixels> rainWind;
+    private readonly PixelVelocity<OverlayPixels> rainWind;
     /// <summary>Previous camera point, used to make rain follow camera movement.</summary>
     private Position16<RoomPixels> previousCamera;
     /// <summary>

@@ -25,17 +25,6 @@ internal sealed partial record BotwoonPathPosition
     internal static BotwoonPathPosition StartOf(BotwoonPathWalk walk) => new(Ensure.NotNull(walk.Path), walk.FirstStep);
 
     /// <summary>
-    /// Stands at <paramref name="step"/> of <paramref name="path"/>, as a check or a recorded state supplies it: a step of
-    /// the path or one of the two positions just outside it.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="step"/> lies further outside the path.</exception>
-    internal static BotwoonPathPosition At(BotwoonPathDefinition path, int step)
-    {
-        Ensure.NotNull(path);
-        return new(path, Ensure.BetweenInclusive(-1, path.Steps.Length, step));
-    }
-
-    /// <summary>
     /// Takes the step this position stands on, the way <paramref name="traversal"/> walks the path: its authored one-pixel
     /// movement and the position after it, one step on, which may be just past the path's end. A position past either end
     /// takes no step: the walk has ended there.

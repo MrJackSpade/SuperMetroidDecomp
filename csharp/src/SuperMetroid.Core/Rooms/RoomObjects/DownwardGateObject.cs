@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>

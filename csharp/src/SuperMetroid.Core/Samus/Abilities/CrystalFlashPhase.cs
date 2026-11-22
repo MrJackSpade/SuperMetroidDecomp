@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The phases of Crystal Flash's movement: inactive, then raising Samus, draining her ammunition and finishing.</summary>
 public abstract partial record CrystalFlashPhase
 {
-    /// <summary>Allows only the cases below.</summary>
-    private CrystalFlashPhase()
-    {
-    }
 
     /// <summary>Crystal Flash does not move Samus; its suit colouring may still be waiting to restore her normal colours.</summary>
     public sealed partial record Inactive : CrystalFlashPhase;
@@ -14,10 +10,6 @@ public abstract partial record CrystalFlashPhase
     /// <summary>The phases in which Crystal Flash holds Samus's movement: raising her, draining her ammunition and finishing.</summary>
     public abstract partial record Moving : CrystalFlashPhase
     {
-        /// <summary>Allows only the cases below.</summary>
-        private Moving()
-        {
-        }
 
         /// <summary>Samus rises: her whole Y position goes up by <see cref="CrystalFlashDefinitions.RaiseStep"/> for <see cref="CrystalFlashDefinitions.RaiseUpdates"/>, then the raised center is captured and the bubble effect is requested.</summary>
         public sealed partial record Raising : Moving;

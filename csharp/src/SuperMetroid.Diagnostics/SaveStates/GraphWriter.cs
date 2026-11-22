@@ -133,43 +133,4 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
 
     /// <inheritdoc/>
     public void Fields(int count) => Output.Write(count);
-
-    /// <inheritdoc/>
-    public void Field(StateGraphField field)
-    {
-        Ensure.NotNull(field);
-        WriteName(field.DeclaringType);
-        WriteName(field.Name);
-    }
-
-    /// <summary>Writes the frame of a value of <paramref name="type"/> that has no identity: its marker, number zero, name and payload kind.</summary>
-    private void Frame(StateGraphType type, PayloadKind kind)
-    {
-        Output.Write((byte)ObjectMarker.New);
-        Output.Write(0);
-        WriteName(type.Name);
-        Output.Write((byte)kind);
-    }
-
-    /// <summary>Writes a scalar framed as a value of its type.</summary>
-    private void Scalar<T>(T value)
-    {
-        PrimitiveStateType<T> type = Types.Scalar<T>();
-        Frame(type, PayloadKind.Primitive);
-        type.WriteValue(Output, value);
-    }
-
-    /// <inheritdoc/>
-    public void WriteScalar<T>(T value) where T : unmanaged => Scalar(value);
-
-    /// <inheritdoc/>
-    public void WriteValue<T>(T value) where T : struct => WriteElement(value);
-
-    /// <inheritdoc/>
-    public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum
-    {
-        EnumStateType<TEnum> type = Types.EnumOf<TEnum>();
-        Frame(type, PayloadKind.EnumName);
-        WriteName(type.MemberName(value));
-    }
 }

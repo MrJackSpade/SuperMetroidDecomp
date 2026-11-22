@@ -67,16 +67,6 @@ internal abstract class StateGraphType(Type type, StateGraphTypes types)
     /// <summary>Whether values of the type are lazily loaded parts.</summary>
     internal virtual bool IsLazy => false;
 
-    /// <summary>Writes a value inside a packed run (#1696): a scalar's bytes, an enum member's place, a value type's fields.</summary>
-    /// <exception cref="NotSupportedException">Values of the type are never packed.</exception>
-    internal virtual void WritePacked(PackedWriter writer, object value) =>
-        throw new NotSupportedException($"Debugger state cannot pack a {Name}.");
-
-    /// <summary>Reads a value inside a packed run.</summary>
-    /// <exception cref="InvalidDataException">Values of the type are never packed.</exception>
-    internal virtual object ReadPacked(PackedReader reader) =>
-        throw new InvalidDataException($"{DebuggerObjectGraphSerializer.UnsupportedVersion}: a packed run holds a {Name}, which this build never packs.");
-
     /// <summary>Rejects a payload kind this type does not store.</summary>
     protected InvalidDataException UnexpectedKind(PayloadKind kind) => new(
         $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state stores {Name} as {kind}, which this build does not.");

@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputs;
 
@@ -310,14 +309,6 @@ internal sealed partial class SamusPoseInputList
     /// <param name="held">The held actions the chords read.</param>
     /// <param name="newlyPressed">The newly pressed actions the chords read.</param>
     internal SamusPoseInputMatch Match(GameplayAction held, GameplayAction newlyPressed) => _match(held, newlyPressed);
-
-    /// <summary>
-    /// The poses the list can select, found the first time it is asked about by reading the list under every held chord
-    /// its transitions read and every part of that chord newly pressed. It is worked out from the list alone, so a snapshot
-    /// neither holds nor works it out.
-    /// </summary>
-    [field: NonSerialized]
-    internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
 
     /// <summary>Names the list.</summary>

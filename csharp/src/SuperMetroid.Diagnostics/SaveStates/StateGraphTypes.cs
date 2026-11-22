@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 
@@ -33,9 +32,6 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
 
     /// <summary>The names of types no value of which is written by its own handling: static and abstract types.</summary>
     private readonly ConcurrentDictionary<Type, StateGraphName> names = new();
-
-    /// <summary>The types whose registration has begun.</summary>
-    private readonly HashSet<Type> begun = [];
 
     /// <summary>The registrations that accept values of types the framework makes, asked in turn when a runtime type is not registered.</summary>
     private readonly List<StateGraphProbe> probes = [];
@@ -267,158 +263,9 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         Put(new PrimitiveStateType<Guid>(this, "System.Guid", static (writer, value) => writer.Write(value.ToByteArray()), static reader => new Guid(reader.ReadBytes(16))));
     }
 
-    /// <summary>The handling of the scalar <typeparamref name="T"/>.</summary>
-    internal PrimitiveStateType<T> Scalar<T>() => (PrimitiveStateType<T>)byType[typeof(T)];
-
-    /// <summary>The handling of the enum <typeparamref name="TEnum"/>.</summary>
-    /// <exception cref="NotSupportedException">The enum is not registered.</exception>
-    internal EnumStateType<TEnum> EnumOf<TEnum>() where TEnum : struct, Enum =>
-        byType.TryGetValue(typeof(TEnum), out StateGraphType? type)
-            ? (EnumStateType<TEnum>)type
-            : throw new NotSupportedException($"Debugger state cannot hold the enum {typeof(TEnum).FullName}: no registration names it.");
-
     /// <summary>The handling of the game's value type <typeparamref name="T"/>, or none.</summary>
     internal NodeStateType<T>? NodeOf<T>() => byType.TryGetValue(typeof(T), out StateGraphType? type) ? type as NodeStateType<T> : null;
 
-    // ---------------------------------------------------------------- IStateGraphRegistry
-
-    /// <inheritdoc/>
-    public bool Begin(Type type) => begun.Add(Ensure.NotNull(type));
-
-    /// <inheritdoc/>
-    public void Name(Type type, StateGraphName name)
-    {
-        if (names.TryAdd(Ensure.NotNull(type), Ensure.NotNull(name)))
-            unnamed.Add((type, name));
-    }
-
-    /// <inheritdoc/>
-    public void Node<T>(StateGraphName name, Action<IStateGraphWriter, T> write, Func<IStateGraphReader, T>? create,
-        Action<T, IStateGraphVisitor> visit, string? packedSchema) =>
-        Put(new NodeStateType<T>(this, name, write, create, visit, packedSchema));
-
-    /// <inheritdoc/>
-    public void Enum<TEnum>(StateGraphName name, bool flags) where TEnum : struct, Enum => Put(new EnumStateType<TEnum>(this, name, flags));
-
     /// <inheritdoc/>
     public void Array<T>() => Put(new ArrayStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Grid<T>() => Put(new GridStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void ReadOnlyMemory<T>() => Put(new ReadOnlyMemoryStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void List<T>() => Put(new ListStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Queue<T>() => Put(new QueueStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Stack<T>() => Put(new StackStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void HashSet<T>() => Put(new HashSetStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Dictionary<TKey, TValue>() where TKey : notnull => Put(new DictionaryStateType<TKey, TValue>(this));
-
-    /// <inheritdoc/>
-    public void ConcurrentDictionary<TKey, TValue>() where TKey : notnull => Put(new ConcurrentDictionaryStateType<TKey, TValue>(this));
-
-    /// <inheritdoc/>
-    public void ImmutableArray<T>() => Put(new ImmutableArrayStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void ImmutableDictionary<TKey, TValue>() where TKey : notnull => Put(new ImmutableDictionaryStateType<TKey, TValue>(this));
-
-    /// <inheritdoc/>
-    public void ImmutableHashSet<T>() => Put(new ImmutableHashSetStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void FrozenDictionary<TKey, TValue>() where TKey : notnull
-    {
-        if (begun.Add(typeof(System.Collections.Frozen.FrozenDictionary<TKey, TValue>)))
-            Probe(new TypedProbe<System.Collections.Frozen.FrozenDictionary<TKey, TValue>>(new FrozenDictionaryStateType<TKey, TValue>(this), enumerating: true));
-    }
-
-    /// <inheritdoc/>
-    public void FrozenSet<T>()
-    {
-        if (begun.Add(typeof(System.Collections.Frozen.FrozenSet<T>)))
-            Probe(new TypedProbe<System.Collections.Frozen.FrozenSet<T>>(new FrozenSetStateType<T>(this), enumerating: true));
-    }
-
-    /// <inheritdoc/>
-    public void ReadOnlyCollection<T>() => Put(new ReadOnlyCollectionStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Lazy<T>() => Put(new LazyStateType<T>(this));
-
-    /// <inheritdoc/>
-    public void Unheld<T>() where T : class => Put(new UnheldStateType(typeof(T), this));
-
-    /// <inheritdoc/>
-    public void Comparer<T>()
-    {
-        if (begun.Add(typeof(IComparer<T>)))
-            Probe(new TypedProbe<IComparer<T>>(new UnheldStateType(typeof(IComparer<T>), this)));
-        if (begun.Add(typeof(IEqualityComparer<T>)))
-            Probe(new TypedProbe<IEqualityComparer<T>>(new UnheldStateType(typeof(IEqualityComparer<T>), this)));
-    }
-
-    /// <inheritdoc/>
-    public void KeyValuePair<TKey, TValue>() => Put(new KeyValuePairStateType<TKey, TValue>(this));
-
-    /// <inheritdoc/>
-    public void Sequence<T>()
-    {
-        Array<T>();
-        List<T>();
-        ImmutableArray<T>();
-        ReadOnlyCollection<T>();
-        if (begun.Add(typeof(CompilerReadOnlyList<T>)))
-            Probe(new CompilerReadOnlyListProbe<T>(new CompilerReadOnlyListStateType<T>(this)));
-    }
-
-    /// <inheritdoc/>
-    public void Map<TKey, TValue>() where TKey : notnull
-    {
-        Dictionary<TKey, TValue>();
-        FrozenDictionary<TKey, TValue>();
-        ImmutableDictionary<TKey, TValue>();
-    }
-
-    /// <inheritdoc/>
-    public void Set<T>()
-    {
-        HashSet<T>();
-        FrozenSet<T>();
-        ImmutableHashSet<T>();
-    }
-
-    /// <inheritdoc/>
-    public void Method<TDelegate>(string name, Func<object?, TDelegate?> create) where TDelegate : Delegate
-    {
-        if (!byType.TryGetValue(typeof(TDelegate), out StateGraphType? type))
-            Put(type = new DelegateStateType<TDelegate>(this));
-        ((DelegateStateType<TDelegate>)type).Add(name, create);
-    }
-
-    /// <inheritdoc/>
-    public void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members) => Catalogs.Add((type, members));
-
-    /// <inheritdoc/>
-    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates)
-    {
-        for (int index = 0; index < keys.Count; index++)
-            DeclaredProbes.TryAdd(keys[index], (probe, index, exact[index], enumerates[index]));
-    }
-
-    /// <inheritdoc/>
-    public void Holds(string key, bool anything, IReadOnlyList<string> held) => DeclaredHolds.TryAdd(key, (anything, held));
-
-    /// <summary>The type standing for the read-only lists the compiler makes for collection expressions of <typeparamref name="T"/>.</summary>
-    private sealed class CompilerReadOnlyList<T>;
 }

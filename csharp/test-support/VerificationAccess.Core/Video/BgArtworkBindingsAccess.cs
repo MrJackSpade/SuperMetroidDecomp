@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core;
-
-namespace SuperMetroid.AssetExtraction.Video;
+﻿namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Verification access to <see cref="BgArtworkBindings"/> members production does not use.</summary>
 internal static class BgArtworkBindingsAccess

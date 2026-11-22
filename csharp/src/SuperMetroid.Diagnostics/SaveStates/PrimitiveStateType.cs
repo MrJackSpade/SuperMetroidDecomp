@@ -11,12 +11,6 @@ internal sealed class PrimitiveStateType<T>(StateGraphTypes types, string name, 
     /// <inheritdoc/>
     protected override string Named() => name;
 
-    /// <summary>Writes the scalar's bytes.</summary>
-    internal void WriteValue(BinaryWriter writer, T value) => write(writer, value);
-
-    /// <summary>Reads the scalar's bytes.</summary>
-    internal T ReadValue(BinaryReader reader) => read(reader);
-
     /// <inheritdoc/>
     internal override void Write(GraphWriter writer, object value)
     {
@@ -27,10 +21,4 @@ internal sealed class PrimitiveStateType<T>(StateGraphTypes types, string name, 
     /// <inheritdoc/>
     internal override object Read(GraphReader reader, int referenceId, PayloadKind kind) =>
         kind == PayloadKind.Primitive ? read(reader.Input)! : throw UnexpectedKind(kind);
-
-    /// <inheritdoc/>
-    internal override void WritePacked(PackedWriter writer, object value) => write(writer.Output, (T)value);
-
-    /// <inheritdoc/>
-    internal override object ReadPacked(PackedReader reader) => read(reader.Input)!;
 }

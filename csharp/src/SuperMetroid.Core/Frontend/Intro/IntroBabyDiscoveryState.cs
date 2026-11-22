@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Intro.Artwork;

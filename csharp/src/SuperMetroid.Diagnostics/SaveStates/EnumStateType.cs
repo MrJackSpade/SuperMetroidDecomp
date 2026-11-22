@@ -80,12 +80,6 @@ internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName
     }
 
     /// <inheritdoc/>
-    internal override void WritePacked(PackedWriter writer, object value) => writer.WriteEnum((TEnum)value);
-
-    /// <inheritdoc/>
-    internal override object ReadPacked(PackedReader reader) => reader.ReadEnum<TEnum>();
-
-    /// <inheritdoc/>
     public IPackedEnumTable ReadTable(GraphReader reader)
     {
         var table = new PackedEnumTable<TEnum>(this);

@@ -10,16 +10,12 @@ namespace SuperMetroid.Core.Enemies.Deaths;
 internal sealed partial class EnemyDeathAndDropAnimation
     : EnemyProjectileFrameAnimation<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>
 {
-    /// <summary>The family's cue owner, which carries out the events the animation raises (#2571).</summary>
-    private readonly IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner;
-
     /// <summary>Creates an <see cref="EnemyDeathAndDropAnimation"/>.</summary>
     /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
     /// <param name="animation">The animation it plays.</param>
     public EnemyDeathAndDropAnimation(IEnemyProjectileBranchingCues<EnemyDeathAndDropSegment, EnemyDeathAndDropCue> owner, Animation<EnemyDeathAndDropSegment> animation)
         : base(animation.Phases[0].Segment, animation, EnemyProjectileCueRunner<EnemyDeathAndDropSegment, EnemyDeathAndDropCue>.By(owner))
     {
-        this.owner = owner;
     }
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

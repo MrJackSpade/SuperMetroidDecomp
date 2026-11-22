@@ -51,10 +51,4 @@ internal sealed class NodeStateType<T>(StateGraphTypes types, StateGraphName nam
 
     /// <inheritdoc/>
     internal override void Visit(object value, IStateGraphChildren children) => visit((T)value, children);
-
-    /// <inheritdoc/>
-    internal override void WritePacked(PackedWriter writer, object value) => write(writer, (T)value);
-
-    /// <inheritdoc/>
-    internal override object ReadPacked(PackedReader reader) => Create(reader)!;
 }

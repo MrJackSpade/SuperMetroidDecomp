@@ -199,22 +199,6 @@ internal static partial class DraygonAnimations
         [P.TailFacingRightFlail] = Animation<DraygonSegment>.LeadingInto([Segments.Whole(P.TailFacingRightFlail)], [Segments.Whole(P.TailFacingRightIdle)]),
     };
 
-    /// <summary>
-    /// The look his eye takes facing each way toward each straight direction Samus lies nearest (#2557): up, right, down or
-    /// left, each facing's own.
-    /// </summary>
-    internal static IReadOnlyDictionary<DraygonEyeLook, DraygonSegment> EyeLooks { get; } = new Dictionary<DraygonEyeLook, DraygonSegment>
-    {
-        [new(HorizontalDirection.Left, CompassDirection.Up)] = P.EyeFacingLeftLookingUp,
-        [new(HorizontalDirection.Left, CompassDirection.Right)] = P.EyeFacingLeftLookingRight,
-        [new(HorizontalDirection.Left, CompassDirection.Down)] = P.EyeFacingLeftLookingDown,
-        [new(HorizontalDirection.Left, CompassDirection.Left)] = P.EyeFacingLeftLookingLeft,
-        [new(HorizontalDirection.Right, CompassDirection.Up)] = P.EyeFacingRightLookingUp,
-        [new(HorizontalDirection.Right, CompassDirection.Right)] = P.EyeFacingRightLookingRight,
-        [new(HorizontalDirection.Right, CompassDirection.Down)] = P.EyeFacingRightLookingDown,
-        [new(HorizontalDirection.Right, CompassDirection.Left)] = P.EyeFacingRightLookingLeft,
-    };
-
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DraygonSegment> StartingWith(DraygonSegment segment) => StartingAt[segment];
 

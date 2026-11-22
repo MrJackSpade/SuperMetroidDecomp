@@ -27,10 +27,6 @@ public abstract partial record SamusMissileIgnition
     /// <summary>Not yet ignited since the missile was fired or reflected: where a missile starts its ignition.</summary>
     public abstract partial record Unignited : SamusMissileIgnition
     {
-        /// <summary>Closes the group to the two stages declared here.</summary>
-        private protected Unignited()
-        {
-        }
     }
 
     /// <summary>Fired and not yet ignited; it ignites at <see cref="SamusProjectileMotionDefinitions.MissileIgnitionSpeed"/>.</summary>

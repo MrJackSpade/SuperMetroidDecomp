@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Diagnostics.SaveStates;
 using SuperMetroid.TestSupport.FrameRendering;

@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -213,14 +211,6 @@ internal static partial class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Applies the ordinary grounded start-moving transition from the normal standing pose,
-    /// <see cref="SamusPoseId.FacingRightNormalPose"/> or <see cref="SamusPoseId.FacingLeftNormalPose"/>, to running the
-    /// same way.
-    /// </summary>
-    public static void ApplyStandingToRunning(SamusState samus) =>
-        ApplySimpleGroundedPoseChange(samus, FacingHerWay(samus, SamusPoseId.MovingRightNormalPose));
-
-    /// <summary>
     /// Applies the no-button fallback from the normal running pose, <see cref="SamusPoseId.MovingRightNormalPose"/> or
     /// <see cref="SamusPoseId.MovingLeftNormalPose"/>, to standing the same way, after ordinary running momentum has
     /// decelerated to zero.
@@ -350,12 +340,4 @@ internal static partial class SamusGroundedPoseTransitions
         if (refreshRadius)
             SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
-
-    /// <summary>Whether <paramref name="pose"/> is the aim-up wall stop facing <paramref name="facing"/>.</summary>
-    private static bool IsWallStopFacing(SamusPoseId pose, SamusFacingDirection facing) =>
-        SamusPoseTraits.IsIn(pose, SamusPoseFamily.AimUpWallStop) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
-
-    /// <summary>Whether <paramref name="pose"/> is the normal run facing <paramref name="facing"/>.</summary>
-    private static bool IsNormalRunFacing(SamusPoseId pose, SamusFacingDirection facing) =>
-        SamusPoseTraits.IsIn(pose, SamusPoseFamily.NormalRun) && SamusPoseMetadata.ReadFacingDirection(pose) == facing;
 }

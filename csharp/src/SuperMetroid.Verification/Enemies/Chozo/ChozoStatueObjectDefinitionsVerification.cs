@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World;
-using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.TestSupport.MovieReplay.NativeObjectListDefinitions;
 

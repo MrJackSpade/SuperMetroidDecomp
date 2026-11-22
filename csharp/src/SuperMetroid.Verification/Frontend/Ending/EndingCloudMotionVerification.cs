@@ -37,10 +37,10 @@ internal static class EndingCloudMotionVerification
             // would not start it.
             var scene = new CloudScene { FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 95 : 176) };
             wrapper.StepMotion(scene);
-            AssertTrue((int)sprite.ScreenPlace.X == 200 && (int)sprite.ScreenPlace.Y == 200, $"{role} waits for native zoom threshold");
+            AssertTrue(sprite.ScreenPlace.X == 200 && sprite.ScreenPlace.Y == 200, $"{role} waits for native zoom threshold");
             scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 96 : 175);
             wrapper.StepMotion(scene);
-            AssertTrue((int)sprite.ScreenPlace.X == 200 && (int)sprite.ScreenPlace.Y == 200, "activation does not run the movement callback early");
+            AssertTrue(sprite.ScreenPlace.X == 200 && sprite.ScreenPlace.Y == 200, "activation does not run the movement callback early");
             scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 0 : 200);
             for (int frame = 1; frame <= 12; frame++)
             {

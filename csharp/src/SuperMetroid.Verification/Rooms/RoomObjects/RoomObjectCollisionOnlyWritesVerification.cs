@@ -14,7 +14,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 

@@ -67,5 +67,5 @@ internal sealed class GridStateType<T>(StateGraphTypes types) : StateGraphType(t
 
     /// <summary>The grid's element storage viewed as bytes.</summary>
     private static Span<byte> Bytes(T[,] grid) =>
-        MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference((Array)grid), checked(grid.Length * Unsafe.SizeOf<T>()));
+        MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference(grid), checked(grid.Length * Unsafe.SizeOf<T>()));
 }

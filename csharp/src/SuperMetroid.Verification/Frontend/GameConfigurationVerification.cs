@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.Configuration;
 namespace SuperMetroid.Verification.Frontend;

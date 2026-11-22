@@ -12,14 +12,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal partial class TerrainChangeObject : RoomObjectBehaviour
 {
-    /// <summary>The change's authored timing.</summary>
-    private readonly TerrainChange change;
-
     /// <summary>Creates a <see cref="TerrainChangeObject"/>.</summary>
     /// <param name="change">The change's authored timing.</param>
     public TerrainChangeObject(TerrainChange change)
     {
-        this.change = change;
         this.Frames = Playing(change);
     }
 

@@ -265,13 +265,6 @@ internal sealed class BoundObjectGraph
         }
 
         /// <inheritdoc/>
-        public void Child(StateGraphField field, object? value)
-        {
-            if (value is not null)
-                Held(value, prefix is null ? null : prefix + FieldStep(field), field, -1);
-        }
-
-        /// <inheritdoc/>
         public void Element(int index, object? value)
         {
             if (value is not null)
@@ -313,13 +306,6 @@ internal sealed class BoundObjectGraph
     {
         /// <summary>The value the step names, once found.</summary>
         internal object? Found { get; private set; }
-
-        /// <inheritdoc/>
-        public void Child(StateGraphField field, object? value)
-        {
-            if (Found is null && FieldStep(field) == step)
-                Found = value;
-        }
 
         /// <inheritdoc/>
         public void Element(int index, object? value)

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;

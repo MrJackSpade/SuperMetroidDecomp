@@ -3,10 +3,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>The current stage of an ordinary door transition, in the order the transition runs them.</summary>
 public abstract partial record DoorTransitionPhase
 {
-    /// <summary>Allows only the cases below.</summary>
-    private DoorTransitionPhase()
-    {
-    }
 
     /// <summary>No door transition has begun.</summary>
     public sealed partial record Inactive : DoorTransitionPhase;
@@ -17,10 +13,6 @@ public abstract partial record DoorTransitionPhase
     /// <summary>The phases of a door transition under way, which only the transition itself holds.</summary>
     public abstract partial record Running : DoorTransitionPhase
     {
-        /// <summary>Allows only the cases below.</summary>
-        private Running()
-        {
-        }
 
         /// <summary>Wait for all three sound-effect queues to drain.</summary>
         public sealed partial record WaitForSoundQueues : Running;

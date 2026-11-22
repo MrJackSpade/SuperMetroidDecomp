@@ -11,13 +11,13 @@ internal static partial class SpacePirateProjectileAnimations
     internal static UnpausedAnimationSegments<SpacePirateProjectileSegment, EnemyProjectileFrameId, SpacePirateProjectileCue> Segments { get; } = new(
         new Dictionary<SpacePirateProjectileSegment, AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[]>
     {
-        [P.LaserLeft] = Laser(HorizontalDirection.Left),
+        [P.LaserLeft] = Laser(),
         [P.LaserLeftFlicker] = LaserFlicker,
-        [P.LaserRight] = Laser(HorizontalDirection.Right),
+        [P.LaserRight] = Laser(),
         [P.LaserRightFlicker] = LaserFlicker,
-        [P.ClawLeft] = Claw(HorizontalDirection.Left),
+        [P.ClawLeft] = Claw(),
         [P.ClawLeftSpin] = ClawSpin(EnemyProjectileFrameId.SpacePirateClawLeftTurned0, EnemyProjectileFrameId.SpacePirateClawLeftTurned45, EnemyProjectileFrameId.SpacePirateClawLeftTurned90, EnemyProjectileFrameId.SpacePirateClawLeftTurned135, EnemyProjectileFrameId.SpacePirateClawLeftTurned180, EnemyProjectileFrameId.SpacePirateClawLeftTurned225, EnemyProjectileFrameId.SpacePirateClawLeftTurned270, EnemyProjectileFrameId.SpacePirateClawLeftTurned315),
-        [P.ClawRight] = Claw(HorizontalDirection.Right),
+        [P.ClawRight] = Claw(),
         [P.ClawRightSpin] = ClawSpin(EnemyProjectileFrameId.SpacePirateClawRightTurned0, EnemyProjectileFrameId.SpacePirateClawRightTurned45, EnemyProjectileFrameId.SpacePirateClawRightTurned90, EnemyProjectileFrameId.SpacePirateClawRightTurned135, EnemyProjectileFrameId.SpacePirateClawRightTurned180, EnemyProjectileFrameId.SpacePirateClawRightTurned225, EnemyProjectileFrameId.SpacePirateClawRightTurned270, EnemyProjectileFrameId.SpacePirateClawRightTurned315),
     });
 
@@ -33,13 +33,13 @@ internal static partial class SpacePirateProjectileAnimations
         [P.ClawRight] = Animation<SpacePirateProjectileSegment>.LeadingInto([Segments.Whole(P.ClawRight)], [Segments.Whole(P.ClawRightSpin)]),
     };
 
-    /// <summary>A laser fired <paramref name="facing"/>: its flare grows, it fires, and the beam extends to its full length, flickering bright and dim.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Laser(HorizontalDirection facing) =>
+    /// <summary>A laser fired <c>facing</c>: its flare grows, it fires, and the beam extends to its full length, flickering bright and dim.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Laser() =>
     [
         Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
         Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
         Show(EnemyProjectileFrameId.SpacePirateLaserFlareBall, 2),
-        Cue(SpacePirateProjectileCueKind.FireLaser, facing),
+        Cue(SpacePirateProjectileCueKind.FireLaser),
         Show(EnemyProjectileFrameId.SpacePirateLaserEmergingBright, 1),
         Show(EnemyProjectileFrameId.SpacePirateLaserEmergingDim, 1),
         Show(EnemyProjectileFrameId.SpacePirateLaserExtendingBright, 1),
@@ -56,8 +56,8 @@ internal static partial class SpacePirateProjectileAnimations
         Show(EnemyProjectileFrameId.SpacePirateLaserFullLengthDim, 1),
     ];
 
-    /// <summary>A claw thrown <paramref name="facing"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Claw(HorizontalDirection facing) => [Cue(SpacePirateProjectileCueKind.ThrowClaw, facing)];
+    /// <summary>A claw thrown <c>facing</c>.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] Claw() => [Cue(SpacePirateProjectileCueKind.ThrowClaw)];
 
     /// <summary>A thrown claw's spin over its side's <paramref name="turns"/>, turned by 0 degrees through to 315, one update each.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused[] ClawSpin(params ReadOnlySpan<EnemyProjectileFrameId> turns) =>
@@ -67,8 +67,8 @@ internal static partial class SpacePirateProjectileAnimations
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Frame(frame, duration);
 
-    /// <summary>Publishes a cue of <paramref name="kind"/> toward <paramref name="direction"/>.</summary>
+    /// <summary>Publishes a cue of <paramref name="kind"/> toward <c>direction</c>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Unpaused Cue(
-        SpacePirateProjectileCueKind kind, HorizontalDirection direction) =>
-        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Event(new(kind, direction));
+        SpacePirateProjectileCueKind kind) =>
+        new AnimationBeat<EnemyProjectileFrameId, SpacePirateProjectileCue>.Event(new(kind));
 }

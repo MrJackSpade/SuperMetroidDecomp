@@ -19,8 +19,8 @@ internal static class ShaderFailureTests
             bool rejected = false;
             try
             {
-                using var failed = new global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer(device, (global::System.Func<string, global::System.IO.Stream?>)(name => name == missing ? null :
-                    D3D11FrameRenderer.OpenShaderFile(name)));
+                using var failed = new global::SuperMetroid.Rendering.Direct3D11.Frames.D3D11FrameRenderer(device, name => name == missing ? null :
+                    D3D11FrameRenderer.OpenShaderFile(name));
             }
             catch (InvalidDataException error)
             {

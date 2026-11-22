@@ -8,7 +8,6 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 internal sealed class PackedObjects
 {
     private readonly List<object> objects = [];
-    private readonly Dictionary<object, int> places = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>Starts an empty table, filled as a run is written.</summary>
     internal PackedObjects()
@@ -17,26 +16,6 @@ internal sealed class PackedObjects
 
     /// <summary>A table read back from a state.</summary>
     private PackedObjects(List<object?> read) => objects.AddRange(read!);
-
-    /// <summary>How many objects the table holds.</summary>
-    internal int Count => objects.Count;
-
-    /// <summary>The place of <paramref name="value"/>, adding it when the run first holds it.</summary>
-    internal int Place(object value)
-    {
-        if (places.TryGetValue(value, out int place))
-            return place;
-        place = objects.Count;
-        objects.Add(value);
-        places.Add(value, place);
-        return place;
-    }
-
-    /// <summary>The object at <paramref name="place"/>.</summary>
-    /// <exception cref="InvalidDataException">The table holds no such object.</exception>
-    internal object? At(int place) => (uint)place < (uint)objects.Count
-        ? objects[place]
-        : throw new InvalidDataException($"A packed run names held object {place}, but its table holds {objects.Count}.");
 
     /// <summary>Writes every object through the graph, after their count.</summary>
     internal void Write(GraphWriter writer)

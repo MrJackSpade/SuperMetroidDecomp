@@ -148,7 +148,7 @@ internal static class NativeSnapshotImport
                 imported.play;
             play.GoOnFrom(NativeEnemyAnimationOracle.WithNativePlaysLeft(
                 new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place), W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)));
-            play.UpdatesLeft = (int)W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2);
+            play.UpdatesLeft = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2);
             // The effect's colours and condition are its definition's (#1982). The native colour index names the colours the
             // object animates once its set-up has run, of the colour groups its programs name the one starting there; zero
             // before.
@@ -226,7 +226,7 @@ internal static class NativeSnapshotImport
         runtime.Projectiles.Charge.ChargeGlowStep = (chargePaletteByteOffset & 1) == 0
             ? chargePaletteByteOffset / sizeof(ushort)
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
-        runtime.BombProjectiles.BombCounter = (int)(W(NativeSnapshotMemory.BombCount));
+        runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadCharge = UpdateCountdownAccess.AtAge(MorphBallBombDefinitions.DownChargeTimeoutUpdates, W(NativeSnapshotMemory.BombSpreadChargeTimeout));
         samus.TransitionShot.Hand(SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection)));
         if (SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam))) samus.EnableHyperBeam();

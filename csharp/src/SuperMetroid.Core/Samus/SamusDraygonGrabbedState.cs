@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;

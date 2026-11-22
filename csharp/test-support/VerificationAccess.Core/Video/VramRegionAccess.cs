@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Verification access to <see cref="VramRegion"/> members production does not use.</summary>

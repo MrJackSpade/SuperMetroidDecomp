@@ -568,7 +568,7 @@ internal static class NativeEnemyFamilyStateImport
             growingShutterRecord.Action = growingAction;
             // The record keeps every section's origin; Core derives them from the first, the spawn row (#2183), and the
             // recorded origins must be the ones it derives.
-            growingShutterRecord.SpawnY = (int)(words.B);
+            growingShutterRecord.SpawnY = words.B;
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterDefinitions.Sections.Length; level++)
             {
@@ -1058,7 +1058,7 @@ internal static class NativeEnemyFamilyStateImport
             switch (fly.Action)
             {
                 case FlyAction.AttackSamus:
-                    fly.Dive.Age = (int)unchecked((short)words.A);
+                    fly.Dive.Age = unchecked((short)words.A);
                     break;
                 case FlyAction.Retreat:
                     fly.RetreatUpdatesLeft = TrueWait(words.A);

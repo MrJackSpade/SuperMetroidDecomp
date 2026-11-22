@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain;

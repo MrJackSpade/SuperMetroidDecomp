@@ -7,11 +7,9 @@ using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVe
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend.Intro;
 

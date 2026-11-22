@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
@@ -48,23 +49,25 @@ internal static partial class PaletteFxRoomShades
         [ColourEffectColours.ParlorEscapeSky] = 87,
     }.ToImmutableDictionary();
 
-    /// <summary>The objects Tourian's statue room spawns as each boss's statue greys out, which no FX record names.</summary>
-    private static readonly ImmutableArray<ColourEffectId> StatueGreyOuts =
-    [
-        ColourEffectId.GreyOutTourianStatueDraygon, ColourEffectId.GreyOutTourianStatueKraid,
-        ColourEffectId.GreyOutTourianStatueRidley, ColourEffectId.GreyOutTourianStatuePhantoon,
-    ];
-
     /// <summary>
-    /// The room setups that spawn colour objects no FX record names, with those objects: the statue room's unlocking
-    /// animations, which spawn the bosses' statue grey-outs (#2630). The statue room is Crateria's, so the objects follow
-    /// the setup that spawns them, not an area.
+    /// The colour objects code spawns in rooms, outside any FX record, each placed by the room setup or the enemy whose code
+    /// spawns it (#2630, #2638): the statue room's unlocking animations spawn the bosses' statue grey-outs (the room is
+    /// Crateria's, so they follow the setup, not an area), and Mother Brain's body starts the escape's red flashes in her
+    /// room as her third phase's death ends. Every other colour object a room shows is named by its FX records.
     /// </summary>
-    private static readonly Dictionary<RoomSetupBehavior, ImmutableArray<ColourEffectId>> SetupColourEffects =
-        new Dictionary<RoomSetupBehavior, ImmutableArray<ColourEffectId>>
-        {
-            [RoomSetupBehavior.RunStatueUnlockingAnimations] = StatueGreyOuts,
-        };
+    private static readonly ImmutableArray<CodeSpawnedColourEffects> CodeSpawned =
+    [
+        new(RoomSetupBehavior.RunStatueUnlockingAnimations, null,
+        [
+            ColourEffectId.GreyOutTourianStatueDraygon, ColourEffectId.GreyOutTourianStatueKraid,
+            ColourEffectId.GreyOutTourianStatueRidley, ColourEffectId.GreyOutTourianStatuePhantoon,
+        ]),
+        new(null, EnemyDefinitionId.MotherBrainBody,
+        [
+            ColourEffectId.TourianShutterRedFlashing, ColourEffectId.TourianBackgroundRedFlashing,
+            ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs,
+        ]),
+    ];
 
     /// <summary>
     /// The shades of every record of the room's colour groups that <paramref name="rooms"/>' palette effects show, coloured
@@ -82,8 +85,8 @@ internal static partial class PaletteFxRoomShades
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
                 objects.UnionWith(record.ColourEffects);
-            if (SetupColourEffects.TryGetValue(room.State.SetupBehavior, out ImmutableArray<ColourEffectId> setupEffects))
-                objects.UnionWith(setupEffects);
+            foreach (CodeSpawnedColourEffects spawned in CodeSpawned.Where(spawned => spawned.RunsIn(room.State)))
+                objects.UnionWith(spawned.Effects);
         }
         return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))
             .Select(entry => Shade(entry.Colours, entry.Frame, colours))];

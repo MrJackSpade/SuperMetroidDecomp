@@ -17,6 +17,12 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     /// <summary>Separates an extension block's key from the position of its declaration.</summary>
     private const string ExtensionBlockSeparator = "#block-";
 
+    /// <summary>
+    /// Starts the key standing for a type only generated code declares (<see cref="GeneratedOwnerKey"/>): never a
+    /// declaration, so never reported or removed, only a node the references pass through.
+    /// </summary>
+    public const string GeneratedKeyPrefix = "GENERATED:";
+
     /// <summary>Path segment excluded because it contains compiler-generated intermediate source.</summary>
     private static readonly string ObjSegment = $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}";
     /// <summary>Path segment excluded because it contains built outputs.</summary>
@@ -28,9 +34,45 @@ internal sealed class SymbolIdentity(string repositoryRoot)
     /// <summary>Each declaration's key, found once: the walks ask for the same symbols' keys again and again.</summary>
     private readonly ConcurrentDictionary<ISymbol, string?> _keys = new(SymbolEqualityComparer.Default);
 
-    /// <summary>Hand-written repository source; generated files under obj/ and bin/ are excluded.</summary>
+    /// <summary>The paths of the trees the projects' source generators wrote (<see cref="AddGenerated"/>).</summary>
+    private readonly ConcurrentDictionary<string, bool> _generated = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Records <paramref name="tree"/> as code a source generator wrote (#2614), before any walk asks about it: its
+    /// references count, its declarations are never repository declarations.
+    /// </summary>
+    public void AddGenerated(SyntaxTree tree) => _generated.TryAdd(tree.FilePath, true);
+
+    /// <summary>Whether <paramref name="tree"/> is code a source generator wrote.</summary>
+    public bool IsGenerated([NotNullWhen(true)] SyntaxTree? tree) => tree is not null && _generated.ContainsKey(tree.FilePath);
+
+    /// <summary>
+    /// The key a symbol only generated code declares stands for (#2614): for a member a generator adds to a repository
+    /// type, that type's key, since the member is part of the type; for a type only generated code declares, a key of its
+    /// own (<see cref="GeneratedKeyPrefix"/>), which the repository code naming it reaches. None for any other symbol.
+    /// </summary>
+    public string? GeneratedOwnerKey(ISymbol? symbol)
+    {
+        symbol = Normalize(symbol);
+        if (symbol is null || symbol.DeclaringSyntaxReferences.IsEmpty ||
+            !symbol.DeclaringSyntaxReferences.All(reference => IsGenerated(reference.SyntaxTree)))
+            return null;
+        INamedTypeSymbol? outermost = symbol as INamedTypeSymbol;
+        for (INamedTypeSymbol? type = symbol.ContainingType; type is not null; type = type.ContainingType)
+        {
+            if (Key(type) is { } typeKey)
+                return typeKey;
+            outermost = type;
+        }
+        return outermost?.GetDocumentationCommentId() is { } id
+            ? $"{GeneratedKeyPrefix}{outermost.ContainingAssembly?.Name}:{id}"
+            : null;
+    }
+
+    /// <summary>Hand-written repository source; generated files under obj/ and bin/, and the trees source generators
+    /// write, are excluded.</summary>
     public bool IsRepositorySource([NotNullWhen(true)] SyntaxTree? tree) =>
-        tree is not null && _repositorySource.GetOrAdd(tree.FilePath, filePath =>
+        tree is not null && !IsGenerated(tree) && _repositorySource.GetOrAdd(tree.FilePath, filePath =>
         {
             string path = Path.GetFullPath(filePath);
             return path.StartsWith(repositoryRoot, StringComparison.OrdinalIgnoreCase)

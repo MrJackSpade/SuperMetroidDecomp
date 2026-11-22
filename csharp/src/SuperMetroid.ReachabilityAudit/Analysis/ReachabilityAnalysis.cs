@@ -39,9 +39,21 @@ internal static class ReachabilityAnalysis
         var valueReads = new ValueEqualityReads(solution.Projects.Select(p => p.Compilation));
         var references = new ReferenceCollector(identity, graph, roots, json, reflection, treeOwners, valueReads);
         var analyzed = solution.Projects.Where(p => !VerificationProjects.Contains(p.Project.Name)).ToList();
+        // A compilation holds its project's documents and the trees its source generators wrote, which no document
+        // holds (#2614): the generated code's references count, its declarations are not the repository's.
+        foreach (var (project, compilation) in solution.Projects)
+        {
+            var documents = project.Documents.Select(document => document.FilePath).OfType<string>().ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var generated = compilation.SyntaxTrees.Where(tree => !documents.Contains(tree.FilePath)).ToList();
+            foreach (var tree in generated)
+                identity.AddGenerated(tree);
+            if (generated.Count > 0)
+                Console.WriteLine($"Generated {generated.Count} sources in {project.Name}");
+        }
         // The walks below are serial, since what they record depends on their order; binding the code they query on
         // every processor first leaves them only the bound answers to read.
-        SemanticModels.Bind(analyzed.SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
+        SemanticModels.Bind(analyzed.SelectMany(p => p.Compilation.SyntaxTrees
+            .Where(tree => identity.IsRepositorySource(tree) || identity.IsGenerated(tree))
             .Select(tree => (p.Compilation, tree))));
 
         foreach (var (project, compilation) in analyzed)

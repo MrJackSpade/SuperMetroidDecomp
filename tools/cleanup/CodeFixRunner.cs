@@ -1649,11 +1649,15 @@ internal sealed class SolutionFixer
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown fixer source."),
     };
 
-    /// <summary>Every exported code fix provider for the language in one fixer assembly, constructed once.</summary>
+    /// <summary>
+    /// Every exported code fix provider for the language in one fixer assembly, constructed once. The assembly and the
+    /// dependencies beside it are read into memory (<see cref="FixerLoadContext"/>), so no file of theirs stays open: the
+    /// build the cleanup runs while this process lives rewrites the repository analyzer and its code fixes (#2614).
+    /// </summary>
     private static List<CodeFixProvider> LoadProviders(string path, string language)
     {
         var providers = new List<CodeFixProvider>();
-        foreach (Type type in Assembly.LoadFrom(path).GetTypes())
+        foreach (Type type in new FixerLoadContext(path).LoadFixer().GetTypes())
         {
             if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
                 || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
@@ -2295,6 +2299,38 @@ internal static class ProjectLists
                 throw new InvalidOperationException($"The item '{line.Trim()}' does not end its {match.Groups["attribute"].Value.TrimEnd('=', '"')} with {oldName}.");
             return match.Groups["attribute"].Value + value[..cut] + newName + "\"";
         });
+    }
+}
+
+/// <summary>
+/// Loads a fixer assembly, and the assemblies beside it it depends on, from their bytes, so the files stay free for the
+/// builds that rewrite them while the cleanup runs (#2614). An assembly the process already holds, Roslyn's among them,
+/// is the process's own, so the fixers share its types.
+/// </summary>
+/// <param name="fixer">The fixer assembly's path.</param>
+internal sealed class FixerLoadContext(string fixer) : System.Runtime.Loader.AssemblyLoadContext(Path.GetFileNameWithoutExtension(fixer))
+{
+    /// <summary>The directory the fixer and its own dependencies are in.</summary>
+    private readonly string directory = Path.GetDirectoryName(Path.GetFullPath(fixer))
+        ?? throw new ArgumentException($"{fixer} has no directory.", nameof(fixer));
+
+    /// <summary>The fixer assembly, read from its bytes.</summary>
+    public Assembly LoadFixer() => FromBytes(Path.GetFullPath(fixer));
+
+    /// <inheritdoc />
+    protected override Assembly? Load(AssemblyName assemblyName)
+    {
+        if (Default.Assemblies.Any(loaded => string.Equals(loaded.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)))
+            return null;
+        string candidate = Path.Combine(directory, $"{assemblyName.Name}.dll");
+        return File.Exists(candidate) ? FromBytes(candidate) : null;
+    }
+
+    /// <summary>The assembly at <paramref name="path"/>, read into memory; the file is closed once it is read.</summary>
+    private Assembly FromBytes(string path)
+    {
+        using var image = new MemoryStream(File.ReadAllBytes(path));
+        return LoadFromStream(image);
     }
 }
 

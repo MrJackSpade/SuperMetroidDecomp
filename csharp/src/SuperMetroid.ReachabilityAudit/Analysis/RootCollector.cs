@@ -12,10 +12,13 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Marks a member or type that only reflection reaches (SuperMetroid.Core.AccessedByReflectionAttribute).</summary>
     public const string ReflectionMarker = "AccessedByReflectionAttribute";
 
-    /// <summary>Marker attributes whose framework-constructed types require implicit roots.</summary>
+    /// <summary>
+    /// Marker attributes whose framework-constructed types require implicit roots: the compiler constructs every analyzer,
+    /// code fix provider and source generator (<c>[Generator]</c>) it is handed, which no source names (#2614).
+    /// </summary>
     private static readonly HashSet<string> FrameworkCreatedAttributes =
         ["ActivityAttribute", "ApplicationAttribute", "ServiceAttribute", "BroadcastReceiverAttribute",
-         "ContentProviderAttribute", "DiagnosticAnalyzerAttribute", "ExportCodeFixProviderAttribute"];
+         "ContentProviderAttribute", "DiagnosticAnalyzerAttribute", "ExportCodeFixProviderAttribute", "GeneratorAttribute"];
 
     /// <summary>Roots of every repository executable, tools and verifiers included.</summary>
     public HashSet<string> Roots { get; } = [];

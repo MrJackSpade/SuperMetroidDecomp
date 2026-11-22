@@ -31,7 +31,7 @@ internal static class RetailGameFixtureVerification
     /// </summary>
     internal static SuperMetroidGame CreateAudibleRetailGameFixture(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Audio.ClipAudioLibrary clips, bool renderGameplayFrames = true, SharedRandom? random = null) =>
-        InstalledFixtures.CreateGameWithAudio(saves, SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips),
+        InstalledFixtures.CreateGameWithAudio(saves, clips,
             renderGameplayFrames: renderGameplayFrames, random: random);
 
     /// <summary>

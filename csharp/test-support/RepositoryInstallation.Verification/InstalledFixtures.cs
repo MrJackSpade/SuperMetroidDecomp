@@ -531,7 +531,10 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A muted frontend game over <paramref name="saves"/>, built with the installation's presentation catalogs.</summary>
+    /// <summary>
+    /// A frontend game over <paramref name="saves"/> whose audio mixes the installation's clips, built with the
+    /// installation's presentation catalogs, as a host builds its game.
+    /// </summary>
     /// <param name="saves">The saves the game owns.</param>
     /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
@@ -540,20 +543,20 @@ internal static class InstalledFixtures
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
-        CreateGameWithAudio(saves, new SuperMetroid.Core.Audio.GameAudioOutput.Muted(), assists, renderGameplayFrames, hostServices, random);
+        CreateGameWithAudio(saves, AudioClips, assists, renderGameplayFrames, hostServices, random);
 
     /// <summary>
-    /// A frontend game over <paramref name="saves"/> whose audio produces <paramref name="audioOutput"/>, built with the
+    /// A frontend game over <paramref name="saves"/> whose audio mixes <paramref name="audioClips"/>, built with the
     /// installation's presentation catalogs, as a host builds its game with both (#2554).
     /// </summary>
     /// <param name="saves">The saves the game owns.</param>
-    /// <param name="audioOutput">What the game's audio produces.</param>
+    /// <param name="audioClips">The clips the game's audio mixes.</param>
     /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGameWithAudio(SuperMetroid.Core.Saves.SaveSlotStore saves,
-        SuperMetroid.Core.Audio.GameAudioOutput audioOutput,
+        SuperMetroid.Core.Audio.ClipAudioLibrary audioClips,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
@@ -561,7 +564,7 @@ internal static class InstalledFixtures
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
             services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
-        return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(), audioOutput, fixtureGameArtwork.Value);
+        return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(), audioClips, fixtureGameArtwork.Value);
     }
 
     /// <summary>
@@ -582,7 +585,7 @@ internal static class InstalledFixtures
             bossAndIntroOverreads.IsValueCreated, roomAssets.IsValueCreated, roomCharacters.IsValueCreated,
             blockCompositions.IsValueCreated, maps.IsValueCreated, enemyArtwork.IsValueCreated, projectiles.IsValueCreated,
             samusBody.IsValueCreated, introArtwork.IsValueCreated, enemySheets.IsValueCreated, spriteSheets.IsValueCreated,
-            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated, importProjectiles.IsValueCreated,
+            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated, importProjectiles.IsValueCreated, audioClips.IsValueCreated,
         }.Count(loaded => loaded);
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
@@ -590,7 +593,7 @@ internal static class InstalledFixtures
         [Bound(RepositoryInstallation.ArtworkLoader), Bound(samusOverreads), Bound(enemyOverreads), Bound(bossAndIntroOverreads),
             Bound(roomAssets), Bound(roomCharacters), Bound(blockCompositions), Bound(maps), Bound(enemyArtwork), Bound(projectiles),
             Bound(samusBody), Bound(introArtwork), Bound(enemySheets), Bound(spriteSheets), Bound(standardObjects),
-            Bound(bossBodySheets), Bound(importProjectiles)]);
+            Bound(bossBodySheets), Bound(importProjectiles), Bound(audioClips)]);
 
     /// <summary>A bound catalog's loader, whose lazily loaded type a debugger state learns to walk (#2602).</summary>
     private static Lazy<T> Bound<T>(Lazy<T> loader)

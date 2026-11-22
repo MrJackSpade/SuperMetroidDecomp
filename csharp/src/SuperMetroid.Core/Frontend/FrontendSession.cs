@@ -27,10 +27,10 @@ internal sealed partial class FrontendSession
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="hostServices">The compatibility services and display policy the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
-    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="audioClips">The installed clips the session's audio mixes for its host.</param>
     /// <param name="artwork">The installed catalogs every screen and gameplay runtime draws from until a host binds others.</param>
     internal FrontendSession(SaveSlotStore saves, GameplayAssists? assists,
-        SuperMetroidGameHostServices hostServices, SharedRandom random, GameAudioOutput audioOutput, GameArtwork artwork)
+        SuperMetroidGameHostServices hostServices, SharedRandom random, ClipAudioLibrary audioClips, GameArtwork artwork)
     {
         HostServices = Ensure.NotNull(hostServices);
         Artwork = Ensure.NotNull(artwork);
@@ -42,7 +42,7 @@ internal sealed partial class FrontendSession
         // is tested against the live runtime's demo and power bomb as it is made.
         audio = new AudioQueues(new SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>(SoundEffectLibraries.InQueueOrder),
             new SessionGameplaySoundState(this));
-        audioSession = new AudioSession(soundClock, audioOutput);
+        audioSession = new AudioSession(soundClock, audioClips);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering the main game loop.

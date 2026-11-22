@@ -177,7 +177,7 @@ internal static class DesktopTimerSoakTests
     {
         var clips = DesktopAccess.LoadAudioClips();
         var game = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips), options.ToAssists());
+            clips, options.ToAssists());
         void Step(ControllerButton input) => game.StepCaptured(input);
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);

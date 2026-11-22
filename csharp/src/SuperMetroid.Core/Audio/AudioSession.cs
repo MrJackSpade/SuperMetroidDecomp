@@ -9,9 +9,8 @@ namespace SuperMetroid.Core.Audio;
 /// <remarks>
 /// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, so they are
 /// identical whether a host plays audio, has audio disabled, or has no device. Audio output is
-/// presentation: a session built to mix the installed clips (<see cref="GameAudioOutput.Mixed"/>) also drives a
-/// <see cref="ClipAudioBackend"/> with each update's events, whose PCM the host copies out (#1305); a muted session's
-/// PCM is silence. The backend is never read back by gameplay.
+/// presentation: the session mixes the installed clips, driving a <see cref="ClipAudioBackend"/> with each update's
+/// events, whose PCM a host that plays audio copies out (#1305). The backend is never read back by gameplay.
 /// </remarks>
 public sealed partial class AudioSession
 {
@@ -27,27 +26,22 @@ public sealed partial class AudioSession
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerUpdate * ChannelCount;
 
-    /// <summary>Creates the session's audio advance on the session's <paramref name="soundClock"/>, producing <paramref name="output"/>.</summary>
+    /// <summary>Creates the session's audio advance on the session's <paramref name="soundClock"/>, mixing <paramref name="clips"/>.</summary>
     /// <param name="soundClock">
     /// The game session's sound acceptance clock, created at the session's composition root and living as long as the
     /// session: its requests, acknowledgements and request-check phase carry across menus and gameplay runtimes.
     /// </param>
-    /// <param name="output">What the session's audio produces for its host: PCM mixed from the installed clips, or silence.</param>
-    internal AudioSession(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock, GameAudioOutput output)
+    /// <param name="clips">The installed clips the session mixes into the PCM its host copies.</param>
+    internal AudioSession(SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId> soundClock, ClipAudioLibrary clips)
     {
         eventSource = new AudioEventSource(soundClock);
-        mix = Ensure.NotNull(output) switch
-        {
-            GameAudioOutput.Mixed mixed => new ClipMix(mixed.Clips),
-            GameAudioOutput.Muted => MutedMix.Instance,
-            _ => throw new InvalidDataException($"Unknown audio output {output}."),
-        };
+        mix = new ClipMix(clips);
     }
 
     /// <summary>Synthesis-free request-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
     private readonly AudioEventSource eventSource;
-    /// <summary>How the session turns each update's events into the PCM its host copies.</summary>
-    private readonly SessionAudioMix mix;
+    /// <summary>The mix that turns each update's events into the PCM its host copies.</summary>
+    private readonly ClipMix mix;
 
     /// <summary>The acknowledgements published by the most recent update, for the next one.</summary>
     public SoundAcknowledgements<SoundEffectLibrary, SoundEffectId> Acknowledgements => eventSource.Acknowledgements;
@@ -67,7 +61,7 @@ public sealed partial class AudioSession
 
     /// <summary>
     /// Copies the most recent update's interleaved stereo samples (<see cref="PcmSamplesPerFrame"/>): silence before the
-    /// first update, and always from a muted session.
+    /// first update.
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="destination"/> is shorter than one update's samples.</exception>
     public void CopyFrame(Span<short> destination)
@@ -77,19 +71,9 @@ public sealed partial class AudioSession
         mix.CopyFrame(destination[..PcmSamplesPerFrame]);
     }
 
-    /// <summary>How a session turns each update's events into PCM: mixed from the installed clips, or silence.</summary>
-    private abstract partial class SessionAudioMix
-    {
-        /// <summary>Renders one update's <paramref name="frame"/>.</summary>
-        internal abstract void Render(in AudioFrameEvents frame);
-
-        /// <summary>Copies the most recent update's PCM into <paramref name="destination"/>, one update's samples long.</summary>
-        internal abstract void CopyFrame(Span<short> destination);
-    }
-
-    /// <summary>The PCM of a session that mixes the installed clips (#1305).</summary>
+    /// <summary>The session's PCM, mixed from the installed clips (#1305).</summary>
     /// <param name="clips">The installed clips the session mixes.</param>
-    private sealed partial class ClipMix(ClipAudioLibrary clips) : SessionAudioMix
+    private sealed partial class ClipMix(ClipAudioLibrary clips)
     {
         /// <summary>The installed clips the session mixes.</summary>
         private readonly ClipAudioLibrary clips = Ensure.NotNull(clips);
@@ -108,36 +92,21 @@ public sealed partial class AudioSession
         /// <summary>The most recent update's interleaved PCM, which hosts copy; none before the first update.</summary>
         private short[]? lastPcm;
 
-        /// <inheritdoc/>
-        internal override void Render(in AudioFrameEvents frame)
+        /// <summary>Renders one update's <paramref name="frame"/>.</summary>
+        internal void Render(in AudioFrameEvents frame)
         {
             backend ??= new ClipAudioBackend(clips, clipState);
             lastPcm ??= new short[PcmSamplesPerFrame];
             backend.Render(frame, lastPcm);
         }
 
-        /// <inheritdoc/>
-        internal override void CopyFrame(Span<short> destination)
+        /// <summary>Copies the most recent update's PCM into <paramref name="destination"/>, one update's samples long.</summary>
+        internal void CopyFrame(Span<short> destination)
         {
             if (lastPcm is null)
                 destination.Clear();
             else
                 lastPcm.AsSpan(0, PcmSamplesPerFrame).CopyTo(destination);
         }
-    }
-
-    /// <summary>The PCM of a muted session: silence on every update.</summary>
-    private sealed partial class MutedMix : SessionAudioMix
-    {
-        /// <summary>The one muted mix, which keeps no state.</summary>
-        internal static MutedMix Instance { get; } = new();
-
-        /// <inheritdoc/>
-        internal override void Render(in AudioFrameEvents frame)
-        {
-        }
-
-        /// <inheritdoc/>
-        internal override void CopyFrame(Span<short> destination) => destination.Clear();
     }
 }

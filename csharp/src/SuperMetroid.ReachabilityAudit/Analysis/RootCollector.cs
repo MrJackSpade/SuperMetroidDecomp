@@ -41,6 +41,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             identity.Key(isExternalInit) is { } isExternalInitKey &&
             AllTypes(compilation.Assembly.GlobalNamespace).Any(type => type.GetMembers().OfType<IMethodSymbol>().Any(method => method.IsInitOnly)))
             AddRoot(isExternalInitKey, production);
+        CollectAssemblyAttributes(project, compilation, production);
         foreach (var type in AllTypes(compilation.Assembly.GlobalNamespace))
         {
             if (identity.Key(type) is not { } typeKey)
@@ -65,6 +66,26 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
                 if (identity.Key(member) is { } memberKey)
                     Roots.Add(memberKey);
             CollectDispatch(type, typeKey);
+        }
+    }
+
+    /// <summary>
+    /// An attribute applied to the assembly or its module is part of the assembly whenever it is built, which no
+    /// declaration reaches: its class, constructor and the members its named arguments set are roots (#2614: the
+    /// <c>[assembly: StateGraphAssembly]</c> each marked assembly carries), production ones in a shipped assembly.
+    /// </summary>
+    private void CollectAssemblyAttributes(Project project, Compilation compilation, bool production)
+    {
+        bool shipped = production || Reporting.ReachabilityFindings.ProductionAssemblies.Contains(project.Name);
+        foreach (AttributeData attribute in compilation.Assembly.GetAttributes().Concat(compilation.SourceModule.GetAttributes()))
+        {
+            if (attribute.ApplicationSyntaxReference?.SyntaxTree is not { } tree || !(identity.IsRepositorySource(tree) || identity.IsGenerated(tree)))
+                continue;
+            IEnumerable<ISymbol?> used = [attribute.AttributeClass, attribute.AttributeConstructor,
+                .. attribute.NamedArguments.Select(argument => attribute.AttributeClass?.GetMembers(argument.Key).FirstOrDefault())];
+            foreach (ISymbol? symbol in used)
+                if (identity.Key(symbol) is { } key)
+                    AddRoot(key, shipped);
         }
     }
 

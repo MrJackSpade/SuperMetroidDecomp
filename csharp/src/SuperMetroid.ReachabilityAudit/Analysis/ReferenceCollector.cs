@@ -69,13 +69,22 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
 
     /// <summary>
     /// The key a reference from <paramref name="owner"/> to <paramref name="target"/> reaches, or none when it reaches no
-    /// declaration. A symbol only generated code declares stands for the declaration owning it
-    /// (<see cref="SymbolIdentity.GeneratedOwnerKey"/>). A type only generated code declares lists what its assembly
-    /// declares (a registry naming every type and enum of its assembly, through the members generated into each type):
-    /// naming a repository type, or a member generated into one, is not using it, so those references reach nothing (#2614).
+    /// declaration (#2614). A symbol only generated code declares stands for the declaration owning it
+    /// (<see cref="SymbolIdentity.GeneratedOwnerKey"/>). Code a generator derives from a declaration does not use what it
+    /// is derived from, which it would lose with it: the members generated into a repository type
+    /// (<paramref name="generatedInto"/>) writing, restoring and listing the type's own fields, properties and catalog
+    /// members do not use the type or its members, while what they name elsewhere (the state contracts, the runtime's
+    /// helpers, another type or its members) they use: a type they name only because a member they derive from is
+    /// declared with it is kept until that member goes, and goes in the next round. A type only generated code declares
+    /// lists what its assembly declares (a
+    /// registry naming every type and enum of its assembly, through the members generated into each type): naming a
+    /// repository type, or a member generated into one, is not using it.
     /// </summary>
-    private string? TargetKey(string owner, ISymbol? target)
+    private string? TargetKey(string owner, ISymbol? target, INamedTypeSymbol? generatedInto)
     {
+        if (generatedInto is not null && SymbolIdentity.Normalize(target) is { } normalized &&
+            WithinType(normalized, generatedInto))
+            return null;
         string? key = identity.Key(target);
         string? generatedKey = key is null ? identity.GeneratedOwnerKey(target) : null;
         if (!owner.StartsWith(SymbolIdentity.GeneratedKeyPrefix, StringComparison.Ordinal))
@@ -145,7 +154,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         {
             foreach (string dispatchKey in FrameworkDispatch.CallKeys(target))
                 graph.DispatchCall(owner, dispatchKey);
-            if (TargetKey(owner, target) is not { } targetKey)
+            if (TargetKey(owner, target, GeneratedInto(model, node)) is not { } targetKey)
                 continue;
             Referenced.Add(targetKey);
             graph.Edge(owner, targetKey);
@@ -458,6 +467,25 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         foreach (var invocation in node.AncestorsAndSelf().OfType<InvocationExpressionSyntax>())
             if (invocation.Expression is IdentifierNameSyntax { Identifier.ValueText: "nameof" }
                 && invocation.ArgumentList.Span.Contains(node.Span))
+                return true;
+        return false;
+    }
+
+    /// <summary>
+    /// The repository type the generated code holding <paramref name="node"/> was generated into, the nearest type
+    /// declaration around it when that type is a repository declaration; none outside generated code.
+    /// </summary>
+    private INamedTypeSymbol? GeneratedInto(SemanticModel model, SyntaxNode node) =>
+        identity.IsGenerated(node.SyntaxTree) && node.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault() is { } declaration &&
+        model.GetDeclaredSymbol(declaration) is INamedTypeSymbol type && identity.Key(type) is not null
+            ? type
+            : null;
+
+    /// <summary>Whether <paramref name="symbol"/> is <paramref name="type"/> or is declared inside it.</summary>
+    private static bool WithinType(ISymbol symbol, INamedTypeSymbol type)
+    {
+        for (ISymbol? current = symbol; current is not null; current = current.ContainingType)
+            if (SymbolEqualityComparer.Default.Equals(current.OriginalDefinition, type.OriginalDefinition))
                 return true;
         return false;
     }

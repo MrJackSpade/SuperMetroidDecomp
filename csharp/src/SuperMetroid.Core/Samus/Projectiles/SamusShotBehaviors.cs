@@ -16,13 +16,13 @@ internal static partial class SamusShotBehaviors
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();
 
     /// <summary>A missile.</summary>
-    internal static SamusShotBehavior<MissileShotState> Missile { get; } = new MissileFlight();
+    internal static SamusStatefulShotBehavior<MissileShotState> Missile { get; } = new MissileFlight();
 
     /// <summary>A Super Missile.</summary>
-    internal static SamusShotBehavior<SuperMissileShotState> SuperMissile { get; } = new SuperMissileFlight();
+    internal static SamusStatefulShotBehavior<SuperMissileShotState> SuperMissile { get; } = new SuperMissileFlight();
 
     /// <summary>A Super Missile's invisible link.</summary>
-    internal static SamusShotBehavior<SuperMissileShotState> SuperMissileLink { get; } = new SuperMissileLinkHold();
+    internal static SamusStatefulShotBehavior<SuperMissileShotState> SuperMissileLink { get; } = new SuperMissileLinkHold();
 
     /// <summary>An Ice special attack particle orbiting inward.</summary>
     internal static SpecialAttackParticleBehavior<IceParticleState> IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
@@ -40,7 +40,7 @@ internal static partial class SamusShotBehaviors
     internal static SpecialAttackParticleBehavior<PlasmaParticleState> PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
 
     /// <summary>A shinespark crash echo.</summary>
-    internal static SamusShotBehavior<ShinesparkEchoShotState> ShinesparkEcho { get; } = new ShinesparkEchoFlight();
+    internal static SamusStatefulShotBehavior<ShinesparkEchoShotState> ShinesparkEcho { get; } = new ShinesparkEchoFlight();
 
     /// <summary>The Spacetime shot, an uncharged Spazer, Plasma and Ice beam.</summary>
     internal static SamusShotBehavior Spacetime { get; } = new SpacetimeShotOverwrite();

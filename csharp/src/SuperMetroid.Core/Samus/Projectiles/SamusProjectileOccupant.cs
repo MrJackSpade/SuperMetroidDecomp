@@ -147,7 +147,7 @@ public sealed partial class SamusProjectileOccupant
     /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
     /// <param name="kindState">The state the kind keeps, which the behaviour runs with.</param>
     /// <typeparam name="TState">The state the kind keeps.</typeparam>
-    internal void Install<TState>(SamusShotBehavior<TState> behavior, TState kindState)
+    internal void Install<TState>(SamusStatefulShotBehavior<TState> behavior, TState kindState)
         where TState : SamusShotKindState
     {
         Behavior = Ensure.NotNull(behavior).BoundTo(Ensure.NotNull(kindState));

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(RidleyNativeCapture C CXX)
 set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(zlib)
-add_executable(ridley_capture capture.cpp
+set(SNES9X_SOURCES
   snes9x-160/filter/snes_ntsc.c
   snes9x-160/apu/apu.cpp
   snes9x-160/apu/bapu/dsp/sdsp.cpp
@@ -55,6 +55,11 @@ add_executable(ridley_capture capture.cpp
   snes9x-160/movie.cpp
   snes9x-160/libretro/libretro.cpp
 )
-target_include_directories(ridley_capture PRIVATE snes9x-160 snes9x-160/libretro snes9x-160/apu snes9x-160/apu/bapu zlib ${CMAKE_CURRENT_BINARY_DIR}/zlib)
-target_compile_definitions(ridley_capture PRIVATE __WIN32__ __LIBRETRO__ RIGHTSHIFT_IS_SAR ALLOW_CPU_OVERCLOCK HAVE_STDINT_H ZLIB _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS NOMINMAX)
-target_link_libraries(ridley_capture PRIVATE zlibstatic)
+# ridley_capture records the update trace; frame_capture writes the pictures the console showed on chosen source frames.
+add_executable(ridley_capture capture.cpp ${SNES9X_SOURCES})
+add_executable(frame_capture frame_capture.cpp ${SNES9X_SOURCES})
+foreach(target ridley_capture frame_capture)
+  target_include_directories(${target} PRIVATE snes9x-160 snes9x-160/libretro snes9x-160/apu snes9x-160/apu/bapu zlib ${CMAKE_CURRENT_BINARY_DIR}/zlib)
+  target_compile_definitions(${target} PRIVATE __WIN32__ __LIBRETRO__ RIGHTSHIFT_IS_SAR ALLOW_CPU_OVERCLOCK HAVE_STDINT_H ZLIB _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS NOMINMAX)
+  target_link_libraries(${target} PRIVATE zlibstatic)
+endforeach()

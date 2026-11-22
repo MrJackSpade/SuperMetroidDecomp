@@ -28,6 +28,11 @@ The adapter alone is `ridley_capture.exe ROM MOVIE OUTPUT_DIRECTORY SNAPSHOTS`, 
 the terminal checkpoint is always captured even if the list omits it.
 The source ROM must be the pinned J/U revision; the converter checks its hash.
 
+`frame_capture.exe ROM MOVIE OUTPUT_DIRECTORY FRAMES` is built beside it from the same instrumented checkout and
+writes the picture the console showed on each requested source frame as `frame-N.png` (256 by 224, as Snes9x drew it),
+for comparing the port's drawing with the cartridge's. `FRAMES` lists source frames or ranges, a range optionally
+stepped: `1200,1300-1400,2000-3000/50`. Source frames are the `MOVIE` numbers the movie videos' captions print.
+
 Observed instruction boundaries, cross-checked against the pinned disassembly:
 
 - `$80:9459`: accepted-NMI controller-read entry. Capture the completed preceding

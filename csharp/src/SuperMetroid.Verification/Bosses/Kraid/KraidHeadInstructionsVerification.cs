@@ -118,8 +118,10 @@ internal static class KraidHeadInstructionsVerification
             enemies.KraidBehavior.RunKraidBodyStage(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         state.InitialHealth = 1000;
-        // A thinking wait at zero has run out and holds (#2538): only the update its last count runs out on roars.
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // A thinking wait at zero has run out and holds (#2538): only the update its last count runs out on roars. The counts
+        // are the run-out wait, its last count, the counts either side of the sign bit and the widest, where a wrapping or
+        // signed wait would differ.
+        foreach (int raw in (int[])[0, 1, 2, 3, 0x7ffe, 0x7fff, 0x8000, 0x8001, 0xfffe, ushort.MaxValue])
         {
             state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
             state.ThinkingWait.SetUpdatesLeft(raw);

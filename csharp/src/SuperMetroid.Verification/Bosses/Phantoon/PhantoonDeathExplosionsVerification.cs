@@ -5,9 +5,14 @@ using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 
@@ -25,23 +30,29 @@ internal static class PhantoonDeathExplosionsVerification
             AssertEqual(DustExplosionAnimationIndices.Decode(rom.ReadCartridgeByte(0xa7da1f + i * 4)), entry.Type, "Native death explosion type");
             AssertEqual(rom.ReadCartridgeByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
         }
+        // Phantoon is set up as his room sets him up: each run loads his room afresh, whose population spawns his parts.
+        var runtime = CreateRetailRuntimeFixture();
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         foreach (ushort origin in new ushort[] { 0, 128, 0xffff })
         foreach (bool full in new[] { false, true })
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = enemies.Places.InUpdateOrder[0];
-            var tentacles = enemies.Places.InUpdateOrder[2];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, enemies.Places.InUpdateOrder[1], tentacles, enemies.Places.InUpdateOrder[3]);
-            enemies.BeginPhantoonAsSetUp(state);
+            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
+            RoomEnemySystem enemies = runtime.Enemies;
+            PhantoonEnemyState state = enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
+            RoomEnemyPlace body = state.Body;
             Action<RoomEnemyPlace, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseWait.LastFor(15);
             state.Phase = PhantoonPhase.DyingExplosions;
-            if (full) foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
+            if (full) FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.DustOrExplosion, SpriteGraphics.SharedStandard);
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {
                 AssertTrue(frame < 1024, "Death schedule reaches native handoff");
+                // Each frame is one game update, whose sound requests the room records.
+                runtime.AudioRequests.BeginRecordedUpdate();
                 if (!full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Delete();
                 bool due = --timer <= 0;
                 int current = index;
@@ -62,7 +73,10 @@ internal static class PhantoonDeathExplosionsVerification
                 AssertEqual((passes == 3 ? PhantoonPhase.BeginFinalWavyDeath : PhantoonPhase.DyingExplosions), state.Phase, "Exact final death phase handoff");
                 if (due)
                 {
-                    AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), enemies.Audio.LatestSound, "Death sound choice survives pool exhaustion");
+                    // The runtime's requests go on into its session's queues, which admit the update's sounds.
+                    IReadOnlyList<SoundEffectId> queued = runtime.AudioRequests.SoundsQueued;
+                    AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, type == 0x1d ? (ushort)0x24 : (ushort)0x2b),
+                        queued.Count == 0 ? null : queued[^1], "Death sound choice survives pool exhaustion");
                     if (!full)
                     {
                         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -70,10 +84,14 @@ internal static class PhantoonDeathExplosionsVerification
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
                         AssertTrue(explosion.Animation is DustExplosionProjectileAnimation { PlayingSegment: var explosionProgram } &&
-                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress),
+                                DustExplosionProjectileNativeListAddresses.Entry(explosionProgram) == rom.ReadCartridgeWord(listAddress),
                             "Real explosion animation selection");
                     }
                 }
+                // The update ends with the game's audio dispatch, its sound program accepting each request it was sent by
+                // the next update, so the queues hand their waiting sounds on as the running game's do.
+                AudioQueues queues = runtime.AudioRequests.QueuesReached;
+                _ = queues.AdvanceFrame(queues.SentSoundRequests);
             }
             AssertEqual(29, requests, "Native thirteen plus eight plus eight schedule");
         }

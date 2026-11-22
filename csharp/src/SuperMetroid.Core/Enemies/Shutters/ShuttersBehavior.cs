@@ -65,21 +65,37 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
         place.Shading = shown.With(flash);
     }
 
-    /// <inheritdoc/>
+    /// <summary>The growing shutter, a shootable vertical shutter, the Kamer that reuses it, or a destroyable vertical shutter (#2146, #2179).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.Kamer] = (occupant, place, common) => EnemyOccupant.Of(new KamerEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.ShutterDestroyable] = (occupant, place, common) => EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.ShutterGrowing] = (occupant, place, common) => EnemyOccupant.Of(new GrowingShutterEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.ShutterShootable] = (occupant, place, common) => EnemyOccupant.Of(new ShootableShutterEntity(this, occupant, place, common)),
-    };
+        Ensure.NotNull(registrar).Spawns<GrowingShutterSpawnSettings>([EnemyDefinitionId.ShutterGrowing], CreateGrowingShutter);
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.ShutterShootable], CreateShootableShutter);
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.Kamer], CreateKamer);
+        registrar.Spawns<ShutterSpawnSettings>([EnemyDefinitionId.ShutterDestroyable], CreateDestroyableShutter);
+    }
+
+    /// <summary>The growing shutter.</summary>
+    private EnemyOccupant CreateGrowingShutter(RoomEnemyOccupant occupant, GrowingShutterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new GrowingShutterEntity(this, occupant, place, common, settings));
+
+    /// <summary>A shootable vertical shutter, fully grown.</summary>
+    private EnemyOccupant CreateShootableShutter(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new ShootableShutterEntity(this, occupant, place, common, settings, ShutterSegment.FullyGrown));
+
+    /// <summary>The Kamer, which reuses the shootable shutter.</summary>
+    private EnemyOccupant CreateKamer(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new KamerEntity(this, occupant, place, common, settings));
+
+    /// <summary>A destroyable vertical shutter.</summary>
+    private EnemyOccupant CreateDestroyableShutter(RoomEnemyOccupant occupant, ShutterSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Of(new DestroyableShutterEntity(this, occupant, place, common, settings));
 
     /// <summary>Initializes the growing shutter.</summary>
-    internal static void InitializeGrowingShutter(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static GrowingShutterEnemyState InitializeGrowingShutter(GrowingShutterSpawnSettings settings, RoomEnemyPlace place)
     {
-        GrowingShutterSpawnSettings settings = occupant.SpawnSettings<GrowingShutterSpawnSettings>();
-
         // The setup selects its first action from what it waits for; the way it grows is the shutter's own.
         GrowingShutterAction action = settings.Wait is GrowingShutterWait.Timer
             ? GrowingShutterAction.WaitForTimer : GrowingShutterAction.WaitForProximity;
@@ -88,50 +104,50 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
         {
             ActivationTimer = UpdateCountdown.For((settings.Wait is GrowingShutterWait.Timer timer ? timer.Updates : 0) + EnemyWaitDefinitions.RunOutUpdate),
         };
-        place.SetSpeciesState(state);
 
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         ListStep<GrowingShutterSection> first = GrowingShutterEnemyState.FirstSection;
         StartGrowingShutterAnimation(place, state, first.Entry.Artwork, GrowthRadius(first));
+        return state;
     }
 
     /// <summary>What <see cref="RunGrowingShutterMain"/> does for each <see cref="GrowingShutterAction"/> member, each member's own arm.</summary>
     [field: NonSerialized]
-    private IdentityTable<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
+    private IdentityTable<GrowingShutterAction, Action<GrowingShutterSpawnSettings, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>> RunGrowingShutterMainForGrowingShutterAction => field ??= new(new Dictionary<GrowingShutterAction, Action<GrowingShutterSpawnSettings, RoomEnemyPlace, GrowingShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
-        [GrowingShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) => WaitToGrow(occupant, place, state, samus, camera),
-        [GrowingShutterAction.WaitForProximity] = (occupant, place, state, samus, camera) => WaitToGrow(occupant, place, state, samus, camera),
-        [GrowingShutterAction.Grow] = (occupant, place, state, samus, camera) =>
+        [GrowingShutterAction.WaitForTimer] = (settings, place, state, samus, camera) => WaitToGrow(settings, place, state, samus, camera),
+        [GrowingShutterAction.WaitForProximity] = (settings, place, state, samus, camera) => WaitToGrow(settings, place, state, samus, camera),
+        [GrowingShutterAction.Grow] = (settings, place, state, samus, camera) =>
         {
             if (state.Growth == VerticalDirection.Up)
             {
-                GrowShutterUp(occupant, place, state, samus);
+                GrowShutterUp(settings, place, state, samus);
             }
             else
             {
-                GrowShutterDown(occupant, place, state);
+                GrowShutterDown(settings, place, state);
             }
         },
     });
 
     /// <summary>Runs the growing shutter's main AI.</summary>
     private void RunGrowingShutterMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place,
         GrowingShutterEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        RunGrowingShutterMainForGrowingShutterAction[state.Action](occupant, place, state, samus, camera);
+        RunGrowingShutterMainForGrowingShutterAction[state.Action](growingShutterSpawnSettings, place, state, samus, camera);
     }
 
     /// <summary>
     /// Waits one update for what the shutter's placement waits for, its timer (#2281) or Samus coming near, and grows it once
     /// the wait is over.
     /// </summary>
-    private void WaitToGrow(RoomEnemyOccupant occupant, RoomEnemyPlace place, GrowingShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    private void WaitToGrow(GrowingShutterSpawnSettings settings, RoomEnemyPlace place, GrowingShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
-        if (occupant.SpawnSettings<GrowingShutterSpawnSettings>().Wait.Match(GrowingWaits, new ShutterWaitContext<GrowingShutterEnemyState>(place, state, samus)))
+        if (settings.Wait.Match(GrowingWaits, new ShutterWaitContext<GrowingShutterEnemyState>(place, state, samus)))
             ActivateGrowingShutter(place, state, camera);
     }
 
@@ -154,12 +170,12 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Runs the four growth stages.</summary>
-    private static void GrowShutterDown(RoomEnemyOccupant occupant, RoomEnemyPlace place, GrowingShutterEnemyState state)
+    private static void GrowShutterDown(GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place, GrowingShutterEnemyState state)
     {
         if (state.Growing is not { } section)
             return;
 
-        place.Position = place.Position.AdvanceY(occupant.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed);
+        place.Position = place.Position.AdvanceY(growingShutterSpawnSettings.GrowthSpeed);
         int targetY = state.OriginY(section) + GrowingShutterDefinitions.SectionLength;
 
         // A section finishes only once the shutter has moved past its section length, not on reaching it; each section
@@ -171,7 +187,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Runs the four upward growth stages.</summary>
     private static void GrowShutterUp(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place,
         GrowingShutterEnemyState state,
         SamusState samus)
     {
@@ -179,7 +195,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
             return;
 
         int previousY = place.Position.Y.Whole;
-        place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(occupant.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed));
+        place.Position = place.Position.AdvanceY(UpwardGrowthVelocity(growingShutterSpawnSettings.GrowthSpeed));
         int targetY = state.OriginY(section) - GrowingShutterDefinitions.SectionLength;
         if (targetY < place.Position.Y.Whole)
         {
@@ -284,19 +300,20 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without damaging them.</summary>
-    /// <param name="occupant">The shutter the bomb struck.</param>
     /// <param name="c">The bomb contact.</param>
-    internal void ReactToShootableShutterBomb(RoomEnemyOccupant occupant, EnemyBombContext c) =>
+    /// <param name="settings">What the shutter's population entry tells its species.</param>
+    /// <param name="verticalShutterEnemyState">The enemy's state, which it holds from its setup.</param>
+    internal void ReactToShootableShutterBomb(ShutterSpawnSettings settings, EnemyBombContext c, VerticalShutterEnemyState verticalShutterEnemyState) =>
         // A bomb deals the shutter no damage: its collision already marked, it starts the shutter moving as a beam, a
         // missile, Samus's touch or a power bomb does.
-        ReactVerticalShutter(occupant, c.Enemy, c.Camera);
+        ReactVerticalShutter(settings, c.Enemy, verticalShutterEnemyState, c.Camera);
 
     /// <summary>
     /// Runs common bomb damage before reacting a destroyable vertical shutter, as its shot reaction, which a bomb runs,
     /// does.
     /// </summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
-    internal static EnemyBombReaction DestroyableShutterBombReaction(ShuttersEntity shutter) => new()
+    /// <param name="shutter">The shutter the reaction is built for, whose own methods set it off.</param>
+    internal static EnemyBombReaction DestroyableShutterBombReaction(VerticalShutterEntity shutter) => new()
     {
         AfterCommon = Ensure.NotNull(shutter).ReactDestroyableAfterCommon,
     };
@@ -309,75 +326,75 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Advances ShutterGrowing's typed animation.</summary>
-    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemyPlace place, GrowingShutterEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        GrowingShutterEnemyState state = place.RequireSpeciesState<GrowingShutterEnemyState>();
         state.Playback = PlayShutterAnimation(place, state.Playback);
     }
 
     /// <summary>Advances a vertical shutter's typed animation: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceVerticalShutterTypedAnimation(RoomEnemyPlace place, VerticalShutterEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        VerticalShutterEnemyState state = place.RequireSpeciesState<VerticalShutterEnemyState>();
         state.Playback = PlayShutterAnimation(place, state.Playback);
     }
 
     /// <summary>Runs ShutterGrowing's main AI.</summary>
-    internal void RunShutterGrowingMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunShutterGrowingMainAi(GrowingShutterSpawnSettings growingShutterSpawnSettings, RoomEnemyPlace place, GrowingShutterEnemyState growingShutterEnemyState, IEnemyAiFrame frame)
     {
         RunGrowingShutterMain(
-            occupant, place,
-            place.RequireSpeciesState<GrowingShutterEnemyState>(),
+            growingShutterSpawnSettings, place,
+            growingShutterEnemyState,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Runs a vertical shutter's main AI: a shootable or destroyable shutter's, or the Kamer's.</summary>
-    internal void RunVerticalShutterMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunVerticalShutterMainAi(ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place, VerticalShutterEnemyState verticalShutterEnemyState, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
-            occupant, place,
-            place.RequireSpeciesState<VerticalShutterEnemyState>(),
+            shutterSpawnSettings, place,
+            verticalShutterEnemyState,
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
-    internal static EnemyPowerBombReaction VerticalShutterPowerBombReaction(ShuttersEntity shutter) => new()
+    /// <param name="shutter">The shutter the reaction is built for, whose own methods set it off.</param>
+    internal static EnemyPowerBombReaction VerticalShutterPowerBombReaction(VerticalShutterEntity shutter) => new()
     {
         ReplacesCommon = Ensure.NotNull(shutter).ReactToPowerBomb,
     };
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
-    internal static EnemyShotReaction ShootableShutterShotReaction(ShuttersEntity shutter) => new()
+    /// <param name="shutter">The shutter the reaction is built for, whose own methods set it off.</param>
+    internal static EnemyShotReaction ShootableShutterShotReaction(VerticalShutterEntity shutter) => new()
     {
         AfterSuperMissileQuake = Ensure.NotNull(shutter).ReactToShootableShot,
     };
 
     /// <summary>Runs common shot damage for destroyable shutters.</summary>
-    /// <param name="shutter">The shutter the reaction is built for, whose placement names how it is set off.</param>
-    internal static EnemyShotReaction DestroyableShutterShotReaction(ShuttersEntity shutter) => new()
+    /// <param name="shutter">The shutter the reaction is built for, whose own methods set it off.</param>
+    internal static EnemyShotReaction DestroyableShutterShotReaction(VerticalShutterEntity shutter) => new()
     {
         AfterCommon = Ensure.NotNull(shutter).ReactDestroyableAfterCommon,
     };
 
     /// <summary>Uses Samus contact to react vertical shutters.</summary>
-    internal void ReactToVerticalShutterTouch(RoomEnemyOccupant occupant, EnemyTouchContext context) =>
+    /// <param name="settings">What the shutter's population entry tells its species.</param>
+    /// <param name="context">The touch.</param>
+    /// <param name="verticalShutterEnemyState">The shutter's state.</param>
+    internal void ReactToVerticalShutterTouch(ShutterSpawnSettings settings, EnemyTouchContext context, VerticalShutterEnemyState verticalShutterEnemyState) =>
         // Samus's touch deals no contact damage: touching the shutter is itself the trigger, and the shutter's trigger mode
         // decides whether it starts moving.
-        ReactVerticalShutter(occupant, context.Place, context.Camera);
+        ReactVerticalShutter(settings, context.Place, verticalShutterEnemyState, context.Camera);
     /// <summary>Initializes a vertical shutter, which shows <paramref name="pose"/>: its entity names it (#2179).</summary>
-    internal static void InitializeVerticalShutter(RoomEnemyOccupant occupant, RoomEnemyPlace place, ShutterSegment pose)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static VerticalShutterEnemyState InitializeVerticalShutter(ShutterSpawnSettings settings, RoomEnemyPlace place, ShutterSegment pose)
     {
-        ShutterSpawnSettings settings = occupant.SpawnSettings<ShutterSpawnSettings>();
         var state = new VerticalShutterEnemyState(InitialAction(settings.TriggerMode));
-        place.SetSpeciesState(state);
 
         state.ReactionDirection = settings.PrimaryDirection;
         state.ActionTimer = WrappingCountdown.Start(settings.Trigger is ShutterTrigger.Timer timer ? timer.Wait : 0);
@@ -395,39 +412,40 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
         // The shutter's new clock shows no new frame until its animation's first step shows one.
         place.CollidesByFrameHitboxes = false;
         StartVerticalShutterAnimation(place, state, pose);
+        return state;
     }
 
     /// <summary>What <see cref="RunVerticalShutterMain"/> does for each <see cref="VerticalShutterAction"/> member, each member's own arm.</summary>
     [field: NonSerialized]
-    private IdentityTable<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<RoomEnemyOccupant, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
+    private IdentityTable<VerticalShutterAction, Action<ShutterSpawnSettings, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>> RunVerticalShutterMainForVerticalShutterAction => field ??= new(new Dictionary<VerticalShutterAction, Action<ShutterSpawnSettings, RoomEnemyPlace, VerticalShutterEnemyState, SamusState, Position16<RoomPixels>>>
     {
-        [VerticalShutterAction.WaitForTimer] = (occupant, place, state, samus, camera) => WaitForTrigger(occupant, place, state, samus, camera),
-        [VerticalShutterAction.WaitForHorizontalProximity] = (occupant, place, state, samus, camera) => WaitForTrigger(occupant, place, state, samus, camera),
-        [VerticalShutterAction.Activate] = (occupant, place, state, samus, camera) => ActivateVerticalShutter(occupant, place, state, camera),
+        [VerticalShutterAction.WaitForTimer] = (settings, place, state, samus, camera) => WaitForTrigger(settings, place, state, samus, camera),
+        [VerticalShutterAction.WaitForHorizontalProximity] = (settings, place, state, samus, camera) => WaitForTrigger(settings, place, state, samus, camera),
+        [VerticalShutterAction.Activate] = (settings, place, state, samus, camera) => ActivateVerticalShutter(settings, place, state, camera),
         [VerticalShutterAction.Still] = (_, place, state, samus, camera) =>
         {
         },
-        [VerticalShutterAction.MovingUp] = (occupant, place, state, samus, camera) => MoveVerticalShutter(occupant, place, state, samus, direction: VerticalDirection.Up),
-        [VerticalShutterAction.MovingDown] = (occupant, place, state, samus, camera) => MoveVerticalShutter(occupant, place, state, samus, direction: VerticalDirection.Down),
-        [VerticalShutterAction.StoppedAfterMovingUp] = (occupant, place, state, samus, camera) => RunVerticalShutterStopped(occupant, place, state, camera, end: VerticalDirection.Up),
-        [VerticalShutterAction.StoppedAfterMovingDown] = (occupant, place, state, samus, camera) => RunVerticalShutterStopped(occupant, place, state, camera, end: VerticalDirection.Down),
+        [VerticalShutterAction.MovingUp] = (settings, place, state, samus, camera) => MoveVerticalShutter(settings, place, state, samus, direction: VerticalDirection.Up),
+        [VerticalShutterAction.MovingDown] = (settings, place, state, samus, camera) => MoveVerticalShutter(settings, place, state, samus, direction: VerticalDirection.Down),
+        [VerticalShutterAction.StoppedAfterMovingUp] = (settings, place, state, samus, camera) => RunVerticalShutterStopped(settings, place, state, camera, end: VerticalDirection.Up),
+        [VerticalShutterAction.StoppedAfterMovingDown] = (settings, place, state, samus, camera) => RunVerticalShutterStopped(settings, place, state, camera, end: VerticalDirection.Down),
     });
 
     /// <summary>Runs the vertical shutter's main AI.</summary>
     internal void RunVerticalShutterMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        RunVerticalShutterMainForVerticalShutterAction[state.Action](occupant, place, state, samus, camera);
+        RunVerticalShutterMainForVerticalShutterAction[state.Action](shutterSpawnSettings, place, state, samus, camera);
 
         // An idle shutter reacts when Samus's attacking body meets it (SolidContactPlaceCombination), as with the Screw
         // Attack.
         if (state.Action is not (VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown) &&
             SamusContactsIdleShutter(place, samus))
         {
-            ReactVerticalShutter(occupant, place, camera);
+            ReactVerticalShutter(shutterSpawnSettings, place, state, camera);
         }
     }
 
@@ -449,10 +467,10 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     /// Waits one update for what the shutter's placement is triggered by, its timer, which starts its wait over, or Samus
     /// coming near, and starts the shutter once it is.
     /// </summary>
-    private void WaitForTrigger(RoomEnemyOccupant occupant, RoomEnemyPlace place, VerticalShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
+    private void WaitForTrigger(ShutterSpawnSettings settings, RoomEnemyPlace place, VerticalShutterEnemyState state, SamusState samus, Position16<RoomPixels> camera)
     {
-        if (occupant.SpawnSettings<ShutterSpawnSettings>().Trigger.Match(TriggerWaits, new ShutterWaitContext<VerticalShutterEnemyState>(place, state, samus)))
-            ActivateVerticalShutter(occupant, place, state, camera);
+        if (settings.Trigger.Match(TriggerWaits, new ShutterWaitContext<VerticalShutterEnemyState>(place, state, samus)))
+            ActivateVerticalShutter(settings, place, state, camera);
     }
 
     /// <summary>
@@ -484,11 +502,11 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Starts movement in the primary vertical direction and queues on-screen audio.</summary>
     private void ActivateVerticalShutter(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera)
     {
-        state.Action = MovingToward(occupant.SpawnSettings<ShutterSpawnSettings>().PrimaryDirection);
+        state.Action = MovingToward(shutterSpawnSettings.PrimaryDirection);
         QueueShutterActivationSoundIfOnScreen(place, camera);
     }
 
@@ -506,15 +524,15 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     /// The velocity of the vertical shutter in <paramref name="place"/> moving toward <paramref name="direction"/>: its
     /// spawn speed, reversed upward, fraction included (#2278).
     /// </summary>
-    internal static SignedSixteenSixteen VerticalShutterVelocity(RoomEnemyOccupant occupant, VerticalDirection direction)
+    internal static SignedSixteenSixteen VerticalShutterVelocity(ShutterSpawnSettings shutterSpawnSettings, VerticalDirection direction)
     {
-        SignedSixteenSixteen speed = occupant.SpawnSettings<ShutterSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = shutterSpawnSettings.Speed;
         return speed.Toward(direction);
     }
 
     /// <summary>Moves toward the upper or lower endpoint, carrying Samus when riding the shutter.</summary>
     private static void MoveVerticalShutter(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         SamusState samus,
         VerticalDirection direction)
@@ -522,7 +540,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
         // The riding test reads where the shutter stood before it moves; a rider is carried by the move's whole pixels.
         int previousY = place.Position.Y.Whole;
         bool carriesSamus = EnemyCollision.IsSamusStandingOn(place, samus);
-        place.Position = place.Position.AdvanceY(VerticalShutterVelocity(occupant, direction));
+        place.Position = place.Position.AdvanceY(VerticalShutterVelocity(shutterSpawnSettings, direction));
         if (carriesSamus)
             CarrySamusVertically(place, samus, previousY);
 
@@ -531,7 +549,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
             : place.Position.Y.Whole - state.LowerEndpointY;
         if (beforeEndpoint < 0)
             return;
-        StopVerticalShutter(occupant, state, direction);
+        StopVerticalShutter(shutterSpawnSettings, state, direction);
     }
 
     /// <summary>
@@ -546,16 +564,15 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
             place.Position.Y.Whole - previousY);
 
     /// <summary>Enters a timed rest or permanent stop at the endpoint the shutter reached moving toward <paramref name="moved"/>.</summary>
-    private static void StopVerticalShutter(RoomEnemyOccupant occupant, VerticalShutterEnemyState state, VerticalDirection moved)
+    private static void StopVerticalShutter(ShutterSpawnSettings settings, VerticalShutterEnemyState state, VerticalDirection moved)
     {
-        ShutterSpawnSettings settings = occupant.SpawnSettings<ShutterSpawnSettings>();
         ShutterRest rest = moved == VerticalDirection.Up ? settings.RestAfterMovingUp : settings.RestAfterMovingDown;
-        if (rest.IsPermanent)
+        if (!rest.TryGetUpdates(out int updates))
         {
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.RestTimer = UpdateCountdown.For(rest.Updates + EnemyWaitDefinitions.RunOutUpdate);
+        state.RestTimer = UpdateCountdown.For(updates + EnemyWaitDefinitions.RunOutUpdate);
         state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
@@ -564,15 +581,13 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     /// reverse into the population's primary direction.
     /// </summary>
     private void RunVerticalShutterStopped(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        ShutterSpawnSettings settings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera,
         VerticalDirection end)
     {
         if (!state.RestTimer.Step())
             return;
-
-        ShutterSpawnSettings settings = occupant.SpawnSettings<ShutterSpawnSettings>();
         bool reversesIntoPrimary = settings.PrimaryDirection == end.Reversed();
         state.Action = settings.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
             ? VerticalShutterAction.WaitForHorizontalProximity
@@ -581,33 +596,24 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Decides whether a reaction may start the shutter. Timer, proximity and immediate shutters merely make the acknowledgement sound;
-    /// a one-shot reaction reacts once, while a repeatable reaction may be reactivated after every stop.
-    /// </summary>
-    internal void ReactVerticalShutter(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
-        Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(occupant, place, place.RequireSpeciesState<VerticalShutterEnemyState>(), camera);
-
-    /// <summary>
     /// Runs a destroyable shutter's reaction after the common damage of a shot or bomb. The hit that destroys it still sets
     /// it off, as a shutter at rest whose killed place lies at the room's top-left corner: the reaction reads the shutter's
-    /// place, which the kill cleared (<see cref="RoomEnemyPlace.FoundState{T}"/>).
+    /// place, which the kill cleared: its state is the one the shutter held from its setup.
     /// </summary>
-    internal void ReactDestroyableShutterAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyOccupantStates struck, Position16<RoomPixels> camera) =>
-        ReactVerticalShutter(occupant, place, struck.Require<VerticalShutterEnemyState>(), camera);
+    internal void ReactDestroyableShutterAfterCommon(ShutterSpawnSettings settings, RoomEnemyPlace place, VerticalShutterEnemyState state, Position16<RoomPixels> camera) =>
+        ReactVerticalShutter(settings, place, state, camera);
 
     /// <summary>
     /// Decides whether a reaction may start the shutter in <paramref name="place"/>, whose state is
     /// <paramref name="state"/>. Whether it is already moving is read in its place, so one a hit destroyed reacts as one
     /// at rest.
     /// </summary>
-    private void ReactVerticalShutter(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    internal void ReactVerticalShutter(
+        ShutterSpawnSettings shutterSpawnSettings, RoomEnemyPlace place,
         VerticalShutterEnemyState state,
         Position16<RoomPixels> camera)
     {
-        ShutterTriggerMode trigger = occupant.SpawnSettings<ShutterSpawnSettings>().TriggerMode;
+        ShutterTriggerMode trigger = shutterSpawnSettings.TriggerMode;
         if (trigger is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
         {
             QueueShutterActivationSoundIfOnScreen(place, camera);
@@ -621,7 +627,7 @@ internal sealed partial class ShuttersBehavior : IEnemySpecies, IEnemyEntityFact
             state.ShotActivated = true;
         }
 
-        if (place.FoundState<VerticalShutterEnemyState>() is { Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
+        if (place.FoundEntity is VerticalShutterEntity { State.Action: VerticalShutterAction.MovingUp or VerticalShutterAction.MovingDown })
             return;
 
         state.Action = MovingToward(state.ReactionDirection);

@@ -25,8 +25,7 @@ public sealed partial class PauseEquipmentBasePresentation
     public static PauseEquipmentBasePresentation Load(Stream json)
     {
         PauseEquipmentBaseDocument document;
-        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause equipment base document is null."); }
+        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment base JSON.", error); }
         if (document.Version != PauseEquipmentBaseDefinitions.Version || document.Cells is null ||
             document.Cells.Length != PauseEquipmentBaseDefinitions.Cells)

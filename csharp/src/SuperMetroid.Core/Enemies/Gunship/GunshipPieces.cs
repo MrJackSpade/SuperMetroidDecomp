@@ -16,11 +16,13 @@ internal sealed partial record GunshipPieces : IGlowingEnemy
     /// <param name="top">The top hull, which runs the ship.</param>
     /// <param name="bottom">The bottom hull, listed right after the top.</param>
     /// <param name="entrancePad">The entrance pad, listed right after the bottom.</param>
-    internal GunshipPieces(RoomEnemyPlace top, RoomEnemyPlace bottom, RoomEnemyPlace entrancePad)
+    /// <param name="entrancePadPiece">The entrance pad's animation, which the top hull makes as it is set up.</param>
+    internal GunshipPieces(RoomEnemyPlace top, RoomEnemyPlace bottom, RoomEnemyPlace entrancePad, GunshipPieceState entrancePadPiece)
     {
         Top = top;
         Bottom = bottom;
         EntrancePad = entrancePad;
+        EntrancePadPiece = entrancePadPiece;
     }
 
     /// <summary>The top hull, which runs the ship.</summary>
@@ -31,6 +33,12 @@ internal sealed partial record GunshipPieces : IGlowingEnemy
 
     /// <summary>The entrance pad, listed right after the bottom.</summary>
     internal RoomEnemyPlace EntrancePad { get; }
+
+    /// <summary>
+    /// The entrance pad's animation, which the top hull starts as the pad opens and closes: the top hull makes it as it is set
+    /// up, and the pad holds it from its own setup (#2554).
+    /// </summary>
+    internal GunshipPieceState EntrancePadPiece { get; }
 
     /// <summary>The three pieces in the room's order, which the ship moves together.</summary>
     internal IEnumerable<RoomEnemyPlace> All

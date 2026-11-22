@@ -74,10 +74,10 @@ internal static class MapWindowMotionDefinitionsVerification
         SignedSixteenSixteen ReadVelocity(int edge)
         {
             int address = FileSelectMapNativeSources.WindowVelocities + area * FileSelectMapNativeSources.VelocityRecordBytes + edge * 4;
-            return SixteenSixteenWords.ToDisplacement(unchecked((int)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
-                (SixteenSixteenWords.FromWhole(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2))))));
+            return SixteenSixteenWords.ToDisplacement(unchecked((int)(RomDataReader.ReadWordFixedBank(bus, address) |
+                (SixteenSixteenWords.FromWhole(RomDataReader.ReadWordFixedBank(bus, address + 2))))));
         }
-        return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapNativeSources.WindowTimers + area * 2) + 1,
+        return new(RomDataReader.ReadWordFixedBank(bus, FileSelectMapNativeSources.WindowTimers + area * 2) + 1,
             ReadVelocity(0), ReadVelocity(1), ReadVelocity(2), ReadVelocity(3));
     }
 }

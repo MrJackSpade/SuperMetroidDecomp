@@ -22,7 +22,7 @@ internal static class ShaktoolSamusContactVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
         RoomEnemyPlace segment = runtime.Enemies.Places.InUpdateOrder[0];
         AssertEqual(EnemyDefinitionId.Shaktool, segment.Occupant?.DefinitionId, "slot zero is a Shaktool segment");
@@ -30,7 +30,7 @@ internal static class ShaktoolSamusContactVerification
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

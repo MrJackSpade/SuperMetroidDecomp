@@ -92,7 +92,7 @@ internal sealed partial class PhantoonDeath
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         _projectiles.SpawnDustOrExplosion(position, explosion.Type);
-        _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DeathExplosionSounds.TryGetValue(explosion.Type, out SoundEffectId sound)
+        _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DeathExplosionSounds.TryGetValue(explosion.Type, out SoundEffectId? sound)
             ? sound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
@@ -168,7 +168,7 @@ internal sealed partial class PhantoonDeath
 
 
     /// <summary>Hides his whole body, every part showing nothing (#1515), and starts the power's delay.</summary>
-    internal void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
+    internal static void ClearPhantoonDeathGraphics(PhantoonEnemyState state)
     {
         state.Death.PixelationSize = PhantoonDeathDefinitions.InitialPixelationSize;
         state.Wave.End();
@@ -178,7 +178,7 @@ internal sealed partial class PhantoonDeath
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.PowerReturnDelayUpdates);
         state.BodyFade.Resume();
 
-        _presentation.RequireBossBody().Clear();
+        state.BodyParts.Clear();
     }
 
     /// <summary>Enables the cleared Wrecked Ship room and its post-boss state.</summary>

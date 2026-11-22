@@ -28,20 +28,20 @@ internal sealed partial class TorizoBody
     }
 
     /// <summary>Uses the room RNG to emit drool only while a living Torizo is below its gut's blow-up health (<see cref="TorizoDecisionDefinitions.GutBlowUpHealth"/>).</summary>
-    internal void MaybeSpawnLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo)
+    internal void MaybeSpawnLowHealthDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState)
     {
         if (torizo.Health is 0 or >= TorizoDecisionDefinitions.GutBlowUpHealth)
             return;
         if (_room.Random.Read() is int random &&
             TorizoRandomRolls.LowHealthDrool.IsTakenBy(random))
         {
-            SpawnInitialDrool(occupant, torizo);
+            SpawnInitialDrool(occupant, torizo, torizoEnemyState);
         }
     }
 
     /// <summary>Requests the drool he drips as he wakes, its position and fall speed jittered at random.</summary>
-    internal void SpawnInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo) =>
-        _attacks.SpawnTorizoInitialDrool(occupant, torizo);
+    internal void SpawnInitialDrool(RoomEnemyOccupant occupant, RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState) =>
+        _attacks.SpawnTorizoInitialDrool(occupant, torizo, torizoEnemyState);
 
     /// <summary>Installs a body playback; its play resumes on the next frame.</summary>
     internal static void StartTorizoBodyAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, AnimationPlayback<TorizoBodySegment> playback)

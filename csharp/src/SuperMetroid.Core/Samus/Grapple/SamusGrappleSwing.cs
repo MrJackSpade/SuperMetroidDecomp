@@ -477,7 +477,7 @@ public static partial class SamusGrappleSwing
         // edge-solid block (ContinuedBlocks); an extension that ends its chain behaves as air.
         if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return false;
-        block = stoodFor;
+        block = stoodFor.Block;
         return IsSwingCollisionForRoomCollisionType[block.CollisionType](samus, block);
     }
 

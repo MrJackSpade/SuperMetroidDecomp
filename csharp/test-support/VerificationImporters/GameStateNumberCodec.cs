@@ -19,8 +19,15 @@ internal static class GameStateNumberCodec
     /// The steps in the cartridge's numbering: how a game enters each, and whether a running game is at it. Numbers
     /// three (a no-operation entry), 28 (an unreachable entry) and 29 (a debug-build menu) name no step the game has.
     /// Samus's death animation and the Ceres departure are numbered by the step their own sequence state is on; entering
-    /// them enters the frontend's step, and the import leaves that state as the game left it.
+    /// them enters the frontend's step, and the import leaves that state as the game left it. The cartridge numbers an attract
+    /// demo's recording and its final image's hold as one step.
     /// </summary>
+    /// <summary>The number of the pause's stable menu, which runs over the menu the pause built ($0F).</summary>
+    private const int PauseMenuNumber = 15;
+
+    /// <summary>Whether <paramref name="number"/> names the pause's stable menu, which a game enters over a shown menu.</summary>
+    internal static bool NamesPauseMenu(int number) => number == PauseMenuNumber;
+
     private static readonly Numbered?[] Numbers =
     [
         new(session => session.Enter(TitleStep.Starting), session => session.IsAt(TitleStep.Starting)),
@@ -59,17 +66,17 @@ internal static class GameStateNumberCodec
             session.LoadingRoute == GameDataLoadRoute.SelectedGame),
         new(session => session.Enter(SuperMetroidGameState.CeresDeparture), session => session.IsAt(CeresDeparturePhase.HoldingOnElevator)),
         new(session => session.Enter(SuperMetroidGameState.CeresDeparture), session => session.IsAt(CeresDeparturePhase.FadingToBlack)),
-        new(session => session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped), session => session.IsAt(CeresDestructionOutcome.SamusEscaped)),
+        new(session => session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, session.GameplayRuntime), session => session.IsAt(CeresDestructionOutcome.SamusEscaped)),
         new(session => session.Enter(TimeUpStep.WhiteningOut), session => session.IsAt(TimeUpStep.WhiteningOut)),
         new(session => session.Enter(TimeUpStep.FadingToBlack), session => session.IsAt(TimeUpStep.FadingToBlack)),
-        new(session => session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard), session => session.IsAt(CeresDestructionOutcome.SamusAboard)),
+        new(session => session.BeginCeresDestruction(CeresDestructionOutcome.SamusAboard, session.GameplayRuntime), session => session.IsAt(CeresDestructionOutcome.SamusAboard)),
         new(session => session.Enter(EndingStep.LeavingZebes), session => session.IsAt(EndingStep.LeavingZebes)),
         new(session => session.Enter(EndingStep.Credits), session => session.IsAt(EndingStep.Credits)),
-        new(session => session.Enter(session.Demo.RequestFromTitle()), session => session.IsAtAttractStep<AttractDemoStep.Loading>()),
-        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Starting>()),
-        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Playing>()),
-        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Unloading>()),
-        new(EnterNoAttractScene, session => session.IsAtAttractStep<AttractDemoStep.Routing>()),
+        new(session => session.Enter(AttractDemoStep.Loading), session => session.IsAt(AttractDemoStep.Loading)),
+        new(session => session.Enter(AttractDemoStep.Starting), session => session.IsAt(AttractDemoStep.Starting)),
+        new(session => session.Enter(AttractDemoStep.Playing), session => session.IsAt(AttractDemoStep.Playing) || session.IsAt(AttractDemoStep.Holding)),
+        new(session => session.Enter(AttractDemoStep.Unloading), session => session.IsAt(AttractDemoStep.Unloading)),
+        new(session => session.Enter(AttractDemoStep.Routing), session => session.IsAt(AttractDemoStep.Routing)),
     ];
 
     /// <summary>Enters <paramref name="game"/> at the step the cartridge numbers <paramref name="number"/>.</summary>
@@ -120,12 +127,4 @@ internal static class GameStateNumberCodec
     /// <param name="Enter">Enters the step.</param>
     /// <param name="IsRunning">Whether a session is at the step.</param>
     private sealed record Numbered(Action<FrontendSession> Enter, Func<FrontendSession, bool> IsRunning);
-
-    /// <summary>
-    /// Refuses to enter an attract demo past its load: each later step carries its scene's playback, hold, end or route,
-    /// which only the demo's own run makes (#2553).
-    /// </summary>
-    /// <exception cref="InvalidDataException">Always.</exception>
-    private static void EnterNoAttractScene(FrontendSession session) =>
-        throw new InvalidDataException("The import cannot enter an attract demo past its load: the step carries its scene's own state.");
 }

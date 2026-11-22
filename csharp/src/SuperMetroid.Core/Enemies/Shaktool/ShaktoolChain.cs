@@ -22,6 +22,31 @@ internal sealed partial class ShaktoolChain
     /// <summary>The chain's leading saw: its fixed anchor, the first enemy its room lists.</summary>
     internal RoomEnemyPlace LeadingSaw => Segments[0].Place;
 
+    /// <summary>The place of the segment the chain lists right before the one <paramref name="segment"/> defines, which it orbits.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's first, its leading saw, which orbits nothing.</exception>
+    internal RoomEnemyPlace Before(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(1, Segments.Count - 1, IndexOf(segment)) - 1].Place;
+
+    /// <summary>The segment the chain lists right after the one <paramref name="segment"/> defines, which the centre faces.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's last, its trailing saw.</exception>
+    internal ShaktoolChainSegment After(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(0, Segments.Count - 2, IndexOf(segment)) + 1];
+
+    /// <summary>The state the chain holds for the segment <paramref name="segment"/> defines, which its setup initializes.</summary>
+    internal ShaktoolSegmentState StateOf(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)].State;
+
+    /// <summary>The chain's segment <paramref name="segment"/> defines.</summary>
+    internal ShaktoolChainSegment Segment(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)];
+
+    /// <summary>Where the chain lists the segment <paramref name="segment"/> defines.</summary>
+    private int IndexOf(ShaktoolSegmentDefinition segment)
+    {
+        for (int listed = 0; listed < Segments.Count; listed++)
+        {
+            if (Segments[listed].Definition == segment)
+                return listed;
+        }
+        throw new ArgumentOutOfRangeException(nameof(segment), segment, "The chain lists no such segment.");
+    }
+
     /// <summary>How the chain moves: its reversal, straightening and orbit direction.</summary>
     internal ShaktoolChainMotion Motion { get; set; }
 

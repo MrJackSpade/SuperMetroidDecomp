@@ -26,7 +26,7 @@ internal sealed class ShallowWaterJumpScenario
     /// <summary>Owns the initialized retail-room runtime advanced by this scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Exposes the runtime's Samus state for takeoff and per-frame capture.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>
     internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime)
@@ -34,7 +34,7 @@ internal sealed class ShallowWaterJumpScenario
         Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(ScenarioRooms.LoadedScope(runtime));
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BelowSpazer, camera: new Position16<RoomPixels>(0, 256));
         var samus = Samus;
         samus.Control.Unlock();
@@ -44,8 +44,8 @@ internal sealed class ShallowWaterJumpScenario
         samus.EquippedItems = 0;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        runtime.StepFrame(0, new RuntimeFrameRequest());
-        runtime.StepFrame(0, new RuntimeFrameRequest());
+        ScenarioRooms.Step(runtime, 0, new RuntimeFrameRequest());
+        ScenarioRooms.Step(runtime, 0, new RuntimeFrameRequest());
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ internal sealed class ShallowWaterJumpScenario
     /// which Samus's liquid physics copies.
     /// </summary>
     internal string TakeoffSeed() =>
-        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.ExtraAnimationDelay:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(Runtime.Room.LoadedScope.FxOverlay.Liquid):X4} {(int)Samus.LiquidPhysics.MediumLastEntered:X4}\n";
+        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)SamusPoseNumbers.Number(Samus.Pose):X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer.RemainingFrames:X4} {Samus.ExtraAnimationDelay:X4} {Samus.LiquidPhysics.WaterSurfaceY ?? ushort.MaxValue:X4} {RoomFxRecordCodec.LiquidOptionsByte(ScenarioRooms.LoadedScope(Runtime).FxOverlay.Liquid):X4} {(int)Samus.LiquidPhysics.MediumLastEntered:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal JumpTrace Jump()
@@ -62,7 +62,7 @@ internal sealed class ShallowWaterJumpScenario
         FixedCoordinate apex = Samus.Kinematics.Position.Y;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
-            Runtime.StepFrame(ControllerButton.A, new RuntimeFrameRequest());
+            ScenarioRooms.Step(Runtime, ControllerButton.A, new RuntimeFrameRequest());
             FixedCoordinate y = Samus.Kinematics.Position.Y;
             if (y.Whole < apex.Whole || (y.Whole == apex.Whole && y.Fraction < apex.Fraction))
                 apex = y;

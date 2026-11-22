@@ -54,8 +54,8 @@ internal static class RoomDefinitionIntegrationVerification
         AssertEqual(new MotherBrainRinkaDoorSpawnExpected(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
             new MotherBrainRinkaDoorSpawnExpected(actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual(new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.Y)),
-            new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.Y)),
+        AssertEqual(new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.Y)),
+            new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.Y)),
             "guarded post-Ceres room entry retains Samus placement");
 
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
@@ -75,8 +75,8 @@ internal static class RoomDefinitionIntegrationVerification
                     actual.Room.LoadedCamera.IdealPosition.X, actual.Room.LoadedCamera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.Y)),
-                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.Y)),
+                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.Y)),
+                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.Y)),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
             AssertTrue(expected.Enemies.LastEnemyFrame.All<GunshipEvent>().SequenceEqual(
                 actual.Enemies.LastEnemyFrame.All<GunshipEvent>()),
@@ -103,7 +103,7 @@ internal static class RoomDefinitionIntegrationVerification
     {
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
     }

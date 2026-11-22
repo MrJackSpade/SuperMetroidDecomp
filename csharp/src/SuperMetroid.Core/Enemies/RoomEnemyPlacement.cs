@@ -24,10 +24,4 @@ public sealed partial record RoomEnemyPlacement(
 {
     /// <summary>What the entry tells its species about how to start.</summary>
     public EnemySpawnSettings SpawnSettings { get; } = Ensure.NotNull(SpawnSettings);
-
-    /// <summary>The entry's settings as the <typeparamref name="T"/> its species reads.</summary>
-    /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
-    internal T SpawnSettingsOf<T>() where T : EnemySpawnSettings =>
-        SpawnSettings as T ?? throw new InvalidDataException(
-            $"Enemy {DefinitionId}'s population entry carries {SpawnSettings}, not {typeof(T).Name}.");
 }

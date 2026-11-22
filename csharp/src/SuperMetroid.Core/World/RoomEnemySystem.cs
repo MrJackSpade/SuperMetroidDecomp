@@ -75,8 +75,8 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// <summary>Samus's touches, shots, bombs and power bombs against the room's enemies, and the enemies' reactions to them.</summary>
     internal EnemyCollision Collision { get; }
 
-    /// <summary>The collision as the species' shared responses resolve it at use (#1759).</summary>
-    private EnemyCollision CurrentCollision() => Collision;
+    /// <summary>The room's enemy collision, which every species' shared participation reads once the system is built.</summary>
+    private EnemyCollision CollisionOfRoom() => Collision;
 
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     internal EnemyDeathsAndDrops DeathsAndDrops { get; }
@@ -108,11 +108,8 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// </summary>
     internal RoomEnemySpecies SpeciesComposition { get; }
 
-    /// <summary>
-    /// The species registry that binds each installed occupant's entity: made before the places, which reach it, and
-    /// given the factories of the species composed over them.
-    /// </summary>
-    private EnemySpeciesRegistry Species { get; } = new();
+    /// <summary>The species registry that binds each installed occupant's entity.</summary>
+    private EnemySpeciesRegistry Species => SpeciesComposition.Registry;
 
     /// <summary>The loaded room's enemy definitions, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; }
@@ -157,9 +154,6 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// <summary>The elevator journey the runtime reads and resets.</summary>
     internal IElevatorJourney Elevator => SpeciesComposition.Elevator;
 
-    /// <summary>The gunship's save prompt and health check.</summary>
-    internal IGunshipSession Gunship => SpeciesComposition.Gunship;
-
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     internal ICeresEncounter Ceres => SpeciesComposition.Ceres;
 
@@ -182,7 +176,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
     /// The statue room's entrance statue and unlock effects as its statue sequence drives them; null in every other room
     /// (#2486).
     /// </summary>
-    internal ITourianStatueActors? TourianStatue => SpeciesComposition.TourianStatue;
+    internal RoomTourianStatues? TourianStatue => SpeciesComposition.TourianStatue;
 
     /// <summary>The ceiling tiles that fall in Ceres station during its escape.</summary>
     internal CeresFallingTiles CeresFallingTiles => SpeciesComposition.CeresFallingTiles;
@@ -231,12 +225,6 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
 
     /// <inheritdoc/>
     FloorView? IEnemyDisplaySources.FlownFloor => SpeciesComposition.Displays.FlownFloor;
-
-    /// <inheritdoc/>
-    RoomWarningText IEnemyDisplaySources.ForegroundWarning => SpeciesComposition.Displays.ForegroundWarning;
-
-    /// <inheritdoc/>
-    RoomWarningText IEnemyDisplaySources.BackgroundWarning => SpeciesComposition.Displays.BackgroundWarning;
 
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.FlownFloorWalls => SpeciesComposition.Displays.FlownFloorWalls;
@@ -305,10 +293,11 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces(Species);
+        var common = new EnemyCommonParticipation(CollisionOfRoom);
+        Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
-        Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
+        Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow, common);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         Earthquake = Ensure.NotNull(dependencies.Earthquake);
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
@@ -320,7 +309,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         GrappleBehavior = new GrappleBehavior(Lifecycle, DeathsAndDrops);
         SpeciesComposition = new RoomEnemySpecies(new RoomEnemySpeciesDependencies
         {
-            Session = session, Room = Room, Places = Places, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
+            Session = session, Room = Room, Places = Places, Common = common, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
             EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, Terrain = Terrain,
             Earthquake = Earthquake, PassEvents = PassEvents, FrameContext = FrameContext, Presentation = Presentation,
             BossPresentation = BossPresentation, BossArtworkBinding = BossArtworkBinding, BossEncounters = BossEncounters,
@@ -331,7 +320,6 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
             UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence, YardKickDistance = compatibility.YardKickDistance,
             FallingSparkFloorProbe = compatibility.FallingSparkFloorProbe,
         });
-        Species.AddRoomSpecies(new EnemyCommonParticipation(CurrentCollision), SpeciesComposition.Factories, SpeciesComposition.WithoutScenery);
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { LateDraws = SpeciesComposition.LateDraws, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
     }
@@ -380,6 +368,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         if (!population.Placements.IsEmpty)
             Presentation.DrawPopulation(population);
         PopulationLoader.LoadPopulation(
+            Species,
             definitions,
             population,
             new EnemyPopulationSurroundings(request.Level, request.Samus, request.ControllerInput, request.Camera));

@@ -15,20 +15,20 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 [CompatibilityService("what one sound library reports back as acknowledged")]
 public readonly partial record struct SoundAcknowledgement<TSound>
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
 
     /// <summary>The music-load reporter reports new music loading instead of an acknowledgement; it matches no request.</summary>
     public static SoundAcknowledgement<TSound> MusicLoading { get; } = new(new MusicLoadingReport());
 
-    /// <summary>The library acknowledges <paramref name="sound"/>, or reports nothing for none.</summary>
-    public static SoundAcknowledgement<TSound> Of(TSound? sound) => sound is { } acknowledged ? new(new SoundReport(acknowledged)) : default;
+    /// <summary>The library acknowledges <paramref name="request"/>, or reports nothing for no request.</summary>
+    public static SoundAcknowledgement<TSound> Of(RequestedSound<TSound>? request) => request is { } acknowledged ? new(new SoundReport(acknowledged)) : default;
 
     /// <summary>The acknowledged request, or none.</summary>
-    internal TSound? Sound => reported is SoundReport { Sound: var sound } ? sound : null;
+    private RequestedSound<TSound>? Request => reported is SoundReport { Sound: var sound } ? sound : null;
 
     /// <summary>Whether the library reports new music loading.</summary>
-    internal bool IsMusicLoading => reported is MusicLoadingReport;
+    private bool IsMusicLoading => reported is MusicLoadingReport;
 
     /// <summary>What the library reports (#2560): an acknowledged sound or music loading; null when it reports nothing.</summary>
     private readonly Report? reported;
@@ -37,20 +37,20 @@ public readonly partial record struct SoundAcknowledgement<TSound>
     private SoundAcknowledgement(Report reported) => this.reported = reported;
 
     /// <summary>Whether the library reports nothing at all.</summary>
-    public bool IsNone => !IsMusicLoading && Sound is null;
+    public bool IsNone => !IsMusicLoading && Request is null;
 
     /// <summary>Whether this acknowledges <paramref name="request"/>; nothing acknowledges no request.</summary>
-    public bool Acknowledges(TSound? request) => !IsMusicLoading && Nullable.Equals(Sound, request);
+    public bool Acknowledges(RequestedSound<TSound>? request) => !IsMusicLoading && Nullable.Equals(Request, request);
 
     /// <inheritdoc />
-    public override string ToString() => IsMusicLoading ? "music loading" : Sound?.ToString() ?? "none";
+    public override string ToString() => IsMusicLoading ? "music loading" : Request?.Sound.ToString() ?? "none";
 
     /// <summary>What a library reports back (#2560): a closed choice of an acknowledged sound and music loading.</summary>
     private abstract partial record Report;
 
     /// <summary>The library acknowledges a sound.</summary>
     /// <param name="Sound">The sound acknowledged.</param>
-    private sealed partial record SoundReport(TSound Sound) : Report;
+    private sealed partial record SoundReport(RequestedSound<TSound> Sound) : Report;
 
     /// <summary>The sound driver is loading music, which acknowledges no sound.</summary>
     private sealed partial record MusicLoadingReport : Report;

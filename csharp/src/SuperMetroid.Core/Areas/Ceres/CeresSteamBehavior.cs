@@ -30,11 +30,10 @@ internal sealed partial class CeresSteamBehavior(EnemyRoomBinding room, EnemyCol
     /// where a rest ends (<see cref="CeresSteamWay.Activation"/>, #2480), appearing and showing its puff's
     /// first picture on the wait's last update.
     /// </summary>
-    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place)
+    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place, CeresSteamEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
         EnemyAnimationPlayback.PlayApplyingCues(place, state.Way.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
@@ -68,10 +67,11 @@ internal sealed partial class CeresSteamBehavior(EnemyRoomBinding room, EnemyCol
 
     /// <summary>Initializes the Ceres steam, drawn where the motion <paramref name="motions"/> give its variant puts it.</summary>
     /// <exception cref="InvalidDataException">The room cannot place a vent of the variant's action.</exception>
-    internal void InitializeCeresSteam(RoomEnemyOccupant occupant, RoomEnemyPlace place, CeresSteamVentMotions motions)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal CeresSteamEnemyState InitializeCeresSteam(CeresSteamSpawnSettings ceresSteamSpawnSettings, RoomEnemyPlace place, CeresSteamVentMotions motions)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
-            occupant.SpawnSettings<CeresSteamSpawnSettings>().Variant);
+            ceresSteamSpawnSettings.Variant);
 
         // The vent animates, which shows and hides its plume, and collides by its frames' plume rectangles, which no
         // radius can describe.
@@ -86,13 +86,12 @@ internal sealed partial class CeresSteamBehavior(EnemyRoomBinding room, EnemyCol
             UpdatesToActivation = _room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1,
             Playback = new AnimationPlayback<CeresSteamSegment>(initialization.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation),
         };
-        place.SetSpeciesState(state);
-
+        return state;
     }
 
     /// <summary>Runs the Ceres steam's main AI: the vent's drawing follows its motion.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemyPlace place) =>
-        place.RequireSpeciesState<CeresSteamEnemyState>().Motion.Move(place);
+    internal static void RunCeresSteamMainAi(RoomEnemyPlace place, CeresSteamEnemyState ceresSteamEnemyState) =>
+        ceresSteamEnemyState.Motion.Move(place);
 
     /// <summary>Handles the steam's touch, the one reaction its plumes' hitboxes and its definition name.</summary>
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)

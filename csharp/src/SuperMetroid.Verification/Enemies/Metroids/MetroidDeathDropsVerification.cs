@@ -30,9 +30,9 @@ internal static class MetroidDeathDropsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Metroids1);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace metroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.Holds(EnemyDefinitionId.Metroid));

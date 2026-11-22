@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// screen holds for the load's waits.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed partial class LoadingGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.LoadingGame;
@@ -54,25 +55,37 @@ internal sealed partial class LoadingGameSequence(FrontendSession session) : IGa
             BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                 GameLoadingCompletion.GameplayFadeIn);
         },
-        [GameDataLoadRoute.ZebesLanding] = controllerInput =>
-        {
-            // The Zebes landing, followed by its waits. The update's
-            // own frame counts in the gameplay owner kept from Ceres.
-            session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-            session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-            BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
-                GameLoadingCompletion.GameplayFadeIn);
-        },
+        // The Zebes landing runs in the runtime Ceres left (Step with the runtime), never without one.
+        [GameDataLoadRoute.ZebesLanding] = controllerInput => throw new InvalidOperationException(
+            $"The {GameDataLoadRoute.ZebesLanding} load runs in the runtime Ceres left."),
     });
+
+    /// <inheritdoc/>
+    public PhaseGameplayNeed Need => session.ResumesGameLoadingWait ? PhaseGameplayNeed.LoadedRoom
+        : session.LoadingRoute == GameDataLoadRoute.ZebesLanding ? PhaseGameplayNeed.Runtime
+        : PhaseGameplayNeed.Nothing;
+
+    /// <inheritdoc/>
+    /// <remarks>The load's waits hold the room it loaded.</remarks>
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => StepGameLoadingWait(controllerInput, live);
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The Zebes landing, followed by its waits. The update's own frame counts in the gameplay owner kept from Ceres, in the
+    /// runtime Ceres left.
+    /// </remarks>
+    public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
+    {
+        Ensure.NotNull(runtime);
+        runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
+            GameLoadingCompletion.GameplayFadeIn);
+    }
 
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        if (session.ResumesGameLoadingWait)
-        {
-            StepGameLoadingWait(controllerInput);
-            return;
-        }
         StepForGameDataLoadRoute[session.LoadingRoute](controllerInput);
     }
 
@@ -88,22 +101,22 @@ internal sealed partial class LoadingGameSequence(FrontendSession session) : IGa
 
     /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
     [field: NonSerialized]
-    private IdentityTable<GameLoadingCompletion, Action> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action>
+    private IdentityTable<GameLoadingCompletion, Action<LoadedGameplay>> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action<LoadedGameplay>>
     {
-        [GameLoadingCompletion.CeresArrivalFadeIn] = () =>
+        [GameLoadingCompletion.CeresArrivalFadeIn] = live =>
         {
             session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
             session.display.PublishBlack();
         },
-        [GameLoadingCompletion.GameplayFadeIn] = () =>
+        [GameLoadingCompletion.GameplayFadeIn] = live =>
         {
             session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
             session.display.PublishBlack();
         },
-        [GameLoadingCompletion.MainGameplay] = () =>
+        [GameLoadingCompletion.MainGameplay] = live =>
         {
             session.Enter(session.Phases.MainGameplay);
-            session.display.PublishGameplay(session.GameplayRuntime);
+            session.display.PublishGameplay(live);
         },
     });
 
@@ -111,14 +124,14 @@ internal sealed partial class LoadingGameSequence(FrontendSession session) : IGa
     /// One loading wait: the controller is read and the display
     /// updated; nothing else runs. The last wait enters what the load completes into.
     /// </summary>
-    private void StepGameLoadingWait(ControllerButton controllerInput)
+    private void StepGameLoadingWait(ControllerButton controllerInput, LoadedGameplay live)
     {
-        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (!session.GameLoading.CountWait())
         {
             session.display.PublishBlack();
             return;
         }
-        StepGameLoadingWaitForGameLoadingCompletion[session.GameLoading.Completion]();
+        StepGameLoadingWaitForGameLoadingCompletion[session.GameLoading.Completion](live);
     }
 }

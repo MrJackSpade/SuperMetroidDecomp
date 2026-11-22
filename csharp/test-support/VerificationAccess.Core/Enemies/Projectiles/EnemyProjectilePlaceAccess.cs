@@ -1,3 +1,5 @@
+using SuperMetroid.Core.World;
+
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Reaches an enemy-projectile place for checks that set up a projectile there themselves (#2572).</summary>
@@ -10,23 +12,17 @@ internal static class EnemyProjectilePlaceAccess
             $"A check reads enemy-projectile place {place}, which the room has spawned nothing into.");
 
     /// <summary>
-    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/>, starting from what the place's
-    /// latest projectile left there, as a spawn into it would, for the check to set up. Every projectile runs an animation:
-    /// this one deletes itself at its first animation step unless the check starts the animation it means to watch.
+    /// Makes <paramref name="place"/> of <paramref name="enemies"/>' projectiles hold a fresh projectile of
+    /// <paramref name="kind"/> bound to the behaviour its production spawner binds and drawing with
+    /// <paramref name="graphics"/> (#2554), copying its kind's definition as a spawn into the place does: the snapshot
+    /// import restores a recorded place with it, until it writes the pool through the generated state-graph restore
+    /// (#2602), and a check holds a place taken with it through updates that run no projectile pass; checks that run a
+    /// projectile spawn through the game (<see cref="FamilyProjectileStarts.Allocate"/>). Every projectile runs an
+    /// animation: this one deletes itself at its first animation step.
     /// </summary>
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind) =>
-        engine.Occupy(place, kind, EnemyProjectileDeleteAnimation.Instance);
-
-    /// <summary>
-    /// Makes <paramref name="place"/> hold a fresh projectile of <paramref name="kind"/> running <paramref name="animation"/>,
-    /// starting from what the place's latest projectile left there, as a spawn into it would.
-    /// </summary>
-    internal static EnemyProjectile Occupy(this EnemyProjectileEngine engine, int place, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
-    {
-        EnemyProjectile?[] places = engine.ProjectilesInPlaces;
-        EnemyProjectilePlaceLeftovers leftovers = engine.Leftovers;
-        return places[place] = new EnemyProjectile(place, leftovers.StartOf(place, places[place]?.LeftInPlace), kind, animation);
-    }
+    internal static EnemyProjectile OccupyProjectile(this RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Ensure.NotNull(enemies).Projectiles.Occupy(place, kind, FamilyProjectileStarts.BehaviorOf(enemies, kind), graphics,
+            EnemyProjectileDeleteAnimation.Instance);
 
     /// <summary>
     /// Makes <paramref name="place"/> free, holding <paramref name="leftover"/> for the room's next spawn there, as a

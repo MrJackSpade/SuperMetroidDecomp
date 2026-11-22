@@ -102,14 +102,14 @@ internal static class ProjectileRadiiVerification
         foreach (int address in addresses)
         {
             ushort pointer = (ushort)(address - 4);
-            ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x930000 | pointer));
+            ushort duration = rom.ReadCartridgeWord((0x930000 | pointer));
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
             // A record storing a composition again, byte for byte, shows that composition (#2295).
-            ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
+            ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(rom.ReadCartridgeWord((activeRecord + 2)));
             var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
             slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            projectiles.Animation.AdvanceProjectileAnimation(slot.HeldShot());
+            projectiles.Animation.AdvanceProjectileAnimation(slot.HeldShot(), slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(false, !slot.IsActive, "Timed projectile record survives");
             // A list repeating one still picture is held: the shot keeps the picture, standing at the list's end (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
@@ -123,10 +123,12 @@ internal static class ProjectileRadiiVerification
             // The bomb owner deliberately rejects zero-duration records, and no bomb shows a still picture. Keep that
             // existing contract instead of treating arbitrary beam records as bombs.
             if (duration == 0 || still) continue;
-            var bomb = new SamusBomb(0);
+            // The bomb holds the bomb system's first place, its fuse burned out, so its update plays its animation.
+            bombs.Reset();
+            SamusBomb bomb = bombs.FirstBomb;
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
+            bombs.HandleBombsInOpenRoom();
             AssertEqual(false, !bomb.IsActive, "Bomb timed record survives");
             AssertEqual(duration, bomb.NativeFrameHold, "Bomb duration unchanged");
             AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb native artwork reference");

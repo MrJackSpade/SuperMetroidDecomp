@@ -15,7 +15,7 @@ internal static class KraidMouthReopenCountVerification
     {
         for (int spent = 0; spent <= 3; spent++)
         {
-            var armed = new KraidEnemyState(new KraidParts());
+            var armed = new KraidEnemyState(KraidPartsFixtures.Standalone());
             armed.ArmMouthReopens();
             armed.MarkMouthReopen();
             // Each closing of the marked mouth spends one pending reopen; the third spends the last and disarms them.
@@ -25,7 +25,7 @@ internal static class KraidMouthReopenCountVerification
             AssertEqual(3, armed.PendingMouthReopens, $"arming from {3 - spent} pending reopens leaves three");
         }
 
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         state.ArmMouthReopens();
         for (int expected = 2; expected >= 1; expected--)
         {
@@ -58,7 +58,7 @@ internal static class KraidMouthReopenCountVerification
     /// </summary>
     private static void VerifyKraidHurtFlash()
     {
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         AssertTrue(state.HurtFlash is { IsResting: true, Shown: KraidHurtFlashShade.BandColours }, "an encounter starts with no flash, showing his band's colours");
         AssertEqual<KraidHurtFlashShade?>(null, state.HurtFlash.StepToNewFrame(), "a flash at rest shows nothing new");
 

@@ -36,7 +36,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(
             RoomDefinitions.AlphaPowerBomb,
             camera: new Position16<RoomPixels>(0, 0));

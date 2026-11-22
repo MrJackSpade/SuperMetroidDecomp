@@ -8,16 +8,14 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Oum species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Oum], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new OumEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -36,7 +34,8 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Oum.</summary>
-    internal static void InitializeOum(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static OumEnemyState InitializeOum()
     {
         var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling)
         {
@@ -46,11 +45,11 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = HorizontalDirection.Right,
             RemainingBounces = OumMotionDefinitions.SettlingBounces,
         };
-        place.SetSpeciesState(state);
 
         // The spawn's left-facing idle disagrees with the right-facing Oum it counts as (ShowsSpawnIdle), which is
         // observable until the snail first starts an animation.
         state.Playback = new(OumAnimations.StartingWith(OumSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>What <see cref="RunOumMain"/> does for each <see cref="OumAction"/> member, each member's own arm.</summary>
@@ -421,19 +420,19 @@ internal sealed partial class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
-    internal void RunOumMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunOumMainAi(RoomEnemyPlace place, OumEnemyState oumEnemyState, IEnemyAiFrame frame)
     {
         RunOumMain(
             place,
-            place.RequireSpeciesState<OumEnemyState>(),
+            oumEnemyState,
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, oumEnemyState, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

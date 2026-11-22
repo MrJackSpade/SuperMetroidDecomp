@@ -63,8 +63,11 @@ public sealed partial class AudioQueues
         Reset();
     }
 
-    /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    internal MusicDataSet? DataSet { get; set; }
+    /// <summary>
+    /// The music data set the songs are asked of: the one most recently loaded by a dispatched request, and from power-on
+    /// until the first set loads <see cref="AudioQueueDefinitions.PowerOnDataSet"/>.
+    /// </summary>
+    internal MusicDataSet DataSet { get; set; } = AudioQueueDefinitions.PowerOnDataSet;
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
     internal MusicTrack? PlayingTrack { get; set; }
@@ -90,13 +93,13 @@ public sealed partial class AudioQueues
             queue.Clear();
         SoundHandshakes.Reset();
         _soundDowntime.End();
-        DataSet = null;
+        DataSet = AudioQueueDefinitions.PowerOnDataSet;
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
         // Starting the game installs the shared sounds, then stops the music and withdraws the enemy
         // sound library's request before the first ordinary update.
-        _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
+        _pendingPowerOnRequests.Add(new AudioRequest.InstallSharedSounds());
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));
     }
@@ -139,7 +142,7 @@ public sealed partial class AudioQueues
         // load stops the music, so the song must be queued again after it instead of leaving
         // only the gunship-engine sound at the Landing Site.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
+            ScheduleRoomTrack(music.Track, MusicQueueDelay.Shortest);
     }
 
     /// <summary>
@@ -150,7 +153,49 @@ public sealed partial class AudioQueues
     internal void QueueRoomMusicTrack(RoomMusic music)
     {
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
+            ScheduleRoomTrack(music.Track, MusicQueueDelay.Shortest);
+    }
+
+    /// <summary>
+    /// Schedules the request that carries out a room's track choice after <paramref name="delay"/>: its song, or a stop
+    /// for a silenced or inherited track (a saved game schedules the room's choice directly, and an inherited track stops
+    /// the music there). An area theme is the theme of the data set loaded when the request plays: the set the last data
+    /// set change waiting on the queue loads, or the loaded set when none waits.
+    /// </summary>
+    /// <param name="track">The room's track choice.</param>
+    /// <param name="delay">How long the request waits on the queue, at least the shortest delay.</param>
+    public void ScheduleRoomTrack(RoomMusicTrack track, MusicQueueDelay delay)
+    {
+        Ensure.NotNull(track);
+        switch (track)
+        {
+            case RoomMusicTrack.Play play:
+                ScheduleMusic(MusicRequest.SelectTrack(play.Track), delay);
+                break;
+            case RoomMusicTrack.PlayAreaTheme:
+                ScheduleMusic(MusicRequest.SelectTrack(AreaThemeDefinitions.Themes[DataSetLoadedAfterQueue()]), delay);
+                break;
+            case RoomMusicTrack.Inherit or RoomMusicTrack.Silence:
+                ScheduleMusic(MusicRequest.Stop, delay);
+                break;
+            default:
+                throw new InvalidDataException($"Unknown room music track {track}.");
+        }
+    }
+
+    /// <summary>
+    /// The data set loaded once every request waiting on the music queue has played: the set the last waiting change loads,
+    /// or the loaded set when no change waits.
+    /// </summary>
+    private MusicDataSet DataSetLoadedAfterQueue()
+    {
+        MusicDataSet loaded = DataSet;
+        foreach (QueuedMusic queued in Music)
+        {
+            if (queued.Request is MusicRequest.ChangeDataSet change)
+                loaded = change.DataSet;
+        }
+        return loaded;
     }
 
     /// <summary>
@@ -290,7 +335,7 @@ public sealed partial class AudioQueues
                 return;
             }
 
-            PlayingTrack = pending.Request.TrackPlayedWith(DataSet);
+            PlayingTrack = pending.Request.TrackPlayed;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
             _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
@@ -326,7 +371,7 @@ public sealed partial class AudioQueues
         {
         },
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext] = (library, requests) => SendNextSound(library, requests),
-        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library))),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)?.Sound)),
         [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw] = (library, requests) => requests.Add(new AudioRequest.ClearSoundRequest(library)),
     });
 

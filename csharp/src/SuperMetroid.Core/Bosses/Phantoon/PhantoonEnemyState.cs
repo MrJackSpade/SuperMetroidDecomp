@@ -28,8 +28,15 @@ public sealed partial class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossB
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon);
         CarriedParts = [MouthPart, TentaclesPart, EyePart];
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>The drawing parts his body carries to its place after its AI pass: his mouth, tentacles and eye.</summary>
     internal IReadOnlyList<PhantoonPart> CarriedParts { get; }

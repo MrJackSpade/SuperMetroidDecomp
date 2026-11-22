@@ -59,7 +59,7 @@ internal static partial class SamusBodyTableDecoding
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(shown);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         int[] topStarts = [.. ReadPointers(cartridge, SamusSourceDefinitions.TopDefinitionListPointers.Value, TopSetCount).Select(BodyRecord)];
         int[] bottomStarts = [.. ReadPointers(cartridge, SamusSourceDefinitions.BottomDefinitionListPointers.Value, BottomSetCount).Select(BodyRecord)];
         int firstRecord = topStarts.Concat(bottomStarts).Min();
@@ -77,7 +77,7 @@ internal static partial class SamusBodyTableDecoding
         var pictureNames = new Dictionary<int, SamusBodyPicture>();
         var transfers = new Dictionary<SamusBodyPicture, SamusBodyTileTransfer>();
         var compositionNames = new Dictionary<ushort, SamusSpritemapId>();
-        var compositions = new Dictionary<SamusSpritemapId, SpriteVisualPart[]>();
+        var compositions = new Dictionary<SamusSpritemapId, SpriteVisualPiece[]>();
         SamusBodyPicture PictureOf(int record, string user)
         {
             if (!pictureNames.TryGetValue(record, out SamusBodyPicture picture))
@@ -186,7 +186,7 @@ internal static partial class SamusBodyTableDecoding
     /// <exception cref="InvalidDataException">The definition's source or sizes are invalid.</exception>
     private static SamusBodyTileTransfer ReadDefinition(ISnesAddressSpace bus, int record)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         int definitionAddress = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank,
             SamusSourceDefinitions.FirstBodyDefinition + record * SamusSourceDefinitions.BodyDefinitionBytes);
         int sourceOffset = cartridge.ReadCartridgeWord(definitionAddress);
@@ -205,20 +205,20 @@ internal static partial class SamusBodyTableDecoding
     }
 
     /// <summary>Imports a bounded bank-$92 Samus map, decoding its five-byte records into stored sprite parts.</summary>
-    private static SpriteVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int pointer)
+    private static SpriteVisualPiece[] ReadSpritemap(ISnesAddressSpace bus, int pointer)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         int address = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, pointer);
         int count = cartridge.ReadCartridgeWord(address);
         if (pointer < SamusSourceDefinitions.FirstSpritemap || count > MaxParts || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
-        var parts = new SpriteVisualPart[count];
+        var parts = new SpriteVisualPiece[count];
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
             var record = new SpritemapPart(new SnesSpritemapXWord(cartridge.ReadCartridgeWord(part)),
                 new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)), cartridge.ReadCartridgeWord(part + 3));
-            parts[i] = SpriteVisualPart.FromSpritePart(record.ToPart(), SpriteArtwork.CharactersPerRow);
+            parts[i] = SpriteVisualPiece.FromSpritePart(record.ToPart(), SpriteArtwork.CharactersPerRow);
         }
         return parts;
     }
@@ -228,7 +228,7 @@ internal static partial class SamusBodyTableDecoding
         [.. Enumerable.Range(0, count).Select(i => cartridge.ReadCartridgeWord(start + i * 2))];
 
     /// <summary>Reads <paramref name="count"/> placement bytes from <paramref name="start"/>, signed or not.</summary>
-    private static int[] ReadBytes(ISnesAddressSpace bus, int start, int count, bool signed) =>
+    private static int[] ReadBytes(IImportCartridgeSource bus, int start, int count, bool signed) =>
         [.. Enumerable.Range(0, count).Select(index => bus.ReadCartridgeByte(start + index))
             .Select(value => signed ? (int)unchecked((sbyte)value) : value)];
 

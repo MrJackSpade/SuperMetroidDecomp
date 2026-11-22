@@ -14,8 +14,6 @@ internal sealed partial class KraidHead
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Kraid's state and part lookups, part animations, phase waits, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
@@ -25,13 +23,12 @@ internal sealed partial class KraidHead
     private readonly KraidProjectiles.RockBehavior _spitRock;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidParts parts, KraidEncounterAccess access, KraidBackground background,
+    internal KraidHead(EnemyRoomBinding room, EnemyProjectileEngine projectiles, KraidEncounterAccess access, KraidBackground background,
         KraidProjectiles.RockBehavior spitRock)
     {
         _spitRock = Ensure.NotNull(spitRock);
         _room = room;
         _projectiles = projectiles;
-        _parts = parts;
         _access = access;
         _background = background;
     }
@@ -72,7 +69,7 @@ internal sealed partial class KraidHead
     {
         UpdateKraidHealthColoursForKraidHurtFlashShade[shown](body, state);
         PictureShading parts = state.Colours.Parts;
-        foreach (RoomEnemyPlace part in _parts.All)
+        foreach (RoomEnemyPlace part in state.Parts.All)
             part.Shading = parts;
     }
 
@@ -89,20 +86,20 @@ internal sealed partial class KraidHead
     private static KraidHealthBand HealthBand(RoomEnemyPlace body, KraidEnemyState state) => KraidHealthBand.Of(body.Health, state.InitialHealth);
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
-    internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state)
+    internal void SetupKraidFirstPhaseThinking(RoomEnemyPlace body, KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        _parts.PlaceLintsAtBodyHeights(body);
+        fight.Phase = KraidFightPhase.FirstPhaseThinking;
+        state.Parts.PlaceLintsAtBodyHeights(body);
         state.ThinkingWait.LastFor(ChooseKraidThinkingUpdates());
     }
 
     /// <summary>Advances the open-mouth attack and its head animation timing.</summary>
-    internal void RunKraidMouthOpenAttack(RoomEnemyPlace body, KraidEnemyState state)
+    internal void RunKraidMouthOpenAttack(RoomEnemyPlace body, KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        if (AdvanceKraidHeadAnimationToItsEnd(state))
+        if (AdvanceKraidHeadAnimationToItsEnd(state, fight.Head))
         {
-            SetupKraidFirstPhaseThinking(body, state);
-            CloseKraidMouth(state);
+            SetupKraidFirstPhaseThinking(body, state, fight);
+            CloseKraidMouth(state, fight);
             return;
         }
 
@@ -120,9 +117,10 @@ internal sealed partial class KraidHead
     /// Steps the head's hold on its pose and plays the head animation on when the hold runs out on this update; a hold still
     /// running, or one that has run out before, keeps the pose.
     /// </summary>
-    internal void AdvanceKraidHeadAnimation(KraidEnemyState state)
+    internal void AdvanceKraidHeadAnimation(KraidEnemyState state, KraidRisenHead head)
     {
-        if (state.HeadHold.StepRunsOut() && PlayKraidHeadAnimation(state) is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+        if (state.HeadHold.StepRunsOut() &&
+            PlayKraidHeadAnimation(head) is AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             state.ShowHeadPose(shown);
     }
 
@@ -130,16 +128,16 @@ internal sealed partial class KraidHead
     /// Advances the head as <see cref="AdvanceKraidHeadAnimation"/> does, and whether its animation reached its segment's end
     /// on this update, holding there.
     /// </summary>
-    internal bool AdvanceKraidHeadAnimationToItsEnd(KraidEnemyState state) =>
-        state.HeadHold.StepRunsOut() && RunKraidHeadAnimationStep(state) == KraidHeadAnimationResult.AnimationEnded;
+    internal bool AdvanceKraidHeadAnimationToItsEnd(KraidEnemyState state, KraidRisenHead head) =>
+        state.HeadHold.StepRunsOut() && RunKraidHeadAnimationStep(state, head) == KraidHeadAnimationResult.AnimationEnded;
 
     /// <summary>
     /// Plays Kraid's head animation to its next pose: cries on the way are announced, and the head shows the pose and holds
     /// it for its duration; at its segment's end the animation holds there.
     /// </summary>
-    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state)
+    internal KraidHeadAnimationResult RunKraidHeadAnimationStep(KraidEnemyState state, KraidRisenHead head)
     {
-        if (PlayKraidHeadAnimation(state) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
+        if (PlayKraidHeadAnimation(head) is not AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
             return KraidHeadAnimationResult.AnimationEnded;
         state.ShowHeadPose(shown);
         return KraidHeadAnimationResult.PoseShown;
@@ -149,14 +147,13 @@ internal sealed partial class KraidHead
     /// Plays the head animation to its next frame, announcing its cries on the way: the frame it shows, or the hold at its
     /// segment's end. It shows nothing itself.
     /// </summary>
-    private AnimationShown<KraidHeadSegment, KraidHeadFrame> PlayKraidHeadAnimation(KraidEnemyState state)
+    private AnimationShown<KraidHeadSegment, KraidHeadFrame> PlayKraidHeadAnimation(KraidRisenHead head)
     {
-        AnimationPlayback<KraidHeadSegment> playback = state.HeadPlayback ?? throw new InvalidDataException(
-            "Kraid's head animation has not been started.");
+        AnimationPlayback<KraidHeadSegment> playback = head.Playback;
         AnimationPlace place = playback.Place;
         AnimationShown<KraidHeadSegment, KraidHeadFrame> outcome = KraidHeadAnimations.Segments.PlayToNextFrame(
             playback.Animation, ref place, PublishKraidHeadCue);
-        state.HeadPlayback = playback with { Place = place };
+        head.Playback = playback with { Place = place };
         return outcome switch
         {
             AnimationShown<KraidHeadSegment, KraidHeadFrame>.Held or AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame => outcome,
@@ -181,12 +178,12 @@ internal sealed partial class KraidHead
     }
 
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
-    internal void RunKraidMouthOpenReaction(KraidEnemyState state)
+    internal void RunKraidMouthOpenReaction(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        if (!AdvanceKraidHeadAnimationToItsEnd(state))
+        if (!AdvanceKraidHeadAnimationToItsEnd(state, fight.Head))
             return;
-        state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
-        CloseKraidMouth(state);
+        fight.Phase = KraidFightPhase.FirstPhaseThinking;
+        CloseKraidMouth(state, fight);
     }
 
     /// <summary>
@@ -194,42 +191,42 @@ internal sealed partial class KraidHead
     /// then spends one pending reopen and, while any remain, waits to glow his eye again; otherwise every mark is forgotten.
     /// His open-mouth attack and his reaction to a damaging shot both close it so.
     /// </summary>
-    private static void CloseKraidMouth(KraidEnemyState state)
+    private static void CloseKraidMouth(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
         state.HoldClosedMouth();
         if (state.SpendMouthReopenAsMouthCloses())
         {
-            state.BodyState.FightPhase = KraidFightPhase.WaitBeforeEyeGlow;
+            fight.Phase = KraidFightPhase.WaitBeforeEyeGlow;
             state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.EyeGlowDelayUpdates);
         }
     }
 
     /// <summary>Seeds eye-glow colour state after a body hit.</summary>
-    internal void InitializeKraidEyeGlow(KraidEnemyState state)
+    internal void InitializeKraidEyeGlow(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        state.BodyState.FightPhase = KraidFightPhase.GlowEye;
-        state.StartHeadAnimation(KraidHeadSegment.EyeGlow);
-        GlowKraidEye(state);
+        fight.Phase = KraidFightPhase.GlowEye;
+        fight.Head.Start(KraidHeadSegment.EyeGlow, state.HeadHold);
+        GlowKraidEye(state, fight);
     }
 
     /// <summary>Steps the eye highlight while the body reacts to a hit.</summary>
-    internal void GlowKraidEye(KraidEnemyState state)
+    internal void GlowKraidEye(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
-        AdvanceKraidHeadAnimation(state);
+        AdvanceKraidHeadAnimation(state, fight.Head);
         // The glow's peak, read back from the eyes' colours, ends the glow (#1512).
         if (state.Colours.GlowEyes())
-            state.BodyState.FightPhase = KraidFightPhase.UnglowEye;
+            fight.Phase = KraidFightPhase.UnglowEye;
     }
 
     /// <summary>Restores the eye colours after the reaction completes.</summary>
-    internal void UnglowKraidEye(RoomEnemyPlace body, KraidEnemyState state)
+    internal void UnglowKraidEye(RoomEnemyPlace body, KraidEnemyState state, KraidStageRun.Fighting fight)
     {
         // The eyes' colours, read back, reaching the band's ends the fade and starts the roar (#1512).
         bool unglowed = state.Colours.UnglowEyes(BandEyes(HealthBand(body, state)));
         if (unglowed)
         {
-            state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
-            state.StartHeadAnimation(KraidHeadSegment.Roar);
+            fight.Phase = KraidFightPhase.MouthOpenReaction;
+            fight.Head.Start(KraidHeadSegment.Roar, state.HeadHold);
         }
     }
 

@@ -46,7 +46,7 @@ internal static class WorkRobotLaserSoundRangeVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = radius,

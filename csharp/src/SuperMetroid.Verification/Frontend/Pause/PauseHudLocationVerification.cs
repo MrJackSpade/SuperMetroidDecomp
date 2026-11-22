@@ -20,19 +20,19 @@ internal static class PauseHudLocationVerification
     internal static void VerifyPauseHudLocation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = CartridgeImportSource.Require(bus);
+        var cart = bus;
         var maps = RetailPresentationFixture();
         foreach (byte phase in new byte[] { 0, 8 })
         {
             // A runtime belongs to the one session that runs it, as every runtime a session builds does (its audio
             // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
             var random = new SharedRandom();
-            var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
             var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            var samus = runtime.Player.IntroducedSamus;
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+            var samus = runtime.Player.Samus;
             samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
             runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(28, 2), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, FrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             ushort center = runtime.Hud.Tiles(runtime.InstalledHudArtwork)[60].PackedWord;

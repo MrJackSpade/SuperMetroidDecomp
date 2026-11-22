@@ -32,17 +32,18 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+                // The glass breaks while her encounter is loaded, as her room's population places her, her glass set up
+                // first; its shards draw in the colours it laid (#1512).
+                _ = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+                EnemyProjectile[] before = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive)];
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
-                // The glass breaks while her encounter is loaded; its shards draw in the colours it laid (#1512).
-                var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-                enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     direction,
                     RoomObjectBlock: new(0x20, 0x08),
                     Spawner: new ProjectilesSpawnShards(enemies.MotherBrainBehavior.Projectiles)));
 
                 EnemyProjectile shard =
-                    enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                    enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && !before.Contains(projectile));
                 // The random roll launches the shard at the start of sixteenth animationIndex, whose cartridge selector names its spin.
                 AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
                     MotherBrainNativeListAddresses.GlassEntries[started.Program] == ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * animationIndex),
@@ -99,7 +100,7 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     internal static ushort ReadMotherBrainGlassShardWord(
         CartridgeImportAddressSpace bus,
         int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
     /// <summary>Forbids live reads of the compiled selector and placement region.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>

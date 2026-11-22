@@ -13,7 +13,7 @@ internal static class SamusSpritemapNative
 {
     /// <summary>The retail cartridge, read once.</summary>
     private static readonly Lazy<IImportCartridgeSource> cartridge = new(() =>
-        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        (CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>The cartridge's first spritemap table entry of <paramref name="pose"/>'s <paramref name="half"/>.</summary>
     internal static int Base(SamusPoseId pose, SamusBodyHalf half) =>

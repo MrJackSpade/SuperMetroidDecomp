@@ -11,14 +11,14 @@ internal static partial class BlockBreakups
 {
     /// <summary>A reaction that shows <paramref name="draw"/> for one update, starting on the update after it is set off.</summary>
     /// <param name="draw">What the reveal shows.</param>
-    internal static BlockReactionChange Reveal(RoomObjectDraw draw) => new(1, [new(draw, 1)]);
+    internal static LastingBlockReactionChange Reveal(RoomObjectDraw draw) => new(1, [new(draw, 1)]);
 
     /// <summary>
     /// A normal bomb's one-update reveal of a crumble block of <paramref name="arrangement"/>: a single block shows its
     /// bombed reveal, a larger one the contact crumble's restored picture.
     /// </summary>
     /// <param name="arrangement">The crumble block's blocks.</param>
-    internal static BlockReactionChange CrumbleReveal(BlockArrangement arrangement) => Reveal(arrangement == BlockArrangement.Single
+    internal static LastingBlockReactionChange CrumbleReveal(BlockArrangement arrangement) => Reveal(arrangement == BlockArrangement.Single
         ? BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.CrumbleSingle)
         : LinkedRestoreObjectFamily.ContactCrumbleDraws.Of(new ContactCrumbleRestoreDraw(arrangement)));
 
@@ -27,8 +27,19 @@ internal static partial class BlockBreakups
     /// <param name="arrangement">The blocks the reaction breaks.</param>
     /// <param name="pace">How long the rock, pieces and dust stay.</param>
     /// <param name="sound">The sound the rock comes with; null for none.</param>
-    internal static BlockReactionChange Permanent(int delay, BlockArrangement arrangement, BlockBreakupPace pace, BlockBreakupSound? sound) =>
+    internal static LastingBlockReactionChange LastingPermanent(int delay, BlockArrangement arrangement, BlockBreakupPace pace, BlockBreakupSound? sound) =>
         new(delay, [.. Breaking(arrangement, pace, sound), new(Breakup(arrangement, Stage.Gone), 1)]);
+
+    /// <summary>
+    /// The same breakup as <see cref="LastingPermanent"/>, for a reaction that saves the terrain it changes (#2554), whose
+    /// block's restoration reads that saved terrain.
+    /// </summary>
+    /// <param name="delay">The updates before the rock shows.</param>
+    /// <param name="arrangement">The blocks the reaction breaks.</param>
+    /// <param name="pace">How long the rock, pieces and dust stay.</param>
+    /// <param name="sound">The sound the rock comes with; null for none.</param>
+    internal static BlockReactionChange Permanent(int delay, BlockArrangement arrangement, BlockBreakupPace pace, BlockBreakupSound? sound) =>
+        new(delay, [.. Breaking(arrangement, pace, sound).Select(Saving), new(Breakup(arrangement, Stage.Gone), 1)]);
 
     /// <summary>
     /// A block of <paramref name="arrangement"/> breaking up, staying open for <paramref name="openUpdates"/>, then growing
@@ -44,7 +55,7 @@ internal static partial class BlockBreakups
         int openUpdates, BlockRestore restore) =>
         new(delay,
         [
-            .. Breaking(arrangement, pace, sound),
+            .. Breaking(arrangement, pace, sound).Select(Saving),
             new(Breakup(arrangement, Stage.Gone), openUpdates),
             new(Breakup(arrangement, Stage.Dust), BlockBreakupPace.Steady.Dust),
             new(Breakup(arrangement, Stage.Pieces), BlockBreakupPace.Steady.Pieces),
@@ -52,8 +63,12 @@ internal static partial class BlockBreakups
             restore.Of(arrangement),
         ]);
 
+    /// <summary>A breakup frame as a reaction that saves the terrain it changes shows it.</summary>
+    private static BlockReactionFrame Saving(LastingBlockReactionFrame frame) =>
+        new(frame.Image, frame.Updates, frame.SoundBefore) { SoundPriority = frame.SoundPriority };
+
     /// <summary>The rock, pieces and dust of a breaking block, the rock with its sound.</summary>
-    private static BlockReactionFrame[] Breaking(BlockArrangement arrangement, BlockBreakupPace pace, BlockBreakupSound? sound) =>
+    private static LastingBlockReactionFrame[] Breaking(BlockArrangement arrangement, BlockBreakupPace pace, BlockBreakupSound? sound) =>
     [
         new(Breakup(arrangement, Stage.Rock), pace.Rock, sound?.Effect) { SoundPriority = sound?.Priority ?? SoundRequestPriority.Normal },
         new(Breakup(arrangement, Stage.Pieces), pace.Pieces),

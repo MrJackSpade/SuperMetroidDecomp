@@ -515,7 +515,7 @@ internal static class SaveSchemaTranslationVerification
     private static void VerifyNamedSaveRuntime(SaveSlotStore ram)
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
-        var frontend = new SuperMetroidGame(ram);
+        var frontend = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram);
         frontend.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = RetailPresentationFixture(),
@@ -523,9 +523,9 @@ internal static class SaveSchemaTranslationVerification
         // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(SaveSlot.C);
         ram.RestoreHistory(SaveFileHistory.None);
-        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)), "incomplete save plays the ordinary demo sets");
+        AssertTrue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: false)), "incomplete save plays the ordinary demo sets");
         ram.CompleteGame();
-        AssertTrue(new SuperMetroidGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)), "completed save unlocks the completion demo set");
+        AssertTrue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(ram).Session.Demo.Plays(StockAttractDemoScenes.Playlist(completionSetUnlocked: true)), "completed save unlocks the completion demo set");
         AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.RestoreHistory(SaveFileHistory.None);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

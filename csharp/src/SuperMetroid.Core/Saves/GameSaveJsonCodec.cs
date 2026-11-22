@@ -232,13 +232,10 @@ public static partial class GameSaveJsonCodec
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
         _ = GameSaveJsonFormat.SlotNamed(document.SelectedSlot);
-        if (document.Slots is null)
-            throw new InvalidDataException("slots is required");
-
-        foreach ((string key, GameSaveSlotJsonDocument? slot) in document.Slots)
+        foreach ((string key, GameSaveSlotJsonDocument slot) in document.Slots)
         {
             _ = GameSaveJsonFormat.SlotNamed(key);
-            ValidateSlot(slot ?? throw new InvalidDataException($"slots.{key} is null; an empty slot has no entry"), key);
+            ValidateSlot(slot, key);
         }
     }
 
@@ -420,6 +417,17 @@ public static partial class GameSaveJsonCodec
         }
     }
 
+    /// <summary>Whether <paramref name="kind"/> lists a member named <paramref name="name"/>, and its place there.</summary>
+    private static bool TryFindNamed<T>(IReadOnlyList<T> kind, Func<T, string> nameOf, string name, out int place)
+    {
+        for (place = 0; place < kind.Count; place++)
+        {
+            if (string.Equals(nameOf(kind[place]), name, StringComparison.Ordinal))
+                return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Records the members of <paramref name="kind"/> that <paramref name="names"/> lists as happened, in whatever order it
     /// lists them (#2543), so reordering the kind's listing never stops a save loading; rejects an unknown name and a
@@ -431,13 +439,7 @@ public static partial class GameSaveJsonCodec
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            int? named = null;
-            for (int candidate = 0; candidate < kind.Count; candidate++)
-            {
-                if (string.Equals(nameOf(kind[candidate]), name, StringComparison.Ordinal))
-                    named = candidate;
-            }
-            if (named is not int place)
+            if (!TryFindNamed(kind, nameOf, name, out int place))
                 throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
             if (happened.Contains(kind[place]))
                 throw new InvalidDataException($"{property}[{index}] '{name}' lists a name listed before it");

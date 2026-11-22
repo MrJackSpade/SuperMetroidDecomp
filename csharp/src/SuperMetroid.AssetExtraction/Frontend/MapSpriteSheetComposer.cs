@@ -30,15 +30,11 @@ internal static partial class MapSpriteSheetComposer
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
-    /// <summary>What the map sprite sheet composes.</summary>
-    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
-
-    /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
+    /// <summary>What the map sprite sheet composes from the map sprites of <paramref name="maps"/>, coloured with its menus.</summary>
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps)
     {
-        Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
-        MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
+        MapSpriteArtwork artwork = maps.Sprites;
         // Each sprite is pictured once, its palette-inheriting parts in its standard colouring's set (#1513).
         List<ColouredFrame<MapSpriteColouring>> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
         {

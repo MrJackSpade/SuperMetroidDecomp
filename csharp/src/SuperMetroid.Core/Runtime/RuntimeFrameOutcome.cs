@@ -22,7 +22,7 @@ public readonly partial record struct RuntimeFrameOutcome(GameplayUpdateTransiti
     /// own the update, as after the AUTO reserves' refill took an update from it (#2518). Every other transition the
     /// update started gives way to it.
     /// </summary>
-    public bool StartsTimeUp => Transition == GameplayUpdateTransition.TimeUp;
+    public bool StartsTimeUp => Transition is GameplayUpdateTransition.TimeUp;
 
     /// <summary>
     /// The save the update's closing message box completed, at a save station or the gunship, which the game-state loop

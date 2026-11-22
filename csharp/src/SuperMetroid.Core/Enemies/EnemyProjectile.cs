@@ -13,20 +13,25 @@ public sealed partial class EnemyProjectile
 {
     /// <summary>
     /// Starts a projectile of <paramref name="kind"/> holding <paramref name="place"/>, from what the place's previous
-    /// projectile left there: its whole position and its velocity. Everything else starts afresh until its spawn binds its
-    /// definition and behaviour.
+    /// projectile left there: its whole position and its velocity, with <paramref name="behavior"/> bound to it for its life
+    /// (#1760) in the motion the behaviour starts that kind with (#1843). Everything else starts afresh until its spawn
+    /// copies its definition.
     /// </summary>
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
     /// <param name="kind">What the projectile is.</param>
+    /// <param name="behavior">What the projectile's kind does.</param>
     /// <param name="animation">The animation it plays from its first pass (#2553): every spawn starts one.</param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation)
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior,
+        EnemyProjectileAnimation animation)
     {
         Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
         Kind = kind;
+        Behavior = Ensure.NotNull(behavior);
+        Motion = behavior.InitialMotion(kind);
         Animation = Ensure.NotNull(animation);
         IsActive = true;
     }
@@ -111,10 +116,10 @@ public sealed partial class EnemyProjectile
     internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
-    /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
-    /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
+    /// cues and names its shot and touch animations. The projectile is created with it and its kind. A projectile that ends
+    /// keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; set; }
+    internal EnemyProjectileBehavior Behavior { get; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
@@ -164,16 +169,6 @@ public sealed partial class EnemyProjectile
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
 
-    /// <summary>
-    /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
-    /// the motion the behaviour starts that kind with (#1843).
-    /// </summary>
-    internal void Bind(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
-    {
-        Kind = kind;
-        Behavior = Ensure.NotNull(behavior);
-        Motion = behavior.InitialMotion(kind);
-    }
 
     /// <summary>
     /// Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass (#2571):

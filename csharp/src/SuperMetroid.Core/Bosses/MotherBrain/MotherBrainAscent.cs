@@ -35,14 +35,14 @@ internal sealed partial class MotherBrainAscent
     }
 
     /// <summary>Reveals her body and requests her first artwork.</summary>
-    internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
+    internal static void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
         // Her phase-two colours show; the room's backdrop stays the room's.
         state.Colours.ShowPhaseTwo();
         state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
         // before the articulated body becomes visible (#1356, #1466, #1515).
-        _presentation.RequireBossBody().Reveal();
+        state.BodyParts.Reveal();
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>

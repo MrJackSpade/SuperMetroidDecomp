@@ -18,8 +18,7 @@ public static partial class EscapeTypewriterPresentationFile
         EscapeTypewriterDocument document;
         try
         {
-            document = JsonAssetDocument.Read<EscapeTypewriterDocument>(json, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Escape typewriter document is null.");
+            document = JsonAssetDocument.Read<EscapeTypewriterDocument>(json, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

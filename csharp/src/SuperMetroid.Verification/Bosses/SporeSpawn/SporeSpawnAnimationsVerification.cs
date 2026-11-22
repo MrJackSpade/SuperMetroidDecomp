@@ -32,7 +32,7 @@ internal static class SporeSpawnAnimationsVerification
     /// <summary>Every body program matches its native list, and every projectile program its bank-$86 list.</summary>
     internal static void VerifySporeSpawnAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<SporeSpawnBodySegment>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((SporeSpawnBodySegment)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
@@ -148,7 +148,7 @@ internal static class SporeSpawnAnimationsVerification
     private static int VerifyProjectileProgram(CartridgeImportAddressSpace rom, string program, ushort entry, bool onSpawner,
         Func<RoomEnemySystem, EnemyProjectileAnimation> animation, bool deletes)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         RoomEnemySystem enemies = NewProjectileSystem();
         // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
@@ -207,29 +207,32 @@ internal static class SporeSpawnAnimationsVerification
         ImportEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        enemies.VerificationServices().NextRandom = () => 4660;
+        SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
+        // The room's population load sets him up, his body holding the encounter his initialization builds (#2231).
+        RoomEnemyPlace body = enemies.LoadPopulation(samus, PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(128, 624)))[0];
+        SporeSpawnEnemyState state = body.EntityOf<SporeSpawnEntity>().Encounter;
+        // The program runs from the fight's place, idle, swaying by the original's starting radius and step.
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();
-
-        var state = new SporeSpawnEnemyState
-        {
-            Movement = SporeSpawnMovement.Idle,
-            MovementCenter = body.Position.Whole,
-            SwayRadius = new(48),
-            SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise),
-            BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
-        };
-        enemies.VerificationServices().NextRandom = () => 4660;
-        SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
-        // His body holds his encounter, as his initialization installs it (#2231).
-        body.SetSpeciesState(state);
+        state.Movement = SporeSpawnMovement.Idle;
+        state.MovementCenter = body.Position.Whole;
+        state.SwayRadius = new(48);
+        state.SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        // His death program plays once his death has deleted every enemy projectile but his stalk's links, as his death
+        // does before it starts the program; his setup's spore emitters are gone with them.
+        if (program == SporeSpawnBodySegment.Death)
+            enemies.SporeSpawnBehavior.DeleteProjectilesButStalk(state);
 
         for (int frame = 0; frame < frames; frame++)
         {
             EnemyAnimationPlayer.AdvanceAnimation(body, samus: samus, level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+            // The enemy projectile pass follows the enemies' each update: his dust and explosions play out and leave the
+            // places his death's drops take, his stalk's links hanging on.
+            foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray())
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(frame));
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);
@@ -237,7 +240,7 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>
     internal static ushort ReadSporeSpawnProgramWord(CartridgeImportAddressSpace source, ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWord((BodyBankNumber << 16) | address);
+        source.ReadCartridgeWord((BodyBankNumber << 16) | address);
 
     /// <summary>A guard over the cartridge that rejects any production read of Spore Spawn's native body lists.</summary>
     internal static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)

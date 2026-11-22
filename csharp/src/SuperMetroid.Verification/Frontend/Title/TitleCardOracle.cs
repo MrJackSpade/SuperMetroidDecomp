@@ -25,7 +25,7 @@ internal static class TitleCardOracle
     /// </summary>
     internal static int CompareAll(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         TitleSpritemaps extracted = TitleSpriteExtractor.MapSprites(rom);
         int compared = 0;
         foreach (TitleTextSequenceDefinition card in Cards)

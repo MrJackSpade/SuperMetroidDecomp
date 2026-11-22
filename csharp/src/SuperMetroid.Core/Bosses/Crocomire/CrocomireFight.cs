@@ -60,16 +60,17 @@ internal sealed partial class CrocomireFight
     }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
-    internal void InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal CrocomireEnemyState InitializeCrocomire(RoomEnemyOccupant occupant, RoomEnemyPlace place)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
-        var state = new CrocomireEnemyState(occupant, place);
-        place.SetSpeciesState(state);
+        var state = new CrocomireEnemyState(occupant, place,
+            tongue: _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue));
         // Once attached, the room's shaking and his melt's display read his encounter from the room (#2194); his parts
         // each hold the encounter from their own setup.
         _encounters.Attach(state);
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire, state));
+        _presentation.AttachBossBody(new PlacedBossBody(state.BodyParts, state));
         _presentation.BossShadings.Show(BossShadingLayer.Crocomire, state.Colours);
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
@@ -86,7 +87,7 @@ internal sealed partial class CrocomireFight
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.FightWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.SpikeWallBlock, CrocomireArenaMutation.ClearInvisibleWall);
             _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeFirstBlock, CrocomireArenaMutation.ClearBridge);
-            return;
+            return state;
         }
 
         // On the living branch only.
@@ -97,27 +98,29 @@ internal sealed partial class CrocomireFight
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
         // His wall, the bridge's fragments and his projectiles draw in their own shades (#1512).
+        return state;
     }
 
-    /// <summary>Sets Crocomire's tongue up when the room spawns it.</summary>
-    internal void InitializeCrocomireTongue(RoomEnemyPlace place)
+    /// <summary>Sets Crocomire's tongue up when the room spawns it, joining <paramref name="state"/>, the encounter his body began.</summary>
+    /// <returns>The tongue's state, which holds the encounter it joined, from its setup.</returns>
+    /// <exception cref="InvalidDataException">The room lists the tongue elsewhere than right after his body.</exception>
+    internal CrocomireTongueState InitializeCrocomireTongue(RoomEnemyPlace place, CrocomireEnemyState state)
     {
         // The tongue joins the encounter its body has set up, in a defeated room too, where it is deleted at once (#2400).
-        CrocomireEnemyState state = _places.Member(place, CrocomirePartListingDefinitions.Listing, EnemyDefinitionId.CrocomireTongue, EnemyDefinitionId.Crocomire)
-            .RequireSpeciesState<CrocomireEnemyState>();
-        state.JoinTongue(place);
+        if (Ensure.NotNull(state).Tongue != place)
+            throw new InvalidDataException($"Crocomire's tongue set up as enemy {place.Ordinal}, but his body lists enemy {state.Tongue.Ordinal} as it.");
+        var tongueState = new CrocomireTongueState(state);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
             place.Processing = place.Processing.Without(EnemyProcessing.Animates);
             place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return;
+            return tongueState;
         }
 
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight);
         place.CollidesByFrameHitboxes = true;
-        var tongueState = new CrocomireTongueState(state);
-        place.SetSpeciesState(tongueState);
         place.Shading = state.Body.Shading;
+        return tongueState;
     }
 
     /// <summary>Runs the artificial left-side wall.</summary>
@@ -143,9 +146,9 @@ internal sealed partial class CrocomireFight
     /// Runs the tongue's animation where the shared enemy animation runs: the frame changes when its timer
     /// runs out, and the clock notes each newly shown frame.
     /// </summary>
-    internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue)
+    internal static void AdvanceCrocomireTongueAnimation(RoomEnemyPlace tongue, CrocomireTongueState crocomireTongueState)
     {
-        CrocomireEnemyState state = tongue.RequireSpeciesState<CrocomireTongueState>().Crocomire;
+        CrocomireEnemyState state = crocomireTongueState.Crocomire;
         if (!tongue.AnimationClock.Expire())
             return;
 
@@ -163,9 +166,8 @@ internal sealed partial class CrocomireFight
     /// update its timer would, and the clock notes each newly shown frame as it does an
     /// authored timed frame.
     /// </summary>
-    internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, SamusState samus, RoomLevelData level, int cameraX)
+    internal void AdvanceCrocomireBodyAnimation(RoomEnemyPlace body, CrocomireEnemyState state, SamusState samus, RoomLevelData level, int cameraX)
     {
-        CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
         if (!body.AnimationClock.Expire())
             return;
 

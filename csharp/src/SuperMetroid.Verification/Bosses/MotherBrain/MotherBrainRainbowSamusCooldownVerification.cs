@@ -37,10 +37,10 @@ internal static class MotherBrainRainbowSamusCooldownVerification
 
         // The live encounter gives the requested cooldown to Samus's shared one, replacing a longer cooldown.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.MotherBrainBody, body.KeptDefinition);
-        var state = new MotherBrainEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.SecondPhase };
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        // Her body and brain as her room's population places them, her glass set up first; the encounter is the one her
+        // body's setup began, here in her second phase.
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        state.Form = MotherBrainForm.SecondPhase;
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         bombs.SetSharedCooldown(20);
         enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainRainbowState(state, attack, neckLowered, samus, bombs);

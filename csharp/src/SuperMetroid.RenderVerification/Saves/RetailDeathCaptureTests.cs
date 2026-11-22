@@ -28,11 +28,9 @@ internal static class RetailDeathCaptureTests
     private static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, bool reserveRecovery)
     {
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
-        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
-        var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
         var audioAssets = DesktopAccess.LoadAudioClips();
-        legacy.BindAudio(audioAssets);
-        captured.BindAudio(audioAssets);
+        var legacy = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var captured = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
         var legacyAudio = new short[AudioSession.PcmSamplesPerFrame];
         var capturedAudio = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;
@@ -59,10 +57,10 @@ internal static class RetailDeathCaptureTests
         {
             game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
-            game.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 0;
-            game.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
-            game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
-            game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveTankMode = ReserveCaptureFixtureDefinitions.AutomaticMode;
+            game.GameplayRuntimeForVerification.Player.Samus.Health = 0;
+            game.GameplayRuntimeForVerification.Player.Samus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
+            game.GameplayRuntimeForVerification.Player.Samus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
+            game.GameplayRuntimeForVerification.Player.Samus.ReserveTankMode = ReserveCaptureFixtureDefinitions.AutomaticMode;
         }
         var states = new HashSet<object>();
         int frames = 0;
@@ -77,8 +75,8 @@ internal static class RetailDeathCaptureTests
                 throw new InvalidOperationException("Death/recovery runtime release diverged between captured and legacy owners.");
             if (expectedRuntime is not null && actualRuntime is not null)
             {
-                var expectedSamus = expectedRuntime.Player.IntroducedSamus;
-                var actualSamus = actualRuntime.Player.IntroducedSamus;
+                var expectedSamus = expectedRuntime.Player.Samus;
+                var actualSamus = actualRuntime.Player.Samus;
                 if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
                     expectedSamus.Control.InputLocked != actualSamus.Control.InputLocked ||
                     expectedRuntime.Freeze.GameplayTimeFrozen != actualRuntime.Freeze.GameplayTimeFrozen)
@@ -90,7 +88,7 @@ internal static class RetailDeathCaptureTests
         }
         if (reserveRecovery)
         {
-            var samus = legacy.GameplayRuntimeForVerification.Player.IntroducedSamus;
+            var samus = legacy.GameplayRuntimeForVerification.Player.Samus;
             if (frames == 2000 || !states.Contains(SuperMetroidGameState.ReserveTankRefill) ||
                 legacy.GameState != SuperMetroidGameState.MainGameplay || samus.Health == 0 ||
                 samus.ReserveEnergy != 0 || samus.Control.InputLocked || legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)

@@ -49,16 +49,16 @@ internal static class BossDisplayBindingsDocumentsVerification
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version);
         }
 
-        /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
-        internal ImportEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null)
+        /// <summary>Loads fixture documents into an artwork catalog.</summary>
+        internal ImportEnemyArtwork Build()
         {
             // Bosses draw from sheets composed over the installed enemy artwork, so the fixture starts from it and
             // replaces only the extended frames it authors (#1446).
             EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
-            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null);
+            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, EnemyExtendedFrameDocuments.Load(json.Json(Oam)));
             return new(tiles,
-                new BossSourceArtwork { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
-                new AreaSourceArtwork());
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
         }
 
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>

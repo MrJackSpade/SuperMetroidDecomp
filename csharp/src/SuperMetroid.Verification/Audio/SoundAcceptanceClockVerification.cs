@@ -72,7 +72,7 @@ internal static class SoundAcceptanceClockVerification
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
             acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
-                acknowledgementBytes.Add(SoundEffectPortBytes.PortByte(sessionAcknowledgements[library]));
+                acknowledgementBytes.Add(SoundEffectPortBytes.PortByte(library, sessionAcknowledgements[library]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
             AssertSequenceEqual(expected, events, $"frame {frame} events equal the port model's writes, ticks and polls");
@@ -128,6 +128,11 @@ internal static class SoundAcceptanceClockVerification
                     ports.PauseForMusicLoad();
                     expected.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
                     break;
+                case AudioRequest.InstallSharedSounds:
+                    // Power-on installs the sounds every data set shares, a bank load like a data-set change (#2554).
+                    ports.PauseForMusicLoad();
+                    expected.Add(new AudioEvent.InstallSharedSounds());
+                    break;
                 case AudioRequest.PlayMusicTrack play:
                     expected.Add(new AudioEvent.SelectMusicTrack(play.Track));
                     break;
@@ -135,7 +140,7 @@ internal static class SoundAcceptanceClockVerification
                     expected.Add(new AudioEvent.StopMusic());
                     break;
                 case AudioRequest.RequestSound sound:
-                    ports.Request(sound.Sound.Library, sound.Sound);
+                    ports.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound));
                     break;
                 case AudioRequest.ClearSoundRequest clear:
                     ports.Request(clear.Library, null);
@@ -149,12 +154,12 @@ internal static class SoundAcceptanceClockVerification
         foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> tick in schedule.AsSpan(0, ticks))
         {
             expected.Add(new AudioEvent.ClockStep(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
-            if (!tick.ChecksRequests)
+            if (tick.Checks is not { } checks)
                 continue;
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
             {
-                SoundRequestCheck<SoundEffectId> poll = tick.RanChecks[library];
-                if (poll.Changed && poll.Request is SoundEffectId started)
+                SoundRequestCheck<SoundEffectId> poll = checks[library];
+                if (poll.Changed && poll.Request?.Sound is SoundEffectId started)
                     expected.Add(new AudioEvent.StartSoundEffect(started, tick.SampleOffset));
             }
         }

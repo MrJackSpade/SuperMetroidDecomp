@@ -41,9 +41,7 @@ public sealed partial class RoomMetatileAtlas
         var tiles = new BackgroundTile[expectedCount * RoomMetatileFormat.TilesPerBlock];
         for (int block = 0; block < document.Blocks.Length; block++)
         {
-            RoomMetatileDefinition? definition = document.Blocks[block];
-            if (definition is null)
-                throw new InvalidDataException($"Room metatile {block} is null.");
+            RoomMetatileDefinition definition = document.Blocks[block];
             WriteCell(definition.TopLeft, block, "topLeft", 0);
             WriteCell(definition.TopRight, block, "topRight", 1);
             WriteCell(definition.BottomLeft, block, "bottomLeft", 2);

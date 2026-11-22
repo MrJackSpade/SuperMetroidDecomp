@@ -142,7 +142,7 @@ internal static class EscapeTimeUpAfterRefillVerification
     {
         var frame = new GameplayShadingBuilder();
         runtime.FadeOut.ShadeGameplay(frame);
-        return frame.Build(runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image).Fade;
+        return frame.Build(runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image, runtime.Room.LoadedScope.Assets.BlockSheet.Backdrop).Fade;
     }
 
     /// <summary>Whether the runtime's last update drew the escape timer.</summary>

@@ -18,7 +18,7 @@ internal static class SaveStationElectricityAnimationsVerification
     /// </summary>
     internal static void VerifySaveStationElectricityAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
+        int steps = Family.CompareAll(rom);
         SpriteVisualPart[] band = ProgramFrameParts(rom, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.SaveStationElectricityBand));
         int placed = 0;
         foreach ((ushort operand, EnemyProjectilePlacedFrame shown) in EnemyProjectileProgramFrameDefinitions.PlacedAt)
@@ -41,7 +41,7 @@ internal static class SaveStationElectricityAnimationsVerification
     /// <summary>The parts of the bank-$8D spritemap the bank-$86 operand <paramref name="operand"/> names.</summary>
     private static SpriteVisualPart[] ProgramFrameParts(CartridgeImportAddressSpace rom, ushort operand)
     {
-        int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
+        int pointer = rom.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
         return EnemySpritemapFiles.ExtractParts(rom, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer);
     }
 }

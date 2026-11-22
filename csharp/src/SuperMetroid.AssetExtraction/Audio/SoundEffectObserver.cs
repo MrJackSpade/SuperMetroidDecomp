@@ -10,9 +10,10 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// library's logical end and each allocated channel's first repeated state.
 /// Positions are native stereo frames from the accepting poll.
 /// </summary>
+/// <param name="renderer">The renderer whose frame count positions each poll.</param>
 /// <param name="soundLibrary">The library the sound belongs to.</param>
 /// <param name="command">The request byte.</param>
-internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
+internal sealed partial class SoundEffectObserver(SpcAudioClipRenderer renderer, SoundEffectLibrary soundLibrary, int command) : ISpcDriverObserver
 {
 
     /// <summary>Most channels any library allocates (library 1).</summary>
@@ -24,8 +25,6 @@ internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrar
     private readonly Dictionary<string, long>[] channelStates = [[], [], [], []];
     /// <summary>Each channel's first repeated state and voice, once found.</summary>
     private readonly ChannelLoop?[] channelLoops = new ChannelLoop?[MaximumChannels];
-    /// <summary>The renderer whose frame count positions each tick.</summary>
-    private SpcAudioClipRenderer? renderer;
     /// <summary>Native sample position of the tick being serviced.</summary>
     private long tickSample;
     /// <summary>Whether the tick being serviced polled the sound libraries.</summary>
@@ -38,8 +37,8 @@ internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrar
     /// <summary>Absolute sample of the tick at which the driver accepted the request.</summary>
     internal long? StartSample { get; private set; }
 
-    /// <summary>Absolute sample of the tick at which the library's logical end came.</summary>
-    internal long? EndSample { get; private set; }
+    /// <summary>The effect's start and logical end, once the end has come.</summary>
+    internal SoundEffectSpan? Ended { get; private set; }
 
     /// <summary>Each allocated channel's first repeated state (E1, E2) and its voice.</summary>
     internal IReadOnlyList<ChannelLoop> ChannelLoops => [.. FoundChannelLoops()];
@@ -57,15 +56,13 @@ internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrar
     /// <summary>Whether every channel the sound allocated has repeated its own state.</summary>
     internal bool AllChannelLoopsFound { get; private set; }
 
-    /// <summary>Binds the renderer once it exists.</summary>
-    internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
     /// <inheritdoc />
     public void TickStarting(SoundClockStep<SoundEffectLibrary, byte> tick)
     {
-        tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
+        tickSample = MusicTrackAnalysis.NativeSample(renderer, tick);
         polled = tick.ChecksRequests;
-        requested = tick.Checks is { } checks && checks[soundLibrary] is { Changed: true } poll && poll.Request == command;
+        requested = tick.Checks is { } checks && checks[soundLibrary] is { Changed: true } poll && poll.Request?.Sound == command;
     }
 
     /// <inheritdoc />
@@ -76,9 +73,9 @@ internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrar
     /// <inheritdoc />
     public void KeysPublished(int keyOn, int keyOff)
     {
-        ManagedSpcPlayer player = MusicTrackAnalysis.Required(renderer).Player;
+        ManagedSpcPlayer player = renderer.Player;
         ManagedSpcSoundLibrary library = player.soundLibraries[soundLibrary];
-        if (StartSample is null)
+        if (StartSample is not long start)
         {
             if (library.CurrentSound != command)
             {
@@ -89,10 +86,10 @@ internal sealed partial class SoundEffectObserver(SoundEffectLibrary soundLibrar
             StartSample = tickSample;
             return;
         }
-        long relative = tickSample - StartSample.Value;
-        if (EndSample is null && library.CurrentSound == 0)
-            EndSample = tickSample;
-        if (!polled || EndSample is not null)
+        long relative = tickSample - start;
+        if (Ended is null && library.CurrentSound == 0)
+            Ended = new SoundEffectSpan(start, tickSample);
+        if (!polled || Ended is not null)
             return;
         processed = true;
         RecordChannelStates(player, relative);

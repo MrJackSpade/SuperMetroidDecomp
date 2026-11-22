@@ -97,7 +97,6 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
-            self.Player.Samus.Ground = room.Definition.Ground;
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             self.Player.GroundedSamusMovementEnabled = true;
         }

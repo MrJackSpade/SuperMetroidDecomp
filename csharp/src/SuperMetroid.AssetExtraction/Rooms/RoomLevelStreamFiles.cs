@@ -109,7 +109,7 @@ public static partial class RoomLevelStreamFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         var doorLinks = new Dictionary<RoomLevelId, IReadOnlyDictionary<Position16<RoomBlocks>, int>>();
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))

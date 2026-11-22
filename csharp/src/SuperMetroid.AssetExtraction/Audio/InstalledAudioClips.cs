@@ -39,6 +39,8 @@ public static partial class InstalledAudioClips
     public static JsonSerializerOptions ManifestOptions { get; } = new(JsonOptions)
     {
         Converters = { new SoundEffectIdJsonConverter() },
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
     };
 
     /// <summary>

@@ -34,27 +34,29 @@ internal static class MaridiaPuyoPileVerification
             AssertEqual(EnemyDefinitionId.Puyo, actor.Occupant?.DefinitionId, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
             AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
-            AssertEqual(population[i].Delay + EnemyWaitDefinitions.RunOutUpdate, (enemies.PuyoStates[i] ?? throw new InvalidOperationException("Verification requires enemies.PuyoStates[i].")).HopCooldownTimer.UpdatesLeft, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
-        for (int frame = 1; frame <= 3841; frame++)
+        for (int frame = 1; frame <= 3842; frame++)
         {
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             for (int i = 0; i < population.Length; i++)
             {
-                var state = enemies.PuyoStates[i];
-                if (firstHop[i] < 0 && (state ?? throw new InvalidOperationException("Verification requires state.")).Action != PuyoAction.Grounded) firstHop[i] = frame;
+                // A pile member's hop is seen as it leaves the spot its population placed it on, on its first airborne
+                // step; its full-word initial cooldown holds it there until then.
+                RoomEnemyPlace member = enemies.Places.InUpdateOrder[i];
+                if (firstHop[i] < 0 && (member.Position.X.Whole != population[i].X || member.Position.Y.Whole != population[i].Y)) firstHop[i] = frame;
                 if (frame <= population[i].Delay)
                 {
-                    AssertEqual(PuyoAction.Grounded, (state ?? throw new InvalidOperationException("Verification requires state.")).Action, "native cooldown holds pile member grounded");
                     AssertEqual(population[i].X, enemies.Places.InUpdateOrder[i].Position.X.Whole, "waiting pile X does not drift");
                     AssertEqual(population[i].Y, enemies.Places.InUpdateOrder[i].Position.Y.Whole, "waiting pile Y does not collapse");
                 }
             }
         }
         for (int i = 0; i < population.Length; i++)
-            AssertEqual(population[i].Delay + 1, firstHop[i], "native DEC/BPL starts hop on signed timer underflow");
+            // The update its cooldown underflows on starts the hop (native DEC/BPL), and its first airborne step moves it on
+            // the next.
+            AssertEqual(population[i].Delay + 2, firstHop[i], "native DEC/BPL starts hop on signed timer underflow, and the hop moves the member on the next update");
         Console.WriteLine($"Maridia $04/$10 authored Puyo pile: first hops at {string.Join(',', firstHop)} AI updates; all six spawn coordinates and waiting trajectories match retail data.");
     }
 

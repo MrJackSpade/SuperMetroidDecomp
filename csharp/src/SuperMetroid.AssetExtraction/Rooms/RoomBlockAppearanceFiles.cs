@@ -57,25 +57,25 @@ public static partial class RoomBlockAppearanceFiles
         string path = Path.Combine(directory, FileNameOf(tileset));
         BlockAppearancesDocument document = JsonSerializer.Deserialize<BlockAppearancesDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBlockAppearanceFiles.BlockAppearancesDocument>(JsonOptions))
             ?? throw new InvalidDataException($"Block appearance record {path} is empty.");
-        if (document.Version != Version || document.Tileset is null)
+        if (document.Version != Version)
             throw new InvalidDataException($"Block appearance record {path} is not revision {Version}.");
         if (document.Tileset != RoomBlockSheet.NameOf(tileset))
             throw new InvalidDataException($"Block appearance record {path} describes {document.Tileset}, not {RoomBlockSheet.NameOf(tileset)}.");
         try
         {
-            Dictionary<string, string?[]?> blocks = document.Blocks ?? throw new InvalidDataException("A block appearance record lists no blocks.");
+            Dictionary<string, string[]> blocks = document.Blocks;
             if (document.Count < 0)
                 throw new InvalidDataException($"A block appearance record holds {document.Count} blocks.");
             Dictionary<string, int> blockNamed = Enumerable.Range(0, document.Count).ToDictionary(RoomBlockPictureNames.OfBlock, StringComparer.Ordinal);
             // Each block's inputs, as the record spells them; none for a block no room shows, which the record does not list.
             ImmutableArray<AppearanceInput>[] inputs = [.. Enumerable.Repeat(ImmutableArray<AppearanceInput>.Empty, document.Count)];
             var shown = new List<int>();
-            foreach ((string name, string?[]? tokens) in blocks.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+            // The serializer refuses a null input list or input when it reads the record (InstalledDocumentElements).
+            foreach ((string name, string[] tokens) in blocks.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
                 if (!blockNamed.TryGetValue(name, out int block))
                     throw new InvalidDataException($"A block appearance record of {document.Count} blocks lists {name}, not among them.");
-                inputs[block] = ImmutableArray.CreateRange((tokens ?? throw new InvalidDataException($"{name} lists null inputs.")).Select(token =>
-                    AppearanceInputSpellings.Parse(token ?? throw new InvalidDataException($"{name} lists a null input."))));
+                inputs[block] = ImmutableArray.CreateRange(tokens.Select(AppearanceInputSpellings.Parse));
                 shown.Add(block);
             }
             return new RoomBlockAppearances(inputs, shown);
@@ -87,9 +87,9 @@ public static partial class RoomBlockAppearanceFiles
     }
 
     /// <summary>The inputs of each block a room shows, as the record spells them, by the name the block's pictures begin with.</summary>
-    private static Dictionary<string, string?[]?> Tokens(RoomBlockAppearances appearances) =>
+    private static Dictionary<string, string[]> Tokens(RoomBlockAppearances appearances) =>
         Enumerable.Range(0, appearances.Count).Where(appearances.Shows)
-            .ToDictionary(RoomBlockPictureNames.OfBlock, block => (string?[]?)[.. appearances.Of(block).Select(input => (string?)input.Token)], StringComparer.Ordinal);
+            .ToDictionary(RoomBlockPictureNames.OfBlock, block => appearances.Of(block).Select(input => input.Token).ToArray(), StringComparer.Ordinal);
 
     /// <summary>One tileset's record.</summary>
     /// <param name="Version">The schema revision.</param>
@@ -98,7 +98,7 @@ public static partial class RoomBlockAppearanceFiles
     /// <param name="Blocks">
     /// The inputs of each block a room shows, by the name the block's pictures begin with; a block no room shows has no entry.
     /// </param>
-    internal sealed partial record BlockAppearancesDocument(int Version, string? Tileset, int Count, Dictionary<string, string?[]?>? Blocks);
+    internal sealed partial record BlockAppearancesDocument(int Version, string Tileset, int Count, Dictionary<string, string[]> Blocks);
 
     /// <summary>Strict camel-case record fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -107,5 +107,8 @@ public static partial class RoomBlockAppearanceFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = false,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

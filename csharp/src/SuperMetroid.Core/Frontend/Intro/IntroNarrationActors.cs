@@ -22,8 +22,8 @@ internal sealed partial class IntroNarrationActors
     private readonly AnimationPlayer<IntroEyeSegment, IntroEyeFrame, NoAnimationCue> eye =
         AnimationPlayer<IntroEyeSegment, IntroEyeFrame, NoAnimationCue>.Starting(IntroEyeAnimations.Segments, IntroEyeAnimations.StartingWith(IntroEyeSegment.Blinking));
     /// <summary>
-    /// The active page's typing (#2488): its subtitle, its characters, the final page's caret hold and its finish, played by
-    /// the shared player; none before the first page.
+    /// The page being typed (#2488), with its glyphs and its typing; none before the first page and once a page has
+    /// finished.
     /// </summary>
     /// <summary>The installed narration artwork, rebound whenever the game is bound to its installed content.</summary>
     private IntroNarrationPresentation narrationPresentation;

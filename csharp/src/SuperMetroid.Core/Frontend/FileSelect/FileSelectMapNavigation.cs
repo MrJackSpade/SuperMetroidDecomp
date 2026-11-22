@@ -28,17 +28,18 @@ public sealed partial class FileSelectMapNavigation
     {
         this.labels = Ensure.NotNull(labels);
         this.area = area;
+        ActiveWindow = new FileSelectMapWindow(area, labels);
         controller.Latch(initialHeldInput);
     }
 
     /// <summary>Gets the current mutually exclusive navigation or transition-request phase.</summary>
     public FileSelectMapNavigationPhase Phase { get; private set; } = FileSelectMapNavigationPhase.Area;
 
-    /// <summary>Gets the room-map window after preparation begins, or <see langword="null"/> on the area map.</summary>
-    public FileSelectMapWindow? Window { get; private set; }
-    /// <summary>The map window, which exists once the window phase starts.</summary>
-    public FileSelectMapWindow ActiveWindow => Window ??
-        throw new InvalidOperationException("The file-select map window has not been prepared.");
+    /// <summary>
+    /// The room-map window, which the window phases expand from the area's label: preparing the window starts it afresh
+    /// each time the area map opens onto the room map.
+    /// </summary>
+    public FileSelectMapWindow ActiveWindow { get; private set; }
     /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
     public void LatchInputWithoutNavigation(ControllerButton heldInput) => controller.Latch(heldInput);
 
@@ -64,7 +65,7 @@ public sealed partial class FileSelectMapNavigation
         }
         else if (Phase == FileSelectMapNavigationPhase.PreparingWindow)
         {
-            Window = new FileSelectMapWindow(area, labels);
+            ActiveWindow = new FileSelectMapWindow(area, labels);
             Phase = FileSelectMapNavigationPhase.ExpandingWindow;
         }
         else if (Phase == FileSelectMapNavigationPhase.ExpandingWindow)
@@ -90,7 +91,6 @@ public sealed partial class FileSelectMapNavigation
     /// </summary>
     public void CompleteAreaReturn()
     {
-        Window = null;
         Phase = FileSelectMapNavigationPhase.Area;
     }
 }

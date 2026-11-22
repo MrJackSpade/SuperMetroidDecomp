@@ -14,14 +14,14 @@ namespace SuperMetroid.Core.Frontend.Map;
 public sealed partial class MapHighlightAnimation
 {
     /// <summary>The cycle as it plays.</summary>
-    internal readonly AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
+    internal readonly ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
 
     /// <summary>Starts the highlight cycle at its first step, one update from its next, over the installed cycle's timing.</summary>
     /// <param name="cycle">The installed cycle's timing.</param>
     public MapHighlightAnimation(MapHighlightCycle cycle)
     {
         AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments = Segments(cycle);
-        player = AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
+        player = ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
     }
 
     /// <summary>

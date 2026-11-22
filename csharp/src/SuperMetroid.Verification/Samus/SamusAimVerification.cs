@@ -254,7 +254,7 @@ internal static void VerifySamusAimedAerialMovement()
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "aimed transition FD applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
@@ -304,7 +304,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Gameplay
     // Pose $E4's compiled landing stream is 05,02,F8,07. Seven native
     // animation ticks reach the return-to-aim command.
     for (int tick = 0; tick < 7; tick++)
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "aimed landing F8 applies");
     AssertEqual(SamusPoseId.StandingAimDiagonalDownRightPose, samus.Pose, "E4 landing returns to down-right aim");
 
@@ -449,12 +449,12 @@ SamusTerrain.InRoom(boxedLevel, SamusRoomObjectFixtures.Uninstalled), SamusPoseI
     // is reached. One frame later DEC wraps zero to `$FFFF`; the negative result advances
     // over `$F0` and loads the literal `$10` delay. This seemingly odd two-frame sequence
     // is why treating an unknown command as a normal delay—or simply skipping it—drifts.
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "aimed-fall initial delay counts down");
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationNumber, "aimed-fall reaches F0 command index");
     AssertEqual(0, samus.AnimationFrameTimer.RawValue, "F0 leaves expired timer at zero");
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertEqual(2, samus.AnimationNumber, "timer underflow advances beyond F0");
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
@@ -674,7 +674,7 @@ internal static void VerifySamusGunExtendedMovement()
     // $E6 shares the native 05,02,F8,01 landing program: its F8 command
     // follows seven animation ticks, independent of held-Shot selection.
     for (int tick = 0; tick < 7; tick++)
-        SamusPresentation.Animate(falling, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(falling, new SamusAnimationStep { Ground = falling.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(falling), "$E6 F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 

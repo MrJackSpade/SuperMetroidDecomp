@@ -62,11 +62,20 @@ internal static class KraidNativeWords
         [0xc4a4] = KraidDeathPhase.ShowBody,
         [0xc4c8] = KraidDeathPhase.StartSinking,
         [0xc537] = KraidDeathPhase.Sink,
-        [0xc715] = KraidDeathPhase.HideBody,
-        [0xc751] = KraidDeathPhase.WaitBeforeFadeIn,
-        [0xc815] = KraidDeathPhase.FadeInBackground,
-        [0xc843] = KraidDeathPhase.Finished,
-        [0xc851] = KraidDeathPhase.Finished,
+    });
+
+    /// <summary>
+    /// The bank-$A7 routine words naming each <see cref="KraidSunkPhase"/>, the body's record word A once he has sunk
+    /// (#2554); the cartridge has two routines doing the finished phase, one for a Kraid it found alive and one for a Kraid
+    /// it found already defeated (#2464).
+    /// </summary>
+    internal static readonly NativeWordIdentities<KraidSunkPhase> SunkPhases = new(new Dictionary<ushort, KraidSunkPhase>
+    {
+        [0xc715] = KraidSunkPhase.HideBody,
+        [0xc751] = KraidSunkPhase.WaitBeforeFadeIn,
+        [0xc815] = KraidSunkPhase.FadeInBackground,
+        [0xc843] = KraidSunkPhase.Finished,
+        [0xc851] = KraidSunkPhase.Finished,
     });
 
     /// <summary>
@@ -126,14 +135,16 @@ internal static class KraidNativeWords
             body.FightPhase = fight;
         else if (GrowthPhases.TryDecode(word, out KraidGrowthPhase growth))
             body.GrowthPhase = growth;
+        else if (DeathPhases.TryDecode(word, out KraidDeathPhase death))
+            body.DeathPhase = death;
         else
-            body.DeathPhase = DeathPhases.Decode(word, "recorded Kraid body phase");
+            body.SunkPhase = SunkPhases.Decode(word, "recorded Kraid body phase");
     }
 
     /// <summary>
     /// The bank-$A7 routine words of the death's five one-update steps between hiding the body and the fade-in, each with
-    /// the updates the wait then has left (#1888): Core runs them as one <see cref="KraidDeathPhase.WaitBeforeFadeIn"/>
-    /// counted down in the body's phase timer, which <see cref="DeathPhases"/> names by the first.
+    /// the updates the wait then has left (#1888): Core runs them as one <see cref="KraidSunkPhase.WaitBeforeFadeIn"/>
+    /// counted down in the body's phase timer, which <see cref="SunkPhases"/> names by the first.
     /// </summary>
     internal static readonly IReadOnlyDictionary<ushort, int> DeathWaitUpdatesLeft = new Dictionary<ushort, int>
     {

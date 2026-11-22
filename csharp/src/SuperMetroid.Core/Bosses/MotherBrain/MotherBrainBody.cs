@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.Drawing;
 
@@ -59,18 +60,20 @@ internal sealed partial class MotherBrainBody
     /// Runs a falling tube's animation where the shared enemy animation runs: its still picture shows on the update the
     /// timer expires, and the animation then holds it.
     /// </summary>
-    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube)
+    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemyPlace tube, MotherBrainFallingTubeState tubeState)
     {
         if (!tube.AnimationClock.Expire())
             return;
-        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         AnimationPlayback<MotherBrainTubePiece> playback = tubeState.Playback;
         EnemyAnimationPlayback.PlaySilently(tube, MotherBrainTubeAnimations.Segments, ref playback);
         tubeState.Playback = playback;
     }
 
     /// <summary>Sets Mother Brain's body up when the room spawns it.</summary>
-    internal void InitializeMotherBrainBody(RoomEnemyOccupant occupant)
+    /// <param name="occupant">Her body.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+    /// <returns>The encounter the body begins, which it holds from its setup.</returns>
+    internal MotherBrainEnemyState InitializeMotherBrainBody(RoomEnemyOccupant occupant, RoomWarning zebesWarning)
     {
         RoomEnemyPlace body = occupant.Place;
         _room.Services.MotherBrain.ConfirmGlassLoaded();
@@ -83,20 +86,20 @@ internal sealed partial class MotherBrainBody
         // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
         MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(occupant, _places.Member(body, MotherBrainFightDefinitions.Listing, EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead),
-            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), zebesWarning)
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainAction = MotherBrainBrainAction.ShowsBrainAlone,
         });
-        body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
-        _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, state));
+        _presentation.AttachBossBody(new PlacedBossBody(state.BodyParts, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));
         SpawnMotherBrainInitialTurrets(state);
+        return state;
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>

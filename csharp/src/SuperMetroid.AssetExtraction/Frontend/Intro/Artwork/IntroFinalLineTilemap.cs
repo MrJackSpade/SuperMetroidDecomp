@@ -32,8 +32,7 @@ public sealed partial class IntroFinalLineTilemap
         var tiles = new BackgroundTile[IntroFinalLineTilemapFormat.CellCount];
         for (int index = 0; index < tiles.Length; index++)
         {
-            tiles[index] = document.Cells[index]?.Placement()
-                ?? throw new InvalidDataException($"Final-line map cell {index} has an invalid tile or palette.");
+            tiles[index] = document.Cells[index].Placement($"Final-line map cell {index}");
         }
         return new IntroFinalLineTilemap(tiles);
     }

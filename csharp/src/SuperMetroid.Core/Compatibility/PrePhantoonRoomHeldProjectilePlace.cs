@@ -21,24 +21,22 @@ public sealed partial class PrePhantoonRoomHeldProjectilePlace
     /// <summary>The projectile updates the place is held before the update that frees it.</summary>
     public const int HeldUpdates = 32;
 
-    /// <summary>The hold while the place is taken; none before the room's setup takes it and once it is freed.</summary>
-    private UpdateCountdown? hold;
+    /// <summary>The hold while the place is taken: over before the room's setup takes it, and its last count frees it.</summary>
+    private UpdateCountdown hold = UpdateCountdown.Ended();
 
     /// <summary>Starts the hold as the room's setup takes the place.</summary>
     internal void Take() => hold = UpdateCountdown.Lasting(HeldUpdates);
 
     /// <summary>Counts one projectile update of the place: one of the hold's while it runs, the freeing one once it is over.</summary>
     /// <returns>Whether this update frees the place.</returns>
-    /// <exception cref="InvalidOperationException">The place is counted while it is not taken.</exception>
+    /// <remarks>Only the holding projectile, which the room's setup spawned as it took the place, counts it.</remarks>
     internal bool FreesOnThisUpdate()
     {
-        UpdateCountdown taken = hold ?? throw new InvalidOperationException("The pre-Phantoon room's place is counted while it is not held.");
-        if (taken.IsRunning)
+        if (hold.IsRunning)
         {
-            taken.Count();
+            hold.Count();
             return false;
         }
-        hold = null;
         return true;
     }
 }

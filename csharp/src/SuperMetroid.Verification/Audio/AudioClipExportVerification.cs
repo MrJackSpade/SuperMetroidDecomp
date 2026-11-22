@@ -53,7 +53,7 @@ internal static class AudioClipExportVerification
             AudioClipExporter.Export(
                 catalog,
                 scratch.FullName,
-                music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
+                music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, MusicDataSet.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
                 music ? [] : [.. effects.Select(effect => new AudioClipExporter.SoundEffectKey(effect.Library, SoundEffectCommands.Command(effect)))]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             if (independentMusic is not null)
@@ -171,7 +171,7 @@ internal static class AudioClipExportVerification
         int kept = 0;
         IReadOnlyList<AudioRequest>[] script =
         [
-            [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
+            [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; kept < pcm.Length; index++)

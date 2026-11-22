@@ -25,7 +25,7 @@ internal static class VerticalOffScreenDeletionVerification
 
         static void Confirm(ushort y, ushort cameraY, bool kept, string label)
         {
-            var projectile = (new EnemyProjectile(0, default, RoomEnemyProjectileKind.NoobTubeShard, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
+            var projectile = (new EnemyProjectile(0, default, RoomEnemyProjectileKind.NoobTubeShard, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0, y)),
                 Kind = RoomEnemyProjectileKind.NoobTubeShard

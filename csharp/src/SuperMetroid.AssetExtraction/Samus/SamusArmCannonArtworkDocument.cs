@@ -21,7 +21,7 @@ public sealed partial record SamusArmCannonArtworkDocument
     /// <summary>Exactly 656 byte values for $90:C9D9–$CC68: direction and drawing-mode bytes, optional alternate direction/mode, then signed X/Y pixel-offset pairs indexed by body animation frame.</summary>
     public required int[] DrawingData { get; init; }
     /// <summary>Each aim's cover appearance, keyed by the aim: one small piece at the origin: character, palette, depth and mirroring.</summary>
-    public required Dictionary<SamusProjectileDirection, SpriteVisualPart> CoverAppearances { get; init; }
+    public required Dictionary<SamusProjectileDirection, SpriteVisualPiece> CoverAppearances { get; init; }
     /// <summary>
     /// Each aim's cover orientation, keyed by the aim (#2556): the aim's opening shows that orientation's pictures frame by
     /// frame; the closed cover shows none.

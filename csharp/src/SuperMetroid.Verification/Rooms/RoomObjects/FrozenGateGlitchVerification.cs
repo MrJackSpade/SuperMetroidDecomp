@@ -68,7 +68,7 @@ internal static class FrozenGateGlitchVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(
             RoomDefinitions.Caterpillar,
             new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
@@ -99,7 +99,7 @@ internal static class FrozenGateGlitchVerification
         AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);

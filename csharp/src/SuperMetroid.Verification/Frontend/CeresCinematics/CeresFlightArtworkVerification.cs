@@ -42,7 +42,7 @@ internal static class CeresFlightArtworkVerification
         AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFileFormat.MapCellCount)),
             "extracted front/rear Ceres maps preserve every consumed native byte");
-        byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
         byte[] installedWords = ScreenColourWords.Words(intro.FlightPalette.BackgroundColours.AsSpan(),
@@ -113,11 +113,11 @@ internal static class CeresFlightArtworkVerification
             AssertEqual(source.Role, document.Actors[index].Role,
                 $"Ceres flight actor {index} retains its role");
             // The installed positions are signed (#1627): an operand of 65504 places the actor 32 pixels left of the origin.
-            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
                 document.Actors[index].X,
                 $"Ceres flight actor {index} X is the cartridge operand as a signed position");
-            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
                 document.Actors[index].Y,
                 $"Ceres flight actor {index} Y is the cartridge operand as a signed position");

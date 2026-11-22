@@ -9,16 +9,14 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class NoobTubeBehavior : IEnemyEntityFactory
+internal sealed partial class NoobTubeBehavior : IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.NoobTubeCrack], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NoobTubeCrack];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new NoobTubeCrackEntity(occupant, place, common));
 
     /// <summary>The pictures and shading every tube piece draws with: the shared sheet in the tube's crack colours.</summary>
     private static readonly SpriteGraphics TubePieceGraphics =

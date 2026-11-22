@@ -530,8 +530,7 @@ public sealed partial class FileSelectMenuState : IMenuFrontendScreen, IComposed
             return FileSelectSaveChange.None;
         SaveSlot copyTargetSlot = FileCopyRoutes.DestinationOf(route);
         saves.CopySlot(FileCopyRoutes.SourceOf(route), copyTargetSlot);
-        saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
-            ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
+        saveSlots[copyTargetSlot] = saves.ReadSavedSlot(copyTargetSlot);
         ShowPage(SelectedFileSelectPage.CopyCompleted(route));
         Phase = new FileSelectPhase.DataManagement.CopyCompleted();
         return FileSelectSaveChange.Copied;

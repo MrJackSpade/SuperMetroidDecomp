@@ -20,19 +20,18 @@ internal static class DraygonGoopDropsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
-        runtime.Player.IntroducedSamus.Health = 10;
+        runtime.Player.Samus.Health = 10;
         var enemies = runtime.Enemies;
-        var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
-        goop.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind));
+        var goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.HoldStill();
         goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.GoopShot));
         goop.Position = goop.Position.WithWhole(new(120, 240));
         var burstMaps = new HashSet<ushort>();
         for (int frame = 0; frame < 16; frame++)
         {
-            enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+            enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
             AssertTrue(goop.IsActive, "goop survives both eight-frame burst images before drop callback");
             AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 "drop is not allocated before the burst completes");
@@ -41,7 +40,7 @@ internal static class DraygonGoopDropsVerification
             burstMaps.Add(goop.PresentationOperandAddress != 0 ? goop.PresentationOperandAddress : goop.SpritemapPointer);
         }
         AssertEqual(2, burstMaps.Count, "retail goop burst displays both spritemaps");
-        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         AssertTrue(!goop.IsActive, "drop callback returns into native goto/delete tail");
         var pickup = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         AssertTrue(pickup.IsActive && pickup.SpritemapPointer != 0,
@@ -50,7 +49,7 @@ internal static class DraygonGoopDropsVerification
         AssertEqual(240, pickup.Position.Y.Whole, "drop uses destroyed goop world Y");
         AssertEqual(goop.Place - 1, pickup.Place,
             "drop allocation occurs before parent deletion in the descending shared pool");
-        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "deleted goop cannot repeatedly spawn its drop");
         Console.WriteLine("Draygon goop: two burst images, native drop timing/position/slot, and deletion pass.");

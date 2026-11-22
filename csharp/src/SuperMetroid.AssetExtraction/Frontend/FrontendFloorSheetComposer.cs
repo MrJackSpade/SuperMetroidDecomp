@@ -118,20 +118,17 @@ internal static partial class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">No cell of the map shows the Baby's tiles.</exception>
     private static BabyCellRectangle BabyCells(byte[] map)
     {
-        // The cells' bounds so far, none before the first cell of the Baby's.
-        ImageContentBox? bounds = null;
-        for (int cell = 0; cell < map.Length; cell++)
-        {
-            if (map[cell] is < TitleFloorTileDefinitions.BabyFirstTile or >= TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)
-                continue;
-            int column = cell % FloorSheetComposer.Side, row = cell / FloorSheetComposer.Side;
-            // The cells are visited row by row, so the bounds' top is the first cell's row and each cell's row the lowest yet.
-            bounds = bounds is { } held
-                ? held.Including(new ImageRowRun(column, column), row)
-                : ImageContentBox.OfRow(new ImageRowRun(column, column), row);
-        }
-        return bounds is { } found ? new BabyCellRectangle(found.Left, found.Top, found.Right - found.Left + 1, found.Bottom - found.Top + 1)
-            : throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
+        // The cells are visited row by row, so the bounds' top is the first cell's row and each cell's row the lowest yet.
+        int[] cells = [.. Enumerable.Range(0, map.Length).Where(cell => map[cell] is >= TitleFloorTileDefinitions.BabyFirstTile
+            and < TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)];
+        if (cells.Length == 0)
+            throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
+        ImageContentBox bounds = ImageContentBox.OfRow(RunOf(cells[0]), cells[0] / FloorSheetComposer.Side);
+        foreach (int cell in cells.Skip(1))
+            bounds = bounds.Including(RunOf(cell), cell / FloorSheetComposer.Side);
+        return new BabyCellRectangle(bounds.Left, bounds.Top, bounds.Right - bounds.Left + 1, bounds.Bottom - bounds.Top + 1);
+
+        static ImageRowRun RunOf(int cell) => new(cell % FloorSheetComposer.Side, cell % FloorSheetComposer.Side);
     }
 
     /// <summary>The cells of the title floor's map the Baby Metroid lies in.</summary>
@@ -249,7 +246,7 @@ internal static partial class FrontendFloorSheetComposer
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, sources.EndingMode7[scene].Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 
@@ -278,7 +275,7 @@ internal static partial class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
     private static ComposedSpriteSheet RewardIcon(EndingFloorCharacters mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span;
+        ReadOnlySpan<byte> words = mode7.RewardIcon.Bytes.Span;
         ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");

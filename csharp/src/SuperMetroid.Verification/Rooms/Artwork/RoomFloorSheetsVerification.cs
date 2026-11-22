@@ -140,7 +140,7 @@ internal static class RoomFloorSheetsVerification
         RoomFloorSheet floorSheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ceres Ridley's arena binds no turning floor."))
             .Sheet;
         SpriteSheetFrame image = floorSheet.Floor.Image;
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(
+        IImportCartridgeSource cartridge = (
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
         byte[] memory = RomDataReader.Decompress(cartridge, RoomTilesetSources.Read(cartridge).Characters[tileset.Characters]);
         AssertTrue(memory.Length >= FloorMemoryBytes, $"the cartridge's {tileset} characters fill the floor's memory ({memory.Length} bytes)");
@@ -198,7 +198,7 @@ internal static class RoomFloorSheetsVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(room);
         return runtime;
     }

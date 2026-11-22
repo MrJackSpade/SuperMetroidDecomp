@@ -44,9 +44,9 @@ public static partial class MotherBrainRoomColorFile
     }
 
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>
-    private static RgbColor[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
+    private static RgbColor[][] CompileRecoveryLights(PaletteRgb5[][] frames)
     {
-        if (frames is null || frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
+        if (frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
         var compiled = new RgbColor[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)

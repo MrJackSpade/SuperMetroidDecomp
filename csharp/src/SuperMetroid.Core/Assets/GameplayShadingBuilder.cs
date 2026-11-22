@@ -42,13 +42,11 @@ public sealed partial class GameplayShadingBuilder
     /// scene's backdrop (#1544), shown under the room's shading and the display's fade: the tileset's backdrop colour, with
     /// what the room's effects make of it.
     /// </summary>
-    /// <param name="roomColours">A picture of the room's tileset, which names its scene's backdrop colour.</param>
-    /// <exception cref="InvalidDataException">The picture names no backdrop colour.</exception>
-    public GameplayShading Build(SpriteImage roomColours)
+    /// <param name="roomColours">A picture of the room's tileset.</param>
+    /// <param name="backdrop">The backdrop colour the picture names for its scene, which its room sheet requires (#2554).</param>
+    public GameplayShading Build(SpriteImage roomColours, ColourKey backdrop)
     {
         Ensure.NotNull(roomColours);
-        ColourKey backdrop = roomColours.Backdrop
-            ?? throw new InvalidDataException($"Room picture {roomColours.Name} names no backdrop colour for its scene.");
         var built = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
         return built.WithBackdrop(new ShownColour.OfPicture(roomColours, backdrop, built.Of(GameplayPictures.Room)));
     }

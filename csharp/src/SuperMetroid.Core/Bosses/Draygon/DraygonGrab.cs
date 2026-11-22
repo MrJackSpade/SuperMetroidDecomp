@@ -47,7 +47,7 @@ internal sealed partial class DraygonGrab
         // after a completed grab.
         if (samus.SlowdownLevel == 0)
         {
-            state.Phase = DraygonPhase.FlyStraightUp;
+            state.Step = DraygonPhaseSteps.FlyStraightUp();
             return;
         }
 
@@ -75,7 +75,7 @@ internal sealed partial class DraygonGrab
         // it must not enter a grabbed pose and then undo it with a bespoke correction.
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
         {
-            state.Phase = DraygonPhase.RepelGrapple;
+            state.Step = DraygonPhaseSteps.RepelGrapple();
             return;
         }
 
@@ -85,14 +85,14 @@ internal sealed partial class DraygonGrab
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
         state.SpiralAngle = DraygonGrabDefinitions.InitialSpiralAngle;
         state.SpiralAngleDelta = DraygonGrabDefinitions.InitialSpiralAngleDelta;
-        state.Phase = DraygonPhase.CarrySamus;
+        state.Step = DraygonPhaseSteps.CarrySamus();
     }
 
     /// <summary>Runs the one-frame grapple rejection.</summary>
     internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState samus)
     {
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        state.Phase = DraygonPhase.ReleaseSamus;
+        state.Step = DraygonPhaseSteps.ReleaseSamus();
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ internal sealed partial class DraygonGrab
             Math.Abs(body.Position.Y.Whole - DraygonGrabDefinitions.SpiralTarget.Y) < DraygonArenaDefinitions.SpiralTargetTolerance;
         if (reachedTarget)
         {
-            state.Phase = DraygonPhase.FlailWithSamus;
+            state.Step = DraygonPhaseSteps.FlailWithSamus();
             state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
                     ? DraygonSegment.BodyFacingRightRoar
                     : DraygonSegment.BodyFacingLeftRoar);
@@ -142,7 +142,7 @@ internal sealed partial class DraygonGrab
         // actors draw them. One roll in 256 pauses the spiral for a tail whip from the next update.
         if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
-            state.Phase = DraygonPhase.BeginTailWhipWithSamus;
+            state.Step = DraygonPhaseSteps.BeginTailWhipWithSamus();
             return;
         }
 
@@ -166,7 +166,7 @@ internal sealed partial class DraygonGrab
         state.SpiralXRadius += DraygonGrabDefinitions.SpiralRadiusGrowth;
         if (state.SpiralXRadius.WholePixels >= DraygonGrabDefinitions.MaximumSpiralRadius)
         {
-            state.Phase = DraygonPhase.FinalTailWhips;
+            state.Step = DraygonPhaseSteps.FinalTailWhips();
             return;
         }
 
@@ -178,7 +178,7 @@ internal sealed partial class DraygonGrab
         // minimum height, so its centre never reaches the room's top.
         if (state.SpiralCenter.Center.Y.Whole < DraygonGrabDefinitions.MinimumSpiralCenterY)
         {
-            state.Phase = DraygonPhase.FinalTailWhips;
+            state.Step = DraygonPhaseSteps.FinalTailWhips();
             return;
         }
 
@@ -192,7 +192,7 @@ internal sealed partial class DraygonGrab
     internal void BeginDraygonTailWhip(DraygonEnemyState state, SamusState samus)
     {
         state.TailWhipPause.LastFor(DraygonGrabDefinitions.TailWhipUpdates);
-        state.Phase = DraygonPhase.TailWhipWithSamus;
+        state.Step = DraygonPhaseSteps.TailWhipWithSamus();
         RunDraygonTailWhip(state, samus);
         state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightWhip
@@ -204,7 +204,7 @@ internal sealed partial class DraygonGrab
     {
         MoveSamusWithDraygon(state, samus);
         if (state.TailWhipPause.StepRunsOut())
-            state.Phase = DraygonPhase.FlailWithSamus;
+            state.Step = DraygonPhaseSteps.FlailWithSamus();
     }
 
     /// <summary>Starts the four-repeat finishing whip animation.</summary>
@@ -214,7 +214,7 @@ internal sealed partial class DraygonGrab
         state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonAnimations.TailFacingRightFinalWhips
                 : DraygonAnimations.TailFacingLeftFinalWhips);
-        state.Phase = DraygonPhase.FinalTailWhipsWait;
+        state.Step = DraygonPhaseSteps.FinalTailWhipsWait();
     }
 
     /// <summary>
@@ -235,7 +235,7 @@ internal sealed partial class DraygonGrab
             ReleaseSamusDuringEnemyUpdate(samus);
         }
 
-        state.Phase = DraygonPhase.FlyStraightUp;
+        state.Step = DraygonPhaseSteps.FlyStraightUp();
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightFlail
@@ -256,7 +256,7 @@ internal sealed partial class DraygonGrab
             state.Facing);
         _scrollCap.CapSamusScrollingSpeed(samus);
         if (escaped)
-            state.Phase = DraygonPhase.FlyStraightUp;
+            state.Step = DraygonPhaseSteps.FlyStraightUp();
     }
 
     /// <summary>

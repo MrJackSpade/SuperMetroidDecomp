@@ -105,9 +105,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         else
         {
             _ = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            Game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
-                renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+            Game = NewGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps), hostServices);
         }
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
@@ -208,6 +206,15 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     }
 
     /// <summary>
+    /// A new game over <paramref name="saves"/>, as the movie starts it or a console reset rebuilds it: one the recorder
+    /// records is built with its audio and composites its gameplay frames.
+    /// </summary>
+    private SuperMetroidGame NewGame(SuperMetroid.Core.Saves.SaveSlotStore saves, SuperMetroidGameHostServices hostServices) =>
+        video is null
+            ? InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices)
+            : InstalledFixtures.CreateGameWithAudio(saves, video.Audio, renderGameplayFrames: true, hostServices: hostServices);
+
+    /// <summary>
     /// Completes update <paramref name="update"/> after its frames ran: a console reset the movie pressed before the next
     /// update's read, and the comparison with the native checkpoint that follows the update.
     /// </summary>
@@ -222,8 +229,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
         if (consoleReset)
         {
-            Game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+            Game = NewGame(Game.Saves, hostServices);
             Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                 $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");
         }

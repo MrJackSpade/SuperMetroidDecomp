@@ -35,9 +35,9 @@ internal static class DoorEntryShotBindingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.Options.ControllerBindings = lowc;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.LockOutPlayer();
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
@@ -56,7 +56,8 @@ internal static class DoorEntryShotBindingVerification
             AssertTrue(selected, "the Ceres start room has an exit");
             var audio = game.AudioForVerification;
             SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
-            game.Session.Enter(DoorTransitionStep.EnteringDoor);
+            // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+            game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
             game.Step(held);
 
             AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,

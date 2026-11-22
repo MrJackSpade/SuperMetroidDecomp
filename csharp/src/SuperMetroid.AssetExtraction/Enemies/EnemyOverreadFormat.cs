@@ -21,5 +21,8 @@ internal static partial class EnemyOverreadFormat
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

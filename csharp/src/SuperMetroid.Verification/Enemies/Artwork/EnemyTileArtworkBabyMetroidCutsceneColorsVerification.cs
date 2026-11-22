@@ -32,7 +32,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         BabyMetroidCutsceneColorCatalog native = stock.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Installed enemy art has no cutscene Baby colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * 2),
                 native.InitialColor(color),
                 $"installed cutscene Baby initial color {color}");
@@ -40,11 +40,11 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         {
             int source = MotherBrainSourceDefinitions.BabyMetroid.FadeColors(index - 1);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     FadePointerTable + index * 2),
                 $"native cutscene Baby fade selector {index}");
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
                     native.FadeColor(index - 1, color),
                     $"installed cutscene Baby fade {index} color {color}");
         }
@@ -59,10 +59,9 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
-        var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
-        Type type = typeof(RoomEnemySystem);
+        // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512): her room's
+        // population places her, her glass set up first, and her body's setup begins it.
+        MotherBrainEnemyState motherBrain = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.
         int destination = 0x01e2 / 2;
         ushort[] Shown() => MotherBrainLook.Over(motherBrain, InstalledFixtures.ImportMaps, stock.Bosses, BossShadeColours.Filled(0x1234));

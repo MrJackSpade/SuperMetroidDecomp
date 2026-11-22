@@ -119,11 +119,11 @@ internal static class CeresDestructionArtworkVerification
             var source = CeresCinematicSourceDefinitions.ZebesPlacements[index];
             AssertEqual(source.Role, actorsDocument.Actors[index].Role,
                 $"Zebes reveal actor {index} retains its role");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 actorsDocument.Actors[index].X,
                 $"Zebes reveal actor {index} X matches the cartridge operand");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
@@ -147,9 +147,9 @@ internal static class CeresDestructionArtworkVerification
             CinematicPlacementImmediates<CeresDestructionActorRole> source = CeresCinematicSourceDefinitions.DestructionPlacements[index];
             AssertEqual(source.Role, destructionActorsDocument.Actors[index].Role,
                 $"Ceres destruction actor {index} retains its role");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
+            AssertEqual(bus.ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand),
                 destructionActorsDocument.Actors[index].X, $"Ceres destruction actor {index} X is its initializer's immediate");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
+            AssertEqual(bus.ReadCartridgeWord(CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand),
                 destructionActorsDocument.Actors[index].Y, $"Ceres destruction actor {index} Y is its initializer's immediate");
         }
         destructionActorsDocument.Actors[0] = destructionActorsDocument.Actors[0] with

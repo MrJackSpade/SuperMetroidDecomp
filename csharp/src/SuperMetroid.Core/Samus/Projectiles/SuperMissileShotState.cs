@@ -24,5 +24,8 @@ internal sealed partial class SuperMissileShotState : MissileShotState
     internal int? LinkChainPosition { get; set; }
 
     /// <inheritdoc/>
-    private protected override int? LinkPlaceFound => LinkChainPosition;
+    internal override int? NamedLinkPlace => LinkChainPosition;
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => Ignition.ReplacedByBeam(LinkChainPosition);
 }

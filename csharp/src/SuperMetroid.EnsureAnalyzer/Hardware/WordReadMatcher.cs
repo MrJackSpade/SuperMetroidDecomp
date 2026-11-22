@@ -39,8 +39,7 @@ public static class WordReadMatcher
                 if (lowIndex == highIndex)
                     continue;
                 ByteReadCall? low = isLong ? CanonicalWordRead(Unwrap(operands[lowIndex]), model) : ByteRead(Unwrap(operands[lowIndex]), model);
-                if (low is null || low.Method != high.Method || !Same(low.Receiver, high.Receiver) ||
-                    low.ViaAddressSpace != high.ViaAddressSpace)
+                if (low is null || low.Method != high.Method || !Same(low.Receiver, high.Receiver))
                 {
                     continue;
                 }
@@ -52,7 +51,7 @@ public static class WordReadMatcher
                 ImmutableArray<ExpressionSyntax> others = [.. operands.Where((_, index) => index != lowIndex && index != highIndex)];
                 // A covering cast belongs to the replacement only when the value is the whole expression.
                 return new(others.IsEmpty && !isLong ? Covering(root) : root, low.Receiver, low.Method, low.Address, progression,
-                    others, low.ViaAddressSpace, isLong);
+                    others, isLong);
             }
         }
         return null;
@@ -71,19 +70,9 @@ public static class WordReadMatcher
             return null;
         }
         ExpressionSyntax receiver = member.Expression;
-        bool viaAddressSpace = false;
-        if (receiver is InvocationExpressionSyntax
-            {
-                Expression: MemberAccessExpressionSyntax { Name.Identifier.ValueText: "Require" },
-                ArgumentList.Arguments.Count: 1,
-            } require)
-        {
-            receiver = require.ArgumentList.Arguments[0].Expression;
-            viaAddressSpace = true;
-        }
         WordReadProgression progression = member.Name.Identifier.ValueText == "ReadCartridgeWord"
             ? WordReadProgression.Linear : WordReadProgression.FixedBank;
-        return new(receiver, "ReadCartridgeByte", invocation.ArgumentList.Arguments[0].Expression, viaAddressSpace, progression);
+        return new(receiver, "ReadCartridgeByte", invocation.ArgumentList.Arguments[0].Expression, progression);
     }
 
     /// <summary>Accepts OR and addition, the two supported ways to combine shifted bytes.</summary>
@@ -137,8 +126,8 @@ public static class WordReadMatcher
         return expression;
     }
 
-    /// <summary>Captures a byte operation and whether it came through the cartridge import capability.</summary>
-    private sealed record ByteReadCall(ExpressionSyntax Receiver, string Method, ExpressionSyntax Address, bool ViaAddressSpace,
+    /// <summary>Captures a byte operation of a recognized memory source.</summary>
+    private sealed record ByteReadCall(ExpressionSyntax Receiver, string Method, ExpressionSyntax Address,
         WordReadProgression? WordProgression = null);
 
     /// <summary>Accepts only a supported byte method owned by a recognized memory source.</summary>
@@ -157,16 +146,8 @@ public static class WordReadMatcher
         }
         string name = member.Name.Identifier.ValueText;
         ExpressionSyntax address = invocation.ArgumentList.Arguments[0].Expression;
-        if (method.ReducedFrom is { ContainingType: { } extensionOwner } &&
-            extensionOwner.ToDisplayString() == AddressSpaceImportExtensions && name == "ReadCartridgeByte")
-        {
-            return new(member.Expression, name, address, ViaAddressSpace: true);
-        }
-        return OwnsByteRead(method) ? new(member.Expression, name, address, ViaAddressSpace: false) : null;
+        return OwnsByteRead(method) ? new(member.Expression, name, address) : null;
     }
-
-    /// <summary>The import extension that provides cartridge reads through an address space.</summary>
-    private const string AddressSpaceImportExtensions = "SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions";
 
     /// <summary>Checks whether the byte method implements a recognized source interface member.</summary>
     private static bool OwnsByteRead(IMethodSymbol method)

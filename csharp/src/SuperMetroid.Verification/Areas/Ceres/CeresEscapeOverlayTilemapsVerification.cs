@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Video;
@@ -39,9 +40,8 @@ internal static class CeresEscapeOverlayTilemapsVerification
 
         var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")), installedBosses: stock.Bosses);
-        installed.CeresEscape.ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
-        foreach (CeresEscapeWarningPicture line in CeresEscapeWarningPictures.JapaneseSubtitle)
-            installed.CeresEscape.ShowWarningPicture(line);
+        installed.CeresEscape.ShowTitle();
+        installed.CeresEscape.ShowJapaneseSubtitle(installed.BossArtworkBinding.EscapeTypewriterPresentation.Get(SuperMetroid.Core.Escape.Artwork.EscapeTypewriterMessageId.Ceres));
 
         // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
         // each page's picture by name (#1466); its words are the installed page's.
@@ -57,29 +57,29 @@ internal static class CeresEscapeOverlayTilemapsVerification
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
-            WriteNativeWords(CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor + 5));
+            WriteNativeWords(rom.ReadCartridgeLong(descriptor + 2),
+                rom.ReadCartridgeWord(descriptor),
+                rom.ReadCartridgeWord(descriptor + 5));
             nativeTransfers++;
         }
         AssertEqual(5, nativeTransfers, "the cartridge writes the English title and four Japanese subtitle rows");
-        AssertTrue(native.SequenceEqual(installed.CeresEscape.Warning.Overlay.WordsIn(stockOverlay)),
+        AssertTrue(native.SequenceEqual(installed.CeresEscape.FixtureWarning.ShownText().WordsIn(stockOverlay)),
             "Ceres English/Japanese BG1 overlay matches cartridge without source reads");
 
         void WriteNativeWords(int source, int byteCount, int destinationWord)
         {
             int first = destinationWord - GameplayVramLayout.Bg1TilemapWord;
             for (int index = 0; index < byteCount / sizeof(ushort); index++)
-                native[first + index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
+                native[first + index] = rom.ReadCartridgeWord(source + index * sizeof(ushort));
         }
 
         AssertTrue(stockOverlay.TryResolve(title, out ReadOnlyMemory<BackgroundTile> _),
             "stock English Ceres title resolves");
         var shownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new SuperMetroid.Verification.Enemies.StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The warning fixture generates no random numbers.")), installedBosses: stock.Bosses);
-        shownEnemies.CeresEscape.ShowWarningPicture(CeresEscapeWarningPictures.Emergency);
+        shownEnemies.CeresEscape.ShowTitle();
         int titleWord = TwoScreenTilemapCells.IndexOf(CeresEscapeWarningPictures.Emergency.Corner);
-        AssertEqual(native[titleWord], shownEnemies.CeresEscape.Warning.Overlay.WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
+        AssertEqual(native[titleWord], shownEnemies.CeresEscape.FixtureWarning.ShownText().WordsIn(stock.Areas.CeresEscapeOverlayTilemaps)[titleWord],
             "the Ceres title shows its native word over BG1");
         // The getaway writes each page's picture by name (#1466) and holds no installed page of its own to miss.
         Console.WriteLine(

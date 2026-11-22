@@ -32,7 +32,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
     internal static void VerifySpeedBoosterStageFiveResidue()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int stageFiveQueueOffset = SamusRunningCadenceCodec.UnauthoredFirstResidueByte(CartridgeImportSource.Require(bus));
+        int stageFiveQueueOffset = SamusRunningCadenceCodec.UnauthoredFirstResidueByte(bus);
         var cadence = new UnauthoredBoostCadence();
         for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
         {
@@ -75,7 +75,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
     /// </summary>
     private static byte[] NativeQueueImage(ISnesAddressSpace bus, CeresFloorActorPicture capsule, CeresFloorActorPicture wing)
     {
-        IImportCartridgeSource rom = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource rom = bus;
         const int descriptorBytes = 9;
         var image = new byte[QueueBytes];
         int offset = 0;

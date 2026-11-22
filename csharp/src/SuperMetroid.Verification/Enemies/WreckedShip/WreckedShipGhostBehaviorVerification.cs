@@ -18,13 +18,15 @@ internal static class WreckedShipGhostBehaviorVerification
         RoomEnemyPlace ghost = enemies.Places.InUpdateOrder[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.KeptDefinition);
         ghost.Bind(ghost.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
+        // The ghost's setup builds the state its animation, which the check plays, runs on.
+        WreckedShipGhostEnemyState state = WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(new AnimationPlayback<WreckedShipGhostSegment>(WreckedShipGhostAnimations.StartingWith(WreckedShipGhostSegment.Floating), AnimationPlace.StartOfAnimation),
-            (enemies.Places.InUpdateOrder[0].EntityState<WreckedShipGhostEntity, WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException("The ghost has no state.")).Playback,
+            state.Playback,
             "real Wrecked Ship ghost initializer starts the floating loop");
         ushort[] loop = WreckedShipGhostAnimationsTooling.Spritemaps(WreckedShipGhostSegment.Floating).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [16, 16, 16, 16]),
-            EnemyInstructionRunner.ShownFrames(ghost, 49), "Wrecked Ship ghost floating loop and its goto");
+            EnemyInstructionRunner.ShownFrames(ghost, 49, () => WreckedShipGhostBehavior.AdvanceWreckedShipGhostTypedAnimation(ghost, state)),
+            "Wrecked Ship ghost floating loop and its goto");
         Console.WriteLine("  Wrecked Ship ghost behavior: the initializer starts and runs the floating loop.");
     }
 

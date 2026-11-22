@@ -40,7 +40,7 @@ internal static class MoatFirstEntryVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source));
             var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
@@ -57,7 +57,7 @@ internal static class MoatFirstEntryVerification
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));

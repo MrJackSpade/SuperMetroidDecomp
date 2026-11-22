@@ -21,7 +21,7 @@ internal static partial class CeresDestructionArtworkExtractor
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] allCeresMaps = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] allCeresMaps = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         int firstDestructionByte = 2 * CeresFlightArtworkFileFormat.MapCellsPerView;
@@ -42,7 +42,7 @@ internal static partial class CeresDestructionArtworkExtractor
             Views = views,
         });
 
-        byte[] zebesMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] zebesMap = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.ZebesTilemap,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
         if (zebesMap.Length < ZebesRevealArtworkFormat.MapByteCount)
@@ -50,7 +50,7 @@ internal static partial class CeresDestructionArtworkExtractor
         byte[] zebesMapJson = RoomBackgroundTilemapExtractor.Encode(
             zebesMap.AsSpan(0, ZebesRevealArtworkFormat.MapByteCount));
 
-        byte[] zebesCharacters = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] zebesCharacters = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.ZebesCharacters,
             maximumOutputBytes: ZebesRevealArtworkFormat.CharacterByteCount);
         if (zebesCharacters.Length != ZebesRevealArtworkFormat.CharacterByteCount)
@@ -82,9 +82,9 @@ internal static partial class CeresDestructionArtworkExtractor
             .. CeresCinematicSourceDefinitions.ZebesPlacements.Select(source => new CeresRevealActorPlacement
             {
                 Role = source.Role,
-                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
             }),
         ];
@@ -103,9 +103,9 @@ internal static partial class CeresDestructionArtworkExtractor
             .. CeresCinematicSourceDefinitions.DestructionPlacements.Select(source => new CeresDestructionActorPlacement
             {
                 Role = source.Role,
-                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
             }),
         ];

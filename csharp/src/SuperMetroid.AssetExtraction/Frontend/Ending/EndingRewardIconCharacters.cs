@@ -44,9 +44,4 @@ public sealed partial class EndingRewardIconCharacters : EndingRewardIconArtwork
         }
         return new EndingRewardIconCharacters(map, transfer);
     }
-
-    /// <summary>The characters <paramref name="icon"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The icon was not read from installed artwork.</exception>
-    public static EndingRewardIconCharacters Of(EndingRewardIconArtwork icon) => icon as EndingRewardIconCharacters
-        ?? throw new InvalidDataException("The reward icon was not read from installed artwork.");
 }

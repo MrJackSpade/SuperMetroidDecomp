@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.MovieReplay;
+using SuperMetroid.Core.Samus;
 using static SuperMetroid.Verification.Areas.Ceres.CeresSteamNativeListAddresses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres;
@@ -21,7 +22,7 @@ internal static class CeresSteamAnimationsVerification
     /// </summary>
     internal static void VerifyCeresSteamAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int beats = 0;
         foreach ((string name, CeresSteamWay way, NativeProgramEntry<CeresSteamSegment>[] entries) in Ways)
         {
@@ -71,12 +72,13 @@ internal static class CeresSteamAnimationsVerification
         RoomEnemyPlace vent = enemies.Places.InUpdateOrder[0];
         vent.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)CeresSteamVariant.Up);
         vent.Bind(EnemyDefinitionId.SteamVent, vent.KeptDefinition);
-        ((IEnemyInitialization)(vent.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
-        AssertEqual(wait, vent.RequireSpeciesState<CeresSteamEnemyState>().UpdatesToActivation, "the vent draws its wait");
+        // The vent is set up as the population load sets it up, its species building its entity.
+        _ = enemies.LoadAuthoredPopulation();
 
         bool Hidden() => vent.Presence.HasAny(EnemyPresence.Hidden) && vent.Contact.HasAny(EnemyContact.IgnoresSamus);
         int update = 0;
-        void Advance() { update++; CeresSteamBehavior.AdvanceCeresSteamAnimation(vent); }
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        void Advance() { update++; vent.AdvanceAnimation(samus); }
 
         for (int dormant = 1; dormant <= wait; dormant++)
         {

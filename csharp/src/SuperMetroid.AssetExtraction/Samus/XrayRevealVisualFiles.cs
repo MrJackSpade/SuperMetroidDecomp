@@ -279,10 +279,10 @@ public static partial class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">The draw pointer is invalid.</exception>
     private static RoomBlockAppearance ItemDrawAppearance(ISnesAddressSpace bus, int index)
     {
-        int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
+        int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
         if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
             throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-        return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
+        return RoomLevelWordCodec.DecodeAppearance(bus.ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
     }
 
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
@@ -290,7 +290,7 @@ public static partial class XrayRevealVisualFiles
     {
         if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
+        return bus.ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
     }
 
     /// <summary>The marker words of the reveal tables, beside the block types and BTS values they hold.</summary>
@@ -313,14 +313,14 @@ public static partial class XrayRevealVisualFiles
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            int coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
+            int coordinate = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(overlay.Name, tiles.ToArray());
             }
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
+            int word = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
             RoomTerrainBlock decoded = RoomLevelWordCodec.Decode(checked((ushort)word));
             if (decoded.Collision != RoomCollisionType.Air)
                 throw new InvalidDataException(
@@ -433,8 +433,8 @@ public static partial class XrayRevealVisualFiles
         {
             if (!NamesExactlyThePlacesOf(shape))
                 throw new InvalidDataException($"An X-ray {shape} reveal's blocks name other places than the shape copies.");
-            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).Select(block => RoomCellPicture.OfBlock(
-                block ?? throw new InvalidDataException($"An X-ray {shape} reveal is missing one of its blocks.")))]);
+            // The check above found every place of the shape named.
+            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).OfType<int>().Select(RoomCellPicture.OfBlock)]);
         }
 
         /// <summary>The blocks of the places a <paramref name="shape"/> copy shows, in the copy's reading order.</summary>
@@ -453,6 +453,7 @@ public static partial class XrayRevealVisualFiles
 
         /// <summary>The blocks of every place the document can name.</summary>
         private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
+
     }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>

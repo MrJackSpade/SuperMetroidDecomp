@@ -27,7 +27,7 @@ internal static class SpeciesRandomReseedVerification
     /// <summary>Runs every species' reseeding setup and compares the seed it wrote with the cartridge's.</summary>
     internal static void VerifySpeciesRandomReseeds(CartridgeImportAddressSpace rom)
     {
-        int Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        int Word(int address) => rom.ReadCartridgeWord(address);
 
         var shared = new SharedRandom();
         shared.Reseed(SpeciesRandomReseed.PolypPlacement);
@@ -48,7 +48,7 @@ internal static class SpeciesRandomReseedVerification
         place.Bind(EnemyDefinitionId.Sidehopper, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), HopperKindDefinitions.Kinds[EnemyDefinitionId.Sidehopper]);
+        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[EnemyDefinitionId.Sidehopper]);
         AssertEqual(new ReseedCase([Word(HopperSeedOperand)], 1), new ReseedCase([.. seeds], draws),
             "a Sidehopper's placement reseeds with the cartridge's seed and draws once");
 

@@ -40,4 +40,32 @@ internal sealed partial class AnimationSegments<TSegment, TFrame, TEvent>
 
     /// <inheritdoc/>
     private protected override AnimationShown<TSegment, TFrame> Shown(AnimationShown<TSegment, TFrame>.Unpaused outcome) => outcome;
+
+    /// <summary>The frames <paramref name="segment"/>'s beats show, in order, for a segment every beat of which shows one.</summary>
+    /// <exception cref="InvalidDataException">A beat of the segment pauses, showing no frame.</exception>
+    internal IReadOnlyList<TFrame> FramesShownBy(TSegment segment) =>
+        [.. Enumerable.Range(0, Beats(segment).Count).Select(beat => FrameShownAt(segment, beat))];
+
+    /// <summary>The frame beat <paramref name="beat"/> of <paramref name="segment"/> shows, a beat that shows one.</summary>
+    /// <exception cref="InvalidDataException">The beat pauses, showing no frame.</exception>
+    internal TFrame FrameShownAt(TSegment segment, int beat) => Beats(segment)[beat] switch
+    {
+        AnimationBeat<TFrame, TEvent>.Frame frame => frame.Shown,
+        AnimationBeat<TFrame, TEvent>.HeldFrame held => held.Shown,
+        var other => throw new InvalidDataException($"Beat {beat} of animation segment {segment} shows no frame: {other}."),
+    };
+
+    /// <summary>The first frame one play of <paramref name="animation"/> shows from its start, after any events it opens with.</summary>
+    /// <exception cref="InvalidDataException">The animation shows no frame in its play.</exception>
+    internal TFrame FirstFrameShown(Animation<TSegment> animation)
+    {
+        foreach (AnimationBeat<TFrame, TEvent> beat in PlayedBeats(animation))
+        {
+            if (beat is AnimationBeat<TFrame, TEvent>.Frame frame)
+                return frame.Shown;
+            if (beat is AnimationBeat<TFrame, TEvent>.HeldFrame held)
+                return held.Shown;
+        }
+        throw new InvalidDataException($"Animation {animation} shows no frame in its play.");
+    }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -59,20 +60,19 @@ internal static class HoltzInstructionProgramDefinitionsVerification
     private static void VerifyHoltzInitializerSelections()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(parent.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        HoltzBehavior.InitializeHoltz(parent);
+        // The room's population load sets up the parent and then its flame follower (#2554).
+        _ = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
         AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[0].EntityState<HoltzEntity, HoltzEnemyState>()?.Playback,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
-        follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
-        follower.Bind(follower.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemies.HoltzBehavior.InitializeHoltzFollower(follower);
-        AssertEqual(new AnimationPlayback<HoltzSegment>(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation), enemies.Places.InUpdateOrder[1].EntityState<HoltzFollowerEntity, HoltzFollowerState>()?.Playback,
+        // The follower shows the first picture of the flames its setup started on its next animation step; the room spawn
+        // primes the instruction timer before the species' setup runs.
+        follower.AnimationClock.StepOnNextUpdate();
+        follower.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertEqual<EnemyFrameId?>(HoltzAnimations.Segments.FirstFrameShown(HoltzAnimations.StartingWith(HoltzSegment.Flames)), follower.Frame,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -81,13 +81,11 @@ internal static class HoltzInstructionProgramDefinitionsVerification
         HoltzSegment entry)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        place.Bind(EnemyDefinitionId.Holtz, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The Rio is set up as its room's population sets it up, then plays the animation the check starts it at.
+        RoomEnemyPlace place = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)))[0];
+        HoltzEnemyState state = place.RequireSpeciesState<HoltzEnemyState>();
+        state.Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity) { Playback = new(HoltzAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
-        place.SetSpeciesState(state);
         return new NewHoltzInstructionSystemResult(enemies, place, state);
     }
 
@@ -98,19 +96,14 @@ internal static class HoltzInstructionProgramDefinitionsVerification
     internal static void VerifyHoltzOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.BindPlaced(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        HoltzBehavior.InitializeHoltz(parent);
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Holtz, follower.KeptDefinition);
-        enemies.HoltzBehavior.InitializeHoltzFollower(follower);
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Holtz, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
+        RoomEnemyPlace parent = places[0];
+        RoomEnemyPlace follower = places[1];
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
-        AssertTrue(parent.EntityState<HoltzEntity, HoltzEnemyState>() is not null &&
-            parent.SpeciesState<HoltzFollowerState>() is null &&
-            follower.EntityState<HoltzFollowerEntity, HoltzFollowerState>() is not null &&
-            follower.SpeciesState<HoltzEnemyState>() is null,
-            "parameter one's sign bit selects the follower, which keeps only its own follower state");
+        AssertTrue(parent.Entity is HoltzEntity && follower.Entity is HoltzFollowerEntity,
+            "parameter one's sign bit selects the follower, which is built as a follower");
         Console.WriteLine("Lower Norfair Rio owned state: the follower selection matches.");
     }
 

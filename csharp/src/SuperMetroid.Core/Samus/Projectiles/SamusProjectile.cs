@@ -105,8 +105,9 @@ public sealed partial class SamusProjectile
     internal bool CountsDownToTrail(int interval) => Occupant is { } held && held.CountsDownToTrail(interval);
 
     /// <summary>
-    /// What the projectile holding the place does on its update (<see cref="SamusProjectileOccupant.Behavior"/>); null for an
-    /// explosion, before the projectile is set up, and for a free place.
+    /// What the projectile does on its update (#1923), installed when it is fired, released or changed
+    /// (<see cref="SamusProjectileOccupant.Install{TState}"/>); null for an explosion, which only plays its animation, and before
+    /// the projectile is set up.
     /// </summary>
     internal SamusShotBehavior? Behavior => Occupant?.Behavior;
 
@@ -123,25 +124,8 @@ public sealed partial class SamusProjectile
     /// explosions keep no kind state and carry their fuse; a missile's explosion keeps its missile's.
     /// </summary>
     internal BeamFiredOverLastShot.ReplacedShot AsReplacedByBeam => Occupant is not { } held ? new BeamFiredOverLastShot.ReplacedShot.FreePlace()
-        : held.KindState is { } kind ? kind.ReplacedByBeam(ReflectionHeadStart)
+        : held.KindState is { } kind ? kind.ReplacedByBeam
         : new BeamFiredOverLastShot.ReplacedShot.Beam(held.BeamFuse.UpdatesLeft);
-
-    /// <summary>
-    /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
-    /// missile's by.
-    /// </summary>
-    private static SignedEightEight ReflectionHeadStart =>
-        SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-
-    /// <summary>The state the kind of the projectile holding the place keeps, which must be a <typeparamref name="TState"/>.</summary>
-    /// <exception cref="InvalidOperationException">No projectile holds the place, or the one holding it keeps no such state.</exception>
-    internal TState KindStateAs<TState>() where TState : SamusShotKindState => Occupant switch
-    {
-        { KindState: TState state } => state,
-        { } held => throw new InvalidOperationException(
-            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {held.KindState?.GetType().Name ?? "nothing"}."),
-        null => throw new InvalidOperationException($"No projectile holds place {Place}, so none keeps a {typeof(TState).Name}."),
-    };
 
     /// <summary>Whether a projectile holds the place with an animation to play, which marks it drawn and updated.</summary>
     public bool IsActive => Occupant is { IsAnimated: true };

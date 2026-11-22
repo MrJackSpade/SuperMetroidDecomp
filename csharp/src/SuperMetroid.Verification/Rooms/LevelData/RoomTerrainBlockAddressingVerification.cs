@@ -83,7 +83,8 @@ internal static class RoomTerrainBlockAddressingVerification
                 Position16<RoomBlocks>? expected = reached >= 0 && reached < width * height ? BlockAtPlace(reached, width) : null;
                 Offset16<RoomBlocks> step = vertical ? Offset16<RoomBlocks>.Of(0, offset) : Offset16<RoomBlocks>.Of(offset, 0);
                 string context = $"a {(vertical ? "vertical" : "horizontal")} link of {offset} from {block} in a {width}x{height} room";
-                Position16<RoomBlocks>? stepped = room.Level.GridBlockStepped(block, step);
+                Position16<RoomBlocks>? stepped = room.Level.TryGridBlockStepped(block, step, out Position16<RoomBlocks> reachedBlock)
+                    ? reachedBlock : null;
                 if (stepped != expected)
                     AssertEqual(expected, stepped, context);
 
@@ -91,9 +92,10 @@ internal static class RoomTerrainBlockAddressingVerification
                     RoomTerrainBlock.Of(0, BlockMirroring.None, vertical ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension),
                     RoomBlockBehavior.Extending(offset));
                 RoomCollisionBlock linked = room.Level.LinkedBlockOrEdgeSolid(extension);
+                // Outside the grid the link reads the edge-solid block where it named one (#2554), the block its step reached.
                 RoomCollisionBlock linkedExpected = expected is { } at
                     ? room.Level.GetCollisionBlock(at)
-                    : new RoomCollisionBlock(null, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
+                    : RoomCollisionBlock.OutsideRoom(reachedBlock, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
                 if (linked != linkedExpected)
                     AssertEqual(linkedExpected, linked, $"the grapple's read of {context}");
             }

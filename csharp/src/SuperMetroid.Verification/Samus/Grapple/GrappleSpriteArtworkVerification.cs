@@ -19,10 +19,10 @@ internal static class GrappleSpriteArtworkVerification
         var catalog = InstalledGrappleSprites.Load(new MemoryStream(json));
         // The cartridge's attribute words are decoded by the import codec into the pieces they describe; the extracted
         // appearances hold the same character, palette row, priority and flips.
-        AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.GrappleEndpointAttributes.Value)).ToSinglePart(),
+        AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.GrappleEndpointAttributes.Value)).ToSinglePart(),
             catalog.Endpoint, "Extracted endpoint attributes match native immediate");
         for (int i = 0; i < 4; i++)
-            AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleSpriteExtractor.SegmentAttributeAddress(i))).ToSinglePart(),
+            AssertEqual(new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, GrappleSpriteExtractor.SegmentAttributeAddress(i))).ToSinglePart(),
                 catalog.Segment(GrappleSheetDefinitions.RopePattern[i]), "Extracted segment attributes match timed native record");
         // The installed grapple sheet composes each frame from the installed appearances, which match the cartridge above:
         // the endpoint as one small OBJ centred on its origin, and each rope segment likewise, with the rope direction's flips ORed into its own.

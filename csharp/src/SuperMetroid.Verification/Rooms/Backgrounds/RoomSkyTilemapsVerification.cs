@@ -96,7 +96,7 @@ internal static class RoomSkyTilemapsVerification
             expectedVram.LoadBytes(LibraryBackgroundOperands.DestinationWord(compiled.Destination) * 2,
                 ReadRetailSkyBytes(bus, LibraryBackgroundOperandDecoding.Address(compiled.Source), compiled.ByteCount));
             var compiledVram = new SnesVram();
-            LibraryBackgroundReplay.Execute(compiledVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), LibraryBackgroundPicture.Of(compiledDoor), new LibraryBackgroundArtwork { SkyArt = stock });
+            LibraryBackgroundReplay.Execute(compiledVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), LibraryBackgroundPicture.Of(compiledDoor), SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { SkyArt = stock });
             AssertTrue(expectedVram.ImageEquals(compiledVram),
                 $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
         }
@@ -106,7 +106,7 @@ internal static class RoomSkyTilemapsVerification
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             LandingSiteRomData.LandingCutsceneDoorPointer);
-        LibraryBackgroundReplay.Execute(installedDoorVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), LibraryBackgroundPicture.Of(DoorDefinitions.Get(LandingSiteRomData.LandingCutsceneDoorPointer)), new LibraryBackgroundArtwork { SkyArt = stock });
+        LibraryBackgroundReplay.Execute(installedDoorVram, LibraryBackgroundProgramDefinitions.Get(unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress)), LibraryBackgroundPicture.Of(DoorDefinitions.Get(LandingSiteRomData.LandingCutsceneDoorPointer)), SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { SkyArt = stock });
         AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
@@ -115,7 +115,7 @@ internal static class RoomSkyTilemapsVerification
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
+        RomDataReader.ReadFixedBank(bus, address, count);
 
     /// <summary>Rejects installed sky page reads.</summary>
     private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source)

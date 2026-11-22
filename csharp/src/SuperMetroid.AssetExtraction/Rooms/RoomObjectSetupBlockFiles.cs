@@ -128,22 +128,25 @@ public static partial class RoomObjectSetupBlockFiles
     /// <exception cref="InvalidDataException">A word collides differently, the words disagree, or the block is mirrored where it may not be.</exception>
     private static RoomBlockAppearance Picture(ISnesAddressSpace bus, RoomObjectSetupBlock block)
     {
-        if (!RoomObjectSetupBlockSourceDefinitions.Words.TryGetValue(block, out IReadOnlyList<SnesAddress>? words) || words.Count == 0)
-            throw new InvalidOperationException($"Room-object setup block {block} has no level word.");
-        RoomBlockAppearance? shown = null;
-        foreach (SnesAddress address in words)
+        // Every setup block has at least one level word: the first decides the picture, and the rest must agree with it.
+        IReadOnlyList<SnesAddress> words = RoomObjectSetupBlockSourceDefinitions.Words[block];
+        RoomBlockAppearance picture = Shown(words[0]);
+        foreach (SnesAddress address in words.Skip(1))
         {
-            RoomTerrainBlock written = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)address));
-            if (written.Collision != WordCollision(block))
-                throw new InvalidDataException($"Room-object setup block {block} collides differently at {address}.");
-            if (shown is { } first && first != written.Appearance)
+            if (Shown(address) != picture)
                 throw new InvalidDataException($"Room-object setup block {block} shows a different block at {address}.");
-            shown = written.Appearance;
         }
-        RoomBlockAppearance picture = shown ?? throw new InvalidOperationException($"Room-object setup block {block} has no level word.");
         if (KeepsStruckMirroring(block) && picture.Mirroring != BlockMirroring.None)
             throw new InvalidDataException($"Room-object setup block {block} is mirrored, but keeps the struck block's mirroring.");
         return picture;
+
+        RoomBlockAppearance Shown(SnesAddress address)
+        {
+            RoomTerrainBlock written = RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank((int)address));
+            if (written.Collision != WordCollision(block))
+                throw new InvalidDataException($"Room-object setup block {block} collides differently at {address}.");
+            return written.Appearance;
+        }
     }
 
     /// <summary>Builds the pictures from an installed document, checking it names every setup block once.</summary>

@@ -16,7 +16,7 @@ internal static class SamusRenderingFixtureVerification
 {
     /// <summary>The retail cartridge a fixture's seeded bytes lie over, read once.</summary>
     private static readonly Lazy<IImportCartridgeSource> retail = new(() =>
-        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        (CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     /// <summary>Caches complete catalogs whose every pose uses a requested graphics Y offset.</summary>
     private static readonly Dictionary<sbyte, SamusBodySources> graphicsOffsetFixtures = [];

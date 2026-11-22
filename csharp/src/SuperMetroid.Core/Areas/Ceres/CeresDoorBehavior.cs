@@ -37,11 +37,12 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
     /// <summary>The room's quake, which shakes the overlay of Ridley's room's door sideways.</summary>
     private readonly RoomEarthquake _earthquake;
 
-    /// <summary>The door of Ceres Ridley's room once it has initialized; null in any other room.</summary>
-    private RoomEnemyPlace? _ridleyRoomDoor;
+    /// <summary>The door of Ceres Ridley's room and the animation holding its look, once it has initialized; null in any other room.</summary>
+    private CeresRidleyRoomDoor? _ridleyRoomDoor;
 
-    /// <summary>Attaches <paramref name="door"/> as the door of Ceres Ridley's room as it initializes.</summary>
-    internal void AttachRidleyRoomDoor(RoomEnemyPlace door) => _ridleyRoomDoor = Ensure.NotNull(door);
+    /// <summary>Attaches <paramref name="door"/>, whose animation <paramref name="state"/> holds its look, as the door of Ceres Ridley's room as it initializes.</summary>
+    internal void AttachRidleyRoomDoor(RoomEnemyPlace door, CeresDoorAnimationState state) =>
+        _ridleyRoomDoor = new CeresRidleyRoomDoor(Ensure.NotNull(door), Ensure.NotNull(state));
 
     /// <summary>
     /// Shows the door of Ridley's room as its fixed overlay picture while its look is the overlay (#2573): hidden as an
@@ -51,8 +52,9 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
     internal void PublishRidleyRoomDoorOverlay(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
-        if (_ridleyRoomDoor is not { } door || door.RequireSpeciesState<CeresRidleyRoomDoorState>().Look != CeresRidleyRoomDoorLook.Overlay)
+        if (_ridleyRoomDoor is not { } ridleyRoomDoor || ridleyRoomDoor.Door.Look != CeresRidleyRoomDoorLook.Overlay)
             return;
+        RoomEnemyPlace door = ridleyRoomDoor.Place;
         int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.RemainingFrames);
         Presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyRoomDoorOverlay,
             (door.Position.Whole + new Offset16<RoomPixels>(quakeXOffset, 0)).RelativeToCamera(camera), PictureShading.Standard);
@@ -94,33 +96,37 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
     /// Starts <paramref name="place"/>'s door or wall in <paramref name="animation"/>, in the colours of the escape's stage:
     /// the animation's first step, on the next update, shows its own first picture (#2424).
     /// </summary>
-    internal void Start(RoomEnemyPlace place, HorizontalDirection facing, CeresDoorSegment animation)
+    /// <returns>The animation the door holds from its setup.</returns>
+    internal CeresDoorAnimationState Start(RoomEnemyPlace place, HorizontalDirection facing, CeresDoorSegment animation)
     {
         Ensure.NotNull(place);
         place.AnimationClock.Restart();
-        place.SetSpeciesState(new CeresDoorAnimationState
+        var state = new CeresDoorAnimationState
         {
             Facing = facing,
             Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(facing, animation), AnimationPlace.StartOfAnimation),
-        });
+        };
 
         // A door shows the escaping colours once Ridley has escaped, otherwise the normal ones, each as its fade ends
         // (#1512).
         place.Shading = Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
             ? CeresDoorShades.InEscapingColours
             : CeresDoorShades.InNormalColours;
+        return state;
     }
 
     /// <summary>Plays a door's or wall's typed animation in place of the shared enemy animation.</summary>
-    internal void AdvanceAnimation(RoomEnemyPlace place, SamusState samus)
+    /// <param name="place">The door's place.</param>
+    /// <param name="state">The door's animation, which holds the look its cues switch.</param>
+    /// <param name="samus">Samus, whom the door's cues read.</param>
+    internal void AdvanceAnimation(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus)
     {
         Ensure.NotNull(place);
         if (!place.AnimationClock.Expire())
             return;
-        CeresDoorAnimationState state = place.RequireSpeciesState<CeresDoorAnimationState>();
         AnimationPlayback<CeresDoorSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, CeresDoorAnimations.Segments(state.Facing), ref playback,
-            cue => ApplyCue(place, samus, cue) is { } started
+            cue => ApplyCue(place, state, samus, cue) is { } started
                 ? new AnimationContinuation<CeresDoorSegment>(CeresDoorAnimations.StartingWith(state.Facing, started), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
@@ -143,51 +149,51 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
 
     /// <summary>What <see cref="ApplyCue"/> comes to for each <see cref="CeresDoorCueKind"/> member, each member's own arm.</summary>
     [field: NonSerialized]
-    private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, SamusState, CeresDoorSegment?>>
+    private IdentityTable<CeresDoorCueKind, Func<RoomEnemyPlace, CeresDoorAnimationState, SamusState, CeresDoorSegment?>> ApplyCueForCeresDoorCueKind => field ??= new(new Dictionary<CeresDoorCueKind, Func<RoomEnemyPlace, CeresDoorAnimationState, SamusState, CeresDoorSegment?>>
     {
-        [CeresDoorCueKind.DoorAppears] = (place, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,
-        [CeresDoorCueKind.DoorStandsOpen] = (place, samus) => IsSamusAway(place, samus) ? DoorClosingAnimation : null,
-        [CeresDoorCueKind.DoorStandsClosed] = (place, samus) => IsSamusAway(place, samus) ? DoorWaitingAnimation : null,
-        [CeresDoorCueKind.RidleyRoomDoorWaits] = (place, samus) =>
+        [CeresDoorCueKind.DoorAppears] = (place, state, samus) => IsSamusAway(place, samus) ? DoorClosedAnimation : null,
+        [CeresDoorCueKind.DoorStandsOpen] = (place, state, samus) => IsSamusAway(place, samus) ? DoorClosingAnimation : null,
+        [CeresDoorCueKind.DoorStandsClosed] = (place, state, samus) => IsSamusAway(place, samus) ? DoorWaitingAnimation : null,
+        [CeresDoorCueKind.RidleyRoomDoorWaits] = (place, state, samus) =>
         {
             // The door of Ridley's room waits while the area's boss is undefeated, as he is when Ceres begins, so it
             // loops as a tangible actor during Ridley's fight. Ridley's escape records the boss's defeat together with
             // Ceres's escape status; the next pass then runs on past the wait and makes the door intangible.
             return Room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss) ? null : RidleyRoomDoorWaitingAnimation;
         },
-        [CeresDoorCueKind.ElevatorRoomWallAppears] = (place, samus) => Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation,
-        [CeresDoorCueKind.MakeIntangible] = (place, samus) =>
+        [CeresDoorCueKind.ElevatorRoomWallAppears] = (place, state, samus) => Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : ElevatorRoomWallDoorAnimation,
+        [CeresDoorCueKind.MakeIntangible] = (place, state, samus) =>
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             return null;
         },
-        [CeresDoorCueKind.MakeTangible] = (place, samus) =>
+        [CeresDoorCueKind.MakeTangible] = (place, state, samus) =>
         {
             place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
             return null;
         },
-        [CeresDoorCueKind.ShowOverlay] = (place, samus) =>
+        [CeresDoorCueKind.ShowOverlay] = (place, state, samus) =>
         {
-            place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look = CeresRidleyRoomDoorLook.Overlay;
+            state.Look = CeresRidleyRoomDoorLook.Overlay;
             return null;
         },
-        [CeresDoorCueKind.MakeInvisible] = (place, samus) =>
+        [CeresDoorCueKind.MakeInvisible] = (place, state, samus) =>
         {
             place.Presence = place.Presence.With(EnemyPresence.Hidden);
             return null;
         },
-        [CeresDoorCueKind.MakeVisibleAndShowActor] = (place, samus) =>
+        [CeresDoorCueKind.MakeVisibleAndShowActor] = (place, state, samus) =>
         {
-            place.RequireSpeciesState<CeresRidleyRoomDoorState>().Look = CeresRidleyRoomDoorLook.Actor;
+            state.Look = CeresRidleyRoomDoorLook.Actor;
             place.Presence = place.Presence.Without(EnemyPresence.Hidden);
             return null;
         },
-        [CeresDoorCueKind.MakeVisible] = (place, samus) =>
+        [CeresDoorCueKind.MakeVisible] = (place, state, samus) =>
         {
             place.Presence = place.Presence.Without(EnemyPresence.Hidden);
             return null;
         },
-        [CeresDoorCueKind.PlayOpeningSound] = (place, samus) =>
+        [CeresDoorCueKind.PlayOpeningSound] = (place, state, samus) =>
         {
             Audio.QueueEnemySound(RoomSound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
             return null;
@@ -198,9 +204,9 @@ internal sealed partial class CeresDoorBehavior : IEnemySpecies, IGameplayShadin
     /// Carries out one cue of a door's or wall's animation, returning the segment whose animation the owner starts on a waiting
     /// door's or wall's event, or null to run on.
     /// </summary>
-    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, SamusState samus, CeresDoorCue cue)
+    private CeresDoorSegment? ApplyCue(RoomEnemyPlace place, CeresDoorAnimationState state, SamusState samus, CeresDoorCue cue)
     {
-        return ApplyCueForCeresDoorCueKind[cue.Kind](place, samus);
+        return ApplyCueForCeresDoorCueKind[cue.Kind](place, state, samus);
     }
 
     /// <summary>Whether Samus is away from the door: distant from it along either axis.</summary>

@@ -11,19 +11,16 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The Spore Spawn species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SporeSpawn], Create);
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SporeSpawnEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SporeSpawnEntity(this, occupant, place, common));
 
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -66,7 +63,8 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>Sets Spore Spawn up when the room spawns it; his body holds his encounter from here on (#2231).</summary>
-    internal void InitializeSporeSpawn(RoomEnemyOccupant occupant, RoomEnemyPlace body)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal SporeSpawnEnemyState InitializeSporeSpawn(RoomEnemyOccupant occupant, RoomEnemyPlace body)
     {
         var state = new SporeSpawnEnemyState
         {
@@ -74,14 +72,13 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
             StalkAnchor = body.Position.Whole + SporeSpawnArenaDefinitions.StalkAnchorAboveBody,
             MovementCenter = body.Position.Whole,
         };
-        body.SetSpeciesState(state);
         _presentation.BossShadings.Show(BossShadingLayer.SporeSpawn, state.Colours);
 
         // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
         body.Shading = state.Colours.Sprites;
 
         // He hangs from the ceiling by the stalk's links, the last he spawns highest (#1932).
-        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).Reverse()];
+        state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => SpawnSporeSpawnStalk(occupant, body, segment)).OfType<SporeSpawnStalkLink>().Reverse()];
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {
@@ -89,7 +86,7 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
             body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
             UpdateSporeSpawnStalks(body, state);
             PublishSporeSpawnObject(SporeSpawnCeilingMutation.Clear);
-            return;
+            return state;
         }
 
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.AwaitingDescent), AnimationPlace.StartOfAnimation);
@@ -101,6 +98,7 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
         foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
             SpawnSporeSpawnSpawner(occupant, body, state, emitter);
         UpdateSporeSpawnStalks(body, state);
+        return state;
     }
 
     /// <summary>What <see cref="RunSporeSpawnMain"/> does for each <see cref="SporeSpawnMovement"/> member, each member's own arm.</summary>
@@ -527,12 +525,12 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFa
             yBase: SporeSpawnArenaDefinitions.DeathDropCorner.Y,
             yScatter: SporeSpawnRandomDefinitions.DropY,
             samus: samus);
-    /// <summary>Spawns the stalk link at <paramref name="segment"/> from his body and returns it (#1932).</summary>
-    /// <exception cref="InvalidOperationException">No projectile place is free: he spawns his stalk into his room's empty places.</exception>
-    internal SporeSpawnStalkLink SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
+    /// <summary>Spawns the stalk link <paramref name="link"/> from his body and returns it, or none when the pool is full (#1932).</summary>
+    internal SporeSpawnStalkLink? SpawnSporeSpawnStalk(RoomEnemyOccupant occupant, RoomEnemyPlace body, SporeSpawnStalkLinkDefinition link)
     {
-        EnemyProjectile stalk = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk, SpriteGraphics.SpawnedBy(occupant, body.Shading), Stalk.Pose()) ?? throw new InvalidOperationException(
-            "Spore Spawn's stalk found no free projectile place; he spawns it as his room loads, into its empty places.");
+        if (_projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SporeSpawnStalk, Stalk,
+                SpriteGraphics.SpawnedBy(occupant, body.Shading), Stalk.Pose()) is not { } stalk)
+            return null;
 
         stalk.Position = stalk.Position.WithWhole(body.Position.Whole + link.SpawnOffset);
         return new(link.Place, stalk);

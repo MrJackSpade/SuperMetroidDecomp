@@ -73,7 +73,7 @@ internal static class RoomObjectPopulationVerification
     private static void VerifyElevatorPlatformCycle(CartridgeImportAddressSpace rom)
     {
         const ushort loop = 0xafb6;
-        var cartridge = CartridgeImportSource.Require(rom);
+        var cartridge = rom;
         ushort cursor = loop;
         foreach (ElevatorPlatformFrame frame in ElevatorPlatformObjectDefinitions.Cycle)
         {
@@ -121,10 +121,10 @@ internal static class RoomObjectPopulationVerification
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
         for (byte direction = 0; direction < DoorClosingTableEntries; direction++)
         {
-            ushort expectedHeader = CartridgeImportSource.Require(rom).ReadCartridgeWord((DoorClosingObjects.HeaderTableAddress + direction * sizeof(ushort)));
+            ushort expectedHeader = rom.ReadCartridgeWord((DoorClosingObjects.HeaderTableAddress + direction * sizeof(ushort)));
             ushort expectedList = expectedHeader == 0
                 ? (ushort)0
-                : CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(expectedHeader + 2))));
+                : rom.ReadCartridgeWord((0x840000 | unchecked((ushort)(expectedHeader + 2))));
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomLevelData level = CreateRoom(new(4, 4),
                 new RoomTerrainBlock[16],
@@ -177,7 +177,7 @@ internal static class RoomObjectPopulationVerification
         foreach (ushort raw in headers)
         {
             RoomObjectKind header = RoomObjectNativeWords.Header(raw);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
+            ushort expected = rom.ReadCartridgeWord((0x840000 | unchecked((ushort)(raw + 4))));
             bool eyeDoorBody = header is RoomObjectKind.EyeDoorFacingRight or RoomObjectKind.EyeDoorFacingLeft;
             ushort typedClosing = DoorObjectNativeListAddresses.TypedClosingEntry(header)
                 ?? (header == RoomObjectKind.MotherBrainEscapeRoomGate ? DoorObjectNativeListAddresses.EscapeGateClosing
@@ -241,7 +241,7 @@ internal static class RoomObjectPopulationVerification
         blueObjects.DoorObjects.SpawnDoorClosingObject(blueLevel, blueDoor);
         AssertEqual(1, blueObjects.Places.ActiveCount, "no closer joins the shot cap that closes");
         const int ShotLeftBlueCapHeader = 0x84c8a2;
-        ushort shotCapClosing = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShotLeftBlueCapHeader + 4);
+        ushort shotCapClosing = rom.ReadCartridgeWord(ShotLeftBlueCapHeader + 4);
         AssertEqual(shotCapClosing, TypedDoorObjectOracle.StartListOf(blueObjects.Places.InUpdateOrder[0].Behaviour),
             "the shot cap starts the closing its header names after its opening and closed lists");
         AssertEqual(shotCapClosing, DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Closing,
@@ -957,7 +957,7 @@ internal static class RoomObjectPopulationVerification
     /// <summary>The escape gate's shut and closing changes play as their native lists do (#1554).</summary>
     private static void VerifyEscapeGateChanges(CartridgeImportAddressSpace rom)
     {
-        var cartridge = CartridgeImportSource.Require(rom);
+        var cartridge = rom;
         int frames = NativeTerrainChanges.Compare(cartridge, MotherBrainEscapeGateDefinitions.Shut, DoorObjectNativeListAddresses.EscapeGateShut,
             NativeTerrainChanges.NoSteps, "escape gate shut", out bool shutBegan);
         frames += NativeTerrainChanges.Compare(cartridge, MotherBrainEscapeGateDefinitions.Closing, DoorObjectNativeListAddresses.EscapeGateClosing,
@@ -1283,7 +1283,7 @@ internal static class RoomObjectPopulationVerification
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityFrames.Contains(frame.Frame) ? new[] { visible } : Array.Empty<EnemyProjectilePartDocument>()),
         };
-        EnemyTileSourceArtwork tiles = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
+        EnemyTileSourceArtwork tiles = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             // The save room's sprite objects compose with the installed enemy compositions, and their sheet takes the
             // n00b tube's crack shade every spawned-object sheet carries (#1512).
             Spritemaps = InstalledFixtures.EnemyTiles.Spritemaps, ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors,
@@ -1310,7 +1310,7 @@ internal static class RoomObjectPopulationVerification
         var native = new SuperMetroid.TestSupport.MovieReplay.Verification.NativeEnemyProjectileListReader(
             SaveStationElectricityNativeListAddresses.DischargeStart, electricity.FrameHold.RawValue);
         enemies.StepEnemyProjectiles(level, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-        native.Step(CartridgeImportSource.Require(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom()));
+        native.Step(SuperMetroid.Verification.Harness.RepositoryInputsVerification.LoadRepositoryRom());
         AssertEqual(EnemyProjectileFrameId.SaveStationElectricityBand, electricity.Frame, "save electricity shows its band through its typed program");
         AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand), electricity.PresentationOperandAddress,
             "save electricity's first update shows the band where the cartridge's first discharge operand draws it");

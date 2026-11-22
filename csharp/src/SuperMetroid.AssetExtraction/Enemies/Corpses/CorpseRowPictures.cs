@@ -37,17 +37,17 @@ internal static partial class CorpseRowPictures
         Ensure.NotNull(frame);
         Ensure.NotNull(corpse);
         int top = frame.Parts.Min(part => (int)part.Offset.Y);
-        int? corpseTop = null;
+        var tops = new List<int>();
         foreach (DrawnCharacter character in frame.Parts.SelectMany(Characters).Where(character => corpse.Holds(character.Character)))
         {
             if (character.FlippedTopToBottom)
                 throw new InvalidDataException($"Corpse frame {name} flips {corpse.Name}'s character {character.Character} top to bottom, which turns its rows over.");
             int characterTop = character.Place.Y - top - corpse.Band(character.Character) * SpriteArtwork.CharacterPixels;
-            if (corpseTop is int earlier && earlier != characterTop)
+            if (tops.Count > 0 && tops[0] != characterTop)
                 throw new InvalidDataException($"Corpse frame {name} draws {corpse.Name}'s character {character.Character} off its band's row.");
-            corpseTop = characterTop;
+            tops.Add(characterTop);
         }
-        return corpseTop is int pictureTop ? new CorpsePicturePlacement(pictureTop)
+        return tops.Count > 0 ? new CorpsePicturePlacement(tops[0])
             : throw new InvalidDataException($"Corpse frame {name} draws none of {corpse.Name}'s characters.");
     }
 

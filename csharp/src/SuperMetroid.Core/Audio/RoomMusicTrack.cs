@@ -38,9 +38,8 @@ public abstract partial record RoomMusicTrack
     public sealed partial record PlayAreaTheme : RoomMusicTrack
     {
         /// <inheritdoc/>
-        /// <remarks>With no data set loaded no area theme can play, so the choice is queued.</remarks>
         internal override bool Queues(RoomMusicEntry entry) =>
-            entry.DataSetDiffers || entry.Loaded is not MusicDataSet set || AreaThemeDefinitions.Themes[set] != entry.Playing;
+            entry.DataSetDiffers || AreaThemeDefinitions.Themes[entry.Loaded] != entry.Playing;
     }
 
     /// <summary>
@@ -52,17 +51,6 @@ public abstract partial record RoomMusicTrack
         /// <inheritdoc/>
         internal override bool Queues(RoomMusicEntry entry) => true;
     }
-
-    /// <summary>
-    /// The music request that carries out the choice when it is queued: its track, or a stop. Room loading never queues
-    /// an inherited track; a saved game queues the room's choice directly, and an inherited track stops the music there.
-    /// </summary>
-    internal MusicRequest Request => this switch
-    {
-        Play play => new MusicRequest.PlayTrack(play.Track),
-        PlayAreaTheme => MusicRequest.AreaTheme,
-        _ => MusicRequest.Stop,
-    };
 
     /// <summary>The choice that keeps the playing track.</summary>
     public static RoomMusicTrack Inherited { get; } = new Inherit();

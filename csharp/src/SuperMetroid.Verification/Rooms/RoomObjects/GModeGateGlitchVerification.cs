@@ -73,7 +73,7 @@ internal static class GModeGateGlitchVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.KronicBoost);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
@@ -97,7 +97,7 @@ internal static class GModeGateGlitchVerification
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
@@ -152,9 +152,9 @@ internal static class GModeGateGlitchVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         EnterDirectGMode(samus);
         samus.Xray.TransitionDirectGModeToIndirect();
         AssertTrue(!samus.Xray.IsActive && samus.Xray.IsGMode,

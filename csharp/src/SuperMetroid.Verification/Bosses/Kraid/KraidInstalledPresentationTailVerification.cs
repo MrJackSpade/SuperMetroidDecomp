@@ -33,7 +33,7 @@ internal static class KraidInstalledPresentationTailVerification
         RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(SnesBgTilemapWord.PriorityMask);
         var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas>(),
             (new EnemyIdentityFixture().Build().Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires new EnemyIdentityFixture().Build().KraidBackground.")).RoomBackgroundTiles);
-        ushort[] working = KraidBodyFixtures.WorkingMap(new BossSourceArtwork { KraidBackground = art });
+        ushort[] working = KraidBodyFixtures.WorkingMap(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { KraidBackground = art });
         for (int word = 0; word < KraidWorkingMapDefinitions.WorkingMapCells; word++)
         {
             ReadOnlySpan<byte> source = word < KraidWorkingMapDefinitions.PageCells ? upper.Bytes.Span : lower.Bytes.Span;

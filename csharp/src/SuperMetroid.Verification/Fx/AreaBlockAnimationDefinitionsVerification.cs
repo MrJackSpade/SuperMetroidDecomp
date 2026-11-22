@@ -39,7 +39,7 @@ internal static class AreaBlockAnimationDefinitionsVerification
     /// of the objects it names while guarding immutable bank-$83 sources.
     /// </summary>
     private static void VerifyCompiledAreaSelection(
-        ISnesAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         AreaId area,
         byte animatedTileBits,
         int expectedSand,

@@ -25,9 +25,9 @@ internal static class MotherBrainFakeDeathLockVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
@@ -62,7 +62,7 @@ internal static class MotherBrainFakeDeathLockVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain ??
             throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain.");

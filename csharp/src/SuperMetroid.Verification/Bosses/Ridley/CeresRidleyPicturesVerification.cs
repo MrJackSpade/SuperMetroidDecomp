@@ -31,27 +31,34 @@ internal static class CeresRidleyPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         // The station's escape runs its self-destruct in Ridley's step, paced by his body's update count (#2228).
         CeresEscape escape = runtime.Enemies.CeresEscape;
         int ridleyFrameCounter = (runtime.Enemies.RidleyEncounter.CeresRidley ?? throw new InvalidOperationException("The Ceres Ridley room loads Ridley.")).Body.FrameCounter;
         escape.BeginSelfDestruct();
+        escape.UseWarning(runtime.Room.LoadedScope.Warnings?.WithForeground ?? throw new InvalidOperationException("Ceres's rooms hold their warnings."));
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
         while (escape.Stage == CeresEscapeStage.SelfDestruct)
         {
             escape.RunRidleysStep(ridleyFrameCounter);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }
-        RoomWarningText overlay = runtime.Room.LoadedScope.Enemies.CeresEscape.Warning.Overlay;
+        RoomWarningText overlay = escape.FixtureWarning.ShownText();
         AssertTrue(!overlay.Pictures.IsEmpty, "Ceres Ridley's getaway shows its warning over BG1");
         // The getaway writes its pages' and glyphs' pictures by name (#1466); the words they stand for are the import's.
         System.Collections.Immutable.ImmutableArray<int> words = overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
         ShownRoomWarning shown = runtime.Display.LatchedOrdinaryRoom.Rooms.Warning
             ?? throw new InvalidOperationException("The displayed frame shows no warning over BG1.");
         BgTilePicture?[] shownCells = TwoScreenTilemapCells.Lay(shown.Pictures);
-        ReadOnlySpan<byte> page = EnemySheetFixtures.LivePage(runtime.Enemies.GraphicsSet, UploadedPictureChecks.Shown(runtime)).Characters;
+        // The warning's words read only the characters its look copies over the table, as the import composes that look.
+        byte[] page = new byte[SuperMetroid.AssetExtraction.Enemies.SpriteCharacterTableLayout.TableByteCount];
+        var warning = SuperMetroid.AssetExtraction.Enemies.ComposedLook.Of(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape,
+            SuperMetroid.Core.Areas.Ceres.CeresEscapeWarningLookDefinitions.WarningLook);
+        foreach (SuperMetroid.AssetExtraction.Enemies.EncounterArtworkUpload upload in SuperMetroid.AssetExtraction.Enemies.EncounterLookUploads
+            .Steps(SuperMetroid.AssetExtraction.Enemies.ComposedEncounter.CeresEscape, EnemySheetFixtures.Inputs).CopiesOf(warning))
+            upload.ApplyTo(page);
         int written = 0;
         for (int index = 0; index < TwoScreenTilemapCells.Count; index++)
         {

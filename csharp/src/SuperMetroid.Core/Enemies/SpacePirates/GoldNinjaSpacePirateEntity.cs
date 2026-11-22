@@ -9,9 +9,27 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : NinjaSpacePirateEntity(species, occupant, place, common)
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    NinjaSpacePirateSpawnSettings settings, NinjaSpacePirateEnemyState state)
+    : NinjaSpacePirateEntity(species, occupant, place, common, settings, state)
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The ninja Space Pirate species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal GoldNinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        NinjaSpacePirateSpawnSettings settings)
+        : this(species, occupant, place, common, settings, NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(settings, place))
+    {
+    }
+
     /// <summary>The gold Ninja's own shot reaction where the definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SpacePirateReactions.Shot ? Species.Walking.GoldNinjaShotReaction : base.ShotReaction;
 

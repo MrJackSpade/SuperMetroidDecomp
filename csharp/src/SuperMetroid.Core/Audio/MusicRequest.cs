@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One request the game puts on its music queue (#1410): play a song of the loaded data set or its area theme (#1748),
-/// stop the music, or change the music data set. The queue holds each with its delay and carries it out when the delay expires.
+/// One request the game puts on its music queue (#1410): play a song of the loaded data set, stop the music, or change
+/// the music data set. A room's area theme (#1748) is queued as the song it is (<see cref="AudioQueues.ScheduleRoomTrack"/>). The queue holds each with its delay and carries it out when the delay expires.
 /// </summary>
 public abstract partial record MusicRequest
 {
@@ -11,36 +11,22 @@ public abstract partial record MusicRequest
     {
     }
 
-    /// <summary>The track that plays once the request is carried out with <paramref name="dataSet"/> loaded, or null when none plays.</summary>
-    /// <param name="dataSet">The music data set loaded as the request plays.</param>
-    internal abstract MusicTrack? TrackPlayedWith(MusicDataSet? dataSet);
+    /// <summary>The track that plays once the request is carried out, or null when none plays.</summary>
+    internal abstract MusicTrack? TrackPlayed { get; }
 
     /// <summary>Plays <paramref name="Track"/> of the loaded data set.</summary>
     /// <param name="Track">The track to play.</param>
     public sealed partial record PlayTrack(MusicTrack Track) : MusicRequest
     {
         /// <inheritdoc/>
-        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => Track;
-    }
-
-    /// <summary>
-    /// Plays the area theme (<see cref="AreaThemeDefinitions"/>) of the data set loaded when the request plays, which a room
-    /// that keeps the loaded set asks for (#1748).
-    /// </summary>
-    public sealed partial record PlayAreaTheme : MusicRequest
-    {
-        /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">No data set is loaded, so no area theme can play.</exception>
-        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => dataSet is MusicDataSet loaded
-            ? AreaThemeDefinitions.Themes[loaded]
-            : throw new InvalidOperationException("An area theme was requested with no music data set loaded.");
+        internal override MusicTrack? TrackPlayed => Track;
     }
 
     /// <summary>Stops the music.</summary>
     public sealed partial record StopMusic : MusicRequest
     {
         /// <inheritdoc/>
-        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;
+        internal override MusicTrack? TrackPlayed => null;
     }
 
     /// <summary>Changes the music data set to <paramref name="DataSet"/>, which stops the music.</summary>
@@ -48,11 +34,8 @@ public abstract partial record MusicRequest
     public sealed partial record ChangeDataSet(MusicDataSet DataSet) : MusicRequest
     {
         /// <inheritdoc/>
-        internal override MusicTrack? TrackPlayedWith(MusicDataSet? dataSet) => null;
+        internal override MusicTrack? TrackPlayed => null;
     }
-
-    /// <summary>The request that plays the loaded data set's area theme.</summary>
-    public static MusicRequest AreaTheme { get; } = new PlayAreaTheme();
 
     /// <summary>The request that stops the music.</summary>
     public static MusicRequest Stop { get; } = new StopMusic();

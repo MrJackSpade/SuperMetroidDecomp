@@ -5,17 +5,38 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, WalkingSpacePirateSpawnSettings settings, WalkingSpacePirateEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The walking Space Pirate species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal WalkingSpacePirateEntity(WalkingSpacePirateBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        EnemyCommonParticipation common, WalkingSpacePirateSpawnSettings settings)
+        : this(species, occupant, place, common, settings, WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(settings, place))
+    {
+    }
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal WalkingSpacePirateSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly WalkingSpacePirateEnemyState state = state;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunWalkingSpacePirateMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceWalkingSpacePirateTypedAnimation(Occupant, Settings, Place, state, context);
 
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) => SpacePirateHitboxes.Find(Place, probe);

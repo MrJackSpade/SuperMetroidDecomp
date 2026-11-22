@@ -12,7 +12,7 @@ internal static class CacatacAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyCacatacAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             CacatacAnimations.Segments, CacatacAnimations.StartingAt, CacatacFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<CacatacCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

@@ -10,9 +10,10 @@ namespace SuperMetroid.Core.Input;
 /// <remarks>
 /// Gameplay tests <see cref="GameplayAction"/>s. <see cref="ToActions"/> is the single equivalent of the game loading
 /// these configurable bindings before each comparison: it reads the buttons as actions once per accepted update, so no
-/// gameplay behaviour owns a binding table or names a button.
+/// gameplay behaviour owns a binding table or names a button. A binding set binds every action from its construction, so no
+/// value of it binds nothing.
 /// </remarks>
-public readonly partial struct ControllerBindings : IEquatable<ControllerBindings>
+public sealed partial class ControllerBindings : IEquatable<ControllerBindings>
 {
     /// <summary>Every configurable action, in the order the bindings are checked and listed (#2567).</summary>
     private static readonly ControllerAction[] Actions = [.. Ensure.EveryMemberOnce<ControllerAction>(
@@ -26,8 +27,8 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
         ControllerAction.AimDown,
     ])];
 
-    /// <summary>The button bound to each action, keyed by the action; null only in a default value, which binds nothing.</summary>
-    private readonly ImmutableDictionary<ControllerAction, ControllerButton>? buttons;
+    /// <summary>The button bound to each action, keyed by the action.</summary>
+    private readonly ImmutableDictionary<ControllerAction, ControllerButton> buttons;
 
     /// <summary>Binds each action to the button <paramref name="buttons"/> holds for it.</summary>
     /// <param name="buttons">The button bound to each of the seven actions, keyed by the action.</param>
@@ -56,11 +57,6 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
         [ControllerAction.AimDown] = ControllerButton.L,
     });
 
-    /// <summary>The button bound to each action.</summary>
-    /// <exception cref="InvalidOperationException">The bindings are a default value, which binds nothing.</exception>
-    private ImmutableDictionary<ControllerAction, ControllerButton> Buttons =>
-        buttons ?? throw new InvalidOperationException("Default controller bindings bind no action.");
-
     /// <summary>
     /// The physical buttons the options menu admits when it sets a binding, in the order of the options menu's button
     /// list. Only these seven can be assigned in an ordinary options menu.
@@ -88,8 +84,7 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
 
     /// <summary>Returns the button bound to one action.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    /// <exception cref="InvalidOperationException">The bindings are a default value, which binds nothing.</exception>
-    public ControllerButton this[ControllerAction action] => Buttons.TryGetValue(action, out ControllerButton button)
+    public ControllerButton this[ControllerAction action] => buttons.TryGetValue(action, out ControllerButton button)
         ? button
         : throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action.");
 
@@ -110,7 +105,7 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
     {
         // Bindings with one action rebound and the other six kept.
         static ControllerBindings Rebound(ControllerBindings bindings, ControllerAction rebound, ControllerButton value) =>
-            new(bindings.Buttons.SetItem(rebound, value));
+            new(bindings.buttons.SetItem(rebound, value));
         ControllerButton displaced = this[action];
         if (!IsAssignable(physicalButton))
         {
@@ -188,15 +183,9 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
     }
 
 
-    /// <summary>Whether both bind every action to the same button; two default values are alike.</summary>
-    public bool Equals(ControllerBindings other)
-    {
-        if (buttons is null || other.buttons is null)
-            return buttons is null && other.buttons is null;
-        ImmutableDictionary<ControllerAction, ControllerButton> mine = buttons;
-        ImmutableDictionary<ControllerAction, ControllerButton> theirs = other.buttons;
-        return Actions.All(action => mine[action] == theirs[action]);
-    }
+    /// <summary>Whether both bind every action to the same button.</summary>
+    public bool Equals(ControllerBindings? other) =>
+        other is not null && Actions.All(action => buttons[action] == other.buttons[action]);
 
     /// <inheritdoc/>
     public override bool Equals(object? obj) => obj is ControllerBindings other && Equals(other);
@@ -205,20 +194,13 @@ public readonly partial struct ControllerBindings : IEquatable<ControllerBinding
     public override int GetHashCode()
     {
         var hash = new HashCode();
-        if (buttons is { } bound)
-        {
-            foreach (ControllerAction action in Actions)
-                hash.Add(bound[action]);
-        }
+        foreach (ControllerAction action in Actions)
+            hash.Add(buttons[action]);
         return hash.ToHashCode();
     }
 
     /// <summary>Names each action's button, for diagnostics.</summary>
-    public override string ToString()
-    {
-        ImmutableDictionary<ControllerAction, ControllerButton>? bound = buttons;
-        return bound is null ? "no bindings" : string.Join(", ", Actions.Select(action => $"{action}={bound[action]}"));
-    }
+    public override string ToString() => string.Join(", ", Actions.Select(action => $"{action}={buttons[action]}"));
 
     /// <summary>The fixed control <paramref name="action"/> when <paramref name="button"/> is held, otherwise none.</summary>
     private static GameplayAction FixedControl(ControllerButton held, ControllerButton button, GameplayAction action) =>

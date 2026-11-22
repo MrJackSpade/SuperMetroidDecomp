@@ -42,7 +42,7 @@ public static partial class SamusFullBodyCycleColorExtractor
                         SamusFullBodyCycleFamily.ScrewAttack => SamusSourceDefinitions.ScrewAttackCyclePalettes,
                         _ => throw new ArgumentOutOfRangeException(nameof(family)),
                     } + suit * SamusSourceDefinitions.CyclePaletteSuitStride + shade * SamusSourceDefinitions.CyclePaletteShadeStride));
-                    byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                    byte[] source = RomDataReader.ReadFixedBank(bus,
                         SamusSourceDefinitions.PaletteBank.Value | pointer,
                         SamusFullBodyCycleColorFormat.ColorsPerPalette * sizeof(ushort));
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];

@@ -32,7 +32,7 @@ internal static class SpikeDamageBoostVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
@@ -43,7 +43,7 @@ internal static class SpikeDamageBoostVerification
         level.SetTerrain(hazardBlock, SpikeAirTerrain);
         level.SetBehavior(hazardBlock, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Health = 99;
         samus.EquippedItems = SamusEquipmentFlags.MorphBall;

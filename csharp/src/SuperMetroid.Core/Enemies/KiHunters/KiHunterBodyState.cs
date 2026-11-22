@@ -4,8 +4,19 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>A Ki-Hunter body's state: its patrol, swoop, wingless hops and whether it still has its wings.</summary>
 public sealed partial class KiHunterBodyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal KiHunterBodyState(KiHunterAction action) => Action = action;
+    /// <summary>Starts the state in <paramref name="action"/>, with the place of <paramref name="wings"/>.</summary>
+    internal KiHunterBodyState(KiHunterAction action, RoomEnemyPlace wings)
+    {
+        Action = action;
+        Wings = Ensure.NotNull(wings);
+    }
+
+    /// <summary>
+    /// The place of the wings the body found when it was placed, which its room lists right after it. They may already be
+    /// gone, as a wingless Ki-Hunter's are from the start, and the body asks whether they hold their place before it
+    /// touches them.
+    /// </summary>
+    internal RoomEnemyPlace Wings { get; }
 
     /// <summary>The animation the body plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<KiHunterSegment> Playback { get; set; }

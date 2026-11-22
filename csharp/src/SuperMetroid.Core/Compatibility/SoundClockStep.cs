@@ -18,13 +18,8 @@ public readonly partial record struct SoundClockStep<TLibrary, TSound>(
     int Steps,
     SoundRequestChecks<TLibrary, TSound>? Checks)
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>Whether the step checked the libraries' requests, a fact of the step's timing.</summary>
     public bool ChecksRequests => Checks is not null;
-
-    /// <summary>The request checks the step ran.</summary>
-    /// <exception cref="InvalidOperationException">The step checked no requests.</exception>
-    public SoundRequestChecks<TLibrary, TSound> RanChecks =>
-        Checks ?? throw new InvalidOperationException("The sound clock step checked no requests.");
 }

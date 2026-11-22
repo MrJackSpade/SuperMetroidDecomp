@@ -6,16 +6,14 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Multiviola species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MultiviolaBehavior : IEnemySpecies, IEnemySpawnFactory<MultiviolaSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Multiviola], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MultiviolaEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Multiviola];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, MultiviolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MultiviolaEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision mover used after each attempted Multiviola velocity component.</summary>
     private readonly EnemyTerrain _terrain;
@@ -27,26 +25,27 @@ internal sealed partial class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Initializes the Multiviola.</summary>
-    internal static void InitializeMultiviola(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MultiviolaEnemyState InitializeMultiviola(MultiviolaSpawnSettings multiviolaSpawnSettings)
     {
         var state = new MultiviolaEnemyState
         {
-            Heading = occupant.SpawnSettings<MultiviolaSpawnSettings>().Heading,
+            Heading = multiviolaSpawnSettings.Heading,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>Runs the Multiviola's main AI.</summary>
     private void RunMultiviolaMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place,
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
         // Each update takes the velocity afresh from the heading the bounces turn (#2531). It is not
         // EnemyMath.VelocityAlong: an axis the Multiviola heads left or up along moves at MultiviolaLeftOrUpSpeed, which is
         // not the speed's exact reverse and moves it a pixel an update even where the axis has no speed.
-        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, occupant.SpawnSettings<MultiviolaSpawnSettings>().Speed);
+        FixedVector<RoomPixels> velocity = MultiviolaLeftOrUpSpeed.VelocityAlong(state.Heading, multiviolaSpawnSettings.Speed);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -65,13 +64,13 @@ internal sealed partial class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, MultiviolaAnimations.Segments,
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, multiviolaEnemyState, MultiviolaAnimations.Segments,
             static (MultiviolaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMultiviolaMainAi(MultiviolaSpawnSettings multiviolaSpawnSettings, RoomEnemyPlace place, MultiviolaEnemyState multiviolaEnemyState, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(occupant, place, place.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
+        RunMultiviolaMain(multiviolaSpawnSettings, place, multiviolaEnemyState, frame.Level);
     }
 }

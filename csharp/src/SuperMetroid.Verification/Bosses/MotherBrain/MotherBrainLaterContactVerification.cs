@@ -21,14 +21,19 @@ internal static class MotherBrainLaterContactVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.MotherBrainBody, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(body.HeldOccupant().DefinitionId));
-        var state = new MotherBrainEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        // Mother Brain is placed as her room's population places her, her head after her body, and stands in her second form
+        // with her body, brain and neck hit areas enabled. Her setup reads the room's random numbers, which stand at zero.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
+        MotherBrainEnemyState state = MotherBrainBabyArrival.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        RoomEnemyPlace body = state.Body;
+        // Her second phase sets her brain up as her rise does, her body and brain tangible.
+        MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
+        state.Form = MotherBrainForm.SecondPhase;
+        state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.Neck.Lower[1].Position = new(250, 80);
         state.Neck.Lower[2].Position = state.Neck.Upper[0].Position = new(500, 500);
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = (body, samus, bombs) => enemies.MotherBrainBehavior.RunMotherBrainBodyMain(body, state, samus, bombs);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
@@ -61,10 +66,13 @@ internal static class MotherBrainLaterContactVerification
         {
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var shot = shots.Shots[0];
-            shot.Occupy(type, 100); shot.HeldShot().Direction = SamusProjectileDirection.Right;
-            shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128)); shot.HeldShot().Radius = new(4, 4);
-            shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
-            shot.HeldShot().Behavior = type.Family == SamusProjectileFamily.Missile ? SamusShotBehaviors.Missile : SamusShotBehaviors.Beam;
+            SamusProjectileOccupant held = shot.Occupy(type, 100); held.Direction = SamusProjectileDirection.Right;
+            held.Position = shot.Position.WithWhole(new(128, 128)); held.Radius = new(4, 4);
+            held.Animation = ProjectileFixturePlaybacks.Active();
+            if (type.Family == SamusProjectileFamily.Missile)
+                held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
+            else
+                held.Install(SamusShotBehaviors.Beam);
             enemies.ResolveShotsOnInteractiveEnemies(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), SuperMetroid.Core.Progression.AreaId.Crateria, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             AssertEqual(1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");

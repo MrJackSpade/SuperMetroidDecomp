@@ -14,20 +14,34 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed partial class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, CrocomireEnemyState encounter)
     : CrocomireEntity(species, occupant, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Fight.InitializeCrocomire(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Crocomire species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    internal CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork)
+        : this(species, occupant, place, common, bossArtwork, species.Fight.InitializeCrocomire(occupant, place))
+    {
+    }
 
     /// <summary>The encounter the body set up.</summary>
-    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireEnemyState>();
+    internal override CrocomireEnemyState Encounter { get; } = encounter;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, Encounter, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, Encounter, context);
 
     /// <inheritdoc/>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
@@ -66,6 +80,9 @@ internal sealed partial class CrocomireBodyEntity(CrocomireBehavior species, Roo
 
     /// <summary>The body takes normal bombs on its frames' hitboxes, which own his shot reaction.</summary>
     public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => collidesByFrameHitboxes;
+
+    /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

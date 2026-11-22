@@ -74,7 +74,7 @@ public static partial class FileSelectPresentationExtractor
         var pages = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal)
         {
             [FileSelectPresentationFormat.BackgroundPageName] = Cells(
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
+                RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.Background,
                     MapSourceDefinitions.Menu.TilemapBytes)),
             [FileSelectParts.PageName(FileSelectPage.MainWithData)] = Cells(mainWithData),
             [FileSelectParts.PageName(FileSelectPage.MainEmpty)] = Cells(mainEmpty),
@@ -235,7 +235,7 @@ public static partial class FileSelectPresentationExtractor
         int x = 0, y = 0;
         while (true)
         {
-            int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            int word = RomDataReader.ReadWordFixedBank(bus, address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
             if (FileSelectTextControls.Of(word) is { } control)
             {

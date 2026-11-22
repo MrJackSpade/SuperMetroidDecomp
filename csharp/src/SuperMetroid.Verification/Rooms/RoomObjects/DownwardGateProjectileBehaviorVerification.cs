@@ -22,10 +22,10 @@ internal static class DownwardGateProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyDownwardGateProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        EnemyProjectile gate = FamilyProjectileStarts.Spawn(enemies, 0, RoomEnemyProjectileKind.DownwardGateMoving,
+        EnemyProjectile gate = FamilyProjectileStarts.Spawn(enemies, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.

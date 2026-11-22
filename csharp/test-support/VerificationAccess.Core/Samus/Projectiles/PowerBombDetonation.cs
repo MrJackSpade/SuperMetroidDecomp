@@ -23,7 +23,7 @@ internal static class PowerBombDetonation
     {
         Ensure.NotNull(runtime);
         Ensure.NotNull(step);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxPowerBombs = samus.PowerBombs = 5;

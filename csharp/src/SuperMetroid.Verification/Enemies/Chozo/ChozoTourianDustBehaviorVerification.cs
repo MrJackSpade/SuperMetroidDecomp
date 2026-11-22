@@ -20,11 +20,11 @@ internal static class ChozoTourianDustBehaviorVerification
     /// </summary>
     internal static void VerifyChozoTourianDustBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, ChozoTourianDustNativeListAddresses.Extent, "Chozo/Tourian dust");
         // The statue's descent dust spawns only in the Tourian statue room (#2382), which the enemies are built for (#2426).
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null),
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         // The scatter draws again while a candidate falls below its center, so the fixture's random sequence advances.
         ushort random = 0;
         enemies.VerificationServices().NextRandom = () => random = unchecked((ushort)(random + 4951));
@@ -36,7 +36,7 @@ internal static class ChozoTourianDustBehaviorVerification
                          ChozoTourianDustNativeListAddresses.DescentDustStart),
                  })
         {
-            EnemyProjectile dust = FamilyProjectileStarts.Spawn(enemies, 0, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
+            EnemyProjectile dust = FamilyProjectileStarts.Spawn(enemies, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
             dust.Anchor = new(128, 96);
             AssertTrue(dust.Animation is ChozoTourianDustAnimation animation && animation.PlayingSegment == program, $"{kind} starts {program}");
             (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, nativeStart, 600, kind.ToString());

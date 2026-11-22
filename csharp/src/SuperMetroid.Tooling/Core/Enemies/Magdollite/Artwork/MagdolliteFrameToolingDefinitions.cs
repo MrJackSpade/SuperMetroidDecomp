@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Magdollite.Artwork;
 
-/// <summary>Development-tool members of <see cref="MagdolliteAnimations"/>; never linked by player hosts.</summary>
+/// <summary>Development-tool members of the Magdollite's animations (<see cref="MagdolliteHeadAnimations"/>); never linked by player hosts.</summary>
 internal static class MagdolliteFrameToolingDefinitions
 {
     /// <summary>The bank holding the spritemaps.</summary>

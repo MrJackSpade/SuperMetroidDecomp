@@ -13,28 +13,25 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 internal partial class BlockReactionObject : RoomObjectBehaviour
 {
-    /// <summary>A reaction of <paramref name="change"/>'s timing whose setup saved no terrain, so none of its images restores a block.</summary>
-    internal BlockReactionObject(BlockReactionChange change)
-    {
-        Change = Ensure.NotNull(change);
-        _images = Playing(change);
-    }
-
     /// <summary>
     /// A reaction of <paramref name="change"/>'s timing whose setup saved <paramref name="savedTerrain"/>, which its images
-    /// restore where they ask for it (#2484).
+    /// restore where they ask for it (#2484). A reaction whose setup saves none is a <see cref="LastingBlockReactionObject"/>.
     /// </summary>
     internal BlockReactionObject(BlockReactionChange change, RoomTerrainBlock savedTerrain)
-        : this(change) => SavedTerrain = savedTerrain;
+    {
+        Change = Ensure.NotNull(change);
+        SavedTerrain = savedTerrain;
+        _images = Playing(change);
+    }
 
     /// <summary>The reaction's authored timing.</summary>
     internal BlockReactionChange Change { get; }
 
     /// <summary>
-    /// The terrain the reaction's setup saved at its block, which it restores as the block grows back; null when its setup
-    /// saved none. Grapple setup saves the earlier block; collision-bomb setup saves the bomb block's parent instead.
+    /// The terrain the reaction's setup saved at its block, which it restores as the block grows back. Grapple setup saves
+    /// the earlier block; collision-bomb setup saves the bomb block's parent instead.
     /// </summary>
-    internal RoomTerrainBlock? SavedTerrain { get; }
+    internal RoomTerrainBlock SavedTerrain { get; }
 
     /// <summary>
     /// The reaction's images playing, each for its own updates: its first shows on the update its first delay runs out
@@ -54,17 +51,11 @@ internal partial class BlockReactionObject : RoomObjectBehaviour
         }
         if (frame.SoundBefore is { } sound)
             context.QueueSound(sound, frame.SoundPriority);
-        switch (frame.Image)
-        {
-            case BlockReactionImage.Drawn drawn:
-                context.Draw(place, drawn.Draw);
-                break;
-            case BlockReactionImage.RestoresSavedTerrain:
-                RestoreBlock(place, context);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined block reaction image {frame.Image}.");
-        }
+        // An image is a draw at the block or the block's saved terrain restored.
+        if (frame.Image is BlockReactionImage.Drawn drawn)
+            context.Draw(place, drawn.Draw);
+        else
+            RestoreBlock(place, context, SavedTerrain);
         // The owner of the room's block reactions learns as each image shows whether the block now stands broken open,
         // which a room object waiting on a block's breakup observes.
         context.RoomObjects.BlockReactions.RecordImageShown(place.Block, frame.Image);
@@ -73,10 +64,9 @@ internal partial class BlockReactionObject : RoomObjectBehaviour
     /// <summary>Restores the terrain the reaction's setup saved where an image asks for it.</summary>
     /// <param name="place">The reaction's place.</param>
     /// <param name="context">The update.</param>
-    /// <exception cref="InvalidOperationException">The reaction's setup saved no terrain.</exception>
-    private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context) =>
-        context.DrawSavedTerrain(place, SavedTerrain
-            ?? throw new InvalidOperationException($"The block reaction at block {place.Block} restores a block its setup never saved."));
+    /// <param name="saved">The terrain the reaction's setup saved.</param>
+    private protected virtual void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context, RoomTerrainBlock saved) =>
+        context.DrawSavedTerrain(place, saved);
 
     /// <summary><paramref name="change"/>'s images, played from its first delay.</summary>
     private static AnimationPlayer<RoomObjectFrameRun, BlockReactionFrame, NoAnimationCue> Playing(BlockReactionChange change)

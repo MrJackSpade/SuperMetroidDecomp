@@ -30,10 +30,7 @@ internal static class WorkRobotBombRejectionVerification
             bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
             bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole);
             var context = new EnemyBombContext(place.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-                SelectedShot: SuperMetroid.Core.Enemies.WorkRobots.WorkRobotReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
-            {
-                StruckOccupant = place.OccupantStates,
-            };
+                SelectedShot: SuperMetroid.Core.Enemies.WorkRobots.WorkRobotReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0));
             EnemyBombReaction reaction = (place.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(context)
                 ?? throw new InvalidOperationException($"{robot} has no bomb reaction of its own.");
             AssertTrue(reaction.Rejects is null || !reaction.Rejects(context), $"{robot}'s own bomb reaction takes the bomb");

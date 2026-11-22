@@ -124,8 +124,8 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<AudioRequest> commands = frame == 0
                 ?
                 [
-                    new AudioRequest.ChangeMusicDataSet(null),
-                    new AudioRequest.ChangeMusicDataSet(bank.DataSet),
+                    new AudioRequest.InstallSharedSounds(),
+                    new AudioRequest.ChangeMusicDataSet(bank.DataSet ?? throw new InvalidDataException("The music upload names no data set.")),
                     AudioRequest.ForTrack(MusicTrack.SamusFanfare),
                 ]
                 : Array.Empty<AudioRequest>();
@@ -147,7 +147,7 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
+                commands.Add(new AudioRequest.InstallSharedSounds());
                 commands.AddRange(startSounds.Select(sound => new AudioRequest.RequestSound(sound)));
             }
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
@@ -173,8 +173,8 @@ public static class ManagedAudioRegressionSmokeTest
             List<AudioRequest> commands = [];
             if (frame == 0)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(null));
-                commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet));
+                commands.Add(new AudioRequest.InstallSharedSounds());
+                commands.Add(new AudioRequest.ChangeMusicDataSet(first.DataSet ?? throw new InvalidDataException("The music upload names no data set.")));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.SamusFanfare));
             }
             else if (frame == 120)
@@ -183,7 +183,7 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 150)
             {
-                commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet));
+                commands.Add(new AudioRequest.ChangeMusicDataSet(second.DataSet ?? throw new InvalidDataException("The music upload names no data set.")));
                 commands.Add(AudioRequest.ForTrack(MusicTrack.SamusFanfare));
             }
             else if (frame == 270)
@@ -228,7 +228,7 @@ public static class ManagedAudioRegressionSmokeTest
         reported[0] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         int reportedAt = 1;
         foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
-            reported[reportedAt++] = SoundEffectPortBytes.PortByte(acknowledgements[library]);
+            reported[reportedAt++] = SoundEffectPortBytes.PortByte(library, acknowledgements[library]);
         tally.Acknowledgements.AppendData(reported);
         tally.Frames++;
         tally.Samples += pcm.Length;

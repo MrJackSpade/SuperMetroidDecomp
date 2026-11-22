@@ -63,21 +63,21 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             int record = MotherBrainBabyPageListConstants.BabyTileList +
                 page * MotherBrainBabyPageListConstants.RecordSize;
             AssertEqual(MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
+                RomDataReader.ReadWordFixedBank(rom, record),
                 $"Baby tile record {page} size");
             uint source = (uint)(int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
+                RomDataReader.ReadWordFixedBank(rom, record + 2));
             AssertEqual((uint)(MotherBrainSourceDefinitions.SpecialSprites.Sources[baby.Sheet] +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5) * 2,
+                RomDataReader.ReadWordFixedBank(rom, record + 5) * 2,
                 $"Baby page {page} shows where the cartridge's record places it");
             EncounterArtworkUpload shown = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, new EnemyTileTransfers(stock, timer: InstalledFixtures.ImportMaps.EscapeTimerTiles))
                 .CopiesOf(EncounterLookUploads.MotherBrainBabyLook)[page];
             AssertEqual(ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(baby, page)) - ObjectCharactersByte, shown.FirstByte,
                 $"the Baby's look copies page {page} at its record's characters");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record), shown.Characters.Length,
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom, record), shown.Characters.Length,
                 $"the Baby's look copies page {page}'s record's bytes");
         }
         Suite(nameof(VerifyMotherBrainLegLoadPages), () => VerifyMotherBrainLegLoadPages(stock, rom));
@@ -102,7 +102,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         AssertEqual(MotherBrainLegLoadListConstants.RecordCount, MotherBrainWaitDefinitions.BeforePauseUpdates,
             "the wait before her pause lasts one update a leg-loading record");
         SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(standing.Take(copied)), resolver);
-        var state = new MotherBrainEnemyState(global::SuperMetroid.Core.Enemies.RoomEnemyPlaceOccupantAccess.BoundFor(enemies.Places.InUpdateOrder[0], global::SuperMetroid.Core.Enemies.EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var state = new MotherBrainEnemyState(global::SuperMetroid.Core.Enemies.RoomEnemyPlaceOccupantAccess.BoundFor(enemies.Places.InUpdateOrder[0], global::SuperMetroid.Core.Enemies.EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
 
         // The rise starts the floor's clip and the wait before her pause once its preparation runs out.
         state.AscentPhase = MotherBrainAscentPhase.PrepareForRising;
@@ -111,10 +111,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         {
             int record = MotherBrainLegLoadListConstants.NativeListAddress +
                 page * MotherBrainLegLoadListConstants.RecordByteCount;
-            int nativeSize = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record);
+            int nativeSize = RomDataReader.ReadWordFixedBank(rom, record);
             int nativeSource = (int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
-            int nativeDestination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5);
+                RomDataReader.ReadWordFixedBank(rom, record + 2));
+            int nativeDestination = RomDataReader.ReadWordFixedBank(rom, record + 5);
 
             if (page == 0)
                 MotherBrainAscent.PrepareMotherBrainForRising(state);
@@ -136,7 +136,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         int terminator = MotherBrainLegLoadListConstants.NativeListAddress +
             MotherBrainLegLoadListConstants.RecordCount *
             MotherBrainLegLoadListConstants.RecordByteCount;
-        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
+        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(rom, terminator),
             "Mother Brain leg-loading page eleven is followed by native zero terminator");
 
         // The pause's first update is the wait's last, so it has taken its first step of the updates it lasts.
@@ -187,7 +187,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         var vram = new SnesVram();
         for (int page = 0; page < sheet.PageCount; page++)
         {
-            byte[] bytes = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] bytes = RomDataReader.ReadFixedBank(bus,
                 MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet] + page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 MotherBrainSpecialSpriteSheetDefinition.PageByteCount);
             int destination = ShownByte(MotherBrainSpecialSprites.PageFirstCharacter(sheet, page));

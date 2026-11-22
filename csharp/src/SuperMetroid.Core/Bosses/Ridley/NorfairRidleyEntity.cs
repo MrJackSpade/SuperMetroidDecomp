@@ -12,14 +12,26 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, NorfairRidleyState encounter)
     : RidleyEntity(norfair.Body, occupant, place, common)
 {
-    /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
-    internal override NorfairRidleyState Encounter => Place.RequireSpeciesState<NorfairRidleyState>();
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place Ridley occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(norfair, occupant, place, common, norfair.Combat.InitializeNorfairRidley(place))
+    {
+    }
 
-    /// <inheritdoc/>
-    public override void Initialize() => norfair.Combat.InitializeNorfairRidley(Place);
+    /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
+    internal override NorfairRidleyState Encounter { get; } = encounter;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => norfair.RunRidleyMainAi(Place, Encounter, frame);

@@ -31,7 +31,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<DraygonSegment>().Length, Entries.Length, "every typed Draygon program has a native entry");
         for (int index = 0; index < Entries.Length; index++)
             AssertEqual((DraygonSegment)index, Entries[index].Program, "the Draygon programs are declared in authored order");
@@ -213,18 +213,14 @@ internal static class DraygonAnimationsVerification
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
     private static NewDraygonResult NewDraygon()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        body.SetSpeciesState(state);
-        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
-        state.Eye.SetSpeciesState(state.EyePart);
-        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
-        state.Tail.SetSpeciesState(state.TailPart);
-        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
-        state.Arms.SetSpeciesState(state.ArmsPart);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // His room's population sets up his body, eye, tail and arms in their order; the encounter is the one his body's
+        // setup built, which each part's setup joins.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonBody, new Position16<RoomPixels>(256, 384)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonEye), PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonTail),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonArms))[0];
+        DraygonEnemyState state = body.EntityOf<DraygonEntity>().Encounter;
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         enemies.VerificationServices().NextRandom = () => 4660;
@@ -236,9 +232,16 @@ internal static class DraygonAnimationsVerification
     private static AnimationPlayback<DraygonSegment> Started(DraygonSegment segment) =>
         new(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
-    private static void Pass(RoomEnemyPlace part) =>
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+    /// <summary>
+    /// Runs one update of <paramref name="part"/>'s animation as the shared enemy animation runs a Draygon part's, over the
+    /// part the check built.
+    /// </summary>
+    private static void Pass(RoomEnemySystem enemies, DraygonPart part) =>
+        enemies.DraygonBehavior.AdvanceDraygonTypedAnimation(part, new EnemyAnimationCueContext
+        {
+            Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)),
+            Camera = Position16<RoomPixels>.Zero, ControllerInput = 0,
+        });
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the
@@ -246,10 +249,10 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     private static void VerifyReset()
     {
-        (_, DraygonEnemyState state) = NewDraygon();
+        (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         state.BodyPart.SetAnimation(DraygonSegment.BodyFacingRightReset);
         state.Body.AnimationClock.StepOnNextUpdate();
-        Pass(state.Body);
+        Pass(enemies, state.BodyPart);
         AssertEqual(Started(DraygonSegment.EyeFacingRightIdle), state.EyePart.Playback, "the reset starts the eye");
         AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.TailPart.Playback, "the reset starts the tail");
         AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.ArmsPart.Playback, "the reset starts the arms");
@@ -272,9 +275,14 @@ internal static class DraygonAnimationsVerification
         foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         {
             (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-            enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0);
+            // A leftward pass leads into the rightward setup, a rightward one into the leftward swoop (DraygonSwoops); the
+            // check ends before the pass reaches it, so the leftward swoop flies a one-height path.
+            DraygonPhaseStep exit = direction == HorizontalDirection.Left
+                ? DraygonPhaseSteps.RightSwoopSetup()
+                : DraygonPhaseSteps.LeftSwoopSetup(new DraygonSwoopPath([0], startHeight: 0));
+            enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0, exit);
             AssertEqual(Started(DraygonSegment.Rest), state.ArmsPart.Playback, $"a {direction} goop pass's setup leaves the arms' animation");
-            Pass(state.Body);
+            Pass(enemies, state.BodyPart);
             AssertEqual(Started(direction == HorizontalDirection.Right ? DraygonSegment.ArmsFacingRightIdle : DraygonSegment.ArmsFacingLeftIdle),
                 state.ArmsPart.Playback, $"the {direction} goop pass's reset starts the arms before they play");
         }
@@ -296,7 +304,7 @@ internal static class DraygonAnimationsVerification
         for (int update = 0; update < 400; update++)
         {
             enemies.Audio.BeginFrame();
-            Pass(arms);
+            Pass(enemies, state.ArmsPart);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
             SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, arms.AnimationClock, at);
@@ -327,7 +335,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     internal static void VerifyDraygonProjectileAnimations(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<DraygonProjectileSegment>().Length, ProjectileEntries.Length, "every projectile segment has a native entry");
         Dictionary<DraygonProjectileSegment, NativeEnemyList<DraygonProjectileSegment>> projectileLists =
             ProjectileEntries.ToDictionary(item => item.Program, item => ReadProjectileList(cartridge, item.Program, item.Entry));

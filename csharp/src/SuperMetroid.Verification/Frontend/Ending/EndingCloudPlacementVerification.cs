@@ -43,7 +43,7 @@ internal static class EndingCloudPlacementVerification
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
         // native objects are drawn over the characters $8B:D4D1 decompresses from the cartridge to the OBJ name base (#1497).
         byte[] nativeCloudCharacters = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus),
+                bus,
                 SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
                 SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.DecompressionLimit)
             .AsSpan(0, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.CloudByteCount).ToArray();

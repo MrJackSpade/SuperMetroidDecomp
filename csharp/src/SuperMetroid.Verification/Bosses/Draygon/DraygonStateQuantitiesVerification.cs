@@ -56,7 +56,7 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>Puts a blob of Draygon goop that has just stuck to Samus in the last projectile slot.</summary>
     private static EnemyProjectile AttachedGoop(RoomEnemySystem enemies)
     {
-        EnemyProjectile goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
+        EnemyProjectile goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopStuckToSamus);
         enemies.DraygonBehavior.Shots.Goop.Attached.Start(goop, new DraygonGoopAttachedState(stackPosition: 1));
         return goop;
@@ -97,7 +97,7 @@ internal static class DraygonStateQuantitiesVerification
         // A centre on the spiral's upper limit ends the step at the lift check, before Samus is moved.
         state.SpiralCenter = DraygonRegrabSpiralLift.At(FixedPosition<RoomPixels>.FromWhole(new(256, 64)));
         Position16<RoomPixels> center = state.SpiralCenter.Center.Whole;
-        state.Phase = DraygonPhase.FlailWithSamus;
+        state.Step = DraygonPhaseSteps.FlailWithSamus();
 
         enemies.DraygonBehavior.Grab.CarrySamusInDraygonSpiral(state, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
 
@@ -150,21 +150,22 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState still) = NewDraygon();
         AssertThrows<ArgumentOutOfRangeException>(() => still.SwoopAcceleration = default,
             "Draygon's swoop acceleration is never set to none");
-        AssertTrue(still.SwoopPath is null, "Draygon has no swoop path before he plans one");
+        AssertTrue(still.Step is not DraygonSwoopStep, "Draygon has no swoop path before he plans one");
     }
 
     /// <summary>
-    /// Builds a swoop path under <paramref name="acceleration"/> 256ths of a pixel per update per update to
-    /// <paramref name="resetY"/> and compares it, entry by entry, with the original game's table build.
+    /// Starts a rightward swoop, as Draygon's phase step does, under <paramref name="acceleration"/> 256ths of a pixel per
+    /// update per update to <paramref name="resetY"/>, and compares the path it plans, entry by entry, with the original
+    /// game's table build.
     /// </summary>
     private static void VerifySwoopPath(ushort acceleration, ushort resetY, int? expectedCount = null)
     {
-        (_, DraygonEnemyState state) = NewDraygon();
+        (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         const ushort resetX = 65456;
         state.LeftSideReset = new Position16<RoomPixels>(resetX, resetY);
         state.SwoopAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
 
-        DraygonSwoops.BuildDraygonSwoopYPositions(state, NewSwoopSamus());
+        enemies.DraygonBehavior.Swoops.SetupDraygonRightSwoop(state, NewSwoopSamus(), frameCounter: 0);
 
         var expected = new List<ushort>();
         ushort y = 384, speed = 0;
@@ -179,7 +180,7 @@ internal static class DraygonStateQuantitiesVerification
         }
         if (expectedCount is { } count)
             AssertEqual(count, expected.Count, $"the reference table build under acceleration {acceleration} holds {count} heights");
-        DraygonSwoopPath path = state.SwoopPath ?? throw new InvalidOperationException("The swoop plans its path.");
+        DraygonSwoopPath path = (state.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The swoop plans its path.");
         AssertEqual(expected.Count, path.EntryCount, "swoop path sample count");
         for (int index = 0; index < expected.Count; index++)
             AssertEqual(expected[index], path.HeightAt(index), $"swoop path sample {index}");
@@ -197,18 +198,14 @@ internal static class DraygonStateQuantitiesVerification
     /// <summary>A Draygon encounter over a fresh enemy system with all four parts bound and asleep.</summary>
     private static NewDraygonResult NewDraygon()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body.HeldOccupant(), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        body.SetSpeciesState(state);
-        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.KeptDefinition);
-        state.Eye.SetSpeciesState(state.EyePart);
-        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.KeptDefinition);
-        state.Tail.SetSpeciesState(state.TailPart);
-        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.KeptDefinition);
-        state.Arms.SetSpeciesState(state.ArmsPart);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // His room's population sets up his body, eye, tail and arms in their order; the encounter is the one his body's
+        // setup built, which each part's setup joins.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonBody, new Position16<RoomPixels>(256, 384)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonEye), PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonTail),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.DraygonArms))[0];
+        DraygonEnemyState state = body.EntityOf<DraygonEntity>().Encounter;
         foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
             part.SetAnimation(DraygonSegment.Rest);
         // A nonzero low byte keeps the spiral from inserting a tail whip.

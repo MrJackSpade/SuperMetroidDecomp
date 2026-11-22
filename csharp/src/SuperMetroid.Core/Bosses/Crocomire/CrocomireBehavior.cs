@@ -8,15 +8,44 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire];
+
+    /// <summary>
+    /// Crocomire's body, built the same way wherever it is set up, which offers his tongue, listed right after it, the
+    /// creation that builds it joining his encounter (#2146, #2400, #2554); a tongue no body offered is rejected where it
+    /// is bound.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.Crocomire] = (occupant, place, common) => EnemyOccupant.Of(new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork)),
-        [EnemyDefinitionId.CrocomireTongue] = (occupant, place, common) => EnemyOccupant.Of(new CrocomireTongueEntity(this, occupant, place, common)),
-    };
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
+        registrar.Joins([EnemyDefinitionId.CrocomireTongue]);
+    }
+
+    /// <summary>Crocomire's body, which offers his tongue the creation that builds it joining his encounter.</summary>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        var body = new CrocomireBodyEntity(this, occupant, place, common, _bossArtwork);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.CrocomireTongue, new TongueJoining(this, body.Encounter).CreateTongue);
+        return EnemyOccupant.Running(body);
+    }
+
+    /// <summary>The creation his body offers his tongue (#2554): the tongue joining the encounter his body began.</summary>
+    /// <param name="species">The Crocomire species owner.</param>
+    /// <param name="encounter">The encounter his body began.</param>
+    private sealed partial class TongueJoining(CrocomireBehavior species, CrocomireEnemyState encounter)
+    {
+        /// <summary>His tongue, joining his encounter.</summary>
+        internal EnemyOccupant CreateTongue(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new CrocomireTongueEntity(species, occupant, place, common, encounter));
+    }
+
+    /// <summary>Where his body offers his tongue the creation that builds it joining his encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,6 +76,7 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFac
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
+        _partOffers = dependencies.PartOffers;
         _room = dependencies.Room;
         Access = dependencies.Access;
         BodyLayer = dependencies.BodyLayer;
@@ -59,13 +89,12 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Runs Crocomire's main AI for one update: the fight, or the stage of his death he is at.</summary>
     internal void RunCrocomireMain(
-        RoomEnemyOccupant crocomire,
+        RoomEnemyOccupant crocomire, CrocomireEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
         RoomEnemyPlace place = crocomire.Place;
-        CrocomireEnemyState state = place.RequireSpeciesState<CrocomireEnemyState>();
 
         if (state.DeathStage.Entry is CrocomireDeathStage.Fighting)
         {
@@ -122,7 +151,7 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFac
             CrocomireMelting.BeginCrocomireMelting(context.State);
         },
         Dissolve: static (_, context) => context.Owner.Melting.RunCrocomireMelting(context.State),
-        ClearMeltImage: static (_, context) => context.Owner.Melting.FinishCrocomireMeltingPass(context.State),
+        ClearMeltImage: static (_, context) => CrocomireMelting.FinishCrocomireMeltingPass(context.State),
         FinalSink: static (_, context) => context.Owner.BridgeCollapse.RunCrocomireFinalSink(context.State, context.Camera),
         FlowDownRiver: static (_, context) => CrocomireSkeleton.RunCrocomireSkeletonRiver(context.State),
         WaitForSamusAtWall: static (_, context) => context.Owner.Skeleton.RunCrocomireWaitBehindWall(context.State, context.Samus),
@@ -145,15 +174,15 @@ internal sealed partial class CrocomireBehavior : IEnemySpecies, IEnemyEntityFac
     private readonly partial record struct RunCrocomireDeathSequenceContext(CrocomireEnemyState State, Position16<RoomPixels> Camera, SamusState Samus, CrocomireBehavior Owner);
 
     /// <summary>Advances Crocomire's typed animation.</summary>
-    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemyPlace place, CrocomireEnemyState crocomireEnemyState, EnemyAnimationCueContext context)
     {
-        Fight.AdvanceCrocomireBodyAnimation(place, context.Samus, context.Level, context.Camera.X);
+        Fight.AdvanceCrocomireBodyAnimation(place, crocomireEnemyState, context.Samus, context.Level, context.Camera.X);
     }
 
     /// <summary>Runs Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, IEnemyAiFrame frame)
+    internal void RunCrocomireMainAi(RoomEnemyOccupant crocomire, CrocomireEnemyState crocomireEnemyState, IEnemyAiFrame frame)
     {
         _ = crocomire.Place;
-        RunCrocomireMain(crocomire, frame.Samus, frame.PseudoScrew, frame.Camera);
+        RunCrocomireMain(crocomire, crocomireEnemyState, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

@@ -33,7 +33,7 @@ public static partial class CeresRidleyGetawayBoostDelayFiles
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         foreach (SnesAddress capsule in CapsuleFrames)
             RequireRuns(cartridge, capsule, CapsuleRunCount);
         int capsuleBytes = CapsuleRunCount * DescriptorBytes;
@@ -65,7 +65,7 @@ public static partial class CeresRidleyGetawayBoostDelayFiles
             JsonAssetDocument.Read<CeresRidleyGetawayBoostDelayDocument>(json, ArtworkJson.Options, "Ceres Ridley getaway boost delay");
         if (document.Version != CeresRidleyGetawayBoostDelayFormat.Version)
             throw new InvalidDataException($"Ceres Ridley getaway boost delays require version {CeresRidleyGetawayBoostDelayFormat.Version}.");
-        Dictionary<CeresFloorActorPicture, IReadOnlyList<int>> wings = Validated(Frames(document.WingFrames));
+        Dictionary<CeresFloorActorPicture, IReadOnlyList<int>> wings = Validated(document.WingFrames);
         return new CeresRidleyGetawayBoostDelays(wings[CeresFloorActorPicture.WingsRaised], wings[CeresFloorActorPicture.WingsLowered]);
     }
 
@@ -97,11 +97,6 @@ public static partial class CeresRidleyGetawayBoostDelayFiles
         }
         return copy;
     }
-
-    /// <summary>The document's wing frames, which a malformed document can leave out.</summary>
-    /// <exception cref="InvalidDataException">The document names no wing frames.</exception>
-    private static Dictionary<string, int[]> Frames(Dictionary<string, int[]>? frames) =>
-        frames ?? throw new InvalidDataException("Ceres Ridley getaway boost delays name no wing frames.");
 
     /// <summary>Serializes the document as UTF-8 JSON.</summary>
     /// <param name="document">The complete delay document.</param>

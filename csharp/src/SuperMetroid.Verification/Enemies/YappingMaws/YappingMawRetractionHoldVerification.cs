@@ -44,8 +44,8 @@ internal static class YappingMawRetractionHoldVerification
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, frame);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
@@ -55,7 +55,7 @@ internal static class YappingMawRetractionHoldVerification
             state.HasGrabbedSamus = true;
             state.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
             samus.Position = samus.Position.WithWhole(EarlierHold);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
 
             AssertEqual(YappingMawAction.RetractedDelay, state.Action, $"{context}: the curl below nothing ends the retraction");
             AssertEqual(moved ? place.Position.Whole + state.HeldSamusOffset : EarlierHold, samus.Position.Whole,
@@ -74,8 +74,8 @@ internal static class YappingMawRetractionHoldVerification
         place.Position = place.Position.WithWhole(new(128, 128));
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 301);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, reachParameter);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place);
-        YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
+        // The Maw's setup builds the state its main AI and animation run on.
+        YappingMawEnemyState state = enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }
 }

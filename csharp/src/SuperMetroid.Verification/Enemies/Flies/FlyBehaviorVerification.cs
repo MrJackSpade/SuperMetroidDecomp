@@ -25,10 +25,8 @@ internal static class FlyBehaviorVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(definition, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            FliesBehavior.InitializeFly(place);
-            AssertEqual(new AnimationPlayback<FlySegment>(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation),
-                (enemies.Places.InUpdateOrder[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Playback,
-                $"fly {definition} initializer animation");
+            // The fly is set up as the population load sets it up.
+            _ = enemies.LoadAuthoredPopulation();
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, 9),
                 $"fly {definition} runs the flight loop");
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -23,58 +24,47 @@ public sealed partial class SuperMetroidGame
     internal FrontendSession Session { get; }
 
     /// <summary>
-    /// Binds installed artwork whenever a host binds the game to its content (<see cref="GameSessionComposer.Bind"/>). Each
-    /// catalog whose reference changed reaches the scenes that hold it; unchanged catalogs are left alone. The live runtime
-    /// binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
+    /// Binds installed artwork in place of the catalogs the game holds, as a host does when it binds a game it brings back to
+    /// its content (<see cref="GameSessionComposer.Bind"/>). Each catalog whose reference changed reaches the scenes that
+    /// hold it; unchanged catalogs are left alone. The live runtime binds through <see cref="SuperMetroidRuntime.BindArtwork"/>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A screen is shown in a session no host bound artwork to before.</exception>
     internal void BindArtwork(GameArtwork artwork)
     {
         Ensure.NotNull(artwork);
-        GameArtwork? previous = Session.ArtworkBound ? Session.Artwork : null;
+        GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
         Session.Runtime?.BindArtwork(artwork.Gameplay);
-        if (previous is null || !ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
             Session.saves.BindMaps(artwork.ScreenContent.Maps);
-        // Every screen is built over the session's bound artwork, so a shown screen always has artwork to rebind from.
-        if (Session.Screen is { } screen)
-            screen.BindArtwork(previous ?? throw new InvalidOperationException(
-                "A frontend screen is shown in a session whose installed artwork was never bound."), artwork);
+        Session.Screen?.BindArtwork(previous, artwork);
     }
 
 
     /// <summary>
     /// Creates a reset-state session, reading the selected save slot and fixing the power-on save check's outcome
-    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs.
-    /// </summary>
-    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
-    /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    public SuperMetroidGame(
-        SaveSlotStore saves,
-        GameplayAssists? assists = null)
-        : this(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom())
-    {
-    }
-
-    /// <summary>
-    /// Creates the game-state loop with host-supplied timing and display policies: a host may supply its own timing
-    /// or keep the display it shows while it reads the game's state.
+    /// (<see cref="Compatibility.PowerOnEarthquakeSoundDelay"/>) before any update runs. Every host composes its game
+    /// through <see cref="GameSessionComposer.Create"/>, which passes the game's own timing and a session random of its own.
     /// </summary>
     /// <remarks>
     /// Frontend screens are always rendered because their state machines own their own compositors; only
     /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
-    /// <param name="saves">The saves the session owns.</param>
+    /// <param name="saves">The saves the session owns; the host loads them and persists them on <see cref="SavesChanged"/>.</param>
     /// <param name="assists">The assists the session plays under, or <see langword="null"/> for the unassisted game.</param>
-    /// <param name="hostServices">The compatibility services and display policy.</param>
+    /// <param name="hostServices">The compatibility services and display policy: <see cref="SuperMetroidGameHostServices.Default"/>
+    /// for a host on the game's own timing, or the timing a recorded session ran with.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
+    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="artwork">The installed catalogs the game draws from.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
-        SharedRandom random)
+        SharedRandom random,
+        GameAudioOutput audioOutput,
+        GameArtwork artwork)
     {
-        Session = new FrontendSession(saves, assists, hostServices, random);
+        Session = new FrontendSession(saves, assists, hostServices, random, audioOutput, artwork);
     }
 
     /// <summary>The session's saves, which the host persists after <see cref="SavesChanged"/>.</summary>
@@ -91,21 +81,15 @@ public sealed partial class SuperMetroidGame
     }
 
     /// <summary>
-    /// Binds the installed sound clips whenever a host binds the game to its content, so every following update also
-    /// mixes its sound into the samples the host copies (<see cref="CopyAudioFrame"/>).
+    /// Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned
+    /// storage: the game's sound mixed from the clips it was built with, or silence from a muted game.
     /// </summary>
     /// <remarks>
-    /// Binding affects presentation only. Each update advances the session's sound acceptance clock and
-    /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
-    /// with audio enabled, disabled, or without an output device.
+    /// The output is presentation only. Each update advances the session's sound acceptance clock and its sound-effect
+    /// acknowledgements whatever the output, so gameplay is identical with audio enabled, disabled, or without an output
+    /// device.
     /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
-    internal void BindAudio(ClipAudioLibrary clips) => Session.audioSession.BindClips(clips);
-
-    /// <summary>Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned storage.</summary>
-    /// <exception cref="InvalidOperationException">No audio catalog is bound.</exception>
-    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than an update's samples.</exception>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than one update's samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 
@@ -128,14 +112,35 @@ public sealed partial class SuperMetroidGame
     public DoorDefinition? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;
 
 
+    /// <summary>
+    /// What <paramref name="phase"/>'s current step runs on, matched once from its need (#2554): a step that runs gameplay
+    /// runs only on the session's runtime, and one in a room only once that runtime has loaded one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The session has not loaded what the step runs on.</exception>
+    internal PhaseGameplay MatchGameplay(IGamePhase phase)
+    {
+        Ensure.NotNull(phase);
+        if (phase.Need == PhaseGameplayNeed.Nothing)
+            return PhaseGameplay.Frontend.Instance;
+        if (phase.Need == PhaseGameplayNeed.Runtime && Session.Runtime is { } runtime)
+            return new PhaseGameplay.OfRuntime(runtime);
+        if (phase.Need == PhaseGameplayNeed.LoadedRoom && Session.Runtime is { Room.Scope: { } room } roomRuntime)
+            return new PhaseGameplay.InRoom(new LoadedGameplay(roomRuntime, room));
+        throw new InvalidOperationException($"The {phase.Name} step runs on {phase.Need}, which the session has not loaded.");
+    }
+
     /// <summary>Runs one update and returns its status.</summary>
     internal FrontendFrame Step(ControllerButton controllerInput)
     {
         // The sound queues read whether the door transition has disabled sound effects from the door's phase itself as each
         // request is made (#2499); the phase's audio here chooses only the update's own audio processing.
-        GamePhaseAudio phaseAudio = Session.RunningPhase.Audio;
+        IGamePhase phase = Session.RunningPhase;
+        PhaseGameplay gameplay = MatchGameplay(phase);
+        GamePhaseAudio phaseAudio = phase.Audio;
         bool publishesHeldInputAfterPause = phaseAudio == GamePhaseAudio.PublishesHeldInputAfterPause;
-        bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
+        // The runtime whose message box was open as the update began, or none when no box was open.
+        SuperMetroidRuntime? boxRuntime = Session.Runtime?.MessageBox.IsActive == true ? Session.Runtime : null;
+        bool messageWasActive = boxRuntime is not null;
         bool doorAudioUpdate = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         // Whether this update continues the door's destination load, and whether it leaves the load running, are read
         // before the phase steps.
@@ -153,16 +158,26 @@ public sealed partial class SuperMetroidGame
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
         // Frames pass on the frame counters while a door loads a new music data set
         // (IDoorMusicLoadFrames); nothing between this update's frame boundary and the load reads them.
-        if (doorAudioUpdate && musicRequestsBeforePhase.Any(request => request is AudioRequest.ChangeMusicDataSet))
-            Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
+        if (doorAudioUpdate && gameplay is PhaseGameplay.InRoom { Live.Runtime: var doorRuntime } &&
+            musicRequestsBeforePhase.Any(request => request is AudioRequest.ChangeMusicDataSet))
+            doorRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         FrameNumber = checked(FrameNumber + 1);
         Session.display.BeginUpdate(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
-        AdvanceMenuRandom();
+        AdvanceMenuRandom(phase, gameplay);
         if (Session.Runtime is not null)
             Session.Runtime.RunningGameState = Session.GameState;
-        Session.RunningPhase.Step(controllerInput);
+        if (phase is IFrontendPhase frontend && gameplay is PhaseGameplay.Frontend)
+            frontend.Step(controllerInput);
+        else if (phase is IUnattendedPhase unattended && gameplay is PhaseGameplay.Frontend)
+            unattended.Step();
+        else if (phase is IRuntimePhase runtimePhase && gameplay is PhaseGameplay.OfRuntime ofRuntime)
+            runtimePhase.Step(controllerInput, ofRuntime.Runtime);
+        else if (phase is IGameplayPhase gameplayPhase && gameplay is PhaseGameplay.InRoom inRoom)
+            gameplayPhase.Step(controllerInput, inRoom.Live);
+        else
+            throw new InvalidOperationException($"The {phase.Name} step has no step on {phase.Need}.");
 
         Session.CollectFrontendAudioRequests();
         // Opening a message box cancels sound effects before the box's first update.
@@ -174,10 +189,10 @@ public sealed partial class SuperMetroidGame
             Session.audio.QueueCancelSoundEffects(SoundRequestPriority.Normal);
         bool runsMusicQueue = false;
         int soundQueuePasses = runsAudioProcessing && (!doorAudioUpdate || !leavesDoorLoadRunning) ? 1 : 0;
-        if (messageWasActive)
+        if (boxRuntime is not null)
         {
             // A message-box update runs exactly the box's own audio processing.
-            MessageBoxFrameAudio boxAudio = Session.GameplayRuntime.MessageBox.LastFrameAudio;
+            MessageBoxFrameAudio boxAudio = boxRuntime.MessageBox.LastFrameAudio;
             runsMusicQueue = boxAudio.MusicQueuePasses != 0;
             soundQueuePasses = boxAudio.SoundQueuePasses;
         }
@@ -197,8 +212,8 @@ public sealed partial class SuperMetroidGame
         // The pause steps publish held input after they return, though Samus's drawing step, which ends by publishing
         // it, did not run; only the held input is published, and the press edge and the auto-jump timer stay as they
         // are.
-        if (publishesHeldInputAfterPause)
-            Session.GameplayRuntime.Player.IntroducedSamus.InputSnapshot.PublishHeldInput(Session.GameplayRuntime.PlayerActions.Current);
+        if (publishesHeldInputAfterPause && gameplay is PhaseGameplay.InRoom { Live.Runtime: var pausedRuntime })
+            pausedRuntime.Player.Samus.InputSnapshot.PublishHeldInput(pausedRuntime.PlayerActions.Current);
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
@@ -245,9 +260,7 @@ public sealed partial class SuperMetroidGame
         Room = GameplayActiveRoom?.Name,
         RoomState = GameplayActiveRoomState?.Name,
         Door = GameplayActiveDoor?.Name,
-        // A host also takes a snapshot when an update fails, which may be the update that creates the gameplay runtime before
-        // it gives the runtime its Samus, so a missing Samus is kept here (#2503).
-        Samus = Session.Runtime is { Player.Samus: { } samus } runtime
+        Samus = Session.Runtime is { Player.Samus: var samus } runtime
             ? new SamusSnapshot
             {
                 Pose = samus.Pose,
@@ -287,45 +300,41 @@ public sealed partial class SuperMetroidGame
     /// </summary>
     internal bool PhaseIsWaitingOutDisplayFrame => Session.RunningPhase.IsWaitingOutDisplayFrame;
 
-    /// <summary>What <see cref="AdvanceMenuRandom"/> does for each <see cref="PhaseRandomStep"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
-    private IdentityTable<PhaseRandomStep, Action> AdvanceMenuRandomForPhaseRandomStep => field ??= new(new Dictionary<PhaseRandomStep, Action>
-    {
-        [PhaseRandomStep.Reseed] = () =>
-        {
-            // Only power-on and soft reset reseed. A continued save must keep the value
-            // produced by gameplay and the game-over and file-map waiting updates.
-            Session.Random.SeedPowerOn();
-            Session.frameClock.Reset();
-            Session.cameraFractions.Clear();
-            // The reset phase itself runs after the first advance; the seed alone is
-            // not what it sees.
-            Session.Random.Generate();
-        },
-        [PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance] = () =>
-        {
-            // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
-            // or acid wave stirs the random number (SharedRandom.StirForLiquidWave).
-            Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope, Session.GameplayRuntime.Player.IntroducedSamus);
-        },
-        [PhaseRandomStep.Advance] = () =>
-        {
-            if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
-                Session.Random.Generate();
-        },
-        [PhaseRandomStep.RuntimeOwned] = () =>
-        {
-        },
-    });
-
     /// <summary>
     /// Advances the random generator once per update through the title, file selection and
     /// loading. These phases run once per update and do not run gameplay, which advances it
     /// itself. Saves keep no copy of the generator.
     /// </summary>
-    internal void AdvanceMenuRandom()
+    internal void AdvanceMenuRandom(IGamePhase phase, PhaseGameplay gameplay)
     {
-        AdvanceMenuRandomForPhaseRandomStep[Session.RunningPhase.RandomStep]();
+        Ensure.NotNull(phase);
+        switch (phase.RandomStep)
+        {
+            case PhaseRandomStep.Reseed:
+                // Only power-on and soft reset reseed. A continued save must keep the value
+                // produced by gameplay and the game-over and file-map waiting updates.
+                Session.Random.SeedPowerOn();
+                Session.frameClock.Reset();
+                Session.cameraFractions.Clear();
+                // The reset phase itself runs after the first advance; the seed alone is
+                // not what it sees.
+                Session.Random.Generate();
+                break;
+            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance when gameplay is PhaseGameplay.InRoom { Live: var paused }:
+                // The liquid wave and the statues' descent still advance on the update before the pause screen; a lava
+                // or acid wave stirs the random number (SharedRandom.StirForLiquidWave).
+                paused.Runtime.DoorTransition.AdvanceEffectsAndRandom(paused.Room, paused.Runtime.Player.Samus);
+                break;
+            case PhaseRandomStep.Advance:
+                if (DisplayFrameWaitContinuation.DrawsRandom(PhaseIsWaitingOutDisplayFrame))
+                    Session.Random.Generate();
+                break;
+            case PhaseRandomStep.RuntimeOwned:
+                break;
+            case PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance:
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PhaseRandomStep)} {phase.RandomStep} on {phase.Need}.");
+        }
         // Gameplay advances the generator itself after its liquid wave and statue descent, so neither a gameplay update
         // nor an update that finishes a waiting step advances it here.
     }

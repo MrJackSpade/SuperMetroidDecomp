@@ -47,6 +47,17 @@ internal abstract partial record YardCue
         internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginCrawling(this, context);
     }
 
+    /// <summary>
+    /// The Yard's shell begins its flight, falling, bouncing and slowing until it lands, and hides with
+    /// <paramref name="Landing"/> once it lands.
+    /// </summary>
+    /// <param name="Landing">The animation the Yard hides with once it lands: the one the airborne animation's facing names.</param>
+    internal sealed partial record BeginFlight(YardSegment Landing) : YardCue
+    {
+        /// <inheritdoc/>
+        internal override TResult Match<TContext, TResult>(YardCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).BeginFlight(this, context);
+    }
+
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed partial record Signal(YardCueKind Kind) : YardCue
@@ -62,6 +73,7 @@ internal abstract partial record YardCue
 /// <param name="SetDirection">Makes a <see cref="YardCue.SetDirection"/> into the result.</param>
 /// <param name="SetHidingAnimation">Makes a <see cref="YardCue.SetHidingAnimation"/> into the result.</param>
 /// <param name="BeginCrawling">Makes a <see cref="YardCue.BeginCrawling"/> into the result.</param>
+/// <param name="BeginFlight">Makes a <see cref="YardCue.BeginFlight"/> into the result.</param>
 /// <param name="Signal">Makes a <see cref="YardCue.Signal"/> into the result.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.Signal, TContext, TResult> Signal);
+internal sealed partial record YardCueCases<TContext, TResult>(Func<YardCue.MoveBy, TContext, TResult> MoveBy, Func<YardCue.SetDirection, TContext, TResult> SetDirection, Func<YardCue.SetHidingAnimation, TContext, TResult> SetHidingAnimation, Func<YardCue.BeginCrawling, TContext, TResult> BeginCrawling, Func<YardCue.BeginFlight, TContext, TResult> BeginFlight, Func<YardCue.Signal, TContext, TResult> Signal);

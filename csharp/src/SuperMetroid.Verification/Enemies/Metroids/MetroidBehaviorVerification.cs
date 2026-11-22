@@ -25,8 +25,8 @@ internal static class MetroidBehaviorVerification
         // The room spawn primes the instruction timer before the species initializer runs.
         place.AnimationClock.StepOnNextUpdate();
         place.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(place.HeldOccupant(), place);
-        MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
+        // The Metroid's setup builds the state its animation, which the check plays, runs on.
+        MetroidEnemyState state = enemies.MetroidBehavior.InitializeMetroid(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<MetroidSpawnSettings>(), place);
         AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation),
             state.Playback, "the Metroid starts chasing");
 
@@ -38,7 +38,8 @@ internal static class MetroidBehaviorVerification
             place.AnimationClock.StepOnNextUpdate();
             // The chasing loop pulses four times before its cry (#2337), the draining loop once before its sound.
             AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(MetroidAnimations.Segments, MetroidAnimations.StartingWith(loop), MetroidFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(MetroidAnimations.Segments, MetroidAnimations.StartingWith(loop))),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(MetroidAnimations.Segments, MetroidAnimations.StartingWith(loop)),
+                    () => enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, state)),
                 $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.Audio.LatestSound is not null, $"Metroid {loop} loop plays its sound");

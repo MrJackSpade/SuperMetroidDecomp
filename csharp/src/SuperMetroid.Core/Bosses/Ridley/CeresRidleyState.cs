@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
@@ -8,16 +10,21 @@ public sealed partial class CeresRidleyState : RidleyEncounterState
 {
     /// <summary>Begins Ceres Ridley's encounter with his body at <paramref name="body"/>, the Baby in his arms.</summary>
     /// <param name="body">Where his body stands as he is placed.</param>
-    internal CeresRidleyState(Position16<RoomPixels> body)
+    /// <param name="warning">The room's foreground warning, which the self-destruct his getaway starts writes.</param>
+    internal CeresRidleyState(Position16<RoomPixels> body, RoomWarning warning)
         : base(
             new RidleyFlightState(RidleyFacing.Left, CeresRidleyArenaDefinitions.MovementMinimum, CeresRidleyArenaDefinitions.MovementMaximum,
                 firstWingPose: RidleyWingDefinitions.CeresFirstPose),
             new RidleyTailState(damage: RidleyTailDefinitions.CeresTipDamage))
     {
         Baby = new CeresBaby(body + CeresRidleyArenaDefinitions.BabyArmsAnchor);
+        Warning = Ensure.NotNull(warning);
         // Ceres Ridley's tail starts whipping of its own; his swoop alone stops it.
         Tail.IdleWhipEnabled = true;
     }
+
+    /// <summary>The room's foreground warning, which the self-destruct his getaway starts writes (#2554).</summary>
+    internal RoomWarning Warning { get; }
 
     /// <summary>The phase Ceres Ridley runs once he has lifted off.</summary>
     /// <exception cref="InvalidOperationException">He has not lifted off.</exception>

@@ -16,29 +16,33 @@ internal static class PhantoonPatternsVerification
         for (int i = 0; i < 8; i++)
         {
             PhantoonRainPattern placement = PhantoonRainPatternDefinitions.LaterRain.Choose(i);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdad + i * 8)), placement.PathPlace, "Native rain figure-eight cursor");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdaf + i * 8)), placement.BodyPosition.X, "Native rain body X");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.BodyPosition.Y, "Native rain body Y");
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), placement.FirstColumn.Place, "Native first rain column");
         }
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began. He hides for
+        // each rain in turn, his last rain's flames gone before the next.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        PhantoonEnemyState state = enemies.PlacePhantoon();
+        RoomEnemyPlace body = state.Body;
+        ushort random = 0;
+        int calls = 0;
+        enemies.VerificationServices().NextRandom = () => { calls++; return random; };
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            ushort random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
-            int calls = 0;
-            enemies.VerificationServices().NextRandom = () => { calls++; return random; };
-            var body = enemies.Places.InUpdateOrder[0];
-            var eye = enemies.Places.InUpdateOrder[1];
-            var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-            enemies.BeginPhantoonAsSetUp(state);
+            foreach (EnemyProjectile flame in enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive))
+                flame.Delete();
+            random = LittleEndianBytes.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
+            calls = 0;
             state.PhaseWait.LastFor(1);
             state.FigureEight.Direction = PhantoonPathDirection.Backwards;
             enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain(body.HeldOccupant(), body, state);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdad + pattern * 8)), state.FigureEight.PathPlace.Place, "Real rain cursor handoff");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(rom.ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual(PhantoonPathDirection.Forwards, state.FigureEight.Direction, "Real rain direction reset");
             AssertEqual(PhantoonPhase.BecomeSolidAfterFlameRain, state.Phase, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
@@ -54,12 +58,11 @@ internal static class PhantoonPatternsVerification
         }
 
         EyeTarget[] eyeTargets = PhantoonEyeTargets.All;
-        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(CartridgeImportSource.Require(rom));
+        PhantoonEyeTargets.VerifyGazeProgramsAgainstCartridge(rom);
         var eyeEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> pointEye = PhantoonPatterns.PointPhantoonEyeAtSamus;
-        RoomEnemyPlace eyeBody = eyeEnemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace trackingEye = eyeEnemies.Places.InUpdateOrder[1];
-        var eyeState = new PhantoonEnemyState(eyeBody.BoundFor(EnemyDefinitionId.PhantoonBody), eyeBody, trackingEye, eyeEnemies.Places.InUpdateOrder[2], eyeEnemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState eyeState = eyeEnemies.PlacePhantoon();
+        RoomEnemyPlace eyeBody = eyeState.Body;
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
@@ -72,8 +75,8 @@ internal static class PhantoonPatternsVerification
                 $"production Phantoon eye direction {direction}");
         }
         var shotEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var shotBody = shotEnemies.Places.InUpdateOrder[0];
-        var shotState = new PhantoonEnemyState(shotBody.BoundFor(EnemyDefinitionId.PhantoonBody), shotBody, shotEnemies.Places.InUpdateOrder[1], shotEnemies.Places.InUpdateOrder[2], shotEnemies.Places.InUpdateOrder[3]);
+        PhantoonEnemyState shotState = shotEnemies.PlacePhantoon();
+        RoomEnemyPlace shotBody = shotState.Body;
         Action<RoomEnemyPlace, PhantoonEnemyState, ushort, int> shot = (shotPlace, shotPhantoon, shotType, shotDamage) =>
             shotEnemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(shotPlace, shotPhantoon, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(shotType), shotDamage);
         ushort shotRandom = 0;

@@ -14,22 +14,19 @@ public abstract partial class KraidPartState
 {
     /// <summary>Makes a part of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the part is part of.</param>
-    /// <param name="reference">Kraid's reference to the part, which it joins as it sets up.</param>
-    private protected KraidPartState(KraidEnemyState kraid, KraidPartReference reference)
+    /// <param name="place">The place of the part, which his body found as his room lists it.</param>
+    private protected KraidPartState(KraidEnemyState kraid, RoomEnemyPlace place)
     {
         Kraid = kraid;
-        Reference = Ensure.NotNull(reference);
+        Place = Ensure.NotNull(place);
     }
 
     /// <summary>The encounter the part is part of, which the part holds from its setup (#2218).</summary>
     internal KraidEnemyState Kraid { get; }
 
-    /// <summary>Kraid's reference to the part, which it joins as it sets up.</summary>
-    private KraidPartReference Reference { get; }
-
     /// <summary>The place the part occupies (#2298), which joined as it set up.</summary>
     /// <exception cref="InvalidOperationException">The part has not set up.</exception>
-    internal RoomEnemyPlace Place => Reference.Place;
+    internal RoomEnemyPlace Place { get; }
 
     /// <summary>
     /// The pose the part's animation shows (#2210): its picture, where the picture sits and the depth it is drawn at; null

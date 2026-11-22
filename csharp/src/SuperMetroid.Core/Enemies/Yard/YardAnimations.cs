@@ -63,9 +63,9 @@ internal static partial class YardAnimations
         [P.HidingOnLeftWallMovingDown] = Hiding(EnemyFrameId.YardOnLeftWallFacingDownLegsTucking),
         [P.ShellClosedOnLeftWallMovingDown] = ShellClosed(EnemyFrameId.YardOnLeftWallFacingDownShellClosed),
         [P.HiddenOnLeftWallMovingDown] = Hidden(EnemyFrameId.YardOnLeftWallFacingDownShellClosed, EnemyFrameId.YardOnLeftWallFacingDownLegsEmerging),
-        [P.AirborneFacingLeft] = Airborne(EnemyFrameId.YardOnLeftWallFacingUpShellClosed),
+        [P.AirborneFacingLeft] = Airborne(EnemyFrameId.YardOnLeftWallFacingUpShellClosed, P.HiddenOnFloorMovingLeft),
         [P.AirborneFacingLeftTumbling] = Tumbling(EnemyFrameId.YardOnRightWallFacingDownShellClosed, EnemyFrameId.YardOnCeilingFacingRightShellClosed, EnemyFrameId.YardOnLeftWallFacingUpShellClosed),
-        [P.AirborneFacingRight] = Airborne(EnemyFrameId.YardOnRightWallFacingUpShellClosed),
+        [P.AirborneFacingRight] = Airborne(EnemyFrameId.YardOnRightWallFacingUpShellClosed, P.HiddenOnFloorMovingRight),
         [P.AirborneFacingRightTumbling] = Tumbling(EnemyFrameId.YardOnLeftWallFacingDownShellClosed, EnemyFrameId.YardOnCeilingFacingLeftShellClosed, EnemyFrameId.YardOnRightWallFacingUpShellClosed),
     });
 
@@ -162,10 +162,10 @@ internal static partial class YardAnimations
         Show(legsEmerging, 16),
     ];
 
-    /// <summary>A Yard knocked airborne, its shell closed as <paramref name="shell"/>.</summary>
-    private static AnimationBeat<EnemyFrameId, YardCue>[] Airborne(EnemyFrameId shell) =>
+    /// <summary>A Yard knocked airborne, its shell closed as <paramref name="shell"/>, landing into <paramref name="landing"/>.</summary>
+    private static AnimationBeat<EnemyFrameId, YardCue>[] Airborne(EnemyFrameId shell, P landing) =>
     [
-        Cue(new YardCue.Signal(K.BeginFlight)),
+        Cue(new YardCue.BeginFlight(landing)),
         Show(shell, 3),
     ];
 

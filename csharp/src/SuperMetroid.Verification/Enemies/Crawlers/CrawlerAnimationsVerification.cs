@@ -19,7 +19,7 @@ internal static class CrawlerAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyCrawlerAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             CrawlerAnimations.Segments, CrawlerAnimations.StartingAt, CrawlerFrameToolingDefinitions.Spritemap, Rules);
         Console.WriteLine($"  crawler animations: {Entries.Length} segments ({beats} beats) and {CrawlerAnimations.StartingAt.Count} animations match bank $A3.");
     }

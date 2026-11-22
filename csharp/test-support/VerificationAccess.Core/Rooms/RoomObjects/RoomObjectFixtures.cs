@@ -32,6 +32,27 @@ internal static class RoomObjectFixtures
     private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>[] visualsByFixture =
         [.. Enumerable.Range(0, 64).Select(_ => new ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals>())];
 
+    /// <summary>
+    /// The room objects each fixture's enemies reach (Bomb Torizo's hand, Mother Brain's glass), as the room loader hands
+    /// them to the room's enemies, kept in tables chosen as <see cref="visualsByFixture"/>'s are.
+    /// </summary>
+    private static readonly ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies>[] reachedByFixture =
+        [.. Enumerable.Range(0, 64).Select(_ => new ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies>())];
+
+    /// <summary>The table that keeps the room objects <paramref name="fixture"/>'s enemies reach.</summary>
+    private static ConditionalWeakTable<RoomObjectSystem, RoomObjectsReachedByEnemies> ReachedTable(RoomObjectSystem fixture) =>
+        reachedByFixture[(RuntimeHelpers.GetHashCode(fixture) & int.MaxValue) % reachedByFixture.Length];
+
+    /// <summary>
+    /// The room objects <paramref name="fixture"/>'s enemies reach, as the room's enemy services reach them: a check reads
+    /// Bomb Torizo's hand and counts head shots on Mother Brain's glass there, as her head and his AI do.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The system was not built by these fixtures.</exception>
+    internal static RoomObjectsReachedByEnemies ReachedByEnemiesOf(RoomObjectSystem fixture) =>
+        ReachedTable(fixture).TryGetValue(fixture, out RoomObjectsReachedByEnemies? reached)
+            ? reached
+            : throw new InvalidOperationException("The PLM system was not built by RoomObjectFixtures.");
+
     /// <summary>The table that keeps <paramref name="fixture"/>'s artwork.</summary>
     private static ConditionalWeakTable<RoomObjectSystem, RoomObjectVisuals> VisualsTable(RoomObjectSystem fixture) =>
         visualsByFixture[(RuntimeHelpers.GetHashCode(fixture) & int.MaxValue) % visualsByFixture.Length];
@@ -69,9 +90,10 @@ internal static class RoomObjectFixtures
             Samus = FixtureRoomSamus.Uninstalled, Bosses = new FixtureAreaBossFlags(), Events = new FixtureEventFlags(),
             RoomFx = new FixtureRoomObjectFx(), Earthquake = new FixtureRoomEarthquake(), Enemies = new FixtureObjectEnemyEffects(),
         };
-        var roomObjects = new RoomObjectSystem(NoRoom, services, visuals, new CollectibleBlockPairs(), ShotCapClosing(),
-            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
+        RoomObjectsReachedByEnemies reached = ReachedByEnemies(services);
+        var roomObjects = new RoomObjectSystem(NoRoom, services, reached, visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
         VisualsTable(roomObjects).Add(roomObjects, visuals);
+        ReachedTable(roomObjects).Add(roomObjects, reached);
         return roomObjects;
     }
 
@@ -86,9 +108,10 @@ internal static class RoomObjectFixtures
 
     /// <summary>
     /// Where a fixture's thrown projectiles would spawn: a fixture has no enemy projectiles, so a thrown projectile that
-    /// spawns fails there; checks read the step's thrown requests instead.
+    /// spawns fails there; checks read the step's thrown requests instead, and a check that sets a thrower up by hand hands
+    /// it these.
     /// </summary>
-    private static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
+    internal static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
 
     /// <summary>A fixture's absent enemy projectiles, which fail any thrown projectile's spawn.</summary>
     private sealed class NoEnemyProjectiles : SuperMetroid.Core.Bosses.MotherBrain.IMotherBrainGlassShardSpawner,
@@ -103,6 +126,10 @@ internal static class RoomObjectFixtures
             throw new InvalidOperationException("A fixture's room objects spawned a statue fragment with no enemy projectiles.");
     }
 
+    /// <summary>The room objects a room's enemies reach, over a room's free places, as the room loader composes them.</summary>
+    private static RoomObjectsReachedByEnemies ReachedByEnemies(RoomObjectServices services) =>
+        new(services.Samus, services.Bosses, services.Events, GameplayAudioRequests.Standalone());
+
     /// <summary>The shot cap's closing rule the room loader composes each room's objects with (#1906).</summary>
     private static ShotOpenedCapClosing<LockedDoor> ShotCapClosing() =>
         new(LockedDoorDefinitions.LandingSiteGreenDoorFacingLeft);
@@ -111,9 +138,10 @@ internal static class RoomObjectFixtures
     internal static RoomObjectSystem Bound(RoomObjectRoom room, RoomObjectServices services, RoomObjectSystem fixture)
     {
         RoomObjectVisuals visuals = VisualsOf(fixture);
-        var roomObjects = new RoomObjectSystem(room, services, visuals, new CollectibleBlockPairs(), ShotCapClosing(),
-            new RoomObjectOutputs(GameplayAudioRequests.Standalone(), UnspawnedThrows));
+        RoomObjectsReachedByEnemies reached = ReachedByEnemies(services);
+        var roomObjects = new RoomObjectSystem(room, services, reached, visuals, new CollectibleBlockPairs(), ShotCapClosing(), UnspawnedThrows);
         VisualsTable(roomObjects).Add(roomObjects, visuals);
+        ReachedTable(roomObjects).Add(roomObjects, reached);
         return roomObjects;
     }
 

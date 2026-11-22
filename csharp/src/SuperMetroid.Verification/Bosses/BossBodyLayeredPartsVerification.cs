@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -48,11 +49,17 @@ internal static class BossBodyLayeredPartsVerification
     /// </summary>
     private static int CheckCrocomireMelt(BossSourceArtwork frames, BossBodySheets sheets)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // His room's acid, whose surface his melting's acid smoke rises from, is the system's room effect.
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new VerificationRoomEnemyServices(null),
+            roomFx: RoomFxOverlayState.ForDefinition(RoomFxDefinitions.AllRecords.First(record => record.Type == RoomFxType.Acid)
+                with { LiquidStartLevel = 224, LiquidTargetLevel = null, LiquidLevelSpeed = default }, randomNumber: 0));
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        BossBodyCanvasFixtures.AttachCrocomire(enemies, sheets);
+        // His room's population load sets him up, and his setup attaches the body his frames and melt images show on.
+        enemies.BossArtworkBinding.BodySheets = sheets;
+        CrocomireEnemyState state = SuperMetroid.Verification.Bosses.Crocomire.CrocomirePlacement.PlaceCrocomire(enemies, new(400, 144));
+        // His melting's acid smoke rises where a random number places it, which leaves his body's pictures alone.
+        enemies.VerificationServices().ReadRandom = () => 0;
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Crocomire);
         Extent16<BackgroundPixels> area = SideBySideCanvas;
         int compared = 0;
@@ -62,7 +69,7 @@ internal static class BossBodyLayeredPartsVerification
             compared++;
         }
 
-        enemies.CrocomireBehavior.BodyLayer.ShowCrocomireBodyFrame(sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
+        CrocomireBodyLayer.ShowCrocomireBodyFrame(state, sheets.Of(BossBodyOwner.Crocomire).Frame(EnemyFrameId.CrocomireBodyNearFootForwardArmBent));
         Compare("showing his body");
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
@@ -70,10 +77,14 @@ internal static class BossBodyLayeredPartsVerification
             melting.ShowCrocomireMeltImage(state, pass);
             AssertEqual(1, enemies.Presentation.RequireBossBody().Publish().Frames.Length, $"Crocomire's {pass} melt image replaces what his body showed");
             Compare($"showing his {pass} melt image");
+            // His melting begins once his first melt image shows, keeping where his body stands to shake it from.
+            if (pass == CrocomireMeltingIllustration.Flesh)
+                CrocomireMelting.BeginCrocomireMelting(state);
             CrocomireMelting.BeginCrocomireMeltPass(state, pass);
             for (int erased = 1; erased <= CrocomireMeltingDefinitions.ColumnCount; erased++)
             {
-                melting.EraseNextCrocomireMeltingColumn(state.Death);
+                // Each update of his melting erases the dissolve's next column.
+                melting.RunCrocomireMelting(state);
                 Compare($"after his {pass} melt's dissolve erases {erased} columns");
             }
         }
@@ -81,7 +92,7 @@ internal static class BossBodyLayeredPartsVerification
         int areaTop = BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Crocomire].Y;
         foreach (int row in new[] { 64, 40, 8 })
         {
-            enemies.CrocomireBehavior.BodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
+            CrocomireBodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
             AssertEqual<int?>(areaTop + row, enemies.Presentation.RequireBossBody().Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
             Compare($"hidden from row {row}");
         }
@@ -96,8 +107,11 @@ internal static class BossBodyLayeredPartsVerification
     private static int CheckKraidHead(BossSourceArtwork frames)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         state.InitializeBodyLayer();
         state.ShowBody();
         Dictionary<string, BossBodyFrameSource> sources = SourcesOf(frames, BossBodyOwner.Kraid);
@@ -136,7 +150,7 @@ internal static class BossBodyLayeredPartsVerification
         {
             foreach (EnemyFrameId eye in eyes)
             {
-                var parts = new BossBodyParts(BossBodyOwner.Phantoon, showing: null);
+                var parts = new BossBodyParts(BossBodyOwner.Phantoon);
                 parts.Show(EnemyDefinitionId.PhantoonBody, sheet.Frame(body));
                 parts.Show(EnemyDefinitionId.PhantoonEye, sheet.Frame(eye));
                 parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentaclesNarrow));

@@ -17,9 +17,6 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// </summary>
 internal static class TorizoRestingLandingVerification
 {
-    /// <summary>Torizo's collision radii, as Bomb Torizo's setup gives them.</summary>
-    private static readonly Extent16<RoomPixels> Radius = new(18, 48);
-
     /// <summary>Where each case's Torizo starts: in the air above the floor.</summary>
     private static readonly Position16<RoomPixels> AboveFloor = new(128, 60);
 
@@ -93,16 +90,15 @@ internal static class TorizoRestingLandingVerification
         Console.WriteLine($"Torizo resting landing: a fall lands once with a {TorizoMotionDefinitions.LandingQuakeUpdates}-update quake and rests on the floor without another; leaps and walks rest it until its vertical speed changes.");
     }
 
-    /// <summary>A Torizo of a fresh room's enemies at <paramref name="at"/>, facing left, with Bomb Torizo's radii.</summary>
+    /// <summary>
+    /// Bomb Torizo as a fresh room's population sets him up, with the radii his setup gives him, standing at
+    /// <paramref name="at"/>, facing left.
+    /// </summary>
     private static (RoomEnemySystem Enemies, RoomEnemyPlace Slot, TorizoEnemyState State) NewTorizo(Position16<RoomPixels> at)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Position = FixedPosition<RoomPixels>.FromWhole(at);
-        place.Radius = Radius;
-        var state = new TorizoEnemyState(TorizoVariant.Bomb);
-        place.SetSpeciesState(state);
-        return (enemies, place, state);
+        RoomEnemyPlace place = enemies.PlaceTorizo(0, at);
+        return (enemies, place, place.EntityOf<TorizoEntity>().State);
     }
 
     /// <summary>Runs the Torizo resting landing check.</summary>

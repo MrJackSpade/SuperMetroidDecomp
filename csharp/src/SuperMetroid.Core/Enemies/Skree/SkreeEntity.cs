@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed partial class SkreeEntity(SkreeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Skree's own shot reaction, built for this occupant.</summary>
     private EnemyShotReaction OwnShot => field ??= SkreeBehavior.SkreeShotReaction(this);
@@ -20,14 +20,14 @@ internal sealed partial class SkreeEntity(SkreeBehavior species, RoomEnemyOccupa
     /// <summary>Spawns this Skree's debris and starts its death after a bomb's common damage kills it.</summary>
     internal void ResolveBombAfterCommon(EnemyBombHitContext context) => species.ResolveSkreeBombAfterCommon(Occupant, context);
 
-    /// <inheritdoc/>
-    public void Initialize() => SkreeBehavior.InitializeSkree(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly SkreeEnemyState state = SkreeBehavior.InitializeSkree();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSkreeMainAi(Occupant, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => SkreeBehavior.AdvanceSkreeTypedAnimation(Place, state);
 
     /// <summary>The Skree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == SkreeReactions.Shot ? OwnShot : base.ShotReaction;

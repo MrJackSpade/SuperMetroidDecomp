@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
 /// <param name="floor">The room's turning floor.</param>
 [RoomLifetime]
-internal sealed partial class CeresElevatorDoorFactory(CeresDoorBehavior doors, RoomFloor floor) : IEnemyEntityFactory
+internal sealed partial class CeresElevatorDoorFactory(CeresDoorBehavior doors, RoomFloor floor) : IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <summary>The room's owner of the Ceres doors and walls.</summary>
     private readonly CeresDoorBehavior _doors = Ensure.NotNull(doors);
@@ -21,12 +21,10 @@ internal sealed partial class CeresElevatorDoorFactory(CeresDoorBehavior doors, 
     private readonly RoomFloor _floor = Ensure.NotNull(floor);
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.CeresElevatorDoor], Create);
+    /// <remarks>Only a room with a turning floor can place these.</remarks>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresElevatorDoor];
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
         EnemyOccupant.Of(new CeresElevatorDoorEntity(_doors, occupant, Ensure.NotNull(place), common, _floor));
 }

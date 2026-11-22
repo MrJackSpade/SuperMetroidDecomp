@@ -101,9 +101,9 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>
-    /// Kraid's backdrop keeps what his growth fade showed when Kraid is initialized again, which replaces his encounter
-    /// state, as the cartridge's colour memory keeps it; his death fade then starts from his colours instead of failing
-    /// on the room's (#1532).
+    /// Kraid's backdrop keeps what his growth fade showed, as the cartridge's colour memory keeps it; his death fade then
+    /// starts from his colours instead of failing on the room's (#1532). His room loads its population once, so his setup
+    /// never runs again in it (#2554).
     /// </summary>
     private static void VerifyKraidBackdropSurvivesReinitialization(ImportEnemyArtwork artwork)
     {
@@ -113,10 +113,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         while (!fade(KraidBackdropSettledColours.KraidColours))
             AssertTrue(++growthSteps <= FadeCounterValues, "Kraid's growth fade completes once the counter passes its last moving value");
         AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows, "Kraid's growth fade ends on his colours");
-        // Kraid's body initializer replaces his encounter state; the room's backdrop colours outlive it.
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        AssertEqual(SettledBackdrop(KraidBackdropSettledColours.KraidColours), enemies.KraidBehavior.Access.Backdrop.Shows,
-            "re-initializing Kraid keeps the backdrop his growth fade showed");
         int deathSteps = 0;
         while (!fade(KraidBackdropSettledColours.Black))
             AssertTrue(++deathSteps <= FadeCounterValues, "Kraid's death fade completes once the counter passes its last moving value");
@@ -309,10 +305,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>A fresh Kraid room's enemies, Kraid loaded.</summary>
     private static RoomEnemySystem NewKraidRoom(ImportEnemyArtwork artwork)
     {
-        // The room binds Kraid's parts once; a later initialization joins the same parts again.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        _ = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        _ = KraidPartsFixtures.PlaceKraid(enemies);
         return enemies;
     }
 
@@ -362,7 +356,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 [KraidShades.BackdropBlack] = new PictureRecolouring([]),
             }.ToImmutableDictionary(),
         };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours)).Of(GameplayPictures.Room);
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], colours)).Of(GameplayPictures.Room);
     }
 
     /// <summary>The backdrop settled on <paramref name="colours"/>.</summary>
@@ -394,7 +388,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
                 // contraction step, rather than subtracting from a black synthetic eye.
                 for (int eye = 0; eye < 3; eye++)
                 {
-                    ushort target = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7b3d3 + 256 + (eye + 1) * 2));
+                    ushort target = rom.ReadCartridgeWord((0xa7b3d3 + 256 + (eye + 1) * 2));
                     ushort current = 0x03ff;
                     if ((current & 31) != (target & 31)) current--;
                     if ((current & 0x03e0) != (target & 0x03e0)) current -= 32;
@@ -412,7 +406,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         void Copy(int source, int destination)
         {
             for (int color = 0; color < 16; color++)
-                colors[destination + color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + color * 2));
+                colors[destination + color] = rom.ReadCartridgeWord((source + color * 2));
         }
     }
 
@@ -441,11 +435,16 @@ internal static class EnemyTileArtworkKraidColorsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
         var colours = new RgbColor[SnesCgram.ColorCount];
-        enemies.Places.BindKraidPartsInRoomOrder();
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Health = 1000;
+        // His setup sets his room's screens' scrolls, which are the room's own; the check keeps no room around him (#2554).
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         // The death setup restarts the arm's typed program (#641), which lives in the room's Kraid state.
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         KraidColorCatalog kraid = artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The installed artwork has no Kraid colours.");
         switch (consumer)
         {
@@ -493,14 +492,17 @@ internal static class EnemyTileArtworkKraidColorsVerification
             {
                 // The glow's raised red and green channels, then one step of the fade: the eye glow service owns the colours.
                 state.Colours.ShowBandEyes([RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff), RgbColor.FromWord(0x03ff)]);
-                new Action<RoomEnemyPlace, KraidEnemyState>(enemies.KraidBehavior.Head.UnglowKraidEye)(body, state);
+                // His eye glows only once he fights: his setup begins his rise, which ends in his first phase's thinking (#2554).
+                var fighting = new KraidStageRun.Fighting(KraidFightPhase.FirstPhaseThinking, KraidRisenHead.SelectingRoar());
+                state.BodyState.Run = fighting;
+                enemies.KraidBehavior.Head.UnglowKraidEye(body, state, fighting);
                 ImmutableArray<RgbColor> eyes = state.Colours.EyeGlow.Shown;
                 for (int eye = 0; eye < eyes.Length; eye++)
                     colours[113 + eye] = eyes[eye];
                 break;
             }
             case KraidPaletteConsumer.DeathArm:
-                enemies.KraidBehavior.Death.InitializeKraidDeath(state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
+                SuperMetroid.Verification.Bosses.Kraid.KraidHeadInstructionsVerification.StartKraidDeath(enemies.KraidBehavior, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
                 AssertTrue(state.Colours.Shown is KraidColours.DeathColours, "Kraid's death shows his death colours");
                 Lay(colours, BossSheetShades.Body(BossBodyOwner.Kraid, artwork.Bosses, [], SpriteImageColours.Background, new RgbColor[ImageColourGroup.HalfColours]),
                     KraidShades.DeathArm, 0);

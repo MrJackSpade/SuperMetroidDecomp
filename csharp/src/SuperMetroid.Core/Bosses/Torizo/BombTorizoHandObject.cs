@@ -11,11 +11,15 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// (<see cref="BombTorizoHandObjects.HandRemains"/>).
 /// </summary>
 /// <param name="owner">The room's hand owner, which drops the fragments, queues the music and reads Samus.</param>
+/// <param name="fragments">The room's enemy projectiles, among which the hand's fragments spawn.</param>
 [RoomLifetime]
-internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomObjectBehaviour
+internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner, IBombTorizoStatueFragmentSpawner fragments) : RoomObjectBehaviour
 {
     /// <summary>The room's hand owner.</summary>
     private readonly BombTorizoHandObjects _owner = Ensure.NotNull(owner);
+
+    /// <summary>The room's enemy projectiles, among which the hand's fragments spawn.</summary>
+    private readonly IBombTorizoStatueFragmentSpawner _fragments = Ensure.NotNull(fragments);
 
     /// <summary>Where the hand is in its course.</summary>
     internal BombTorizoHandPhase Phase { get; private set; } = BombTorizoHandPhase.Starting;
@@ -59,7 +63,7 @@ internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner) 
             CrumbleStep = nextStep;
             BombTorizoHandCrumbleStep step = nextStep.Entry;
             if (step.FragmentBefore is { } fragment)
-                _owner.ThrowFragment(place, fragment, context.Outcome);
+                BombTorizoHandObjects.ThrowFragment(place, fragment, context.Outcome, _fragments);
             context.Draw(place, BombTorizoHandDraws.Family, step.Image);
             _holdBeforeNextStep.LastFor(step.Updates);
         },

@@ -28,13 +28,17 @@ internal sealed partial class ProjectileAnimation
         _artwork = artwork;
     }
     /// <summary>
-    /// Plays timed frames, still pictures and deletion: each frame the animation shows anew publishes its picture and
-    /// radius, and an animation that ends deletes the projectile. A shot showing a still picture keeps it.
+    /// Plays timed frames, still pictures and deletion: each frame <paramref name="animation"/>, the shot's own, shows anew
+    /// publishes its picture and radius, and an animation that ends deletes the projectile. A shot showing a still picture
+    /// keeps it.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The projectile has ended and has no animation to play.</exception>
-    internal void AdvanceProjectileAnimation(SamusProjectileOccupant shot) =>
+    /// <param name="shot">The projectile whose animation plays.</param>
+    /// <param name="animation">The animation the projectile is playing.</param>
+    internal void AdvanceProjectileAnimation(
+        SamusProjectileOccupant shot,
+        AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> animation) =>
         SamusProjectilePlayback.PlayOn(
-            shot.Animation ?? throw new InvalidOperationException("An ended projectile has no animation to play."),
+            Ensure.NotNull(animation),
             _artwork.ProjectileFrames,
             (sprite, radius) =>
             {

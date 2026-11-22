@@ -45,7 +45,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         {
             bool soul = soulValue != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork,
-                statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+                statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
             if (soul) unlock.SpawnTourianSoul(TourianStatueNativeWords.Eye(parameter));
             else unlock.SpawnTourianEyeGlow(TourianStatueNativeWords.Eye(parameter));
@@ -124,7 +124,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);

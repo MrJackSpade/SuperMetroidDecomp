@@ -365,14 +365,16 @@ internal static void VerifySamusStoredShineAndShinespark()
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertTrue(ReferenceEquals(horizontalShots.Shots[3], horizontal.Shinespark.FirstReleasedEcho.Shot) &&
-        ReferenceEquals(horizontalShots.Shots[4], horizontal.Shinespark.SecondReleasedEcho.Shot),
+    SuperMetroid.Core.Samus.Projectiles.SamusProjectile firstEchoShot = horizontalShots.Shots[3];
+    SuperMetroid.Core.Samus.Projectiles.SamusProjectile secondEchoShot = horizontalShots.Shots[4];
+    AssertTrue(horizontal.Shinespark.FirstReleasedEcho.IsCarriedBy(firstEchoShot) &&
+        horizontal.Shinespark.SecondReleasedEcho.IsCarriedBy(secondEchoShot),
         "the echoes take the shot pool's last two places, the first echo the one before the last");
-    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
+    AssertEqual(0x00, firstEchoShot.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
+    AssertEqual(0x80, secondEchoShot.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
-    AssertEqual(0, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Radius,
+    AssertEqual(0, firstEchoShot.KindStateAs<ShinesparkEchoShotState>().Radius,
         "departing projectile radius starts at zero, separate from drawing speed");
     AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
         "departing echo does not move in its spawn frame");
@@ -382,7 +384,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontalShots.StepReleasedCrashEchoProjectiles(
         horizontal,
         cameraPosition: new(unchecked((ushort)(crashCenterX - 128)), 0));
-    AssertEqual(8, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Radius,
+    AssertEqual(8, firstEchoShot.KindStateAs<ShinesparkEchoShotState>().Radius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(crashCenterX,
         horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
@@ -528,7 +530,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         AssertTrue(shots.Shinespark.ReleaseCrashEchoes(samus.Shinespark.FirstReleasedEcho, samus.Shinespark.SecondReleasedEcho,
                 new ShinesparkDepartureAngles(RotationAngle.Zero, RotationAngle.HalfTurn), SuperMetroid.Core.Progression.SamusBeamCombination.Power, samus.Position.Whole),
             "an empty shot pool releases both echoes");
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = shots.Shots.Single(shot => samus.Shinespark.FirstReleasedEcho.IsCarriedBy(shot));
         echoShot.KindStateAs<ShinesparkEchoShotState>().Radius = 65528;
         shots.Shinespark.StepShinesparkEcho(samus, echoShot.HeldShot(), echoShot.KindStateAs<ShinesparkEchoShotState>(), new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
@@ -569,8 +571,6 @@ internal static void VerifySamusStoredShineAndShinespark()
             checkedPoses++;
         }
         AssertEqual(8, checkedPoses, "six crash poses and two drained poses finish a crash");
-        AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseId.DrainedCrouchingRightPose, null),
-            "a drained crash without the installed departures is rejected");
         Console.WriteLine("Shinespark crash departures: six authored pairs, two drained pairs read past the table and every other pose's rejection pass.");
     }
 

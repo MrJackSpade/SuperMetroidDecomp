@@ -123,8 +123,9 @@ internal sealed record PartFrameConfiguration(
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Mother Brain's body frames are her body's and her brain frames her head's (#2210): her animations name them, the
-        // catalogs list them; her tubes draw none of them.
-        new("MotherBrainBehavior", null, null, null, null, [],
+        // catalogs list them; her tubes draw none of them. Her body's factory places her body and joins her head and tubes
+        // to it (#2554).
+        new("MotherBrainBodyFactory", null, null, null, null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal), new Dictionary<string, string[]>(StringComparer.Ordinal),
             null, null, [])
         {
@@ -132,6 +133,13 @@ internal sealed record PartFrameConfiguration(
             {
                 ["MotherBrainBody"] = "MotherBrainBodyVisualDefinitions.AnimationFrames",
                 ["MotherBrainHead"] = "MotherBrainVisualDefinitions.HeadFrames",
+                // Her fake death's tubes, which join her encounter (#2554), show their pieces' pictures alone.
+                ["MotherBrainTubes"] = "MotherBrainTubeAnimations.Segments",
+            },
+            // Her brain's hit area is set by her brain's code, which her body shows too; her tubes never show it.
+            CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["MotherBrainBrainHitArea"] = ["MotherBrainBody", "MotherBrainHead"],
             },
         },
         // A vertical shutter runs its fully grown program, Kamer its platform loop; a growing shutter grows through its
@@ -270,7 +278,9 @@ internal sealed record PartFrameConfiguration(
             {
                 ["CeresElevatorDoor"] = ["ElevatorDoor@Right"],
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, [])
+            // The overlay closing Ridley's room door is drawn from its own source over the room (#2554), never from a door's
+            // sheet.
+            new Dictionary<string, string[]>(StringComparer.Ordinal), "CeresDoorFrameDefinitions", "RidleyRoomDoorOverlay", [])
         {
             Sided = ("SegmentsBySide", "StartingAtBySide"),
         },
@@ -285,7 +295,9 @@ internal sealed record PartFrameConfiguration(
                 ["CeresElevatorRoomWall"] = ["ElevatorRoomWall@Left", "Door@Left", "Close@Left", "Closed@Left", "ClosedWait@Left"],
                 ["CeresGetawayChamberWall"] = ["GetawayChamberLeftWall@Right", "GetawayChamberRightWall@Right"],
             },
-            new Dictionary<string, string[]>(StringComparer.Ordinal), null, null,
+            // The overlay closing Ridley's room door is drawn from its own source over the room (#2554), never from a door's
+            // sheet.
+            new Dictionary<string, string[]>(StringComparer.Ordinal), "CeresDoorFrameDefinitions", "RidleyRoomDoorOverlay",
             [
                 new("CeresDoor", "CeresDoorSpawnSettings", "Facing", ["Right", "Left"]),
             ])
@@ -377,10 +389,34 @@ internal sealed record PartFrameConfiguration(
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
                 ["Ridley"] = [.. RidleyBodyFrames, "EnemyFrameId=RidleyBodyForward"],
-                ["RidleyCeres"] = RidleyBodyFrames,
                 ["RidleyBreakupPiece"] = [],
             },
-            null, null, []),
+            null, null, [])
+        {
+            // The breakup's pieces, which his death spawns joining the breakup (#2554), show the pieces of his body; he
+            // shows none of them.
+            CodeFrames = new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["RidleyBreakupClawLeft"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupClawRight"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupLegsLeft"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupLegsRight"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupOpenHeadAndNeckLeft"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupOpenHeadAndNeckRight"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupTorsoLeft"] = ["RidleyBreakupPiece"],
+                ["RidleyBreakupTorsoRight"] = ["RidleyBreakupPiece"],
+            },
+        },
+        // Ceres Ridley's own factory (#2554), which builds him with his room's warnings, serves his body poses, which share
+        // Norfair Ridley's table: the forward pose is Norfair Ridley's alone. The Baby he carries is drawn from its own
+        // encounter's sheet, never his.
+        new("CeresRidleyEntityFactory", "RidleyCollisionDefinitions", "BodyFrames", null, null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal),
+            new Dictionary<string, string[]>(StringComparer.Ordinal)
+            {
+                ["RidleyCeres"] = RidleyBodyFrames,
+            },
+            "CeresBabyFrameDefinitions", "ShownFrames", []),
     ];
 
     /// <summary>A hopper variant's four programs, as <c>HopperAnimationDefinitions.Programs</c> names them.</summary>
@@ -510,12 +546,16 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             foreach (string frame in frames.Where(frame => !listed.Add(frame)))
                 problems.Add($"{definition}'s list names {frame}, which another list names");
         }
+        // A frame outside the lists that only some definitions' code sets is theirs alone (#2554).
+        CheckCodeFrames(behaviour, split, listed, problems);
         if (problems.Count > 0)
             throw new InvalidDataException($"{behaviour.Type.Name}'s part frames cannot be split:\n" + string.Join('\n', problems));
         var result = new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
         foreach (string definition in behaviour.Definitions)
         {
-            var frames = new HashSet<string>(split[definition].Where(frame => !listed.Contains(frame)), StringComparer.Ordinal);
+            var frames = new HashSet<string>(split[definition].Where(frame => !listed.Contains(frame)
+                && (!configuration.CodeFrames.TryGetValue(frame, out string[]? owners) || owners.Contains(definition, StringComparer.Ordinal))),
+                StringComparer.Ordinal);
             if (owned.TryGetValue(definition, out HashSet<string>? own))
                 frames.UnionWith(own);
             if (frames.Count > 0)
@@ -622,7 +662,14 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
         foreach (string selector in configuration.KeySelectors.Values.SelectMany(selectors => selectors)
                      .Where(selector => !table.Keys.Any(key => KeyParts(key).Any(part => Selects(selector, part)))))
             problems.Add($"selector {selector} selects no key of {TableName}");
-        foreach (string key in table.Keys.Where(key => !keys.Values.Any(selected => selected.Contains(key))))
+        // A table whose keys another behaviour selects too (#2554: Norfair Ridley's factory and Ceres Ridley's own) has each
+        // key carried by a part of either.
+        string[] sharedSelectors = [.. PartFrameConfiguration.All.Where(other => !ReferenceEquals(other, configuration)
+                && other.AnimationsType is null && configuration.AnimationsType is null && other.TableType is not null
+                && other.TableType == configuration.TableType && other.TableMember == configuration.TableMember)
+            .SelectMany(other => other.KeySelectors.Values.SelectMany(selectors => selectors))];
+        foreach (string key in table.Keys.Where(key => !keys.Values.Any(selected => selected.Contains(key))
+                     && !sharedSelectors.Any(selector => KeyParts(key).Any(part => Selects(selector, part)))))
             problems.Add($"table key {key} carries no part's selector");
         return keys;
     }
@@ -1514,6 +1561,15 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
             var other = new PartFrames(model, sharing);
             var reportedByItsOwnSplit = new List<string>();
             shown.UnionWith(other.ProgramKeys(other.Table(reportedByItsOwnSplit), reportedByItsOwnSplit).Values.SelectMany(selected => selected));
+        }
+        // So do behaviours selecting one table's keys by selector (#2554: Norfair Ridley's factory and Ceres Ridley's own).
+        foreach (PartFrameConfiguration sharing in PartFrameConfiguration.All.Where(other => !ReferenceEquals(other, configuration)
+                     && other.AnimationsType is null && configuration.AnimationsType is null && other.TableType is not null
+                     && other.TableType == configuration.TableType && other.TableMember == configuration.TableMember))
+        {
+            var other = new PartFrames(model, sharing);
+            var reportedByItsOwnSplit = new List<string>();
+            shown.UnionWith(other.SelectedKeys(other.Table(reportedByItsOwnSplit), reportedByItsOwnSplit).Values.SelectMany(selected => selected));
         }
         // Only a name spelled as one of an enum key type's members can name one; the rest need no binding.
         var members = new HashSet<string>(keyType.GetMembers().OfType<IFieldSymbol>().Select(member => member.Name), StringComparer.Ordinal);

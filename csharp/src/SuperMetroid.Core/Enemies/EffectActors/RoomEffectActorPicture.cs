@@ -27,11 +27,6 @@ internal readonly partial record struct RoomEffectActorPicture
     /// <summary>The picture of Samus's hit-burst sprite <paramref name="sprite"/>.</summary>
     internal static RoomEffectActorPicture OfHitBurst(ProjectileSpriteId sprite) => new(new HitBurstPicture(sprite));
 
-    /// <summary>The enemy-sheet frame the picture is.</summary>
-    /// <exception cref="InvalidOperationException">The picture is one of Samus's hit-burst sprites, on no enemy sheet.</exception>
-    internal EnemyFrameId RequireEnemyFrame() => EnemyFrame
-        ?? throw new InvalidOperationException($"Room effect-actor picture {HitBurst} is Samus's hit burst, on no enemy sheet.");
-
     /// <summary>An effect actor's picture (#2560): a closed choice of an enemy-sheet frame and Samus's hit-burst sprite.</summary>
     private abstract partial record Picture;
 

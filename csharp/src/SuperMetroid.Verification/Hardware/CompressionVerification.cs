@@ -38,14 +38,14 @@ internal static class CompressionVerification
                 SmCompressionCodes.LongHeaderMarker |
                 (code << 2) |
                 LittleEndianBytes.HighByte(unchecked((ushort)encodedLength))));
-            SmCompressionHeader longDecoded = SmCompressionHeader.Decode(
+            SmCompressionHeader longDecoded = SmCompressionHeader.DecodeLong(
                 longHeader,
                 unchecked((byte)encodedLength));
             AssertEqual(command, longDecoded.Command, $"{command} long command field");
             AssertEqual(longLength, longDecoded.Length, $"{command} long minimum length");
         }
 
-        SmCompressionHeader maximum = SmCompressionHeader.Decode(0xe3, 0xff);
+        SmCompressionHeader maximum = SmCompressionHeader.DecodeLong(0xe3, 0xff);
         AssertEqual(SmCompressionCodes.MaximumLongLength, maximum.Length,
             "long compression header maximum length");
         SmCompressionHeader terminator = SmCompressionHeader.Decode(SmCompressionCodes.Terminator);
@@ -66,7 +66,7 @@ internal static class CompressionVerification
             new VerifySmCompressionFormatCase(SmCompressionCommand.RelativeCopyInverted, 1, true, true, true),
         })
         {
-            SmCompressionHeader header = SmCompressionHeader.Decode(
+            SmCompressionHeader header = SmCompressionHeader.DecodeLong(
                 unchecked((byte)(SmCompressionCodes.LongHeaderMarker | (CommandNumber(command) << 2))), 32);
             AssertEqual(command, header.Command, $"{command} long header");
             AssertEqual(payload, header.PayloadByteCount, $"{command} payload bytes");

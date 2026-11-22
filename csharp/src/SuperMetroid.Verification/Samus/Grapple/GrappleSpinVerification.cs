@@ -27,9 +27,9 @@ internal static class GrappleSpinVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.WestOcean);
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.ChangePoseKeepingAnimation(left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose);

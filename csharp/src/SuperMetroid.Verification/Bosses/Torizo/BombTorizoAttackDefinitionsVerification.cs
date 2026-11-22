@@ -23,8 +23,8 @@ internal static class BombTorizoAttackDefinitionsVerification
         // Each swipe cue carries its hand placement, which the animation oracle compares with these tables
         // (--torizo-animations); every native placement spawns where the cartridge put it, mirrored when facing right.
         Offset16<RoomPixels>[] swipes = [.. Enumerable.Range(0, 11).Select(index => new Offset16<RoomPixels>(
-            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeXAddress + index * 2)),
-            unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(swipeYAddress + index * 2))))];
+            unchecked((short)rom.ReadCartridgeWord(swipeXAddress + index * 2)),
+            unchecked((short)rom.ReadCartridgeWord(swipeYAddress + index * 2))))];
 
         // The cartridge's explosion rows: for each site an unused centred row, then the right- and left-facing rows.
         foreach (BombTorizoExplosionSite site in Enum.GetValues<BombTorizoExplosionSite>())
@@ -32,10 +32,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         {
             int row = (site == BombTorizoExplosionSite.Gut ? 0 : 3) + (facingRight ? 1 : 2);
             Offset16<RoomPixels> definition = BombTorizoAttacks.LowHealthExplosion(site, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + row * 2))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((explosionXAddress + row * 2))),
                 definition.X,
                 $"Bomb Torizo explosion site {site} facing right {facingRight} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionYAddress + row * 2))),
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((explosionYAddress + row * 2))),
                 definition.Y,
                 $"Bomb Torizo explosion site {site} facing right {facingRight} Y offset");
         }
@@ -48,7 +48,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             Offset16<RoomPixels> expected = swipes[index];
             (RoomEnemySystem enemies, RoomEnemyPlace torizo) =
                 CreateBombTorizoAttackFixture(facingRight);
-            enemies.TorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, expected);
+            enemies.TorizoBehavior.Attacks.SpawnBombTorizoExplosiveSwipe(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), expected);
             EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
 
             AssertTrue(projectile.IsActive,
@@ -68,7 +68,7 @@ internal static class BombTorizoAttackDefinitionsVerification
                     BombTorizoAttacks.LowHealthExplosion(parameter, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
                 (RoomEnemySystem enemies, RoomEnemyPlace torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
-                enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
+                enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, torizo.RequireSpeciesState<TorizoEnemyState>(), parameter);
                 EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17);
 
                 AssertTrue(projectile.IsActive,
@@ -91,9 +91,7 @@ internal static class BombTorizoAttackDefinitionsVerification
         CreateBombTorizoAttackFixture(bool facingRight)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-        torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(facingRight ? 0x8000 : 0, new(1000, 500));
         return new CreateBombTorizoAttackFixtureResult(enemies, torizo);
     }
 

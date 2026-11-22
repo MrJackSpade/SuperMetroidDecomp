@@ -27,7 +27,7 @@ internal static class ChargeFlareDefinitionsVerification
     /// </summary>
     internal static void VerifyChargeFlareDefinitions(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         ChargeFlareComponent[] components = Enum.GetValues<ChargeFlareComponent>();
         for (int place = 0; place < components.Length; place++)
         {

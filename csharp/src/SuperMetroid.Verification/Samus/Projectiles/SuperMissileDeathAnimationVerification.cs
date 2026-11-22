@@ -39,9 +39,9 @@ internal static class SuperMissileDeathAnimationVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RisingTide);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
         RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Occupant?.DefinitionId == enemyDefinition);
         enemy.Health = 1;

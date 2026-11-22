@@ -21,7 +21,7 @@ internal static class IntroEggMotionDefinitionsVerification
     /// </summary>
     internal static void VerifyShellFragmentFallPastCurve(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ShellFragmentFallPastCurve installed = InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve;
         const int stepsPastCurve = 3;
         for (int past = 0; past < stepsPastCurve; past++)
@@ -131,7 +131,7 @@ internal static class IntroEggMotionDefinitionsVerification
     }
 
     /// <summary>Reads native egg motion bytes solely as the cartridge comparison oracle.</summary>
-    private static byte CompiledIntroEggMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledIntroEggMotionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects runtime rereads of compiled fragment positions and motion curves.</summary>
     private static CartridgeReadGuard NewEggMotionGuard(ISnesAddressSpace source) =>

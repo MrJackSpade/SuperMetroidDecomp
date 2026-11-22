@@ -14,11 +14,11 @@ internal static partial class ChozoStatueSiteDefinitions
     internal static readonly IdentityTable<ChozoStatueSite, ChozoStatueSiteDefinition> Sites = new(new Dictionary<ChozoStatueSite, ChozoStatueSiteDefinition>
     {
         [ChozoStatueSite.WreckedShip] = new(ChozoAndTubeShades.WreckedShipStatue, ChozoStatueSegment.WreckedShipIdle, ChozoStatueSegment.WreckedShipActivated,
-            [new(ChozoStatueRoomDefinitions.WreckedShipHandBlock, ChozoStatueRoomObject.WreckedShipHand),
-                new(ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock, ChozoStatueRoomObject.SlopeAccessClosing)],
+            ChozoStatueHandObject.WreckedShip, ChozoStatueRoomDefinitions.WreckedShipHandBlock,
+            [new(ChozoStatueRoomDefinitions.WreckedShipSlopeAccessBlock, ChozoStatueRoomObject.SlopeAccessClosing)],
             AreaId.WreckedShip, ChozoStatueRoomDefinitions.WreckedShipHandBehavior, ChozoHandAdmission.AreaBossDefeated),
         [ChozoStatueSite.LowerNorfair] = new(ChozoAndTubeShades.LowerNorfairStatue, ChozoStatueSegment.LowerNorfairIdle, ChozoStatueSegment.LowerNorfairActivated,
-            [new(ChozoStatueRoomDefinitions.LowerNorfairHandBlock, ChozoStatueRoomObject.LowerNorfairHand)],
+            ChozoStatueHandObject.LowerNorfair, ChozoStatueRoomDefinitions.LowerNorfairHandBlock, [],
             AreaId.Norfair, ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, ChozoHandAdmission.SpaceJumpCollected),
     });
 }

@@ -41,7 +41,7 @@ internal static class KraidCameraMappingsVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
@@ -51,12 +51,13 @@ internal static class KraidCameraMappingsVerification
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Kraid));
         state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
-        runtime.Enemies.KraidBehavior.Rise.RunKraidGrowthPhase(body, state);
+        // His body's next update, as the enemy pass runs it, releases the camera.
+        body.RunMainAi(runtime.Player.Samus);
         ExpectCells(rom, GrownOperands, scrolls, "Kraid's growth");
     }
 
     /// <summary>Requires the room's first cells to hold the states the original's operands store to them, in order.</summary>
-    private static void ExpectCells(ISnesAddressSpace rom, int[] operandAddresses, RoomScrollGrid scrolls, string change)
+    private static void ExpectCells(CartridgeImportAddressSpace rom, int[] operandAddresses, RoomScrollGrid scrolls, string change)
     {
         RoomScrollState[] kept = scrolls.KeptStates;
         for (int cell = 0; cell < operandAddresses.Length; cell++)
@@ -69,7 +70,7 @@ internal static class KraidCameraMappingsVerification
     /// order, names the screen at that cell in Kraid's room and the state of that operand; no definition names a screen
     /// outside the room.
     /// </summary>
-    private static void VerifyKraidScrollMapping(ISnesAddressSpace rom, int[] operandAddresses, ScreenScrollChange[] changes, string layout)
+    private static void VerifyKraidScrollMapping(CartridgeImportAddressSpace rom, int[] operandAddresses, ScreenScrollChange[] changes, string layout)
     {
         Extent16<RoomScreens> room = RoomDefinitions.Kraid.Size;
         AssertEqual(room.Area, operandAddresses.Length, $"Kraid {layout} scrolls cover every screen of his room");

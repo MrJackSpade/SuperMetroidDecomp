@@ -1,9 +1,0 @@
-namespace SuperMetroid.Core.Enemies.Gunship;
-
-/// <summary>The gunship session over the gunship's save prompt.</summary>
-/// <param name="gunship">The gunship.</param>
-internal sealed partial class GunshipSession(GunshipBehavior gunship) : IGunshipSession
-{
-    /// <inheritdoc/>
-    public void AnswerSavePrompt() => gunship.AnswerGunshipSavePrompt();
-}

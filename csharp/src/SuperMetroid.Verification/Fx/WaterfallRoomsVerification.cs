@@ -19,12 +19,12 @@ internal static class WaterfallRoomsVerification
     /// <summary>Loads both reported rooms, confirms native TM/TS/CGADSUB values, and checks BG2 joins the subscreen without a second overlay.</summary>
     internal static void VerifyWaterfallRooms()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {

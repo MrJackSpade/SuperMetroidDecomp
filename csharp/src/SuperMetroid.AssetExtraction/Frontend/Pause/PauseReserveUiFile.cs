@@ -19,8 +19,7 @@ public static partial class PauseReserveUiFile
     public static PauseReserveUiPresentation Read(Stream json)
     {
         PauseReserveUiDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause reserve UI document is null."); }
+        try { document = JsonAssetDocument.Read<PauseReserveUiDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause reserve UI JSON.", error); }
         if (document.Version != PauseReserveUiDefinitions.Version || document.Labels is null || document.Labels.Count != PauseReserveUiDefinitions.Labels.Count ||
             document.Digits is null || document.Digits.Cells is null || document.Digits.Cells.Length != PauseReserveUiDefinitions.DigitCount ||

@@ -25,14 +25,11 @@ internal static class KzanBehaviorVerification
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWholeY(128);
         place.SetSpawnSettings(new KzanSpawnSettings(FallSpeed: SignedSixteenSixteen.FromParts(4, 0), FallWait: 112, FallDistance: 80));
-        KzanBehavior.InitializeKzanTop(place.HeldOccupant(), place);
-        AssertEqual(new AnimationPlayback<KzanSegment>(KzanAnimations.StartingWith(KzanSegment.Idle), AnimationPlace.StartOfAnimation),
-            (enemies.Places.InUpdateOrder[0].EntityState<KzanTopEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Playback,
-            "Kzan initializer animation");
+        KzanEnemyState started = KzanBehavior.InitializeKzanTop(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place);
         // The idle pose is a still picture (#2337): it shows once and rests there.
         ushort frame = KzanAnimationsConstants.Spritemaps(KzanSegment.Idle).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),
-            EnemyInstructionRunner.ShownFrames(place, 4), "Kzan shows its idle frame once and holds it");
+            EnemyInstructionRunner.ShownFrames(place, 4, () => KzanBehavior.AdvanceKzanTypedAnimation(place, started)), "Kzan shows its idle frame once and holds it");
         Console.WriteLine("  Kzan behavior: the top shows its idle pose and holds it.");
     }
 
@@ -50,8 +47,8 @@ internal static class KzanBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         place.Position = place.Position.WithWhole(new(128, 128));
-        KzanBehavior.InitializeKzanTop(place.HeldOccupant(), place);
-        KzanEnemyState state = place.RequireSpeciesState<KzanEnemyState>();
+        // The top's setup builds the state its main AI moves.
+        KzanEnemyState state = KzanBehavior.InitializeKzanTop(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place);
         AssertEqual(160, state.FallingTargetY, "the falling target is the spawn plus the fall");
         AssertEqual(128, state.RisingTargetY, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(
@@ -59,25 +56,25 @@ internal static class KzanBehaviorVerification
             new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
 
         state.Action = KzanAction.Falling;
-        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place, state, frame);
         AssertEqual(KzanAction.Falling, state.Action, "above the falling target the top keeps falling");
         AssertEqual((ushort)128, place.Position.Y.Whole, "the first falling step uses the zero speed entry");
         AssertEqual(SignedSixteenSixteen.FromSixteenthsOfPixel(1), state.FallingSpeed, "each falling step accelerates the fall by a sixteenth of a pixel per update");
 
         place.Position = place.Position.WithWholeY(160);
-        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place, state, frame);
         AssertEqual(KzanAction.WaitingToRise, state.Action, "reaching the falling target lands the top");
         AssertEqual((ushort)160, place.Position.Y.Whole, "the top lands on the falling target");
         AssertEqual((SoundEffectId?)EnemySoundEffectDefinitions.KzanLandingSoundEffect,
             enemies.Audio.LatestSound, "landing queues the library-two landing sound");
 
         state.Action = KzanAction.Rising;
-        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place, state, frame);
         AssertEqual(KzanAction.Rising, state.Action, "below the rising target the top keeps rising");
         AssertEqual((ushort)159, place.Position.Y.Whole, "half a pixel of rise borrows from the whole position");
 
         place.Position = place.Position.WithWholeY(127);
-        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant(), place, frame);
+        enemies.KzanBehavior.RunKzanTopMainAi(place.HeldOccupant().SpawnSettings<KzanSpawnSettings>(), place, state, frame);
         AssertEqual(KzanAction.WaitingToFall, state.Action, "passing above the rising target stops the rise");
         AssertEqual((ushort)128, place.Position.Y.Whole, "the top stops on the rising target");
         Console.WriteLine("  Kzan targets: the top's fall and rise stop at the spawn plus its fall and at its spawn.");

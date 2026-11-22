@@ -8,24 +8,69 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="balloon">What the enemy's setup built (#2554).</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, PowampBodySpawnSettings settings, PowampBalloonEntity balloon, PowampBodyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <summary>The body's own shot reaction, built for this occupant.</summary>
-    private EnemyShotReaction OwnShot => field ??= species.PowampBodyShotReaction(this);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Powamp species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal PowampBodyEntity(PowampBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        PowampBodySpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.PlacedBalloon(place), PowampBehavior.InitializePowampBody(place))
+    {
+    }
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal PowampBodySpawnSettings Settings { get; } = settings;
+
+    /// <summary>The balloon the room lists right before the body, which the body receives as it is built (#2554).</summary>
+    private readonly PowampBalloonEntity balloon = balloon;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly PowampBodyState state = state;
+
+    /// <summary>The body's own shot reaction, built once for this body.</summary>
+    private EnemyShotReaction OwnShot => field ??= PowampBehavior.PowampBodyShotReaction(this);
+
+    /// <summary>The body's own bomb reaction, built once for this body.</summary>
+    private EnemyBombReaction OwnBomb => field ??= PowampBehavior.PowampBodyBombReaction(this);
+
+    /// <summary>The body's own Power Bomb reaction, built once for this body.</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= PowampBehavior.PowampBodyPowerBombReaction(this);
 
     /// <summary>Whether the body refuses shots: its placement refuses them, or it is dying (#2474).</summary>
     /// <param name="body">The place the body occupies.</param>
-    internal bool RefusesContact(RoomEnemyPlace body) => PowampBehavior.BodyRefusesContact(Occupant, body);
+    internal bool RefusesContact(RoomEnemyPlace body) => PowampBehavior.BodyRefusesContact(Settings, state);
+
+    /// <summary>Carries a shot's freeze, hurt flash and fatal damage on from the body to its balloon, after the common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void CarryShotOnToBalloon(EnemyShotHitContext context) =>
+        PowampBehavior.ResolvePowampShotAfterCommon(Ensure.NotNull(context).Enemy, state, balloon.Place);
+
+    /// <summary>Carries a bomb's freeze, hurt flash and fatal damage on from the body to its balloon, after the common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void CarryShotOnToBalloon(EnemyBombHitContext context) =>
+        PowampBehavior.ResolvePowampShotAfterCommon(Ensure.NotNull(context).Enemy, state, balloon.Place);
+
+    /// <summary>Carries a Power Bomb's hit on from the body to its balloon, after the common damage.</summary>
+    /// <param name="context">The blast meeting the body.</param>
+    internal void CarryPowerBombOnToBalloon(EnemyPowerBombContext context) => EnemyPartnerHits.CarryOnto(context.Enemy, balloon.Place);
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializePowampBody(Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, state, balloon, frame.Level, frame.Samus);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Occupant, Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place, state);
 
     /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == PowampReactions.Touch || base.ReactsToTouch;
@@ -35,7 +80,7 @@ internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemy
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == PowampReactions.Touch)
-            species.ReactToPowampBodyTouch(Occupant, context);
+            species.ReactToPowampBodyTouch(Occupant, Settings, context, state, balloon.Place);
         else
             base.ReactToTouch(context);
     }
@@ -46,10 +91,10 @@ internal sealed partial class PowampBodyEntity(PowampBehavior species, RoomEnemy
     /// <summary>The Powamp's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == PowampReactions.Shot ? species.PowampBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == PowampReactions.Shot ? OwnBomb : base.CommonBombDamageReaction(context);
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.PowampBodyPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>The Powamp's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

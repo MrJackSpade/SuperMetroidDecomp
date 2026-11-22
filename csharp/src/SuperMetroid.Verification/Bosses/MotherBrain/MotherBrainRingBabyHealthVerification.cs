@@ -22,25 +22,24 @@ internal static class MotherBrainRingBabyHealthVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        MotherBrainRainbowBeamAttackSequence lateFight = state.BeginLateFight();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(lateFight);
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
         BabyMetroidCutsceneState babyMetroid = lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.");
         RoomEnemyPlace babyPlace = babyMetroid.Place;
         AssertEqual(0x0c80, babyPlace.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
-        EnemyProjectile ring = runtime.Enemies.Projectiles.Occupy(16, RoomEnemyProjectileKind.MotherBrainOnionRing);
+        EnemyProjectile ring = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.MotherBrainOnionRing, SpriteGraphics.SharedIn(state.Colours.OwnShading));
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, mouthWaitUpdates: 1));
         babyMetroid.Position = babyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
-        runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.IntroducedSamus, 0);
+        runtime.Enemies.MotherBrainBehavior.Projectiles.OnionRing.FlyMotherBrainOnionRing(ring, runtime.Player.Samus, 0);
         AssertEqual(0x0c30, babyMetroid.Health, "the ring charges the Baby $50");
         AssertEqual(0x0c30, babyPlace.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");

@@ -21,7 +21,7 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant(), fixturePlace);
+        Func<RoomEnemyPlace, OwtchEnemyState> initialize = fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant().SpawnSettings<OwtchSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Owtch, place.KeptDefinition);
 
@@ -37,9 +37,8 @@ internal static class OwtchMovementDefinitionsVerification
                     place.SetSpawnParameter1(EnemyDefinitionId.Owtch, LittleEndianBytes.Word(initialState, timerIndex));
                     place.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)(distanceIndex << 8));
                     place.Position = place.Position.WithWhole(new(spawnX, 0x0100));
-                    initialize(place);
-
-                    OwtchEnemyState state = (enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires enemies.OwtchStates[0]."));
+                    // The Owtch's setup builds its state.
+                    OwtchEnemyState state = initialize(place);
                     int distance = EnemySpawnSelectors.OwtchTravelDistance(distanceIndex);
                     AssertEqual(EnemySpawnSelectors.OwtchUndergroundWait(timerIndex),
                         state.UndergroundTimer.UpdatesLeft,
@@ -66,7 +65,7 @@ internal static class OwtchMovementDefinitionsVerification
         for (byte index = 0; index < 8; index++)
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, EnemySpawnSelectors.OwtchTravelDistance(index),
                 $"decoded Owtch travel distance {index}");
         }
@@ -82,7 +81,7 @@ internal static class OwtchMovementDefinitionsVerification
         for (byte index = 0; index < 6; index++)
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, EnemySpawnSelectors.OwtchUndergroundWait(index),
                 $"decoded Owtch underground wait {index}");
         }

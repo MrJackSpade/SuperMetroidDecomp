@@ -23,25 +23,29 @@ internal static class KraidGrowthCommandCursorVerification
     internal static void VerifyKraidGrowthCommandCursor()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(rom));
+        var native = new KraidHeadNativeCursors(rom);
         var guard = new KraidHeadProgramReadGuard(rom);
         var referenceArt = new EnemyIdentityFixture().Build().Bosses.KraidBackground;
         var head = KraidHeadTilemapAtlas.Load(new MemoryStream(KraidHeadTilemapFiles.Encode(
             new byte[KraidWorkingMapDefinitions.HeadImageCells * 2])));
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas> { [KraidHeadTilemapFormat.HeadsByMouthStage[2]] = head }, referenceArt.RoomBackgroundTiles) });
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];
         var foot = enemies.Places.InUpdateOrder[5];
         body.Bind(EnemyDefinitionId.Kraid, body.KeptDefinition);
         state.InitialHealth = 1000;
         body.Health = 874;
+        // He fights his first phase, his head standing on the roar's cry, and the head's hold runs out on one update.
+        state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
         state.HeadPlayback = native.PlaybackAt(0x96e2);
-        execute(state);
+        enemies.KraidBehavior.Head.PlayToNextPose(state);
         AssertEqual(native.PlaybackAt(0x96ea), state.HeadPlayback, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
         state.FootState.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
@@ -71,7 +75,7 @@ internal static class KraidGrowthCommandCursorVerification
     }
 
     /// <summary>Reads one native command byte as an independent growth-selection oracle.</summary>
-    private static byte KraidGrowthCommandCursorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidGrowthCommandCursorRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Kraid growth command-cursor regression.</summary>
     [VerificationCommand("--kraid-growth-command-cursor")]

@@ -29,7 +29,7 @@ internal static partial class MapPaletteCycleExtractor
                 break;
             PaletteRgb5[] highlight = [.. MapPaletteCycleFormat.HighlightInks.Select(ink =>
             {
-                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int word = RomDataReader.ReadWordFixedBank(bus,
                     MapSourceDefinitions.Animation.PaletteColors + (frame * MapPaletteCycleFormat.ColorCount + ink) * sizeof(ushort));
                 return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             })];

@@ -12,22 +12,23 @@ public abstract partial record SamusMissileIgnition
     {
     }
 
-    /// <summary>What a beam fired into the missile's place finds of its ignition (#2524).</summary>
-    /// <param name="missile">What the missile holds besides its ignition.</param>
-    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(ReplacedMissile missile);
-
-    /// <summary>What a missile a beam replaces holds besides its ignition.</summary>
-    /// <param name="ReflectionHeadStart">The head start a reflected missile re-ignites with.</param>
-    /// <param name="LinkPlace">The place a Super Missile names as its link, or null.</param>
-    internal readonly partial record struct ReplacedMissile(SignedEightEight ReflectionHeadStart, int? LinkPlace);
-
     /// <summary>Whether the missile has ignited since it was fired or reflected.</summary>
     public bool HasIgnited => this is Ignited;
 
-    /// <summary>Not yet ignited since the missile was fired or reflected: where a missile starts its ignition.</summary>
+    /// <summary>Whether the missile waits to ignite as it was fired, not after a reflection.</summary>
+    internal abstract bool AwaitsIgnitionAsFired { get; }
+
+    /// <summary>What a beam fired into the missile's place finds there (<see cref="BeamFiredOverLastShot"/>).</summary>
+    /// <param name="linkPlace">The place an ignited Super Missile names as its link, or null for a missile or a Super Missile naming none.</param>
+    internal abstract BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(int? linkPlace);
+
+    /// <summary>
+    /// A stage before the missile's ignition, which a missile starts in when it is fired or reflected (#2554): it ignites
+    /// on its update, never before.
+    /// </summary>
     public abstract partial record Unignited : SamusMissileIgnition
     {
-        /// <summary>Closes the group to the two stages declared here.</summary>
+        /// <summary>Only the two stages before ignition derive from it.</summary>
         private protected Unignited()
         {
         }
@@ -37,14 +38,29 @@ public abstract partial record SamusMissileIgnition
     public sealed partial record Pending : Unignited
     {
         /// <inheritdoc/>
-        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(ReplacedMissile missile) => new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile();
+        internal override bool AwaitsIgnitionAsFired => true;
+
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(int? linkPlace) =>
+            new BeamFiredOverLastShot.ReplacedShot.UnignitedMissile();
     }
 
     /// <summary>Reflected by an enemy and not yet re-ignited; it re-ignites with the reflection's head start.</summary>
     public sealed partial record PendingAfterReflection : Unignited
     {
+        /// <summary>
+        /// The head start a reflection gives a missile toward the speed it re-ignites at: what that speed exceeds a fired
+        /// missile's by.
+        /// </summary>
+        private static SignedEightEight HeadStart =>
+            SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed - SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
+
         /// <inheritdoc/>
-        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(ReplacedMissile missile) => new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(missile.ReflectionHeadStart);
+        internal override bool AwaitsIgnitionAsFired => false;
+
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(int? linkPlace) =>
+            new BeamFiredOverLastShot.ReplacedShot.ReflectedMissile(HeadStart);
     }
 
     /// <summary>Ignited at <paramref name="Speed"/>.</summary>
@@ -52,6 +68,10 @@ public abstract partial record SamusMissileIgnition
     public sealed partial record Ignited(SignedEightEight Speed) : SamusMissileIgnition
     {
         /// <inheritdoc/>
-        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(ReplacedMissile missile) => new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(Speed, missile.LinkPlace);
+        internal override bool AwaitsIgnitionAsFired => false;
+
+        /// <inheritdoc/>
+        internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(int? linkPlace) =>
+            new BeamFiredOverLastShot.ReplacedShot.IgnitedMissile(Speed, linkPlace);
     }
 }

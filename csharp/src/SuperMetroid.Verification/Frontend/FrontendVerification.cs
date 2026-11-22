@@ -352,7 +352,7 @@ internal static void VerifySavedGameLoadAppearance()
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 
-    var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
+    var appearanceHistory = runtime.Player.Samus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
     SamusMovementType appearanceMetadata = appearanceHistory.PreviousMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
@@ -363,8 +363,8 @@ internal static void VerifySavedGameLoadAppearance()
         "saved-game appearance remains active through frame 359");
     runtime.StepFrame(0);
     AssertEqual(appearanceMetadata, appearanceHistory.MovementBeforePrevious, "appearance completion shifts prior metadata");
-    AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus),
+    AssertEqual(runtime.Player.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
+    AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.Samus),
         appearanceHistory.PreviousMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { Control.InputLocked: false },
@@ -526,7 +526,7 @@ internal static void VerifyDemoInputObject()
 
 /// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
-    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
+    bus.ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
 /// <summary>Writes a little-endian fixture word at a mapped SNES ROM address.</summary>
 internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -61,10 +61,4 @@ internal sealed partial class KraidEncounterAccess
         place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         place.Presence = place.Presence.With(presence);
     }
-
-    /// <summary>
-    /// Installs <paramref name="part"/>'s state for the part's occupant of its place; the encounter keeps it across the
-    /// part's kills and respawns.
-    /// </summary>
-    internal static void AttachKraidPart(KraidPartState part) => Ensure.NotNull(part).Place.SetSpeciesState(part);
 }

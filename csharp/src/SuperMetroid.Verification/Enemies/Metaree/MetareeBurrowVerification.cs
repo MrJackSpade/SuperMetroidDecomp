@@ -24,8 +24,8 @@ internal static class MetareeBurrowVerification
         place.Bind(EnemyDefinitionId.Metaree, place.KeptDefinition);
         place.Radius = new(8, 8);
         place.Position = place.Position.WithWhole(new(64, 100));
-        MetareeBehavior.InitializeMetaree(place);
-        MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("The Metaree has no state.");
+        // The Metaree's setup builds the state its main AI moves.
+        MetareeEnemyState state = MetareeBehavior.InitializeMetaree();
         state.Action = MetareeAction.LaunchedAttack;
         state.YVelocity = 8;
         // A countdown left over from before the dive never shortens the burrow.
@@ -44,17 +44,17 @@ internal static class MetareeBurrowVerification
         {
             if (++diveUpdates > 16)
                 throw new InvalidOperationException("The diving Metaree never struck the solid row.");
-            enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, frame);
+            enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, state, frame);
         }
         AssertEqual(MetareeAction.Burrowing, state.Action, "the dive ends in a burrow");
         AssertEqual(MetareeMotionDefinitions.BurrowLifetime, state.BurrowTimer.UpdatesLeft, "the burrow starts its whole countdown as the Metaree strikes the ground");
 
         for (int update = 1; update < MetareeMotionDefinitions.BurrowLifetime; update++)
         {
-            enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, frame);
+            enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, state, frame);
             AssertTrue(!place.Presence.HasAny(EnemyPresence.Deleted), $"the Metaree is still burrowing after {update} burrowing updates");
         }
-        enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, frame);
+        enemies.MetareeBehavior.RunMetareeMainAi(place.HeldOccupant(), place, state, frame);
         AssertTrue(place.Presence.HasAny(EnemyPresence.Deleted), "the Metaree is gone on its twenty-first burrowing update");
         Console.WriteLine("  Metaree burrow: the burrow lasts 21 updates from the dive's landing.");
     }

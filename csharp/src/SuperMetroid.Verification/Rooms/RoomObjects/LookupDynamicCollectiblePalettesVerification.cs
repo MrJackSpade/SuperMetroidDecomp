@@ -42,5 +42,5 @@ internal static class LookupDynamicCollectiblePalettesVerification
     }
 
     /// <summary>Reads a bank-$84 palette byte from the retail collectible upload program.</summary>
-    private static byte DynamicCollectiblePaletteSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DynamicCollectiblePaletteSelectorsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

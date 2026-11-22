@@ -1,13 +1,16 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>What firing a beam produced (#2560): the sound request to queue, the sound with its priority, or none.</summary>
-/// <param name="Request">The sound to queue with its priority, or null for none.</param>
-internal readonly partial record struct BeamFiringResult(SoundRequest? Request)
+/// <summary>
+/// The sound firing a beam queues and its request's priority (#2554). Firing that queues no sound produces none, so a
+/// sound is never without its priority.
+/// </summary>
+/// <param name="Sound">The sound to queue.</param>
+/// <param name="Priority">The priority of the sound's request.</param>
+internal readonly partial record struct BeamFiringResult(SoundEffectId Sound, SoundRequestPriority Priority)
 {
-    /// <summary>No sound to queue.</summary>
-    internal static BeamFiringResult Silent => default;
-
-    /// <summary>The request for <paramref name="sound"/> at <paramref name="priority"/>, or none without a sound.</summary>
-    internal static BeamFiringResult Of(SoundEffectId? sound, SoundRequestPriority priority) =>
-        new(sound is { } queued ? new SoundRequest(queued, priority) : null);
+    /// <summary>The sound <paramref name="sound"/> queued at <paramref name="priority"/>, or none when firing queues no sound.</summary>
+    /// <param name="sound">The sound firing produced, or none.</param>
+    /// <param name="priority">The priority its request takes.</param>
+    internal static BeamFiringResult? Of(SoundEffectId? sound, SoundRequestPriority priority) =>
+        sound is { } queued ? new BeamFiringResult(queued, priority) : null;
 }

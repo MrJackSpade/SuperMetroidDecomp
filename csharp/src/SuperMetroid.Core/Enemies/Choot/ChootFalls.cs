@@ -1,23 +1,11 @@
-using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
-
 namespace SuperMetroid.Core.Enemies.Choot;
 
-/// <summary>Where a falling Choot is: its pattern, and the offset of its path on each update of a loop of its fall.</summary>
+/// <summary>How far each loop of a Choot's falling path carries it down.</summary>
 internal static partial class ChootFalls
 {
-    /// <summary>
-    /// The offset from the falling origin each falling path shows on each update of one loop, laid out once from its
-    /// samples, each held for the updates it lists.
-    /// </summary>
-    private static readonly IdentityTable<ChootFallingPath, Offset16<RoomPixels>[]> LoopOffsets = new(path =>
-        [.. Paths[path].Samples.SelectMany(sample => Enumerable.Repeat(sample.Offset, sample.Updates))]);
-
     /// <summary>How far, in pixels, the loop origin of <paramref name="fallingPath"/> advances per loop.</summary>
-    internal static int LoopYDistance(ChootFallingPath fallingPath) => Paths[fallingPath].LoopYDistance;
+    internal static int LoopYDistance(ChootFallingPath fallingPath) => Path(fallingPath).LoopYDistance;
 
-    /// <summary>
-    /// The offset from the falling origin <paramref name="fallingPath"/> shows on each update of one loop; the update after
-    /// the last ends the loop.
-    /// </summary>
-    internal static ReadOnlyMemory<Offset16<RoomPixels>> LoopOf(ChootFallingPath fallingPath) => LoopOffsets[fallingPath];
+    /// <summary>The definition of <paramref name="fallingPath"/>.</summary>
+    private static ChootFallingPathDefinition Path(ChootFallingPath fallingPath) => ChootFallingPathDefinitions.Paths[fallingPath];
 }

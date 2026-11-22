@@ -9,16 +9,15 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Fake Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.FakeKraid], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new FakeKraidEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new FakeKraidEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
@@ -48,8 +47,8 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
     /// Carries out one cue of Fake Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera) =>
-        cue.Match(ApplyFakeKraidCueCases, new ApplyFakeKraidCueContext(occupant, place, samus, level, camera, this));
+    private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidEnemyState fakeKraidEnemyState, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera) =>
+        cue.Match(ApplyFakeKraidCueCases, new ApplyFakeKraidCueContext(occupant, place, fakeKraidEnemyState, samus, level, camera, this));
 
     /// <summary>What <see cref="ApplyFakeKraidCue"/> does on each <see cref="FakeKraidCue"/>, built once (#2553).</summary>
     private static FakeKraidCueCases<ApplyFakeKraidCueContext, FakeKraidSegment?> ApplyFakeKraidCueCases { get; } = new(
@@ -58,12 +57,12 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
                 context.Owner.SpawnFakeKraidSpitPair(context.Occupant, context.Place, spit.Direction);
                 return null;
             },
-            ChooseAction: static (_, context) => context.Owner.SelectFakeKraidAction(context.Place.RequireSpeciesState<FakeKraidEnemyState>()),
+            ChooseAction: static (_, context) => context.Owner.SelectFakeKraidAction(context.State),
             Move: static (_, context) =>
             {
                 // Walk cue: advance one step unless its random reversal
                 // clock expires, then turn to face Samus.
-                context.Owner.ProcessFakeKraidWalkAnimation(context.Place, context.Place.RequireSpeciesState<FakeKraidEnemyState>(), context.Samus, context.Level);
+                context.Owner.ProcessFakeKraidWalkAnimation(context.Place, context.State, context.Samus, context.Level);
                 return null;
             },
             PlayCrySound: static (_, context) =>
@@ -77,21 +76,22 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
     /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The Fake Kraid's state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Level">The level the cases read.</param>
     /// <param name="Camera">The camera the cases read.</param>
     /// <param name="Owner">The <see cref="FakeKraidBehavior"/> reacting.</param>
-    private readonly partial record struct ApplyFakeKraidCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
+    private readonly partial record struct ApplyFakeKraidCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, FakeKraidEnemyState State, SamusState Samus, RoomLevelData Level, Position16<RoomPixels> Camera, FakeKraidBehavior Owner);
 
     /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
     /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
-    internal void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal FakeKraidEnemyState InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
-        place.SetSpeciesState(state);
 
         // The action choice reads the already-published random number; it does not advance
         // the RNG.
@@ -111,6 +111,7 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
         state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(towardSamus == HorizontalDirection.Right
             ? FakeKraidSegment.StepForwardsFacingRight
             : FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>The side Samus stands on from Fake Kraid: right only when she stands right of him.</summary>
@@ -371,26 +372,20 @@ internal sealed partial class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFac
                 : throw new InvalidOperationException($"{nameof(SpitAndSpikeBehavior)} is not bound to enemy projectile {kind}.");
     }
 
-    /// <summary>Runs Fake Kraid's initialization AI.</summary>
-    internal void SetUpFakeKraid(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeFakeKraid(place, surroundings.Samus);
-    }
-
     /// <summary>Runs Fake Kraid's main AI.</summary>
-    internal void RunFakeKraidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunFakeKraidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidEnemyState fakeKraidEnemyState, IEnemyAiFrame frame)
     {
         RunFakeKraidMain(
             occupant, place,
-            place.RequireSpeciesState<FakeKraidEnemyState>(),
+            fakeKraidEnemyState,
             frame.Camera);
     }
 
     /// <summary>Advances Fake Kraid's typed animation.</summary>
-    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, FakeKraidAnimations.Segments,
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, FakeKraidEnemyState fakeKraidEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, fakeKraidEnemyState, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (_, cue) => ApplyFakeKraidCue(occupant, place, cue, context.Samus, context.Level, context.Camera) is { } action
+            (_, cue) => ApplyFakeKraidCue(occupant, place, fakeKraidEnemyState, cue, context.Samus, context.Level, context.Camera) is { } action
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 

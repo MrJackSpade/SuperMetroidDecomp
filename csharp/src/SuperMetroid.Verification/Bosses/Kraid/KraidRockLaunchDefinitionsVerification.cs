@@ -24,7 +24,7 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native velocity table as the selection oracle.</summary>
-    private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchSpeedSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
     internal static void VerifyKraidRockLaunchDefinitions(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
@@ -44,7 +44,8 @@ internal static class KraidRockLaunchDefinitionsVerification
         Action<RoomEnemyPlace> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale rock the check leaves there.
-        var rock = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.KraidSpitRock);
+        var rockGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading);
+        var rock =FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -65,10 +66,10 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
+            AssertEqual(rockGraphics, rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.KraidSpitRock);
+        FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);
@@ -78,6 +79,6 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the original launch-speed words for production spawn comparison.</summary>
-    private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

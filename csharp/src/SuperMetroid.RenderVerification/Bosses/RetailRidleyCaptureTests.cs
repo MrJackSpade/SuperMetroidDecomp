@@ -32,7 +32,7 @@ internal static class RetailRidleyCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var retained = new List<RetainedFrame>();
@@ -41,7 +41,7 @@ internal static class RetailRidleyCaptureTests
         escape.BeginGetaway();
         for (int update = 0; update < CeresRidleyGetawayCurve.Duration; update++)
         {
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, update);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
             if (update % SampleSpacing != 0)
                 continue;
             // The getaway's floor reaches the display at the accepted frame boundary (#1307).
@@ -57,7 +57,7 @@ internal static class RetailRidleyCaptureTests
             retained.Add(new RetainedFrame(packet, expected));
         }
         // The update after the getaway's last hands on to the self-destruct warning, which leaves the turning floor.
-        escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, CeresRidleyGetawayCurve.Duration);
+        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, CeresRidleyGetawayCurve.Duration);
         if (escape.ShownFloor is not null)
             throw new InvalidOperationException("The getaway's end leaves the turning floor.");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);

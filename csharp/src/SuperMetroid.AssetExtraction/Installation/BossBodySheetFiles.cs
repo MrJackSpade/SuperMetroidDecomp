@@ -55,8 +55,8 @@ public static partial class BossBodySheetFiles
         Ensure.NotNull(sheets);
         Directory.CreateDirectory(directory);
         var dissolves = new List<KeyValuePair<string, PictureDissolve>>();
-        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => BossBodyOwnerKeys.Installed.Of(sheet.Owner), sheet => (SheetDocument?)new SheetDocument(
-            sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
+        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => BossBodyOwnerKeys.Installed.Of(sheet.Owner), sheet => new SheetDocument(
+            sheet.Frames.ToDictionary(frame => frame.Key, frame => Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
             StringComparer.Ordinal));
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions)));
         string content = ContentOf(directory);
@@ -78,7 +78,7 @@ public static partial class BossBodySheetFiles
         string manifestPath = Path.Combine(directory, ManifestFileName);
         Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions))
             ?? throw new InvalidDataException($"Boss body manifest {manifestPath} is empty.");
-        if (manifest.Version != ManifestVersion || manifest.Sheets is null)
+        if (manifest.Version != ManifestVersion)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
         SpriteSheetStore store = SpriteSheetStore.Open(directory);
         string dissolveMapsPath = BossBodyDissolveMapFile.PathIn(ContentOf(directory));
@@ -87,11 +87,10 @@ public static partial class BossBodySheetFiles
         {
             BossBodyOwner owner = BossBodyOwnerKeys.Installed.TryParse(entry.Key, out BossBodyOwner parsed) ? parsed
                 : throw new InvalidDataException($"Boss body manifest {manifestPath} names unknown boss {entry.Key}.");
-            SheetDocument document = entry.Value ?? throw new InvalidDataException($"Boss body manifest {manifestPath} has no sheet for {owner}.");
+            SheetDocument document = entry.Value;
             SpriteSheet sheet = store.Read(BossBodySheetComposer.SheetNameOf(owner));
             return new BossBodySheet(owner, sheet,
-                (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
-                    .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath, dissolves)));
+                document.Frames.Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath, dissolves)));
         })];
     }
 
@@ -129,7 +128,7 @@ public static partial class BossBodySheetFiles
     /// The entry is missing, places its picture nowhere, names a picture without a defined depth, a depth without a picture,
     /// or a dissolve map <paramref name="dissolves"/> does not hold.
     /// </exception>
-    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath,
+    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument document, string manifestPath,
         Dictionary<string, PictureDissolve> dissolves)
     {
         if (document is not { Anchor: { } anchor })
@@ -146,11 +145,11 @@ public static partial class BossBodySheetFiles
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">Each boss's frames, by boss name.</param>
-    internal sealed partial record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
+    internal sealed partial record Manifest(int Version, Dictionary<string, SheetDocument> Sheets);
 
     /// <summary>One boss's frames.</summary>
     /// <param name="Frames">Each frame, by frame name.</param>
-    internal sealed partial record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
+    internal sealed partial record SheetDocument(Dictionary<string, FrameDocument> Frames);
 
     /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
@@ -168,5 +167,8 @@ public static partial class BossBodySheetFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

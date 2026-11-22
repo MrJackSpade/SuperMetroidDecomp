@@ -77,7 +77,7 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[SoundEffectLibrary.Samus].Acknowledges(powerBeam))
+            if (acknowledgements[SoundEffectLibrary.Samus].Acknowledges(new SuperMetroid.Core.Compatibility.RequestedSound<SoundEffectId>(powerBeam)))
                 requestAcknowledged = true;
             else if (requestAcknowledged && acknowledgements[SoundEffectLibrary.Samus].IsNone)
                 clearAcknowledgedAfterRequest = true;

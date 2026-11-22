@@ -30,12 +30,12 @@ internal static class PauseReserveHudVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.IntroducedSamus;
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        var samus = runtime.Player.Samus;
         samus.Health = 20; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.CollectedBeams = SamusBeamFlags.Charge;

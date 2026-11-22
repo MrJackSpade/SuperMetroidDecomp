@@ -27,35 +27,24 @@ internal static class KraidPartsAccess
                 partPlace.Bind(PartsInRoomOrder[place], partPlace.KeptDefinition);
             }
         }
+
     }
 
-    /// <summary>Fixture set-up of Kraid's encounter.</summary>
-    extension(KraidBehavior kraid)
+    /// <summary>A room's enemies, which a check places Kraid in.</summary>
+    extension(World.RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Begins Kraid's encounter as his body's setup does and joins the enemies holding the first eight places of
-        /// <paramref name="enemies"/>, which the fixture has bound to his parts, to it as his parts in the order his room
-        /// lists them, each holding the encounter as its setup would (#1877, #2218), and shows it on his body layer as his
-        /// body's setup does (#2194).
+        /// Places Kraid as his room's population places him (#2218, #2554): the room's load of his room's eight entries, his
+        /// body first, whose entity begins his encounter, and each part after it, which joins it through the creation his body
+        /// offers it, beside a lone Samus. The enemies load a room once, so a check places him in enemies of their own.
         /// </summary>
-        /// <returns>The encounter begun.</returns>
-        internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
-        {
-            KraidParts parts = kraid.Parts;
-            var state = new KraidEnemyState(parts);
-            kraid.BodyLayer.Show(state);
-            (KraidPartReference Reference, KraidPartState State)[] roomOrder =
-            [
-                (parts.BodyReference, state.BodyState), (parts.ArmReference, state.ArmState), (parts.TopLintReference, state.TopLintState),
-                (parts.MiddleLintReference, state.MiddleLintState), (parts.BottomLintReference, state.BottomLintState),
-                (parts.FootReference, state.FootState), (parts.FirstNailReference, state.FirstNailState), (parts.SecondNailReference, state.SecondNailState),
-            ];
-            for (int place = 0; place < roomOrder.Length; place++)
-            {
-                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place].HeldOccupant());
-                KraidEncounterAccess.AttachKraidPart(roomOrder[place].State);
-            }
-            return state;
-        }
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState PlaceKraid() => enemies.PlaceKraid(RoomEnemyFrameFixtures.StandaloneSamus());
+
+        /// <summary>Places Kraid as his room's population places him as the parameterless placing does beside <paramref name="samus"/>.</summary>
+        /// <returns>The encounter his body began.</returns>
+        internal KraidEnemyState PlaceKraid(Samus.SamusState samus) =>
+            enemies.LoadRoom(World.RoomStates.RoomEnemyPopulationDefinitions.Kraid, samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0]
+                .EntityOf<KraidBodyEntity>().Encounter;
     }
 }

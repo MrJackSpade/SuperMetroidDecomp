@@ -24,7 +24,7 @@ internal static class KraidDrawMappingsVerification
             new KraidDrawMappingsOwner(0xb7bb, 0xabdd), new KraidDrawMappingsOwner(0xb7bf, 0xaba9),
         ];
         foreach (var owner in owners)
-            AssertEqual(owner.Program, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (owner.Header + 2)),
+            AssertEqual(owner.Program, rom.ReadCartridgeWordFixedBank(0x840000 | (owner.Header + 2)),
                 "Kraid draw owner native program identity");
     }
 
@@ -76,7 +76,7 @@ internal static class KraidDrawMappingsVerification
         {
             AssertTrue(KraidRoomDrawsAt.TryShape(KraidRoomDrawsAt.Draw(expected.Pointer), out RoomBlockShape? described), "Kraid draw exists");
             RoomBlockShape shape = described ?? throw new InvalidOperationException($"Kraid frame {expected.Id} has no shape.");
-            ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
+            ushort directionCount = rom.ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
             AssertEqual(expected.Count, shape.Cells.Count, "Kraid shape covers the run's cells");
             for (int block = 0; block < expected.Count; block++)
@@ -87,7 +87,7 @@ internal static class KraidDrawMappingsVerification
             var run = exported[expected.Pointer].Runs.Span[0];
             AssertRunHeader(directionCount, run, "Kraid export direction/count");
             AssertEqual(expected.Count, run.Count, "Kraid export word extent");
-            ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
+            ushort tail = rom.ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
             AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.X(exported[expected.Pointer], 0), "Kraid export terminal X");
             AssertEqual((sbyte)0, RoomObjectRunContinuationCodecConstants.Y(exported[expected.Pointer], 0), "Kraid export terminal Y");
@@ -127,7 +127,7 @@ internal static class KraidDrawMappingsVerification
             for (int block = 0; block < expected.Count; block++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2)));
+                    rom.ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2)));
                 AssertEqual(native.Collision, shape.CollisionAt(new Offset16<RoomBlocks>(block, 0)), "Kraid shape collision matches the native level word");
                 AssertEqual(native.Collision, exported[expected.Pointer].Runs.Span[0].Collisions.Span[block],
                     "Kraid materialized export collision");

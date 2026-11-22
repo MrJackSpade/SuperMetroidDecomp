@@ -27,10 +27,10 @@ internal static class GrappleTileArtworkVerification
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
-            AssertTrue(stock.Shown(transfer).Span.SequenceEqual(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
+            AssertTrue(stock.Shown(transfer).Span.SequenceEqual(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            ushort expected = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
+            ushort expected = RomDataReader.ReadWordFixedBank(bus, GrappleBeamDefinitions.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
         }
@@ -50,9 +50,9 @@ internal static class GrappleTileArtworkVerification
             GrappleEndpointFrame shownFrame = Enum.GetValues<GrappleEndpointFrame>().Single(frame =>
                 GrappleTileSelection.PointTransferFor(frame).SourceAddress == GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame));
             ReadOnlyMemory<byte> stockTiles = stock.ShownTiles(shownFrame, GrappleRopeOrientations.For(selected.Angle));
-            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] nativeTiles = [.. RomDataReader.ReadFixedBank(bus,
                     GrapplePointAnimationNative.SourceAddress(selected.PointAnimationFrame), SpriteArtwork.CharacterByteCount),
-                .. RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                .. RomDataReader.ReadFixedBank(bus,
                     GrappleTileSelection.SegmentTransferFor(selected.Angle).SourceAddress,
                     4 * SpriteArtwork.CharacterByteCount)];
             AssertTrue(stockTiles.Span.SequenceEqual(nativeTiles), "Stock grapple binding holds the native endpoint and rope characters");

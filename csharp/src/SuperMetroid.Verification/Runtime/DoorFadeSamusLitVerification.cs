@@ -91,7 +91,7 @@ internal static class DoorFadeSamusLitVerification
         var frame = new GameplayShadingBuilder();
         fade.ShadeGameplay(frame);
         var roomColours = new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black), Shades = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours));
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours));
     }
 
     /// <summary>The shades the door's fade keeps lit on Samus's draws this frame, after the fade.</summary>
@@ -100,7 +100,7 @@ internal static class DoorFadeSamusLitVerification
         var frame = new GameplayShadingBuilder();
         fade.ShadeGameplay(frame);
         var roomColours = new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black), Shades = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours))
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours))
             .OfSprite(PictureShading.Standard, isSamus: true).OverEffects;
     }
 }

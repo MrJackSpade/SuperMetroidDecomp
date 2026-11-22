@@ -23,16 +23,14 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
-                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, phase.BodyAnimation), $"Magdollite body list {phaseIndex}");
+                NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.BodyEntries, phase.BodyAnimation), $"Magdollite body list {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, overlayOffsetTable + phaseIndex * 2),
                 phase.OverlayYOffset, $"Magdollite overlay offset {phaseIndex}");
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
-        Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
-        Action<RoomEnemyPlace, MagdolliteBodyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
-        Action<RoomEnemyPlace, MagdolliteOverlayState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
+        // Each part runs its own main AI: the arm rises or falls as its action has it, and the overlay tracks the rising arm.
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
 
         for (int index = 0; index < 3; index++)
         {
@@ -41,8 +39,9 @@ internal static class MagdollitePhaseDefinitionsVerification
             place.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
             place.Bind(EnemyDefinitionId.Magdollite, place.KeptDefinition);
             place.Position = place.Position.WithWhole(new(0x0200, 0x0300));
-            initialize(place, RoomEnemyFrameFixtures.StandaloneSamus());
         }
+        // The room's population load sets up the three parts in order (#2554).
+        _ = enemies.LoadAuthoredPopulation();
 
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
@@ -63,7 +62,8 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.Action = MagdolliteBodyAction.Rising;
             bodyState.BodyPhase = MagdolliteRiseStage.At(phaseIndex);
             body.Position = body.Position.WithWholeY(0x0300);
-            trackRise(overlay, (overlayState), RoomEnemyFrameFixtures.StandaloneSamus());
+            overlayState.Action = MagdolliteOverlayAction.TrackingRisingBody;
+            overlay.RunMainAi(samus);
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 
@@ -73,7 +73,7 @@ internal static class MagdollitePhaseDefinitionsVerification
                 ? checked((short)-phase.DistanceThreshold)
                 : (short)0);
             body.Position = body.Position.WithWholeY(0x0300);
-            rise(body, bodyState, RoomEnemyFrameFixtures.StandaloneSamus());
+            body.RunMainAi(samus);
             if (phase.DistanceThreshold >= MagdollitePhaseDefinitions.MaximumRise && phaseIndex < 8)
             {
                 // Reaching the maximum rise compares against the slot-one overread $20AF
@@ -102,7 +102,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             bodyState.BodyPhase = MagdolliteRiseStage.At(priorPhase + 1);
             bodyState.RiseDisplacementY = -1;
             body.Position = body.Position.WithWholeY(0x0300);
-            fall(body, bodyState);
+            body.RunMainAi(samus);
             AssertEqual(MagdolliteRiseStage.At(priorPhase), bodyState.BodyPhase,
                 $"Magdollite production fall phase {priorPhase}");
             AssertEqual(MagdolliteRiseStage.At(priorPhase).Phase.BodyAnimation,
@@ -121,6 +121,6 @@ internal static class MagdollitePhaseDefinitionsVerification
 
     /// <summary>Reads one native threshold, instruction, or overlay word for the independent oracle.</summary>
     internal static ushort ReadMagdolliteWord(CartridgeImportAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
 }

@@ -353,15 +353,12 @@ internal static partial class SwapchainTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
-        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
-        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
-        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), options);
+        var audioAssets = DesktopAccess.LoadAudioClips();
+        var legacy = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var captured = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var headless = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
-        var audioAssets = DesktopAccess.LoadAudioClips();
-        legacy.BindAudio(audioAssets);
-        captured.BindAudio(audioAssets);
-        headless.BindAudio(audioAssets);
         var bound = new BoundObjectGraph([.. SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BoundContent, audioAssets]);
         var left = new short[AudioSession.PcmSamplesPerFrame];
         var right = new short[AudioSession.PcmSamplesPerFrame];
@@ -405,7 +402,7 @@ internal static partial class SwapchainTests
             SuperMetroidRuntime runtime = game.GameplayRuntimeForVerification;
             runtime.LoadCartridgeRoomForDebug(room, camera);
             // Samus stands on the floor at the middle of the screen: her bottom row is the one above the floor's top.
-            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.IntroducedSamus;
+            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.Samus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(camera.X + 128,
                 floorBlockRow * 16 - samus.Kinematics.Radius.Y));
             runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -86,7 +86,7 @@ public static partial class GameOverPresentationExtractor
             int sourceAddress = GameOverSourceDefinitions.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)
             {
-                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
+                int word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
                 sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (GameOverSourceDefinitions.TextControls.TryGetValue(word, out GameOverTextControl control))
                 {
@@ -108,7 +108,7 @@ public static partial class GameOverPresentationExtractor
         }
 
         ushort ReadBank82Word(int pointer) =>
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverSourceDefinitions.SpriteBank | pointer);
+            RomDataReader.ReadWordFixedBank(bus, GameOverSourceDefinitions.SpriteBank | pointer);
     }
 
     /// <summary>Compares each look of the Baby's animation, its duration, sprite and colours, its cries and its loop with the cartridge.</summary>
@@ -130,16 +130,16 @@ public static partial class GameOverPresentationExtractor
             if (beats[beat] is not AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame look)
                 throw new InvalidDataException($"Game-over Baby beat {beat} is a cry that follows no look.");
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
-            int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            int sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
-            int palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
+            int duration = RomDataReader.ReadWordFixedBank(bus, address);
+            int sprite = RomDataReader.ReadWordFixedBank(bus, address + 2);
+            int palette = RomDataReader.ReadWordFixedBank(bus, address + 4);
             if (duration != look.Duration ||
                 sprite != GameOverBabyAnimationDefinitions.Spritemaps.Word(look.Shown.Frame) ||
                 palette != GameOverBabyAnimationDefinitions.PalettePointers.Word(look.Shown.Colours))
                 throw new InvalidDataException(
                     $"Game-over Baby look $82:{pointer:X4} does not match the cartridge.");
 
-            int nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
+            int nextWord = RomDataReader.ReadWordFixedBank(bus, address + 6);
             pointer += FrameRecordBytes;
             if (beat + 1 == beats.Count)
             {

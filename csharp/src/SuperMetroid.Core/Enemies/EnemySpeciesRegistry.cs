@@ -1,88 +1,81 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The species registry: which factory creates the entity for each definition. An enemy system's registry is made before
-/// the room's places, which reach it from their creation, and the room's species, composed over those places, add
-/// their factories to it, covering every definition the room can bind (<see cref="AddRoomSpecies"/>).
+/// The species registry: how each definition a room's population places is built (#2554). An enemy system's registry
+/// covers every definition its room can bind (<see cref="ForRoom"/>); the population load binds each entry to its
+/// species' creation once, checking the entry's settings against the type that creation takes.
 /// </summary>
-internal sealed partial class EnemySpeciesRegistry : IEnemySpeciesSource
+[RoomLifetime]
+internal sealed partial class EnemySpeciesRegistry
 {
-    /// <inheritdoc/>
-    EnemySpeciesRegistry IEnemySpeciesSource.Species => this;
+    /// <summary>How each definition a population places binds its entries.</summary>
+    private readonly Dictionary<EnemyDefinitionId, IEnemyEntryBinding> _placed;
 
-    /// <summary>The factory of every definition added.</summary>
-    internal Dictionary<EnemyDefinitionId, IEnemyEntityFactory> Factories { get; } = [];
+    /// <summary>The creations parts already placed offer the parts the room lists after them.</summary>
+    private readonly EnemyPartOffers _offers;
 
-    /// <summary>The shared participation the entities of every definition added compose.</summary>
-    private Dictionary<EnemyDefinitionId, EnemyCommonParticipation> Participations { get; } = [];
-
-    /// <summary>Makes a room's registry, to which its species add their factories once they are composed.</summary>
-    internal EnemySpeciesRegistry()
+    /// <summary>Composes the registry from <paramref name="registrar"/>'s registrations.</summary>
+    private EnemySpeciesRegistry(EnemyCommonParticipation common, EnemySpeciesRegistrar registrar, EnemyPartOffers offers)
     {
+        Common = Ensure.NotNull(common);
+        _placed = registrar.Placed;
+        _offers = Ensure.NotNull(offers);
     }
 
-    /// <summary>A registry of <paramref name="factories"/> alone, indexed by definition.</summary>
-    /// <param name="common">The shared participation every entity composes.</param>
-    /// <param name="factories">The species' factories.</param>
-    /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    internal EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories) => AddFactories(common, factories);
-
-    /// <summary>Indexes <paramref name="factories"/> by definition, rejecting a definition owned twice.</summary>
-    /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    private void AddFactories(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
-    {
-        Ensure.NotNull(common);
-        foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))
-        foreach (EnemyDefinitionId definition in factory.Creations.Keys)
-        {
-            if (!Factories.TryAdd(definition, factory))
-                throw new InvalidOperationException(
-                    $"Enemy definition {definition} has two factories: {Factories[definition].GetType().Name} and {factory.GetType().Name}.");
-            Participations.Add(definition, common);
-        }
-    }
+    /// <summary>The shared participation every entity composes.</summary>
+    internal EnemyCommonParticipation Common { get; }
 
     /// <summary>
-    /// Adds the room's species: every definition the room can place has exactly one factory. A definition whose owner
-    /// needs scenery the room lacks (<paramref name="withoutScenery"/>: the statue room's statue, the turning floor's
-    /// elevator door) has none, and placing it fails at its placement.
+    /// The registry of a room's enemy system: every definition the room can place has exactly one owner. A definition
+    /// whose owner needs scenery the room lacks (<paramref name="withoutScenery"/>: the statue room's statue, the turning
+    /// floor's elevator door) has none, and placing it fails where its entry is bound.
     /// </summary>
     /// <param name="common">The shared participation every entity composes.</param>
     /// <param name="factories">The species' factories.</param>
     /// <param name="withoutScenery">The definitions whose owners the room's scenery does not let it build.</param>
+    /// <param name="offers">The creations parts already placed offer the parts the room lists after them.</param>
     /// <exception cref="InvalidOperationException">
     /// Two factories own one definition, none owns a bindable one the room's scenery allows, or one owns a definition the
     /// room's scenery does not allow.
     /// </exception>
-    internal void AddRoomSpecies(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories,
-        IReadOnlyCollection<EnemyDefinitionId> withoutScenery)
+    internal static EnemySpeciesRegistry ForRoom(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories,
+        IReadOnlyCollection<EnemyDefinitionId> withoutScenery, EnemyPartOffers offers)
     {
         Ensure.NotNull(withoutScenery);
-        AddFactories(common, factories);
+        var registrar = new EnemySpeciesRegistrar();
+        foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))
+            registrar.Add(factory);
         foreach (EnemyDefinitionId definition in withoutScenery)
         {
-            if (Factories.ContainsKey(definition))
+            if (registrar.Owners.ContainsKey(definition))
                 throw new InvalidOperationException($"Enemy definition {definition} has a factory although the room's scenery builds none.");
         }
         var unowned = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
-            .Where(definition => !Factories.ContainsKey(definition) && !withoutScenery.Contains(definition))
+            .Where(definition => !registrar.Owners.ContainsKey(definition) && !withoutScenery.Contains(definition))
             .ToList();
         if (unowned.Count != 0)
             throw new InvalidOperationException(
                 $"Bindable enemy definitions have no factory: {string.Join(", ", unowned)}.");
+        return new EnemySpeciesRegistry(common, registrar, offers);
     }
 
-
-    /// <summary>Creates the entity for <paramref name="occupant"/>, which <paramref name="place"/> now holds, and its setup, through its species' factory.</summary>
-    /// <param name="occupant">The occupant just installed.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <exception cref="InvalidOperationException">No species owns the occupant's definition.</exception>
-    internal EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <summary>
+    /// Binds <paramref name="placement"/>, an entry of the room's population, to its species' creation, checking once that
+    /// its settings are the type that creation takes: the creation an earlier part offered it (<see cref="EnemyPartOffers"/>),
+    /// or its species' own.
+    /// </summary>
+    /// <param name="placement">The population entry.</param>
+    /// <returns>The bound entry, which builds its enemy with no further check.</returns>
+    /// <exception cref="InvalidDataException">
+    /// No species places the entry's enemy from a population, or the entry carries other settings than its species takes.
+    /// </exception>
+    internal PopulationEnemySpawn Bind(RoomEnemyPlacement placement)
     {
-        Ensure.NotNull(occupant);
-        Ensure.NotNull(place);
-        if (!Factories.TryGetValue(occupant.DefinitionId, out IEnemyEntityFactory? factory))
-            throw new InvalidOperationException($"No enemy species owns definition {occupant.DefinitionId}.");
-        return factory.Creations[occupant.DefinitionId](occupant, place, Participations[occupant.DefinitionId]);
+        if (_offers.TryBind(Ensure.NotNull(placement), out PopulationEnemySpawn? offered))
+            return offered;
+        return _placed.TryGetValue(placement.DefinitionId, out IEnemyEntryBinding? bind)
+            ? bind.Bind(placement)
+            : throw new InvalidDataException($"No species in this room places enemy {placement.DefinitionId} from its population, and no part placed before it offered one.");
     }
 }

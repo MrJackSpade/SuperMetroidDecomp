@@ -25,13 +25,16 @@ internal static class ElevatorInputDefinitionsVerification
         {
             ushort tableByteOffset = (ushort)(direction * 2);
             VerticalDirection travel = direction == 0 ? VerticalDirection.Down : VerticalDirection.Up;
-            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
+            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(rom.ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
-            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => enemies.ElevatorBehavior.InitializeElevator(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1);
+            // The elevator is set up as the population load sets it up, and waits for its input as its main AI runs once Samus
+            // stands at its door.
+            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => _ = enemies.LoadAuthoredPopulation(fixtureArg1, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             Action<RoomEnemyPlace, SamusState, GameplayAction,
-                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) => enemies.ElevatorBehavior.WaitForElevatorDirectionInput(fixturePlace.HeldOccupant(), fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3);
+                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) =>
+                fixturePlace.RunMainAi(PlacedEnemyAccess.AiFrame(fixtureArg1, fixtureArg2, fixtureArg3));
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
@@ -70,7 +73,7 @@ internal static class ElevatorInputDefinitionsVerification
         VerticalDirection[] tableOrder = [VerticalDirection.Down, VerticalDirection.Up];
         for (int entry = 0; entry < tableOrder.Length; entry++)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);
+            ushort native = rom.ReadCartridgeWord(0xa394e2 + entry * 2);
             AssertEqual(GameplayActionWordCodec.FromJoypadWord(native, "native elevator direction mask"), ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
         }
     }

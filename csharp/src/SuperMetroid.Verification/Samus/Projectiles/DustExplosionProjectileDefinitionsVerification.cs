@@ -30,7 +30,7 @@ internal static class DustExplosionProjectileDefinitionsVerification
                 unrequested++;
                 continue;
             }
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
+            ushort native = rom.ReadCartridgeWord((instructionTable + index * 2));
             AssertEqual(native, DustExplosionProjectileNativeListAddresses.Entry(animation), $"misc-dust instruction selector {index}");
 
             var enemies = CreateDustExplosionEnemySystem();
@@ -58,15 +58,15 @@ internal static class DustExplosionProjectileDefinitionsVerification
             int address = placementTable + index * 8;
             DustExplosionPlacement definition = placements[index];
             // The native masks apply to the sample's low (X) and high (Y) bytes; each field reads exactly those bits.
-            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2));
+            int nativeXMask = rom.ReadCartridgeWord(address);
+            int nativeYMask = rom.ReadCartridgeWord((address + 2));
             AssertEqual(nativeXMask, (definition.XScatter.Outcomes - 1) << definition.XScatter.Shift,
                 $"misc-dust placement X mask {index}");
             AssertEqual(nativeYMask << 8, (definition.YScatter.Outcomes - 1) << definition.YScatter.Shift,
                 $"misc-dust placement Y mask {index}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.Base.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), definition.Base.X,
                 $"misc-dust placement X base {index}");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Base.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), definition.Base.Y,
                 $"misc-dust placement Y base {index}");
         }
 
@@ -78,12 +78,12 @@ internal static class DustExplosionProjectileDefinitionsVerification
             (EyeDoorProjectileDefinition.CenteredSmoke, 0x84d7b8), // $84:D7B7 LDA #$000B, spawning the smoke on the eye.
         })
         {
-            ushort parameter = CartridgeImportSource.Require(rom).ReadCartridgeWord(parameterAddress);
+            ushort parameter = rom.ReadCartridgeWord(parameterAddress);
             int address = placementTable + (parameter >> 8) * 8;
-            int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            short nativeXBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4));
-            short nativeYBase = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6));
+            int nativeXMask = rom.ReadCartridgeWord(address);
+            int nativeYMask = rom.ReadCartridgeWord(address + 2);
+            short nativeXBase = unchecked((short)rom.ReadCartridgeWord(address + 4));
+            short nativeYBase = unchecked((short)rom.ReadCartridgeWord(address + 6));
             DustExplosionAnimation animation = DustExplosionAnimationIndices.Decode(parameter & 0xff);
 
             const ushort random = 0x5aad;

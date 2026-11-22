@@ -257,7 +257,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Cro
     for (int tick = 0; tick < 3; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
@@ -282,7 +282,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), SamusPoseId.Sta
     for (int tick = 0; tick < 3; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
@@ -308,7 +308,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedSamus, unc
         for (int tick = 0; tick < 3; tick++)
         {
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Ground = aimedSamus.Ground, Random = new SharedRandom() });
         }
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
@@ -328,7 +328,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), aimedStandTrans
         for (int tick = 0; tick < 3; tick++)
         {
             aimedSamus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(aimedSamus, new SamusAnimationStep { Ground = aimedSamus.Ground, Random = new SharedRandom() });
         }
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedSamus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");

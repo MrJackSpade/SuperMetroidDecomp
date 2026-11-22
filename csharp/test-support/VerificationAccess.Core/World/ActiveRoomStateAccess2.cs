@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.World;
 
@@ -8,7 +8,10 @@ internal static class ActiveRoomStateAccess2
     /// <summary>Exposes <see cref="ActiveRoomState"/> state that only verification reads.</summary>
     extension(ActiveRoomState self)
     {
-        /// <summary>The loading or loaded room's effect-overlay FX, for the accepted-frame publication.</summary>
-        internal RoomFxOverlayState? FxOverlay => self.View(c => c.FxOverlay, s => s.FxOverlay);
+        /// <summary>
+        /// The loaded room's effect-overlay FX, for the accepted-frame publication; none while the room loads, whose
+        /// construction holds no overlay until it completes (#2554).
+        /// </summary>
+        internal RoomFxOverlayState? FxOverlay => self.View(_ => (RoomFxOverlayState?)null, s => s.FxOverlay);
     }
 }

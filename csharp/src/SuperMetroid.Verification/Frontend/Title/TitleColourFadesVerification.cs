@@ -56,7 +56,7 @@ internal static class TitleColourFadesVerification
     /// </summary>
     internal static void VerifyTitleColourFades(CartridgeImportAddressSpace bus)
     {
-        var cartridge = CartridgeImportSource.Require(bus);
+        var cartridge = bus;
         ushort Title(int pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8b0000 | pointer);
         ushort Effects(int pointer) => RomDataReader.ReadWordFixedBank(cartridge, 0x8d0000 | pointer);
 
@@ -217,7 +217,8 @@ internal static class TitleColourFadesVerification
             RgbColor[] shown = drawn.With(ColourEffectShades.Of(records.Colours, new ColourEffectFrame(records.Animation, record))).KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
             foreach (ColourKey key in keys)
             {
-                int place = picture.PlaceOf(key) ?? throw new InvalidOperationException($"{picture} holds no place for its own key {key}.");
+                if (!picture.TryGetPlace(key, out int place))
+                    throw new InvalidOperationException($"{picture} holds no place for its own key {key}.");
                 int column = Array.IndexOf(lastRecord, finalColours[place]);
                 if (column < 0)
                 {

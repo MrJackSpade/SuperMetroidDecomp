@@ -35,7 +35,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Production gameplay runtime stepped by the scenario.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
     /// <summary>Number of updates recorded for the aerial or walljump route.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
@@ -52,9 +52,9 @@ internal sealed class BombSpreadTransitionScenario
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(ScenarioRooms.LoadedScope(runtime));
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        var level = runtime.Room.LoadedLevelData;
+        var level = ScenarioRooms.LoadedLevelData(runtime);
         // Match the grounded technique clearing, extending it upward for the jump.
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
@@ -103,7 +103,7 @@ internal sealed class BombSpreadTransitionScenario
 
     /// <summary>Samus row after <paramref name="frame"/> ran with <paramref name="input"/>.</summary>
     internal string Row(int frame, ControllerButton input) =>
-        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.BeamCharge.UpdatesHeld:X4},{Samus.BombSpreadCharge.Age:X4},{Runtime.Room.LoadedScope.BombProjectiles.BombCounter:X4}";
+        $"{(Left ? 1 : 0)},{Delay},{frame},{ControllerWordCodec.ToJoypadWord(input):X8},{(int)SamusPoseNumbers.Number(Samus.Pose):X4},{Samus.Position.X.Whole:X4},{Samus.Kinematics.Position.X.Fraction:X4},{Samus.Position.Y.Whole:X4},{Samus.Kinematics.Position.Y.Fraction:X4},{Samus.BeamCharge.UpdatesHeld:X4},{Samus.BombSpreadCharge.Age:X4},{ScenarioRooms.LoadedScope(Runtime).BombProjectiles.BombCounter:X4}";
 
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;
@@ -111,7 +111,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>The projectile list layout, read once from the repository's cartridge, whose instruction pointers the rows print.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout> lists = new(() =>
         SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntries.Read(
-            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+            (
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
 
     /// <summary>The projectile list layout whose instruction pointers the rows print.</summary>
@@ -132,7 +132,7 @@ internal sealed class BombSpreadTransitionScenario
     {
         for (int slotIndex = 0; slotIndex < SamusBombProjectileSystem.PlaceCount; slotIndex++)
         {
-            var slot = Runtime.Room.LoadedScope.BombProjectiles.Bombs[slotIndex];
+            var slot = ScenarioRooms.LoadedScope(Runtime).BombProjectiles.Bombs[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
                 bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{FlightColumns(slot.SpreadFlight)},{slot.Fuse.UpdatesLeft:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Playback is { } playback ? Lists.Position(SuperMetroid.Core.Samus.Projectiles.SamusProjectilePlayback.BeatOf(playback)) : 0):X4},{slot.Animation!.UpdatesLeft:X4},{slot.Sprite?.Name}";

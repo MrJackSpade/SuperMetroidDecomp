@@ -4,25 +4,30 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
 
-    /// <inheritdoc/>
+    /// <summary>A tube of her fake death, which joins the encounter whose fake death drops it (#2146, #2218).</summary>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
-    {
-        [EnemyDefinitionId.MotherBrainBody] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork)),
-        [EnemyDefinitionId.MotherBrainHead] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainHeadEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.MotherBrainTubes] = (occupant, place, common) => EnemyOccupant.Of(new MotherBrainTubesEntity(this, occupant, place, common)),
-    };
+    public EnemyOccupant CreateJoining(RoomEnemyOccupant occupant, MotherBrainTubeSpawnSettings settings, RoomEnemyPlace place,
+        EnemyCommonParticipation common, MotherBrainEnemyState encounter) =>
+        EnemyOccupant.Running(new MotherBrainTubesEntity(this, occupant, place, common, settings, encounter));
 
+    /// <summary>
+    /// Mother Brain's body (#2146), placed in a room whose tileset has the warning picture sheet: her death types Zebes's
+    /// warning on <paramref name="zebesWarning"/>, the room's background warning (#2554).
+    /// </summary>
+    internal EnemyOccupant CreateBody(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomWarning zebesWarning) =>
+        EnemyOccupant.Running(new MotherBrainBodyEntity(this, occupant, place, common, _bossArtwork, zebesWarning));
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
@@ -30,6 +35,33 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyEntityF
 
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
+
+    /// <summary>Where her body offers her head the creation that builds it joining her encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
+
+    /// <summary>
+    /// Sets her body up, beginning the encounter, and offers her head, which the room lists after her body, the creation
+    /// that builds it joining that encounter (#2218, #2554).
+    /// </summary>
+    /// <param name="body">Her body.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+    /// <returns>The encounter, which the body holds from its setup.</returns>
+    internal MotherBrainEnemyState BeginEncounter(RoomEnemyOccupant body, RoomWarning zebesWarning)
+    {
+        MotherBrainEnemyState state = Body.InitializeMotherBrainBody(body, zebesWarning);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.MotherBrainHead, new HeadJoining(this, state).CreateHead);
+        return state;
+    }
+
+    /// <summary>The creation her body offers her head (#2554): the head joining the encounter her body began.</summary>
+    /// <param name="species">Mother Brain's species owner.</param>
+    /// <param name="encounter">The encounter her body began.</param>
+    private sealed partial class HeadJoining(MotherBrainBehavior species, MotherBrainEnemyState encounter)
+    {
+        /// <summary>Her head, joining her encounter.</summary>
+        internal EnemyOccupant CreateHead(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(MotherBrainHeadEntity.SetUp(species, occupant, place, common, encounter));
+    }
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     internal MotherBrainProjectiles Projectiles { get; }
 
@@ -67,11 +99,12 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyEntityF
         _room = dependencies.Room;
         _presentation = dependencies.Presentation.Surfaces;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
+        _partOffers = dependencies.PartOffers;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_passEvents);
         Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Places = dependencies.Places, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles });
         Body = new MotherBrainBody(new MotherBrainBodyDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , Presentation = _presentation, Places = dependencies.Places });
-        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { PassEvents = _passEvents, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
+        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { PassEvents = _passEvents, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles, Tubes = this });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
         RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { PassEvents = _passEvents, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
         Attacks = new MotherBrainAttacks(_room);
@@ -221,7 +254,7 @@ internal sealed partial class MotherBrainBehavior : IEnemySpecies, IEnemyEntityF
     private IdentityTable<MotherBrainAscentPhase, Action<MotherBrainEnemyState>> RunMotherBrainAscentForMotherBrainAscentPhase => field ??= new(new Dictionary<MotherBrainAscentPhase, Action<MotherBrainEnemyState>>
     {
         [MotherBrainAscentPhase.DrawMural] = state => FakeDeath.DrawNextMuralRows(state),
-        [MotherBrainAscentPhase.SetupPhase2Graphics] = state => Ascent.SetupMotherBrainPhaseTwoGraphics(state),
+        [MotherBrainAscentPhase.SetupPhase2Graphics] = MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics,
         [MotherBrainAscentPhase.SetupPhase2Brain] = state => MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state),
         [MotherBrainAscentPhase.PauseForSuspense] = state => MotherBrainAscent.PauseBeforeMotherBrainRises(state),
         [MotherBrainAscentPhase.PrepareForRising] = state => MotherBrainAscent.PrepareMotherBrainForRising(state),

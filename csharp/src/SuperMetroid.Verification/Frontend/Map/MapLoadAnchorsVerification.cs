@@ -187,7 +187,7 @@ internal static class MapLoadAnchorsVerification
         byte[] ReadSram() => SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
         static MapScroll Scroll(FileSelectMapMenuState menu) => menu.RoomMapScroll;
         static ScrollStateResult ScrollState(MapScroll value) =>
-            new ScrollStateResult(value.Scroll, value.Limits, value.StepUnderWay?.Direction);
+            new ScrollStateResult(value.Scroll, [.. Enum.GetValues<MapScrollDirection>().Where(value.CanScroll)], value.StepUnderWay?.Direction);
     }
 
     /// <summary>Derives a saved station's map pixel anchor directly from its native load record and room header.</summary>
@@ -195,12 +195,12 @@ internal static class MapLoadAnchorsVerification
     {
         // Independent literal native layout: no production LoadStationEntry or
         // SelectedRoom/state-selection call participates in this oracle.
-        int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x80c4b5 + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
+        int list = RomDataReader.ReadWordFixedBank(bus, 0x80c4b5 + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
         int record = 0x800000 | (list + station * 14);
-        int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);
+        int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(bus, record);
         AssertEqual((byte)SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area), bus.ReadCartridgeByte(room + 1), "valid saved-map station remains in its requested area");
-        int worldX = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12));
-        int worldY = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10));
+        int worldX = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(bus, record + 6) + 128 + RomDataReader.ReadWordFixedBank(bus, record + 12));
+        int worldY = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(bus, record + 8) + RomDataReader.ReadWordFixedBank(bus, record + 10));
         return new((ushort)((bus.ReadCartridgeByte(room + 2) + RoomScreenOf.Pixel(worldX)) << 3),
             (ushort)((bus.ReadCartridgeByte(room + 3) + RoomScreenOf.Pixel(worldY) + 1) << 3));
     }

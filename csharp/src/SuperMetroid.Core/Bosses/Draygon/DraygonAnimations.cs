@@ -89,7 +89,7 @@ internal static partial class DraygonAnimations
         ],
         [P.TailFacingLeftReleaseSamus] =
         [
-            Cue(new DraygonCue.SetBodyPhase(DraygonPhase.ReleaseSamus)),
+            Cue(DraygonCue.ReleaseSamus.Instance),
         ],
         [P.TailFacingLeftWhip] =
         [
@@ -138,7 +138,7 @@ internal static partial class DraygonAnimations
         [P.TailFacingRightIdle] = TailIdle(DraygonTailPoses.Right),
         [P.TailFacingRightReleaseSamus] =
         [
-            Cue(new DraygonCue.SetBodyPhase(DraygonPhase.ReleaseSamus)),
+            Cue(DraygonCue.ReleaseSamus.Instance),
         ],
         [P.TailFacingRightWhip] =
         [

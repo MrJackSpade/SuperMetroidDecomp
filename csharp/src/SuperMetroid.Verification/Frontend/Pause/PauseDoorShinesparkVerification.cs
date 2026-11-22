@@ -33,12 +33,12 @@ internal static class PauseDoorShinesparkVerification
     {
         foreach (var scenario in new[] { new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:true), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:true) })
         {
-            var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+            var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
             InstalledFixtures.BindGame(game);
             game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
             var runtime = game.Session.GameplayRuntime;
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-            runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.System.SetEvent(StoryEvent.ZebesAwake);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
@@ -54,7 +54,7 @@ internal static class PauseDoorShinesparkVerification
             var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts,
             doorBlocks: doorBlocks);
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Health = 999;
             samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);

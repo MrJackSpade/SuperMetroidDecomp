@@ -74,6 +74,15 @@ internal sealed partial class EnemyOccupant
     internal static EnemyOccupant WithoutMainAi(IEnemySurroundingsInitialization entity) =>
         new(Ensure.NotNull(entity), initialization: null, entity, mainAi: null);
 
+    /// <summary>
+    /// An occupant whose entity's construction ran its setup, building the state it holds from then on (#2554), and which
+    /// runs its main AI.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity's type.</typeparam>
+    /// <param name="entity">The entity, set up as it was built, which runs its main AI.</param>
+    internal static EnemyOccupant Running<TEntity>(TEntity entity) where TEntity : class, IEnemyEntity, IEnemyAi =>
+        new(Ensure.NotNull(entity), initialization: null, surroundingsInitialization: null, entity);
+
     /// <summary>An occupant with no setup and no main AI: placing it is all it does.</summary>
     /// <param name="entity">The entity, which keeps no state its placement does not already give it.</param>
     internal static EnemyOccupant PlacedOnly(IEnemyEntity entity) =>

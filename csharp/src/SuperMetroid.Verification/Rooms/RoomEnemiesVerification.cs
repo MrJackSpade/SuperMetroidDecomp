@@ -157,7 +157,7 @@ internal static void VerifyRoomEnemyLoading()
         stockColors.Add(pointer, EnemyPaletteSheetFile.Read(new MemoryStream(
             EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = palette }))));
     }
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = stockSheets, Palettes = stockColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0x9999));
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
     AssertEqual(1, enemies.Places.EnemyCount, "enemy population count");
@@ -205,7 +205,7 @@ internal static void VerifyRoomEnemyLoading()
         "definition vulnerability table offset $3C");
 
     // Repeating the load with installed art while the cartridge tile sources are forbidden leaves every gameplay field.
-    EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors });
+    EnemyTileSourceArtwork installedArtwork = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = stockSheets, Palettes = stockColors });
     var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(installedArtwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new EnemyTileSourceReadGuard(bus), services: new StandaloneRoomEnemyServices(() => 0x9999));
     var installedVram = new SnesVram();
     installedEnemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(installedVram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
@@ -216,7 +216,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(place.Definition.Radius.X, installedEnemies.Places.InUpdateOrder[0].Definition.Radius.X,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
+        EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
             .LoadTo(primaryDefinitionPointer, 0x40, new VramRegion(new SnesVram(), PpuMemoryLayout.Vram), 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
@@ -309,8 +309,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
 
-    EnemyProjectile eyeShot = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.EyeDoorProjectile);
-    eyeShot.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(SuperMetroid.Core.Enemies.Projectiles.FamilyProjectileStarts.BehaviorOf(enemies, eyeShot.Kind));
+    EnemyProjectile eyeShot = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.EyeDoorProjectile, SpriteGraphics.SharedStandard);
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -647,7 +646,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
     RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0), floor: map);
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0), floor: map);
     enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(populationPointer, tilesetPointer), BgArtworkFixtures.For(vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual(CeresFloorActorPicture.ElevatorLight, map.Shown[CeresFloorActor.ElevatorPlatform],
@@ -696,7 +695,7 @@ internal static void VerifyCeresDoorBossBranch()
     bool areaBossDefeated = false;
     int areaBossReads = 0;
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Bosses = new FixtureAreaBossFlags { IsBossDefeated = () =>
         {
             areaBossReads++;
             return areaBossDefeated;
@@ -733,11 +732,11 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
     var records = new List<VramWriteEntry>();
     for (int record = 0; record < 32; record++, pointer += 7)
     {
-        ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
+        ushort size = rom.ReadCartridgeWord(pointer);
         if (size == 0) return records;
         records.Add(new VramWriteEntry(size,
-            CartridgeImportSource.Require(rom).ReadCartridgeLong((pointer + 2)),
-            VramDmaDestination.FromNative(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 5)))));
+            rom.ReadCartridgeLong((pointer + 2)),
+            VramDmaDestination.FromNative(rom.ReadCartridgeWord((pointer + 5)))));
     }
     throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
 }
@@ -793,7 +792,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     RoomFloor ceresFloor = RoomBackgroundsFixtures.CeresFloor();
     // The escape writes its warning text over BG1 (#1346).
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(fixtureTilePng.ToArray()), uploadPlanar.Length),
@@ -814,7 +813,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson), ExtendedFrames = InstalledFixtures.EnemyTiles.ExtendedFrames,
             ProjectileSpritemaps = InstalledFixtures.EnemyTiles.ProjectileSpritemaps,
             // Every character-zero spawned-object sheet takes the n00b tube's crack shade (#1512).
-            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }, floor: ceresFloor);
+            ChozoAndTubeColors = InstalledFixtures.EnemyTiles.ChozoAndTubeColors })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }, floor: ceresFloor, warnings: RoomWarningFixtures.CeresRoom());
     // The synthetic cartridge seeds no floor update lists; the getaway's boost delays are the installed ones (#1492).
     enemies.BossArtworkBinding.CeresRidleyGetawayBoostDelays = InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays;
     using (var escapeText = new MemoryStream(
@@ -857,10 +856,10 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(511, state.PhaseTimer.CartridgeCount, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
-    ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
+    ushort initialRidleyMap = nativeRidleyRom.ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, new SuperMetroid.TestSupport.MovieReplay.RidleyBodyNativeInstructionPointers(
-        CartridgeImportSource.Require(nativeRidleyRom)).Body(state.Flight), "Ceres Ridley initial list sleeps");
+        nativeRidleyRom).Body(state.Flight), "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false });
@@ -1015,7 +1014,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Shots[0].Position.X.Whole - projectiles.Shots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
-        AssertEqual(1, enemies.CeresRidleyBehavior.Hits.ResolveCeresRidleyProjectileHits(
+        AssertEqual(1, enemies.Ceres.ResolveCeresRidleyProjectileHits(
             projectiles, samusBombs),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= !state.HurtFlashShows.Body;
@@ -1137,7 +1136,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         bool finalBackground = record == backgroundTransfers.Count - 1;
         AssertTrue(enemies.Presentation.Looks.Shows(CeresEscapeWarningLookDefinitions.WarningLook),
             "Ceres waiting for the title shows nothing new over the sprites");
-        AssertEqual(finalBackground, !enemies.CeresEscape.Warning.Overlay.Pictures.IsEmpty,
+        AssertEqual(finalBackground, !(enemies.CeresRidley() ?? throw new InvalidOperationException("The room holds Ceres Ridley.")).Warning.ShownText().Pictures.IsEmpty,
             "Ceres writes EMERGENCY over BG1 on the final background frame");
         AssertEqual(finalBackground ? CeresSelfDestructPhase.HoldingTitle : CeresSelfDestructPhase.WaitingForTitle, enemies.CeresEscape.Warning.Phase, "Ceres title wait/hold phase handoff");
     }
@@ -1165,7 +1164,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             out ReadOnlyMemory<BackgroundTile> emergencyTiles),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");
     // The getaway writes the title's picture by name (#1466); the words it stands for are the installed page's.
-    System.Collections.Immutable.ImmutableArray<int> ceresWords = enemies.CeresEscape.Warning.Overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
+    System.Collections.Immutable.ImmutableArray<int> ceresWords = (enemies.CeresRidley() ?? throw new InvalidOperationException("The room holds Ceres Ridley.")).Warning.ShownText().WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
     for (int word = 0; word < emergency.WordCount; word++)
         AssertEqual(emergencyTiles.Span[word].PackedWord,
             ceresWords[0x50cb - 0x5000 + word], $"Ceres EMERGENCY word {word} is shown at BG1 row six");
@@ -1184,7 +1183,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertTrue(!enemies.LastEnemyFrame.Has<CeresEscapeStarted>(),
         "Ceres escape does not skip the English warning after its 128-frame title hold");
-    AssertEqual(CeresSelfDestructPhase.TypingWarning, enemies.CeresEscape.Warning.Phase,
+    AssertEqual(nameof(CeresSelfDestructPhase.TypingWarning), enemies.CeresEscape.Warning.Phase.ToString(),
         "Ceres English warning enters the typewriter phase");
 
     int typewriterFrames = 0;
@@ -1200,7 +1199,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(typewriterFrames > 128,
         "Ceres English warning remains visible long enough to type all three lines");
     // The typewriter's glyphs are pictures named by their character; the words they stand for are the typewriter's tiles.
-    System.Collections.Immutable.ImmutableArray<int> typedWords = enemies.CeresEscape.Warning.Overlay.WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
+    System.Collections.Immutable.ImmutableArray<int> typedWords = (enemies.CeresRidley() ?? throw new InvalidOperationException("The room holds Ceres Ridley.")).Warning.ShownText().WordsIn(InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps);
     AssertEqual(0x3594, typedWords[0x5105 - 0x5000],
         "Ceres warning writes the S in SELF from the cartridge typewriter alphabet over BG1");
     AssertEqual(0x3582, typedWords[0x5145 - 0x5000],

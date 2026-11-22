@@ -75,14 +75,14 @@ internal static class ChargeFlareCompositionsVerification
         ushort selector, Position16<ScreenPixels> origin)
     {
         int table = SnesAddressMath.AddWithinBank(0x93a1a1, selector * 2);
-        int record = 0x930000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(table);
-        ushort partCount = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(record);
+        int record = 0x930000 | bus.ReadCartridgeWordFixedBank(table);
+        ushort partCount = bus.ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(bus.ReadCartridgeWordFixedBank(partAddress)),
                 bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(bus.ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
@@ -90,7 +90,7 @@ internal static class ChargeFlareCompositionsVerification
 
     /// <summary>Reads one native pointer in the bank-$93 charge-flare selector table for comparison.</summary>
     private static ushort ReadNativeChargeFlareSelector(ISnesAddressSpace bus, int selector) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        RomDataReader.ReadWordFixedBank(bus,
             ChargeFlareSpriteDefinitions.SelectorTable + selector * 2);
 
     /// <summary>Runs focused charge-flare composition checks against the repository ROM.</summary>

@@ -93,7 +93,10 @@ internal static class SamusStateAccess
             }
 
             SamusPoseMetadata.PublishBombJumpDirection(self, direction);
-            SamusPoseMetadata.ArmPublishedBombJump(self);
+            // A morphed Samus keeps her pose for the jump, so her pose handling arms it at once, in any room.
+            SamusTerrain terrain = SamusTerrain.InRoom(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), SamusRoomObjectFixtures.Uninstalled);
+            if (!SamusPoseMetadata.TrySetupPublishedBombJump(self, terrain, timeIsFrozen: false, frameCounter: 0, GameplayAction.None))
+                throw new InvalidOperationException("The morphed bomb jump's pose handling did not arm it.");
         }
     }
 }

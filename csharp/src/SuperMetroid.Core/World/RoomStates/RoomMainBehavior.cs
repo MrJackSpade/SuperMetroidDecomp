@@ -194,9 +194,17 @@ public abstract partial class RoomMainBehavior
 
         /// <inheritdoc/>
         /// <exception cref="InvalidDataException">The room's enemies set up no Crocomire.</exception>
-        public void ComposeOverRoomEnemies(RoomScopeConstruction scope, RoomEnemySystem enemies) =>
-            Ensure.NotNull(scope).ComposeCrocomireRumbleMain(Ensure.NotNull(enemies).RoomMainHooks.Crocomire ??
-                throw new InvalidDataException("The Crocomire room's enemies set up no Crocomire."));
+        public void ComposeOverRoomEnemies(RoomScopeConstruction scope, RoomEnemySystem enemies)
+        {
+            Ensure.NotNull(scope);
+            // The room's load checks once that its enemies set Crocomire up, as both of its states place him.
+            if (Ensure.NotNull(enemies).RoomMainHooks.Crocomire is { } crocomire)
+            {
+                scope.ComposeCrocomireRumbleMain(crocomire);
+                return;
+            }
+            throw new InvalidDataException("The Crocomire room's enemies set up no Crocomire.");
+        }
     }
 
     /// <summary>The Dachora room's camera, moved toward its shaft while the shaft stands open.</summary>

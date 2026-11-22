@@ -29,5 +29,7 @@ internal static partial class StraddledTerrainFormat
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
     };
 }

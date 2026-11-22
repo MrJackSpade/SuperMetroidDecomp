@@ -26,7 +26,7 @@ internal static class EnemyDefinitionsVerification
     /// <summary>Walks room populations and graphics sets to establish exact coverage of all referenced enemy headers.</summary>
     internal static void VerifyCompiledEnemyDefinitions()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var referencedPointers = new HashSet<EnemyDefinitionId>();
         foreach (RoomStateSettings state in RoomStateDefinitions.All)
@@ -153,7 +153,7 @@ internal static class EnemyDefinitionsVerification
         // first free place after them.
         RoomEnemyPlace brain = enemies.Places.InUpdateOrder[1];
         brain.Bind(EnemyDefinitionId.MotherBrainHead, brain.KeptDefinition);
-        var encounter = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var encounter = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
 
         for (int index = 0; index < pieces.Length; index++)
         {
@@ -200,7 +200,7 @@ internal static class EnemyDefinitionsVerification
         var fixtureEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: fixture);
         RoomEnemyPlace fixtureBrain = fixtureEnemies.Places.InUpdateOrder[1];
         fixtureBrain.Bind(EnemyDefinitionId.MotherBrainHead, fixtureBrain.KeptDefinition);
-        fixtureEnemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(new MotherBrainEnemyState(fixtureEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), fixtureBrain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()), MotherBrainTubePiece.BottomLeft);
+        fixtureEnemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(new MotherBrainEnemyState(fixtureEnemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), fixtureBrain, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()), MotherBrainTubePiece.BottomLeft);
         AssertEqual(0x1234, fixtureEnemies.Places.InUpdateOrder[2].Position.X.Whole,
             "constructed room fixture retains its authored falling-tube X position");
 
@@ -222,7 +222,7 @@ internal static class EnemyDefinitionsVerification
         RoomEnemyDefinition compiled = RoomEnemyDefinitionLookup.Read(pointer);
         // The oracle decodes the header independently: a zero hurt byte is the standard four-frame flash. The +$2A word, a
         // hopper's kind, is compared with the hopper's own catalog by the hopper check (#1624). The tile word is the import's (#1513).
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
             SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)), AreaBossWords.Decode(Word(16)),

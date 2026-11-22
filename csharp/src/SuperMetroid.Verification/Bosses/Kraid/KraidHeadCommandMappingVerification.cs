@@ -18,7 +18,7 @@ internal static class KraidHeadCommandMappingVerification
     /// <summary>Checks poses, durations, cries and ends; the cursor-relative mouth reads; growth resumes; and entry cursors.</summary>
     internal static void VerifyKraidHeadCommandMapping(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var native = new KraidHeadNativeCursors(cartridge);
         ushort Word(int pointer) => (ushort)(KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | pointer) |
             (KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | (pointer + 1)) << 8));
@@ -93,7 +93,6 @@ internal static class KraidHeadCommandMappingVerification
         AssertEqual(Word(0x96d2), KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay, "roar entry duration");
         AssertEqual(Word(0x974a), KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay, "eye-glow entry duration");
         AssertEqual(Word(0x9764), KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, "death entry duration");
-        AssertThrows<InvalidDataException>(() => KraidHeadAnimations.ReadsAt(null), "an unstarted head has no reads");
     }
 
     /// <summary>
@@ -115,5 +114,5 @@ internal static class KraidHeadCommandMappingVerification
     }
 
     /// <summary>Reads one native bank-$A7 byte solely for the head-program oracle.</summary>
-    private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidHeadCommandMappingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

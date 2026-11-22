@@ -67,7 +67,7 @@ internal static void VerifySamusAerialMovement()
 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Jump, frameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
 
@@ -110,7 +110,7 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, unche
     for (int tick = 0; tick < 7; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
@@ -311,8 +311,10 @@ SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), fallLeft, 0, un
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
+                    // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+                    SamusState probeSamus = InstalledFixtures.CreateSamus();
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), leftToRight, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(SamusTerrain.InRoom(squareRoom, SamusRoomObjectFixtures.Uninstalled), rightToLeft, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement.RawValue, rtl.AcceptedDisplacement.RawValue,
@@ -632,7 +634,7 @@ SamusTerrain.InRoom(empty, SamusRoomObjectFixtures.Uninstalled), screwRepeat, Ga
     for (int tick = 0; tick < 3; tick++)
     {
         submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(submergedSpin, new SamusAnimationStep { Ground = submergedSpin.Ground, Random = new SharedRandom() });
     }
     submergedSpin.LiquidPhysics.ConfigureFor(SuperMetroid.Core.Fx.RoomEffectFixtures.Water(100));
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -36,7 +37,7 @@ internal static class RidleySupplementalArtworkVerification
         for (int index = 0; index < RidleySupplementalVisualDefinitionsConstants.WingPointerCount;
              index++)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
+            ushort native = rom.ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
             AssertEqual(native, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(index),
                 $"Ridley wing animation table entry {index} matches the pinned ROM");
 
@@ -54,7 +55,7 @@ internal static class RidleySupplementalArtworkVerification
              direction < RidleySupplementalVisualDefinitionsConstants.TailTipPointerCount;
              direction++)
         {
-            ushort nativeTip = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
+            ushort nativeTip = rom.ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
             AssertEqual(nativeTip, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(
@@ -80,16 +81,14 @@ internal static class RidleySupplementalArtworkVerification
         ImportEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
+        // Ceres Ridley as his room's population places him; his encounter is the one his setup began, which his body holds.
+        RoomEnemyPlace place = enemies.LoadFirstEntries(RoomEnemyPopulationDefinitions.CeresRidleyDefault, 1, RoomEnemyFrameFixtures.StandaloneSamus())[0];
+        CeresRidleyState state = enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley's setup began his encounter.");
         place.Position = place.Position.WithWhole(new(200, 100));
         // Ceres Ridley's scene draws from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
-        {
-            Motion = RidleyMotion.Running,
-            Flight = { FacingDirection = facing },
-        };
+        state.Motion = RidleyMotion.Running;
+        state.Flight.FacingDirection = facing;
         state.Flight.Wings.Pose = ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame);
         if (tailDirection is { } direction)
         {
@@ -102,7 +101,6 @@ internal static class RidleySupplementalArtworkVerification
             }
             state.Tail.Tip.Angle = RidleyTailAngle.FromStepsFromStraightDown(direction << 4);
         }
-        place.HoldRidley(state);
         // A wing selection draws his wings alone, a tail direction his tail alone (#2229: the two parts of his drawing).
         var oam = new OamBuffer();
         oam.AppendDrawn(frame =>

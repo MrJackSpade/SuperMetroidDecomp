@@ -20,7 +20,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
     /// </summary>
     internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         var checkedAnimations = new HashSet<SamusAnimationName>();
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
@@ -132,9 +132,10 @@ internal static class SamusAnimationDelayDefinitionsVerification
                     $"place {placeName} lands in the {animationName} animation on the frame its native number names");
             }
         }
-        var drained = InstalledFixtures.FramesBeyondAnimation.ReadPast(SamusAnimationName.DrainedStandingRight,
-                SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingRightPose, 11))
-            ?? throw new InvalidOperationException("The right-facing drained standing pose reads no program past its own.");
+        var drained = InstalledFixtures.FramesBeyondAnimation.TryReadPast(SamusAnimationName.DrainedStandingRight,
+                SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingRightPose, 11), out var readPast)
+            ? readPast
+            : throw new InvalidOperationException("The right-facing drained standing pose reads no program past its own.");
         AssertEqual(SamusAnimationName.DrainedStandingLeft, drained.Animation, "drained standing right reads into drained standing left");
         AssertEqual(SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingLeftPose, 3), drained.Frame,
             "Mother Brain glitch movie update 1947 plays the left program's frame 3");

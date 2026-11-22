@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.NoobTube;
@@ -45,30 +46,72 @@ internal static class FamilyProjectileStarts
             ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room, which these enemies are not.");
 
     /// <summary>
-    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> and initializes it as its kind's
-    /// production spawner does, for a check that places it itself.
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn, into the first free place searched from the
+    /// last down, and starts the animation its kind's production spawner starts.
     /// </summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
-    /// <param name="place">The enemy-projectile place the projectile takes.</param>
     /// <param name="kind">What the projectile is.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, Allocate(enemies, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn
+    /// (<see cref="AllocateAt"/>) and starts the animation its kind's production spawner starts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, or a place the search reaches first cannot be filled.</exception>
+    internal static EnemyProjectile SpawnAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, AllocateAt(enemies, place, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn (<see cref="EnemyProjectileEngine.AllocateEnemyProjectile"/>),
+    /// bound to the behaviour its production spawner binds: the first free place searched from the last down takes it, and
+    /// it holds its kind's definition and <paramref name="graphics"/> before its spawner's animation starts: until a check
+    /// starts one, it runs the animation that deletes it at its first animation step, since every projectile runs one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Allocate(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Ensure.NotNull(enemies).Projectiles.AllocateEnemyProjectile(kind, BehaviorOf(enemies, kind), graphics,
+            EnemyProjectileDeleteAnimation.Instance)
+            ?? throw new InvalidOperationException($"A {kind} spawn found every enemy-projectile place held.");
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn: spawns of the
+    /// kind take the free places the search reaches before it, as the game's would, and are deleted once the projectile
+    /// holds <paramref name="place"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, so the search passes it.</exception>
+    internal static EnemyProjectile AllocateAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectile projectile = Ensure.NotNull(enemies).Projectiles.Occupy(place, kind);
-        Initialize(enemies, projectile, kind, graphics);
+        var before = new List<EnemyProjectile>();
+        EnemyProjectile projectile;
+        while ((projectile = Allocate(enemies, kind, graphics)).Place != place)
+        {
+            if (projectile.Place < place)
+                throw new InvalidOperationException($"A check spawns into enemy-projectile place {place}, which is held: the spawn took place {projectile.Place}.");
+            before.Add(projectile);
+        }
+        foreach (EnemyProjectile filler in before)
+            filler.Delete();
         return projectile;
     }
 
-    /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
-    /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
-    /// <param name="projectile">The freshly spawned projectile.</param>
-    /// <param name="kind">What the projectile is.</param>
-    /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void Initialize(RoomEnemySystem enemies, EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    /// <summary>Spawns projectiles of <paramref name="kind"/> through the game's spawn until every place is held; returns them.</summary>
+    internal static IReadOnlyList<EnemyProjectile> FillPool(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, BehaviorOf(enemies, kind), graphics);
-        if (StartingAnimation(kind) is { } start)
+        var spawned = new List<EnemyProjectile>();
+        while (Ensure.NotNull(enemies).Projectiles.FreePlaceCount > 0)
+            spawned.Add(Allocate(enemies, kind, graphics));
+        return spawned;
+    }
+
+    /// <summary><paramref name="projectile"/> after starting the animation its kind's production spawner starts.</summary>
+    private static EnemyProjectile Started(RoomEnemySystem enemies, EnemyProjectile projectile)
+    {
+        if (StartingAnimation(projectile.Kind) is { } start)
             projectile.StartAnimation(start(enemies));
+        return projectile;
     }
 
     /// <summary>The behaviour the production spawner of <paramref name="kind"/> binds to it.</summary>
@@ -104,7 +147,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.RidleyHorizontalAfterburn or RoomEnemyProjectileKind.RidleyVerticalAfterburn =>
             enemies.RidleyProjectiles.Fireballs,
         RoomEnemyProjectileKind.CeresFallingDebris => enemies.CeresFallingTiles.Behavior,
-        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => enemies.GunshipBehavior.Dust,
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new GunshipLiftoffDust.GunshipDustBehavior(),
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
         RoomEnemyProjectileKind.PowampSpike => enemies.PowampBehavior.Spike,
         RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => WorkRobotBehavior.Laser,
@@ -146,7 +189,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,
         RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed => enemies.DownwardGateBehavior.Gate,
         RoomEnemyProjectileKind.NoobTubeCrack or RoomEnemyProjectileKind.NoobTubeShard or
-            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies.NoobTubeBehavior.TubePieces,
+            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => NoobTubePieceFixtures.PlacedPieces(enemies),
         RoomEnemyProjectileKind.YappingMawBody or RoomEnemyProjectileKind.NuclearWaffleBody or
             RoomEnemyProjectileKind.EyeDoorSmoke or RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
             RoomEnemyProjectileKind.SaveStationElectricity =>
@@ -184,9 +227,9 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SaveStationElectricity => _ => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Closed),
-        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
-        RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
-        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(enemies.NoobTubeBehavior.TubePieces, NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
+        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
+        RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
+        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
             _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),

@@ -8,16 +8,15 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The Beetom species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Beetom], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new BeetomEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new BeetomEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
@@ -58,10 +57,10 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes the Beetom.</summary>
-    internal void InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal BeetomEnemyState InitializeBeetom(RoomEnemyPlace place, SamusState samus, GameplayAction controllerInput)
     {
         BeetomEnemyState state = _inheritance.Inherit(place, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
-        place.SetSpeciesState(state);
 
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
@@ -76,6 +75,7 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
             samus.Position.X.Whole < place.Position.X.Whole
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
+        return state;
     }
 
     /// <summary>What <see cref="RunBeetomMain"/> does for each <see cref="BeetomAction"/> member, each member's own arm.</summary>
@@ -440,11 +440,10 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
     /// and lets go of Samus. A hit that killed the Beetom took it from its place with its state, and the place's next
     /// Beetom starts detached, so there is nothing left to change.
     /// </summary>
-    private static void ResolveBeetomShotAfterCommon(RoomEnemyPlace place)
+    internal static void ResolveBeetomShotAfterCommon(RoomEnemyPlace place, BeetomEnemyState state)
     {
         if (place.Health == 0)
             return;
-        BeetomEnemyState state = place.RequireSpeciesState<BeetomEnemyState>();
         if (place.Freeze.IsRunning && state.Action == BeetomAction.Draining)
         {
             state.Action = BeetomAction.StartDropping;
@@ -463,38 +462,36 @@ internal sealed partial class BeetomBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Beetom's reaction to a bomb: after the common damage, it lets go of Samus.</summary>
     /// <remarks>Common damage can kill the Beetom before it lets go; a Beetom it kills has nothing left to let go of.</remarks>
-    internal static EnemyBombReaction BeetomBombReaction { get; } = new()
+    /// <param name="afterCommon">The Beetom's own method letting go of Samus.</param>
+    internal static EnemyBombReaction BeetomBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-        AfterCommon = ResolveBeetomShotAfterCommon,
+        AfterCommon = afterCommon,
     };
 
-    /// <summary>Lets a Beetom go of Samus after a bomb's common damage.</summary>
-    private static void ResolveBeetomShotAfterCommon(EnemyBombHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
 
-    /// <summary>Lets a Beetom go of Samus after a shot's common damage.</summary>
-    private static void ResolveBeetomShotAfterCommon(EnemyShotHitContext context) => ResolveBeetomShotAfterCommon(context.Enemy);
 
     /// <summary>Runs Beetom's main AI.</summary>
-    internal void RunBeetomMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBeetomMainAi(RoomEnemyPlace place, BeetomEnemyState beetomEnemyState, IEnemyAiFrame frame)
     {
-        RunBeetomMain(place, place.RequireSpeciesState<BeetomEnemyState>(), frame.Samus, frame.Level, frame.ControllerInput);
+        RunBeetomMain(place, beetomEnemyState, frame.Samus, frame.Level, frame.ControllerInput);
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceApplyingCues(place, BeetomAnimations.Segments,
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemyPlace place, BeetomEnemyState beetomEnemyState) =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, beetomEnemyState, BeetomAnimations.Segments,
             static (BeetomEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (BeetomEnemyState _, BeetomCue cue) => ApplyBeetomCue(place, cue));
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     /// <remarks>Beetom lets go after the common damage of every accepted hit, including a hit that deals it no
     /// damage.</remarks>
-    internal static EnemyShotReaction BeetomShotReaction { get; } = new()
+    /// <param name="afterCommon">The Beetom's own method letting go of Samus.</param>
+    internal static EnemyShotReaction BeetomShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-        AfterCommon = ResolveBeetomShotAfterCommon,
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Attaches Beetom to Samus on its selected custom contact reaction.</summary>
-    internal void ReactToBeetomTouch(EnemyTouchContext context) =>
-        ResolveBeetomTouch(context.Occupant, context.Place.RequireSpeciesState<BeetomEnemyState>(), context.Samus, context.PseudoScrew);
+    internal void ReactToBeetomTouch(EnemyTouchContext context, BeetomEnemyState beetomEnemyState) =>
+        ResolveBeetomTouch(context.Occupant, beetomEnemyState, context.Samus, context.PseudoScrew);
 }

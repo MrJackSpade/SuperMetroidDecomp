@@ -34,8 +34,8 @@ internal static class ShotCallbackDefinitionsVerification
             if (!match.Success) continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             int bank = rom.ReadCartridgeByte(address + 12) << 16;
-            touchCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 48)));
-            shotCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 50)));
+            touchCallbacks.Add(bank | rom.ReadCartridgeWord((address + 48)));
+            shotCallbacks.Add(bank | rom.ReadCartridgeWord((address + 50)));
             headers++;
         }
         foreach (string file in Directory.EnumerateFiles(disassemblySource, "bank_*.asm"))
@@ -51,14 +51,14 @@ internal static class ShotCallbackDefinitionsVerification
                 if (!pending || !match.Success) continue;
                 pending = false;
                 int address = Convert.ToInt32(match.Groups[1].Value, 16);
-                int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                int count = rom.ReadCartridgeWord(address);
                 AssertTrue(count < 100, "native hitbox inventory count sanity");
                 lists++;
                 for (int box = 0; box < count; box++)
                 {
                     int hitbox = address + 2 + box * 12;
-                    touchCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 8)));
-                    shotCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)));
+                    touchCallbacks.Add((SnesAddressMath.BankBase(address)) | rom.ReadCartridgeWord((hitbox + 8)));
+                    shotCallbacks.Add((SnesAddressMath.BankBase(address)) | rom.ReadCartridgeWord((hitbox + 10)));
                     boxes++;
                 }
             }
@@ -123,11 +123,9 @@ internal static class ShotCallbackDefinitionsVerification
         foreach (int callback in touchNoOps)
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
-            (RoomEnemySystem enemies, RoomEnemyPlace enemy) =
-                CreateLiteralNoOpCombatSystem();
             byte touchBank = SnesLittleEndianConstants.BankByte(callback);
             ushort touchWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
+            (RoomEnemySystem enemies, RoomEnemyPlace enemy) = CreateLiteralNoOpCombatSystem(EnemyDefinitionFixtures.Blank with
             {
                 Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord, EnemyDefinitionFixtures.Blank.Touch),
             });
@@ -148,11 +146,9 @@ internal static class ShotCallbackDefinitionsVerification
         foreach (int callback in shotNoOps)
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
-            (RoomEnemySystem enemies, RoomEnemyPlace enemy) =
-                CreateLiteralNoOpCombatSystem();
             byte shotBank = SnesLittleEndianConstants.BankByte(callback);
             ushort shotWord = unchecked((ushort)callback);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
+            (RoomEnemySystem enemies, RoomEnemyPlace enemy) = CreateLiteralNoOpCombatSystem(EnemyDefinitionFixtures.Blank with
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord, EnemyDefinitionFixtures.Blank.Shot),
             });
@@ -173,11 +169,14 @@ internal static class ShotCallbackDefinitionsVerification
                 $"literal shot no-op ${callback:X6} requires no executable read");
         }
 
-        static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem()
+        // The stand-in, with the check's definition, is the species the population load builds (#2554), which answers
+        // touches and shots through that definition's reactions; the check then stands it where it asks.
+        static CreateLiteralNoOpCombatSystemResult CreateLiteralNoOpCombatSystem(RoomEnemyDefinition definition)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+            enemy.Bind(EnemyPlaceFixtures.StandIn, definition);
+            enemies.SetUpAsPopulated(enemy);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

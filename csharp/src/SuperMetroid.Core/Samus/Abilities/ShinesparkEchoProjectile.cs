@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -46,28 +46,31 @@ internal sealed partial class ShinesparkEchoProjectile
 
         bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams, first), crashPosition);
-        second.Depart(Launch(ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams, second), crashPosition);
+            Launch(first, ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams, crashPosition);
+        Launch(second, ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams, crashPosition);
         return firstDeparts;
     }
 
     /// <summary>
-    /// Creates a departing echo's shot at radius zero in <paramref name="place"/>, replacing whatever shot holds it, and
-    /// counts it.
+    /// Creates a departing echo's shot at radius zero in <paramref name="place"/>, replacing whatever shot holds it, counts
+    /// it, and departs <paramref name="released"/> on it from <paramref name="crashPosition"/>.
     /// </summary>
-    private SamusProjectile Launch(int place, RotationAngle angle, SamusBeamCombination picturedBeams, ShinesparkCrashEcho carried)
+    private void Launch(ShinesparkCrashEcho released, int place, RotationAngle angle, SamusBeamCombination picturedBeams,
+        Position16<RoomPixels> crashPosition)
     {
         _pool.ShotCount.CountShot();
         SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);
-        SamusProjectileOccupant released = BeamCombos.OccupyComboShot(_pool, place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), BeamComboShotKind.Echo);
-        SamusProjectile echo = released.Projectile;
-        released.Position = echo.Position.WithWhole(start);
-        released.PicturedBeams = picturedBeams;
-        BeamCombos.StartComboShot(released, BeamComboShotKind.Echo);
-        released.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle(), carried));
-        return echo;
+        var shotKind = new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho);
+        SamusProjectileOccupant held = BeamCombos.OccupyComboShot(_pool, place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), shotKind);
+        SamusProjectile echo = held.Projectile;
+        held.Position = echo.Position.WithWhole(start);
+        held.PicturedBeams = picturedBeams;
+        BeamCombos.StartComboShot(held, shotKind);
+        var flight = new ShinesparkEchoShotState(angle.ToTrigonometryAngle(), released);
+        held.Install(SamusShotBehaviors.ShinesparkEcho, flight);
+        Ensure.NotNull(released).Depart(echo, flight, crashPosition);
     }
 
     /// <summary>

@@ -16,18 +16,12 @@ namespace SuperMetroid.Verification.Bosses;
 /// <summary>Checks boss BG2 resource requirements and display bindings.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
-    /// <summary>Rejects missing resources and cross-boss bindings before VRAM writes.</summary>
+    /// <summary>
+    /// Rejects cross-boss bindings and malformed components before VRAM writes; every boss's BG2 frames are required
+    /// installed content (#2554), so none can be missing.
+    /// </summary>
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock)
     {
-        foreach ((EnemyDefinitionId definition, EnemyFrameName[] family) in BossDisplayDocuments.Families())
-        {
-            EnemyFrameName frame = family.First(frame => stock.Writes(frame.Bank, frame.Pointer).Length != 0);
-            // The body's pictures are composed at install (#1466), so missing BG2 frames fail there, before anything draws.
-            BossBodyOwner bodyOwner = BossDisplayFixture.BodyOwnerOf(definition)
-                ?? throw new InvalidOperationException($"{definition} writes BG2 frames without a body layer.");
-            AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(stock.Build(omitBg2Bank: frame.Bank).Bosses, bodyOwner),
-                "selected BG2 resource is mandatory");
-        }
         var json = new EnemyIdentityFixture();
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
         string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameBounds.IsBg2Only(frame)).Name;
@@ -55,7 +49,9 @@ internal static class BossDisplayBindingsResourcesVerification
         int transitions = 0;
         for (int frame = 0; frame < frames; frame++)
         {
-            tentacles.Step(); tentacles.Draw();
+            // The tentacles' animation runs as the shared enemy animation runs a Phantoon part's.
+            tentacles.Enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(tentacles.Actor.EntityOf<PhantoonEntity>().Part);
+            tentacles.Draw();
             int index = frame / duration % poseCount;
             AssertEqual(PhantoonPartFramesConstants.Spritemap(AssertIs<AnimationBeat<EnemyFrameId, PhantoonPartCue>.Frame>(beats[index], "pose beat").Shown), tentacles.Actor.SpritemapPointer, "exact physical pose sequence");
             AssertEqual((ushort)(duration - frame % duration), tentacles.Actor.AnimationClock.Hold, "exact native hold/goto clock");
@@ -66,16 +62,15 @@ internal static class BossDisplayBindingsResourcesVerification
         Console.WriteLine($"PASS boss clocks: {frames} production animation steps/{transitions} exact native frame admissions.");
     }
 
-    /// <summary>Phantoon's tentacles in their own slot beside the body, starting their program on a one-update timer.</summary>
+    /// <summary>
+    /// Phantoon's tentacles in their own place beside his body, as his room's population places them, starting their program
+    /// on a one-update timer.
+    /// </summary>
     private static BossDisplayFixture NewTentacleFixture(ImportEnemyArtwork artwork)
     {
-        var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
-        RoomEnemyPlace body = fixture.Enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.KeptDefinition);
-        var state = new PhantoonEnemyState(body.HeldOccupant(), body, fixture.Enemies.Places.InUpdateOrder[1], fixture.Actor, fixture.Enemies.Places.InUpdateOrder[3]);
-        fixture.Enemies.BeginPhantoonAsSetUp(state);
+        var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork);
         fixture.SetFrame(0, false);
-        fixture.Actor.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
+        fixture.Actor.EntityOf<PhantoonEntity>().Part.Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
         fixture.Actor.AnimationClock.StepOnNextUpdate();
         return fixture;
     }

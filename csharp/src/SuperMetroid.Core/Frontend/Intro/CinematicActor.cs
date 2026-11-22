@@ -110,20 +110,28 @@ internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinema
     }
 
     /// <summary>
-    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
-    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
+    /// Advances an actor whose animations raise no cue for an owner by one update, as <see cref="Step(Action{TCue})"/>
+    /// does; an animation that raises one fails.
     /// </summary>
-    public void Step(Action<TCue>? ownerCue = null)
+    public void Step() => Step(cue => throw new InvalidOperationException(
+        $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."));
+
+    /// <summary>
+    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
+    /// ends. Owner cues go to <paramref name="ownerCue"/>.
+    /// </summary>
+    public void Step(Action<TCue> ownerCue)
     {
+        Ensure.NotNull(ownerCue);
         if (play != CinematicActorPlay.Playing || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
         IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
+            animation, ref place, ownerCue);
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        shown.React(StepHidingReactions, new StepContext(ownerCue, this));
+        shown.React(StepHidingReactions, new StepContext(this));
     }
 
     /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
@@ -156,34 +164,24 @@ internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinema
         });
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
-    /// <param name="OwnerCue">The owner's reaction to its cues, as the step was given it.</param>
     /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
-    private readonly partial record struct StepContext(Action<TCue>? OwnerCue, CinematicActor<TAnimation, TFrame, TCue> Owner);
-
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
-    }
+    private readonly partial record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
     /// first half is the screen and its second half an equally wide stretch of space left of the screen, so an actor that
-    /// drifts off the screen's right edge (<see cref="DriftRoundLoop"/>) comes back into view across its left edge.
+    /// drifts off the screen's right edge (<see cref="Drift"/>) comes back into view across its left edge.
     /// </summary>
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
-    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves the actor by <paramref name="horizontalDelta"/>; a looping actor is carried round its loop
+    /// (<see cref="DriftLoopWidth"/>), its whole pixels staying within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
-    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
+    internal void Drift(SignedSixteenSixteen horizontalDelta)
     {
-        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
         SignedSixteenSixteen x = Position.X + horizontalDelta;
-        Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
+        Position = Position.WithX(DriftLoopWidth is int loop ? x.WithWholePixels(AlongLoop(x.WholePixels, loop)) : x);
     }
 
     /// <summary>Where <paramref name="x"/> lies along a loop <paramref name="loop"/> pixels wide, from zero up to the width.</summary>

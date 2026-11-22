@@ -21,7 +21,7 @@ internal static class CeresFallingDebrisAnimationsVerification
     /// <summary>Both tile programs match their native lists.</summary>
     internal static void VerifyCeresFallingDebrisAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int updates = 0;
         foreach ((CeresFallingDebrisSegment program, RoomEnemyProjectileKind kind, ushort entry) in Entries)
         {
@@ -32,7 +32,7 @@ internal static class CeresFallingDebrisAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native Ceres falling tile list at ${address:X6}.");
-            EnemyProjectile tile = enemies.Projectiles.Occupy(17, kind);
+            EnemyProjectile tile = FamilyProjectileStarts.Allocate(enemies, kind, CeresFallingDebrisVisualDefinitions.Graphics);
             tile.StartAnimation(new CeresFallingDebrisAnimation(program));
             (bool deleted, int compared) = NativeEnemyProjectileParity.Compare(cartridge, enemies, tile, entry, 16, $"Ceres falling tile {program}");
             AssertTrue(!deleted, $"the {program} tile sleeps rather than deleting");

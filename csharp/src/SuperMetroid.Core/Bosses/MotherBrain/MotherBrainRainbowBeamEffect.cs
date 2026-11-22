@@ -59,11 +59,13 @@ public sealed partial class MotherBrainRainbowBeamEffect
         else if (!ReferenceEquals(played, installed))
         {
             // Colours the host binds anew play on from where the sequence stands.
-            colours.Rebind(installed.BeamSegments, installed.BeamAnimation);
+            if (colours.Rebind(installed.BeamSegments, installed.BeamAnimation) is { } rebound)
+                Color = rebound;
         }
         played = installed;
-        colours.Step();
-        Color = colours.Showing;
+        // The colour shown stays until the sequence shows its next.
+        if (colours.StepToNewFrame() is { } next)
+            Color = next;
         // The cone's edges lie half its whole-step width either side of its direction.
         TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();
         Geometry = new(new(head.X + MotherBrainBeamDefinitions.MouthXOffset, head.Y + MotherBrainBeamDefinitions.MouthYOffset),

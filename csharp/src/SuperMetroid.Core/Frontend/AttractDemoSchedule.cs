@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>
 /// Which demonstrations the title plays (#2553): the set of <paramref name="playlist"/> it is at, which starts over after the
 /// last, and how far into it the next demonstration is. Where a running scene stands is its step's own
-/// (<see cref="AttractDemoStep"/>).
+/// (<see cref="AttractDemoGameSequence"/>).
 /// </summary>
 /// <param name="playlist">The sets the title cycles through, in order, the first set first.</param>
 internal sealed partial class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> playlist)
@@ -32,11 +32,11 @@ internal sealed partial class AttractDemoSchedule(IReadOnlyList<AttractDemoSet> 
         ScenesBegun = 0;
     }
 
-    /// <summary>The title requests a demo: its set starts again from its first scene, whose load begins.</summary>
-    internal AttractDemoStep.Loading.AwaitingRuntime RequestFromTitle()
+    /// <summary>The title requests a demo: its set starts again from its first scene, which begins and is returned.</summary>
+    internal AttractDemoScene RequestFromTitle()
     {
         ScenesBegun = 0;
-        return new(BeginNext());
+        return BeginNext();
     }
 
     /// <summary>

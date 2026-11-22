@@ -7,19 +7,46 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Geruta], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        occupant.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? EnemyOccupant.Of(new GerutaFollowerEntity(this, occupant, place, common))
-            : EnemyOccupant.Of(new GerutaEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
+
+    /// <summary>
+    /// A parent, which offers the follower its room lists right after it the creation that builds that follower following
+    /// it (#2164, #2554); a follower joins the parent listed before it, so the population may not place one first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A follower is listed with no parent of its species before it.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        if (Ensure.NotNull(settings).Role == EnemyFollowerRole.Follower)
+        {
+            throw new InvalidDataException(
+                $"Norfair Rio follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
+        }
+        var parent = new GerutaEntity(this, occupant, place, common);
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Geruta, new ParentFollowing(this, parent).CreateLater);
+        return EnemyOccupant.Running(parent);
+    }
+
+    /// <summary>
+    /// The creation a parent offers the entry its room lists after it (#2554): a follower following the parent; another
+    /// parent is built as any parent is.
+    /// </summary>
+    /// <param name="species">The Geruta species owner.</param>
+    /// <param name="parent">The parent a later follower follows.</param>
+    private sealed partial class ParentFollowing(GerutaBehavior species, GerutaEntity parent)
+    {
+        /// <summary>A later entry: a follower following the parent, or another parent.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            settings.Role == EnemyFollowerRole.Follower
+                ? EnemyOccupant.Running(new GerutaFollowerEntity(species, occupant, place, common, parent))
+                : species.Create(occupant, settings, place, common);
+    }
+
+    /// <summary>Where a parent offers the follower listed after it the creation that builds it following the parent.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
@@ -27,15 +54,15 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactor
     private readonly EnemyTerrain _terrain;
     /// <summary>The room's enemy places, where each flame follower finds its parent when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Captures the room RNG, terrain, and enemy places needed by Rio AI.</summary>
-    internal GerutaBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
+    internal GerutaBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio,
+        EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _room = room;
         _terrain = terrain;
@@ -43,25 +70,33 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its ascending flames.</summary>
-    internal void InitializeGerutaFollower(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parent"/>.</exception>
+    internal GerutaFollowerState InitializeGerutaFollower(RoomEnemyPlace place, GerutaEntity parent)
     {
-        _parents.Place(place, _places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader));
-        ValidateGerutaParent(place);
-        place.SetSpeciesState(new GerutaFollowerState
+        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parent).Place)
+        {
+            throw new InvalidDataException(
+                $"Norfair Rio follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
+        }
+        var state = new GerutaFollowerState(parent.State, parent.Place)
         {
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.FlamesAscending), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Geruta parent, idle and waiting for its chance to attack.</summary>
-    internal static void InitializeGeruta(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static GerutaEnemyState InitializeGeruta()
     {
-        place.SetSpeciesState(new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
+        var state = new GerutaEnemyState(GerutaAction.WaitForAttackOpportunity)
         {
             FollowerYOffset = 0,
             Flames = GerutaFlames.Ascending,
             Playback = new(GerutaAnimations.StartingWith(GerutaSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>What <see cref="RunGerutaMain"/> does for each <see cref="GerutaAction"/> member, each member's own arm.</summary>
@@ -184,16 +219,15 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemyPlace follower,
         GerutaFollowerState followerState)
     {
-        RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);
+        RoomEnemyPlace parent = followerState.ParentPlace;
         if (parent.Health == 0)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
         // The pair is checked when the follower is placed; a parent deleted without a kill is read as it left its place and
-        // its animation (RoomEnemyPlace.FoundState).
-        GerutaEnemyState parentState = parent.FoundState<GerutaEnemyState>() ?? throw new InvalidOperationException(
-            $"Rio flame follower {follower.Ordinal} finds no Rio in its parent's place {parent.Ordinal}.");
+        // its animation (RoomEnemyPlace.FoundEntity).
+        GerutaEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || parentState.Idles)
         {
@@ -263,45 +297,30 @@ internal sealed partial class GerutaBehavior : IEnemySpecies, IEnemyEntityFactor
         GerutaSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, GerutaAnimations.StartingWith(segment));
 
-    /// <summary>The parent the follower found when it was placed, the enemy its room lists directly before it.</summary>
-    private RoomEnemyPlace GetPrecedingGerutaPlace(RoomEnemyPlace follower) => _parents.Of(follower);
-
-    /// <summary>Requires a flame follower to come right after its parent Rio among the room's enemies.</summary>
-    private void ValidateGerutaParent(RoomEnemyPlace follower)
-    {
-        RoomEnemyPlace parent = GetPrecedingGerutaPlace(follower);
-        if (parent.Entity is not GerutaEntity)
-        {
-            throw new InvalidDataException(
-                $"Norfair Rio follower in place {follower.Ordinal} must immediately follow " +
-                "a parent of the same definition.");
-        }
-    }
-
     /// <summary>Runs a Geruta flame follower's main AI: it advances the shared enemy RNG, as every parent does, then follows its parent.</summary>
-    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place)
+    internal void RunGerutaFollowerMainAi(RoomEnemyPlace place, GerutaFollowerState gerutaFollowerState)
     {
         _room.Random.Generate();
-        FollowGerutaParent(place, place.RequireSpeciesState<GerutaFollowerState>());
+        FollowGerutaParent(place, gerutaFollowerState);
     }
 
     /// <summary>Runs a Geruta parent's main AI.</summary>
-    internal void RunGerutaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+    internal void RunGerutaMainAi(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState, IEnemyAiFrame frame) =>
         RunGerutaMain(
             place,
-            place.RequireSpeciesState<GerutaEnemyState>(),
+            gerutaEnemyState,
             frame.Samus,
             frame.Level);
 
     /// <summary>Advances a Geruta flame follower's typed animation, which raises no cue.</summary>
-    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+    internal static void AdvanceGerutaFollowerTypedAnimation(RoomEnemyPlace place, GerutaFollowerState gerutaFollowerState) =>
+        EnemyAnimationPlayback.Advance(place, gerutaFollowerState, GerutaAnimations.Segments,
             static (GerutaFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Geruta parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, GerutaAnimations.Segments,
+    internal static void AdvanceGerutaTypedAnimation(RoomEnemyPlace place, GerutaEnemyState gerutaEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, gerutaEnemyState, GerutaAnimations.Segments,
             static (GerutaEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

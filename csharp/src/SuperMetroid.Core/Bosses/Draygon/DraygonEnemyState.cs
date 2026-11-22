@@ -32,7 +32,14 @@ public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBo
         TailPart = new DraygonPart(this, tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
         ArmsPart = new DraygonPart(this, arms, DraygonSegment.ArmsFacingLeftIdle);
         HealthBand = DraygonHealthBand.Of(body.Place.Health);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Draygon);
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first. The room keeps showing it, hidden, once his body is deleted (#2194).
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
@@ -121,12 +128,6 @@ public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBo
     /// <summary>Where his body is placed (#2031): his position, shifted by <see cref="BodyPictureShift"/>.</summary>
     public Position16<RoomPixels> BodyPlacement => Body.Position.Whole + BodyPictureShift;
 
-    /// <summary>
-    /// The path of the swoop Draygon is flying or last flew: none until he plans his first swoop, then the heights from
-    /// the swoop's lowest point up toward the reset height and the height he started it at.
-    /// </summary>
-    internal DraygonSwoopPath? SwoopPath { get; set; }
-
     /// <summary>The way Draygon faces: left until his first rightward pass turns him.</summary>
     public HorizontalDirection Facing { get; internal set; }
 
@@ -183,10 +184,13 @@ public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBo
 
 
     /// <summary>
-    /// The body's phase; the body runs it each update before its three parts take the body's position. The fight starts
-    /// in its opening delay.
+    /// The step the body runs each update before its three parts take the body's position, holding what its phase needs
+    /// (<see cref="DraygonPhaseStep"/>). The fight starts in its opening delay.
     /// </summary>
-    public DraygonPhase Phase { get; internal set; } = DraygonPhase.IntroInitialDelay;
+    internal DraygonPhaseStep Step { get; set => field = Ensure.NotNull(value); } = DraygonPhaseSteps.IntroInitialDelay();
+
+    /// <summary>The body's phase, the one its step runs.</summary>
+    public DraygonPhase Phase => Step.Phase;
 
     /// <summary>The way Draygon's swoop or goop pass travels (#2165).</summary>
     public HorizontalDirection PassDirection { get; internal set; }

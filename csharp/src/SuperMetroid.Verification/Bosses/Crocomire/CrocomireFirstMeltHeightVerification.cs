@@ -75,12 +75,12 @@ internal static class CrocomireFirstMeltHeightVerification
             state.DeathStage = phase;
             state.VerticalSpeed = SignedEightEight.FromPixels(1);
             body.Position = body.Position.WithWholeY(y);
-            fixture.Enemies.CrocomireBehavior.RunCrocomireMain(body.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
+            fixture.Enemies.CrocomireBehavior.RunCrocomireMainAi(body.HeldOccupant(), state, PlacedEnemyAccess.AiFrame(samus, camera: camera));
             AssertEqual(CrocomireBodyAnimations.StartingWith(animation), state.BodyPlayback.Animation, $"{at}: animation");
             AssertEqual(AnimationPlace.StartOfAnimation, state.BodyPlayback.Place, $"{at}: the animation starts afresh");
             AssertEqual(1, body.AnimationClock.Hold, $"{at}: its first picture is due this update");
 
-            fixture.Enemies.CrocomireBehavior.Fight.AdvanceCrocomireBodyAnimation(body, samus, level, camera.X);
+            fixture.Enemies.CrocomireBehavior.Fight.AdvanceCrocomireBodyAnimation(body, state, samus, level, camera.X);
             AssertEqual((EnemyFrameId?)frame, body.Frame, $"{at}: picture");
             ReadOnlySpan<EnemyCollisionComponent> components = CrocomireBodyCollision.ComponentsAt(body.Frame);
             AssertEqual(1, components.Length, $"{at}: collision components");

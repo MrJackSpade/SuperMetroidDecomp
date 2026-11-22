@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
@@ -11,8 +12,7 @@ internal sealed partial record GraphicsSetEnemy(EnemyDefinitionId DefinitionId) 
     internal override string Name => DefinitionId.ToString();
 
     /// <inheritdoc/>
-    internal override int? TileByteCount =>
-        EnemyTileSetDefinitions.ByteCounts.TryGetValue(DefinitionId, out int bytes) ? bytes : null;
+    internal override int TileByteCount => Ensure.Listed(EnemyTileSetDefinitions.ByteCounts, DefinitionId);
 
     /// <inheritdoc/>
     internal override int? FixedBlock =>

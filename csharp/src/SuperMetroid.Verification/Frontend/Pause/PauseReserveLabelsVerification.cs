@@ -38,8 +38,8 @@ internal static class PauseReserveLabelsVerification
             // the no-capacity case would compare the renderer against its own output.
             for (int row = 0; row < 2; row++)
             {
-                int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c068 + row * 2) - 0x3800;
-                RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage + destination, 14)
+                int destination = RomDataReader.ReadWordFixedBank(bus, 0x82c068 + row * 2) - 0x3800;
+                RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.EquipmentPage + destination, 14)
                     .CopyTo(expectedVram, 0x6000 + destination);
             }
             if (capacity != 0)
@@ -47,9 +47,9 @@ internal static class PauseReserveLabelsVerification
                 // Native A12B copies two seven-word labels, using C068/C088 tables.
                 for (int row = 0; row < 2; row++)
                 {
-                    int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c068 + row * 2) - 0x3800;
-                    int source = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c088 + row * 2);
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, 14).CopyTo(expectedVram, 0x6000 + destination);
+                    int destination = RomDataReader.ReadWordFixedBank(bus, 0x82c068 + row * 2) - 0x3800;
+                    int source = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c088 + row * 2);
+                    RomDataReader.ReadFixedBank(bus, source, 14).CopyTo(expectedVram, 0x6000 + destination);
                 }
                 // AB47 preserves attributes while inserting four mode tiles at word 327.
                 if (mode != 0)
@@ -57,7 +57,7 @@ internal static class PauseReserveLabelsVerification
                     {
                         int offset = 0x6000 + (327 + tile) * 2;
                         ushort before = BinaryPrimitives.ReadUInt16LittleEndian(expectedVram.AsSpan(offset));
-                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (mode == 1 ? 0x82bf2a : 0x82bf22) + tile * 2);
+                        ushort source = RomDataReader.ReadWordFixedBank(bus, (mode == 1 ? 0x82bf2a : 0x82bf22) + tile * 2);
                         BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((before & 0xfc00) | source));
                     }
             }

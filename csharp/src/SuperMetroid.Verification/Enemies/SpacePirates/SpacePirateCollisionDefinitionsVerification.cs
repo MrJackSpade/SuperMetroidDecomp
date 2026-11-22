@@ -220,6 +220,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 ? EnemyDefinitionId.PirateSilverNinja
                 : wallFrame ? EnemyDefinitionId.PirateGreyWall : EnemyDefinitionId.PirateGreyWalking, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+            // A Pirate answers for its own frames' hitboxes, as the population load builds it (#2554).
+            enemies.SetUpAsPopulated(place);
             // Space Pirates collide by their frames' hitboxes, so the empty frame is the point-hitbox record.
             place.CollidesByFrameHitboxes = true;
             place.Frame = RoomEnemyPlaceFrameAccess.FrameAt(SpacePirateFrameBank, pointer);

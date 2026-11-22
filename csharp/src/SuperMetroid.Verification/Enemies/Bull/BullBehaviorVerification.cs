@@ -26,36 +26,32 @@ internal static class BullBehaviorVerification
         place.Bind(EnemyDefinitionId.Bull, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(place.HeldOccupant(), place);
-        BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
-        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.StartingWith(BullSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Bull initializer animation");
+        // The Bull's setup builds the state its reactions and its animation, which the check plays, run on.
+        BullEnemyState state = enemies.BullBehavior.InitializeBull(place.HeldOccupant().SpawnSettings<BullSpawnSettings>(), place);
+        void Animate() => BullBehavior.AdvanceBullAnimation(place, state);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Segments, BullSegment.Idle, BullFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Idle)),
+            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(BullAnimations.Segments, BullSegment.Idle), Animate),
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(place, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
-        AssertEqual(new AnimationPlayback<BullSegment>(BullAnimations.Shot, AnimationPlace.StartOfAnimation), state.Playback, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullSegment.Shot).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullSegment.Idle).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
-            EnemyInstructionRunner.ShownFrames(place, 61), "Bull shot program repeats five times and returns to normal");
+            EnemyInstructionRunner.ShownFrames(place, 61, Animate), "Bull shot program repeats five times and returns to normal");
 
         // #2350: a bomb that leaves the Bull unhurt kicks it as the original's shot table kicks a shot fired up facing
         // right, the direction the original reads for every bomb.
         RoomEnemyPlace bombed = enemies.Places.InUpdateOrder[1];
         bombed.Bind(EnemyDefinitionId.Bull, bombed.KeptDefinition);
         bombed.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(bombed.HeldOccupant(), bombed);
+        BullEnemyState bombedState = enemies.BullBehavior.InitializeBull(bombed.HeldOccupant().SpawnSettings<BullSpawnSettings>(), bombed);
         var bomb = new SamusBomb(0);
         bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         var context = new EnemyBombContext(bombed.HeldOccupant(), bomb.HeldBomb(), InstalledFixtures.CreateProjectileSystem(), RoomEnemyFrameFixtures.StandaloneSamus(),
-            SelectedShot: SuperMetroid.Core.Enemies.Bull.BullReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
-        {
-            StruckOccupant = bombed.OccupantStates,
-        };
-        (enemies.BullBehavior.BombReaction.AfterCommon ?? throw new InvalidOperationException("The Bull has no bomb recoil."))(
-            new EnemyBombHitContext(context, bombed.Health));
-        AssertEqual(BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.UpFacingRight), bombed.RequireSpeciesState<BullEnemyState>().Angle,
+            SelectedShot: SuperMetroid.Core.Enemies.Bull.BullReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0));
+        BullBehavior.KickFromUndamagingBomb(
+            new EnemyBombHitContext(context, bombed.Health), bombedState);
+        AssertEqual(BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.UpFacingRight), bombedState.Angle,
             "an unhurting bomb kicks the Bull straight up");
         Console.WriteLine("  Bull behavior: the normal loop, the five-repeat immune-shot reaction and the bomb's upward kick run as the cartridge does.");
     }
@@ -74,8 +70,7 @@ internal static class BullBehaviorVerification
         RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.KeptDefinition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        enemies.BullBehavior.InitializeBull(slot.HeldOccupant(), slot);
-        BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
+        BullEnemyState state = enemies.BullBehavior.InitializeBull(slot.HeldOccupant().SpawnSettings<BullSpawnSettings>(), slot);
         SignedEightEight brakingStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
 
         SignedEightEight fastestCap = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(2815);

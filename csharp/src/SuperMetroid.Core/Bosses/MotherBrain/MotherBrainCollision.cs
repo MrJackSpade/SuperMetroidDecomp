@@ -23,7 +23,7 @@ internal static partial class MotherBrainCollision
     /// <summary>The collision components of Mother Brain body frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Mother Brain's body frames.</exception>
     internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && Components.TryGetValue(shown, out EnemyCollisionComponent[]? components)
-            ? components
+        frame is not { } shown ? []
+            : Components.TryGetValue(shown, out EnemyCollisionComponent[]? components) ? components
             : throw new InvalidDataException($"Mother Brain has no frame {frame} with hitboxes.");
 }

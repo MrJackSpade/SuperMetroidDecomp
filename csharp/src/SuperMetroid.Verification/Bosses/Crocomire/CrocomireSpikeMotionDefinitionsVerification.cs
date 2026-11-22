@@ -29,7 +29,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         for (int piece = 0; piece < WallPieces; piece++)
         {
             int address = 0x8691c3 + 2 * (TopPieceTableEntry + piece);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             CrocomireSpikeWallPiece definition = CrocomireSpikeMotionDefinitions.Pieces[piece];
             AssertEqual(SignedSixteenSixteen.FromParts(0, expected), definition.AccelerationGrowth,
                 $"Crocomire spike acceleration increment, piece {piece}");
@@ -45,7 +45,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         for (int piece = 0; piece < WallPieces; piece++)
         {
             int address = 0x8691e7 + 2 * (TopPieceTableEntry + piece);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             AssertEqual(SignedSixteenSixteen.FromParts(0, expected), CrocomireSpikeMotionDefinitions.Pieces[piece].MaximumAcceleration,
                 $"Crocomire spike acceleration limit, piece {piece}");
         }

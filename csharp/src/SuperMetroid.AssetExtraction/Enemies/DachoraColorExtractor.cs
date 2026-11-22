@@ -43,7 +43,7 @@ public static partial class DachoraColorExtractor
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Dachora color ${address:X6} has an unrepresentable high bit.");

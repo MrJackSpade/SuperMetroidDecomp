@@ -31,6 +31,9 @@ internal sealed partial record RoomEnemySpeciesDependencies
     /// <summary>The room's enemy places.</summary>
     public required EnemyPlaces Places { get; init; }
 
+    /// <summary>The shared participation every entity built in the room's places composes.</summary>
+    public required EnemyCommonParticipation Common { get; init; }
+
     /// <summary>Runs each placed or spawned enemy's setup.</summary>
     public required EnemyLifecycle Lifecycle { get; init; }
 

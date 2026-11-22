@@ -23,9 +23,9 @@ public static partial class GameplayMessageNoticeExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
-            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            int setup = bus.ReadCartridgeWord(definition);
+            int draw = bus.ReadCartridgeWord((definition + 2));
+            int pointer = bus.ReadCartridgeWord((definition + 4));
             int rowCount = GameplayMessageNotices.ContentRows(id);
             GameplayMessageRoutine expectedSetup = GameplayMessageNotices.IsSaveConfirmation(id)
                 ? GameplayMessageRoutine.SetupLarge
@@ -41,7 +41,7 @@ public static partial class GameplayMessageNoticeExtractor
                 rowCount * GameplayMessageTilemapDefinitions.TilemapWidth];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))));
+                template[word] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((content + word * sizeof(ushort))));
 
             var regions = new List<GameplayMessageTextRegion>();
             foreach (GameplayMessageTextRegionDefinition region in
@@ -91,7 +91,7 @@ public static partial class GameplayMessageNoticeExtractor
 
         var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
+            border[column] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessageNoticePresentation.Write(output, new()
@@ -113,7 +113,7 @@ public static partial class GameplayMessageNoticeExtractor
             GameplayMessageTilemapDefinitions.SaveSelectionRowWords];
         for (int word = 0; word < result.Length; word++)
         {
-            result[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +
+            result[word] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((HudSourceDefinitions.Messages.SaveSelectionTilemap +
                 (sourceWord + word) * sizeof(ushort))));
         }
         return result;

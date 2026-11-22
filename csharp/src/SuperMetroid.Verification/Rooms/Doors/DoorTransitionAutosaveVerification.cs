@@ -44,17 +44,16 @@ internal static class DoorTransitionAutosaveVerification
         try
         {
             var random = new SharedRandom();
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+            var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
+            var game = CreateAudibleRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), assets, renderGameplayFrames: false, random: random);
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             game.AdoptRuntime(runtime);
             // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
             using var saveRamHost = new NativeHandleSaveRamHost();
             game.SavesChanged += saveRamHost.Persist;
-            var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-            game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
                 BuildIdentity.Version);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity,
@@ -80,7 +79,6 @@ internal static class DoorTransitionAutosaveVerification
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");
             InstalledFixtures.BindGame(loaded.Game);
             // The player is restored inside the game graph; the host rebinds only the catalog.
-            loaded.Game.BindAudio(assets);
             var expectedPcm = new short[AudioSession.PcmSamplesPerFrame];
             var actualPcm = new short[AudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)
@@ -95,7 +93,7 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
                     SuperMetroid.Diagnostics.Saves.SaveRamCodec.Encode(loaded.Game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), "restored continuation saves");
-                AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
+                AssertEqual(runtime.Player.Samus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.Samus.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
@@ -162,14 +160,15 @@ internal static class DoorTransitionAutosaveVerification
                 int x = doorBlock.X, y = doorBlock.Y;
                 runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
                 var block = runtime.Room.LoadedLevelData.GetCollisionBlock(doorBlock);
-                var samus = runtime.Player.IntroducedSamus;
+                var samus = runtime.Player.Samus;
                 samus.Control.Unlock();
                 samus.PoseId = SamusPoseId.FacingRightNormalPose;
                 samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                 SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
                 runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
                 game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
-                game.Session.Enter(DoorTransitionStep.EnteringDoor);
+                // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+                game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
             }
             // The door block leading from a source room to a destination, found in the room's cartridge level the first
             // time that door is asked for (#1532): a repeated door reuses it instead of loading the room once more to

@@ -24,7 +24,7 @@ internal static class PhantoonMotionDefinitionsVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = 0xa7cd73 + i * 2;
-            native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            native[i] = rom.ReadCartridgeWord(address);
             AssertEqual(unchecked((short)native[i]), definitions[i], "Phantoon compiled motion value");
         }
         Action<PhantoonFigureEightState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;

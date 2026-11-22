@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -34,7 +35,7 @@ internal static class CeresSelfDestructWarningVerification
                 typedCharacters++;
             corner = next;
         }
-        for (int update = 0; escape.Warning.Phase != CeresSelfDestructPhase.JapaneseSubtitle; update++)
+        for (int update = 0; escape.Warning.Phase.ToString() != nameof(CeresSelfDestructPhase.JapaneseSubtitle); update++)
         {
             if (update == 4096)
                 throw new InvalidOperationException("The Japanese warning never reached its subtitle phase.");
@@ -47,9 +48,9 @@ internal static class CeresSelfDestructWarningVerification
             escape.RunRidleysStep(0);
             CountTypedCharacter();
             bool last = update == CeresSelfDestructWarningDefinitions.JapaneseSubtitleWaitUpdates;
-            AssertEqual(last, ShowsSubtitle(escape.Warning),
+            AssertEqual(last, ShowsSubtitle(escape),
                 $"the Japanese subtitle shows on the 32nd update of its wait only, not on update {update}");
-            AssertEqual(last ? CeresSelfDestructPhase.TypingWarning : CeresSelfDestructPhase.JapaneseSubtitle, escape.Warning.Phase,
+            AssertEqual(last ? nameof(CeresSelfDestructPhase.TypingWarning) : nameof(CeresSelfDestructPhase.JapaneseSubtitle), escape.Warning.Phase.ToString(),
                 $"the warning types on after the subtitle shows, on update {update}");
         }
         // Over the 32 updates the typewriter typed its first two characters on consecutive updates and every third after.
@@ -60,8 +61,8 @@ internal static class CeresSelfDestructWarningVerification
     }
 
     /// <summary>Whether <paramref name="warning"/> shows any row of the Japanese subtitle.</summary>
-    private static bool ShowsSubtitle(CeresSelfDestructWarning warning) =>
-        warning.Overlay.Pictures.Any(written => CeresEscapeWarningPictures.JapaneseSubtitle.Any(line => line.Picture == written.Picture));
+    private static bool ShowsSubtitle(CeresEscape escape) =>
+        escape.FixtureWarning.ShownText().Pictures.Any(written => CeresEscapeWarningPictures.JapaneseSubtitle.Any(line => line.Picture == written.Picture));
 
     /// <summary>Runs the Ceres self-destruct warning's wait check.</summary>
     [VerificationCommand("--ceres-self-destruct-warning")]

@@ -9,129 +9,114 @@ namespace SuperMetroid.Core.Audio;
 /// <remarks>
 /// The library is part of the identity because it decides which queue a request waits in and which sounds interrupt one
 /// another. Each library's sounds and stops convert implicitly, so a request names the sound or stop itself. The identity
-/// holds no number:
-/// the import pipeline alone maps a sound to the installed sound effect it requests. Which library's sound it is is one
-/// closed value (#2560), so no identity names sounds of two libraries. The default identity holds no sound of any library,
-/// and asking it for its library fails (#1897).
+/// holds no number: the import pipeline alone maps a sound to the installed sound effect it requests. The identity is a
+/// closed choice of the three libraries' sounds and stops (#2554), so every identity names one library's sound or stop.
 /// </remarks>
-public readonly partial record struct SoundEffectId
+public abstract partial record SoundEffectId
 {
-    /// <summary>The library's sound; null only in the default identity, which holds none.</summary>
-    private readonly LibrarySound? sound;
-
-    /// <summary>Records one library's sound.</summary>
-    private SoundEffectId(LibrarySound sound) => this.sound = sound;
+    /// <summary>Only the three libraries' sounds and stops below exist.</summary>
+    private SoundEffectId() { }
 
     /// <summary>The library whose queue plays the sound.</summary>
-    /// <exception cref="InvalidOperationException">This is the default identity, which holds no sound.</exception>
-    public SoundEffectLibrary Library => Sound.Library;
-
-    /// <summary>A sound of Samus's library.</summary>
-    public static implicit operator SoundEffectId(SamusSound sound) => new(new SamusLibrarySound(sound));
-
-    /// <summary>A sound of the enemies' library.</summary>
-    public static implicit operator SoundEffectId(EnemySound sound) => new(new EnemyLibrarySound(sound));
-
-    /// <summary>A sound of the room's library.</summary>
-    public static implicit operator SoundEffectId(RoomSound sound) => new(new RoomLibrarySound(sound));
-
-    /// <summary>A stop of Samus's library.</summary>
-    public static implicit operator SoundEffectId(SamusSoundStop stop) => new(new SamusLibraryStop(stop));
-
-    /// <summary>A stop of the enemies' library.</summary>
-    public static implicit operator SoundEffectId(EnemySoundStop stop) => new(new EnemyLibraryStop(stop));
-
-    /// <summary>A stop of the room's library.</summary>
-    public static implicit operator SoundEffectId(RoomSoundStop stop) => new(new RoomLibraryStop(stop));
+    public abstract SoundEffectLibrary Library { get; }
 
     /// <summary>
     /// The request's installed key (#2520): its list's name, a dot and the sound's or stop's own key, as the clip index keys
     /// each request.
     /// </summary>
-    /// <exception cref="InvalidOperationException">This is the default identity, which holds no sound.</exception>
     [InstalledKey]
-    internal string Key => Sound.Key;
-
-    /// <summary>The library's sound.</summary>
-    /// <exception cref="InvalidOperationException">This is the default identity, which holds no sound.</exception>
-    private LibrarySound Sound => sound ?? throw new InvalidOperationException("The default sound identity names no sound.");
-
-    /// <inheritdoc />
-    public override string ToString() => Key;
-
-    /// <summary>A sound or stop of one library (#2560): a closed choice with one case per library's sounds and per its stops.</summary>
-    private abstract partial record LibrarySound
-    {
-        /// <summary>The library whose queue plays the sound.</summary>
-        internal abstract SoundEffectLibrary Library { get; }
-
-        /// <summary>The sound's installed key.</summary>
-        internal abstract string Key { get; }
-    }
+    internal abstract string Key { get; }
 
     /// <summary>A sound of Samus's library.</summary>
-    /// <param name="Sound">The sound.</param>
-    private sealed partial record SamusLibrarySound(SamusSound Sound) : LibrarySound
-    {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
+    public static implicit operator SoundEffectId(SamusSound sound) => new OfSamus(sound);
 
-        /// <inheritdoc/>
+    /// <summary>A sound of the enemies' library.</summary>
+    public static implicit operator SoundEffectId(EnemySound sound) => new OfEnemies(sound);
+
+    /// <summary>A sound of the room's library.</summary>
+    public static implicit operator SoundEffectId(RoomSound sound) => new OfRoom(sound);
+
+    /// <summary>A stop of Samus's library.</summary>
+    public static implicit operator SoundEffectId(SamusSoundStop stop) => new OfSamusStop(stop);
+
+    /// <summary>A stop of the enemies' library.</summary>
+    public static implicit operator SoundEffectId(EnemySoundStop stop) => new OfEnemiesStop(stop);
+
+    /// <summary>A stop of the room's library.</summary>
+    public static implicit operator SoundEffectId(RoomSoundStop stop) => new OfRoomStop(stop);
+
+    /// <inheritdoc />
+    public sealed override string ToString() => Key;
+
+    /// <summary>A sound of Samus's library.</summary>
+    /// <param name="Sound">Samus's sound.</param>
+    public sealed partial record OfSamus(SamusSound Sound) : SoundEffectId
+    {
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
+
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "SamusSound." + SamusSoundKeys.Installed.Of(Sound);
     }
 
     /// <summary>A sound of the enemies' library.</summary>
-    /// <param name="Sound">The sound.</param>
-    private sealed partial record EnemyLibrarySound(EnemySound Sound) : LibrarySound
+    /// <param name="Sound">The enemies' sound.</param>
+    public sealed partial record OfEnemies(EnemySound Sound) : SoundEffectId
     {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "EnemySound." + EnemySoundKeys.Installed.Of(Sound);
     }
 
     /// <summary>A sound of the room's library.</summary>
-    /// <param name="Sound">The sound.</param>
-    private sealed partial record RoomLibrarySound(RoomSound Sound) : LibrarySound
+    /// <param name="Sound">The room's sound.</param>
+    public sealed partial record OfRoom(RoomSound Sound) : SoundEffectId
     {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Room;
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Room;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "RoomSound." + RoomSoundKeys.Installed.Of(Sound);
     }
 
     /// <summary>A stop of Samus's library.</summary>
-    /// <param name="Stop">The stop.</param>
-    private sealed partial record SamusLibraryStop(SamusSoundStop Stop) : LibrarySound
+    /// <param name="Stop">Samus's stop.</param>
+    public sealed partial record OfSamusStop(SamusSoundStop Stop) : SoundEffectId
     {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Samus;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "SamusSoundStop." + SamusSoundStopKeys.Installed.Of(Stop);
     }
 
     /// <summary>A stop of the enemies' library.</summary>
-    /// <param name="Stop">The stop.</param>
-    private sealed partial record EnemyLibraryStop(EnemySoundStop Stop) : LibrarySound
+    /// <param name="Stop">The enemies' stop.</param>
+    public sealed partial record OfEnemiesStop(EnemySoundStop Stop) : SoundEffectId
     {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Enemies;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "EnemySoundStop." + EnemySoundStopKeys.Installed.Of(Stop);
     }
 
     /// <summary>A stop of the room's library.</summary>
-    /// <param name="Stop">The stop.</param>
-    private sealed partial record RoomLibraryStop(RoomSoundStop Stop) : LibrarySound
+    /// <param name="Stop">The room's stop.</param>
+    public sealed partial record OfRoomStop(RoomSoundStop Stop) : SoundEffectId
     {
-        /// <inheritdoc/>
-        internal override SoundEffectLibrary Library => SoundEffectLibrary.Room;
+        /// <inheritdoc />
+        public override SoundEffectLibrary Library => SoundEffectLibrary.Room;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        [InstalledKey]
         internal override string Key => "RoomSoundStop." + RoomSoundStopKeys.Installed.Of(Stop);
     }
 }

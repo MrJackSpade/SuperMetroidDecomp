@@ -59,9 +59,9 @@ internal static class CeresExplosionDefinitionsVerification
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
             ushort motion = definition.Animation == CeresAnimation.ExplosionSpawner
                 ? CinematicActorNativeMotions.NoMotion : CinematicActorNativeMotions.CeresExplosion;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), motion,
+            AssertEqual(source.ReadCartridgeWord((address + 2)), motion,
                 $"{name} routine: the spawner holds still, a blast drifts with the fleeing gunship");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(definition.Animation),
+            AssertEqual(source.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(definition.Animation),
                 $"{name} instruction list");
         }
     }
@@ -73,9 +73,9 @@ internal static class CeresExplosionDefinitionsVerification
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingBlastPlaces.Count; index++)
         {
             Offset16<ScreenPixels> offset = CeresExplosionDefinitions.RepeatingBlastPlaces[index];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)offset.X),
+            AssertEqual(retail.ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)offset.X),
                 $"repeating explosion {index} X offset");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)offset.Y),
+            AssertEqual(retail.ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)offset.Y),
                 $"repeating explosion {index} Y offset");
         }
         AssertEqual(1, CeresExplosionDefinitions.RepeatingBlastDelayFrames, "every repeating explosion's initial instruction delay");
@@ -83,7 +83,7 @@ internal static class CeresExplosionDefinitionsVerification
         for (int index = 0; index < CeresExplosionDefinitions.FinalWave.Count; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.FinalWave[index];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc57a + index * 2)), unchecked((ushort)placement.Offset.Y),
+            AssertEqual(retail.ReadCartridgeWord((0x8bc57a + index * 2)), unchecked((ushort)placement.Offset.Y),
                 $"final explosion {index} Y offset");
         }
     }

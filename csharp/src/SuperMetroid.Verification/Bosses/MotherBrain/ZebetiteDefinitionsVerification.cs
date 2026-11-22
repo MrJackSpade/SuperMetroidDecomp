@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -38,7 +39,7 @@ internal static class ZebetiteDefinitionsVerification
             ];
             for (int field = 0; field < actual.Length; field++)
             {
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((generationTables[field] + generation * 2)),
+                AssertEqual(rom.ReadCartridgeWord((generationTables[field] + generation * 2)),
                     actual[field],
                     $"Zebetite generation {generation} field {field}");
             }
@@ -54,7 +55,7 @@ internal static class ZebetiteDefinitionsVerification
                 health < 800 ? 1 : 0;
             bool linkedPair = form == ZebetiteBarrierForm.SplitPair;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
+            AssertEqual(rom.ReadCartridgeWord((table + tier * 2)),
                 ZebetiteList(form, health),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
@@ -83,7 +84,7 @@ internal static class ZebetiteDefinitionsVerification
                 // the spawn places each half where its generation stands.
                 if (word is 1 or 2)
                     continue;
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + word * 2)), actual[word],
+                AssertEqual(rom.ReadCartridgeWord((record + word * 2)), actual[word],
                     $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn word {word}");
             }
         }
@@ -98,7 +99,7 @@ internal static class ZebetiteDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
             place.Bind(EnemyDefinitionId.Zebetite, place.KeptDefinition);
-            enemies.ZebetiteBehavior.InitializeZebetite(place.HeldOccupant(), place);
+            _ = enemies.LoadAuthoredPopulation();
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = ZebetiteDefinitions.Generations[generation];
@@ -119,43 +120,47 @@ internal static class ZebetiteDefinitionsVerification
                 ZebetiteBehavior.ChooseZebetiteHealthPicture(place, state);
                 // The picture the native health table's list for this health shows (#2250).
                 int tier = health < 200 ? 4 : health < 400 ? 3 : health < 600 ? 2 : health < 800 ? 1 : 0;
-                ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                ushort list = rom.ReadCartridgeWord(
                     (expected.Form == ZebetiteBarrierForm.SplitPair ? linkedHealthTable : bigHealthTable) + tier * 2);
                 AssertEqual<EnemyFrameId?>(NativePicture(rom, list), state.Picture,
                     $"production Zebetite generation {generation} health {health}");
             }
         }
 
-        // Both respawns as the game makes them: the second generation's primary, a split pair's, spawns its linked half on
-        // its first update, and once its health runs out its death spawns the next standing generation's primary in the
-        // place it vacates.
+        // Both respawns as the game makes them: a split pair's primary spawns its linked half on its first update, and once
+        // a primary's health runs out its death spawns the next standing generation's primary.
         {
-            var enemies = NewZebetiteDefinitionSystem(1);
-            int destroyed = 1;
-            enemies.VerificationServices().ReadZebetitesDestroyed = () => destroyed;
-            enemies.VerificationServices().WriteZebetitesDestroyed = count => destroyed = count;
-            // The primary is placed as the game places a spawned Zebetite: from its population, with its definition's health.
+            // A split pair's primary half spawns its linked half on its first update, in the room's first free place.
+            int split = Enumerable.Range(0, ZebetiteDefinitions.Generations.Count).First(destroyed => ZebetiteDefinitions.Generations[destroyed].Form == ZebetiteBarrierForm.SplitPair);
+            var enemies = NewZebetiteDefinitionSystem((ushort)split);
+            SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
             RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
-            RoomEnemyPlacement population = Zebetites.SpawnPopulation(ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[1]);
-            primary.Bind(population, CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(population.DefinitionId));
-            primary.Health = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(population.DefinitionId).Health;
-            enemies.ZebetiteBehavior.InitializeZebetite(primary.HeldOccupant(), primary);
-            enemies.ZebetiteBehavior.RunZebetiteMainAi(primary.HeldOccupant());
-            RoomEnemyPlace linked = primary.RequireSpeciesState<ZebetiteEnemyState>().LinkedHalf ??
-                throw new InvalidDataException("A split pair's primary spawns its linked half on its first update.");
-            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, ZebetiteDefinitions.Generations[1]), linked.HeldOccupant().Spawn,
-                "production Zebetite linked population");
-            AssertEqual(ZebetiteHalf.Linked, linked.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
-                "production Zebetite linked role");
-
+            enemies.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus);
+            primary.Health = ZebetiteDefinitions.MaximumHealth;
+            primary.RunMainAi(samus);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
+            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Linked, ZebetiteDefinitions.Generations[split]), place.HeldOccupant().Spawn, "production Zebetite linked population");
+            AssertEqual(ZebetiteHalf.Linked, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half, "production Zebetite linked role");
+        }
+        {
+            // A primary half whose health runs out dies, and the next generation's primary half spawns in its place.
+            var enemies = NewZebetiteDefinitionSystem(0);
+            int destroyed = 0;
+            enemies.VerificationServices().ReadZebetitesDestroyed = () => destroyed;
+            enemies.VerificationServices().WriteZebetitesDestroyed = value => destroyed = value;
+            SuperMetroid.Core.Samus.SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+            RoomEnemyPlace primary = enemies.Places.InUpdateOrder[0];
+            ZebetiteEnemyState dying = enemies.PlaceAs<ZebetiteEntity>(EnemyDefinitionId.Zebetite, new ZebetiteSpawnSettings(ZebetiteHalf.Primary), samus).State;
+            // Its first update, with no door passage under way, makes the unhurt barrier active, as the room's first update does.
+            primary.Health = ZebetiteDefinitions.MaximumHealth;
+            primary.RunMainAi(samus);
+            AssertEqual(ZebetiteAction.Active, dying.Action, "the primary half is active from its first update");
             primary.Health = 0;
-            enemies.ZebetiteBehavior.RunZebetiteMainAi(primary.HeldOccupant());
-            ZebetiteGenerationDefinition next = Zebetites.StandingGeneration(2) ??
-                throw new InvalidDataException("The third Zebetite generation stands.");
-            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Primary, next), primary.HeldOccupant().Spawn,
-                "production Zebetite primary population, spawned by the dying primary into its place");
-            AssertEqual(ZebetiteHalf.Primary, primary.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half,
-                "production Zebetite primary role");
+            primary.RunMainAi(samus);
+            AssertEqual(1, destroyed, "the primary half's death advances the Zebetites destroyed");
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder.Single(candidate => candidate.Occupant is { } occupant && occupant.DefinitionId == EnemyDefinitionId.Zebetite);
+            AssertEqual(Zebetites.SpawnPopulation(ZebetiteHalf.Primary, ZebetiteDefinitions.Generations[1]), place.HeldOccupant().Spawn, "production Zebetite primary population");
+            AssertEqual(ZebetiteHalf.Primary, place.HeldOccupant().SpawnSettings<ZebetiteSpawnSettings>().Half, "production Zebetite primary role");
         }
 
         Console.WriteLine(
@@ -203,5 +208,5 @@ internal static class ZebetiteDefinitionsVerification
 
     /// <summary>The installed frame the native bank-$A6 Zebetite list at <paramref name="list"/> shows.</summary>
     private static EnemyFrameId? NativePicture(CartridgeImportAddressSpace rom, ushort list) =>
-        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, CartridgeImportSource.Require(rom).ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
+        RoomEnemyPlaceFrameAccess.FrameAt(0xa6, rom.ReadCartridgeWord(MotherBrainNativeListAddresses.ZebetiteBank | (list + 2)));
 }

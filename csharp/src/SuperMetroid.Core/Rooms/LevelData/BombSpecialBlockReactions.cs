@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static partial class BombSpecialBlockReactions
 {
     /// <summary>The plain solid special blocks a normal bomb shows as Speed Booster blocks in every area.</summary>
-    private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, BlockReactionChange> SpeedBlockLookalikes =
+    private static readonly BombRevealedSpeedBlockLookalikes<SpecialBlockReaction, LastingBlockReactionChange> SpeedBlockLookalikes =
         new([SpecialBlockReaction.BombRevealsSpeedBlock], SpeedBoosterBlockObjectDefinitions.BombReveal);
 
     /// <summary>
@@ -15,8 +15,8 @@ public static partial class BombSpecialBlockReactions
     /// Speed Booster blocks; in the other areas those blocks stay plain solid blocks (#1805),
     /// and the run-on's lookalikes take the reveal the run-on names.
     /// </summary>
-    private static readonly IdentityTable<SpecialBlockReaction, BlockReactionChange> Changes = new(
-        new Dictionary<SpecialBlockReaction, BlockReactionChange>
+    private static readonly IdentityTable<SpecialBlockReaction, LastingBlockReactionChange> Changes = new(
+        new Dictionary<SpecialBlockReaction, LastingBlockReactionChange>
         {
             [SpecialBlockReaction.RespawningCrumble1x1] = BlockReactionChanges.CrumbleReveal(SpecialBlockReaction.RespawningCrumble1x1),
             [SpecialBlockReaction.RespawningCrumble2x1] = BlockReactionChanges.CrumbleReveal(SpecialBlockReaction.RespawningCrumble2x1),
@@ -32,18 +32,18 @@ public static partial class BombSpecialBlockReactions
             [SpecialBlockReaction.SlowPermanentSpeedBlock] = SpeedBoosterBlockObjectDefinitions.BombReveal,
             [SpecialBlockReaction.BrinstarRespawningSpeedBlock] = SpeedBoosterBlockObjectDefinitions.BombReveal,
             [SpecialBlockReaction.BrinstarPermanentSpeedBlock] = SpeedBoosterBlockObjectDefinitions.BombReveal,
-            [SpecialBlockReaction.XrayRevealedSolid] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.CollectibleTrigger] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.MapStationRight] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.MapStationLeft] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.EnergyStationRight] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.EnergyStationLeft] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.MissileStationRight] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.MissileStationLeft] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.SaveStationFloor] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.Solid] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.WreckedShipChozoHand] = BlockReactionChange.MadeAtSpawn,
-            [SpecialBlockReaction.LowerNorfairChozoHand] = BlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.XrayRevealedSolid] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.CollectibleTrigger] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.MapStationRight] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.MapStationLeft] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.EnergyStationRight] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.EnergyStationLeft] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.MissileStationRight] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.MissileStationLeft] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.SaveStationFloor] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.Solid] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.WreckedShipChozoHand] = LastingBlockReactionChange.MadeAtSpawn,
+            [SpecialBlockReaction.LowerNorfairChozoHand] = LastingBlockReactionChange.MadeAtSpawn,
         }.Concat(SpeedBlockLookalikes.ShownAsSpeedBlocks.Select(reaction =>
             KeyValuePair.Create(reaction, SpeedBlockLookalikes.SpeedBlockReveal))).ToDictionary());
 
@@ -52,7 +52,5 @@ public static partial class BombSpecialBlockReactions
     /// for a special block with <paramref name="reaction"/> (<see cref="Changes"/>).
     /// </summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no special-block reaction.</exception>
-    internal static BlockReactionChange ChangeFor(SpecialBlockReaction? reaction) =>
-        Changes[reaction ?? throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "The block has no special-block reaction for a bomb.")];
+    internal static LastingBlockReactionChange ChangeFor(SpecialBlockReaction reaction) => Changes[reaction];
 }

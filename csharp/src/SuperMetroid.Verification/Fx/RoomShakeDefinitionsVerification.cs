@@ -142,7 +142,7 @@ internal static class RoomShakeDefinitionsVerification
     private static void VerifyRoomShakeVector(CartridgeImportAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, OctantVector> select, string label)
     {
-        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        short Word(int address) => unchecked((short)rom.ReadCartridgeWord(address));
         for (int type = 0; type < NativeEarthquakeTypes.ShownTypeCount; type++)
             AssertEqual(new OctantVector(Word(source + type * stride), Word(source + type * stride + 2)),
                 select(NativeEarthquakeTypes.Shake(type).Displacement), $"Original shake {label} vector {type}");

@@ -56,7 +56,7 @@ internal sealed partial class DraygonDeath
         }
 
         SpawnDraygonDeathEvirs(state);
-        state.Phase = DraygonPhase.DyingWaitForEvirs;
+        state.Step = DraygonPhaseSteps.DyingWaitForEvirs();
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait.LastFor(DraygonArenaDefinitions.BurialWaitUpdates);
         state.BodyPart.StartAnimation(DraygonSegment.Rest);
@@ -84,7 +84,7 @@ internal sealed partial class DraygonDeath
         SpawnDyingDraygonSmoke(frameCounter);
         if (state.BurialWait.StepRunsOut())
         {
-            state.Phase = DraygonPhase.DyingFinish;
+            state.Step = DraygonPhaseSteps.DyingFinish();
             return;
         }
 

@@ -9,25 +9,21 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 [RoomLifetime]
 internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    /// <remarks>Each hopper definition's creation carries the kind <see cref="HopperKindDefinitions.Kinds"/> gives it.</remarks>
+    /// <summary>The hopper definitions this species owns.</summary>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
-    {
-        [EnemyDefinitionId.Sidehopper] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.Sidehopper]),
-        [EnemyDefinitionId.SidehopperLarge] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperLarge]),
-        [EnemyDefinitionId.SidehopperTourian] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]),
-        [EnemyDefinitionId.DessgeegaLarge] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.DessgeegaLarge]),
-        [EnemyDefinitionId.Dessgeega] = (occupant, place, common) => Create(occupant, place, common, HopperKindDefinitions.Kinds[EnemyDefinitionId.Dessgeega]),
-    };
+    internal IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+        [EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Dessgeega];
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    /// <param name="kind">The kind of hopper the occupant's definition is.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, HopperKind kind) =>
-        EnemyOccupant.Of(new HoppersEntity(this, occupant, place, common, kind));
+    /// <summary>Each hopper definition, from its settings, with the kind <see cref="HopperKindDefinitions.Kinds"/> gives it (#2553).</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
+    {
+        Ensure.NotNull(registrar).Spawns<HopperSpawnSettings>(Definitions, CreateHopper);
+    }
+
+    /// <summary>A hopper, from its settings, with the kind its definition gives it.</summary>
+    private EnemyOccupant CreateHopper(RoomEnemyOccupant occupant, HopperSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new HoppersEntity(this, occupant, place, common, settings, HopperKindDefinitions.Kinds[occupant.DefinitionId]));
 
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
@@ -74,7 +70,8 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     private readonly partial record struct ApplyHopperCueContext(RoomEnemyPlace Place, HopperEnemyState State, HoppersBehavior Owner);
 
     /// <summary>Initializes the Hopper.</summary>
-    internal void InitializeHopper(RoomEnemyPlace place, RoomEnemyOccupant occupant, HopperKind kind)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal HopperEnemyState InitializeHopper(RoomEnemyPlace place, HopperSpawnSettings hopperSpawnSettings, HopperKind kind)
     {
         // The placement's reseed is followed by a draw it never reads, which later consumers observe.
         _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
@@ -84,14 +81,14 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             Kind = kind,
         };
-        place.SetSpeciesState(state);
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(occupant, state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(hopperSpawnSettings, state, HopperPhase.Landed));
+        return state;
     }
 
     /// <summary>What <see cref="RunHopperMain"/> does for each <see cref="HopperAction"/> member, each member's own arm.</summary>
     [field: NonSerialized]
-    private IdentityTable<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<RoomEnemyOccupant, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
+    private IdentityTable<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>> RunHopperMainForHopperAction => field ??= new(new Dictionary<HopperAction, Action<HopperSpawnSettings, RoomEnemyPlace, SamusState, RoomLevelData, HopperEnemyState>>
     {
         [HopperAction.ChooseHopSize] = (_, place, samus, level, state) =>
         {
@@ -101,10 +98,10 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
         },
         [HopperAction.PrepareHop] = (_, place, samus, level, state) => PrepareHopperHop(state),
         [HopperAction.ChooseDirection] = (_, place, samus, level, state) => ChooseHopperDirection(place, state, samus),
-        [HopperAction.StartHop] = (occupant, place, samus, level, state) => StartHopperJump(occupant, place, state),
-        [HopperAction.Landed] = (occupant, place, samus, level, state) => LandHopper(occupant, place, state),
-        [HopperAction.HoppingAway] = (occupant, place, samus, level, state) => RunHopperHopAway(occupant, place, state, level),
-        [HopperAction.Returning] = (occupant, place, samus, level, state) => RunHopperReturn(occupant, place, state, level),
+        [HopperAction.StartHop] = (settings, place, samus, level, state) => StartHopperJump(settings, place, state),
+        [HopperAction.Landed] = (settings, place, samus, level, state) => LandHopper(settings, place, state),
+        [HopperAction.HoppingAway] = (settings, place, samus, level, state) => RunHopperHopAway(settings, place, state, level),
+        [HopperAction.Returning] = (settings, place, samus, level, state) => RunHopperReturn(settings, place, state, level),
         [HopperAction.WaitToHop] = (_, place, samus, level, state) =>
         {
             if (state.ReadyToHop)
@@ -117,12 +114,11 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Runs the Hopper's current action.</summary>
     private void RunHopperMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place, HopperEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
-        RunHopperMainForHopperAction[state.Action](occupant, place, samus, level, state);
+        RunHopperMainForHopperAction[state.Action](hopperSpawnSettings, place, samus, level, state);
     }
 
     /// <summary>
@@ -150,16 +146,16 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Starts the jumping animation and the hop along the chosen heading.</summary>
-    internal static void StartHopperJump(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state)
+    internal static void StartHopperJump(HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(occupant, state, HopperPhase.Jumping));
+        SetHopperAnimation(place, state, ReadHopperAnimation(hopperSpawnSettings, state, HopperPhase.Jumping));
         state.Action = HopperAction.HoppingAway;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
-    internal static void LandHopper(RoomEnemyOccupant occupant, RoomEnemyPlace place, HopperEnemyState state)
+    internal static void LandHopper(HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(occupant, state, HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(hopperSpawnSettings, state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
@@ -168,12 +164,12 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     /// a wall, turns the hopper around and back toward its surface; passing the apex turns it back from the curve's start.
     /// </summary>
     private void RunHopperHopAway(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place,
         HopperEnemyState state,
         RoomLevelData level)
     {
         // A floor hopper rises away from the floor; a ceiling hopper drops away from the ceiling.
-        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(occupant));
+        VerticalDirection away = HopperSurfaces.AwayFrom(SurfaceOf(hopperSpawnSettings));
         // A collision with the room beyond reverses X and turns the hop back without horizontal motion that update.
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(away)))
         {
@@ -207,12 +203,12 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     /// at once, and a wall only turns it around.
     /// </summary>
     private void RunHopperReturn(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place,
         HopperEnemyState state,
         RoomLevelData level)
     {
         // A floor hopper drops back to the floor; a ceiling hopper rises back to the ceiling.
-        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(occupant)).Reversed();
+        VerticalDirection back = HopperSurfaces.AwayFrom(SurfaceOf(hopperSpawnSettings)).Reversed();
         if (_terrain.MoveEnemyVertically(level, place, state.YSpeedCurvePlace.Speed.Toward(back)))
         {
             state.Action = HopperAction.Landed;
@@ -239,11 +235,11 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>The surface the hopper's placement mounts it on (#2474), which decides which way is up for its hops.</summary>
-    private static HopperSurface SurfaceOf(RoomEnemyOccupant occupant) => occupant.SpawnSettings<HopperSpawnSettings>().Surface;
+    private static HopperSurface SurfaceOf(HopperSpawnSettings hopperSpawnSettings) => hopperSpawnSettings.Surface;
 
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
-    private static HopperSegment ReadHopperAnimation(RoomEnemyOccupant occupant, HopperEnemyState state, HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(occupant), phase);
+    private static HopperSegment ReadHopperAnimation(HopperSpawnSettings hopperSpawnSettings, HopperEnemyState state, HopperPhase phase) =>
+        HopperAnimationChoices.Animation(state.Kind, SurfaceOf(hopperSpawnSettings), phase);
 
     /// <summary>Starts a new animation, its first step playing on the next update.</summary>
     private static void SetHopperAnimation(
@@ -255,17 +251,16 @@ internal sealed partial class HoppersBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Runs the hoppers' main AI.</summary>
-    internal void RunHoppersMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunHoppersMainAi(HopperSpawnSettings hopperSpawnSettings, RoomEnemyPlace place, HopperEnemyState hopperEnemyState, IEnemyAiFrame frame)
     {
-        RunHopperMain(occupant, place, frame.Samus, frame.Level);
+        RunHopperMain(hopperSpawnSettings, place, hopperEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Hoppers's typed animation.</summary>
-    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceHoppersTypedAnimation(RoomEnemyPlace place, HopperEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        HopperEnemyState state = place.RequireSpeciesState<HopperEnemyState>();
         AnimationPlayback<HopperSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, HopperAnimations.Segments, ref playback,
             cue =>

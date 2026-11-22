@@ -103,4 +103,7 @@ internal sealed partial record RoomLoaderDependencies
 
     /// <summary>The runtime's camera measure a kicked Yard flies off with, handed to every room's enemies.</summary>
     public required YardKickTrackingDistance YardKickDistance { get; init; }
+
+    /// <summary>Initialises each new Samus the loader sets up.</summary>
+    public required SamusInitialization SamusInitialization { get; init; }
 }

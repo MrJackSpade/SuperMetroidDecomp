@@ -42,7 +42,7 @@ internal static class HopperAnimationDefinitionsVerification
                  })
         {
             int header = SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(hopper);
-            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(CartridgeImportSource.Require(rom), header, 42), "hopper variant"),
+            AssertEqual(HoppersNativeWords.HopperKinds.Decode(RoomEnemyDefinitionImporter.ReadWord(rom, header, 42), "hopper variant"),
                 HopperKindDefinitions.Kinds[hopper], $"{hopper}'s header names its kind");
         }
 
@@ -67,32 +67,38 @@ internal static class HopperAnimationDefinitionsVerification
             place.Bind(definitions[variant], place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Sidehopper, onCeiling ? (ushort)1 : (ushort)0);
-            enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), HopperKindDefinitions.Kinds[definitions[variant]]);
-            HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
+            // The hopper's setup builds the state its steps and its animation, which the check plays, run on.
+            HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[definitions[variant]]);
+            Action animate = () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state);
+            // The hopper's main AI runs the step its action names, as its entity runs it each update.
+            HopperSpawnSettings settings = place.HeldOccupant().SpawnSettings<HopperSpawnSettings>();
+            IEnemyAiFrame aiFrame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(kind, state.Kind, $"hopper kind {context}");
             HopperSegment landed = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
             HopperSegment jumping = HopperAnimationChoices.Animation(kind, onCeiling ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
             state.Heading = HorizontalDirection.Right;
-            HoppersBehavior.StartHopperJump(place.HeldOccupant(), place, state);
+            state.Action = HopperAction.StartHop;
+            enemies.HoppersBehavior.RunHoppersMainAi(settings, place, state, aiFrame);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             // The airborne pose is a still picture (#2337): it shows once and rests there.
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne], [1]),
-                EnemyInstructionRunner.ShownFrames(place, 2), $"hopper airborne pose {context}");
+                EnemyInstructionRunner.ShownFrames(place, 2, animate), $"hopper airborne pose {context}");
             AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
             AssertEqual(variant is 0 or 1 ? EnemySound.SidehopperJump : null, enemies.Audio.LatestSound,
                 $"hopper jumping sound {context}");
 
-            HoppersBehavior.LandHopper(place.HeldOccupant(), place, state);
+            state.Action = HopperAction.Landed;
+            enemies.HoppersBehavior.RunHoppersMainAi(settings, place, state, aiFrame);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
-                EnemyInstructionRunner.ShownFrames(place, holds.Sum()), $"hopper landing poses {context}");
+                EnemyInstructionRunner.ShownFrames(place, holds.Sum(), animate), $"hopper landing poses {context}");
             AssertTrue(!state.ReadyToHop, $"hopper landed program {context} holds its last pose before readiness");
-            EnemyInstructionRunner.ShownFrames(place, 1);
+            EnemyInstructionRunner.ShownFrames(place, 1, animate);
             AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
@@ -122,15 +128,15 @@ internal static class HopperAnimationDefinitionsVerification
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.KeptDefinition);
         place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
-        enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant(), HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]);
-        EnemyInstructionRunner.ShownFrames(place, 1);
+        HopperEnemyState state = enemies.HoppersBehavior.InitializeHopper(place, place.HeldOccupant().SpawnSettings<HopperSpawnSettings>(), HopperKindDefinitions.Kinds[EnemyDefinitionId.SidehopperTourian]);
+        EnemyInstructionRunner.ShownFrames(place, 1, () => enemies.HoppersBehavior.AdvanceHoppersTypedAnimation(place, state));
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }
 
     /// <summary>Reads a native hopper word for independent bank-A3 definition comparisons.</summary>
     internal static ushort ReadHopperAnimationWord(CartridgeImportAddressSpace source, int address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWord(address);
+        source.ReadCartridgeWord(address);
 
     /// <summary>Runs the hopper animation checks and the program oracle through the verification dispatcher.</summary>
     [VerificationCommand("--hopper-instruction-program-definitions")]

@@ -88,11 +88,8 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
     internal DisplayBrightness TransitionBrightness => transitionFade.Level;
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; set; } = PauseEquipmentControls.ReserveMode;
-    /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; set; }
-    /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
-    internal MapScroll ActiveMapScroll => CurrentMapScroll ??
-        throw new InvalidOperationException("The pause map scroll has not been set up.");
+    /// <summary>The map page's scroll, framed from the visible area cells as the pause sets up (#2554).</summary>
+    private MapScroll ActiveMapScroll { get; }
     /// <summary>The map screen's scroll position.</summary>
     internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
@@ -100,7 +97,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
     /// <summary>The map-position marker's pulse.</summary>
     internal readonly MapIndicatorPulse mapIndicator = new();
     /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
-    internal readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
+    internal readonly ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
     /// <summary>Creates the pause screen and its map and equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -115,7 +112,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
         MapArrows = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         mapHighlight = new MapHighlightAnimation(screenContent.Maps.HighlightCycle);
         PauseSelectorPresentation selectors = screenContent.PauseSelectors;
-        itemSelector = AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
+        itemSelector = ShowingAnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
             selectors.Segments, selectors.Cycling, selectors.InitialDurationTicks);
         area = entry.Area;
         this.roomMapPosition = entry.RoomMapPosition;
@@ -136,7 +133,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
 
         LoadMapPage();
         SelectFirstCollectedEquipment();
-        SetupMapScrolling();
+        ActiveMapScroll = MapScrolling();
     }
 
     /// <summary>Whether the map or the equipment page is shown.</summary>
@@ -358,7 +355,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
     }
 
     /// <summary>Frames the map page from the visible cells' reach and Samus's map cell.</summary>
-    private void SetupMapScrolling()
+    private MapScroll MapScrolling()
     {
         // The map's scroll limits come from either the downloaded map or the persistent explored plane, never their
         // union, unlike the map's drawing, which also displays explored secrets: unioning the planes would move the map's
@@ -375,7 +372,7 @@ internal sealed partial class PauseMenuState : IMenuFrontendScreen, IComposedFro
                 map.IsDiscoverable(cell),
                 mapRevealMode));
         // The player's map cell: the room's map cell plus Samus's room screen.
-        CurrentMapScroll = MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
+        return MapScroll.Centred(MapFramingDefinitions.Pause, limits, SamusMapCell().ToMapPixels());
     }
 
     /// <summary>The area-map cell of Samus's current room screen.</summary>

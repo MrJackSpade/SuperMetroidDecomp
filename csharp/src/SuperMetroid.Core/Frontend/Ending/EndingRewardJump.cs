@@ -26,8 +26,6 @@ internal sealed partial class EndingRewardJump
     /// <summary>The landing animation's cue that turns Samus's body to <see cref="ShootingColouring"/> and requests the shot.</summary>
     internal const EndingRewardJumpCue ShootCue = EndingRewardJumpCue.Shoot;
 
-    /// <summary>The suited reward's head and the places its launch animation readies and launches it at.</summary>
-    private readonly EndingRewardJumpHead? jumpHead;
     /// <summary>Body actor whose vertical position controls the fall and landing.</summary>
     private readonly CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> body;
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
@@ -36,6 +34,10 @@ internal sealed partial class EndingRewardJump
     private EndingRewardJumpMotion headMotion = EndingRewardJumpMotion.Standing;
     /// <summary>How Samus's body moves (#2541): standing until her jump, rising, falling back once above the screen, then landed.</summary>
     private EndingRewardJumpMotion bodyMotion = EndingRewardJumpMotion.Standing;
+    /// <summary>
+    /// Handles the cues the body's animation raises: a suited jump's body also places its head as it prepares and launches.
+    /// </summary>
+    private readonly Func<EndingRewardJumpCue, bool> bodyCues;
     /// <summary>Shared vertical velocity; each active actor movement applies gravity to it.</summary>
     internal SignedSixteenSixteen Velocity { get; set; }
     /// <summary>Whether Samus has passed above the screen and shows as the falling Samus, falling back or landed.</summary>
@@ -46,9 +48,14 @@ internal sealed partial class EndingRewardJump
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward)
     {
-        jumpHead = EndingRewardDefinitions.Rewards[reward].JumpHead;
-        if (jumpHead is { } suitedHead)
-            head = Spawn(suitedHead.Actor);
+        if (EndingRewardDefinitions.Rewards[reward].JumpHead is { } suitedHead)
+        {
+            CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> spawned = Spawn(suitedHead.Actor);
+            head = spawned;
+            bodyCues = cue => HandleSuitedBodyCue(cue, suitedHead, place => spawned.ScreenPlace = place);
+        }
+        else
+            bodyCues = HandleCue;
         body = Spawn(EndingRewardCast.JumpBody(reward));
     }
 
@@ -88,7 +95,7 @@ internal sealed partial class EndingRewardJump
                 bodyMotion = EndingRewardJumpMotion.Landed;
             }
         }
-        body.Step(cue => shoots |= HandleCue(cue));
+        body.Step(cue => shoots |= bodyCues(cue));
         return shoots;
     }
 
@@ -111,7 +118,7 @@ internal sealed partial class EndingRewardJump
     }
 
     /// <summary>
-    /// Handles launch, head placement, the flights and the shoot event the jump animations publish: whether
+    /// Handles launch, the flights and the shoot event the jump animations publish: whether
     /// <paramref name="cue"/> is the shoot event.
     /// </summary>
     private bool HandleCue(EndingRewardJumpCue cue) => CueReactions[cue]();
@@ -125,16 +132,9 @@ internal sealed partial class EndingRewardJump
             Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
             return false;
         },
-        [EndingRewardJumpCue.PrepareHead] = () =>
-        {
-            RequireHead().ScreenPlace = RequireJumpHead().Readied;
-            return false;
-        },
-        [EndingRewardJumpCue.LaunchHead] = () =>
-        {
-            RequireHead().ScreenPlace = RequireJumpHead().Launched;
-            return false;
-        },
+        // Only a suited jump's body raises these, which places the head it spawned (HandleSuitedBodyCue).
+        [EndingRewardJumpCue.PrepareHead] = () => throw new InvalidOperationException($"Only a suited jump's body raises {EndingRewardJumpCue.PrepareHead}."),
+        [EndingRewardJumpCue.LaunchHead] = () => throw new InvalidOperationException($"Only a suited jump's body raises {EndingRewardJumpCue.LaunchHead}."),
         [ShootCue] = () =>
         {
             body.SetColouring(EndingShades.Drawn(ShootingColouring));
@@ -152,12 +152,25 @@ internal sealed partial class EndingRewardJump
         },
     });
 
+    /// <summary>
+    /// Handles a cue a suited jump's body raises: its preparing and launching place the head it spawned with
+    /// <paramref name="placeHead"/> at <paramref name="suited"/>'s places, and every other cue is one any jump raises.
+    /// </summary>
+    private bool HandleSuitedBodyCue(EndingRewardJumpCue cue, EndingRewardJumpHead suited, Action<Offset16<ScreenPixels>> placeHead)
+    {
+        if (cue == EndingRewardJumpCue.PrepareHead)
+        {
+            placeHead(suited.Readied);
+            return false;
+        }
+        if (cue == EndingRewardJumpCue.LaunchHead)
+        {
+            placeHead(suited.Launched);
+            return false;
+        }
+        return HandleCue(cue);
+    }
 
-    /// <summary>Requires a suited jump's head actor when a head-specific cue runs.</summary>
-    private CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
-
-    /// <summary>Requires a suited jump's head places when a head-specific cue runs.</summary>
-    private EndingRewardJumpHead RequireJumpHead() => jumpHead ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
     /// <summary>Creates a jump actor from its catalogued initial position, colouring, and animations.</summary>
     private static CinematicActor<EndingRewardAnimation, CinematicSpritePose, EndingRewardJumpCue> Spawn(EndingRewardActor definition)
     {

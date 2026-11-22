@@ -61,10 +61,10 @@ internal static class PowampBurstExplosionVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity).Where(taken))
-            enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.DustOrExplosion);
-        RoomEnemyPlace body = PowampPairFixtures.PlacePair(enemies).Body;
-        body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
-        PowampPairFixtures.ShootDeadAndRunDeathDelay(enemies, body);
+            enemies.OccupyProjectile(place, RoomEnemyProjectileKind.DustOrExplosion, SpriteGraphics.SharedStandard);
+        PowampPair pair = PowampPairFixtures.PlacePair(enemies);
+        pair.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        PowampPairFixtures.ShootDeadAndRunDeathDelay(enemies, pair);
         return enemies;
     }
 

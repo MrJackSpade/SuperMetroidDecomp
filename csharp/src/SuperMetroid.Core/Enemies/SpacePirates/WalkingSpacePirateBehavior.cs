@@ -9,16 +9,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemySpawnFactory<WalkingSpacePirateSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WalkingSpacePirateEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WalkingSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
@@ -63,28 +61,28 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, WalkingSpacePirateCue cue, SamusState samus) =>
-        cue.Match(ApplyWalkingSpacePirateCueCases, new ApplyWalkingSpacePirateCueContext(occupant, place, samus, this));
+    private WalkingSpacePirateSegment? ApplyWalkingSpacePirateCue(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, WalkingSpacePirateCue cue, SamusState samus) =>
+        cue.Match(ApplyWalkingSpacePirateCueCases, new ApplyWalkingSpacePirateCueContext(occupant, walkingSpacePirateSpawnSettings, place, walkingSpacePirateEnemyState, samus, this));
 
     /// <summary>What <see cref="ApplyWalkingSpacePirateCue"/> does on each <see cref="WalkingSpacePirateCue"/>, built once (#2553).</summary>
     private static WalkingSpacePirateCueCases<ApplyWalkingSpacePirateCueContext, WalkingSpacePirateSegment?> ApplyWalkingSpacePirateCueCases { get; } = new(
             FireLaser: static (fireLaser, context) =>
             {
                 _ = context.Owner.SpawnSpacePirateLaser(context.Occupant, fireLaser.Direction, fireLaser.LaserHeight,
-                    context.Occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>().LaserSpeed);
+                    context.Settings.LaserSpeed);
                 return null;
             },
             Begin: static (begin, context) =>
             {
                 // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
                 // frame, as the animation runs on.
-                RequireWalkingSpacePirateState(context.Place).Action = begin.Action;
+                RequireWalkingSpacePirateState(context.State).Action = begin.Action;
                 return null;
             },
             BeginHeading: static (begin, context) =>
             {
                 // As a plain begin, main AI runs the walk from the next frame, the cue's way (#2165).
-                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(context.Place);
+                WalkingSpacePirateEnemyState walker = RequireWalkingSpacePirateState(context.State);
                 walker.Action = begin.Action;
                 walker.Heading = begin.Heading;
                 return null;
@@ -93,10 +91,12 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
 
     /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
     /// <param name="Occupant">The occupant whose cue is carried out.</param>
+    /// <param name="Settings">The settings the pirate's placement gives it.</param>
     /// <param name="Place">The place the cases read.</param>
+    /// <param name="State">The pirate's state the cases read.</param>
     /// <param name="Samus">The samus the cases read.</param>
     /// <param name="Owner">The <see cref="WalkingSpacePirateBehavior"/> reacting.</param>
-    private readonly partial record struct ApplyWalkingSpacePirateCueContext(RoomEnemyOccupant Occupant, RoomEnemyPlace Place, SamusState Samus, WalkingSpacePirateBehavior Owner);
+    private readonly partial record struct ApplyWalkingSpacePirateCueContext(RoomEnemyOccupant Occupant, WalkingSpacePirateSpawnSettings Settings, RoomEnemyPlace Place, WalkingSpacePirateEnemyState State, SamusState Samus, WalkingSpacePirateBehavior Owner);
 
     /// <summary>
     /// Queues <paramref name="sound"/> as a space pirate makes it, after the update's earlier requests: walking, wall and
@@ -106,13 +106,12 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
         _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Initializes the walking Space Pirate.</summary>
-    internal static void InitializeWalkingSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WalkingSpacePirateEnemyState InitializeWalkingSpacePirate(WalkingSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill);
-        place.SetSpeciesState(state);
 
         // The placement's facing alone selects the first walk.
-        WalkingSpacePirateSpawnSettings settings = occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>();
         state.Playback = new(WalkingSpacePirateAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? WalkingSpacePirateSegment.WalkingRight
             : WalkingSpacePirateSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
@@ -122,6 +121,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
         // sees each post on its own side of the pirate.
         state.RightPostX = OffRoomPlaces.Place(place.Position.X.Whole + settings.PatrolReach);
         state.LeftPostX = OffRoomPlaces.Place(place.Position.X.Whole - settings.PatrolReach);
+        return state;
     }
 
     /// <summary>What <see cref="RunWalkingSpacePirateMain"/> does for each <see cref="WalkingSpacePirateAction"/> member, each member's own arm.</summary>
@@ -146,7 +146,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
     private void RunWalkingSpacePirateMain(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place,
         WalkingSpacePirateEnemyState state,
         SamusState samus,
         RoomLevelData level,
@@ -156,7 +156,7 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
 
         // A pirate placed to flinch looks for Samus's shots after its normal AI, and a flinch may replace an animation
         // selected just above.
-        if (occupant.SpawnSettings<WalkingSpacePirateSpawnSettings>().ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
+        if (walkingSpacePirateSpawnSettings.ShotWatch == WalkingSpacePirateShotWatch.FlinchesFromShots)
             TryTriggerWalkingSpacePirateFlinch(place, state, samus, samusProjectiles);
     }
 
@@ -408,9 +408,8 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
 
     /// <summary>Requires the enemy to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
-        RoomEnemyPlace place) =>
-        place.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy place {place.Ordinal} has no initialized walking Space Pirate state.");
+        WalkingSpacePirateEnemyState walkingSpacePirateEnemyState) =>
+        walkingSpacePirateEnemyState;
 
     /// <summary>
     /// The Pirates' and Mother Brain's laser (#1760): its spawner starts its animation and chooses its way, and the
@@ -445,25 +444,25 @@ internal sealed partial class WalkingSpacePirateBehavior : IEnemySpecies, IEnemy
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWalkingSpacePirateMainAi(WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
-            occupant, place,
-            RequireWalkingSpacePirateState(place),
+            walkingSpacePirateSpawnSettings, place,
+            RequireWalkingSpacePirateState(walkingSpacePirateEnemyState),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the walking Space Pirate's typed animation.</summary>
-    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemyOccupant occupant, WalkingSpacePirateSpawnSettings walkingSpacePirateSpawnSettings, RoomEnemyPlace place, WalkingSpacePirateEnemyState walkingSpacePirateEnemyState, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = RequireWalkingSpacePirateState(place);
+        var state = RequireWalkingSpacePirateState(walkingSpacePirateEnemyState);
         AnimationPlayback<WalkingSpacePirateSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, WalkingSpacePirateAnimations.Segments, ref playback,
-            cue => ApplyWalkingSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
+            cue => ApplyWalkingSpacePirateCue(occupant, walkingSpacePirateSpawnSettings, place, walkingSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;

@@ -20,7 +20,8 @@ internal static class CeresDescentStateFixture
         using var data = new InstalledGameSession(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         data.Game.Session.SetupSelectedGame();
-        data.Game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+        data.Game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped,
+            data.Game.Session.Runtime ?? throw new InvalidOperationException("The selected game loaded no gameplay."));
         for (long frame = 1; frame <= 2500; frame++)
         {
             data.Record(0);

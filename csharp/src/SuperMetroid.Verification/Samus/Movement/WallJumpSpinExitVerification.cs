@@ -29,7 +29,7 @@ internal static class WallJumpSpinExitVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var level = runtime.Room.LoadedLevelData;
             for (int y = 16; y < 36; y++)
@@ -39,7 +39,7 @@ internal static class WallJumpSpinExitVerification
                 level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air));
                 level.SetBehavior(index, RoomBlockBehavior.None);
             }
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.EquippedItems = items;
             samus.ChangePoseKeepingAnimation(SamusPoseId.WallJumpRightPose);

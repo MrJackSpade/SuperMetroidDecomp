@@ -24,11 +24,9 @@ internal static class SporeSpawnStalkVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.KeptDefinition);
-        body.Position = body.Position.WithWhole(new(128, 624));
+        // Spore Spawn as his room's population sets him up: his setup spawns his stalk, spawners and spores.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(128, 624)))[0];
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body.HeldOccupant(), body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
 
         AssertEqual(4, state.StalkLinks.Count, "Spore Spawn's stalk has four links");

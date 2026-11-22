@@ -100,10 +100,16 @@ internal static class EnemyTileArtworkKraidVerification
     private static SnesVram UploadKraidRoomBackground(ImportEnemyArtwork artwork)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
+        // His growth shows the room's backdrop on the update its phase comes to, his body's main AI as the enemy pass runs it.
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         var vram = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        Action upload = enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop;
-        upload();
+        state.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;
+        enemies.Places.InUpdateOrder[0].RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
         return BgArtworkFixtures.ComposedVram(vram, new BgArtworkBytes().WithKraidBackground(artwork.Bosses.KraidBackground
             ?? throw new InvalidOperationException("Verification requires installed Kraid background characters.")));
     }
@@ -112,7 +118,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static RunKraidHeadFrameResult RunKraidHeadFrame(ImportEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
-        var state = (new KraidEnemyState(new KraidParts()) { DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame) });
+        var state = (new KraidEnemyState(KraidPartsFixtures.Standalone()) { DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(frame) });
         state.InitializeBodyLayer();
         state.ShowBody();
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));
@@ -124,7 +130,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
     private static KraidEnemyState InitializeKraidBackground()
     {
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         state.InitializeBodyLayer();
         return state;
     }

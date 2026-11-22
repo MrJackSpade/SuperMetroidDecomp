@@ -166,7 +166,7 @@ internal static class CrocomireNativeListAddresses
     internal static bool HasReached(NativeEnemyListReader reader, CrocomireBodySegment segment) => reader.Cursor >= BodyEntry(segment);
 
     /// <summary>The sound a native body callback queues, if it is a sound callback.</summary>
-    internal static SoundEffectId? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out SoundEffectId sound) ? sound : null;
+    internal static SoundEffectId? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out SoundEffectId? sound) ? sound : null;
 
     /// <summary>What a native bank-$86 Crocomire projectile list word does.</summary>
     internal enum ProjectileWordKind

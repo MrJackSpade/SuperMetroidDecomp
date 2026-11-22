@@ -40,10 +40,10 @@ internal static class AudioClipInventory
             if (track.Shape == MusicTrackShape.NoPeriodFound)
                 return new MusicRow(key.Bank, key.Track, track.Shape, 0, null, null, null, "");
             short[] clip = MusicTrackRendering.RenderClip(catalog, track);
-            bool loops = track.Shape == MusicTrackShape.Loops;
+            bool loops = track.Period is MusicTrackPeriod.Loop;
             return new MusicRow(
                 key.Bank, key.Track, track.Shape, clip.Length / 2,
-                loops ? track.Arrivals[1] - track.Arrivals[0] : null,
+                track.Period is MusicTrackPeriod.Loop loop ? loop.SecondArrival - loop.FirstArrival : null,
                 loops ? AudioClipMeasurements.ShippedLoopSeam(catalog, track) : null,
                 loops ? AudioClipMeasurements.TempoPhasePeriod(catalog, track) : null,
                 Hash(clip));

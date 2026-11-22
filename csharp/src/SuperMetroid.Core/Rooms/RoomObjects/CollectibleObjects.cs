@@ -161,8 +161,7 @@ internal sealed partial class CollectibleObjects
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
         // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
         // (#2502).
-        level.SetCollision(place.Block, setup.Collision);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
+        level.SetCollisionAndBehavior(place.Block, setup.Collision, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 
         CollectiblePhase phase = collected
             ? presentation == CollectiblePresentation.ShotBlock

@@ -14,24 +14,25 @@ internal static class SamusProjectileVelocityWords
     /// <summary>The native X velocity word of <paramref name="slot"/>.</summary>
     internal static ushort X(SamusProjectile slot)
     {
-        if (slot.Behavior is IceSpecialAttackSpread or PlasmaSpecialAttackRing or SpazerSpecialAttackFlight)
+        // An Ice particle spreads once its lifetime has run out (BeamCombos.StepIceOrbit); it orbits inward until then.
+        if (slot.KindStateOrNone() is IceParticleState { Lifetime.IsOver: true } or PlasmaParticleState or SpazerParticleState)
             return checked((ushort)slot.KindStateAs<OrbitingParticleState>().Radius);
-        if (slot.Behavior is ShinesparkEchoFlight)
-            return (ushort)(slot.KindStateAs<ShinesparkEchoShotState>().Radius % 65536); // The game kept the growing radius in a 16-bit word.
+        if (slot.KindStateOrNone() is ShinesparkEchoShotState echo)
+            return (ushort)(echo.Radius % 65536); // The game kept the growing radius in a 16-bit word.
         return slot.Velocity.X.RawValue;
     }
 
     /// <summary>The native Y velocity word of <paramref name="slot"/>.</summary>
     internal static ushort Y(SamusProjectile slot)
     {
-        if (slot.Behavior is IceSpecialAttackOrbit or IceSpecialAttackSpread)
-            return checked((ushort)slot.KindStateAs<IceParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is WaveSpecialAttackHoming)
-            return checked((ushort)slot.KindStateAs<WaveParticleState>().Lifetime.UpdatesLeft);
-        if (slot.Behavior is PlasmaSpecialAttackRing)
-            return PlasmaPhaseWord(slot.KindStateAs<PlasmaParticleState>().Phase);
-        if (slot.Behavior is SpazerSpecialAttackFlight)
-            return SignedStepWord(slot.KindStateAs<SpazerParticleState>().TurnPerUpdate);
+        if (slot.KindStateOrNone() is IceParticleState ice)
+            return checked((ushort)ice.Lifetime.UpdatesLeft);
+        if (slot.KindStateOrNone() is WaveParticleState wave)
+            return checked((ushort)wave.Lifetime.UpdatesLeft);
+        if (slot.KindStateOrNone() is PlasmaParticleState plasma)
+            return PlasmaPhaseWord(plasma.Phase);
+        if (slot.KindStateOrNone() is SpazerParticleState spazer)
+            return SignedStepWord(spazer.TurnPerUpdate);
         return slot.Velocity.Y.RawValue;
     }
 

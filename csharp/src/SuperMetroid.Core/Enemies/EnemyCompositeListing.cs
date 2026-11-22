@@ -148,15 +148,10 @@ internal static partial class EnemyCompositeListing
     private static int OnlyPlaceOf<TRole>(EnemyComposite<TRole> composite, TRole role) where TRole : notnull
     {
         Ensure.NotNull(composite);
-        int? found = null;
-        for (int listed = 0; listed < composite.ListedRoles.Count; listed++)
-        {
-            if (!EqualityComparer<TRole>.Default.Equals(composite.ListedRoles[listed], role))
-                continue;
-            if (found is not null)
-                throw new InvalidOperationException($"The composite lists {role} more than once; its members find it by role.");
-            found = listed;
-        }
-        return found ?? throw new InvalidOperationException($"The composite lists no {role}.");
+        int[] places = [.. Enumerable.Range(0, composite.ListedRoles.Count)
+            .Where(listed => EqualityComparer<TRole>.Default.Equals(composite.ListedRoles[listed], role))];
+        return places.Length == 1
+            ? places[0]
+            : throw new InvalidOperationException($"The composite lists {role} {places.Length} times; its members find it by role, which it lists once.");
     }
 }

@@ -14,16 +14,14 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemySpawnFactory<YardSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Yard], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new YardEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, YardSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new YardEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
@@ -84,8 +82,13 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
             },
             BeginCrawling: static (beginCrawling, context) =>
             {
-                context.State.Movement = YardMovement.Crawling;
+                context.State.Motion = YardMotion.Crawling;
                 context.State.Crawl = beginCrawling.Crawl;
+                return null;
+            },
+            BeginFlight: static (beginFlight, context) =>
+            {
+                context.State.Motion = new YardMotion.Airborne(beginFlight.Landing);
                 return null;
             },
             Signal: static (signal, context) => context.Owner.YardSignals[signal.Kind](context.State, context.Playing));
@@ -105,17 +108,12 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
             // The Yard holds still while it turns the corner; the turn's animation begins its next crawl.
             [YardCueKind.BeginTurn] = static (state, _) =>
             {
-                state.Movement = YardMovement.HoldingStill;
+                state.Motion = YardMotion.HoldingStill;
                 return null;
             },
             [YardCueKind.BeginHiding] = static (state, _) =>
             {
-                state.Movement = YardMovement.Hiding;
-                return null;
-            },
-            [YardCueKind.BeginFlight] = static (state, _) =>
-            {
-                state.Movement = YardMovement.Airborne;
+                state.Motion = YardMotion.Hiding;
                 return null;
             },
             [YardCueKind.ShellClosedUpdateEnds] = (state, playing) =>
@@ -123,8 +121,6 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
                     ? null
                     : HoldShellClosedAgain(playing),
         });
-
-
 
     /// <summary>
     /// Holds the Yard's shell closed for another update (#2180): the phase its closed shell and the cue ending that update
@@ -134,18 +130,17 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
-    internal static void InitializeYard(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static YardEnemyState InitializeYard(YardSpawnSettings settings, RoomEnemyPlace place)
     {
-        YardSpawnSettings settings = occupant.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
 
-        var state = new YardEnemyState(YardMovement.HoldingStill)
+        var state = new YardEnemyState
         {
             Direction = YardDirectionDefinitions.BeforeFirstDirectionCue,
             Behavior = YardBehavior.NormalCrawling,
             CrawlSpeed = settings.CrawlSpeed,
         };
-        place.SetSpeciesState(state);
 
         place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
@@ -156,6 +151,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, direction);
+        return state;
     }
 
     /// <summary>
@@ -165,22 +161,9 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction) =>
         state.CrawlingVelocity = YardCrawlVelocity.Apply(state.CrawlSpeed, direction);
 
-    /// <summary>What <see cref="RunYardMain"/> does for each <see cref="YardMovement"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
-    private IdentityTable<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>> RunYardMainForYardMovement => field ??= new(new Dictionary<YardMovement, Action<RoomEnemyPlace, SamusState, RoomLevelData, YardEnemyState>>
-    {
-        [YardMovement.HoldingStill] = (place, samus, level, state) => { },
-        [YardMovement.Hiding] = (place, samus, level, state) => RunYardHidingMovement(place, state, level),
-        [YardMovement.Airborne] = (place, samus, level, state) => RunYardAirborneMovement(place, state, samus, level),
-        // Direction-changing animation can publish the new direction one frame before it starts the matching
-        // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
-        [YardMovement.Crawling] = (place, samus, level, state) => RunYardCrawlingMovement(place, state, level),
-    });
-
     /// <summary>Runs the Yard's main AI.</summary>
-    private void RunYardMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunYardMain(RoomEnemyPlace place, YardEnemyState state, SamusState samus, RoomLevelData level)
     {
-        YardEnemyState state = place.RequireSpeciesState<YardEnemyState>();
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
@@ -193,7 +176,25 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         HandleYardHiding(place, state, samus);
         UpdateYardSolidProperty(place, state, samus);
 
-        RunYardMainForYardMovement[state.Movement](place, samus, level, state);
+        switch (state.Motion)
+        {
+            case { Movement: YardMovement.HoldingStill }:
+                return;
+            case { Movement: YardMovement.Hiding }:
+                RunYardHidingMovement(place, state, level);
+                return;
+            case YardMotion.Airborne flight:
+                RunYardAirborneMovement(place, state, samus, level, flight);
+                return;
+            // Direction-changing animation can publish the new direction one frame before it starts the matching
+            // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
+            case { Movement: YardMovement.Crawling }:
+                RunYardCrawlingMovement(place, state, level);
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"Yard has no behaviour for movement {state.Motion}.");
+        }
     }
 
     /// <summary>Runs the look-at/hide test.</summary>
@@ -386,17 +387,22 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         if (state.Behavior == YardBehavior.Dropped)
             return;
         state.Behavior = YardBehavior.Dropped;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
     }
 
     /// <summary>Runs the complete bounce/gravity/landing loop.</summary>
+    /// <param name="place">The Yard.</param>
+    /// <param name="state">The Yard's state.</param>
+    /// <param name="samus">Samus, whom a landing Yard turns to face.</param>
+    /// <param name="level">The room's terrain the shell bounces off.</param>
+    /// <param name="flight">The Yard's flight, holding the animation it lands with.</param>
     private void RunYardAirborneMovement(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        YardMotion.Airborne flight)
     {
         if (state.Behavior != YardBehavior.Dropped)
         {
@@ -416,7 +422,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
             int wholeY = state.AirborneVelocity.Y.WholePixels;
             if (wholeY is >= 0 and < YardMotionDefinitions.LandingWholeSpeedLimit)
             {
-                LandYard(place, state, samus);
+                LandYard(place, state, samus, flight);
                 return;
             }
 
@@ -428,12 +434,19 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from the way it faces the floor.</summary>
-    private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus)
+    /// <param name="place">The Yard.</param>
+    /// <param name="state">The Yard's state.</param>
+    /// <param name="samus">Samus, whom an aggressive Yard turns to face.</param>
+    /// <param name="flight">The flight ending, holding the animation its airborne animation named to land with.</param>
+    private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus, YardMotion.Airborne flight)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
         state.ResetMissedProbes();
         state.SuppressTurns();
 
+        // A dropped Yard lands with the animation its flight holds; an aggressive one faces Samus and lands with the one
+        // the airborne animations of the way it then faces name.
+        YardSegment landingAnimation = flight.Landing;
         if (state.Behavior == YardBehavior.Dropped)
         {
             state.Behavior = YardBehavior.NormalCrawling;
@@ -443,7 +456,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
             state.Behavior = YardBehavior.AggressiveCrawling;
             state.CrawlSpeed = YardVelocityDefinitions.AggressiveCrawlSpeed;
             MakeYardFaceSamusHorizontally(place, state, samus);
-            SetYardAirborneLists(place, state);
+            landingAnimation = SetYardAirborneLists(place, state);
         }
 
         // After landing, Yard starts crawling as a new crawler does, but keeps its own state and main AI. Only the
@@ -457,13 +470,13 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         var landing = new PixelVelocity<RoomPixels>(state.CrawlSpeed, state.CrawlSpeed);
         state.CrawlingVelocity = state.BlockSide == CrawlerSurfaceOrientation.OnLeftWall ? landing.ReversedX() : landing;
         place.Frame = EnemyFrameId.PointAtOrigin;
-        state.Movement = YardMovement.HoldingStill;
-        state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(state.HidingAnimation ??
-            throw new InvalidDataException("A landing Yard has no hiding animation to resume.")));
+        state.Motion = YardMotion.HoldingStill;
+        state.Playback = EnemyAnimationPlayback.Start(place, YardAnimations.StartingWith(landingAnimation));
     }
 
     /// <summary>Selects visible and hiding animations from Yard's airborne facing direction.</summary>
-    private static void SetYardAirborneLists(
+    /// <returns>The hiding animation selected, which the Yard lands with.</returns>
+    private static YardSegment SetYardAirborneLists(
         RoomEnemyPlace place,
         YardEnemyState state)
     {
@@ -472,6 +485,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         state.Playback = new(YardAnimations.StartingWith(definition.VisibleAnimation), AnimationPlace.StartOfAnimation);
         state.HidingAnimation = definition.HidingAnimation;
         place.AnimationClock.Restart();
+        return definition.HidingAnimation;
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>
@@ -503,7 +517,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);
-        state.Movement = YardMovement.Crawling;
+        state.Motion = YardMotion.Crawling;
         state.Crawl = definition.Crawl;
         state.SuppressTurns();
     }
@@ -520,8 +534,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     {
         Ensure.NotNull(kickDistance);
         state.Behavior = YardBehavior.Kicked;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
 
         SignedSixteenSixteen horizontal = kickDistance.HorizontalDistancePlusOne;
         SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(kickDistance.KickChoiceSpeed);
@@ -539,8 +552,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         SamusState samus)
     {
         state.Behavior = YardBehavior.BeamLaunched;
-        state.Movement = YardMovement.Airborne;
-        SetYardAirborneLists(place, state);
+        state.Motion = new YardMotion.Airborne(SetYardAirborneLists(place, state));
         state.AirborneVelocity = YardShotLaunchFractions.Launched(state.AirborneVelocity, new Offset16<RoomPixels>(
             YardMotionDefinitions.BeamLaunchWholeSpeed.Toward(
                 SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right),
@@ -549,7 +561,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Runs Yard's custom touch entry.</summary>
     private void ResolveYardTouch(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        RoomEnemyOccupant occupant, YardSpawnSettings yardSpawnSettings, RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
@@ -579,7 +591,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         _collision.ResolveOrdinaryTouch(occupant, samus, pseudoScrew);
-        state.CrawlSpeed = occupant.SpawnSettings<YardSpawnSettings>().CrawlSpeed;
+        state.CrawlSpeed = yardSpawnSettings.CrawlSpeed;
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(state);
         state.Behavior = YardBehavior.NormalCrawling;
@@ -601,7 +613,7 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     /// disposal has already happened in the shared projectile pass; this method owns only
     /// the actor's launch and observable sound event.
     /// </summary>
-    private void ResolveYardBeamLaunch(
+    internal void ResolveYardBeamLaunch(
         RoomEnemyPlace place,
         YardEnemyState state,
         SamusState samus)
@@ -612,17 +624,16 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Runs Yard's main AI.</summary>
-    internal void RunYardMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunYardMainAi(RoomEnemyPlace place, YardEnemyState yardEnemyState, IEnemyAiFrame frame)
     {
-        RunYardMain(place, frame.Samus, frame.Level);
+        RunYardMain(place, yardEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Yard's typed animation.</summary>
-    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place)
+    internal void AdvanceYardTypedAnimation(RoomEnemyPlace place, YardEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = place.RequireSpeciesState<YardEnemyState>();
         AnimationPlayback<YardSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, YardAnimations.Segments, ref playback,
             (cue, playing) => ApplyYardCue(place, state, cue, playing));
@@ -630,31 +641,18 @@ internal sealed partial class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Kicks a struck Yard's shell into the air, or lets a bomb's or a power bomb's vulnerability damage run.</summary>
-    internal EnemyShotReaction YardShotReaction => field ??= new()
+    /// <param name="kicksShell">The Yard's own method kicking its shell into the air.</param>
+    internal static EnemyShotReaction YardShotReaction(EnemyShotStage kicksShell) => new()
     {
         AdmitsBombFamilies = true,
         // A bomb or a power bomb deals the Yard its vulnerability damage; every other shot that strikes it only kicks
         // the shell into the air, after the shot's impact.
-        BeforeVulnerability = KickShellIntoAir,
+        BeforeVulnerability = kicksShell,
     };
 
-    /// <summary>
-    /// Kicks the struck Yard's shell into the air before vulnerability, after the shot's impact: a bomb or a power bomb goes
-    /// on to its vulnerability damage instead.
-    /// </summary>
-    /// <param name="c">The shot meeting the Yard.</param>
-    /// <returns>Whether the kick replaced the vulnerability damage.</returns>
-    private bool KickShellIntoAir(in EnemyShotContext c)
-    {
-        if (c.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb)
-            return false;
-        ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
-        return true;
-    }
-
     /// <summary>Runs Yard's touch reaction, including its facing-dependent shell response.</summary>
-    internal void ReactToYardTouch(RoomEnemyOccupant occupant, EnemyTouchContext context) =>
-        ResolveYardTouch(occupant, context.Place, context.Place.RequireSpeciesState<YardEnemyState>(), context.Samus, context.PseudoScrew, context.ControllerInput);
+    internal void ReactToYardTouch(RoomEnemyOccupant occupant, YardSpawnSettings yardSpawnSettings, EnemyTouchContext context, YardEnemyState yardEnemyState) =>
+        ResolveYardTouch(occupant, yardSpawnSettings, context.Place, yardEnemyState, context.Samus, context.PseudoScrew, context.ControllerInput);
 
     /// <summary>The enemy-library sound queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =

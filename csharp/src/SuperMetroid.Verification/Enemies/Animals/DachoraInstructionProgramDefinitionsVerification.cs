@@ -38,10 +38,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         ];
         foreach ((ushort parameter, DachoraSegment expected) in initializerCases)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(parameter);
             // The placement's role picks the entity: a body, or a speed-boost echo (#2283).
-            InitializeThroughEntity(place);
-            RoomEnemyPlace initialized = enemies.Places.InUpdateOrder[0];
+            (_, RoomEnemyPlace initialized) = NewDachora(parameter);
             AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                 initialized.EntityState<DachoraEntity, DachoraEnemyState>()?.Playback ?? initialized.EntityState<DachoraEchoEntity, DachoraEchoState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
@@ -54,10 +52,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraSegment>? animation) ||
                 animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
-            (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
-            place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
-            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant(), place);
-            DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
+            (_, RoomEnemyPlace place) = NewDachora(0);
+            DachoraEnemyState state = place.EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Playback = new(DachoraAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Segments, program, DachoraFrameToolingDefinitions.Spritemap),
@@ -72,9 +68,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                  })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
-            place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
-            enemies.DachoraBehavior.InitializeDachora(place.HeldOccupant(), place);
-            DachoraEnemyState state = enemies.Places.InUpdateOrder[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
+            DachoraEnemyState state = place.EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Playback = new(DachoraAnimations.StartingWith(slow), new AnimationPlace(0, 3));
@@ -95,20 +89,18 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             "Dachora: the initializer's idle and echo choices, every loop and both speed-ups at the same pose pass.");
     }
 
-    /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
+    /// <summary>
+    /// A Dachora whose population entry's first parameter is <paramref name="parameter"/>, the first enemy of a room of its
+    /// own, set up as its room's population sets it up (#2554).
+    /// </summary>
     private static DachoraInstructionProgramDefinitionsNewDachoraResult NewDachora(ushort parameter)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
-        place.Bind(EnemyDefinitionId.Dachora, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        RoomEnemyPlace place = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Dachora,
+            SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Dachora,
+                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(parameter, 0))))[0];
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
     }
-
-    /// <summary>Initializes <paramref name="place"/> through the entity its placement made, as a room's spawn does.</summary>
-    private static void InitializeThroughEntity(RoomEnemyPlace place) =>
-        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
 
     /// <summary>Runs the Dachora animation verification.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]

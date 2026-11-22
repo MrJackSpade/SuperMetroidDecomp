@@ -22,18 +22,18 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
         var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;

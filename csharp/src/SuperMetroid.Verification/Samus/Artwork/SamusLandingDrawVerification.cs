@@ -20,7 +20,7 @@ internal static class SamusLandingDrawVerification
         landings += CheckLanding("running jump", setup: _ => { }, update => update < 8 ? ControllerButton.Right | ControllerButton.A : ControllerButton.Right);
         landings += CheckLanding("fall", runtime =>
         {
-            SamusState samus = runtime.Player.IntroducedSamus;
+            SamusState samus = runtime.Player.Samus;
             samus.Position = samus.Position.WithWholeY(120);
         }, _ => 0);
         Console.WriteLine($"#1397: {landings} landing-pose updates across a standing jump, a running jump and a fall draw Samus on screen.");
@@ -36,7 +36,7 @@ internal static class SamusLandingDrawVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
@@ -44,7 +44,7 @@ internal static class SamusLandingDrawVerification
             level.SetTerrain(y * level.Size.X + x,
                 y is 0 or 16 || x is 0 or 15 ? RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock) : default);
         runtime.InitializeDebugGroundedSamus(64, 232, 16);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);

@@ -24,10 +24,10 @@ public sealed partial class ChootEnemyState
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// The falling pattern's current loop, which each falling update shows the next offset of; the update that finds none
-    /// left ends the loop and starts the next.
+    /// The falling pattern's current loop, counted once each falling update: the sample it is at says where the next
+    /// falling update places the Choot, and the update after it is over ends the loop and starts the next.
     /// </summary>
-    public ChootFallLoop FallingLoop { get; internal set; } = ChootFallLoop.Ended();
+    internal ChootFallLoop FallingLoop { get; set; } = ChootFallLoop.Over.Instance;
 
     /// <summary>
     /// The falling pattern's loops left, the current one included: its population's loop count, at least one, and the

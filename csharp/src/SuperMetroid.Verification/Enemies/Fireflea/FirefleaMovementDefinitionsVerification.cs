@@ -14,7 +14,7 @@ internal static class FirefleaMovementDefinitionsVerification
         const ushort radiusTable = 0x8d1d;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => FirefleaBehavior.InitializeFireflea(fixturePlace.HeldOccupant(), fixturePlace);
+        Func<RoomEnemyPlace, FirefleaEnemyState> initialize = fixturePlace => FirefleaBehavior.InitializeFireflea(fixturePlace.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
 
@@ -27,9 +27,8 @@ internal static class FirefleaMovementDefinitionsVerification
             AssertEqual(native, place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>().Radius,
                 $"imported Fireflea radius {radiusIndex}");
             place.Position = place.Position.WithWhole(new(0x100, 0x100));
-            initialize(place);
             // The circling Fireflea reads its radius from its spawn settings where it moves (#2476).
-            AssertTrue((enemies.FirefleaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FirefleaStates[0].")).Flight is CirclingFirefleaState,
+            AssertTrue(initialize(place).Flight is CirclingFirefleaState,
                 $"Fireflea initializer circles at radius {radiusIndex}");
         }
 
@@ -54,5 +53,5 @@ internal static class FirefleaMovementDefinitionsVerification
     }
 
     /// <summary>Reads one pinned bank-$A3 radius-table byte for the verification oracle.</summary>
-    private static byte FirefleaMovementDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FirefleaMovementDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -76,7 +76,7 @@ internal static partial class EnemySpritemapFiles
     private static T[] DecodeParts<T>(ISnesAddressSpace bus, int bank, int pointer,
         Func<SnesSpritemapXWord, SnesSpritemapYByte, SnesObjAttributeWord, T> part)
     {
-        int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, pointer)));
+        int count = bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, pointer)));
         if (count > EnemySpritemapCompiler.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy spritemap ${bank:X2}:{pointer:X4} has {count} parts.");
@@ -84,9 +84,9 @@ internal static partial class EnemySpritemapFiles
         for (int index = 0; index < count; index++)
         {
             int address = unchecked((ushort)(pointer + 2 + index * 5));
-            var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, address))));
+            var x = new SnesSpritemapXWord(bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, address))));
             var y = new SnesSpritemapYByte(bus.ReadCartridgeByte(((int)SnesAddress.InBank(bank, unchecked((ushort)(address + 2))))));
-            var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(address + 3))))));
+            var attributes = new SnesObjAttributeWord(bus.ReadCartridgeWordFixedBank(((int)SnesAddress.InBank(bank, unchecked((ushort)(address + 3))))));
             parts[index] = part(x, y, attributes);
         }
         return parts;

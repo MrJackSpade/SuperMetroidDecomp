@@ -180,7 +180,7 @@ internal static class FileSelectMapWindowVerification
     }
 
     /// <summary>Reads one cartridge map-background byte for the native BG3 transfer comparison.</summary>
-    private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FileSelectAreaMapGraphicsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the file-select map graphics and transition-window fixture checks.</summary>
     [VerificationCommand("--file-map-fixtures")]

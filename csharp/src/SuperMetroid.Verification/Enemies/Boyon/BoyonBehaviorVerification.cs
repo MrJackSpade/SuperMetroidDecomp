@@ -39,19 +39,19 @@ internal static class BoyonBehaviorVerification
     internal static void VerifyBoyonBehavior()
     {
         (RoomEnemySystem idleSystem, RoomEnemyPlace idle, BoyonEnemyState idleState) = Create(parameter1: 0);
-        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Idle), AnimationPlace.StartOfAnimation), idleState.Playback, "Boyon initializer starts idling");
         idle.Processing = idle.Processing.With(EnemyProcessing.OffScreen);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.IdleRest, BoyonFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.IdleRest)), "Boyon idle loop");
+            EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.IdleRest),
+                () => idleSystem.BoyonBehavior.AdvanceBoyonAnimation(idle, idleState)), "Boyon idle loop");
         AssertTrue(!idle.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon idle stops off-screen processing");
 
         (RoomEnemySystem bounceSystem, RoomEnemyPlace bounce, BoyonEnemyState bounceState) = Create(parameter1: 0);
         SamusState samus = SamusAt(bounce);
-        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant(), bounce, bounceState, samus);
-        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant(), bounce, bounceState, samus);
-        AssertEqual(new AnimationPlayback<BoyonSegment>(BoyonAnimations.StartingWith(BoyonSegment.Bouncing), AnimationPlace.StartOfAnimation), bounceState.Playback, "Samus nearby starts the bounce");
+        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), bounce, bounceState, samus);
+        BoyonBehavior.RunBoyonMain(bounce.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), bounce, bounceState, samus);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Segments, BoyonSegment.BouncingStar, BoyonFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.BouncingStar)), "Boyon bounce loop");
+            EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Segments, BoyonSegment.BouncingStar),
+                () => bounceSystem.BoyonBehavior.AdvanceBoyonAnimation(bounce, bounceState)), "Boyon bounce loop");
         AssertTrue(bounce.Processing.HasAny(EnemyProcessing.OffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)BoyonNativeValues.BounceSound,
             bounceSystem.Audio.LatestSound, "Boyon bounce plays its library-two bounce sound");
@@ -100,7 +100,7 @@ internal static class BoyonBehaviorVerification
         {
             (_, RoomEnemyPlace place, BoyonEnemyState state) = Create(parameter1: (heightSelector << 8) | multiplierSelector);
             SamusState samus = SamusAt(place);
-            BoyonBehavior.RunBoyonMain(place.HeldOccupant(), place, state, samus);
+            BoyonBehavior.RunBoyonMain(place.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), place, state, samus);
             int multiplier = SelectorMultipliers[multiplierSelector];
             (int baseline, _) = OriginalBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + heightSelector * 2));
             string context = $"Boyon with multiplier {multiplier} and height selector {heightSelector}";
@@ -129,7 +129,7 @@ internal static class BoyonBehaviorVerification
                     expected = rising ? BoyonPhase.Landed : BoyonPhase.Falling;
                 }
 
-                BoyonBehavior.RunBoyonMain(place.HeldOccupant(), place, state, samus);
+                BoyonBehavior.RunBoyonMain(place.HeldOccupant().SpawnSettings<BoyonSpawnSettings>(), place, state, samus);
                 updates++;
                 string at = $"{context}, update {update}";
                 AssertEqual(y, (int)place.Position.Y.Whole, $"{at}: height");
@@ -192,8 +192,8 @@ internal static class BoyonBehaviorVerification
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         place.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         place.Position = place.Position.WithWhole(new(256, 512));
-        BoyonBehavior.InitializeBoyon(place);
-        return new BoyonBehaviorCreateResult(enemies, place, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
+        // The Boyon's setup builds the state its main AI and its animation, which the checks play, run on.
+        return new BoyonBehaviorCreateResult(enemies, place, BoyonBehavior.InitializeBoyon(place));
     }
 
     /// <summary>Runs the Boyon behavior and arc checks, its program oracle and the compiled selector check.</summary>

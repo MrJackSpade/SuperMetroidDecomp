@@ -8,9 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public static partial class EnemyBreakableTerrain
 {
-    /// <summary>Whether the spike block with <paramref name="behavior"/> spawns the enemy-breakable block.</summary>
-    /// <exception cref="InvalidDataException">The behaviour gives the spike no reaction.</exception>
-    public static bool IsEnemyBreakable(RoomBlockBehavior behavior) => behavior.Spike is { } spike
-        ? spike.BreaksUnderEnemies
-        : throw new InvalidDataException($"Enemy spike behaviour {behavior} gives the spike no reaction.");
+    /// <summary>Whether the spike block carrying <paramref name="spike"/> spawns the enemy-breakable block: only the enemy-breakable spikes do.</summary>
+    /// <param name="spike">The reaction the spike block carries.</param>
+    public static bool IsEnemyBreakable(SpikeReaction spike) => spike.BreaksUnderEnemies;
 }

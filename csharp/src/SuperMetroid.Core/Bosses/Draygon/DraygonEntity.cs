@@ -18,13 +18,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal abstract partial class DraygonEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
 {
     /// <summary>The Draygon species owner.</summary>
     protected DraygonBehavior Species => species;
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
@@ -41,6 +38,9 @@ internal abstract partial class DraygonEntity(DraygonBehavior species, RoomEnemy
     /// <inheritdoc/>
     public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
         DraygonCombat.FindDraygonHitboxReaction(Place, probe);
+
+    /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>

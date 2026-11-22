@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -30,7 +31,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         IReadOnlyList<SuperMetroid.AssetExtraction.Artwork.SheetShade> shades = SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.CeresSprites(colours);
         Action<CeresRidleyState> tick = RidleyReveal.TickEyeFadeIn;
 
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes, Motion = RidleyMotion.Still };
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes, Motion = RidleyMotion.Still };
         for (int update = 0; update < ScheduleUpdates; update++)
         {
             tick(state);
@@ -43,7 +44,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             {
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
                     nativeSchedule[update] * 6 + color * 2;
-                ushort expectedColor = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
+                ushort expectedColor = rom.ReadCartridgeWord(source);
                 AssertEqual(expectedColor, cgram[252 + color],
                     $"production Ceres eye-fade update {update} color {color}");
             }

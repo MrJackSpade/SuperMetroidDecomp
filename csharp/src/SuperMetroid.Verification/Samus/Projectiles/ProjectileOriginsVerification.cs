@@ -22,7 +22,7 @@ internal static class ProjectileOriginsVerification
     /// <summary>Exercises authored and adjacent table words through physical projectile initialization.</summary>
     internal static void VerifyProjectileOrigins(CartridgeImportAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        short Word(int address) => unchecked((short)rom.ReadCartridgeWord(address));
         var initialize = new Action<SamusState, SamusProjectileOccupant>(BeamFiring.InitializePosition);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var slot = new SamusProjectile(0);

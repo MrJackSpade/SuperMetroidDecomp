@@ -12,17 +12,34 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed partial class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+/// <param name="draygon">What the enemy's setup built (#2554).</param>
+internal sealed partial class DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, DraygonEnemyState draygon)
     : DraygonEntity(species, occupant, place, common, bossArtwork), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Parts.InitializeDraygonBody(Occupant);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Draygon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    internal DraygonBodyEntity(DraygonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork)
+        : this(species, occupant, place, common, bossArtwork, species.BeginDraygon(occupant))
+    {
+    }
+
+    /// <summary>The encounter his body began as it was built (#2554).</summary>
+    private readonly DraygonEnemyState draygon = draygon;
 
     /// <summary>The body's part of the encounter it set up.</summary>
-    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonEnemyState>().BodyPart;
+    internal override DraygonPart Part => draygon.BodyPart;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, draygon, frame);
 
     /// <summary>
     /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may

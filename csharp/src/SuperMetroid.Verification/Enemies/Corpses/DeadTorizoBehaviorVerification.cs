@@ -21,7 +21,8 @@ internal static class DeadTorizoBehaviorVerification
         RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.KeptDefinition);
         corpse.Bind(corpse.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
+        // The corpse is set up as the population load sets it up.
+        _ = enemies.LoadAuthoredPopulation();
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
         // A still picture shows once and holds (#2275).
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),

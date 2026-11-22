@@ -9,11 +9,27 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the head occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, MotherBrainEnemyState encounter)
     : MotherBrainEntity(species, occupant, place, common), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The MotherBrain species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the head occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter her body began, which the head joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static MotherBrainHeadEntity SetUp(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        MotherBrainEnemyState encounter) =>
+        new(species, occupant, place, common, MotherBrainHead.InitializeMotherBrainHead(place, encounter));
+
+    /// <summary>The encounter her body began, which the head joins as it is set up (#2218, #2554).</summary>
+    internal override MotherBrainEnemyState Encounter { get; } = encounter;
 
     /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
@@ -50,7 +66,6 @@ internal sealed partial class MotherBrainHeadEntity(MotherBrainBehavior species,
         Species.Combat.ReactToMotherBrainHeadBomb(Encounter, context);
         return true;
     }
-
 
     /// <summary>Shots meet the head's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;

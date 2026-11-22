@@ -221,7 +221,7 @@ internal sealed partial class ProjectileTerrainCollision
     /// square slope that the beam's edges reach in this block. A hit stops the beam like a
     /// solid block; unlike a non-square slope it does not end the span.
     /// </summary>
-    private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block,
+    private static bool SquareSlopeShotReaction(SamusProjectileOccupant held, RoomCollisionBlock block, SquareSlopeShape shape,
         ShotSpan span, Axis axis)
     {
         SamusProjectile shot = held.Projectile;
@@ -234,7 +234,6 @@ internal sealed partial class ProjectileTerrainCollision
         }
 
         // The block's reflections mirror the quarter each edge reaches.
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(block.Behavior);
         bool Solid(SquareSlopeQuadrant quadrant) => SquareSlopes.IsSolid(shape, quadrant);
 
         if ((axis == Axis.Horizontal))
@@ -284,8 +283,8 @@ internal sealed partial class ProjectileTerrainCollision
         if (terrain.Meet(block) is not { } met)
             return false;
         block = met.Block;
-        if (block.CollisionType == RoomCollisionType.Slope && !block.Behavior.Slope.IsNonSquare)
-            return SquareSlopeShotReaction(held, block, span, axis);
+        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.Shape.SquareQuarters is { } square)
+            return SquareSlopeShotReaction(held, block, square, span, axis);
         if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.Slope.IsNonSquare)
         {
             // Non-square slopes react through the projectile's
@@ -538,12 +537,17 @@ internal sealed partial class ProjectileTerrainCollision
             if (read.StraddlesNext)
             {
                 // The straddled block is the next one in the room's reading order, on the next row past a row's end.
-                Position16<RoomBlocks> nextBlock = terrain.Level.GridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight) ??
+                if (!terrain.Level.TryGridBlockStepped(readBlock, Offset16<RoomBlocks>.OneRight, out Position16<RoomBlocks> nextBlock))
                     throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
                 RoomTerrainBlock next = terrain.Level.GetCollisionBlock(nextBlock).Terrain;
+                RoomTerrainBlock straddled = straddledTerrain.Straddling(block.Terrain, next);
+                // A straddled kind whose reaction the start block's behaviour does not give finds no reaction to set off: no
+                // room object spawns, and Wave goes on past whatever such a block would stop.
+                if (!RoomBlockKind.TryOf(straddled.Collision, block.Behavior, out _))
+                    continue;
                 // The reaction consumes the straddled block; the behaviour and room-object setup
                 // still use the block the read starts in, as aligned reads do.
-                block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
+                block = block.Straddled(straddled);
             }
             RunShotReaction(terrain, held, block, ShotSpan.At(step, span, targetX), out bool endSpan);
             // Wave discards whether a block stops it, but still honors room-object scan termination.

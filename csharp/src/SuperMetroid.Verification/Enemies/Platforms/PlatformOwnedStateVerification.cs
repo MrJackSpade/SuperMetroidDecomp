@@ -26,9 +26,7 @@ internal static class PlatformOwnedStateVerification
         place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
         place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = HorizontalDirection.Left });
         place.Position = place.Position.WithWholeY(256);
-        PlatformsBehavior.InitializePlatform(place.HeldOccupant(), place);
-        PlatformEnemyState state = enemies.PlatformStates[0]
-            ?? throw new InvalidOperationException("The initialized Tripper has no platform state.");
+        PlatformEnemyState state = PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, EnemyDefinitionId.Tripper);
 
         AssertEqual(EnemyLinearSpeedTable.Speed(speedRecord), place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>().Speed, "the patrol speed is the row's speed");
         AssertEqual(257, state.RestingY, "the platform rests one pixel below its placement");
@@ -37,7 +35,7 @@ internal static class PlatformOwnedStateVerification
         int[] expectedIndexes = [1, 2, accelerationCap, accelerationCap, accelerationCap];
         foreach (int expected in expectedIndexes)
         {
-            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place.HeldOccupant(), state);
+            PlatformsBehavior.IncrementAndClampPlatformYSpeed(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), state);
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(expected), state.YSpeedCurvePlace, "acceleration climbs by one row and holds at the cap");
         }
         Console.WriteLine("Platform owned state: speeds, resting height and clamped acceleration match.");

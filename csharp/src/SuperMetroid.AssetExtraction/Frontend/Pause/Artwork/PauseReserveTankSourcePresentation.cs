@@ -46,8 +46,7 @@ public sealed partial class PauseReserveTankSourcePresentation
     public static PauseReserveTankSourcePresentation Load(Stream json)
     {
         PauseReserveTankDocument document;
-        try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Reserve tank document is null."); }
+        try { document = JsonAssetDocument.Read<PauseReserveTankDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid reserve tank JSON.", error); }
         if (document.Version != PauseReserveTankFormat.Version || (uint)document.Palette > 7 ||
             document.Frames is null || document.Frames.Count != PauseReserveTankParts.Frames().Count())

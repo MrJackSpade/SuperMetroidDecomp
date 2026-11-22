@@ -128,7 +128,7 @@ internal static class QuicksandVerification
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, SamusBodyAttack.None),
                 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
+                QuicksandContact(0x80 + index),
                 axis: Axis.Vertical,
                 ref displacement);
             AssertEqual(index < 3 ? SpecialAirCollisionOutcome.LandsOnSurface : SpecialAirCollisionOutcome.PassesThrough, outcome,
@@ -173,7 +173,7 @@ internal static class QuicksandVerification
             if (instruction)
             {
                 // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
+                NativeTerrainChanges.Compare(rom, TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
                     $"quicksand header {(int)header:X4}", out bool began);
                 AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
             }
@@ -250,7 +250,7 @@ internal static class QuicksandVerification
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
                 new(body, SamusBodyAttack.None),
                 SamusTerrain.InRoom(level, SamusRoomObjectFixtures.WithQuicksand()),
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
+                QuicksandContact(0x80),
                 axis: Axis.Vertical,
                 ref displacement);
             AssertEqual(SpecialAirCollisionOutcome.LandsOnSurface, outcome, $"stationary probe {probe:X8} touches the surface");
@@ -284,7 +284,7 @@ internal static class QuicksandVerification
     /// no area reaction (the no-op), and every later area reaction is no special-air reaction at all and is rejected.
     /// </summary>
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
-        Func<SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        Func<SpecialAirReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
         where TReaction : notnull
     {
@@ -298,18 +298,25 @@ internal static class QuicksandVerification
                     $"special-air BTS ${value:X2} has a reaction exactly within the tables");
                 if ((value & 0x80) == 0)
                 {
-                    AssertEqual(nothing, resolve(reaction), $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
+                    AssertEqual(nothing, reaction is { } common ? resolve(common) : nothing, $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
                     continue;
                 }
+                // A BTS past the area tables reads no reaction at all (asserted above).
                 if ((value & 0x7f) >= 16)
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => resolve(reaction),
-                        $"special-air BTS ${value:X2} past the area tables is rejected");
                     continue;
-                }
-                VerifySpecialAirEntry(rom, resolve(reaction), headers, setups, nothing, nativePointers, setup, rawArea, value & 0x7f);
+                VerifySpecialAirEntry(rom, resolve(reaction ?? throw new InvalidDataException($"special-air BTS ${value:X2} reads no reaction")),
+                    headers, setups, nothing, nativePointers, setup, rawArea, value & 0x7f);
             }
         }
+    }
+
+    /// <summary>Samus's contact with a Maridia special-air block of <paramref name="behavior"/>, with the reaction it carries.</summary>
+    private static SpecialAirContact QuicksandContact(int behavior)
+    {
+        RoomBlockBehavior decoded = RoomBlockBehaviorCodec.Decode(AreaId.Maridia, behavior);
+        return new SpecialAirContact(
+            new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), decoded),
+            decoded.SpecialAir ?? throw new InvalidDataException($"Maridia special-air behaviour {behavior:X2} carries no reaction."));
     }
 
     /// <summary>The bank-$84 setup of Crateria's ice-floor inside header, which changes nothing while Samus is inside it.</summary>

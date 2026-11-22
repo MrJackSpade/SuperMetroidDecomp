@@ -42,7 +42,7 @@ internal static class CrystalFlashCleanupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera: new Position16<RoomPixels>(384, 384));
@@ -58,7 +58,7 @@ internal static class CrystalFlashCleanupVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);

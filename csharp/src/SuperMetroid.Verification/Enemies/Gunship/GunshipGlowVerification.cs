@@ -60,7 +60,7 @@ internal static class GunshipGlowVerification
     /// </summary>
     internal static void VerifyGunshipGlow(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         CeresColourEffectsVerification.AssertSpawn(cartridge, GlowSpawn, GlowDefinition, GunshipLightDefinitions.Glow, "the top hull's initialisation");
         foreach (int branch in new[] { PostCeresBranch, LandedBranch })
         {
@@ -75,20 +75,20 @@ internal static class GunshipGlowVerification
         AssertEqual(GameplayColourPositionDefinitions.SpriteSetsFirst + (row + 1) * GameplayColourPositionDefinitions.SetColours - 1, written,
             "the glow writes the last colour of the pieces' sprite row");
 
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomEnemyPlace[] pieces = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.Occupant?.DefinitionId is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance)];
         AssertEqual(3, pieces.Length, "the Landing Site places the gunship's three pieces");
         // Samus stands beside the landed ship, so the camera shows it.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         RoomEnemyPlace top = pieces.Single(piece => piece.Holds(EnemyDefinitionId.ShipTop));
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);

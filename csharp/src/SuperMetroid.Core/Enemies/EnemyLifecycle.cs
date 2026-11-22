@@ -17,27 +17,35 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
     private readonly EnemyPlaces _places;
     /// <summary>Selects the places that interact with Samus this frame.</summary>
     private readonly EnemyProcessingWindow _processingWindow;
+    /// <summary>
+    /// The shared participation every entity built in the room's places composes, which the room's species registry
+    /// shares too, so a binding through the registry and a build in a place compose the same one.
+    /// </summary>
+    private readonly EnemyCommonParticipation _common;
 
-    /// <summary>Binds the room, places and processing window the lifecycle works in.</summary>
-    internal EnemyLifecycle(EnemyRoomBinding room, EnemyPlaces places, EnemyProcessingWindow processingWindow)
+    /// <summary>Binds the room, places, processing window and shared participation the lifecycle works with.</summary>
+    internal EnemyLifecycle(EnemyRoomBinding room, EnemyPlaces places, EnemyProcessingWindow processingWindow, EnemyCommonParticipation common)
     {
         _room = room;
         _places = places;
         _processingWindow = processingWindow;
+        _common = Ensure.NotNull(common);
     }
 
     /// <summary>
     /// Copies population and definition fields into a place, showing its sheet's standard colours, and records a spawn
     /// snapshot before initialization AI runs.
     /// </summary>
-    internal static void InitializePlaceFromDefinition(
+    /// <returns>The new occupant, whose species builds its entity as it is set up.</returns>
+    internal static RoomEnemyOccupant InitializePlaceFromDefinition(
         RoomEnemyPlace place,
-        RoomEnemyPlacement population,
+        EnemySpawn spawn,
         RoomEnemyDefinition definition)
     {
         // The occupant carries its placement into the entity its species creates, so a species that places several actors
         // creates the one the placement names (#1953).
-        place.Bind(population, definition);
+        RoomEnemyOccupant occupant = place.Bind(spawn, definition);
+        RoomEnemyPlacement population = spawn.Placement;
         place.Radius = new(definition.Radius.X, definition.Radius.Y);
         place.Health = definition.Health;
         place.Position = population.Placing.Place(place.Position);
@@ -51,19 +59,19 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
         place.FrameCounter = 0;
         place.HurtFlashFrames = definition.HurtFlashFrames;
         place.Shading = PictureShading.Standard;
+        return occupant;
     }
 
     /// <summary>
     /// Runs the setup of the enemy the room's population load has just placed: its own, or the one it runs from the load's
     /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
     /// </summary>
-    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
-    internal static void SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
+    private void SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        EnemyOccupant occupant = OccupantOf(place);
-        occupant.Initialization?.Initialize();
-        occupant.SurroundingsInitialization?.Initialize(surroundings);
+        EnemyOccupant built = Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(spawn).Loaded(surroundings), _common);
+        built.Initialization?.Initialize();
+        built.SurroundingsInitialization?.Initialize(surroundings);
     }
 
     /// <summary>
@@ -71,42 +79,40 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
     /// for an enemy that has none. Such a spawn has no population load's surroundings, so a setup that reads them is the
     /// population load's alone.
     /// </summary>
-    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
-    internal static void SetUpSpawnedEnemy(RoomEnemyPlace place) =>
-        OccupantOf(place).Initialization?.Initialize();
-
-    /// <summary>The occupant <paramref name="place"/> holds.</summary>
-    /// <exception cref="InvalidDataException">The place holds no entity.</exception>
-    private static EnemyOccupant OccupantOf(RoomEnemyPlace place) =>
-        Ensure.NotNull(place).BoundEntity ?? throw new InvalidDataException($"Enemy place {place.Ordinal} has no entity to set up.");
+    private void SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) =>
+        Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(build), _common).Initialization?.Initialize();
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
-    void IEnemyLifecycle.InitializePlaceFromDefinition(
-        RoomEnemyPlace place, RoomEnemyPlacement population, RoomEnemyDefinition definition) =>
-        InitializePlaceFromDefinition(place, population, definition);
+    RoomEnemyOccupant IEnemyLifecycle.InitializePlaceFromDefinition(
+        RoomEnemyPlace place, EnemySpawn spawn, RoomEnemyDefinition definition) =>
+        InitializePlaceFromDefinition(place, spawn, definition);
 
     /// <summary>Lets the population loader run the place's species initialization.</summary>
-    void IEnemyLifecycle.SetUpEnemy(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings) =>
-        SetUpEnemy(place, surroundings);
+    void IEnemyLifecycle.SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings) =>
+        SetUpEnemy(occupant, spawn, surroundings);
 
     /// <summary>Lets a species run the initialization of an enemy it spawned on another enemy's behalf.</summary>
-    void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyPlace place) => SetUpSpawnedEnemy(place);
+    void IEnemyLifecycle.SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) => SetUpSpawnedEnemy(occupant, build);
 
     /// <inheritdoc/>
-    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
-        Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
+    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemy<TSpawn>(TSpawn spawn) =>
+        Spawn(Ensure.NotNull(spawn), occupant => SetUpSpawnedEnemy(occupant, spawn));
+
 
     /// <summary>
-    /// Installs <paramref name="population"/> in the first free place, gives it what <paramref name="joining"/> installs (nothing for a plain spawn),
-    /// runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// Installs <paramref name="population"/> in the first free place, runs its setup through <paramref name="setUp"/>,
+    /// starts its animation when it runs one and extends the live enemy range.
     /// </summary>
-    private RoomEnemyPlace? Spawn(RoomEnemyPlacement population, Action<RoomEnemyPlace> joining)
+    private RoomEnemyPlace? Spawn(EnemySpawn population, Action<RoomEnemyOccupant> setUp) =>
+        _places.FindFreePlace() is { } place ? SpawnAt(place, population, setUp) : null;
+
+    /// <summary>
+    /// Installs <paramref name="population"/> in <paramref name="place"/>, a free one, runs its setup through
+    /// <paramref name="setUp"/>, starts its animation when it runs one and extends the live enemy range.
+    /// </summary>
+    private RoomEnemyPlace SpawnAt(RoomEnemyPlace place, EnemySpawn population, Action<RoomEnemyOccupant> setUp)
     {
-        if (_places.FindFreePlace() is not { } place)
-            return null;
-        InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.DefinitionId));
-        joining(place);
-        SetUpSpawnedEnemy(place);
+        setUp(InitializePlaceFromDefinition(place, population, _room.Definitions.ReadEnemyDefinition(population.Placement.DefinitionId)));
         // Spawning writes the empty frame after initialization, before the first animation tick.
         place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.PointAtOrigin

@@ -75,11 +75,14 @@ internal abstract partial record DraygonCue
         internal static SetBodyIntangible Instance { get; } = new();
     }
 
-    /// <summary>Gives the body a new phase.</summary>
-    internal sealed partial record SetBodyPhase(DraygonPhase Phase) : DraygonCue
+    /// <summary>Gives the body its phase of releasing Samus.</summary>
+    internal sealed partial record ReleaseSamus : DraygonCue
     {
+        /// <summary>The cue's only value.</summary>
+        internal static ReleaseSamus Instance { get; } = new();
+
         /// <inheritdoc/>
-        internal override void React<TContext>(DraygonCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).SetBodyPhase(this, context);
+        internal override void React<TContext>(DraygonCueReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ReleaseSamus(this, context);
     }
 
     /// <summary>Applies a tail whip's hit to a grabbed Samus.</summary>
@@ -108,8 +111,8 @@ internal abstract partial record DraygonCue
 /// <param name="SpawnDyingEffect">Reacts to a <see cref="DraygonCue.SpawnDyingEffect"/>.</param>
 /// <param name="ParalyseTailAndArms">Reacts to a <see cref="DraygonCue.ParalyseTailAndArms"/>.</param>
 /// <param name="SetBodyIntangible">Reacts to a <see cref="DraygonCue.SetBodyIntangible"/>.</param>
-/// <param name="SetBodyPhase">Reacts to a <see cref="DraygonCue.SetBodyPhase"/>.</param>
+/// <param name="ReleaseSamus">Reacts to a <see cref="DraygonCue.ReleaseSamus"/>.</param>
 /// <param name="TailWhipHit">Reacts to a <see cref="DraygonCue.TailWhipHit"/>.</param>
 /// <param name="SpawnGoop">Reacts to a <see cref="DraygonCue.SpawnGoop"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-internal sealed partial record DraygonCueReactions<TContext>(Action<DraygonCue.StartPartAnimations, TContext> StartPartAnimations, Action<DraygonCue.TrackWithEye, TContext> TrackWithEye, Action<DraygonCue.ShiftBodyPicture, TContext> ShiftBodyPicture, Action<DraygonCue.QueueSound, TContext> QueueSound, Action<DraygonCue.SpawnDyingEffect, TContext> SpawnDyingEffect, Action<DraygonCue.ParalyseTailAndArms, TContext> ParalyseTailAndArms, Action<DraygonCue.SetBodyIntangible, TContext> SetBodyIntangible, Action<DraygonCue.SetBodyPhase, TContext> SetBodyPhase, Action<DraygonCue.TailWhipHit, TContext> TailWhipHit, Action<DraygonCue.SpawnGoop, TContext> SpawnGoop);
+internal sealed partial record DraygonCueReactions<TContext>(Action<DraygonCue.StartPartAnimations, TContext> StartPartAnimations, Action<DraygonCue.TrackWithEye, TContext> TrackWithEye, Action<DraygonCue.ShiftBodyPicture, TContext> ShiftBodyPicture, Action<DraygonCue.QueueSound, TContext> QueueSound, Action<DraygonCue.SpawnDyingEffect, TContext> SpawnDyingEffect, Action<DraygonCue.ParalyseTailAndArms, TContext> ParalyseTailAndArms, Action<DraygonCue.SetBodyIntangible, TContext> SetBodyIntangible, Action<DraygonCue.ReleaseSamus, TContext> ReleaseSamus, Action<DraygonCue.TailWhipHit, TContext> TailWhipHit, Action<DraygonCue.SpawnGoop, TContext> SpawnGoop);

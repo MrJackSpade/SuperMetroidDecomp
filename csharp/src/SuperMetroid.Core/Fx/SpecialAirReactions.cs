@@ -36,28 +36,12 @@ public static partial class SpecialAirReactions
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does to Samus inside it.</summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction? reaction) => Of(reaction, "inside-body").Inside;
+    public static SpecialAirInsideReaction InsideOf(SpecialAirReaction reaction) => Of(reaction).Inside;
 
     /// <summary>What the special-air block with reaction <paramref name="reaction"/> does when Samus's movement reaches it.</summary>
     /// <param name="reaction">The block's reaction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction? reaction) => Of(reaction, "movement-collision").Collision;
+    public static SpecialAirCollisionReaction CollisionOf(SpecialAirReaction reaction) => Of(reaction).Collision;
 
     /// <summary>What the block's reaction does.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The block has no reaction.</exception>
-    /// <exception cref="InvalidOperationException">The reaction is undefined.</exception>
-    private static SpecialAirReactionEffects Of(SpecialAirReaction? reaction, string context)
-    {
-        SpecialAirReaction validated = Validate(reaction, context);
-        return Reactions[validated];
-    }
-
-    /// <summary>Requires the block to have a reaction.</summary>
-    /// <returns>The block's reaction.</returns>
-    private static SpecialAirReaction Validate(SpecialAirReaction? reaction, string context) =>
-        reaction ?? throw new ArgumentOutOfRangeException(
-            nameof(reaction),
-            reaction,
-            $"A special-air block's {context} reaction needs a reaction the block has.");
+    private static SpecialAirReactionEffects Of(SpecialAirReaction reaction) => Reactions[reaction];
 }

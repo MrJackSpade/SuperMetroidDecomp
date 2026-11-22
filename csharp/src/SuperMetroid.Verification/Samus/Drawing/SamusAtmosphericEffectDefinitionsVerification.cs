@@ -261,7 +261,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer.RawValue > 1)
-            SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
 
     /// <summary>Forbids production reads of migrated splash, foot-contact, and both Crateria policy tables.</summary>

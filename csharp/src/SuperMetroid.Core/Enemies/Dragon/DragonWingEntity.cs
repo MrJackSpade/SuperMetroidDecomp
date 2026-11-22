@@ -9,12 +9,29 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wing occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : DragonPartEntity(species, occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
+/// <param name="ownState">What the enemy's setup built (#2554).</param>
+/// <param name="followUpRecipient">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class DragonWingEntity(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, DragonWingState ownState, RoomEnemyPlace followUpRecipient)
+    : DragonPartEntity(species, occupant, place, common, followUpRecipient), IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => Species.InitializeDragonWing(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Dragon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the wing occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="state">The wing's state: the one its body began as it was placed, or, for a wing no body was listed before, its own.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static DragonWingEntity SetUp(DragonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        DragonWingState state) =>
+        new(species, occupant, place, common, DragonBehavior.InitializeDragonWing(place, state), species.FollowUpRecipientOf(place));
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly DragonWingState ownState = ownState;
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DragonBehavior.AdvanceDragonWingTypedAnimation(Place, ownState);
 }

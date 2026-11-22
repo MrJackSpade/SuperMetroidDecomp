@@ -102,7 +102,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         var (bus, runtime, samus, game) = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), ridleyMovie.InitialSaveRam);
         Game = game;
         // Ridley's body, fragments and fireballs play typed animations (#1287, #1600); compare their playbacks as native pointers.
-        var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyNativeInstructionPointers(bus);
         RoomObjectPlace[] initialObjects = [.. runtime.RoomObjects.Places.InUpdateOrder];
         var checkedProjectileCompositions = new HashSet<CheckedProjectileComposition>();
         ushort[]? pendingLoadedOwners = null;
@@ -715,8 +715,8 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                         // that place names as its exit, and no behaviour.
                         DoorBlockExit expectedExit = RoomDoorListDefinitions.ByRoom[runtime.Room.LoadedRoom.Definition][
                             RoomBlockBehaviorCodec.DoorLinkOf(memory[NativeSnapshotMemory.Bts + block])];
-                        if (activeLevel.ExitGrid[block] != expectedExit)
-                            mismatches.Add($"Room door block {block}: native={expectedExit} port={activeLevel.ExitGrid[block]}");
+                        if (activeLevel.ExitAt(block) != expectedExit)
+                            mismatches.Add($"Room door block {block}: native={expectedExit} port={activeLevel.ExitAt(block)}");
                         continue;
                     }
                     var expectedBehavior = RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + block]);
@@ -805,9 +805,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     : behavior == SamusShotBehaviors.Beam ? SamusBeamFrameBehaviorCodes.NoWave
                     : behavior == SamusShotBehaviors.UnchargedWaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveThreeFrameTrail
                     : behavior == SamusShotBehaviors.WaveBeamTrail ? SamusBeamFrameBehaviorCodes.WaveFourFrameTrail
-                    : behavior == SamusShotBehaviors.Missile ? NativeSnapshotMemory.ProjectileMissileCallback
-                    : behavior == SamusShotBehaviors.SuperMissile ? NativeSnapshotMemory.ProjectileSuperMissileCallback
-                    : behavior == SamusShotBehaviors.SuperMissileLink ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
+                    // A missile's and a Super Missile's behaviours are bound to the state they run with, which names their kind.
+                    : projectile.KindStateOrNone() is SuperMissileShotState
+                        ? projectile.IsSuperMissileLink(runtime.Projectiles.Shots)
+                            ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
+                            : NativeSnapshotMemory.ProjectileSuperMissileCallback
+                    : projectile.KindStateOrNone() is MissileShotState ? NativeSnapshotMemory.ProjectileMissileCallback
                     : throw new InvalidDataException($"Movie projectile behaviour {behavior.GetType().Name} needs a native identity mapping");
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
                 // A shot holding a still picture has no timer: the native timer only re-shows the same picture (#2347).
@@ -827,7 +830,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 }
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).
-                if (projectile.Behavior != SamusShotBehaviors.SuperMissileLink)
+                if (!projectile.IsSuperMissileLink(runtime.Projectiles.Shots))
                     Check(owner + " TrailTimer", projectile.HeldShot().Trail?.UpdatesLeft
                         ?? throw new InvalidDataException($"{owner} leaves no trail, which no projectile this movie reaches does."),
                         NativeSnapshotMemory.ProjectileTrailTimer + index);
@@ -879,7 +882,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     var actualOam = new OamBuffer();
                     expectedOam.BeginFrame();
                     actualOam.BeginFrame();
-                    ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), expectedOam, nativeMap, new(128, 96), 0, true);
+                    ImportedSpritemapOracle.DrawEnemyProjectile(bus, expectedOam, nativeMap, new(128, 96), 0, true);
                     actualOam.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     // A picture stored again in a record that lists its objects in another order draws the same pixels

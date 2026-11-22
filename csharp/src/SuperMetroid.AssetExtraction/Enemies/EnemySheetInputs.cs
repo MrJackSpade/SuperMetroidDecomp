@@ -48,14 +48,15 @@ internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, 
         };
     }
 
-    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
-    internal InstalledBeamPalettes? BeamPalettes { get; init; }
+
+    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
+    internal required InstalledBeamPalettes BeamPalettes { get; init; }
 
     /// <summary>
     /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
-    /// their sprites (#1512); null for fixtures that draw neither encounter.
+    /// their sprites (#1512).
     /// </summary>
-    internal ImportAreaMapPresentation? Maps { get; init; }
+    internal required ImportAreaMapPresentation Maps { get; init; }
 
     /// <summary>The beam colours the import extracted at <paramref name="path"/> (#1637).</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)
@@ -81,9 +82,8 @@ internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, 
     AreaSourceArtwork IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
     ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) =>
         EscapeTimerTilePages.TryPageOf(asset, out EscapeTimerTilePage page) ? EscapeTimerTilePageTransfers.Resolve(EscapeTimer, page)
-            : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
+            : Enemies.GunshipLiftoff.Resolve(asset);
 }

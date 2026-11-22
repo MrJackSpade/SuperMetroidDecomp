@@ -231,23 +231,13 @@ internal sealed partial class AcceptedFrameBoundary
         // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): one at the background's depth,
         // one at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on (#1466).
         // A room shows one escape's warning at most.
-        ShownRoomWarning? backgroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.BackgroundWarning, appearance, RoomWarningDepth.WithBackground);
-        ShownRoomWarning? foregroundWarning = WarningOf(scope, scope.Enemies.DisplaySources.ForegroundWarning, appearance, RoomWarningDepth.WithForeground);
+        ShownRoomWarning? backgroundWarning = scope.Warnings?.WithBackground.Shown(appearance);
+        ShownRoomWarning? foregroundWarning = scope.Warnings?.WithForeground.Shown(appearance);
         if (backgroundWarning is not null && foregroundWarning is not null)
             throw new InvalidOperationException($"{scope.Room.Definition.Name} shows warnings at both the background's and the foreground's depths.");
         // The planes are shared until gameplay changes level data.
         return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, backgroundWarning ?? foregroundWarning, scope.Floor?.Publish());
     }
-
-    /// <summary>
-    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from the room's warning picture sheet's
-    /// frames for the inputs they depend on (#1466), or null while it shows nothing.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A warning shows in a room whose tileset has no installed warning picture sheet.</exception>
-    private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
-        text.Pictures.IsEmpty ? null
-            : new ShownRoomWarning((scope.WrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} shows a warning with no installed warning picture sheet.")).Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
@@ -263,7 +253,7 @@ internal sealed partial class AcceptedFrameBoundary
     /// </summary>
     private XrayRevealedBlocks? CaptureXrayReveal(RoomScope scope, GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds it reveals no blocks: the pictures are another room's.
-        _player.IntroducedSamus.Xray.IsActive && XrayBlockRevealRules.RevealsBlocks(scene.Room, scene.Boss)
+        _player.Samus.Xray.IsActive && XrayBlockRevealRules.RevealsBlocks(scene.Room, scene.Boss)
             ? _xray.Reveal(scope)
             : null;
 }

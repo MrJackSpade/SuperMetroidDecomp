@@ -173,22 +173,22 @@ internal static class GrappleFlarePresentationVerification
     private readonly record struct NativeFlare(int Frame, ushort Timer);
 
     /// <summary>Reads a native Grapple flare delay byte solely for the verification timing oracle.</summary>
-    private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleFlarePresentationRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the real actor draws the flare from the bound sheets, and from newly bound ones.</summary>
     private static void VerifyGrappleFlareActorBinding(
         MapPresentationInstalledRoomAssets roomAssets, InstalledScreenContent maps, InstalledGrapplePresentation grappleArtwork)
     {
         var random = new SharedRandom();
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.ScreenContent = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;
         runtime.Artwork.GrappleSwingFrames = grappleArtwork.SwingFrames;
         runtime.Artwork.SpriteSheets = InstalledFixtures.SpriteSheets;
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.IntroducedSamus;
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        var samus = runtime.Player.Samus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose); samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -204,7 +204,7 @@ internal static class GrappleFlarePresentationVerification
         game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");
         runtime.Sprites.BeginFrame();
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
         runtime.Sprites.FinalizeFrame();
         AssertTrue(runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleFlare)
                 .All(draw => ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, ((SamusColouredDraw)draw).Image.Sheet)),
@@ -212,7 +212,7 @@ internal static class GrappleFlarePresentationVerification
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             OamBuffer image = target.Sprites.FinalizeAsOam();
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }
@@ -220,5 +220,5 @@ internal static class GrappleFlarePresentationVerification
 
     /// <summary>Reads one native facing-row selector offset to check both rows choose the shared main flare.</summary>
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        RomDataReader.ReadWordFixedBank(bus, address);
 }

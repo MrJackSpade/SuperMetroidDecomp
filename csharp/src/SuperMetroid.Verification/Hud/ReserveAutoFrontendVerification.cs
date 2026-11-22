@@ -43,13 +43,13 @@ internal static class ReserveAutoFrontendVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -174,7 +174,7 @@ internal static class ReserveAutoFrontendVerification
         samus = runtime.Player.Samus;
         AssertTrue(runtime.Player.Samus?.Control.Mode.Movement != SamusMovementMode.Gunship, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.Places.InUpdateOrder[0];
-        GunshipState shipPart = GunshipState.Of(ship);
+        GunshipState shipPart = ship.RequireSpeciesState<GunshipState>();
         shipPart.Phase = GunshipPhase.WaitForEntranceToOpen;
         shipPart.PhaseTimer = UpdateCountdown.For(100);
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);

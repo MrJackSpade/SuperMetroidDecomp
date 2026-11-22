@@ -15,6 +15,9 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// </summary>
 internal static class EndingSceneColoursVerification
 {
+    /// <summary>Space backdrops for checks whose scenes never show the space behind the exploding planet.</summary>
+    private static readonly EndingSpaceBackdrops NoSpace = new(new Dictionary<ColourEffectFrame, RgbColor>());
+
     /// <summary>Runs the scene colour checks on the ending's colours alone, without an installation.</summary>
     internal static void VerifyEndingSceneColours()
     {
@@ -32,7 +35,7 @@ internal static class EndingSceneColoursVerification
         colours.ResetColourEffects();
         AssertTrue(colours.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.Explosion)]),
             "a scene's whole screen of colours shows nothing an earlier scene showed");
-        AssertEqual(explosion, colours.Backdrop(null), "a scene shows its own backdrop");
+        AssertEqual(explosion, colours.Backdrop(NoSpace), "a scene shows its own backdrop");
 
         colours.Fade(EndingFade.ExplosionBackground, 5);
         colours.Fade(EndingFade.ExplodingPlanet, 5);
@@ -107,12 +110,12 @@ internal static class EndingSceneColoursVerification
         var backdrop = new EndingColours();
         backdrop.StartScene(EndingColourLoad.Explosion, explosion);
         backdrop.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
-        AssertEqual(RgbColor.White, backdrop.Backdrop(null), "the silhouette whitens the backdrop");
+        AssertEqual(RgbColor.White, backdrop.Backdrop(NoSpace), "the silhouette whitens the backdrop");
         backdrop.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
         backdrop.Flash(EndingFlash.WhiteoutCleared, black);
-        AssertEqual(black, backdrop.Backdrop(null), "the flyaway clears the whiteout's backdrop to black");
+        AssertEqual(black, backdrop.Backdrop(NoSpace), "the flyaway clears the whiteout's backdrop to black");
         backdrop.StartScene(EndingColourLoad.Credits, escape);
-        AssertEqual(escape, backdrop.Backdrop(null), "the next scene shows its own backdrop");
+        AssertEqual(escape, backdrop.Backdrop(NoSpace), "the next scene shows its own backdrop");
         Console.WriteLine("  Ending scene colours: each scene shows its own colours, loads, fades, flashes and effects within a scene, "
             + "restores end the effects they restore, cleared effects end, each actor, picture and floor shows only its own effects.");
     }

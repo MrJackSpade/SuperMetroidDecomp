@@ -5,30 +5,71 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CorpseEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, CorpseSpawnSettings settings, DeadTourianCorpseEnemyState state)
+    : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
-    /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Tourian corpses' species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal DeadTourianEntity(DeadTourianBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        CorpseSpawnSettings settings)
+        : this(species, occupant, place, common, settings, DeadTourianBehavior.InitializeDeadTourianCorpse(place, occupant, settings))
+    {
+    }
+
+    /// <summary>The species' DeadTourianShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnDeadTourianShotReaction => field ??= DeadTourianBehavior.DeadTourianShotReaction(MarkShotAndRot);
+
+    /// <summary>The species' DeadTourianPowerBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnDeadTourianPowerBombReaction => field ??= DeadTourianBehavior.DeadTourianPowerBombReaction(StartRot);
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal CorpseSpawnSettings Settings { get; } = settings;
 
     /// <inheritdoc/>
-    public void Initialize() => DeadTourianBehavior.InitializeDeadTourianCorpse(Place, Occupant);
+    public CorpseRotRows ShownRotRows => DeadTourianBehavior.ShownDeadTourianRows(state);
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly DeadTourianCorpseEnemyState state = state;
+
+    /// <summary>Starts a corpse not yet decomposed rotting on a Power Bomb, in place of its common damage.</summary>
+    /// <param name="context">The blast meeting the corpse.</param>
+    internal void StartRot(EnemyPowerBombContext context) => DeadTourianBehavior.ResolveDeadTourianCorpsePowerBomb(context.Enemy, state);
+
+    /// <summary>Marks a shot's hit on the corpse and starts its rot, with no damage or impact.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the rot replaces the rest of the shot reaction.</returns>
+    internal bool MarkShotAndRot(in EnemyShotContext c)
+    {
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        DeadTourianBehavior.TriggerDeadTourianCorpseRotting(c.Enemy, state);
+        return true;
+    }
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadTourianMainAi(Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation(Place, state);
 
     /// <inheritdoc/>
-    private protected override void ReactToOwnTouch(EnemyTouchContext context) => DeadTourianBehavior.ReactToDeadTourianTouch(context);
+    private protected override void ReactToOwnTouch(EnemyTouchContext context) => DeadTourianBehavior.ReactToDeadTourianTouch(context, state);
 
     /// <inheritdoc/>
-    private protected override EnemyShotReaction OwnShotReaction => DeadTourianBehavior.DeadTourianShotReaction;
+    private protected override EnemyShotReaction OwnShotReaction => OwnDeadTourianShotReaction;
 
     /// <inheritdoc/>
-    private protected override EnemyPowerBombReaction OwnPowerBombReaction => DeadTourianBehavior.DeadTourianPowerBombReaction;
+    private protected override EnemyPowerBombReaction OwnPowerBombReaction => OwnDeadTourianPowerBombReaction;
 
     /// <inheritdoc/>
-    private protected override void ReplaceBombDamage(EnemyBombContext context) => DeadTourianBehavior.ReplaceDeadTourianBombDamage(context);
+    private protected override void ReplaceBombDamage(EnemyBombContext context) => DeadTourianBehavior.ReplaceDeadTourianBombDamage(context, state);
 }

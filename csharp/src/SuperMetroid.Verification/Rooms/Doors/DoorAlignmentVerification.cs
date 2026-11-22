@@ -97,7 +97,7 @@ internal static class DoorAlignmentVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
@@ -121,7 +121,7 @@ internal static class DoorAlignmentVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);

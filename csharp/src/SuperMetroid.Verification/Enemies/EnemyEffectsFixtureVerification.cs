@@ -41,9 +41,6 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Seeded melt phase with recognizable graphics and the body canvases Crocomire's initialization attaches.</summary>
         internal CrocomireDeathState Effect { get; }
 
-        /// <summary>The installed boss body sheets the fixture draws from.</summary>
-        internal static BossBodySheets Sheets => InstalledFixtures.BossBodySheets;
-
         /// <summary>The dissolve step band <paramref name="band"/> of the melt last showed (#1652); a pass starts every band at none.</summary>
         internal int MeltBandStep(int band) => Effect.MeltBandSteps[band];
 
@@ -51,20 +48,16 @@ internal static class EnemyEffectsFixtureVerification
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
-                Enemies.BossArtwork = new BossSourceArtwork { CrocomireMelting = art };
-            Actor = new CrocomireEnemyState(Enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), Enemies.Places.InUpdateOrder[0]);
-            Enemies.Places.InUpdateOrder[1].SetSpeciesState(new CrocomireTongueState(Actor));
-            Actor.JoinTongue(Enemies.Places.InUpdateOrder[1]);
-            Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
+                Enemies.BossArtwork = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireMelting = art };
+            Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
+            Enemies.VerificationServices().ReadRandom = () => 0x1234;
+            // He is placed as his room's population places him; his setup builds his encounter and attaches the cleared
+            // body canvases the melting body is drawn on (#1466).
+            Actor = Bosses.Crocomire.CrocomirePlacement.PlaceCrocomire(Enemies, new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
-            // The fight's initialization attaches the cleared body canvases the melting body is drawn on (#1466).
-            BossBodyCanvasFixtures.AttachCrocomire(Enemies, Sheets);
             Effect = Actor.Death;
             Effect.AcidSmokeWait.LastFor(1);
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
-            Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
-            Actor.Body.SetSpeciesState(Actor);
-            Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 
         /// <summary>

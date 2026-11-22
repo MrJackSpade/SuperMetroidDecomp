@@ -25,17 +25,6 @@ internal static class ChozoNativeWords
     /// </summary>
     internal static readonly HashSet<ushort> ActivatedFrameRoutineWords = [0x807b, 0xe7da];
 
-    /// <summary>
-    /// The phase a recorded routine word of the statue's site names: the site's wait, nothing yet or the initializer's
-    /// routine before the idle animation's first beat installs the wait, or a routine the activation installs.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The word is none of the routines the statue's site runs.</exception>
-    internal static ChozoStatuePhase PhaseAt(ushort word, bool wreckedShip) =>
-        word == HandWaitWord(wreckedShip) ? ChozoStatuePhase.AwaitingHand
-        : word is 0 or InitializerFrameRoutineWord ? ChozoStatuePhase.Placed
-        : ActivatedFrameRoutineWords.Contains(word) ? ChozoStatuePhase.Activated
-        : throw new InvalidDataException($"Recorded Chozo statue routine ${word:X4} is not one its site runs.");
-
     /// <summary>The cartridge's carry-motion records per facing: sixteen facing left, then their sixteen mirrors facing right.</summary>
     internal const int CarryRecordsPerFacing = 16;
 

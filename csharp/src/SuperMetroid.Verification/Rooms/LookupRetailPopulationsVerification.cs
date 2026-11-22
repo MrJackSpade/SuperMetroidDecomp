@@ -200,5 +200,5 @@ internal static class LookupRetailPopulationsVerification
         !chain.Contains((RetailPopulationFieldRomByte(rom, address + 2) + back.X, RetailPopulationFieldRomByte(rom, address + 3) + back.Y));
 
     /// <summary>Reads native placement coordinate bytes for the independent oracle.</summary>
-    private static byte RetailPopulationFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte RetailPopulationFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -114,15 +114,6 @@ internal sealed partial class MotherBrainColours : IGameplayShadingSource
     /// <summary>Detaches her brain as she dies: it keeps the colours it shows, and only the corpse's fade changes them from here.</summary>
     internal void DetachBrain() => detachedBrain ??= OwnShading;
 
-    /// <summary>Shows <paramref name="image"/> of the corpse's fade over her detached brain.</summary>
-    /// <exception cref="InvalidOperationException">Her brain has not been detached.</exception>
-    internal void ShowCorpseFade(MotherBrainFadeImage image)
-    {
-        if (detachedBrain is null)
-            throw new InvalidOperationException("Mother Brain's corpse fades after her death detaches her brain.");
-        ShowFade(image);
-    }
-
     /// <summary>Shows image <paramref name="image"/> of her room's flash.</summary>
     internal void ShowRoomFlash(MotherBrainRoomFlashImage image) => roomGrey = MotherBrainShades.Flash(image);
 

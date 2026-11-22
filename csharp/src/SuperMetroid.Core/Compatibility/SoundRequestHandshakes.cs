@@ -26,7 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("each sound library's request is repeated until accepted, held and withdrawn, and the withdrawal repeated until accepted, before the library's next queued sound is requested")]
 public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>Where one library's queue is in its handshake.</summary>
     public enum Phase
@@ -54,14 +54,47 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
         Withdraw,
     }
 
-    /// <summary>One library's handshake.</summary>
-    /// <param name="Phase">Where the queue is.</param>
+    /// <summary>One library's handshake: where its queue is, with what that place holds (#2554).</summary>
     /// <param name="Awaited">The sound the queue last requested and has not withdrawn, or none.</param>
+    internal abstract partial record Handshake(RequestedSound<TSound>? Awaited)
+    {
+        /// <summary>Where the queue is.</summary>
+        internal abstract Phase Phase { get; }
+    }
+
+    /// <summary>Ready to request the library's next queued sound, awaiting nothing.</summary>
+    internal sealed partial record ReadyHandshake() : Handshake(Awaited: default)
+    {
+        /// <inheritdoc/>
+        internal override Phase Phase => Phase.ReadyToRequest;
+    }
+
+    /// <summary>Repeating the requested sound until the library reports it accepted.</summary>
+    /// <param name="Awaited">The sound requested, or none once a music change's downtime dropped it.</param>
+    internal sealed partial record AwaitingHandshake(RequestedSound<TSound>? Awaited) : Handshake(Awaited)
+    {
+        /// <inheritdoc/>
+        internal override Phase Phase => Phase.AwaitingAcceptance;
+    }
+
+    /// <summary>Holding the accepted request before withdrawing it.</summary>
+    /// <param name="Awaited">The sound accepted, or none once a music change's downtime dropped it.</param>
     /// <param name="Hold">
-    /// While holding, the sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the
-    /// pass that withdraws it; otherwise none.
+    /// The sound-queue passes before the accepted request is withdrawn, counted once a pass and over on the pass that
+    /// withdraws it.
     /// </param>
-    internal readonly partial record struct Handshake(Phase Phase, TSound? Awaited, UpdateCountdown? Hold);
+    internal sealed partial record HoldingHandshake(RequestedSound<TSound>? Awaited, UpdateCountdown Hold) : Handshake(Awaited)
+    {
+        /// <inheritdoc/>
+        internal override Phase Phase => Phase.HoldingBeforeWithdrawal;
+    }
+
+    /// <summary>Repeating the withdrawal until the library reports nothing, awaiting nothing.</summary>
+    internal sealed partial record WithdrawingHandshake() : Handshake(Awaited: default)
+    {
+        /// <inheritdoc/>
+        internal override Phase Phase => Phase.AwaitingWithdrawalAcceptance;
+    }
 
     /// <summary>Sound-queue passes an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
     public const int WithdrawalHoldPasses = 2;
@@ -82,7 +115,7 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
         if (libraries.Distinct().Count() != libraries.Length)
             throw new ArgumentException("Each sound library is listed once.", nameof(libraries));
         this.libraries = libraries;
-        handshakes = libraries.ToDictionary(library => library, _ => default(Handshake));
+        handshakes = libraries.ToDictionary(library => library, Handshake (_) => new ReadyHandshake());
     }
 
     /// <summary>The sound each library's queue last requested and has not withdrawn, as an acknowledgement of it, or none.</summary>
@@ -93,43 +126,12 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     public void Reset()
     {
         foreach (TLibrary library in libraries)
-            handshakes[library] = default;
+            handshakes[library] = new ReadyHandshake();
     }
 
     /// <summary>The sound <paramref name="library"/>'s queue last requested and has not withdrawn, or none.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
-
-    /// <summary>What a pass does in each phase of a library's handshake, and the step it hands the library.</summary>
-    [field: NonSerialized]
-    private IdentityTable<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>> PhaseSteps => field ??=
-        new(new Dictionary<Phase, Func<TLibrary, SoundAcknowledgement<TSound>, Handshake, HandshakeStep>>
-        {
-            [Phase.ReadyToRequest] = (library, acceptance, handshake) => HandshakeStep.RequestNext,
-            [Phase.AwaitingAcceptance] = (library, acceptance, handshake) =>
-            {
-                if (!acceptance.Acknowledges(handshake.Awaited))
-                    return HandshakeStep.RepeatRequest;
-                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, Hold = UpdateCountdown.Lasting(WithdrawalHoldPasses) };
-                return HandshakeStep.Wait;
-            },
-            [Phase.HoldingBeforeWithdrawal] = (library, acceptance, handshake) =>
-            {
-                UpdateCountdown hold = handshake.Hold
-                    ?? throw new InvalidDataException("A sound handshake holds its accepted request with no hold.");
-                if (!hold.Count())
-                    return HandshakeStep.Wait;
-                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, Hold: null);
-                return HandshakeStep.Withdraw;
-            },
-            [Phase.AwaitingWithdrawalAcceptance] = (library, acceptance, handshake) =>
-            {
-                if (!acceptance.IsNone)
-                    return HandshakeStep.Withdraw;
-                handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
-                return HandshakeStep.RequestNext;
-            },
-        });
+    public RequestedSound<TSound>? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
     /// <summary>
     /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
@@ -143,7 +145,28 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
     {
         Handshake handshake = HandshakeOf(library);
-        return PhaseSteps[handshake.Phase](library, acceptance, handshake);
+        switch (handshake)
+        {
+            case ReadyHandshake:
+                return HandshakeStep.RequestNext;
+            case AwaitingHandshake awaiting:
+                if (!acceptance.Acknowledges(awaiting.Awaited))
+                    return HandshakeStep.RepeatRequest;
+                handshakes[library] = new HoldingHandshake(awaiting.Awaited, UpdateCountdown.Lasting(WithdrawalHoldPasses));
+                return HandshakeStep.Wait;
+            case HoldingHandshake holding:
+                if (!holding.Hold.Count())
+                    return HandshakeStep.Wait;
+                handshakes[library] = new WithdrawingHandshake();
+                return HandshakeStep.Withdraw;
+            case WithdrawingHandshake:
+                if (!acceptance.IsNone)
+                    return HandshakeStep.Withdraw;
+                handshakes[library] = new ReadyHandshake();
+                return HandshakeStep.RequestNext;
+            default:
+                throw new InvalidDataException($"Sound library {library} holds handshake {handshake}, which no pass can leave.");
+        }
     }
 
     /// <summary>Records that <paramref name="library"/>'s ready queue requested <paramref name="sound"/>; it then awaits its acceptance.</summary>
@@ -151,12 +174,12 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     /// <param name="sound">The sound dequeued for it.</param>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     /// <exception cref="InvalidOperationException">The library's queue is not ready to request.</exception>
-    public void Requested(TLibrary library, TSound? sound)
+    public void Requested(TLibrary library, TSound sound)
     {
-        Phase phase = HandshakeOf(library).Phase;
-        if (phase != Phase.ReadyToRequest)
-            throw new InvalidOperationException($"Sound library {library} requested a sound while {phase}.");
-        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, Hold: null);
+        Handshake handshake = HandshakeOf(library);
+        if (handshake is not ReadyHandshake)
+            throw new InvalidOperationException($"Sound library {library} requested a sound while {handshake.Phase}.");
+        handshakes[library] = new AwaitingHandshake(new RequestedSound<TSound>(sound));
     }
 
     /// <summary>
@@ -166,12 +189,12 @@ public sealed partial class SoundRequestHandshakes<TLibrary, TSound>
     public void DropAwaitedRequests()
     {
         foreach (TLibrary library in libraries)
-            handshakes[library] = handshakes[library] with { Awaited = null };
+            handshakes[library] = handshakes[library] with { Awaited = default };
     }
 
     /// <summary><paramref name="library"/>'s handshake.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    private Handshake HandshakeOf(TLibrary library) => handshakes.TryGetValue(library, out Handshake handshake)
+    private Handshake HandshakeOf(TLibrary library) => handshakes.TryGetValue(library, out Handshake? handshake)
         ? handshake
         : throw new ArgumentOutOfRangeException(nameof(library), library, "The sound handshakes were not given this library.");
 }

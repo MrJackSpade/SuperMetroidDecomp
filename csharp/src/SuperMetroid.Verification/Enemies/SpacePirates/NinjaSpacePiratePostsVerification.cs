@@ -29,8 +29,8 @@ internal static class NinjaSpacePiratePostsVerification
         {
             slot.Position = slot.Position.WithWhole(new(x, 128));
             slot.SetSpawnSettings(new NinjaSpacePirateSpawnSettings(start, distance));
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant(), slot);
-            NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
+            // The Pirate's setup builds the state that holds its posts.
+            NinjaSpacePirateEnemyState state = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), slot);
 
             bool startsAtLeft = start == NinjaSpacePirateStartPost.Left;
             int left = startsAtLeft ? x : (x - distance) & ushort.MaxValue;

@@ -24,7 +24,7 @@ internal static class CompiledProjectileMathVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            native[i] = unchecked((short)rom.ReadCartridgeWord(address));
         }
         var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.SineSpeed(new SignedEightEight(speed), new TrigonometryAngle(angle)).RawValue);
         var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => SpeedAlongAngle.Along(new SignedEightEight(babySpeed), new TrigonometryAngle(babyAngle)).RawValue);
@@ -36,9 +36,9 @@ internal static class CompiledProjectileMathVerification
         // The native view's index runs a quarter turn ahead of the angle it holds: its first 64 words are the negative cosine.
         var shaktool = new Func<int, int>(index => ShaktoolBehavior.SineVelocity(TrigonometryAngle.Wrapped(index - 64)).RawValue);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new TrigonometryAngle(unchecked((byte)angle)), radius));
-        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
+        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = NoobTubePieceFixtures.PlacedPieces(SuperMetroid.Verification.Harness.EnemySystemFixtures.New(
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.EnemySessionFixtures.WithInstalledServices(),
-            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()).NoobTubeBehavior.TubePieces;
+            SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom()));
         var arc = new Action<EnemyProjectile, int>((projectile, swaySteps) => NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc(pieces, projectile, swaySteps));
         var crocomire = new Func<byte, PixelVelocity<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(AimAngleConstants.FromClockwiseSteps(bearing)));
         var echo = new Func<RotationAngle, int, Offset16<RoomPixels>>(SamusShinesparkState.OffsetAlong);
@@ -111,7 +111,7 @@ internal static class CompiledProjectileMathVerification
         // Native $86:D843/$D89F OR bit seven into an even byte offset; this is not
         // equivalent to adding a quarter-turn. Check every sway phase, both step
         // sizes, carry/borrow, low subpixel preservation and the swing's wrap.
-        var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
+        var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         foreach (int swaySteps in new[] { 1, 2 })
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xfffffff1 })
         for (int phase = 0; phase < 512; phase++)

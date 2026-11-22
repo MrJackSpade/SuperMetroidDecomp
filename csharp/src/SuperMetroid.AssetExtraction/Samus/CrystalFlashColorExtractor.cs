@@ -26,7 +26,7 @@ public static partial class CrystalFlashColorExtractor
         var body = new PaletteRgb5[CrystalFlashColorFormat.BodyFrameCount][];
         for (int frame = 0; frame < body.Length; frame++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * BodyRecordBytes);
             body[frame] = ReadColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -34,7 +34,7 @@ public static partial class CrystalFlashColorExtractor
         var bubble = new PaletteRgb5[CrystalFlashColorFormat.BubbleFrameCount][];
         for (int frame = 0; frame < bubble.Length; frame++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.BubblePointers.Value + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
@@ -47,7 +47,7 @@ public static partial class CrystalFlashColorExtractor
 
         PaletteRgb5[] ReadColors(int pointer, int count)
         {
-            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] source = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.PaletteBank.Value | pointer, count * sizeof(ushort));
             var result = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)

@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
 public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>The libraries, distinct, in the order each request check serves them.</summary>
     private readonly ImmutableArray<TLibrary> libraries;
@@ -65,7 +65,7 @@ public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
 
     /// <summary>Records the game's current request to <paramref name="library"/>; none withdraws it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The clock was not given <paramref name="library"/>.</exception>
-    public void Request(TLibrary library, TSound? request) => RequestsOf(library).Requested = request;
+    public void Request(TLibrary library, RequestedSound<TSound>? request) => RequestsOf(library).Requested = request;
 
     /// <summary>
     /// Loading new music stops the music player: the music-load reporter reports the load in progress instead of an
@@ -151,8 +151,8 @@ public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     private SoundRequestCheck<TSound> Check(TLibrary library)
     {
         LibraryRequests state = RequestsOf(library);
-        TSound? previous = state.ActedOn;
-        TSound? request = state.Taken;
+        RequestedSound<TSound>? previous = state.ActedOn;
+        RequestedSound<TSound>? request = state.Taken;
         state.ActedOn = request;
         state.Acknowledged = SoundAcknowledgement<TSound>.Of(request);
         state.Taken = state.Requested;
@@ -170,16 +170,16 @@ public sealed partial class SoundAcceptanceClock<TLibrary, TSound>
     private sealed partial class LibraryRequests
     {
         /// <summary>The game's most recent request to the library; none requests nothing.</summary>
-        internal TSound? Requested { get; set; }
+        internal RequestedSound<TSound>? Requested { get; set; }
 
         /// <summary>What the library reports back as acknowledged.</summary>
         internal SoundAcknowledgement<TSound> Acknowledged { get; set; }
 
         /// <summary>The request the library took at its most recent check, which the next check acts on.</summary>
-        internal TSound? Taken { get; set; }
+        internal RequestedSound<TSound>? Taken { get; set; }
 
         /// <summary>The request the library acted on at its most recent check, for detecting a change.</summary>
-        internal TSound? ActedOn { get; set; }
+        internal RequestedSound<TSound>? ActedOn { get; set; }
     }
 
     /// <summary>

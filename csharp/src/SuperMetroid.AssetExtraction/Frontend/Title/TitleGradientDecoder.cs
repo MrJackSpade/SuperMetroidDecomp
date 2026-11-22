@@ -34,9 +34,9 @@ public static partial class TitleGradientDecoder
         for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
         {
             byte write = fixedWrites[line], component = (byte)(write & 31);
-            if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
-            if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
-            if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
+            if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(OfferCreations) - COLDATA red-select bit
+            if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(OfferCreations) - COLDATA green-select bit
+            if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(OfferCreations) - COLDATA blue-select bit
             var colour = new FadeLevelColour(red, green, blue).ToColour();
             GradientBlend blend = Blend(control[line], line);
             if (stops.Count == 0 || stops[^1].Colour != colour || stops[^1].Blend != blend)
@@ -52,10 +52,10 @@ public static partial class TitleGradientDecoder
     /// <exception cref="InvalidDataException">The byte selects any other blend.</exception>
     private static GradientBlend Blend(byte control, int line)
     {
-        const int floor = 0x01; // cartridge-encoding: allow(Register) - CGADSUB BG1 enable bit
-        const int sprites = 0x10; // cartridge-encoding: allow(Register) - CGADSUB OBJ enable bit
-        const int backdrop = 0x20; // cartridge-encoding: allow(Register) - CGADSUB backdrop enable bit
-        const int subtract = 0x80; // cartridge-encoding: allow(Register) - CGADSUB subtract bit
+        const int floor = 0x01; // cartridge-encoding: allow(OfferCreations) - CGADSUB BG1 enable bit
+        const int sprites = 0x10; // cartridge-encoding: allow(OfferCreations) - CGADSUB OBJ enable bit
+        const int backdrop = 0x20; // cartridge-encoding: allow(OfferCreations) - CGADSUB backdrop enable bit
+        const int subtract = 0x80; // cartridge-encoding: allow(OfferCreations) - CGADSUB subtract bit
         if (control == (subtract | backdrop | floor))
             return GradientBlend.DarkensFloorAndBackdrop;
         if (control == (backdrop | sprites | floor))

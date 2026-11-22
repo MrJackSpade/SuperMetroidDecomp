@@ -92,6 +92,6 @@ internal static class XrayRevealVerification
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
+        return bus.ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
     }
 }

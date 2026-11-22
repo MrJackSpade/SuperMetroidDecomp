@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed partial class MetareeEntity(MetareeBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Metaree's own shot reaction, built for this occupant.</summary>
     private EnemyShotReaction OwnShot => field ??= MetareeBehavior.MetareeShotReaction(this);
@@ -25,14 +25,14 @@ internal sealed partial class MetareeEntity(MetareeBehavior species, RoomEnemyOc
         species.SpawnMetareeDebris(Occupant, context.Enemy);
     }
 
-    /// <inheritdoc/>
-    public void Initialize() => MetareeBehavior.InitializeMetaree(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly MetareeEnemyState state = MetareeBehavior.InitializeMetaree();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunMetareeMainAi(Occupant, Place, state, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => MetareeBehavior.AdvanceMetareeTypedAnimation(Place, state);
 
     /// <summary>The Metaree's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MetareeReactions.Shot ? OwnShot : base.ShotReaction;

@@ -25,7 +25,7 @@ internal static partial class PirateHitboxShotActions
         if (SpacePirateReactions.InvincibleArmour.Contains(hitboxShot))
         {
             if (family == SamusProjectileFamily.SuperMissile &&
-                projectile.KindStateAs<SuperMissileShotState>().Ignition is SamusMissileIgnition.Pending)
+                held.KindState is { AwaitsIgnitionAsFired: true })
                 return PirateHitboxShotAction.Ignore;
             return BeamAndMissileVulnerabilities.TryGetValue(family, out ReflectableShot? reflectable)
                 ? PirateHitboxShotAction.Reflect(reflectable.Family)

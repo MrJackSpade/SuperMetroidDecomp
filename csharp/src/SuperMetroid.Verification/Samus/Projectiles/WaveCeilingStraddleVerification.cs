@@ -63,7 +63,7 @@ internal static class WaveCeilingStraddleVerification
         RoomObjectPlace[] active = [.. arenaObjects.Places.InUpdateOrder.Where(place => place.Active)];
         AssertEqual(1, active.Length, "the shot above the ceiling sets off one reaction in the room's right half");
         AssertEqual(reacted, active[0].Block, "the reaction spawns at the solid block the straddled read starts in");
-        AssertEqual(RoomCollisionType.SolidBlock, (active[0].Behaviour as BlockReactionObject)?.SavedTerrain?.Collision,
+        AssertEqual(RoomCollisionType.SolidBlock, (active[0].Behaviour as BlockReactionObject)?.SavedTerrain.Collision,
             "the respawning shot block restores the solid block's own collision kind, as its setup reads the block it spawned at");
         AssertTrue(arena.GetCollisionBlock(reacted).Terrain != solid, "the solid block is replaced while the shot block is broken");
         AssertEqual(tail, arena.GetCollisionBlock(new(100, 1)).Terrain, "the block after it is left as it was");

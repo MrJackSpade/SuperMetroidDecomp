@@ -9,7 +9,7 @@ public sealed partial class EvirArmsState : EvirPartState
 
     /// <summary>
     /// The place of the arms' body, which their room lists right before them. The arms read the body there after it has
-    /// left its place (<see cref="RoomEnemyPlace.FoundState{T}"/>): the update a hit kills the body they run once more on
+    /// left its place (<see cref="RoomEnemyPlace.FoundEntity"/>): the update a hit kills the body they run once more on
     /// its cleared place, reading it facing left, and the arms of a body a power bomb's follow-up deleted
     /// (<see cref="FollowUpAfterStruckPart"/>) live on following that body's last facing.
     /// </summary>

@@ -35,7 +35,7 @@ public static partial class PowerBombGlowColorExtractor
     /// <summary>Decodes one glow sequence from native three-byte triplets of five-bit levels into the installed colours.</summary>
     private static string[] Read(ISnesAddressSpace bus, PowerBombGlowSequence sequence)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] source = RomDataReader.ReadFixedBank(bus,
             PowerBombColorSources.Start(sequence),
             PowerBombGlowColorFormat.Count(sequence) * SamusSourceDefinitions.PowerBombBytesPerColor);
         var colors = new string[PowerBombGlowColorFormat.Count(sequence)];

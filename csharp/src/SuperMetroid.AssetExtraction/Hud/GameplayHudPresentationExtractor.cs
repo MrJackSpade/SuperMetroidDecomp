@@ -75,7 +75,7 @@ public static partial class GameplayHudPresentationExtractor
     /// <summary>Reads consecutive fixed-bank HUD tilemap words and decodes their presentation attributes.</summary>
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
-            .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
+            .Select(index => Cell(RomDataReader.ReadWordFixedBank(bus, address + index * sizeof(ushort))))
             .ToArray();
 
     /// <summary>Splits a native BG tilemap word into atlas coordinates, palette, priority, and flips.</summary>

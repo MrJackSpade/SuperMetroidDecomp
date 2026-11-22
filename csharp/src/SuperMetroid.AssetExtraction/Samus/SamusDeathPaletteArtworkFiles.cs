@@ -42,6 +42,8 @@ public static partial class SamusDeathPaletteArtworkFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         WriteIndented = true,
     };
 
@@ -69,7 +71,7 @@ public static partial class SamusDeathPaletteArtworkFiles
             var steps = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
             for (int palette = 0; palette < steps.Length; palette++)
             {
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
+                int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
                     suit * SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
                 steps[palette] = ReadPalette(bus, pointer);
@@ -79,12 +81,12 @@ public static partial class SamusDeathPaletteArtworkFiles
         var suitless = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
+            int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
-            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
+            whiteout[shade] = bus.ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
         // The cartridge's explosion records follow the explosion's pictures in the order its animation shows them.
         var selectors = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int record = 0; record < SamusDeathSheetDefinitions.Explosion.Count; record++)
@@ -147,7 +149,7 @@ public static partial class SamusDeathPaletteArtworkFiles
         }
         return new InstalledSamusDeathPalettes(
             SamusSuitListLayout.Order.ToDictionary(suit => suit, suit => Array.ConvertAll(
-                document.Suited.TryGetValue(SamusSuitKeys.Installed.Of(suit), out ushort[][]? steps) && steps is not null
+                document.Suited.TryGetValue(SamusSuitKeys.Installed.Of(suit), out ushort[][]? steps)
                     ? steps : throw new InvalidDataException($"Samus death-palette artwork is missing the {suit} suit."), Colors)),
             Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), explosion);
     }
@@ -171,9 +173,7 @@ public static partial class SamusDeathPaletteArtworkFiles
     }
 
     /// <summary>The artwork file stores the cartridge's colour words; each must be a fifteen-bit color.</summary>
-    private static RgbColor[] Colors(ushort[]? words) => words is null
-        ? throw new InvalidDataException("Samus death-palette artwork is missing a palette.")
-        : Array.ConvertAll(words, word =>
+    private static RgbColor[] Colors(ushort[] words) => Array.ConvertAll(words, word =>
         RgbColor.IsColorWord(word) ? RgbColor.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
@@ -182,7 +182,7 @@ public static partial class SamusDeathPaletteArtworkFiles
     {
         var colors = new ushort[InstalledSamusDeathPalettes.ColorCount];
         for (int color = 0; color < colors.Length; color++)
-            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
+            colors[color] = bus.ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
                 unchecked((ushort)(pointer + color * sizeof(ushort)))));
         return colors;
     }

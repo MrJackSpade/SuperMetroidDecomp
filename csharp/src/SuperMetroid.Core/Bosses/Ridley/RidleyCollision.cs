@@ -54,7 +54,7 @@ internal static partial class RidleyCollision
     /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> shows no Ridley body frame.</exception>
     internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components)
-            ? components
+        frame is not { } shown ? []
+            : FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components) ? components
             : throw new InvalidDataException($"Ridley frame {frame} has no collision.");
 }

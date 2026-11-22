@@ -439,7 +439,7 @@ internal static partial class BrinstarRoomEnemyPopulationDefinitions
         new(EnemyDefinitionId.Rio, EnemyPlacing.At(new(304, 96)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Rio, EnemyPlacing.At(new(432, 96)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         new(EnemyDefinitionId.Rio, EnemyPlacing.At(new(744, 96)), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
-        .. DachoraTrail.Placed(new(EnemyDefinitionId.Dachora, EnemyPlacing.At(new(96, 1704)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, EnemyPresence.None, false, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.Runner))),
+        .. DachoraTrail.Placed(EnemyPlacing.At(new(96, 1704)), EnemyContact.IgnoresSamus, EnemyProcessing.OffScreen, HorizontalDirection.Right),
     ], 8);
 
     /// <summary>The enemy population of the Hellway room.</summary>

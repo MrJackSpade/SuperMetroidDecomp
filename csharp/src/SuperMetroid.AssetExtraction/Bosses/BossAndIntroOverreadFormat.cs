@@ -21,5 +21,8 @@ internal static partial class BossAndIntroOverreadFormat
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

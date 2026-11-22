@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Verification.Enemies.KiHunters;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>
@@ -24,7 +25,7 @@ namespace SuperMetroid.Verification.Audio;
 internal static class GameplayAudioOrderVerification
 {
     /// <summary>
-    /// One gameplay update of the Crateria Ki Hunter room in which Samus fires a missile, a Ki Hunter spits and the HUD
+    /// One gameplay update of the Attic after Phantoon in which Samus fires a missile, a Ki Hunter spits and the HUD
     /// shows the newly selected missiles. The main gameplay routine runs Samus's input handler (which fires) before the
     /// enemies (which spit) and both before the HUD (which queues the selection sound), so the update's requests are the
     /// missile, the spit and the selection, in that order, and Samus's sound library receives the missile before the
@@ -32,9 +33,8 @@ internal static class GameplayAudioOrderVerification
     /// </summary>
     internal static void VerifyGameplaySoundsQueueInRunOrder()
     {
-        (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
-        _ = KiHunterAtItsSpit(runtime);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        (SuperMetroidRuntime runtime, AudioQueues audio) = RunToTheUpdateOfTheSpit();
+        SamusState samus = runtime.Player.Samus;
         samus.Missiles = samus.MaxMissiles = 5;
         samus.SelectedHudItem = HudItem.Missile;
         SoundRequestsMark samusLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
@@ -62,16 +62,14 @@ internal static class GameplayAudioOrderVerification
     /// </summary>
     internal static void VerifyLaterUpdateQueuesNothingStale()
     {
-        (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
-        RoomEnemyPlace kiHunter = KiHunterAtItsSpit(runtime);
+        (SuperMetroidRuntime runtime, AudioQueues audio) = RunToTheUpdateOfTheSpit();
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
         AssertTrue(runtime.AudioRequests.SoundsQueued.Contains(EnemySound.AcidSpit),
             "the first update queues the Ki Hunter's spit");
 
-        // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
-        kiHunter.AnimationClock.HoldFor(200);
+        // The Ki Hunter then holds its spent spit, so the second update's enemies request nothing.
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
 
@@ -89,8 +87,8 @@ internal static class GameplayAudioOrderVerification
     /// </summary>
     internal static void VerifyEchoFollowsTheUpdatesEarlierSounds()
     {
-        (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        (SuperMetroidRuntime runtime, AudioQueues audio) = AtticWithSessionAudio();
+        SamusState samus = runtime.Player.Samus;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         audio.AdvanceFrame(default);
         // The echo Samus's animation requests at its cue joins her audio requests (#2092).
@@ -107,7 +105,7 @@ internal static class GameplayAudioOrderVerification
         for (int frame = 0; frame < 128; frame++)
         {
             foreach (AudioRequest command in audio.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>(
-                [SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement))))
+                [SoundEffectLibrary.Room], _ => SoundAcknowledgement<SoundEffectId>.Of(acknowledgement is null ? null : new RequestedSound<SoundEffectId>(acknowledgement)))))
             {
                 bool recognized = false;
                 foreach (SoundEffectId? value in new SoundEffectId?[] { null, RoomSound.SpeedBooster, RoomSound.HardLanding, RoomSound.Landing })
@@ -148,41 +146,38 @@ internal static class GameplayAudioOrderVerification
     }
 
     /// <summary>
-    /// The Crateria Ki Hunter room with Samus standing free to move and fire, run by a game whose session queues receive
-    /// the runtime's requests.
+    /// The Attic after Phantoon (<see cref="KiHunterSpitStaging.LoadAtticAfterPhantoon"/>) run to the update before the one on
+    /// which its Ki Hunter's own AI and animation lead it to spit, which a replica run of the same room counts.
     /// </summary>
-    private static (SuperMetroidRuntime Runtime, AudioQueues Audio) KiHunterRoomWithSessionAudio()
+    private static (SuperMetroidRuntime Runtime, AudioQueues Audio) RunToTheUpdateOfTheSpit()
+    {
+        int updatesBeforeTheSpit = KiHunterSpitStaging.UpdatesBeforeTheSpit(() =>
+        {
+            (SuperMetroidRuntime replica, AudioQueues replicaAudio) = AtticWithSessionAudio();
+            return (replicaAudio, () => replica.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay }));
+        });
+        (SuperMetroidRuntime runtime, AudioQueues audio) = AtticWithSessionAudio();
+        for (int update = 0; update < updatesBeforeTheSpit; update++)
+            runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.MainGameplay });
+        return (runtime, audio);
+    }
+
+    /// <summary>
+    /// The Attic after Phantoon with Samus standing free to move and fire, run by a game whose session queues receive the
+    /// runtime's requests.
+    /// </summary>
+    private static (SuperMetroidRuntime Runtime, AudioQueues Audio) AtticWithSessionAudio()
     {
         var random = new SharedRandom();
         SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
-        SamusState samus = runtime.Player.IntroducedSamus;
-        samus.PoseId = SamusPoseId.FacingLeftNormalPose;
-        samus.Position = samus.Position.WithWhole(new(64, 128));
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        SamusState samus = KiHunterSpitStaging.LoadAtticAfterPhantoon(runtime, SamusPoseId.FacingLeftNormalPose);
         samus.Control.Unlock();
         runtime.Player.GroundedSamusMovementEnabled = true;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         return (runtime, game.AudioForVerification);
-    }
-
-    /// <summary>The room's green Ki Hunter, its AI idle and its script one update from the spit.</summary>
-    private static RoomEnemyPlace KiHunterAtItsSpit(SuperMetroidRuntime runtime)
-    {
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KihunterGreen));
-        KiHunterBodyState state = runtime.Enemies.KiHunterBodyStates[body.Ordinal]
-            ?? throw new InvalidOperationException("The Ki Hunter has no state.");
-        body.Position = body.Position.WithWhole(new(128, 128));
-        state.Action = KiHunterAction.AnimatingOnGround;
-        // The spit cue, four poses into the right spit animation, which queues the acid spit (library two).
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
-        body.AnimationClock.StepOnNextUpdate();
-        return body;
     }
 }

@@ -64,7 +64,7 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
-    private static byte KraidSinkObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkObjectFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Exercises each production callback and checks its rock X and PLM request count.</summary>
     private static void VerifyKraidSinkRockPlacement(CartridgeImportAddressSpace rom,
@@ -91,7 +91,7 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native rock-placement immediate for comparison with the spawned projectile.</summary>
-    private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkRockPlacementRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks native schedule rows and optionally runs all 65,536 body Y values through production sinking behavior.</summary>
     internal static void VerifyKraidSinkSchedule(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
@@ -137,6 +137,6 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads the bank-$A7 schedule and inline callback data for the cartridge oracle.</summary>
-    private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkScheduleRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

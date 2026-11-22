@@ -21,13 +21,13 @@ internal static class NoobTubeProjectileAnimationsVerification
     /// </summary>
     internal static void VerifyNoobTubeProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int steps = Family.CompareAll(cartridge);
         Func<EnemyProjectileAnimation, ushort?> pointers = Family.NativePointers(cartridge);
         // The pieces' animations are bound to the tube's own piece behaviour, which carries out their events.
         RoomEnemySystem enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = enemies.NoobTubeBehavior.TubePieces;
+        NoobTubeBehavior.NoobTubeProjectileBehavior pieces = NoobTubePieceFixtures.PlacedPieces(enemies);
         foreach ((NoobTubeShard shard, ushort entry) in ShardEntries)
         {
             Animation<NoobTubeProjectileSegment> flight = NoobTubeProjectileAnimations.ShardAnimations[shard];

@@ -25,7 +25,7 @@ internal static class PhantoonWaveMathVerification
         for (int offset = 0; offset < samples.Length; offset += 2)
         {
             int address = EnemyMathReferenceData.SignedSine + offset;
-            samples[offset] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            samples[offset] = unchecked((short)rom.ReadCartridgeWord(address));
         }
 
         static int NativeDisplacement(short sample, ushort amplitude)

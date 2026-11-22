@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
@@ -21,26 +22,28 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace> initialize = namihe ? fixturePlace => FuneNamiheBehavior.InitializeNamihe(fixturePlace.HeldOccupant(), fixturePlace) : fixturePlace => FuneNamiheBehavior.InitializeFune(fixturePlace.HeldOccupant(), fixturePlace);
+            // The Fune or Namihe is set up as its room's population sets it up: its species builds its entity and its state.
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, place.KeptDefinition);
             place.SetSpawnParameter1(place.HeldOccupant().DefinitionId, (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0)));
             place.SetSpawnParameter2(place.HeldOccupant().DefinitionId, 0x1000);
             place.Position = place.Position.WithWholeY(0x0200);
-            initialize(place);
-            FuneNamiheEnemyState state = namihe
-                ? enemies.NamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NamiheStates[0].")
-                : enemies.FuneStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneStates[0].");
+            _ = enemies.LoadAuthoredPopulation();
             ushort idleCursor = (ushort)((namihe
                 ? FuneNamiheSelectorOracle.NamiheIdleLeftCursor
                 : FuneNamiheSelectorOracle.FuneIdleLeftCursor) +
                 (right ? FuneNamiheSelectorOracle.FacingRightCursorDelta : 0));
-            AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
+            // Each list's first picture shows on the animation step after the update that starts it.
+            SamusState away = RoomEnemyFrameFixtures.StandaloneSamus();
+            place.AdvanceAnimation(away);
+            AssertEqual<EnemyFrameId?>(FirstPicture(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), place.Frame,
                 $"Fune/Namihe production idle list {variant}");
 
-            RunMain(place, state, namihe ? new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, place.Position.Y.Whole)) } : RoomEnemyFrameFixtures.StandaloneSamus());
+            SamusState samus = namihe ? new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, place.Position.Y.Whole)) } : away;
+            place.RunMainAi(samus);
+            place.AdvanceAnimation(samus);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
-            AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual<EnemyFrameId?>(FirstPicture(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), place.Frame,
                 $"Fune/Namihe production active list {variant}");
         }
 
@@ -48,21 +51,9 @@ internal static class FuneNamiheDefinitionsVerification
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
     }
 
-    /// <summary>Runs one main-AI update of the Fune or Namihe whose state is <paramref name="state"/>.</summary>
-    private static void RunMain(RoomEnemyPlace place, FuneNamiheEnemyState state, SamusState samus)
-    {
-        switch (state)
-        {
-            case FuneEnemyState fune:
-                FuneNamiheBehavior.RunFuneMain(place.HeldOccupant(), place, fune);
-                return;
-            case NamiheEnemyState namihe:
-                FuneNamiheBehavior.RunNamiheMain(place.HeldOccupant(), place, namihe, samus);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Fune/Namihe state {state}.");
-        }
-    }
+    /// <summary>The first picture the Fune or Namihe animation starting with <paramref name="segment"/> shows.</summary>
+    private static EnemyFrameId FirstPicture(FuneNamiheSegment segment) =>
+        FuneNamiheAnimations.Segments.FirstFrameShown(FuneNamiheAnimations.StartingWith(segment));
 
     /// <summary>
     /// For each of the eight native selector entries, the production selection for that entry's species, activity and
@@ -92,5 +83,5 @@ internal static class FuneNamiheDefinitionsVerification
     }
 
     /// <summary>Reads one native selector byte solely as the verification oracle.</summary>
-    private static byte FuneNamiheProgramSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FuneNamiheProgramSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

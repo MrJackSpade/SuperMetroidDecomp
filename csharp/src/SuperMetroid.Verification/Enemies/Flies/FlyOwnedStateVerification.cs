@@ -17,8 +17,8 @@ internal static class FlyOwnedStateVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Mellow, place.KeptDefinition);
-        FliesBehavior.InitializeFly(place);
-        FlyEnemyState state = place.EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.");
+        // The fly's setup builds the state its circling advances.
+        FlyEnemyState state = FliesBehavior.InitializeFly(place);
 
         for (int update = 1; update < 16; update++)
         {

@@ -32,8 +32,8 @@ internal static class RetailElevatorReturnTests
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.IntroducedSamus;
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        var samus = runtime.Player.Samus;
         samus.CollectedItems |= SamusEquipmentFlags.MorphBall;
         samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;

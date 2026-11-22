@@ -7,16 +7,14 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class PolypBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Polyp], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new PolypEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Polyp];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new PolypEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
@@ -31,16 +29,17 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Polyp.</summary>
-    internal void InitializePolyp(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal PolypEnemyState InitializePolyp(RoomEnemyPlace place)
     {
         place.AnimationClock.Restart();
         var state = new PolypEnemyState(PolypAction.WaitingForSamus)
         {
             Playback = new(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
         };
-        place.SetSpeciesState(state);
 
         _room.Random.Reseed(SpeciesRandomReseed.PolypPlacement);
+        return state;
     }
 
     /// <summary>What <see cref="RunPolypMain"/> does for each <see cref="PolypAction"/> member, each member's own arm.</summary>
@@ -102,14 +101,14 @@ internal sealed partial class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FlyPolypRock(EnemyProjectileMotionContext context) => FlyPolypRock(context.Projectile, context.Camera);
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, PolypAnimations.Segments,
+    internal static void AdvancePolypTypedAnimation(RoomEnemyPlace place, PolypEnemyState polypEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, polypEnemyState, PolypAnimations.Segments,
             static (PolypEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunPolypMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, PolypEnemyState polypEnemyState, IEnemyAiFrame frame)
     {
-        RunPolypMain(occupant, place, place.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
+        RunPolypMain(occupant, place, polypEnemyState, frame.Samus);
     }
 
     /// <summary>

@@ -15,13 +15,13 @@ internal static class DisplayRegisterAnalyzerTests
         void Check(string source, string? message = null, string? assembly = null) =>
             VerifySnippet(source, message is null ? null : DisplayRegisterAnalyzer.DisplayRegisterId, message, analyzer, assemblyName: assembly ?? core);
 
-        // Register names in identifiers: a character base, a tilemap base, the screen designations, a window and Mode 7.
+        // OfferCreations names in identifiers: a character base, a tilemap base, the screen designations, a window and Mode 7.
         Check("class Display { public byte Bg34Nba { get; set; } }", "'Bg34Nba' names the display register BG34NBA");
         Check("class Display { public ushort Bg1Sc; }", "'Bg1Sc' names the display register BG1SC");
         Check("class Display { public byte MainScreenTm { get; set; } }", "'MainScreenTm' names the display register TM");
         Check("class Windows { public byte W12Sel; }", "'W12Sel' names the display register W12SEL");
         Check("class Floor { public short M7A { get; init; } }", "'M7A' names the display register M7A");
-        // Register names in documentation.
+        // OfferCreations names in documentation.
         Check("""
             class Blend { /// <summary>The CGADSUB shadow.</summary>
             public byte Mode { get; set; } }

@@ -84,7 +84,8 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         kept.Check("Mother Brain's glass", Solid, [glass], level =>
         {
             RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
-            roomObjects.MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass));
+            RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass),
+                RoomObjectFixtures.UnspawnedThrows.GlassShards);
         });
         var wall = new Position16<RoomBlocks>(8, 2);
         kept.Check("the Shitroid's wall", Solid, [.. Enumerable.Range(0, 10).Select(row => wall + new Offset16<RoomBlocks>(0, row))],
@@ -112,15 +113,19 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             level.SetBehavior(hand, ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
             var system = new SharedGameState(new SharedRandom());
             system.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
-            int activations = 0;
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(level, system, AreaId.WreckedShip),
-                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = _ => activations++ } },
+                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects() },
                 RoomObjectFixtures.Unbound());
+            // The statue's spawned hand makes the block the hand, which wakes the statue that carries it.
+            ChozoStatueHandTrigger statueHand = SuperMetroid.Verification.Enemies.Chozo.ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip, out ChozoStatueState statue);
+            roomObjects.ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip), statueHand);
             roomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, hand, samus, SamusPoseId.MorphBallGroundRightPose, movingDown: true);
-            AssertEqual(1, activations, "the morphed Samus landing on the hand wakes the statue");
+            AssertEqual(ChozoStatuePhase.HandTriggered, statue.Phase.AfterWaitStarts,
+                "the morphed Samus landing on the hand wakes the statue: the start of its wait starts its activation");
         });
         kept.Check("the Wrecked Ship hand's setup", Solid, [hand], level =>
-            RoomObjectFixtures.Unbound().ChozoStatue.SpawnChozoStatueObject(level, new(hand, ChozoStatueRoomObject.WreckedShipHand)));
+            RoomObjectFixtures.Unbound().ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip),
+                SuperMetroid.Verification.Enemies.Chozo.ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip)));
         Position16<RoomBlocks>[] slopes = [ChozoStatueRoomDefinitions.FirstSlopeBlock, ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0)];
         kept.Check("the Wrecked Ship spikes' turn into slopes", Solid, slopes, ChozoStatueObjects.TransformSpikesToSlopes);
         kept.Check("the Wrecked Ship slopes' return to spikes", Solid, slopes, ChozoStatueObjects.RevertSlopesToSpikes);

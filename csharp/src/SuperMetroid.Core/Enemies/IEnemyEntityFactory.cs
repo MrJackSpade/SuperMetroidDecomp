@@ -1,11 +1,13 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>A species owner that creates the entities for the definitions it owns.</summary>
+/// <summary>
+/// A species owner that builds the entities of the definitions it owns (#2554): it registers each creation it supports,
+/// and only those, with the settings type that creation takes, so the registry builds an enemy only through a creation its
+/// species has and hands it the settings its population entry carries, checked once where the entry is bound.
+/// </summary>
 internal interface IEnemyEntityFactory
 {
-    /// <summary>
-    /// The creation of the entity of each definition this factory owns (#2553); each definition has exactly one factory,
-    /// and a factory is asked only for the definitions it names here, so no creation looks at which one it was handed.
-    /// </summary>
-    IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations { get; }
+    /// <summary>Registers the creations this species supports for the definitions it owns; each definition has one owner.</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    void OfferCreations(EnemySpeciesRegistrar registrar);
 }

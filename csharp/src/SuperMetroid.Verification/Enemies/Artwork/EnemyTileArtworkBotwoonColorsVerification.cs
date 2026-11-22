@@ -31,7 +31,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
         for (int band = 0; band < SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count; band++)
         for (int color = 0; color < BotwoonColorFormat.ColorsPerPalette; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     BotwoonSourceDefinitions.HealthColors +
                     (band * BotwoonColorFormat.ColorsPerPalette + color) * 2),
                 native.HealthColor(BotwoonHealthBandDefinitions.InOrderShown[band], color),
@@ -50,11 +50,11 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
             SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(stock.Bosses, EnemyDefinitionId.Botwoon, 7 * 16);
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []);
+        var state = new BotwoonEnemyState();
         IReadOnlyList<BotwoonHealthBand> bands = BotwoonHealthBandDefinitions.InOrderShown;
         for (int band = 0; band < bands.Count; band++)
         {
-            ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            ushort threshold = RomDataReader.ReadWordFixedBank(rom,
                 BotwoonHealthBandDefinitions.NativeThresholdAddress + band * sizeof(ushort));
             state.HealthBand = band == 0 ? null : bands[band - 1];
             head.Health = threshold - 1;

@@ -86,8 +86,8 @@ internal static partial class BossBodyDissolveMapFile
         if (document.Maps is null)
             throw new InvalidDataException($"Dissolve maps {name} list no maps.");
         var maps = new Dictionary<string, PictureDissolve>(StringComparer.Ordinal);
-        foreach ((string tag, MapDocument? map) in document.Maps)
-            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Dissolve maps {name} map {tag} is null.")));
+        foreach ((string tag, MapDocument map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map));
         return maps;
     }
 
@@ -103,9 +103,8 @@ internal static partial class BossBodyDissolveMapFile
         {
             int[][] runs = map.Rows[y] ?? throw new InvalidDataException($"Dissolve map {name} has no row {y}.");
             int x = 0;
-            foreach (int[]? listed in runs)
+            foreach (int[] run in runs)
             {
-                int[] run = listed ?? throw new InvalidDataException($"Dissolve map {name} row {y} has no run at {x}.");
                 DissolvingPixel? pixel;
                 int count;
                 switch (run)
@@ -139,6 +138,8 @@ internal static partial class BossBodyDissolveMapFile
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         WriteIndented = false,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
     };
 
     /// <summary>The map file.</summary>

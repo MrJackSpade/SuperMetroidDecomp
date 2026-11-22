@@ -16,31 +16,31 @@ internal static partial class SamusShotBehaviors
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();
 
     /// <summary>A missile.</summary>
-    internal static SamusShotBehavior Missile { get; } = new MissileFlight();
+    internal static SamusShotBehavior<MissileShotState> Missile { get; } = new MissileFlight();
 
     /// <summary>A Super Missile.</summary>
-    internal static SamusShotBehavior SuperMissile { get; } = new SuperMissileFlight();
+    internal static SamusShotBehavior<SuperMissileShotState> SuperMissile { get; } = new SuperMissileFlight();
 
     /// <summary>A Super Missile's invisible link.</summary>
-    internal static SamusShotBehavior SuperMissileLink { get; } = new SuperMissileLinkHold();
+    internal static SamusShotBehavior<SuperMissileShotState> SuperMissileLink { get; } = new SuperMissileLinkHold();
 
     /// <summary>An Ice special attack particle orbiting inward.</summary>
-    internal static SpecialAttackParticleBehavior IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
+    internal static SpecialAttackParticleBehavior<IceParticleState> IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
 
     /// <summary>An Ice special attack particle that has turned outward.</summary>
-    internal static SpecialAttackParticleBehavior IceSpecialAttackOutward { get; } = new IceSpecialAttackSpread();
+    internal static SpecialAttackParticleBehavior<IceParticleState> IceSpecialAttackOutward { get; } = new IceSpecialAttackSpread();
 
     /// <summary>A Wave special attack particle.</summary>
-    internal static SpecialAttackParticleBehavior WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
+    internal static SpecialAttackParticleBehavior<WaveParticleState> WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
 
     /// <summary>A Spazer special attack particle, circling, flying up and falling.</summary>
-    internal static SpecialAttackParticleBehavior SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
+    internal static SpecialAttackParticleBehavior<SpazerParticleState> SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
 
     /// <summary>A Plasma special attack particle.</summary>
-    internal static SpecialAttackParticleBehavior PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
+    internal static SpecialAttackParticleBehavior<PlasmaParticleState> PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
 
     /// <summary>A shinespark crash echo.</summary>
-    internal static SamusShotBehavior ShinesparkEcho { get; } = new ShinesparkEchoFlight();
+    internal static SamusShotBehavior<ShinesparkEchoShotState> ShinesparkEcho { get; } = new ShinesparkEchoFlight();
 
     /// <summary>The Spacetime shot, an uncharged Spazer, Plasma and Ice beam.</summary>
     internal static SamusShotBehavior Spacetime { get; } = new SpacetimeShotOverwrite();

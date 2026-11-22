@@ -72,5 +72,5 @@ internal static class KraidFootFrameGeometryVerification
     }
 
     /// <summary>Reads a native foot presentation operand or spritemap count byte.</summary>
-    private static byte KraidFootFrameGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidFootFrameGeometryRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

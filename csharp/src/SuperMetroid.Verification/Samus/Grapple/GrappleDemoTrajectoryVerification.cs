@@ -23,7 +23,7 @@ internal static class GrappleDemoTrajectoryVerification
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture();
         runtime.AttractDemo.InitializeAttractDemo(scene);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var level = runtime.Room.LoadedLevelData;
         var expectedColumns = new SortedSet<int>();
         for (int y = 0; y < level.Size.Y; y++)

@@ -37,21 +37,22 @@ internal sealed partial class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
+    /// <returns>The state the Torizo holds from its setup.</returns>
+    internal TorizoEnemyState InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
     {
         var state = new TorizoEnemyState(variant)
         {
             // Every Torizo placement starts it standing, unstunned and whole, its face and gut not yet blown up.
             Posture = TorizoPosture.Initial,
         };
-        torizo.SetSpeciesState(state);
+
 
         // Each area keeps its own Torizo defeat, which both encounters read: a Torizo already beaten in this area
         // never appears.
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         TorizoInitializationDefinition definition = variant.Start;
@@ -73,6 +74,7 @@ internal sealed partial class TorizoMovement
         // A Torizo with a secret code grants its loadout as it appears while the player holds its chord.
         if (variant.SecretCode is { } code && controllerInput == code.Chord)
             code.GrantTo(samus);
+        return state;
     }
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
@@ -81,7 +83,7 @@ internal sealed partial class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnLowHealthDrool(occupant, torizo);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo, state);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
         // authored animation with the gut's and the face's blow-ups.
@@ -184,14 +186,14 @@ internal sealed partial class TorizoMovement
         if (state.TurnTowardSamus is { } turn && turn.StepRunsOut())
         {
             state.TurnTowardSamus = null;
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(torizo)));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(state)));
             return;
         }
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // The fall swaps to the in-air animation while the downward probe stays clear; its leaping motion lands it.
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(torizo)
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(state)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.

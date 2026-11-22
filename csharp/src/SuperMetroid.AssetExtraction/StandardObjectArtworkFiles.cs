@@ -27,7 +27,7 @@ public static partial class StandardObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string importData = ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), StandardObjectArtworkSourceDefinitions.Sheet,
+        byte[] native = RomDataReader.ReadFixedBank(bus, StandardObjectArtworkSourceDefinitions.Sheet,
             StandardObjectArtworkFormat.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);

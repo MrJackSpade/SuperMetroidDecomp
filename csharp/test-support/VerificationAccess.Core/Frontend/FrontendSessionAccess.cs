@@ -41,9 +41,8 @@ internal static class FrontendSessionAccess
         /// <summary>Whether the session runs the ending at <paramref name="step"/>.</summary>
         internal bool IsAt(EndingStep step) => self.GameState == SuperMetroidGameState.Ending && self.EndingStep == step;
 
-        /// <summary>Whether the session runs the attract demo at a step of kind <typeparamref name="TStep"/>.</summary>
-        internal bool IsAtAttractStep<TStep>()
-            where TStep : AttractDemoStep => self.GameState == SuperMetroidGameState.AttractDemo && self.AttractDemoStep is TStep;
+        /// <summary>Whether the session runs the attract demo at <paramref name="step"/>.</summary>
+        internal bool IsAt(AttractDemoStep step) => self.GameState == SuperMetroidGameState.AttractDemo && self.AttractDemoStep == step;
 
         /// <summary>
         /// The step the session runs, for checks that record the steps a run passed through: the running sequence's step,
@@ -64,7 +63,7 @@ internal static class FrontendSessionAccess
             SuperMetroidGameState.CeresDestruction => self.CeresDestructionOutcome,
             SuperMetroidGameState.TimeUp => self.TimeUpStep,
             SuperMetroidGameState.Ending => self.EndingStep,
-            SuperMetroidGameState.AttractDemo => self.AttractDemoStep.Name,
+            SuperMetroidGameState.AttractDemo => self.AttractDemoStep,
             SuperMetroidGameState.GameplayFadeIn or SuperMetroidGameState.MainGameplay or SuperMetroidGameState.ReserveTankRefill or
                 SuperMetroidGameState.GameOverMenu or SuperMetroidGameState.IntroCinematic => self.GameState,
             _ => throw new InvalidOperationException($"Undefined {nameof(SuperMetroidGameState)} {self.GameState}."),
@@ -104,9 +103,8 @@ internal static class FrontendSessionAccess
         /// <summary>Whether the game runs the ending at <paramref name="step"/>.</summary>
         internal bool IsAt(EndingStep step) => self.Session.IsAt(step);
 
-        /// <summary>Whether the game runs the attract demo at a step of kind <typeparamref name="TStep"/>.</summary>
-        internal bool IsAtAttractStep<TStep>()
-            where TStep : AttractDemoStep => self.Session.IsAtAttractStep<TStep>();
+        /// <summary>Whether the game runs the attract demo at <paramref name="step"/>.</summary>
+        internal bool IsAt(AttractDemoStep step) => self.Session.IsAt(step);
 
         /// <summary>The step the game runs, as its session reports it.</summary>
         internal object CurrentStep => self.Session.CurrentStep;

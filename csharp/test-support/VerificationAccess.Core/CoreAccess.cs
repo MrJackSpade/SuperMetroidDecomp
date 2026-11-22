@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -49,10 +50,6 @@ internal static class CoreAccess
         internal SuperMetroidRuntime? RuntimeForVerification => game.Session.Runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
         internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
-        /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining =>
-            game.Session.GameState == SuperMetroid.Core.Progression.SuperMetroidGameState.AttractDemo &&
-            game.Session.AttractDemoStep is AttractDemoStep.Playing.Holding holding ? holding.Hold.UpdatesLeft : 0;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
@@ -86,19 +83,12 @@ internal static class CoreAccess
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Player.Samus?.Position.Y.Whole ?? 0;
     }
 
-    /// <summary>Reads private projectile, Samus, and Mother Brain state during the intro flashback.</summary>
+    /// <summary>Reads the intro flashback's private shot system.</summary>
     extension(IntroCinematicState intro)
     {
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
-        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
-        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
-        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal int MotherBrainHitCount =>
-            intro.CurrentFlashbackMotherBrain is { } motherBrain ? motherBrain.HitCount : 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
@@ -115,8 +105,25 @@ internal static class CoreAccess
     {
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => pause.Transition is not null;
-        /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
+        /// <summary>
+        /// The map-space scroll the pause menu's map page shows (#2554), read from the scene it draws: the map grid's scroll
+        /// less the frame's, which places the frame's opening (<see cref="SuperMetroid.Core.Frontend.Map.MapFrameOpening"/>).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The menu draws no map seen through the frame's opening.</exception>
+        internal Offset16<MapPixels> MapScroll
+        {
+            get
+            {
+                SuperMetroid.Core.Rendering.LayeredScene scene = pause.ComposeScene();
+                SuperMetroid.Core.Rendering.PictureGridLayer map = scene.Layers.ToArray()
+                    .OfType<SuperMetroid.Core.Rendering.PictureGridLayer>().Single();
+                if (map.Window is not { Shapes: [SuperMetroid.Core.Rendering.WindowRectangle opening] })
+                    throw new InvalidOperationException("The pause menu's map shows through no single frame opening.");
+                Position16<PlanePixels> corner = SuperMetroid.Core.Frontend.Map.MapFrameDefinitions.OpeningCorner;
+                return Offset16<MapPixels>.Wrapped(map.Scroll.X - (corner.X - opening.TopLeft.X),
+                    map.Scroll.Y - (corner.Y - opening.TopLeft.Y));
+            }
+        }
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>
@@ -188,12 +195,6 @@ internal static class CoreAccess
         /// <summary>The room objects the Chozo statue has asked for since the pass or the load began, in the order it asked (#2562).</summary>
         internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
             [.. enemies.PassEvents.Published.OfType<ChozoStatueObjectAsked>().Select(asked => asked.Request)];
-        /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
-        internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
-        /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
-        internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>

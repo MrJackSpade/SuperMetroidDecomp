@@ -10,16 +10,14 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<EtecoonSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Etecoon], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new EtecoonEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new EtecoonEntity(this, occupant, place, common, settings));
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
@@ -46,16 +44,17 @@ internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemyEntityFacto
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static void InitializeEtecoon(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static EtecoonEnemyState InitializeEtecoon(EtecoonSpawnSettings etecoonSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the route, which the Etecoon keeps for when it takes it (#2531).
-        var state = new EtecoonEnemyState(EtecoonAction.Dormant, occupant.SpawnSettings<EtecoonSpawnSettings>().Route);
-        place.SetSpeciesState(state);
+        var state = new EtecoonEnemyState(EtecoonAction.Dormant, etecoonSpawnSettings.Route);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
+        return state;
     }
 
     /// <summary>What <see cref="RunEtecoonMain"/> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
@@ -655,13 +654,13 @@ internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Advances Etecoon's typed animation.</summary>
-    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, EtecoonAnimations.Segments,
+    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, etecoonEnemyState, EtecoonAnimations.Segments,
             static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Etecoon's main AI.</summary>
-    internal void RunEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunEtecoonMainAi(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState, IEnemyAiFrame frame)
     {
-        RunEtecoonMain(place, place.RequireSpeciesState<EtecoonEnemyState>(), frame.Samus, frame.Level);
+        RunEtecoonMain(place, etecoonEnemyState, frame.Samus, frame.Level);
     }
 }

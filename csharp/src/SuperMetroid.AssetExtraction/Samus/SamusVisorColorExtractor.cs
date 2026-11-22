@@ -20,7 +20,7 @@ public static partial class SamusVisorColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] source = RomDataReader.ReadFixedBank(bus,
             SamusSourceDefinitions.VisorColors.Value,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];

@@ -26,4 +26,7 @@ internal abstract partial class OrbitingParticleState(SpecialAttackParticle part
 
     /// <summary>Turns the particle on round its circle by its turn per update.</summary>
     internal void Turn() => Angle += TurnPerUpdate;
+
+    /// <inheritdoc/>
+    internal sealed override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle(Angle);
 }

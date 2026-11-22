@@ -140,10 +140,8 @@ internal static partial class SpawnedObjectSheetComposer
                 rowShades.AddRange(commonRows);
             }
         }
-        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
-        EnemySpritemapCatalog spritemaps = enemies.Spritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed enemy compositions.");
+        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps;
+        EnemySpritemapCatalog spritemaps = enemies.Spritemaps;
         int projectileBase = plan.ProjectileCharacters;
         int objectBase = plan.ObjectCharacters;
         SpawnedObjects spawned = Spawned(plan);
@@ -283,6 +281,6 @@ internal static partial class SpawnedObjectSheetComposer
     /// </summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
         kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
-            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
+            .Select(picture => picture.EnemyFrame).OfType<EnemyFrameId>().Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
             .OrderBy(EnemySheetDefinitions.EffectActorFrameName, StringComparer.Ordinal);
 }

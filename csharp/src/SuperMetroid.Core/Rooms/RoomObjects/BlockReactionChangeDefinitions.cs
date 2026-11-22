@@ -39,27 +39,27 @@ internal static partial class BlockReactionChangeDefinitions
     private static BlockBreakupSound ContactBreakSound { get; } = new(EnemySound.ContactBlockBreak, SoundRequestPriority.Low);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x1.</summary>
-    internal static BlockReactionChange CrumbleReveal1x1 { get; } =
+    internal static LastingBlockReactionChange CrumbleReveal1x1 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Single);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x1.</summary>
-    internal static BlockReactionChange CrumbleReveal2x1 { get; } =
+    internal static LastingBlockReactionChange CrumbleReveal2x1 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Horizontal);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 1x2.</summary>
-    internal static BlockReactionChange CrumbleReveal1x2 { get; } =
+    internal static LastingBlockReactionChange CrumbleReveal1x2 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Vertical);
 
     /// <summary>A bombed crumble block's reveal: its image for one update, 2x2.</summary>
-    internal static BlockReactionChange CrumbleReveal2x2 { get; } =
+    internal static LastingBlockReactionChange CrumbleReveal2x2 { get; } =
         BlockBreakups.CrumbleReveal(BlockArrangement.Square);
 
     /// <summary>A normal bomb's one-update reveal of a Power Bomb block, which it does not break.</summary>
-    internal static BlockReactionChange BombedPowerBombBlockReveal { get; } =
+    internal static LastingBlockReactionChange BombedPowerBombBlockReveal { get; } =
         BlockBreakups.Reveal(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.PowerBomb));
 
     /// <summary>A normal bomb's one-update reveal of a Super Missile block, which it does not break.</summary>
-    internal static BlockReactionChange BombedSuperMissileBlockReveal { get; } =
+    internal static LastingBlockReactionChange BombedSuperMissileBlockReveal { get; } =
         BlockBreakups.Reveal(BombedRevealObjectDraws.Family.Of(RoomObjectBombedRevealDraw.SuperMissile));
 
     /// <summary>A crumble block Samus stands on breaking up, after its delay: a 1x1 block, growing back.</summary>
@@ -119,20 +119,20 @@ internal static partial class BlockReactionChangeDefinitions
         BlockBreakups.Respawning(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound, ShotBlockOpenUpdates, BlockRestore.ShotBlock);
 
     /// <summary>A shot block breaking up for good, 1x1.</summary>
-    internal static BlockReactionChange PermanentShotBlock1x1 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound);
+    internal static LastingBlockReactionChange PermanentShotBlock1x1 { get; } =
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Single, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x1.</summary>
-    internal static BlockReactionChange PermanentShotBlock2x1 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound);
+    internal static LastingBlockReactionChange PermanentShotBlock2x1 { get; } =
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Horizontal, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 1x2.</summary>
-    internal static BlockReactionChange PermanentShotBlock1x2 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound);
+    internal static LastingBlockReactionChange PermanentShotBlock1x2 { get; } =
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Vertical, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A shot block breaking up for good, 2x2.</summary>
-    internal static BlockReactionChange PermanentShotBlock2x2 { get; } =
-        BlockBreakups.Permanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
+    internal static LastingBlockReactionChange PermanentShotBlock2x2 { get; } =
+        BlockBreakups.LastingPermanent(1, BlockArrangement.Square, BlockBreakupPace.Steady, CrumbleSound);
 
     /// <summary>A Super Missile block breaking up for good.</summary>
     internal static BlockReactionChange PermanentSuperMissileBlock { get; } =
@@ -305,8 +305,8 @@ internal static partial class BlockReactionChangeDefinitions
         };
 
     /// <summary>The crumble reveal a normal bomb sets off for each crumble block, by its size.</summary>
-    internal static IReadOnlyDictionary<SpecialBlockReaction, BlockReactionChange> CrumbleReveal { get; } =
-        new Dictionary<SpecialBlockReaction, BlockReactionChange>
+    internal static IReadOnlyDictionary<SpecialBlockReaction, LastingBlockReactionChange> CrumbleReveal { get; } =
+        new Dictionary<SpecialBlockReaction, LastingBlockReactionChange>
         {
             [SpecialBlockReaction.RespawningCrumble1x1] = CrumbleReveal1x1,
             [SpecialBlockReaction.RespawningCrumble2x1] = CrumbleReveal2x1,
@@ -329,8 +329,8 @@ internal static partial class BlockReactionChangeDefinitions
         };
 
     /// <summary>The permanent shot block each permanent break sets off, by its size.</summary>
-    internal static IReadOnlyDictionary<ShootableReaction, BlockReactionChange> PermanentShot { get; } =
-        new Dictionary<ShootableReaction, BlockReactionChange>
+    internal static IReadOnlyDictionary<ShootableReaction, LastingBlockReactionChange> PermanentShot { get; } =
+        new Dictionary<ShootableReaction, LastingBlockReactionChange>
         {
             [ShootableReaction.PermanentBreak1x1] = PermanentShotBlock1x1,
             [ShootableReaction.PermanentBreak2x1] = PermanentShotBlock2x1,

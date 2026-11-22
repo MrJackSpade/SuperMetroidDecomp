@@ -6,16 +6,14 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class RioBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Rio], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new RioEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RioEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,13 +32,14 @@ internal sealed partial class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Rio.</summary>
-    internal static void InitializeRio(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static RioEnemyState InitializeRio(RoomEnemyPlace place)
     {
         var state = new RioEnemyState(RioAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.TuckedWingbeat));
+        return state;
     }
 
     /// <summary>What <see cref="RunRioMain"/> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
@@ -213,19 +212,19 @@ internal sealed partial class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>
-    internal void RunRioMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRioMainAi(RoomEnemyPlace place, RioEnemyState rioEnemyState, IEnemyAiFrame frame)
     {
         RunRioMain(
             place,
-            place.RequireSpeciesState<RioEnemyState>(),
+            rioEnemyState,
             frame.Samus,
             frame.Level,
             frame.Camera);
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, RioAnimations.Segments,
+    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, RioEnemyState rioEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, rioEnemyState, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

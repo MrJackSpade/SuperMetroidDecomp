@@ -99,8 +99,7 @@ public sealed partial class TitleGraphicsCharacters
         {
             map = JsonAssetDocument.Read<TitleFloorMapDocument>(
                 floorMapJson,
-                ArtworkJson.Options)
-                ?? throw new InvalidDataException("Title Mode 7 map is null.");
+                ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -129,8 +128,7 @@ public sealed partial class TitleGraphicsCharacters
         TitleFloorMapDocument restored;
         try
         {
-            restored = JsonAssetDocument.Read<TitleFloorMapDocument>(bytes, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Title Mode 7 map is null.");
+            restored = JsonAssetDocument.Read<TitleFloorMapDocument>(bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

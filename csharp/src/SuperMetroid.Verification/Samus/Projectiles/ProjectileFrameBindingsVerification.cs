@@ -26,7 +26,7 @@ internal static class ProjectileFrameBindingsVerification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
-            ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+            ushort native = RomDataReader.ReadWordFixedBank(rom, address);
             AssertEqual(ProjectileSpriteNative.FirstStored(native), stock.Resolve(pointer),
                 $"timed projectile $93:{pointer:X4} keeps the composition its native sprite reference stores");
         }
@@ -45,16 +45,17 @@ internal static class ProjectileFrameBindingsVerification
             nativeBomb.HeldBomb().Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y);
             var installedShot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
             installedShot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
-            var installedBomb = new SamusBomb(0);
-            installedBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
-            installedBomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
+            // The installed bomb holds the bomb system's first place, its fuse burned out, so its update plays its animation.
+            SamusBomb installedBomb = bombs.FirstBomb;
+            installedBomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            installedBomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             // A list repeating one still picture is held, and no bomb shows one (#2347).
             bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
             AssertTrue(Word(0) is > 0 and < 0x8000,
                 "native inventory contains timed records");
-            shots.Animation.AdvanceProjectileAnimation(installedShot.HeldShot());
+            shots.Animation.AdvanceProjectileAnimation(installedShot.HeldShot(), installedShot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(false, !installedShot.IsActive,
                 "installed projectile frame survives");
             AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedShot.SpritemapPointer,
@@ -69,7 +70,7 @@ internal static class ProjectileFrameBindingsVerification
                 "projectile Y radius is independent of sprite binding");
             if (still)
                 continue;
-            bombs.AdvanceProjectileAnimation(installedBomb.HeldBomb());
+            bombs.HandleBombsInOpenRoom();
             AssertEqual(false, !installedBomb.IsActive,
                 "installed bomb frame survives");
             AssertEqual<int>(ProjectileSpriteNative.FirstStored(Word(2)), installedBomb.SpritemapPointer,

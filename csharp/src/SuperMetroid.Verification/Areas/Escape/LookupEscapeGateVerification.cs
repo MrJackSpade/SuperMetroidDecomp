@@ -48,7 +48,7 @@ internal static class LookupEscapeGateVerification
     }
 
     /// <summary>Reads a native escape-gate program byte for independent field comparison.</summary>
-    private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte EscapeGateProgramFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>The three gate frames' draw-list addresses and published names.</summary>
     private static readonly LookupEscapeGateStockFrame[] Frames = [new(0x9473, "open"), new(0x947f, "half-closed"), new(0x948b, "closed")];

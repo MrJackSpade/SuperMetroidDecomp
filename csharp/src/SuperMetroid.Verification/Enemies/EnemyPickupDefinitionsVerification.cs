@@ -17,14 +17,14 @@ internal static class EnemyPickupDefinitionsVerification
     internal static void VerifyEnemyPickupDefinitions(CartridgeImportAddressSpace rom)
     {
         // Selector zero is the program table's empty first entry, which no pickup kind names.
-        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86ef04), "enemy pickup program table's empty first entry");
+        AssertEqual((ushort)0, rom.ReadCartridgeWord(0x86ef04), "enemy pickup program table's empty first entry");
         AssertThrows<InvalidDataException>(() => EnemyPickupNativeWords.Selectors.Decode(0, "enemy pickup selector"),
             "no pickup kind names selector zero");
         for (int index = 1; index < 6; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0x86ef04 + index * 2)),
                 EnemyDeathProjectileNativeListAddresses.Entry(animation.Animation),
                 $"enemy pickup program {kind}");
         }
@@ -35,7 +35,7 @@ internal static class EnemyPickupDefinitionsVerification
         for (int index = 1; index <= 5; index++)
         {
             EnemyPickupKind kind = EnemyPickupNativeWords.Selectors.Decode(index, "enemy pickup selector");
-            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
+            var projectile = new EnemyProjectile(index, default, RoomEnemyProjectileKind.EnemyDeathPickup, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance)
             {
                 FrameHold = WrappingCountdown.Start(0xffff),
 

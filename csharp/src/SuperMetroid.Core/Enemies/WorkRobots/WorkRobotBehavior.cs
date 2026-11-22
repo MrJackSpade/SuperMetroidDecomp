@@ -12,13 +12,25 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 [RoomLifetime]
 internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory, IRoomGlow
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// A powered or an unpowered work robot (#2146, #2179). The rooms place the powered robot's definition only in their
+    /// states once Phantoon is defeated, so it always has power (#2455).
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.WorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new PoweredWorkRobotEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.UnpoweredWorkRobot] = (occupant, place, common) => EnemyOccupant.Of(new UnpoweredWorkRobotEntity(this, occupant, place, common)),
-    };
+        Ensure.NotNull(registrar).Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.WorkRobot], CreatePowered);
+        registrar.Spawns<WorkRobotSpawnSettings>([EnemyDefinitionId.UnpoweredWorkRobot], CreateUnpowered);
+    }
+
+    /// <summary>The powered work robot.</summary>
+    private EnemyOccupant CreatePowered(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new PoweredWorkRobotEntity(this, occupant, place, common));
+
+    /// <summary>The unpowered work robot, from its settings.</summary>
+    private EnemyOccupant CreateUnpowered(RoomEnemyOccupant occupant, WorkRobotSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new UnpoweredWorkRobotEntity(this, occupant, place, common, settings));
 
     /// <summary>Samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
@@ -48,8 +60,8 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     /// The powered robots' glow (#2380): the place its step shows and the updates that step has left. A room starts it on
     /// its last step, stopped.
     /// </summary>
-    internal readonly AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
-        AnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
+    internal readonly ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> glow =
+        ShowingAnimationPlayer<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue>.StartShowing(
             WorkRobotGlowAnimations.Segments, WorkRobotGlowAnimations.Restarted);
 
     /// <summary>Whether the glow runs: a powered robot's setup starts it, and an unpowered robot's stops it.</summary>
@@ -64,10 +76,10 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     internal PictureShading Glow => PictureShading.Shaded(WorkRobotShades.Glow(GlowPlace));
 
     /// <summary>Initializes a powered robot.</summary>
-    internal void InitializePoweredWorkRobot(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal WorkRobotEnemyState InitializePoweredWorkRobot(RoomEnemyPlace place)
     {
         var state = new WorkRobotEnemyState();
-        place.SetSpeciesState(state);
         _poweredRobots.Add(place);
 
         // A powered robot is solid to Samus and animates; its placements already process it off screen in every
@@ -83,6 +95,7 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
         // robot, and only a powered robot, shows it (#1512).
         RestartGlow();
         place.Shading = Glow;
+        return state;
     }
 
     /// <summary>
@@ -96,18 +109,19 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Initializes an unpowered robot.</summary>
-    internal void InitializeUnpoweredWorkRobot(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal UnpoweredWorkRobotEnemyState InitializeUnpoweredWorkRobot(WorkRobotSpawnSettings workRobotSpawnSettings, RoomEnemyPlace place)
     {
         // The placement names the unpowered pose the robot holds.
         var state = new UnpoweredWorkRobotEnemyState(
-            new(WorkRobotAnimations.StartingWith(occupant.SpawnSettings<WorkRobotSpawnSettings>().Pose), AnimationPlace.StartOfAnimation));
-        place.SetSpeciesState(state);
+            new(WorkRobotAnimations.StartingWith(workRobotSpawnSettings.Pose), AnimationPlace.StartOfAnimation));
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
 
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowRuns = false;
+        return state;
     }
 
     /// <summary>
@@ -250,12 +264,10 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     /// recoil ahead or behind and holds off its next laser for its recoil delay
     /// (<see cref="WorkRobotLaserDefinitions.RecoilDelay"/>).
     /// </summary>
-    private static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, SamusState samus)
+    internal static void ResolveWorkRobotShotAfterCommon(RoomEnemyPlace robot, WorkRobotEnemyState state, SamusState samus)
     {
         if (robot.Health == 0)
             return;
-
-        WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
         bool facingLeft = state.Facing == HorizontalDirection.Left;
         if (facingLeft)
         {
@@ -292,7 +304,11 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
         // A robot that leaves its place removes the place from the list as it leaves, so no place it left,
         // nor any enemy that took the place since, shows the glow.
         foreach (RoomEnemyPlace robot in _poweredRobots)
-            robot.Shading = glow;
+        {
+            // A place whose robot has left it, and any enemy that took the place since, shows no glow.
+            if (robot.Entity is PoweredWorkRobotEntity)
+                robot.Shading = glow;
+        }
     }
 
     /// <summary>
@@ -302,18 +318,11 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
     internal void RemovePoweredRobot(RoomEnemyPlace place) => _poweredRobots.Remove(Ensure.NotNull(place));
 
     /// <summary>Applies a powered robot's recoil after the bomb damage it takes, which it never rejects once powered.</summary>
-    internal EnemyBombReaction PoweredWorkRobotBombReaction { get; } = new()
+    /// <param name="afterCommon">The enemy's own method recoiling it.</param>
+    internal static EnemyBombReaction PoweredWorkRobotBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-        AfterCommon = ResolveWorkRobotShotAfterCommon,
+        AfterCommon = afterCommon,
     };
-
-    /// <summary>Applies a powered robot's recoil after a bomb's common damage.</summary>
-    private static void ResolveWorkRobotShotAfterCommon(EnemyBombHitContext context) =>
-        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
-
-    /// <summary>Applies a powered robot's recoil after a shot's common damage.</summary>
-    private static void ResolveWorkRobotShotAfterCommon(EnemyShotHitContext context) =>
-        ResolveWorkRobotShotAfterCommon(context.Enemy, context.Samus);
 
     /// <summary>An unpowered robot takes the bomb damage, which it never rejects, and nothing more: it has no recoil.</summary>
     internal EnemyBombReaction UnpoweredWorkRobotBombReaction { get; } = new();
@@ -326,30 +335,30 @@ internal sealed partial class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFac
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
     /// <summary>Runs a powered robot's main AI.</summary>
-    internal void RunWorkRobotMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWorkRobotMainAi(RoomEnemyPlace place, WorkRobotEnemyState state, IEnemyAiFrame frame)
     {
-        WorkRobotEnemyState state = place.RequireSpeciesState<WorkRobotEnemyState>();
         state.FallVelocity = RunWorkRobotFall(place, state.FallVelocity, frame.Level);
     }
 
     /// <summary>Advances an unpowered robot's pose, which holds and raises no cue.</summary>
-    internal static void AdvanceUnpoweredWorkRobotTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+    internal static void AdvanceUnpoweredWorkRobotTypedAnimation(RoomEnemyPlace place, UnpoweredWorkRobotEnemyState unpoweredWorkRobotEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, unpoweredWorkRobotEnemyState, WorkRobotAnimations.Segments,
             static (UnpoweredWorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"An unpowered Work Robot's pose raised {cue}."));
 
     /// <summary>Advances a powered robot's typed animation.</summary>
-    internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, WorkRobotAnimations.Segments,
+    internal void AdvanceWorkRobotTypedAnimation(RoomEnemyPlace place, WorkRobotEnemyState workRobotEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, workRobotEnemyState, WorkRobotAnimations.Segments,
             static (WorkRobotEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyWorkRobotCue(place, state, context, cue) is { } continuesAt
                 ? new AnimationContinuation<WorkRobotSegment>(WorkRobotAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 
     /// <summary>The powered robot's shot reaction: the common damage, then its recoil.</summary>
-    internal EnemyShotReaction WorkRobotShotReaction { get; } = new()
+    /// <param name="afterCommon">The enemy's own method recoiling it.</param>
+    internal static EnemyShotReaction WorkRobotShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-        AfterCommon = ResolveWorkRobotShotAfterCommon,
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Routes robot contact to its external push without Samus damage.</summary>

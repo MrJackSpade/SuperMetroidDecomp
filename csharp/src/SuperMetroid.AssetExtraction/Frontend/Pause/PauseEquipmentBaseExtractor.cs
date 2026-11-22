@@ -13,7 +13,7 @@ public static partial class PauseEquipmentBaseExtractor
     /// <returns>UTF-8 JSON bytes for the complete equipment-page base grid.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
+        byte[] source = RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         var cells = new PauseBackdropCell[PauseEquipmentBaseDefinitions.Cells];
         for (int index = 0; index < cells.Length; index++)

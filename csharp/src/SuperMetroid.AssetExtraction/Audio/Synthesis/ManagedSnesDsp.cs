@@ -40,8 +40,11 @@ public sealed partial class ManagedSnesDsp
     /// <summary>Recent right echo samples addressed by the FIR ring cursor.</summary>
     private readonly short[] firBufferRight = new short[8];
 
-    /// <summary>Replaceable decoded PCM selected by key-on and loop directory reads.</summary>
-    private ManagedPcmSampleBank? sampleBank;
+    /// <summary>
+    /// Replaceable decoded PCM selected by key-on and loop directory reads: until the first upload installs one, a bank that
+    /// maps no source, so a key-on before it is rejected by the bank as any unmapped source is.
+    /// </summary>
+    private ManagedPcmSampleBank sampleBank = new("no upload installed", default, new Dictionary<int, ManagedPcmSample>());
     /// <summary>FLG mute bit applied after voice and echo mixing.</summary>
     private bool mute;
     /// <summary>FLG reset bit forcing voice envelopes into release.</summary>
@@ -162,7 +165,7 @@ public sealed partial class ManagedSnesDsp
                 voice.DecayRate = SnesDspTables.RatePeriod(
                     ((value & SnesDspRegisterLayout.Fields.AdsrDecayMask) >>
                         SnesDspRegisterLayout.Fields.AdsrDecayShift) * 2 + 16);
-                voice.Source = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? EnvelopeSource.Gain : EnvelopeSource.Adsr;
+                voice.Envelope = (value & SnesDspRegisterLayout.Fields.AdsrEnabled) == 0 ? EnvelopeSource.Gain : EnvelopeSource.Adsr;
                 break;
             case DspVoiceRegister.Adsr2:
                 voice.SustainRate = SnesDspTables.RatePeriod(
@@ -315,11 +318,9 @@ public sealed partial class ManagedSnesDsp
     /// <summary>Starts a PCM source at its beginning and resets the selected voice envelope.</summary>
     private void KeyOn(Voice voice)
     {
-        ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
-            "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = BrrBlockEnd.None;
         voice.ReleasedBrrCursor = null;
-        voice.Sample = bank.Resolve(voice.SourceNumber);
+        voice.Source = new VoiceSource.Keyed(sampleBank.Resolve(voice.SourceNumber));
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
         // Hardware key-on restarts the interpolation position, so every note starts its waveform
@@ -328,7 +329,7 @@ public sealed partial class ManagedSnesDsp
         voice.PitchCounter = 0;
         voice.RateCounter = 0;
         voice.Gain = 0;
-        voice.AdsrState = voice.Source == EnvelopeSource.Gain ? EnvelopeState.Gain : EnvelopeState.Attack;
+        voice.AdsrState = voice.Envelope == EnvelopeSource.Gain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
     /// <summary>Advances one voice's pitch, decoded window, interpolation, and envelope output.</summary>
@@ -341,28 +342,28 @@ public sealed partial class ManagedSnesDsp
             int factor = (voices[index - 1].SampleOutput >> 4) + SnesDspRegisterLayout.PitchModulationBias;
             pitch = Math.Min(SnesDspRegisterLayout.Fields.PitchMask, (pitch * factor) >> 10);
         }
-        ManagedPcmSample? sampleSource = voice.Sample;
+        VoiceSource source = voice.Source;
         // A stock 32-kHz WAV is numerically identical to decoded BRR. Scaling the phase step
         // lets an HD replacement use a different sample rate without changing musical pitch.
-        long scaledPitch = sampleSource is null
+        long scaledPitch = source is not VoiceSource.Keyed { Sample: var sampleSource }
             ? pitch
             : ((long)pitch * sampleSource.SampleRate + InstrumentSampleFormat.StockSampleRate / 2) /
                 InstrumentSampleFormat.StockSampleRate;
         long nextCounter = voice.PitchCounter + scaledPitch;
         while (nextCounter > ushort.MaxValue)
         {
-            if (sampleSource is null)
+            if (source is not VoiceSource.Keyed keyed)
             {
                 throw new InvalidOperationException(
                     $"S-DSP voice {index} advanced without a key-on PCM sample.");
             }
-            DecodePcm(index);
+            DecodePcm(index, keyed.Sample);
             nextCounter -= ushort.MaxValue + 1L;
         }
         voice.PitchCounter = unchecked((ushort)nextCounter);
         short sample = voice.UseNoise
             ? noiseSample
-            : sampleSource is null
+            : source is VoiceSource.Silent
                 ? (short)0
                 : GetInterpolatedSample(voice, voice.PitchCounter >> 12, unchecked((byte)(voice.PitchCounter >> 4)));
 
@@ -371,7 +372,7 @@ public sealed partial class ManagedSnesDsp
             voice.AdsrState = EnvelopeState.Release;
             voice.Gain = 0;
         }
-        bool direct = voice.AdsrState != EnvelopeState.Release && voice.Source == EnvelopeSource.Gain && voice.GainForm == GainForm.Direct;
+        bool direct = voice.AdsrState != EnvelopeState.Release && voice.Envelope == EnvelopeSource.Gain && voice.GainForm == GainForm.Direct;
         ushort rate = voice.AdsrState == EnvelopeState.Release
             ? (ushort)0
             : voice.RateOf(voice.AdsrState);
@@ -463,7 +464,7 @@ public sealed partial class ManagedSnesDsp
     }
 
     /// <summary>Refills a voice's PCM window and follows live loop-directory changes at BRR end.</summary>
-    private void DecodePcm(int voiceIndex)
+    private void DecodePcm(int voiceIndex, ManagedPcmSample keyed)
     {
         Voice voice = voices[voiceIndex];
         if (voice.ReleasedBrrCursor is int releasedCursor)
@@ -471,8 +472,7 @@ public sealed partial class ManagedSnesDsp
             AdvanceReleasedBrr(voiceIndex, releasedCursor);
             return;
         }
-        ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
-            $"S-DSP voice {voiceIndex} cannot decode without a PCM sample.");
+        ManagedPcmSample sample = keyed;
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
@@ -482,7 +482,7 @@ public sealed partial class ManagedSnesDsp
             // KON. The sound driver can restore an instrument during release.
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
-            ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank.");
+            ManagedPcmSampleBank bank = sampleBank;
             if (!bank.Samples.ContainsKey(voice.SourceNumber) &&
                 voice.AdsrState == EnvelopeState.Release && voice.Gain == 0)
             {
@@ -497,7 +497,7 @@ public sealed partial class ManagedSnesDsp
                 return;
             }
             (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
-            voice.Sample = sample;
+            voice.Source = new VoiceSource.Keyed(sample);
             if (voice.PreviousFlags == BrrBlockEnd.End)
             {
                 voice.AdsrState = EnvelopeState.Release;
@@ -694,6 +694,21 @@ public sealed partial class ManagedSnesDsp
         Release,
     }
 
+    /// <summary>What a voice plays: nothing since reset, or the decoded source its last key-on or loop bound.</summary>
+    private abstract partial record VoiceSource
+    {
+        /// <summary>No source since reset: the voice outputs silence and has no block to decode.</summary>
+        internal sealed partial record Silent : VoiceSource
+        {
+            /// <summary>The one silent source.</summary>
+            internal static Silent Instance { get; } = new();
+        }
+
+        /// <summary>The decoded source a key-on or loop bound.</summary>
+        /// <param name="Sample">The decoded PCM.</param>
+        internal sealed partial record Keyed(ManagedPcmSample Sample) : VoiceSource;
+    }
+
     /// <summary>One hardware voice's interpolation window, pitch, envelope, and routing state.</summary>
     private sealed partial class Voice
     {
@@ -707,8 +722,8 @@ public sealed partial class ManagedSnesDsp
         public short[] DecodeBuffer { get; } = new short[19];
         /// <summary>Live BRR directory source number used at key-on and loop boundaries.</summary>
         public int SourceNumber;
-        /// <summary>Decoded PCM source currently bound to this voice.</summary>
-        public ManagedPcmSample? Sample;
+        /// <summary>The decoded PCM source bound to this voice, or none since reset.</summary>
+        public VoiceSource Source = VoiceSource.Silent.Instance;
         /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
         /// <summary>How the previous window's last block ended its sample, read when the next window starts.</summary>
@@ -732,7 +747,7 @@ public sealed partial class ManagedSnesDsp
         /// <summary>Gain threshold at which decay changes to sustain.</summary>
         public int SustainLevel;
         /// <summary>Which envelope the voice runs at key-on, from ADSR1 (#2560).</summary>
-        public EnvelopeSource Source;
+        public EnvelopeSource Envelope;
         /// <summary>The stepped GAIN mode the GAIN register last selected; kept while the register holds a direct level.</summary>
         public SteppedGainMode GainMode;
         /// <summary>Whether the GAIN register holds a direct level or a stepped mode (#2560).</summary>
@@ -772,7 +787,7 @@ public sealed partial class ManagedSnesDsp
             PitchModulation = false;
             Array.Clear(DecodeBuffer);
             SourceNumber = 0;
-            Sample = null;
+            Source = VoiceSource.Silent.Instance;
             SampleCursor = 0;
             PreviousFlags = BrrBlockEnd.None;
             ReleasedBrrCursor = null;
@@ -781,7 +796,7 @@ public sealed partial class ManagedSnesDsp
             RateCounter = 0;
             AdsrState = EnvelopeState.Attack;
             SustainLevel = 0;
-            Source = EnvelopeSource.Adsr;
+            Envelope = EnvelopeSource.Adsr;
             GainMode = SteppedGainMode.LinearDecrease;
             GainForm = GainForm.Stepped;
             GainValue = Gain = 0;

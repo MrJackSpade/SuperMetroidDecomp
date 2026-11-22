@@ -21,8 +21,7 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailPastLedges), () => VerifyKraidNailPastLedges(rom));
         var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.Places.BindKraidPartsInRoomOrder();
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()));
         var body = enemies.Places.InUpdateOrder[0];
         var nail = enemies.Places.InUpdateOrder[6];
@@ -69,5 +68,5 @@ internal static class KraidNailContourVerification
     }
 
     /// <summary>Reads the retail contour as an independent oracle for the compiled lookup.</summary>
-    private static byte KraidNailContourRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailContourRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

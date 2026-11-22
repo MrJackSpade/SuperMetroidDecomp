@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>The state of a Yard. Names follow what each value does.</summary>
 public sealed partial class YardEnemyState
 {
-    /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
-    internal YardEnemyState(YardMovement movement) => Movement = movement;
+    /// <summary>Starts the Yard holding still, as it is placed in the room.</summary>
+    internal YardEnemyState() => Motion = YardMotion.HoldingStill;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YardSegment> Playback { get; set; }
@@ -50,9 +50,12 @@ public sealed partial class YardEnemyState
 
     /// <summary>
     /// The Yard's movement step, which may lag a direction cue by one update and so is chosen independently of
-    /// <see cref="Direction"/>.
+    /// <see cref="Direction"/>: the movement its <see cref="Motion"/> is.
     /// </summary>
-    public YardMovement Movement { get; internal set; }
+    public YardMovement Movement => Motion.Movement;
+
+    /// <summary>How the Yard moves, holding what its movement needs: an airborne Yard holds the animation it lands with.</summary>
+    internal YardMotion Motion { get; set; }
 
     /// <summary>
     /// The way the Yard crawls while its <see cref="Movement"/> is <see cref="YardMovement.Crawling"/>: the surface and way

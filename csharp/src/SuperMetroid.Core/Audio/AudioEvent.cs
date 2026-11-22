@@ -24,14 +24,27 @@ public abstract partial record AudioEvent
 
 
     /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
-    /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
-    public sealed partial record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
+    /// <param name="DataSet">The music data set switched to.</param>
+    public sealed partial record ChangeMusicDataSet(MusicDataSet DataSet) : AudioEvent
     {
         /// <inheritdoc/>
         internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).ChangeMusicDataSet(this, context);
 
         /// <inheritdoc />
-        public override string ToString() => $"data set:{DataSet?.ToString() ?? "shared"}";
+        public override string ToString() => $"data set:{DataSet}";
+    }
+
+    /// <summary>
+    /// Installs only the shared sounds before the update's clock steps run, as at power-on: the song stops and the waiting
+    /// song change is dropped.
+    /// </summary>
+    public sealed partial record InstallSharedSounds : AudioEvent
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(AudioEventReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).InstallSharedSounds(this, context);
+
+        /// <inheritdoc />
+        public override string ToString() => "data set:shared";
     }
 
     /// <summary>
@@ -85,9 +98,10 @@ public abstract partial record AudioEvent
 
 /// <summary>What the owner of a <see cref="AudioEvent"/> does on each of its cases (#2553).</summary>
 /// <param name="ChangeMusicDataSet">Reacts to a <see cref="AudioEvent.ChangeMusicDataSet"/>.</param>
+/// <param name="InstallSharedSounds">Reacts to a <see cref="AudioEvent.InstallSharedSounds"/>.</param>
 /// <param name="SelectMusicTrack">Reacts to a <see cref="AudioEvent.SelectMusicTrack"/>.</param>
 /// <param name="StopMusic">Reacts to a <see cref="AudioEvent.StopMusic"/>.</param>
 /// <param name="ClockStep">Reacts to a <see cref="AudioEvent.ClockStep"/>.</param>
 /// <param name="StartSoundEffect">Reacts to a <see cref="AudioEvent.StartSoundEffect"/>.</param>
 /// <typeparam name="TContext">What each case reads besides itself.</typeparam>
-public sealed partial record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.StopMusic, TContext> StopMusic, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);
+public sealed partial record AudioEventReactions<TContext>(Action<AudioEvent.ChangeMusicDataSet, TContext> ChangeMusicDataSet, Action<AudioEvent.InstallSharedSounds, TContext> InstallSharedSounds, Action<AudioEvent.SelectMusicTrack, TContext> SelectMusicTrack, Action<AudioEvent.StopMusic, TContext> StopMusic, Action<AudioEvent.ClockStep, TContext> ClockStep, Action<AudioEvent.StartSoundEffect, TContext> StartSoundEffect);

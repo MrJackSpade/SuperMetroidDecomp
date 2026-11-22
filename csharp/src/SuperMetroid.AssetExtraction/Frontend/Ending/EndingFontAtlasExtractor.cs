@@ -19,7 +19,7 @@ public static partial class EndingFontAtlasExtractor
     {
         Ensure.NotNull(bus);
         byte[] decoded = RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
+            bus,
             EndingSourceDefinitions.Artwork.FontCharacters,
             EndingArtworkExtentDefinitions.FloorBytes);
         if (decoded.Length < EndingFontAtlasFormat.ByteCount)

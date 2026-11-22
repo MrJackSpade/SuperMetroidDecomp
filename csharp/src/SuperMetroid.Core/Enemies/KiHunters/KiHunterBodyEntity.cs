@@ -8,25 +8,62 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KiHunterSpawnSettings settings, KiHunterBodyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeKiHunter(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Ki-Hunter species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KiHunterSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeKiHunter(settings, place))
+    {
+    }
+
+    /// <summary>The species' KiHunterShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnKiHunterShotReaction => field ??= KiHunterBehavior.KiHunterShotReaction(DetachWings);
+
+    /// <summary>The species' KiHunterBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnKiHunterBombReaction => field ??= KiHunterBehavior.KiHunterBombReaction(DetachWings);
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal KiHunterSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal KiHunterBodyState State { get; } = state;
+
+    /// <summary>Runs the body's wing detachment after a shot's common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void DetachWings(EnemyShotHitContext context) =>
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Runs the body's wing detachment after a bomb's common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void DetachWings(EnemyBombHitContext context) =>
+        KiHunterBehavior.ResolveKiHunterShotAfterCommon(Ensure.NotNull(context).Enemy, State);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunKiHunterBodyMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceKiHunterBodyTypedAnimation(Occupant, Place, State);
 
     /// <summary>The Ki-Hunter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? species.KiHunterShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == KiHunterReactions.Shot ? OwnKiHunterShotReaction : base.ShotReaction;
 
     /// <summary>The Ki-Hunter's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == KiHunterReactions.Shot ? species.KiHunterBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == KiHunterReactions.Shot ? OwnKiHunterBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Ki-Hunter's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

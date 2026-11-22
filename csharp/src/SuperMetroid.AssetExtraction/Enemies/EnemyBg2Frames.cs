@@ -48,8 +48,7 @@ internal static partial class EnemyBg2Frames
                         $"{family} BG2 frame {frame.Name} write {index} is outside its tilemap.");
                 var tiles = new BackgroundTile[write.Tiles.Length];
                 for (int cell = 0; cell < tiles.Length; cell++)
-                    tiles[cell] = write.Tiles[cell]?.Placement() ?? throw new InvalidDataException(
-                        $"{family} BG2 frame {frame.Name} write {index} cell {cell} has an invalid tile or palette.");
+                    tiles[cell] = write.Tiles[cell].Placement($"{family} BG2 frame {frame.Name} write {index} cell {cell}");
                 writes[index] = new EnemyBg2TilemapWrite(
                     write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X, tiles);
             }

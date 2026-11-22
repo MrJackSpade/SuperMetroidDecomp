@@ -40,7 +40,6 @@ internal sealed partial class PhantoonColours : IGameplayShadingSource
     /// <param name="to">The colouring faded toward.</param>
     /// <param name="step">The step's place in the fade (<see cref="PhantoonFadeProgress.TakeStep"/>).</param>
     /// <param name="length">The fade's length in steps.</param>
-    /// <exception cref="InvalidOperationException">His body has shown no colouring to fade from.</exception>
     internal void Fade(PhantoonBodyLook to, int step, int length)
     {
         if (body is FadingBody { Fade: var running } && running.To == to)

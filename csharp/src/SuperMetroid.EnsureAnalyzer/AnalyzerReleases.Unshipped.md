@@ -74,6 +74,7 @@ SME6471 | Design | Error | MagnitudeAndSignAnalyzer
 SME6473 | Design | Error | SharedPhaseContractAnalyzer
 SME6472 | Design | Error | InlineDefinitionDataAnalyzer
 SME6474 | Design | Error | UnreadResultAnalyzer
+SME6475 | Design | Error | NullableThenThrowAnalyzer
 SME6476 | Design | Error | MagicAbsenceAnalyzer
 SME6482 | Design | Error | ListPositionAnalyzer
 SME6485 | Design | Error | ClosedChoiceAsBoolAnalyzer

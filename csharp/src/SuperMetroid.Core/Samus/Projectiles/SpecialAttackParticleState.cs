@@ -13,5 +13,11 @@ internal abstract partial class SpecialAttackParticleState(SpecialAttackParticle
     internal SpecialAttackParticle Part { get; } = Ensure.NotNull(part);
 
     /// <inheritdoc/>
-    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart) => new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle();
+    internal sealed override bool AwaitsIgnitionAsFired => false;
+
+    /// <inheritdoc/>
+    internal sealed override int? NamedLinkPlace => null;
+
+    /// <inheritdoc/>
+    internal sealed override bool DeletesItselfAfterEnemyHit => true;
 }

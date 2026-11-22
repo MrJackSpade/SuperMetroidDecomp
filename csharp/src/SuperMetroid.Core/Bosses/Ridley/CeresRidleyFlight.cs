@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -21,6 +22,8 @@ internal sealed partial class CeresRidleyFlight
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Shows Ridley's colours over the room once he has begun his encounter.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Builds the walls of the getaway chamber the flight spawns.</summary>
+    private readonly CeresDoorFactory _getawayWalls;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyFlight(CeresRidleyFlightDependencies dependencies)
@@ -31,6 +34,7 @@ internal sealed partial class CeresRidleyFlight
         _places = dependencies.Places;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _presentation = dependencies.Presentation;
+        _getawayWalls = dependencies.GetawayWalls;
     }
 
     /// <summary>
@@ -38,7 +42,10 @@ internal sealed partial class CeresRidleyFlight
     /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
     /// dead places no Ridley, only its door.
     /// </summary>
-    internal void InitializeCeresRidley(RoomEnemyPlace place)
+    /// <param name="place">His body.</param>
+    /// <param name="warning">The room's foreground warning, which the self-destruct his getaway starts writes.</param>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place, RoomWarning warning)
     {
         // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
         // the enemies are loaded; Ceres has no arena to mark explored.
@@ -50,8 +57,7 @@ internal sealed partial class CeresRidleyFlight
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);
         _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
-        var ridley = new CeresRidleyState(place.Position.Whole);
-        place.SetSpeciesState(ridley);
+        var ridley = new CeresRidleyState(place.Position.Whole, warning);
         _ridleyEncounter.BeginCeres(place, ridley);
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
         // Ceres Ridley's setup ends by stopping the music.
@@ -60,6 +66,7 @@ internal sealed partial class CeresRidleyFlight
         // He arrives with the door's, container's and Baby's colours, his own hidden in black for his eye and body fades.
         ridley.Colours.ShowCeresArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
+        return ridley;
     }
 
     /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
@@ -393,10 +400,12 @@ internal sealed partial class CeresRidleyFlight
     /// <summary>Initializes one wall actor at its place, on its side of the chamber, drawing nothing.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, HorizontalDirection side)
     {
-        RoomEnemyPlace wall = _places.FindFreePlace() ??
-            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy place for a turning-floor wall.");
+        // A full pool spawns no wall.
+        if (_places.FindFreePlace() is not { } wall)
+            return;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
+        var settings = new CeresGetawayChamberWallSpawnSettings(side);
         RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresGetawayChamberWall,
             Placing: EnemyPlacing.At(position),
@@ -404,9 +413,9 @@ internal sealed partial class CeresRidleyFlight
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
-            SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
-        _lifecycle.InitializePlaceFromDefinition(wall, population, definition);
-        _lifecycle.SetUpSpawnedEnemy(wall);
+            SpawnSettings: settings);
+        var spawn = new OrdinaryEnemySpawn<CeresGetawayChamberWallSpawnSettings>(population, settings, _getawayWalls.CreateGetawayChamberWall);
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(wall, spawn, definition), spawn);
         _places.CoverSpawn(wall);
     }
 }

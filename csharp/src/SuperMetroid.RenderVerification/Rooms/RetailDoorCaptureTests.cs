@@ -26,13 +26,13 @@ internal static class RetailDoorCaptureTests
         {
             var runtime = RepositoryInstallation.CreateRuntime();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             RoomDefinition destination = left ? RoomDefinitions.DeadScientist : RoomDefinitions.CeresRidleyHallway;
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;
             runtime.LoadCartridgeRoomForDebug(left ? RoomDefinitions.CeresRidleyHallway : RoomDefinitions.DeadScientist,
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
-            runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(FixedCoordinate.Of(left ? DoorTransitionAuditPositions.LeftDoorSamusX : DoorTransitionAuditPositions.SecondScreenRightDoorSamusX, 0));
-            runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(FixedCoordinate.Of(DoorTransitionAuditPositions.CeresCorridorDoorSamusY, 0));
+            runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithX(FixedCoordinate.Of(left ? DoorTransitionAuditPositions.LeftDoorSamusX : DoorTransitionAuditPositions.SecondScreenRightDoorSamusX, 0));
+            runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(FixedCoordinate.Of(DoorTransitionAuditPositions.CeresCorridorDoorSamusY, 0));
             // The room's first NMI latches it for display, as one does before any room is shown.
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, door, destination, left ? "left" : "right");
@@ -75,7 +75,7 @@ internal static class RetailDoorCaptureTests
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             var door = level.DoorExitAt(block);
             if (door.Pointer != pointer) continue;
-            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+            runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

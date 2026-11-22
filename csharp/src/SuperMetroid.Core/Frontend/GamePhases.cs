@@ -18,8 +18,6 @@ internal sealed partial class GamePhases
     {
         Ensure.NotNull(session);
         Gameplay = new GameplayGamePhases(session);
-        Title = new TitleGameSequence(session);
-        FileSelect = new FileSelectGameSequence(session);
         LoadingGame = new LoadingGameSequence(session);
         GameplayFadeIn = new GamePhase(SuperMetroidGameState.GameplayFadeIn,
             PhaseRandomStep.RuntimeOwned,
@@ -30,29 +28,17 @@ internal sealed partial class GamePhases
             step: Gameplay.RunMainGameplay,
             name: GameplayGamePhases.MainGameplayName);
         DoorTransition = new DoorTransitionGameSequence(session);
-        Pause = new PauseGameSequence(session, Gameplay);
         ReserveTankRefill = new GamePhase(SuperMetroidGameState.ReserveTankRefill,
             PhaseRandomStep.RuntimeOwned,
             step: Gameplay.RunReserveTankRefill,
             name: GameplayGamePhases.ReserveTankRefillName);
-        DeathSequence = new DeathGameSequence(session);
         GameOverMenu = new GameOverMenuGamePhase(session);
-        IntroCinematic = new IntroCinematicGamePhase(session);
         CeresDeparture = new CeresDepartureGameSequence(session);
-        CeresDestruction = new CeresDestructionGameSequence(session);
-        TimeUp = new TimeUpGameSequence(session, Gameplay);
         Ending = new EndingGameSequence(session);
-        AttractDemo = new AttractDemoGameSequence(session);
     }
 
     /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
     internal GameplayGamePhases Gameplay { get; }
-
-    /// <summary>The title sequence's phase.</summary>
-    internal IGamePhase Title { get; }
-
-    /// <summary>The file select sequence's phase.</summary>
-    internal IGamePhase FileSelect { get; }
 
     /// <summary>The loading game sequence's phase.</summary>
     internal IGamePhase LoadingGame { get; }
@@ -66,33 +52,15 @@ internal sealed partial class GamePhases
     /// <summary>The door transition sequence's phase.</summary>
     internal IGamePhase DoorTransition { get; }
 
-    /// <summary>The pause sequence's phase.</summary>
-    internal IGamePhase Pause { get; }
-
     /// <summary>The reserve tank refill sequence's phase.</summary>
     internal IGamePhase ReserveTankRefill { get; }
-
-    /// <summary>The death sequence sequence's phase.</summary>
-    internal IGamePhase DeathSequence { get; }
 
     /// <summary>The game over menu sequence's phase.</summary>
     internal IGamePhase GameOverMenu { get; }
 
-    /// <summary>The intro cinematic sequence's phase.</summary>
-    internal IGamePhase IntroCinematic { get; }
-
     /// <summary>The ceres departure sequence's phase.</summary>
     internal IGamePhase CeresDeparture { get; }
 
-    /// <summary>The ceres destruction sequence's phase.</summary>
-    internal IGamePhase CeresDestruction { get; }
-
-    /// <summary>The time up sequence's phase.</summary>
-    internal IGamePhase TimeUp { get; }
-
     /// <summary>The ending sequence's phase.</summary>
     internal IGamePhase Ending { get; }
-
-    /// <summary>The attract demo sequence's phase.</summary>
-    internal IGamePhase AttractDemo { get; }
 }

@@ -25,7 +25,7 @@ internal static class AttractDemoScheduleAccess
     /// <summary>Whether the next set <paramref name="schedule"/> plays, from its first scene to its last, is <paramref name="set"/>.</summary>
     private static bool PlaysNext(AttractDemoSchedule schedule, AttractDemoSet set)
     {
-        var scenes = new List<AttractDemoScene> { schedule.RequestFromTitle().Scene };
+        var scenes = new List<AttractDemoScene> { schedule.RequestFromTitle() };
         while (schedule.RouteAfterScene(AttractPlaybackEnd.Completed) is AttractDemoRoute.NextScene next)
             scenes.Add(next.Scene);
         return scenes.SequenceEqual(set.Scenes);

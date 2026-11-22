@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -24,4 +25,7 @@ internal sealed partial record CeresRidleyFlightDependencies
 
     /// <summary>Shows Ridley's colours over the room once he has begun his encounter.</summary>
     public required EnemyPresentation Presentation { get; init; }
+
+    /// <summary>Builds the walls of the getaway chamber Ridley's flight spawns (#2554).</summary>
+    public required CeresDoorFactory GetawayWalls { get; init; }
 }

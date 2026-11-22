@@ -7,17 +7,53 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BotwoonEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeBotwoon(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Botwoon species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal BotwoonEntity(BotwoonBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(species, occupant, place, common, species.InitializeBotwoon(occupant, place))
+    {
+    }
+
+    /// <summary>The species' BotwoonShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnBotwoonShotReaction => field ??= BotwoonBehavior.BotwoonShotReaction(this);
+
+    /// <summary>The species' BotwoonPowerBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnBotwoonPowerBombReaction => field ??= BotwoonBehavior.BotwoonPowerBombReaction(this);
+
+    /// <summary>The species' BotwoonBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnBotwoonBombReaction => field ??= BotwoonBehavior.BotwoonBombReaction(this);
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal BotwoonEnemyState State { get; } = state;
+
+    /// <summary>Finishes a shot's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The shot's hit.</param>
+    internal void FinishHit(EnemyShotHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Finishes a bomb's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    internal void FinishHit(EnemyBombHitContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(Ensure.NotNull(context).Enemy, State);
+
+    /// <summary>Finishes a Power Bomb's hit on Botwoon's head, after its common damage.</summary>
+    /// <param name="context">The blast meeting the head.</param>
+    internal void FinishHit(EnemyPowerBombContext context) => BotwoonBehavior.ResolveBotwoonCombatAfterCommon(context.Enemy, State);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunBotwoonMainAi(Occupant, Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBotwoonTypedAnimation(Place, State);
 
     /// <summary>Whether Botwoon's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == BotwoonReactions.Touch || base.ReactsToTouch;
@@ -27,21 +63,21 @@ internal sealed partial class BotwoonEntity(BotwoonBehavior species, RoomEnemyOc
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == BotwoonReactions.Touch)
-            species.ReactToBotwoonTouch(context);
+            species.ReactToBotwoonTouch(context, State);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>Botwoon's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BotwoonReactions.Shot ? species.BotwoonShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == BotwoonReactions.Shot ? OwnBotwoonShotReaction : base.ShotReaction;
 
     /// <summary>Botwoon's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == BotwoonReactions.Shot ? species.BotwoonBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == BotwoonReactions.Shot ? OwnBotwoonBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Botwoon's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? species.BotwoonPowerBombReaction : base.PowerBombReaction;
+    public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnBotwoonPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>Botwoon's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

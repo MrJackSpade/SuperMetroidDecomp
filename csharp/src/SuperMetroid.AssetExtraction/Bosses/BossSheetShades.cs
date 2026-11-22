@@ -160,7 +160,7 @@ internal static partial class BossSheetShades
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> CrocomireBody(BossSourceArtwork bosses)
     {
-        CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire's body is shaded from the installed Crocomire colours.");
+        CrocomireColorCatalog crocomire = bosses.CrocomireColors;
         RgbColor[] fight = Crocomire(crocomire, CrocomireBand.FightBody);
         return [SheetShade.Run(CrocomireShades.FightBody, CrocomireBodyFirstInk, fight),
             SheetShade.Run(CrocomireShades.BodyHurt, CrocomireBodyFirstInk, [.. fight.Select(_ => RgbColor.White)])];
@@ -173,7 +173,7 @@ internal static partial class BossSheetShades
     /// <exception cref="InvalidDataException">His colours are not installed, or an eye colour is not unique on his picture.</exception>
     private static List<SheetShade> KraidBody(BossSourceArtwork bosses, HashSet<int> used, ReadOnlySpan<RgbColor> standard)
     {
-        KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's body is shaded from the installed Kraid colours.");
+        KraidColorCatalog kraid = bosses.KraidColors;
         var shades = new List<SheetShade>();
         // Every band's shade shows his eyes in the colours gameplay's eye glow replaces, whatever the band gives them (#1512).
         ReadOnlySpan<RgbColor> shadedEyes = kraid.Eyes().Shaded;
@@ -190,7 +190,6 @@ internal static partial class BossSheetShades
     }
 
     /// <summary>The shades of <paramref name="enemy"/>'s sprite sheet over the row from <paramref name="firstInk"/> it draws in.</summary>
-    /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> OwnRow(BossSourceArtwork bosses, EnemyDefinitionId enemy, int firstInk)
     {
         Ensure.NotNull(bosses);
@@ -201,7 +200,7 @@ internal static partial class BossSheetShades
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> CrocomireSprites(BossSourceArtwork bosses)
     {
-        CrocomireColorCatalog crocomire = bosses.CrocomireColors ?? throw new InvalidDataException("Crocomire is shaded from the installed Crocomire colours.");
+        CrocomireColorCatalog crocomire = bosses.CrocomireColors;
         return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm)),
             SheetShade.Run(CrocomireShades.WallSpikes, CrocomireWallSpikesRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.WallSpikes))];
     }
@@ -210,7 +209,7 @@ internal static partial class BossSheetShades
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> KraidSprites(BossSourceArtwork bosses, int firstInk)
     {
-        KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's parts are shaded from the installed Kraid colours.");
+        KraidColorCatalog kraid = bosses.KraidColors;
         return [.. KraidPalettes.HealthSequence
             .Select(band => SheetShade.Run(band.Shade, firstInk, Band(kraid, KraidPaletteSource.Secondary, band)))];
     }
@@ -219,7 +218,6 @@ internal static partial class BossSheetShades
     /// The shades the objects <paramref name="enemy"/> spawns show, wherever they are drawn (#1513): Kraid's rocks,
     /// Botwoon's, Draygon's and Spore Spawn's sprite colours, and Crocomire's wall; none for any other enemy.
     /// </summary>
-    /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> SpawnedObjects(BossSourceArtwork bosses, EnemyDefinitionId enemy)
     {
         Ensure.NotNull(bosses);
@@ -227,25 +225,22 @@ internal static partial class BossSheetShades
     }
 
     /// <summary>The shades of Kraid's rocks, in the row his initialization loads.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> KraidRocks(BossSourceArtwork bosses)
     {
-        KraidColorCatalog kraid = bosses.KraidColors ?? throw new InvalidDataException("Kraid's rocks are shaded from the installed Kraid colours.");
+        KraidColorCatalog kraid = bosses.KraidColors;
         return [SheetShade.Run(KraidShades.Rocks, KraidRocksRow * LoadedSetColours.RowColours,
             [.. Enumerable.Range(0, KraidPalettes.BandColors).Select(colour => kraid.Resolve(KraidPaletteSource.InitialTarget, colour))])];
     }
 
     /// <summary>The shade of Crocomire's wall and the bridge's fragments, in their row.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> CrocomireWall(BossSourceArtwork bosses) =>
         [SheetShade.Run(CrocomireShades.Wall, CrocomireWallRow * LoadedSetColours.RowColours,
-            Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
+            Crocomire(bosses.CrocomireColors, CrocomireBand.InitialWall)[..LoadedSetColours.RowColours])];
 
     /// <summary>
     /// The row shades the objects <paramref name="enemy"/> spawns in a row its fight loads show (#1513): Crocomire's
     /// projectiles, in the projectiles' row with his colours in it over <paramref name="colours"/>; none for any other enemy.
     /// </summary>
-    /// <exception cref="InvalidDataException">The boss's colours are not installed.</exception>
     internal static IReadOnlyList<SheetRowShade> SpawnedRows(BossSourceArtwork bosses, LoadedSetColours colours, EnemyDefinitionId enemy)
     {
         Ensure.NotNull(bosses);
@@ -258,7 +253,7 @@ internal static partial class BossSheetShades
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetRowShade> CrocomireProjectiles(BossSourceArtwork bosses, LoadedSetColours colours)
     {
-        RgbColor[] projectiles = Crocomire(Required(bosses.CrocomireColors, "Crocomire"), CrocomireBand.InitialProjectile);
+        RgbColor[] projectiles = Crocomire(bosses.CrocomireColors, CrocomireBand.InitialProjectile);
         return [new(CrocomireShades.Projectiles, CrocomireProjectileRow,
             colours.With(CrocomireProjectileRow, 0, projectiles[..LoadedSetColours.RowColours]))];
     }
@@ -267,10 +262,9 @@ internal static partial class BossSheetShades
     /// The shades of Draygon's body layer: his material
     /// colours, their white flash and his eight health bands.
     /// </summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     internal static List<SheetShade> DraygonBackground(BossSourceArtwork bosses)
     {
-        DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
+        DraygonColorCatalog draygon = bosses.DraygonColors;
         var shades = new List<SheetShade>
         {
             SheetShade.Run(DraygonShades.Body, DraygonBackgroundFirstInk,
@@ -287,10 +281,9 @@ internal static partial class BossSheetShades
     }
 
     /// <summary>The shades of Draygon's sprites: his opening's colours and his sprite row's material colours and white flash.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IEnumerable<SheetShade> DraygonSprites(BossSourceArtwork bosses)
     {
-        DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
+        DraygonColorCatalog draygon = bosses.DraygonColors;
         yield return SheetShade.Run(DraygonShades.Intro, DraygonIntroRow * LoadedSetColours.RowColours,
             [.. Enumerable.Range(0, DraygonColorDefinitions.IntroCount).Select(draygon.ResolveIntro)]);
         yield return SheetShade.Run(DraygonShades.Sprite, DraygonSpriteRow * LoadedSetColours.RowColours,
@@ -303,15 +296,11 @@ internal static partial class BossSheetShades
     private static RgbColor[] Crocomire(CrocomireColorCatalog crocomire, CrocomireBand band) =>
         [.. Enumerable.Range(0, CrocomireColorCatalog.Counts[band]).Select(colour => crocomire.Get(band, colour))];
 
-    /// <summary><paramref name="colours"/>, or an error naming the <paramref name="boss"/> whose colours are not installed.</summary>
-    private static T Required<T>(T? colours, string boss) where T : class =>
-        colours ?? throw new InvalidDataException($"{boss} is shaded from the installed {boss} colours.");
 
     /// <summary>Botwoon's health bands over the row from <paramref name="firstInk"/>.</summary>
-    /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IEnumerable<SheetShade> Botwoon(BossSourceArtwork bosses, int firstInk)
     {
-        BotwoonColorCatalog botwoon = bosses.BotwoonColors ?? throw new InvalidDataException("Botwoon is shaded from the installed Botwoon colours.");
+        BotwoonColorCatalog botwoon = bosses.BotwoonColors;
         foreach (BotwoonHealthBand band in BotwoonHealthBandDefinitions.InOrderShown)
         {
             yield return SheetShade.Run(BotwoonShades.Health(band), firstInk,

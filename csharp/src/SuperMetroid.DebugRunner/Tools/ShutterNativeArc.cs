@@ -21,6 +21,12 @@ internal static class ShutterNativeArc
     private static RoomEnemyOccupant HeldOccupant(RoomEnemyPlace place) =>
         place.Occupant ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no enemy.");
 
+    /// <summary>The shutter settings the enemy <paramref name="place"/> holds was spawned with.</summary>
+    /// <exception cref="InvalidOperationException">The place holds no shutter.</exception>
+    private static ShutterSpawnSettings SettingsOf(RoomEnemyPlace place) =>
+        HeldOccupant(place).Spawn.SpawnSettings as ShutterSpawnSettings
+            ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no shutter.");
+
     /// <summary>
     /// Regenerates issue #347's native comparison inputs from the reproduced case: the frame-117
     /// WRAM seed, every later frame's bomb slots, and the production trajectory the verifier pins.
@@ -35,10 +41,10 @@ internal static class ShutterNativeArc
         {
             if (frame == ShutterBombArcScenario.FirstArcFrame)
                 ExportShutterBombArcSeed(scenario.Runtime, Path.Combine(directory, "bomb-arc.wram"));
-            scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
+            ScenarioRooms.Step(scenario.Runtime, scenario.Input(frame), new RuntimeFrameRequest());
             if (frame < ShutterBombArcScenario.FirstArcFrame)
                 continue;
-            foreach (var bomb in scenario.Runtime.Room.LoadedScope.BombProjectiles.Bombs)
+            foreach (var bomb in ScenarioRooms.LoadedScope(scenario.Runtime).BombProjectiles.Bombs)
             {
                 bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
                 bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);
@@ -57,11 +63,11 @@ internal static class ShutterNativeArc
     internal static int TraceShutterBombArc()
     {
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
-        var shutter = scenario.Runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        ShutterSpawnSettings settings = HeldOccupant(scenario.Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0]).SpawnSettings<ShutterSpawnSettings>();
+        var shutter = ScenarioRooms.LoadedScope(scenario.Runtime).Enemies.VerticalShutterStates[0];
+        ShutterSpawnSettings settings = SettingsOf(ScenarioRooms.LoadedScope(scenario.Runtime).Enemies.Places.InUpdateOrder[0]);
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
-            scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
+            ScenarioRooms.Step(scenario.Runtime, scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)SamusPoseNumbers.Number(scenario.Samus.Pose):X2} " +
                     $"shutter={ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action):X4} up={ShutterArcNativeWords.Rest(settings.RestAfterMovingUp):X4} down={ShutterArcNativeWords.Rest(settings.RestAfterMovingDown):X4} " +
@@ -88,7 +94,7 @@ internal static class ShutterNativeArc
             var platform = scenario.Platform;
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
             {
-                scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
+                ScenarioRooms.Step(scenario.Runtime, scenario.Input(frame), new RuntimeFrameRequest());
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
                 if (Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) < platform.Radius.X + samus.Kinematics.Radius.X &&
                     samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)
@@ -111,10 +117,10 @@ internal static class ShutterNativeArc
     {
         var ram = new byte[0x20000];
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
-        var level = runtime.Room.LoadedLevelData;
+        var level = ScenarioRooms.LoadedLevelData(runtime);
         Word(0x7A5, level.Size.X);
         Word(0x7A7, level.Size.Y);
         for (int i = 0; i < level.Size.Area; i++)
@@ -143,7 +149,7 @@ internal static class ShutterNativeArc
         for (int i = 0; i < 2; i++)
         {
             int offset = i * 64;
-            var place = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[i];
+            var place = ScenarioRooms.LoadedScope(runtime).Enemies.Places.InUpdateOrder[i];
             Word(0xF78 + offset, EnemyDefinitionIds.HeaderPointer(HeldOccupant(place).DefinitionId));
             Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(place.Frame));
             ram[0xFA6 + offset] = RoomEnemyDefinitionImporterTooling.Bank(rom, HeldOccupant(place).DefinitionId);
@@ -151,10 +157,10 @@ internal static class ShutterNativeArc
             Word(0xF80 + offset, place.Position.Y.Fraction); Word(0xF82 + offset, place.Radius.X);
             Word(0xF84 + offset, place.Radius.Y); Word(0xF86 + offset, 0x8000);
         }
-        var shutter = runtime.Room.LoadedScope.Enemies.VerticalShutterStates[0];
-        RoomEnemyPlace shutterPlace = runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[0];
-        ShutterSpawnSettings settings = HeldOccupant(shutterPlace).SpawnSettings<ShutterSpawnSettings>();
-        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(HeldOccupant(shutterPlace), VerticalDirection.Up);
+        var shutter = ScenarioRooms.LoadedScope(runtime).Enemies.VerticalShutterStates[0];
+        RoomEnemyPlace shutterPlace = ScenarioRooms.LoadedScope(runtime).Enemies.Places.InUpdateOrder[0];
+        ShutterSpawnSettings settings = SettingsOf(shutterPlace);
+        SignedSixteenSixteen upward = ShuttersBehavior.VerticalShutterVelocity(settings, VerticalDirection.Up);
         Word(0xFA8, ShutterArcNativeWords.Action((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Action));
         Word(0xFB0, upward.Fraction); Word(0xFB2, upward.UnsignedWholePixels);
         Word(0xFAC, settings.Speed.Fraction); Word(0xFAE, settings.Speed.UnsignedWholePixels);

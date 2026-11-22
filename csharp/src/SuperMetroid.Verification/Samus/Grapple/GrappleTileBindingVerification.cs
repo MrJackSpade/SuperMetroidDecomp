@@ -26,9 +26,9 @@ internal static class GrappleTileBindingVerification
         var random = new SharedRandom();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose); samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -56,7 +56,7 @@ internal static class GrappleTileBindingVerification
         static void AssertBoundTo(SuperMetroidRuntime target, InstalledSpriteSheets sheets, string context)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             target.Sprites.FinalizeFrame();
             SpriteDraw[] grappleDraws = [.. target.Sprites.Draws
                 .Where(draw => draw.Source.Kind is SpriteSourceKind.SamusGrappleEndpoint or SpriteSourceKind.SamusGrappleRope)];

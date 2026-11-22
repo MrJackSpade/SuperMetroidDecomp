@@ -40,19 +40,23 @@ internal static class EnemySystemFixtures
     /// <param name="floor">The room's turning floor, or null for a room that shows none.</param>
     /// <param name="statueRoom">The Tourian statue room, or null for any other room.</param>
     /// <param name="shaftTurn">The elevator shaft's turn, or null for a room that is no turning shaft.</param>
+    /// <param name="warnings">The room's warnings, or null for fresh warnings on the installed written sheet.</param>
     internal static RoomEnemySystem New(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossSourceArtwork? installedBosses = null, EnemyBreakableTerrainObjects? breakableTerrain = null,
         AreaId area = AreaId.Crateria, DoorPassage? doorPassage = null, RoomFxOverlayState? roomFx = null,
-        RoomFloor? floor = null, ITourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null)
+        RoomFloor? floor = null, TourianStatueRoom? statueRoom = null, CeresElevatorShaftRoomMainState? shaftTurn = null,
+        RoomWarnings? warnings = null)
     {
+        // The room reads the definitions the check authors on its places over the room's own (#2554).
+        var authored = AuthoredEnemyDefinitions.Over(definitions ?? CompiledRoomEnemyDefinitions.Instance);
         var system = new RoomEnemySystem(new RoomEnemySystemDependencies
         {
             Session = session,
             Compatibility = compatibility,
             Looks = new EncounterLooks(),
-            Definitions = definitions ?? CompiledRoomEnemyDefinitions.Instance,
-            Services = services ?? new VerificationRoomEnemyServices(null),
+            Definitions = authored,
+            Services = services ?? new VerificationRoomEnemyServices(null, area),
             Area = area,
             BossArtwork = new BossArtworkBinding(InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays, InstalledFixtures.Maps.EscapeTypewriter,
                 InstalledFixtures.Maps.MotherBrainRainbowBeamColours, InstalledFixtures.KraidEyes, InstalledFixtures.BossBodySheets),
@@ -60,9 +64,11 @@ internal static class EnemySystemFixtures
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone()),
             Earthquake = new RoomEarthquake(),
-            Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom),
+            // A fixture room can place Ceres Ridley and Mother Brain, whose escapes write the room's warnings (#2554).
+            Scenery = new RoomEnemyScenery(floor, shaftTurn, statueRoom, warnings ?? new RoomWarnings(InstalledFixtures.RoomAssets.BlockSheets.Written.Values.First())),
         });
         system.BossArtwork = installedBosses;
+        AuthoredEnemyDefinitions.Register(system, authored);
         return system;
     }
 
@@ -80,7 +86,7 @@ internal static class EnemySystemFixtures
     internal static RoomEnemySystem PlacingAnyEnemy(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null, BossSourceArtwork? installedBosses = null) =>
         New(session, compatibility, definitions, services, installedBosses,
-            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0),
+            floor: RoomBackgroundsFixtures.CeresFloor(), statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)),
             shaftTurn: new CeresElevatorShaftRoomMainState(new RoomMainHandOvers().ShaftTurnToDebris));
 
     /// <summary>The Tourian statue scene of <paramref name="enemies"/>, which the check built for the statue room.</summary>
@@ -92,10 +98,4 @@ internal static class EnemySystemFixtures
     /// <exception cref="InvalidOperationException">The check built the enemies for another room.</exception>
     internal static TourianUnlockBehavior UnlockEffects(RoomEnemySystem enemies) => enemies.TourianUnlockEffects
         ?? throw new InvalidOperationException("The check built its enemies without the statue room, which alone holds the unlock effects.");
-
-    /// <summary>Initializes the statue scene's placement <paramref name="place"/> holds, as the room's enemy load does.</summary>
-    /// <exception cref="InvalidOperationException">The place holds no statue scene placement.</exception>
-    internal static void InitializeStatuePlacement(RoomEnemyPlace place) =>
-        (place.Entity as TourianEntranceStatueEntity
-            ?? throw new InvalidOperationException($"Enemy place {place.Ordinal} holds no Tourian statue scene placement.")).Initialize();
 }

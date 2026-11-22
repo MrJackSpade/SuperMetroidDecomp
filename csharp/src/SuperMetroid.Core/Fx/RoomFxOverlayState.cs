@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.Artwork;
@@ -177,7 +178,39 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     /// The live liquid surface's room line after rising and tide processing, or null while the liquid has no surface
     /// (#1546). A tide can carry the surface above the room's top, to a negative line, where the room shows no liquid.
     /// </summary>
-    public int? Surface { get; internal set; }
+    public int? Surface => liveSurface?.Line;
+
+    /// <summary>
+    /// The live liquid surface while the liquid has one (<see cref="Surface"/>): published by the room's load, each liquid
+    /// motion pass and each viewport priming, and moved in place while the liquid keeps a surface, so a reader that took it
+    /// reads the surface as it moves.
+    /// </summary>
+    private RoomLiquidSurfaceLine? liveSurface;
+
+    /// <summary>Finds the live liquid surface (<see cref="liveSurface"/>), which a liquid without a surface does not have.</summary>
+    /// <param name="surface">The live surface, found when the liquid has one.</param>
+    internal bool TryLiveSurface([NotNullWhen(true)] out RoomLiquidSurfaceLine? surface)
+    {
+        surface = liveSurface;
+        return surface is not null;
+    }
+
+    /// <summary>
+    /// Publishes the liquid's surface line, <paramref name="line"/>, or its having none: a published surface moves its line
+    /// in place, a liquid's first surface is created, and a liquid without one drops it.
+    /// </summary>
+    private void PublishSurface(int? line)
+    {
+        if (line is not int surface)
+        {
+            liveSurface = null;
+            return;
+        }
+        if (liveSurface is { } live)
+            live.Line = surface;
+        else
+            liveSurface = new RoomLiquidSurfaceLine(surface);
+    }
 
     /// <summary>
     /// The liquid the room effect fills the room with, as room objects have since changed it, or null for an effect with no
@@ -228,7 +261,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
         LiquidLevelSpeed = definition.LiquidLevelSpeed;
         LiquidMoveDelay = WrappingCountdown.Start(definition.LiquidMoveDelay);
         Liquid = definition.Liquid;
-        Surface = BaseLine;
+        PublishSurface(BaseLine);
 
         Type = definition.Type;
         overlayLook = RoomEffectOverlayLook.Of(definition.Type, definition.EffectBlend);
@@ -410,15 +443,16 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Seeds the liquid surface's camera-dependent screen line during a room transition without advancing
-    /// a wave clock. Destination rendering can therefore show the correct surface on its
-    /// first frame boundary instead of waiting for the first gameplay update.
+    /// Seeds the liquid surface's line where its base line and tide place it, and its camera-dependent screen line,
+    /// during a room transition without advancing a wave clock. Destination rendering can therefore show the correct
+    /// surface on its first frame boundary instead of waiting for the first gameplay update. A room's liquid enters with
+    /// no tide offset, so its surface enters on its base line.
     /// </summary>
     public void PrimeViewport(Position16<RoomPixels> camera)
     {
         if (!RoomFxTypes.ShowsLiquid(Type))
             return;
-        Surface = BaseLine;
+        PublishSurface(ComputeTidalYPosition());
         PlaceLiquid(camera, Offset16<OverlayPixels>.Zero);
     }
 
@@ -589,7 +623,7 @@ public sealed partial class RoomFxOverlayState : IGameplayShadingSource
     {
         StepLiquidRise(randomNumber, earthquakeSoundDelay);
         StepLiquidTide();
-        Surface = ComputeTidalYPosition();
+        PublishSurface(ComputeTidalYPosition());
     }
 
     /// <summary>

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 /// (<see cref="CeresDepartureState"/>) is the sequence's step.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed partial class CeresDepartureGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class CeresDepartureGameSequence(FrontendSession session) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.CeresDeparture;
@@ -32,21 +32,21 @@ internal sealed partial class CeresDepartureGameSequence(FrontendSession session
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput)
+    public void Step(ControllerButton controllerInput, LoadedGameplay live)
     {
         // Entering the departure begins its hold, and its completed fade leaves it for Ceres's destruction.
         bool fading = session.CeresDeparture.Phase == CeresDeparturePhase.FadingToBlack;
         // The arrival descent runs in ordinary main gameplay while the elevator's enemy projectiles lock Samus; the
         // departure is only the hold and the fade.
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture });
-        session.display.PublishGameplay(session.GameplayRuntime);
+        live.Runtime.StepFrame(controllerInput, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.CeresDeparture }, live.Room);
+        session.display.PublishGameplay(live);
         bool ceresFadeFinished = session.CeresDeparture.StepAfterGameplay();
         if (fading)
-            FadeToBlack(ceresFadeFinished);
+            FadeToBlack(ceresFadeFinished, live);
     }
 
     /// <summary>Shows the fade to black's step, which saves the checkpoint and starts Ceres's destruction once black.</summary>
-    private void FadeToBlack(bool ceresFadeFinished)
+    private void FadeToBlack(bool ceresFadeFinished, LoadedGameplay live)
     {
         session.SetDisplayBrightness(session.CeresDeparture.Brightness);
         if (ceresFadeFinished)
@@ -54,14 +54,14 @@ internal sealed partial class CeresDepartureGameSequence(FrontendSession session
             // The blackout saves the live Ceres elevator checkpoint only after
             // the screen is blanked. This is the durable post-Ridley Ceres
             // checkpoint the loader later replaces with Zebes arrival.
-            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
+            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, live.Runtime, session.SelectedSaveSlot);
             session.RaiseSavesChanged();
-            session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-            session.GameplayRuntime.EscapeTimer.Clear();
+            live.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+            live.Runtime.EscapeTimer.Clear();
             // Stop music and silence all three sound libraries.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueCancelSoundEffects(SoundRequestPriority.Essential);
-            session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+            session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, live.Runtime);
             session.display.PublishBlack();
         }
     }

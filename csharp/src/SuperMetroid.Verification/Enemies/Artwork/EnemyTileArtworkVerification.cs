@@ -60,7 +60,7 @@ internal static class EnemyTileArtworkVerification
 {
     /// <summary>Reads the exact tile upload bytes named by an enemy definition for the retail oracle.</summary>
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, EnemyDefinitionId definition, int byteCount) =>
-        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(bus, definition), byteCount);
+        RomDataReader.ReadFixedBank(bus, SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileDataSource(bus, definition), byteCount);
 
     /// <summary>
     /// The melt image the cartridge assembles for <paramref name="pass"/> from its retail graphics in the bands the image
@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkVerification
     /// installed image. The bare skull's seventh copy, which shows what follows the image's six bands, is a read past the
     /// image the port does not keep (#2573).
     /// </summary>
-    private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
+    private static byte[] ReadNativeCrocomireMeltingPassImage(CartridgeImportAddressSpace rom, CrocomireMeltingIllustration pass)
     {
         bool first = pass == CrocomireMeltingIllustration.Flesh;
         var expected = new byte[first ? CrocomireMeltingArtworkFormat.FleshByteCount : CrocomireMeltingArtworkFormat.BareSkullByteCount];
@@ -240,7 +240,7 @@ internal static class EnemyTileArtworkVerification
                     $"unplaced artwork {unplaced}'s page is filed under its key");
                 int header = SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[unplaced].Single();
                 int unplacedBytes = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, header).ByteCount;
-                byte[] unplacedNative = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+                byte[] unplacedNative = RomDataReader.ReadFixedBank(bus,
                     SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, header), unplacedBytes);
                 AssertTrue(stock.Enemies.UnplacedTilesOf(unplaced).Span.SequenceEqual(unplacedNative),
                     $"unplaced artwork {unplaced}'s extracted tiles hold the cartridge tiles its header names");
@@ -262,7 +262,7 @@ internal static class EnemyTileArtworkVerification
                 int paletteAddress = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.PaletteAddress(bus, pointer);
                 for (int color = 0; color < EnemyPaletteSheetFile.ColorCount; color++)
                 {
-                    int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), paletteAddress + color * sizeof(ushort));
+                    int word = RomDataReader.ReadWordFixedBank(bus, paletteAddress + color * sizeof(ushort));
                     AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), installedColours[color],
                         $"enemy {pointer} RGB5 JSON preserves native palette colour {color}");
                 }

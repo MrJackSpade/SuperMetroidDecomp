@@ -20,7 +20,7 @@ internal static partial class PaletteFxColorExtraction
             for (int color = 0; color < colorFrames.ColorsPerFrame; color++)
             {
                 int bgr555 = RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(bus),
+                    bus,
                     RoomFxBankSourceDefinitions.PaletteFx | PaletteFxRecordSources.ColorAddress(colorFrames.Color(frame, color)));
                 frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(bgr555));
             }

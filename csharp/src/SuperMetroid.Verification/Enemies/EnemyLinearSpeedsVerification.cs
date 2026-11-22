@@ -18,7 +18,7 @@ internal static class EnemyLinearSpeedsVerification
     /// </summary>
     internal static void VerifyCompiledLinearEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         for (int row = 0; row < EnemyLinearSpeedTable.RowCount; row++)
         {
             SignedSixteenSixteen speed = EnemyLinearSpeedTable.Speed(row);
@@ -37,8 +37,8 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new TestAddressSpace());
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Ripper does not need any bus for its speed setup.
-        var cacatac = new Action<RoomEnemyPlace>(fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace));
-        var owtch = new Action<RoomEnemyPlace>(fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant(), fixturePlace));
+        var cacatac = new Action<RoomEnemyPlace>(fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), fixturePlace));
+        var owtch = new Action<RoomEnemyPlace>(fixturePlace => OwtchBehavior.InitializeOwtch(fixturePlace.HeldOccupant().SpawnSettings<OwtchSpawnSettings>(), fixturePlace));
         var place = enemies.Places.InUpdateOrder[0];
         for (int index = 0; index < EnemyLinearSpeedTable.RowCount; index++)
         {

@@ -11,7 +11,9 @@ public sealed partial record AtmosphereArtwork : RoomEffectArtwork
     public AtmosphereArtwork(LayeredPicture picture)
     {
         Picture = Ensure.NotNull(picture);
-        Size = picture.Size ?? throw new InvalidDataException("An atmosphere's picture installs neither of its parts.");
+        if (!picture.ShowsSomething(out Extent16<ImagePixels> size))
+            throw new InvalidDataException("An atmosphere's picture installs neither of its parts.");
+        Size = size;
     }
 
     /// <summary>The repeating picture.</summary>

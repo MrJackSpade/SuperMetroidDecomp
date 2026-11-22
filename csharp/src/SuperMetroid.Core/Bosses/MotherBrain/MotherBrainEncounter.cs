@@ -37,16 +37,6 @@ internal sealed partial class MotherBrainEncounter
     }
 
     /// <summary>
-    /// The warning Zebes's escape shows over Mother Brain's room background (#1555): the glyphs her death's typewriter has
-    /// typed, in the order typed, each at its background cell; nothing before her death types any. It lasts the room, as
-    /// the encounter does.
-    /// </summary>
-    public RoomWarningText ZebesWarning { get; private set; } = RoomWarningText.Empty;
-
-    /// <summary>Shows <paramref name="picture"/> as the next glyph of <see cref="ZebesWarning"/>.</summary>
-    internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);
-
-    /// <summary>
     /// Queues a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the cutscene,
     /// as it is made, after the update's earlier requests.
     /// </summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -9,9 +10,9 @@ public sealed partial class KraidLintState : KraidAnimatedPartState
 {
     /// <summary>Makes a lint of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the lint is part of.</param>
-    /// <param name="reference">Kraid's reference to the lint, which it joins as it sets up.</param>
-    internal KraidLintState(KraidEnemyState kraid, KraidPartReference reference)
-        : base(kraid, reference, KraidPartSegment.LintInitial)
+    /// <param name="place">The place of the lint, which his body found as his room lists it.</param>
+    internal KraidLintState(KraidEnemyState kraid, RoomEnemyPlace place)
+        : base(kraid, place, KraidPartSegment.LintInitial)
     {
     }
 

@@ -21,19 +21,19 @@ internal static class GunshipEscapeTimerVerification
     /// <summary>Confirms boarding suppresses timer sprites and countdown before liftoff reuses their VRAM tiles for dust.</summary>
     internal static int VerifyGunshipEscapeTimer()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var top = runtime.Enemies.Places.InUpdateOrder.First(place => place.NativeHeader.InitializationAiPointer == 0xa644);
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
@@ -59,7 +59,7 @@ internal static class GunshipEscapeTimerVerification
             AssertTrue(runtime.EscapeTimer.IsActive, "Gunship preserves native active timer status");
             AssertEqual(timeBeforeBoarding, Time(), "Gunship handler omits timer countdown");
             AssertTrue(!TimerSpritesPresent(), "No timer sprites reference repurposed dust tiles");
-            if (GunshipState.Of(top).Phase == GunshipPhase.FireUpEngines)
+            if (runtime.Enemies.Places.InUpdateOrder.Single(place => place.SpeciesState<GunshipState>() is not null).RequireSpeciesState<GunshipState>().Phase == GunshipPhase.FireUpEngines)
             {
                 sawDustUpload = true;
                 break;

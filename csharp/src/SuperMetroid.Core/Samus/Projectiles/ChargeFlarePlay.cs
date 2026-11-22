@@ -26,7 +26,7 @@ internal sealed partial class ChargeFlarePlay<TSegment, TPicture> : IChargeFlare
         this.segments = segments;
         Looping = looping;
         this.composition = composition;
-        Player = AnimationPlayer<TSegment, TPicture, NoAnimationCue>.StartShowing(segments, Looping.Animation, ClearedPictureUpdates);
+        Player = ShowingAnimationPlayer<TSegment, TPicture, NoAnimationCue>.StartShowing(segments, Looping.Animation, ClearedPictureUpdates);
     }
 
     /// <summary>The component's runs of pictures.</summary>
@@ -39,7 +39,7 @@ internal sealed partial class ChargeFlarePlay<TSegment, TPicture> : IChargeFlare
     private readonly Func<HorizontalDirection, TPicture, ProjectileSpriteId> composition;
 
     /// <summary>The play of the component's animation: the picture it shows and the updates that picture has left.</summary>
-    private AnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
+    private ShowingAnimationPlayer<TSegment, TPicture, NoAnimationCue> Player { get; }
 
     /// <summary>The picture the component shows: a forward play always shows one.</summary>
     internal TPicture Picture => Player.Showing;

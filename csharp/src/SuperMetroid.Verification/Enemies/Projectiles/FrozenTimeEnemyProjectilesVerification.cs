@@ -25,11 +25,11 @@ internal static class FrozenTimeEnemyProjectilesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         RoomEnemyPlace victim = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Sciser));
-        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim.HeldOccupant(), EnemyDeathExplosion.Normal, runtime.Player.IntroducedSamus);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim.HeldOccupant(), EnemyDeathExplosion.Normal, runtime.Player.Samus);
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);

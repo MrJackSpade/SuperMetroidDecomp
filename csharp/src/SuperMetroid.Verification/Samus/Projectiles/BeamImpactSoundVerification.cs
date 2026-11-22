@@ -41,7 +41,7 @@ internal static class BeamImpactSoundVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // A floored corridor ending in a solid column at block 44, inside the settled view.
@@ -53,7 +53,7 @@ internal static class BeamImpactSoundVerification
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(512, 490));

@@ -25,10 +25,13 @@ internal static class FileSelectCaptureComparison
         if (!SHA256.HashData(bus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.
-        var game = new SuperMetroidGame(
-            SaveRamCodec.Decode(recording.InitialSaveRam, RepositoryInstallation.Installation.LoadMaps()), recording.GameOptions.ToAssists());
         ClipAudioLibrary clips = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-        game.BindAudio(clips);
+        var installation = RepositoryInstallation.Installation;
+        var game = new SuperMetroidGame(
+            SaveRamCodec.Decode(recording.InitialSaveRam, installation.LoadMaps()), recording.GameOptions.ToAssists(),
+            SuperMetroidGameHostServices.Default, new SuperMetroid.Core.Compatibility.SharedRandom(),
+            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(clips),
+            installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()));
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         var muted = new ClipAudioBackend(clips);
         var suppressed = new short[AudioSession.PcmSamplesPerFrame];

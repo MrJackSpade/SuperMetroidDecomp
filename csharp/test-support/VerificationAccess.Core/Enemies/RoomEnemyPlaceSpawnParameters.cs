@@ -12,9 +12,9 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// entry placing <paramref name="species"/> at the room origin with no contact, processing, presence or settings of
     /// its own.
     /// </summary>
-    internal static void Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
-        place.Bind(place.History is PopulatedEnemyPlace populated
-            ? populated.LastSpawn with { DefinitionId = species }
+    internal static RoomEnemyOccupant Bind(this RoomEnemyPlace place, EnemyDefinitionId species, RoomEnemyDefinition definition) =>
+        place.BindEntry(place.History is PopulatedEnemyPlace populated
+            ? populated.Occupancy.LastSpawn with { DefinitionId = species }
             : PlacementFor(species, EnemySpawnSettings.None), definition);
 
     /// <summary>
@@ -22,28 +22,42 @@ internal static class RoomEnemyPlaceSpawnParameters
     /// from its entry with <paramref name="settings"/>, as a population load binds it, before the check initializes it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The check has bound no enemy in the place.</exception>
-    internal static void SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
+    internal static RoomEnemyOccupant SetSpawnSettings(this RoomEnemyPlace place, EnemySpawnSettings settings)
     {
         RoomEnemyPlacement entry = place.History is PopulatedEnemyPlace populated
-            ? populated.LastSpawn
+            ? populated.Occupancy.LastSpawn
             : throw new InvalidOperationException($"A check sets the spawn settings of enemy place {place.Ordinal}, where it has bound no enemy.");
-        place.Bind(Settled(entry, settings), place.KeptDefinition);
+        return place.BindEntry(Settled(entry, settings), place.KeptDefinition);
     }
 
     /// <summary>
     /// Binds <paramref name="species"/> placed with <paramref name="settings"/>, where the place's entry places it, or at
     /// the room origin in a place no enemy has been spawned in.
     /// </summary>
-    internal static void BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind(Settled((place.History is PopulatedEnemyPlace populated ? populated.LastSpawn : PlacementFor(species, settings))
+    internal static RoomEnemyOccupant BindPlaced(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
+        place.BindEntry(Settled((place.History is PopulatedEnemyPlace populated ? populated.Occupancy.LastSpawn : PlacementFor(species, settings))
             with { DefinitionId = species }, settings), place.KeptDefinition);
 
     /// <summary>
     /// Binds <paramref name="species"/> in the place as an entry placing it at the room origin would, with no contact,
     /// processing or presence of its own and <paramref name="settings"/>.
     /// </summary>
-    internal static void PopulateFor(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
-        place.Bind(PlacementFor(species, settings), place.KeptDefinition);
+    internal static RoomEnemyOccupant PopulateFor(this RoomEnemyPlace place, EnemyDefinitionId species, EnemySpawnSettings settings) =>
+        place.BindEntry(PlacementFor(species, settings), place.KeptDefinition);
+
+    /// <summary>
+    /// Binds <paramref name="entry"/> in <paramref name="place"/> with <paramref name="definition"/>, as a check authors the
+    /// place's population entry (#2554): the place holds the occupant's identity and entry, which a check reads, but only the
+    /// room's population load builds the enemy (<see cref="PopulationPlacementAccess"/>).
+    /// </summary>
+    /// <returns>The new occupant.</returns>
+    internal static RoomEnemyOccupant BindEntry(this RoomEnemyPlace place, RoomEnemyPlacement entry, RoomEnemyDefinition definition) =>
+        Ensure.NotNull(place).Bind(new OrdinaryEnemySpawn<EnemySpawnSettings>(Ensure.NotNull(entry), entry.SpawnSettings, Unbuilt), definition);
+
+    /// <summary>The build of an occupant a check bound, which only its room's population load builds.</summary>
+    /// <exception cref="InvalidOperationException">Always: a check places an enemy it runs through its room's population load.</exception>
+    private static EnemyOccupant Unbuilt(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        throw new InvalidOperationException($"Enemy {occupant.DefinitionId} is built only by its room's population load; a check places it through the load.");
 
     /// <summary><paramref name="entry"/> giving its species <paramref name="settings"/> instead of its own.</summary>
     private static RoomEnemyPlacement Settled(RoomEnemyPlacement entry, EnemySpawnSettings settings) =>

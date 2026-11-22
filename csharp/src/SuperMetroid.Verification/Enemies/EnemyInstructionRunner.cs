@@ -30,10 +30,20 @@ internal static class EnemyInstructionRunner
     internal static string ShownFrames(RoomEnemyPlace place, int updates)
     {
         object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        return ShownFrames(place, updates, () => Process(arguments));
+    }
+
+    /// <summary>
+    /// Takes <paramref name="updates"/> animation steps of <paramref name="place"/>'s enemy with <paramref name="step"/>, its
+    /// species' own animation step over the state the check's setup built, and lists each newly shown frame as
+    /// <c>update:spritemap</c> (hexadecimal), comma-separated.
+    /// </summary>
+    internal static string ShownFrames(RoomEnemyPlace place, int updates, Action step)
+    {
         var shown = new List<string>();
         for (int update = 0; update < updates; update++)
         {
-            Process(arguments);
+            step();
             if (place.AnimationClock.ShowsNewFrame)
                 shown.Add($"{update}:{place.SpritemapPointer:X4}");
         }

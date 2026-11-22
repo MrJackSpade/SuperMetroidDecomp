@@ -30,7 +30,7 @@ internal sealed partial class SoundEffectIdJsonConverter : JsonConverter<SoundEf
         if (reader.TokenType != JsonTokenType.String)
             throw new InvalidDataException($"A clip index sound is a {reader.TokenType}, not a sound's name.");
         string name = reader.GetString() ?? throw new InvalidDataException("A clip index sound has no name.");
-        return SoundsByName.TryGetValue(name, out SoundEffectId sound)
+        return SoundsByName.TryGetValue(name, out SoundEffectId? sound)
             ? sound
             : throw new InvalidDataException($"The clip index names '{name}', which is no sound.");
     }

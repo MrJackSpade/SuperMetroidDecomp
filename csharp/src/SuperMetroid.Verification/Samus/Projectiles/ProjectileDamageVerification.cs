@@ -25,7 +25,7 @@ internal static class ProjectileDamageVerification
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     internal static void VerifyProjectileDamage(CartridgeImportAddressSpace rom)
     {
-        ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
+        ushort Word(int address) => rom.ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(LaterProjectileHeaders).ToArray();
         var bus = NewProjectileDamageReadGuard(rom);
@@ -228,9 +228,9 @@ internal static class ProjectileDamageVerification
             OrbitingParticleState orbit = first.KindStateAs<OrbitingParticleState>();
             Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(orbit.Angle, orbit.Radius);
             if (beam == 2)
-                projectiles.Combos.StepIceOrbit(samus, first.HeldShot(), shared);
+                projectiles.Combos.StepIceOrbit(samus, first.HeldShot(), first.KindStateAs<IceParticleState>(), shared);
             else if (beam == 4)
-                projectiles.Combos.StepSpazerCombo(samus, first.HeldShot(), shared, 0);
+                projectiles.Combos.StepSpazerCombo(samus, first.HeldShot(), first.KindStateAs<SpazerParticleState>(), shared, 0);
             else
                 projectiles.Combos.StepPlasmaCombo(samus, first.HeldShot(), first.KindStateAs<PlasmaParticleState>(), shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,

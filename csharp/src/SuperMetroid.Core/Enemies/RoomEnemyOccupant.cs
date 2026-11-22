@@ -13,10 +13,10 @@ public sealed partial class RoomEnemyOccupant
     /// <param name="history">The history of the place the occupant is spawned in.</param>
     /// <param name="spawn">The population entry the occupant is spawned from, which names its enemy.</param>
     /// <param name="definition">The occupant's resolved definition.</param>
-    internal RoomEnemyOccupant(PopulatedEnemyPlace history, RoomEnemyPlacement spawn, RoomEnemyDefinition definition)
+    internal RoomEnemyOccupant(PopulatedEnemyPlace history, EnemySpawn spawn, RoomEnemyDefinition definition)
     {
         History = Ensure.NotNull(history);
-        Spawn = Ensure.NotNull(spawn);
+        Entry = Ensure.NotNull(spawn);
         Definition = definition;
     }
 
@@ -33,17 +33,19 @@ public sealed partial class RoomEnemyOccupant
     /// The population entry the occupant was spawned from, kept unchanged while its live state moves on; a respawn
     /// rebuilds the enemy from it.
     /// </summary>
-    public RoomEnemyPlacement Spawn { get; }
+    public RoomEnemyPlacement Spawn => Entry.Placement;
+
+    /// <summary>
+    /// The population entry bound to the species creation that built the occupant (#2554), through which a respawn
+    /// rebuilds it.
+    /// </summary>
+    internal EnemySpawn Entry { get; }
 
     /// <summary>The history of the place the occupant was spawned in, which keeps it as the place's latest occupant.</summary>
     public PopulatedEnemyPlace History { get; }
 
     /// <summary>The place the occupant was spawned in.</summary>
     public RoomEnemyPlace Place => History.Place;
-
-    /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
-    /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
-    internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.SpawnSettingsOf<T>();
 
     /// <summary>
     /// Empties the occupant's place when the occupant is killed (<see cref="RoomEnemyPlace.Clear"/>) and, for a respawning

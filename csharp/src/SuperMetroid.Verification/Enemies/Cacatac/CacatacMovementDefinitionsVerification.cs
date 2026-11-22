@@ -14,7 +14,7 @@ internal static class CacatacMovementDefinitionsVerification
         const int distanceTable = 0xa29f36;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant(), fixturePlace);
+        Func<RoomEnemyPlace, CacatacEnemyState> initialize = fixturePlace => CacatacBehavior.InitializeCacatac(fixturePlace.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
 
@@ -24,14 +24,13 @@ internal static class CacatacMovementDefinitionsVerification
             for (byte distanceIndex = 0; distanceIndex < 6; distanceIndex++)
             {
                 int address = distanceTable + distanceIndex * 2;
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                ushort native = rom.ReadCartridgeWord(address);
                 place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
                 place.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
                 AssertEqual(native, place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>().TravelDistance,
                     $"imported Cacatac travel distance {distanceIndex}");
                 place.Position = place.Position.WithWholeX(spawnX);
-                initialize(place);
-                CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));
+                CacatacEnemyState state = initialize(place);
                 AssertEqual(spawnX - native, state.LeftPatrolX,
                     $"Cacatac minimum X {spawnX}/{distanceIndex}");
                 AssertEqual(spawnX + native, state.RightPatrolX,

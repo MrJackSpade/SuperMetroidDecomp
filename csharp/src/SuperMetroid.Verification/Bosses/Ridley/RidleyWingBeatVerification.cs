@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -17,7 +18,7 @@ internal static class RidleyWingBeatVerification
     internal static void VerifyRidleyWingBeat()
     {
         AssertEqual(RidleySupplementalVisualDefinitions.WingsRaised, new NorfairRidleyState().Flight.Wings.Pose.Entry, "Lower Norfair Ridley's wings start raised");
-        AssertEqual(RidleySupplementalVisualDefinitions.WingsDown, new CeresRidleyState(Position16<RoomPixels>.Zero).Flight.Wings.Pose.Entry,
+        AssertEqual(RidleySupplementalVisualDefinitions.WingsDown, new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()).Flight.Wings.Pose.Entry,
             "Ceres Ridley's wings start fully lowered");
         AssertEqual(10, RidleySupplementalVisualDefinitions.WingBeat.Count, "the wing beat holds ten poses");
 

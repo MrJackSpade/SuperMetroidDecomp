@@ -21,7 +21,7 @@ internal static class MotherBrainBodyHitboxesVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -45,14 +45,14 @@ internal static class MotherBrainBodyHitboxesVerification
         shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), 1000); shot.HeldShot().Direction = SamusProjectileDirection.Left;
         shot.HeldShot().Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.HeldShot().Radius = new(0x1c, 8);
         shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
-        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
+        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
         AssertTrue(shot.IsSpent, "the beam stops on the body's arm rectangle");
         AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
         shot.HeldShot().FlyOn();
         shot.HeldShot().Position = shot.Position.WithWholeY(0x0080);
-        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
+        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
         AssertTrue(!shot.IsSpent, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
     }

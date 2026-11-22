@@ -8,12 +8,21 @@ internal sealed partial class ShinesparkEchoShotState(TrigonometryAngle angle, A
     /// <summary>The echo's departure angle, in whole steps.</summary>
     internal TrigonometryAngle Angle { get; } = angle;
 
-    /// <summary>The crash's echo the shot carries, which shows where the shot is and which clearing Samus's shots forgets.</summary>
+    /// <summary>The crash's echo the shot carries.</summary>
     internal Abilities.ShinesparkCrashEcho Echo { get; } = Ensure.NotNull(echo);
-
-    /// <inheritdoc/>
-    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam(SignedEightEight reflectionHeadStart) => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(Angle);
 
     /// <summary>The echo's expanding radius, in pixels: zero when it is released, growing each update.</summary>
     internal int Radius { get; set => field = Ensure.AtLeastZero(value); }
+
+    /// <inheritdoc/>
+    internal override bool AwaitsIgnitionAsFired => false;
+
+    /// <inheritdoc/>
+    internal override int? NamedLinkPlace => null;
+
+    /// <inheritdoc/>
+    internal override bool DeletesItselfAfterEnemyHit => false;
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam => new BeamFiredOverLastShot.ReplacedShot.CrashEcho(Angle);
 }

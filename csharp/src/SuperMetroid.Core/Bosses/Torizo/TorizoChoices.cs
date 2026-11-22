@@ -48,7 +48,7 @@ internal sealed partial class TorizoChoices
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         bool isGroundedBall = SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.TorizoSitDownBall);
-        if (TorizoFacing.FacesSamus(torizo, samus) ||
+        if (TorizoFacing.FacesSamus(torizo, state, samus) ||
             distance < TorizoDecisionDefinitions.MorphedBehindNearest || distance >= TorizoDecisionDefinitions.MorphedBehindFarthest || !isGroundedBall)
         {
             return null;
@@ -67,7 +67,7 @@ internal sealed partial class TorizoChoices
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
-        if (!TorizoFacing.FacesSamus(torizo, samus) ||
+        if (!TorizoFacing.FacesSamus(torizo, state, samus) ||
             distance < TorizoDecisionDefinitions.MediumRangeNearest || distance >= TorizoDecisionDefinitions.MediumRangeFarthest ||
             !TorizoRandomRolls.MediumRangeAttack.IsTakenBy(_room.Random.Generate()))
         {
@@ -87,7 +87,7 @@ internal sealed partial class TorizoChoices
         TorizoAnimation target)
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
-        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, samus))
+        if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, state, samus))
             return null;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
             (!controllerInput.HasAny(GameplayActions.HorizontalDirections) ||
@@ -97,7 +97,7 @@ internal sealed partial class TorizoChoices
         }
 
         state.DecisionCounter = 0;
-        StartGoldenTorizoForwardJump(torizo, state);
+        StartGoldenTorizoForwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -110,13 +110,13 @@ internal sealed partial class TorizoChoices
     {
         int distance = Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole);
         if (state.DecisionCounter < TorizoDecisionDefinitions.RepeatedJumpSteps &&
-            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, samus)))
+            (distance >= TorizoDecisionDefinitions.CloseInFrontDistance || !TorizoFacing.FacesSamus(torizo, state, samus)))
         {
             return null;
         }
 
         state.DecisionCounter = 0;
-        StartBackwardJump(torizo, state);
+        StartBackwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -137,22 +137,21 @@ internal sealed partial class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTowardSamus = null;
-            return TorizoAnimations.ContinueWith(walker.TurnAbout(torizo));
+            return TorizoAnimations.ContinueWith(walker.TurnAbout(state));
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (FacesAwayFromSamus(torizo, samus))
+        if (FacesAwayFromSamus(torizo, state, samus))
             state.TurnTowardSamus ??= BossCountdown.Lasting(walker.TurnDelay);
         return null;
     }
 
     /// <summary>Sets the facing-dependent forward leap velocity; the leap's crouch, which the decision continues in, times its frame.</summary>
     private static void StartGoldenTorizoForwardJump(
-        RoomEnemyPlace torizo,
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
-        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing), TorizoMotionDefinitions.ForwardLeapRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(state).Facing), TorizoMotionDefinitions.ForwardLeapRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
@@ -161,11 +160,10 @@ internal sealed partial class TorizoChoices
     /// Torizo's repeated jump alike.
     /// </summary>
     private static void StartBackwardJump(
-        RoomEnemyPlace torizo,
         TorizoEnemyState state)
     {
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
-        state.Velocity = new(side.Toward(TorizoFacing.Posture(torizo).Facing.Reversed()), TorizoMotionDefinitions.BackwardJumpRise);
+        state.Velocity = new(side.Toward(TorizoFacing.Posture(state).Facing.Reversed()), TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
     }
 
@@ -179,7 +177,7 @@ internal sealed partial class TorizoChoices
     {
         if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseBehindDistance)
             return null;
-        if (FacesAwayFromSamus(torizo, samus))
+        if (FacesAwayFromSamus(torizo, state, samus))
             return null;
         state.InterruptedWalk = continuation;
         return TorizoAnimations.ContinueWith(target);
@@ -193,12 +191,12 @@ internal sealed partial class TorizoChoices
         TorizoAnimation target)
     {
         if (Math.Abs(samus.Position.X.Whole - torizo.Position.X.Whole) >= TorizoDecisionDefinitions.CloseInFrontDistance ||
-            !TorizoFacing.FacesSamus(torizo, samus))
+            !TorizoFacing.FacesSamus(torizo, state, samus))
         {
             return null;
         }
 
-        StartBackwardJump(torizo, state);
+        StartBackwardJump(state);
         return TorizoAnimations.ContinueWith(target);
     }
 
@@ -209,7 +207,7 @@ internal sealed partial class TorizoChoices
     /// and behind it while it faces left, and neither while it faces right.
     /// </summary>
     private static bool FacesAwayFromSamus(
-        RoomEnemyPlace torizo,
+        RoomEnemyPlace torizo, TorizoEnemyState torizoEnemyState,
         SamusState samus) =>
-        TorizoFacing.FacesRight(torizo) == samus.Position.X.Whole < torizo.Position.X.Whole;
+        TorizoFacing.FacesRight(torizoEnemyState) == samus.Position.X.Whole < torizo.Position.X.Whole;
 }

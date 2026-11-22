@@ -12,19 +12,22 @@ public sealed partial class KraidEnemyState
     /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
     /// <paramref name="parts"/>' reference to it, and each animated part plays the animation its setup starts (#2298).
     /// </summary>
-    /// <param name="parts">Kraid's references to his parts in his room.</param>
+    /// <param name="parts">His parts' places, which his body found as his room lists them.</param>
     internal KraidEnemyState(KraidParts parts)
     {
-        Ensure.NotNull(parts);
-        BodyState = new(this, parts.BodyReference);
-        ArmState = new(this, parts.ArmReference);
-        TopLintState = new(this, parts.TopLintReference);
-        MiddleLintState = new(this, parts.MiddleLintReference);
-        BottomLintState = new(this, parts.BottomLintReference);
-        FootState = new(this, parts.FootReference);
-        FirstNailState = new(this, parts.FirstNailReference, sibling: parts.SecondNailReference);
-        SecondNailState = new(this, parts.SecondNailReference, sibling: parts.FirstNailReference);
+        Parts = Ensure.NotNull(parts);
+        BodyState = new(this, parts.Body);
+        ArmState = new(this, parts.Arm);
+        TopLintState = new(this, parts.TopLint);
+        MiddleLintState = new(this, parts.MiddleLint);
+        BottomLintState = new(this, parts.BottomLint);
+        FootState = new(this, parts.Foot);
+        FirstNailState = new(this, parts.FirstNail, sibling: parts.SecondNail);
+        SecondNailState = new(this, parts.SecondNail, sibling: parts.FirstNail);
     }
+
+    /// <summary>His eight parts' places, which his body found as his room lists them as it set up (#2554).</summary>
+    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
@@ -137,43 +140,12 @@ public sealed partial class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
-    /// or death starts an animation.
-    /// </summary>
-    internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
-
-    /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head
     /// animation plays on to its next pose on the hold's last update. Once an animation has ended the hold has run out and
     /// holds, so the head keeps its pose until another animation starts. His rise and his closing mouth hold the pose
     /// without an animation playing (<see cref="HoldHeadUntilRise"/>, <see cref="HoldClosedMouth"/>).
     /// </summary>
     internal HeldBossCountdown HeadHold { get; } = new();
-
-    /// <summary>
-    /// Starts the head animation that starts at <paramref name="animation"/> (#2399): the head enters its opening pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void StartHeadAnimation(KraidHeadSegment animation) => EnterHead(KraidHeadAnimations.Starting(animation));
-
-    /// <summary>
-    /// Selects the head animation that starts at <paramref name="animation"/> (#2399): the head stands past its opening pose,
-    /// as starting it leaves it, while its hold runs on as it is.
-    /// </summary>
-    internal void SelectHeadAnimation(KraidHeadSegment animation) => HeadPlayback = KraidHeadAnimations.Starting(animation).Playback;
-
-    /// <summary>
-    /// Resumes the roar as growth does from <paramref name="resume"/> (#2399): the head enters the resumed pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void ResumeHeadRoar(KraidHeadGrowthResume resume) => EnterHead(KraidHeadAnimations.GrowthResume(resume));
-
-    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, holding that pose for its duration.</summary>
-    private void EnterHead(KraidHeadEntry entry)
-    {
-        HeadPlayback = entry.Playback;
-        HeadHold.LastFor(entry.Delay);
-    }
 
     /// <summary>Shows the head pose <paramref name="shown"/> his head animation reached, holding it for its duration.</summary>
     internal void ShowHeadPose(AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)

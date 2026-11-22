@@ -28,12 +28,11 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         for (int direction = 0; direction < 8; direction++)
         {
             YappingMawSegment entry = YappingMawBites.AttackForDirection(YappingMawAnimationDefinitions.Aims.At(direction));
-            (RoomEnemySystem enemies, RoomEnemyPlace place, _) =
+            (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(entry);
-            object?[] arguments =
-                [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Segments, entry, YappingMawFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Segments, entry)),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Segments, entry),
+                    () => enemies.YappingMawBehavior.AdvanceYappingMawTypedAnimation(place, state)),
                 $"Yapping Maw attack direction {direction} loop");
             AssertEqual<SoundEffectId?>(EnemySound.YappingMaw, enemies.Audio.LatestSound,
                 $"Yapping Maw attack direction {direction} publishes its sound");
@@ -52,16 +51,12 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) =
                 NewYappingMawInstructionSystem(entry);
-            object?[] arguments =
-                [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-            RunYappingMawInstructionFrames(arguments, place, count: 1);
+            RunYappingMawInstructionFrames(enemies, place, state, count: 1);
             AssertEqual(x, state.HeldSamusOffset.X,
                 $"Yapping Maw {name} callback X offset");
             AssertEqual(y, state.HeldSamusOffset.Y,
                 $"Yapping Maw {name} callback Y offset");
-            RunYappingMawInstructionFrames(arguments,
-                place,
-                count: calls - 1);
+            RunYappingMawInstructionFrames(enemies, place, state, count: calls - 1);
             AssertEqual(YappingMawAnimationsConstants.Spritemaps(loop).First(), place.SpritemapPointer,
                 $"Yapping Maw {name} cooldown loops back to its first pose");
             AssertEqual<SoundEffectId?>(EnemySound.YappingMaw, enemies.Audio.LatestSound,
@@ -87,17 +82,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             new VerifyYappingMawInitializerSelectionsCase(1, YappingMawSegment.AttackingUp, "ordinary/up"),
         })
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.YappingMaw, place.KeptDefinition);
-            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-            place.Position = place.Position.WithWhole(new(128, 128));
-            place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
-            place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, parameter2);
-            enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place);
-            YappingMawEnemyState state = enemies.YappingMawStates[0] ??
-                throw new InvalidOperationException(
-                    $"Yapping Maw {name} initializer did not publish typed state.");
+            (_, _, YappingMawEnemyState state) = PlaceYappingMaw(128, parameter2);
             AssertEqual(new AnimationPlayback<YappingMawSegment>(YappingMawAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.Links.Count,
@@ -122,7 +107,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, Frame(samus));
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";
             AssertEqual(attacks ? YappingMawAction.BeginExtension : YappingMawAction.WaitingForSamus, state.Action, $"{context} attack decision");
             AssertEqual(attacks ? YappingMawAttackGeometry.MaximumTargetDistance : 300, state.DistanceToSamus, $"{context} target distance");
@@ -130,7 +115,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 continue;
 
             AssertEqual(TrigonometryAngle.QuarterTurn, state.AimAngle, $"{context} aims straight along X");
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant(), place, Frame(samus));
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, Frame(samus));
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context} begins extending");
             AssertEqual(32, state.SegmentRadius, $"{context} radius is half the capped distance");
             AssertEqual(RotationAngle.QuarterTurn, state.CurlAngle, $"{context} curl is a quarter turn minus the aim");
@@ -157,43 +142,50 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, with the given activation distance.</summary>
-    internal static NewInitializedYappingMawResult NewInitializedYappingMaw(int activationDistance)
+    internal static NewInitializedYappingMawResult NewInitializedYappingMaw(int activationDistance) =>
+        PlaceYappingMaw(checked((ushort)activationDistance), 1);
+
+    /// <summary>
+    /// A Yapping Maw rooted at (128, 128) whose population entry's parameters are <paramref name="parameter1"/> and
+    /// <paramref name="parameter2"/>, under the blank definition, set up as its room's population sets it up (#2554): its
+    /// setup builds the state its main AI and animation run on.
+    /// </summary>
+    private static NewInitializedYappingMawResult PlaceYappingMaw(int parameter1, int parameter2)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.YappingMaw, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        place.Position = place.Position.WithWhole(new(128, 128));
-        place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, checked((ushort)activationDistance));
-        place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 1);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place);
-        YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
-        return new NewInitializedYappingMawResult(enemies, place, state);
+        RoomEnemyPlace authored = enemies.Places.InUpdateOrder[0];
+        authored.Bind(EnemyDefinitionId.YappingMaw, authored.KeptDefinition);
+        authored.Bind(authored.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        authored.Position = authored.Position.WithWhole(new(128, 128));
+        authored.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, parameter1);
+        authored.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, parameter2);
+        RoomEnemyPlace place = enemies.LoadAuthoredPopulation()[0];
+        return new NewInitializedYappingMawResult(enemies, place, place.RequireSpeciesState<YappingMawEnemyState>());
     }
 
-    /// <summary>Creates a Yapping Maw slot running a selected program with typed state.</summary>
+    /// <summary>
+    /// A set-up Yapping Maw, its program then <paramref name="entry"/> from its start, which the Maw's own steps start
+    /// (its attacks on reaching Samus, its cooldowns as an attack ends), stepping on its next update.
+    /// </summary>
     private static NewInitializedYappingMawResult NewYappingMawInstructionSystem(
             YappingMawSegment entry)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.YappingMaw, place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) = PlaceYappingMaw(128, 1);
+        state.Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
-        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation), Links = [], RootEffectActor = new(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind.YappingMawBaseFacingUp, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard) };
-        place.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }
 
     /// <summary>Forces each requested instruction call through the production enemy interpreter.</summary>
-    private static void RunYappingMawInstructionFrames(object?[] arguments,
+    private static void RunYappingMawInstructionFrames(RoomEnemySystem enemies,
         RoomEnemyPlace place,
+        YappingMawEnemyState state,
         int count)
     {
         for (int call = 0; call < count; call++)
         {
             place.AnimationClock.StepOnNextUpdate();
-            EnemyInstructionRunner.Process(arguments);
+            enemies.YappingMawBehavior.AdvanceYappingMawTypedAnimation(place, state);
         }
     }
 

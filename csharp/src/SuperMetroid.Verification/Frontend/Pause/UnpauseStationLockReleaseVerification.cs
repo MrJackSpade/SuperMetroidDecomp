@@ -24,12 +24,12 @@ internal static class UnpauseStationLockReleaseVerification
     internal static void VerifyUnpauseStationLockRelease()
     {
         var random = new SharedRandom();
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Control.LockAtStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);

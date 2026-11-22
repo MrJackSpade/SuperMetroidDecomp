@@ -48,6 +48,9 @@ internal sealed partial record CrocomireBehaviorDependencies
     /// <summary>The room's enemy places, among which his tongue finds his body.</summary>
     public required EnemyPlaces Places { get; init; }
 
+    /// <summary>Where his body offers his tongue, listed right after it, the creation that builds it joining his encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
+
     /// <summary>His body's sprite layer and the acid smoke that rises from his room's acid surface, built with <see cref="Access"/>.</summary>
     public required CrocomireBodyLayer BodyLayer { get; init; }
 

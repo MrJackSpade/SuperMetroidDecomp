@@ -37,5 +37,5 @@ internal static class KraidGrowthObjectMappingsVerification
     }
 
     /// <summary>Reads a native Kraid growth callback byte for the focused cartridge comparison.</summary>
-    private static byte KraidGrowthObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidGrowthObjectFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

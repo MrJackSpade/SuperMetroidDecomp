@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms;
@@ -66,8 +66,7 @@ internal sealed partial class WreckedShipTreadmillObjects
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             Position16<RoomBlocks> block = origin + new Offset16<RoomBlocks>(offset, 0);
-            level.SetTerrain(block, running);
-            level.SetBehavior(block, rightwards
+            level.SetTerrainAndBehavior(block, running, rightwards
                 ? WreckedShipTreadmillBlockDefinitions.RightwardsBehavior
                 : WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior);
         }

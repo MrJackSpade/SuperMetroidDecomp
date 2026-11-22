@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
@@ -14,6 +15,12 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// Collision, room objects and the display read the same grid, so rendering and physics never see different revisions
 /// of a room. The foreground shows its terrain's appearance unless an installed layout or a room object's draw shows
 /// another picture over the same terrain.
+/// <para>
+/// Every block of a kind that reads a reaction carries its kind's reaction (#2554): the room's blocks, in its grid and past
+/// it, are checked as the room loads, and a write that would leave a reacting block whose behaviour gives its kind no
+/// reaction is refused. A write changing both how a block collides and what it does is one write, so no block passes
+/// through such a state.
+/// </para>
 /// </remarks>
 [RoomLifetime]
 public sealed partial class RoomLevelData
@@ -28,7 +35,7 @@ public sealed partial class RoomLevelData
     /// Where each foreground block leads as a door block, row by row, or null where it leads nowhere (#2090). A block's exit
     /// is what its behaviour leads through, so a behaviour write takes it away.
     /// </summary>
-    internal readonly DoorBlockExit?[] exits;
+    internal readonly Dictionary<int, DoorBlockExit> exits = [];
 
     /// <summary>What each foreground block shows, row by row: its terrain's appearance unless a layout or draw shows another.</summary>
     internal readonly RoomBlockAppearance[] shownForeground;
@@ -59,7 +66,10 @@ public sealed partial class RoomLevelData
     /// <param name="visualLayout">Optional matching-sized initial appearances of both planes; terrain, behaviours and the terrain beyond the room stay unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A plane has the wrong size, or a door block lies outside the grid or is listed twice.</exception>
-    /// <exception cref="InvalidDataException">The selected visual layout does not match the room dimensions.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The selected visual layout does not match the room dimensions, or a block of a reacting kind, in the grid or past it,
+    /// has a behaviour that gives its kind no reaction.
+    /// </exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
         RoomLevelPlanes planes,
@@ -81,19 +91,27 @@ public sealed partial class RoomLevelData
             throw new ArgumentException("The background must hold exactly one appearance per room block.", nameof(planes));
 
         Size = size;
-        exits = new DoorBlockExit?[expectedBlocks];
         foreach (RoomDoorBlock door in Ensure.NotNull(doorBlocks))
         {
             if (!size.Contains(door.Block))
                 throw new ArgumentException($"Door block {door.Block} lies outside the {size.X}x{size.Y}-block grid.", nameof(doorBlocks));
             int place = size.RowMajorIndex(door.Block);
-            if (exits[place] is not null)
+            if (!exits.TryAdd(place, door.Exit))
                 throw new ArgumentException($"Door block {door.Block} is listed twice.", nameof(doorBlocks));
-            exits[place] = door.Exit;
         }
         terrain = planes.Foreground.ToArray();
         behaviors = planes.Behavior.ToArray();
         BeyondRoom = Ensure.NotNull(beyondRoom);
+        for (int place = 0; place < terrain.Length; place++)
+        {
+            if (!CarriesItsReaction(terrain[place].Collision, behaviors[place]))
+                throw new InvalidDataException($"Room block {size.CellAtRowMajorIndex(place)} {NoReaction(terrain[place].Collision, behaviors[place])}.");
+        }
+        for (int beyond = 0; beyond < BeyondRoom.Count; beyond++)
+        {
+            if (!CarriesItsReaction(BeyondRoom.TerrainAt(beyond).Collision, BeyondRoom.BehaviorAt(beyond)))
+                throw new InvalidDataException($"Block {beyond} past the room's grid {NoReaction(BeyondRoom.TerrainAt(beyond).Collision, BeyondRoom.BehaviorAt(beyond))}.");
+        }
 
         if (visualLayout is null)
         {
@@ -194,20 +212,28 @@ public sealed partial class RoomLevelData
     /// that reach; a purely vertical step never crosses a row's end and is the position plus its offset.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The step reaches before the room's first block.</exception>
-    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
-        RoomReadingOrder.Step(block, step, Size.X) ??
-        throw new ArgumentOutOfRangeException(nameof(step), $"A step of {step} from room-object block {block} reaches before the room's first block.");
+    internal Position16<RoomBlocks> ObjectBlockStep(Position16<RoomBlocks> block, Offset16<RoomBlocks> step)
+    {
+        int reached = RoomReadingOrder.PlaceStepped(block, step, Size.X);
+        return reached >= 0 ? RoomReadingOrder.BlockAt(reached, Size.X) : throw new ArgumentOutOfRangeException(nameof(step),
+            $"A step of {step} from room-object block {block} reaches before the room's first block.");
+    }
 
     /// <summary>
-    /// The block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
+    /// Finds the block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), as Samus's collision extensions, her shots' and the grapple's extension
-    /// links and a Wave shot's straddled read reach it: a column step past a row's end continues on the next row.
+    /// links and a Wave shot's straddled read reach it: a column step past a row's end continues on the next row; false
+    /// when the step leads before the room's first block or past its grid.
     /// </summary>
     /// <param name="block">The block stepped from.</param>
     /// <param name="step">The columns and rows stepped.</param>
-    /// <returns>The block reached, or null when the step leads before the room's first block or past its grid.</returns>
-    internal Position16<RoomBlocks>? GridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
-        RoomReadingOrder.Step(block, step, Size.X) is { } reached && Size.Contains(reached) ? reached : null;
+    /// <param name="reached">The block reached.</param>
+    internal bool TryGridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step, out Position16<RoomBlocks> reached)
+    {
+        int place = RoomReadingOrder.PlaceStepped(block, step, Size.X);
+        reached = place >= 0 ? RoomReadingOrder.BlockAt(place, Size.X) : default;
+        return place >= 0 && Size.Contains(reached);
+    }
 
     /// <summary>
     /// The block <paramref name="extension"/>'s link leads to (<see cref="RoomCollisionBlock.ExtensionLink"/>), or the
@@ -216,16 +242,17 @@ public sealed partial class RoomLevelData
     /// </summary>
     /// <param name="extension">An extension block the read found in the grid.</param>
     internal RoomCollisionBlock LinkedBlockOrEdgeSolid(RoomCollisionBlock extension) =>
-        GridBlockStepped(extension.At, extension.ExtensionLink) is { } reached ? GetCollisionBlock(reached) : EdgeSolid();
+        TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? GetCollisionBlock(reached) : EdgeSolid(reached);
 
     /// <summary>
-    /// The block <paramref name="block"/> stands for, as Samus's body, her shots, missiles and bombs collide with and react
-    /// to it (<see cref="ContinuedBlocks"/>): the block itself, or the block a continuing cell's links lead to; null when the
-    /// cell behaves as air.
+    /// The whole block <paramref name="block"/> stands for, as Samus's body, her shots, missiles and bombs collide with and
+    /// react to it (<see cref="ContinuedBlocks"/>): the block itself, or the block a continuing cell's links lead to; null
+    /// when the cell behaves as air.
     /// </summary>
     /// <param name="block">A block the read found in the grid.</param>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
-    internal RoomCollisionBlock? BlockStoodFor(RoomCollisionBlock block) => StandingBlockFor(block)?.Block;
+    internal StoodForBlock? BlockStoodFor(RoomCollisionBlock block) =>
+        ContinuedBlocks.StoodFor(block, Size.Area, AsWholeBlock, cell => cell.Behavior.EndsExtension, LinkedBlock);
 
     /// <summary>
     /// The block <paramref name="block"/> stands for (<see cref="BlockStoodFor"/>) with how it collides, which is no
@@ -237,8 +264,15 @@ public sealed partial class RoomLevelData
         ContinuedBlocks.StoodFor(block, Size.Area,
             cell => StandingTypes[cell.CollisionType] is { } type ? new StandingBlock(cell, type) : (StandingBlock?)null,
             cell => cell.Behavior.EndsExtension,
-            cell => GetCollisionBlock(GridBlockStepped(cell.At, cell.ExtensionLink) ?? throw new InvalidDataException(
-                $"Continuing block {cell.Position} type {cell.CollisionType}/behaviour ({cell.Behavior}) leads outside the room's grid.")));
+            LinkedBlock);
+
+    /// <summary>The block <paramref name="extension"/>'s link leads to (<see cref="RoomCollisionBlock.ExtensionLink"/>).</summary>
+    /// <param name="extension">An extension block the read found in the grid.</param>
+    /// <exception cref="InvalidDataException">The link leads outside the room's grid.</exception>
+    private RoomCollisionBlock LinkedBlock(RoomCollisionBlock extension) =>
+        GetCollisionBlock(TryGridBlockStepped(extension.At, extension.ExtensionLink, out Position16<RoomBlocks> reached) ? reached
+            : throw new InvalidDataException(
+                $"Continuing block {extension.Position} type {extension.CollisionType}/behaviour ({extension.Behavior}) leads outside the room's grid."));
 
     /// <summary>How a block of each collision family collides once a read stands on it; none for the two extensions, which continue another block.</summary>
     private static IdentityTable<RoomCollisionType, StandingCollisionType?> StandingTypes { get; } = new(new Dictionary<RoomCollisionType, StandingCollisionType?>
@@ -262,8 +296,8 @@ public sealed partial class RoomLevelData
     });
 
     /// <summary>
-    /// Replaces <paramref name="block"/> with the block it stands for (<see cref="BlockStoodFor"/>), returning false when it
-    /// behaves as air.
+    /// Replaces <paramref name="block"/> with the whole block it stands for (<see cref="BlockStoodFor"/>), returning false
+    /// when it behaves as air.
     /// </summary>
     /// <param name="block">A block the read found in the grid; the block it stands for once the call returns true.</param>
     /// <exception cref="InvalidDataException">A link leads outside the room's grid, or the chain is cyclic.</exception>
@@ -271,23 +305,26 @@ public sealed partial class RoomLevelData
     {
         if (BlockStoodFor(block) is not { } stoodFor)
             return false;
-        block = stoodFor;
+        block = stoodFor.Block;
         return true;
     }
 
     /// <summary>
-    /// The block <paramref name="block"/> stands for as the grapple beam's checks read it (<see cref="ContinuedBlocks"/>): a
-    /// link that leads outside the room's grid reads the edge-solid block a probe outside the room reads; null when the
+    /// The whole block <paramref name="block"/> stands for as the grapple beam's checks read it (<see cref="ContinuedBlocks"/>):
+    /// a link that leads outside the room's grid reads the edge-solid block a probe outside the room reads; null when the
     /// cell behaves as air.
     /// </summary>
     /// <param name="block">A block the read found in the grid.</param>
     /// <exception cref="InvalidDataException">The chain is cyclic.</exception>
-    internal RoomCollisionBlock? GrappleBlockStoodFor(RoomCollisionBlock block) =>
-        ContinuedBlocks.StoodFor(block, Size.Area, Continues, cell => cell.Behavior.EndsExtension, LinkedBlockOrEdgeSolid);
+    internal StoodForBlock? GrappleBlockStoodFor(RoomCollisionBlock block) =>
+        ContinuedBlocks.StoodFor(block, Size.Area, AsWholeBlock, cell => cell.Behavior.EndsExtension, LinkedBlockOrEdgeSolid);
 
-    /// <summary>Whether <paramref name="block"/> continues a block of several cells, its link leading to the block it stands for.</summary>
-    private static bool Continues(RoomCollisionBlock block) =>
-        block.CollisionType is RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension;
+    /// <summary>
+    /// <paramref name="block"/> as a whole block, with its kind as one; none when it continues a block of several cells,
+    /// its link leading to the block it stands for.
+    /// </summary>
+    private static StoodForBlock? AsWholeBlock(RoomCollisionBlock block) =>
+        block.Kind.AsWholeBlock is { } whole ? new StoodForBlock(block, whole) : null;
 
     /// <summary>Reads a room object's block, inside the grid or in the terrain beyond the room.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
@@ -298,8 +335,13 @@ public sealed partial class RoomLevelData
     /// A room object's terrain write at its block, showing the terrain's own picture. Writes inside the grid reach
     /// collision and the display; writes past it persist in the terrain beyond the room.
     /// </summary>
-    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        WriteObjectTerrain(Size.RowMajorIndex(block), terrain, terrain.Appearance);
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the block's behaviour gives it no reaction.</exception>
+    internal void SetObjectTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain)
+    {
+        int place = Size.RowMajorIndex(block);
+        RequireItsReaction(terrain.Collision, BehaviorAt(place), nameof(terrain));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+    }
 
     /// <summary>
     /// A room object's change of only how a block collides and what it does, inside the grid or in the terrain beyond
@@ -307,9 +349,11 @@ public sealed partial class RoomLevelData
     /// earlier behaviour did.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is past the terrain beyond the room.</exception>
+    /// <exception cref="ArgumentException">The collision kind reads a reaction the behaviour does not give it.</exception>
     internal void SetObjectCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
     {
         int place = Size.RowMajorIndex(block);
+        RequireItsReaction(collision, behavior, nameof(behavior));
         if (place >= terrain.Length)
         {
             int beyond = BeyondPlace(place);
@@ -352,18 +396,54 @@ public sealed partial class RoomLevelData
     /// a narrower "change the picture" helper would be incorrect here.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
-    internal void SetTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain) =>
-        WriteObjectTerrain(GridPlace(block), terrain, terrain.Appearance);
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the block's behaviour gives it no reaction.</exception>
+    internal void SetTerrain(Position16<RoomBlocks> block, RoomTerrainBlock terrain)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain.Collision, behaviors[place], nameof(terrain));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+    }
+
+    /// <summary>
+    /// Replaces one foreground block's terrain and behaviour together, and shows its picture, as a room object that writes
+    /// a block's collision kind, picture and behaviour at once does; the block must lie in the grid and no longer leads where
+    /// its earlier behaviour did.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The terrain is of a reacting kind and the behaviour gives it no reaction.</exception>
+    internal void SetTerrainAndBehavior(Position16<RoomBlocks> block, RoomTerrainBlock terrain, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain.Collision, behavior, nameof(behavior));
+        WriteObjectTerrain(place, terrain, terrain.Appearance);
+        WriteBehavior(place, behavior);
+    }
 
     /// <summary>
     /// Changes only how one foreground block collides (#2494): the block keeps its picture, what it shows, its
     /// behaviour and where it leads; the block must lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The kind reads a reaction the block's behaviour does not give it.</exception>
     internal void SetCollision(Position16<RoomBlocks> block, RoomCollisionType collision)
     {
         int place = GridPlace(block);
+        RequireItsReaction(collision, behaviors[place], nameof(collision));
         terrain[place] = terrain[place].WithCollision(collision);
+    }
+
+    /// <summary>
+    /// Changes how one foreground block collides and what it does together (#2554): the block keeps its picture and what it
+    /// shows, and no longer leads where its earlier behaviour did; the block must lie in the grid.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
+    /// <exception cref="ArgumentException">The kind reads a reaction the behaviour does not give it.</exception>
+    internal void SetCollisionAndBehavior(Position16<RoomBlocks> block, RoomCollisionType collision, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(collision, behavior, nameof(behavior));
+        terrain[place] = terrain[place].WithCollision(collision);
+        WriteBehavior(place, behavior);
     }
 
     /// <summary>
@@ -375,7 +455,9 @@ public sealed partial class RoomLevelData
     internal void Deactivate(Position16<RoomBlocks> block)
     {
         int place = GridPlace(block);
-        terrain[place] = terrain[place].Deactivated();
+        RoomTerrainBlock deactivated = terrain[place].Deactivated();
+        RequireItsReaction(deactivated.Collision, behaviors[place], nameof(block));
+        terrain[place] = deactivated;
     }
 
     /// <summary>
@@ -383,8 +465,13 @@ public sealed partial class RoomLevelData
     /// lie in the grid.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The block is outside the grid.</exception>
-    internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior) =>
-        WriteBehavior(GridPlace(block), behavior);
+    /// <exception cref="ArgumentException">The block's kind reads a reaction the behaviour does not give it.</exception>
+    internal void SetBehavior(Position16<RoomBlocks> block, RoomBlockBehavior behavior)
+    {
+        int place = GridPlace(block);
+        RequireItsReaction(terrain[place].Collision, behavior, nameof(behavior));
+        WriteBehavior(place, behavior);
+    }
 
     /// <summary>A block past the room's grid, as an enemy terrain read finds it.</summary>
     /// <param name="block">A block in the room's columns whose row lies past the room's height.</param>
@@ -415,7 +502,7 @@ public sealed partial class RoomLevelData
     /// room's width or height (<see cref="TerrainBeyondRoom{TTerrain, TBehavior}.EdgeSolid"/>).
     /// </summary>
     internal RoomCollisionBlock GetCollisionBlockOrEdgeSolid(Position16<RoomBlocks> block) =>
-        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid();
+        Size.Contains(block) ? GetCollisionBlock(block) : EdgeSolid(block);
 
     /// <summary>Reads the block containing a room pixel: sixteen pixels to a block.</summary>
     public RoomCollisionBlock GetCollisionBlockAtPixel(Position16<RoomPixels> position) =>
@@ -433,7 +520,7 @@ public sealed partial class RoomLevelData
     public DoorBlockExit DoorExitAt(RoomCollisionBlock doorBlock)
     {
         Position16<RoomBlocks> block = doorBlock.At;
-        return exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
+        return exits.TryGetValue(GridPlace(block), out DoorBlockExit? exit) ? exit : throw new InvalidDataException($"Door block {block} leads nowhere.");
     }
 
     /// <summary>
@@ -461,7 +548,7 @@ public sealed partial class RoomLevelData
     internal void WriteBehavior(int place, RoomBlockBehavior behavior)
     {
         behaviors[place] = behavior;
-        exits[place] = null;
+        exits.Remove(place);
     }
 
     /// <summary>The block of the grid at <paramref name="place"/> in its planes, as collision reads it.</summary>
@@ -497,8 +584,36 @@ public sealed partial class RoomLevelData
         PublishedForeground = null;
     }
 
+    /// <summary>The behaviour of the block at <paramref name="place"/> in the level space, inside the grid or beyond it.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The place is past the terrain beyond the room.</exception>
+    private RoomBlockBehavior BehaviorAt(int place) =>
+        place < terrain.Length ? behaviors[place] : BeyondRoom.BehaviorAt(BeyondPlace(place));
+
+    /// <summary>
+    /// Whether a block of <paramref name="collision"/> with <paramref name="behavior"/> carries the reaction its kind reads
+    /// (#2554): a kind that reads none always does, and a reacting kind does when its behaviour gives its family a reaction.
+    /// </summary>
+    private static bool CarriesItsReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>
+        RoomBlockKind.TryOf(collision, behavior, out _);
+
+    /// <summary>Names a reacting kind's block whose behaviour gives its kind no reaction, for a refusal.</summary>
+    private static string NoReaction(RoomCollisionType collision, RoomBlockBehavior behavior) =>
+        $"is a {collision} block whose behaviour ({behavior}) gives its kind no reaction";
+
+    /// <summary>Refuses a write that would leave a block of a reacting kind without its reaction (<see cref="CarriesItsReaction"/>).</summary>
+    /// <param name="collision">How the block collides once written.</param>
+    /// <param name="behavior">The block's behaviour once written.</param>
+    /// <param name="parameter">The written argument that would leave it.</param>
+    /// <exception cref="ArgumentException">The block would be of a reacting kind without its reaction.</exception>
+    private static void RequireItsReaction(RoomCollisionType collision, RoomBlockBehavior behavior, string parameter)
+    {
+        if (!CarriesItsReaction(collision, behavior))
+            throw new ArgumentException($"The write would leave a block that {NoReaction(collision, behavior)}.", parameter);
+    }
+
     /// <summary>The block a collision probe outside the room reads.</summary>
-    private RoomCollisionBlock EdgeSolid() => new(Position: null, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
+    /// <param name="probed">The block the probe named, outside the room.</param>
+    private RoomCollisionBlock EdgeSolid(Position16<RoomBlocks> probed) => RoomCollisionBlock.OutsideRoom(probed, BeyondRoom.EdgeSolid, BeyondRoom.NoBehavior);
 
     /// <summary>A place in the level space past the grid, counted from the first block past it.</summary>
     internal int BeyondPlace(int place) => place - terrain.Length;

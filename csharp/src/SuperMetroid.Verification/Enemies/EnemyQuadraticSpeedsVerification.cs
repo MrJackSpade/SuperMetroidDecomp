@@ -18,7 +18,7 @@ internal static class EnemyQuadraticSpeedsVerification
     /// </summary>
     internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerticalDirection[] directions = [VerticalDirection.Down, VerticalDirection.Up];
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         {
@@ -37,7 +37,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
         if (definitionsOnly) return;
         var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, VerticalDirection>(PolypBehavior.AddPolypRockQuadraticStep);
-        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
+        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         foreach (VerticalDirection direction in directions)

@@ -29,7 +29,7 @@ internal static class BeamCallbackTablesVerification
             for (int combination = 0; combination < Enum.GetValues<SamusBeamCombination>().Length; combination++)
             {
                 AssertEqual(
-                    CartridgeImportSource.Require(retail).ReadCartridgeWord((table + combination * sizeof(ushort))),
+                    retail.ReadCartridgeWord((table + combination * sizeof(ushort))),
                     SamusBeamShotBehaviors.Resolve(charged, SamusBeamCombinationTableOrderConstants.FromTableIndex(combination)).NativePointer,
                     $"charged={charged} callback {combination:X1} matches cartridge");
 

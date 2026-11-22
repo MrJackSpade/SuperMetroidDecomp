@@ -34,11 +34,11 @@ internal static class EvirDeathFrameVerification
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.None;
             if (index == 8)
-                enemies.EvirBehavior.InitializeEvirProjectile(place);
+                enemies.EvirBehavior.InitializeEvirProjectile(place, place);
             else if (index == 7)
-                enemies.EvirBehavior.InitializeEvirArms(place);
+                enemies.EvirBehavior.InitializeEvirArms(place, place);
             else
-                enemies.EvirBehavior.InitializeEvirBody(place.HeldOccupant(), place, samus);
+                enemies.EvirBehavior.InitializeEvirBody(place.HeldOccupant().SpawnSettings<EvirSpawnSettings>(), place, samus);
         }
         var body = enemies.Places.InUpdateOrder[6];
         var arms = enemies.Places.InUpdateOrder[7];
@@ -63,7 +63,7 @@ internal static class EvirDeathFrameVerification
         AssertTrue(arms.Occupant is null, "next frame removes deleted arms");
         AssertTrue(projectile.Occupant is null, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemies.Count, "no orphan Evir remains active");
-        AssertThrows<InvalidDataException>(() => enemies.EvirBehavior.InitializeEvirArms(arms),
+        AssertThrows<InvalidDataException>(() => enemies.EvirBehavior.InitializeEvirArms(arms, arms),
             "initialization still rejects a missing body");
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
     }

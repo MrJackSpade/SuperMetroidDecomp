@@ -153,13 +153,13 @@ public static partial class IntroNarrationExtractor
     }
 
     /// <summary>Reads one script byte from the fixed narration bank.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+    private static byte ReadByte(IImportCartridgeSource bus, int pointer) =>
         bus.ReadCartridgeByte((int)SnesAddress.InBank(
             IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Reads a little-endian narration word with bank-local address wrapping.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)SnesAddress.InBank(IntroNarrationScriptDefinitions.ScriptBank, pointer));
+        bus.ReadCartridgeWordFixedBank((int)SnesAddress.InBank(IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Advances a script pointer with native 16-bit bank-local wrapping.</summary>
     private static int Add(int pointer, int bytes) =>

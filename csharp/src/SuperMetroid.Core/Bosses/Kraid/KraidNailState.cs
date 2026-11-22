@@ -11,21 +11,18 @@ public sealed partial class KraidNailState : KraidAnimatedPartState
 {
     /// <summary>Makes a fingernail of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the fingernail is part of.</param>
-    /// <param name="reference">Kraid's reference to the fingernail, which it joins as it sets up.</param>
-    /// <param name="sibling">Kraid's reference to his other fingernail.</param>
-    internal KraidNailState(KraidEnemyState kraid, KraidPartReference reference, KraidPartReference sibling)
-        : base(kraid, reference, KraidPartSegment.NailLoop) => this.sibling = Ensure.NotNull(sibling);
-
-    /// <summary>Kraid's reference to his other fingernail.</summary>
-    private readonly KraidPartReference sibling;
+    /// <param name="place">The place of the fingernail, which his body found as his room lists it.</param>
+    /// <param name="sibling">The place of his other fingernail.</param>
+    internal KraidNailState(KraidEnemyState kraid, RoomEnemyPlace place, RoomEnemyPlace sibling)
+        : base(kraid, place, KraidPartSegment.NailLoop) => SiblingPlace = Ensure.NotNull(sibling);
 
     /// <summary>
     /// His other fingernail as this one's launch reads it in its place (#2298), whatever the place holds
-    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>): the state it is attached as, the <see cref="KraidPartState"/> every
+    /// (<see cref="RoomEnemyPlace.FoundEntity"/>): the state it is attached as, the <see cref="KraidPartState"/> every
     /// Kraid part is attached as, or null when the place reads as holding none, as a killed sibling's cleared place does.
     /// Only his other fingernail joins that place, so a part found there is a fingernail.
     /// </summary>
-    internal KraidNailState? FoundSibling => (KraidNailState?)sibling.Place.FoundState<KraidPartState>();
+    internal RoomEnemyPlace SiblingPlace { get; }
 
     /// <summary>The phase the fingernail runs; its setup has it wait before its first launch.</summary>
     public KraidNailPhase Phase { get; internal set; }

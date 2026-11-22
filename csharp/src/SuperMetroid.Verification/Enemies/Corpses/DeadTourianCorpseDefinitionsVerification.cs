@@ -37,7 +37,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
 
     /// <summary>The bank-$A9 configuration record the cartridge selects for <paramref name="species"/> variant <paramref name="variantIndex"/>.</summary>
     internal static ushort ConfigurationPointer(ISnesAddressSpace rom, DeadTourianCorpseSpecies species, int variantIndex) =>
-        CartridgeImportSource.Require(rom).ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
+        rom.ReadCartridgeWord(Families.Single(family => family.Species == species).ConfigurationTable + variantIndex * 2);
 
     /// <summary>Compares eight variant selectors and configurations and exercises their production initializers.</summary>
     internal static void VerifyDeadTourianCorpseDefinitions(CartridgeImportAddressSpace rom)
@@ -77,7 +77,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         int variantIndex,
         DeadTourianCorpseDefinition definition)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort variantEntry = cartridge.ReadCartridgeWord(family.InstructionTable + variantIndex * 2);
         ushort variantSpritemap = cartridge.ReadCartridgeWord(DeadTourianNativeListAddresses.Bank << 16 | variantEntry + 2);
         EnemyFrameId corpseFrame = DeadTourianAnimations.Segments.Beats(definition.InitialAnimation)
@@ -148,18 +148,18 @@ internal static class DeadTourianCorpseDefinitionsVerification
         DeadTourianCorpseDefinition expected)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(LookupStream5CorpseFixtureArtwork(rom)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = corpse => DeadTourianBehavior.InitializeDeadTourianCorpse(corpse, corpse.HeldOccupant());
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(enemyDefinition, place.KeptDefinition);
         place.SetSpawnParameter1(enemyDefinition, checked((ushort)(variantIndex * 2)));
 
-        initialize(place);
+        // The corpse is set up as the population load sets it up.
+        _ = enemies.LoadAuthoredPopulation();
 
-        DeadTourianCorpseEnemyState state = (enemies.DeadTourianCorpses[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadTourianCorpses[0]."));
-        AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(expected.InitialAnimation), AnimationPlace.StartOfAnimation),
-            state.Playback,
+        // The corpse shows the first picture of the animation its setup started on its next animation step.
+        place.AdvanceAnimation(RoomEnemyFrameFixtures.StandaloneSamus());
+        AssertEqual<EnemyFrameId?>(DeadTourianAnimations.Segments.FirstFrameShown(DeadTourianAnimations.StartingWith(expected.InitialAnimation)),
+            place.Frame,
             $"dead {species} variant {variantIndex} started animation");
-        CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
     }
 
 

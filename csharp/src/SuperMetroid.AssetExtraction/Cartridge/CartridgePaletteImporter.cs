@@ -31,7 +31,7 @@ public static partial class CartridgePaletteImporter
         SnesAddress source = SnesAddress.FromBusAddress(sourceAddress);
         byte ReadImportSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
         {
-            SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
+            SnesDmaSourceKind.Cartridge => bus.ReadCartridgeByte((int)address),
             SnesDmaSourceKind.WorkRam => throw new InvalidOperationException(
                 $"Import palette source {address} is work RAM, which the import does not map."),
             SnesDmaSourceKind.Unmapped => throw new InvalidOperationException($"Import palette source {address} is unmapped."),

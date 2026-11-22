@@ -31,19 +31,21 @@ internal static class YardKickVerification
                 definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[0];
-            var state = enemies.YardStates[0];
+            // The Yard's setup, run on the Yard the room placed, builds the state its touch reaction kicks.
+            YardEnemyState state = YardEnemyBehavior.InitializeYard(actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(), actor);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus });
-            // Seed the airborne touch-admission case. The real contact dispatcher
-            // must install the kick and consume the camera measure it was handed.
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Movement = YardMovement.Airborne;
+            // Seed the airborne touch-admission case.
+            state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = WrappingCountdown.Start(0);
             kickDistance.Record(SixteenSixteenWords.ToDisplacement(unchecked((int)(SixteenSixteenWords.FromWhole(whole) | fraction))));
-            enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, assets.LevelData, actor.HeldOccupant(), Position16<RoomPixels>.Zero);
+            // The Yard's own touch reaction kicks it, consuming the camera measure it was handed.
+            enemies.YardBehavior.ReactToYardTouch(actor.HeldOccupant(), actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(),
+                new EnemyTouchContext(actor.HeldOccupant(), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), default, assets.LevelData,
+                    UsesFrameHitboxes: false, HitboxTouch: actor.Definition.Touch, Position16<RoomPixels>.Zero), state);
             bool left = pose == SamusPoseId.FacingLeftNormalPose;
             AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.UnsignedWholePixels, "kick whole word");
             AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneVelocity.X.Fraction, "kick fraction negates independently");
@@ -59,6 +61,6 @@ internal static class YardKickVerification
 
     /// <summary>Reads a capped vertical kick-speed pair from the retail bank-$A3 table.</summary>
     private static ReadNativeYardKickVerticalSpeedResult ReadNativeYardKickVerticalSpeed(ISnesAddressSpace bus, int index) =>
-        new ReadNativeYardKickVerticalSpeedResult(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4),
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4));
+        new ReadNativeYardKickVerticalSpeedResult(RomDataReader.ReadWordFixedBank(bus, 0xA3D517 + index * 4),
+            RomDataReader.ReadWordFixedBank(bus, 0xA3D519 + index * 4));
 }

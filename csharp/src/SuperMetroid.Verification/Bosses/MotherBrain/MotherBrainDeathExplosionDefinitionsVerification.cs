@@ -19,7 +19,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0x86c929 + parameter * 2)),
                 DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionNativeSelectors.Animations[parameter]),
                 $"Mother Brain death explosion instruction {parameter}");
         }
@@ -28,8 +28,11 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
+            // Her body and brain as her room's population places them, her glass set up first; the encounter is the one her
+            // body's setup began, whose turrets are already in the room.
+            MotherBrainEnemyState motherBrain = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+            motherBrain.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200));
+            EnemyProjectile[] before = [.. enemies.Projectiles.EnemyProjectiles.Where(candidate => candidate.IsActive)];
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],
@@ -37,7 +40,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             enemies.MotherBrainBehavior.RainbowAndDeath.SpawnMotherBrainDeathExplosion(motherBrain, request);
 
             EnemyProjectile projectile =
-                enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive && !before.Contains(candidate));
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
             AssertTrue(projectile.Animation is DustExplosionProjectileAnimation started &&

@@ -31,16 +31,15 @@ internal static class DraygonGoopTouchOrderVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
-            SamusState samus = runtime.Player.IntroducedSamus;
+            SamusState samus = runtime.Player.Samus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 385));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackHold = UpdateCountdown.For(5);
             samus.SlowdownLevel = 0;
             var enemies = runtime.Enemies;
-            var goop = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.DraygonGoop);
-            goop.Behavior = (global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior?)(FamilyProjectileStarts.BehaviorOf(enemies, goop.Kind));
+            var goop = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.DraygonGoop, SpriteGraphics.SharedIn(DraygonColours.Goop));
             goop.StartMotion(enemies.DraygonBehavior.Shots.Goop.GoopFlying);
             goop.StartAnimation(new DraygonProjectileAnimation(enemies.DraygonBehavior.Shots.Goop, DraygonProjectileSegment.Goop));
             // The goop flies as Draygon's spit launches it; at no speed it stays where the fixture places it.

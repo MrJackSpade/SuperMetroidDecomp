@@ -18,8 +18,6 @@ internal sealed partial record KraidDeathDependencies
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    public required KraidParts Parts { get; init; }
 
     /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

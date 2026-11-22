@@ -147,6 +147,10 @@ internal static class CinematicSnapshotTestsVerification
             // Each owner draws every update for those side effects; the pixels are compared on sampled updates only (#1532).
             LayeredScene expected = legacy.ComposeScene();
             LayeredScene snapshot = captured.ComposeScene();
+            // What the flashback shows of its actors after the last update (#2554): the drawn Samus and Mother Brain's look,
+            // which a hit's flash whitens.
+            AssertEqual(expected.DrawnSamusOrigin, snapshot.DrawnSamusOrigin, $"intro drawn Samus after draw, tick {tick}");
+            AssertEqual(expected.DrawnMotherBrainShading, snapshot.DrawnMotherBrainShading, $"intro drawn Mother Brain after draw, tick {tick}");
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 62 == 0;
             byte[] held = sample ? GraphDigest(snapshot) : [];
@@ -167,9 +171,6 @@ internal static class CinematicSnapshotTestsVerification
                 AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(snapshot)),
                     "intro packet survives subsequent simulation mutations");
             AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
-            AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
-            AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");
-            AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
             AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
         }
         AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");

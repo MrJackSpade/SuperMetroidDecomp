@@ -50,7 +50,7 @@ internal static class CeresSaveStartupVerification
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, departure);
-        var game = new SuperMetroidGame(saves);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         Action<SuperMetroidGame, bool> bind = BindInstalledArtwork(InstalledFixtures.GameArtwork, enemyArtwork: null);
         bind(game, true);
         game.BindArtwork(game.Artwork with
@@ -71,7 +71,7 @@ internal static class CeresSaveStartupVerification
         AssertTrue(runtime.Room.ActiveRoom is null, "#1153 destruction load creates no Ceres room");
         AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Ceres, DefeatedBosses.AreaBoss),
             "#1153 destruction load retains the defeated-Ridley flag");
-        AssertEqual(77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");
+        AssertEqual(77, runtime.Player.Samus.Health, "#1153 destruction load retains energy");
         AssertEqual(2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
         AssertEqual(11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
         AssertEqual(44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
@@ -95,7 +95,7 @@ internal static class CeresSaveStartupVerification
 
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        var fresh = new SuperMetroidGame(new SaveSlotStore(RetailPresentationFixture()));
+        var fresh = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SaveSlotStore(RetailPresentationFixture()));
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {
@@ -112,7 +112,7 @@ internal static class CeresSaveStartupVerification
 
         // Reload the captured initial checkpoint through options, not Load State.
         var reloadSaves = SaveRamCodec.Decode(SaveRamCodec.Encode(fresh.Saves, RetailPresentationFixture()), RetailPresentationFixture());
-        var reload = new SuperMetroidGame(reloadSaves);
+        var reload = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(reload, true);
         reload.BindArtwork(reload.Artwork with
         {
@@ -141,7 +141,7 @@ internal static class CeresSaveStartupVerification
         // #1275: the game-over menu runs no gameplay owner, so its updates keep counting
         // accepted NMIs in the frontend, and Yes on a $1F save reloads Ceres directly
         // ($81:9171) instead of fading into the area map.
-        var gameOverProbe = new SuperMetroidGame(reloadSaves);
+        var gameOverProbe = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(gameOverProbe, true);
         gameOverProbe.BindArtwork(gameOverProbe.Artwork with
         {
@@ -172,7 +172,10 @@ internal static class CeresSaveStartupVerification
             gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.ScreenAs<GameOverMenuState>();
-        (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).SkipToPhase(GameOverMenuPhase.Main);
+        // The game runs the menu's opening until its fade-in reaches full brightness and it takes answers.
+        GameOverMenuState answering = probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.");
+        while (!answering.ComposeScene().Brightness.IsFull)
+            gameOverProbe.Step(0);
         gameOverProbe.Step(0);
         gameOverProbe.Step(ControllerButton.A);
         AssertTrue(gameOverProbe.IsAt(GameDataLoadRoute.SelectedGame),
@@ -195,7 +198,7 @@ internal static class CeresSaveStartupVerification
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
         loaded.Enemies.PassEvents.Publish(new GunshipEvent(GunshipFrameEvent.LandingCompleted));
-        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, SaveSlot.A),
+        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, loaded.Room.LoadedScope, SaveSlot.A),
             "#1153 landing checkpoint uses the production event saver");
         var landingSlot = reloadSaves.ReadSlot(SaveSlot.A);
         AssertEqual(SaveStartupRoute.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
@@ -209,7 +212,7 @@ internal static class CeresSaveStartupVerification
         {
             StartupRoute = SaveStartupRoute.MainGame,
         });
-        var unmodified = new SuperMetroidGame(saves);
+        var unmodified = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         unmodified.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = maps,

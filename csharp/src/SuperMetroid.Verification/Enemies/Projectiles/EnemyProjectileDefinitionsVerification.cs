@@ -54,19 +54,19 @@ internal static class EnemyProjectileDefinitionsVerification
         // The Tourian statues' projectiles spawn only in their room (#2383, #2426), which the enemies are built for, so every
         // kind is initialized in it.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0),
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        EnemyProjectile projectile = enemies.Projectiles.Occupy(17, kinds[0]);
+        EnemyProjectile projectile = FamilyProjectileStarts.AllocateAt(enemies, 17, kinds[0], SpriteGraphics.SharedStandard);
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            // Each kind spawns a fresh projectile into the place, as production spawns one.
-            projectile = enemies.Projectiles.Occupy(17, kind);
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            // Each kind spawns a fresh projectile into the place its previous one is deleted from, as production spawns one.
+            projectile.Delete();
+            projectile = FamilyProjectileStarts.SpawnAt(enemies, 17, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
             if (startingMotions[kind].Length == 0)
                 AssertTrue(projectile.HoldsStill, $"{kind} production pre-instruction holds still");
@@ -133,8 +133,8 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            projectile = enemies.Projectiles.Occupy(17, kind);
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
+            projectile.Delete();
+            projectile = FamilyProjectileStarts.SpawnAt(enemies, 17, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
@@ -367,7 +367,7 @@ internal static class EnemyProjectileDefinitionsVerification
         kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
             ? []
             : [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
-                .Select(word => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2))];
+                .Select(word => rom.ReadCartridgeWord((0x860000 | word) + 2))];
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
@@ -389,14 +389,14 @@ internal static class EnemyProjectileDefinitionsVerification
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.
-            ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);
+            ushort radiusWord = rom.ReadCartridgeWord(address + 6);
             AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radiusWord), LittleEndianBytes.HighByte(radiusWord)),
                 definition.Radius, $"{kind} radius");
-            ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
+            ushort propertyWord = rom.ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
             AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
             AssertEqual(NativeProjectileDepth(propertyWord), definition.Depth, $"{kind} depth relative to Samus");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0,
+            AssertEqual(rom.ReadCartridgeWord(address + 10) != 0,
                 definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction,
                 $"{kind} touch reaction");
         }

@@ -58,7 +58,7 @@ internal sealed partial class BeamFiring
     }
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
-    internal BeamFiringResult HandleBeamInput(
+    internal BeamFiringResult? HandleBeamInput(
         SamusTerrain terrain,
         SamusState samus,
         GameplayAction controllerInput,
@@ -137,7 +137,7 @@ internal sealed partial class BeamFiring
                 // BeamChargeDefinitions.ChargeSoundStartCounter; drawing the flare queues nothing.
                 if (_charge.UpdatesHeld == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return BeamFiringResult.Of(SamusSound.ChargingBeam, SoundRequestPriority.High);
+                    return new BeamFiringResult(SamusSound.ChargingBeam, SoundRequestPriority.High);
                 }
             }
             else if (_combos.TryActivateCombo(samus, samusBombs, out SoundEffectId? comboSound))
@@ -150,11 +150,11 @@ internal sealed partial class BeamFiring
                 samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
                 return BeamFiringResult.Of(comboSound, SoundRequestPriority.Normal);
             }
-            return BeamFiringResult.Silent;
+            return null;
         }
 
         if (!_charge.IsCharging)
-            return BeamFiringResult.Silent;
+            return null;
 
         bool releaseCharged =
             _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
@@ -176,7 +176,7 @@ internal sealed partial class BeamFiring
     /// the charge-silencing sound instead so the sustained charge cannot remain audible; that rejection first cancels a
     /// pending resume of the charging sound, as a shot does (#1689).
     /// </summary>
-    private BeamFiringResult CompleteBeamRelease(
+    private BeamFiringResult? CompleteBeamRelease(
         SamusState samus,
         BeamShot? firing)
     {
@@ -188,9 +188,9 @@ internal sealed partial class BeamFiring
             return BeamFiringResult.Of(fired.Sound, SoundRequestPriority.Essential);
 
         if (!_charge.PreviousCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
-            return BeamFiringResult.Silent;
+            return null;
         samus.ChargingSound.Cancel();
-        return BeamFiringResult.Of(SamusSoundStop.Any, SoundRequestPriority.Essential);
+        return new BeamFiringResult(SamusSoundStop.Any, SoundRequestPriority.Essential);
     }
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
@@ -347,7 +347,7 @@ internal sealed partial class BeamFiring
             terrain,
             held,
             waveBeam: true);
-        held.Install(SamusShotBehaviors.HyperBeam, kindState: null);
+        held.Install(SamusShotBehaviors.HyperBeam);
         InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.

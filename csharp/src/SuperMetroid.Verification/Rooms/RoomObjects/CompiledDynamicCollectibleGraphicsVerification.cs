@@ -49,7 +49,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
 
     /// <summary>Reads a bank-$84 native graphics instruction word for the independent oracle.</summary>
     internal static ushort ReadCollectibleGraphicsWord(
-        ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
+        ISnesAddressSpace bus, int address) => bus.ReadCartridgeWordFixedBank(0x840000 | address);
 
     /// <summary>
     /// The cartridge's header of a Chozo-orb Energy Tank, the first of the Chozo-orb item headers, which no room places and

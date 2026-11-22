@@ -39,6 +39,8 @@ internal static partial class RoomDoorBlockFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         WriteIndented = true,
     };
 
@@ -119,7 +121,7 @@ internal static partial class RoomDoorBlockFiles
 
         var doorBlocks = new Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>>();
         foreach ((string roomName, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>> levels) in
-                 document.Rooms ?? throw new InvalidDataException($"Room door blocks {path} name no rooms."))
+                 document.Rooms)
         {
             RoomDefinition room = roomsByName.TryGetValue(roomName, out RoomDefinition? named)
                 ? named
@@ -148,7 +150,7 @@ internal static partial class RoomDoorBlockFiles
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
     internal sealed partial record RoomDoorBlocksDocument(int Version,
-        SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>>? Rooms);
+        SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>> Rooms);
 
     /// <summary>A door block: its column and row in its level's grid.</summary>
     [SpatialComponents("External format: the room door-blocks JSON stores each door block as its x/y block in the level's grid.")]

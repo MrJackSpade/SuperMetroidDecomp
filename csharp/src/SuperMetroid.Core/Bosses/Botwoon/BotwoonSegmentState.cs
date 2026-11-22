@@ -8,15 +8,19 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// whether it travels inside the wall, the pose its angle to the segment ahead selects and the animation that shows it,
 /// its delay before it falls when Botwoon dies, and its place along the quadratic speed curve as it falls.
 /// </summary>
-/// <param name="head">Botwoon's head, which the segment trails and whose state its death and colours follow.</param>
+/// <param name="head">Botwoon's head, which the segment trails.</param>
+/// <param name="botwoon">The state his head holds, which the segment's death and colours follow (#2554).</param>
 /// <param name="index">The segment's place in the body, from zero (the tail) to the last, behind the head.</param>
 /// <param name="projectile">The enemy projectile Botwoon spawned to show the segment.</param>
 /// <param name="animation">The segment's animation, started on its projectile, whose pose the segment starts in.</param>
-internal sealed partial class BotwoonSegmentState(RoomEnemyPlace head, int index, EnemyProjectile projectile, BotwoonSegmentAnimation animation)
+internal sealed partial class BotwoonSegmentState(RoomEnemyPlace head, BotwoonEnemyState botwoon, int index, EnemyProjectile projectile, BotwoonSegmentAnimation animation)
     : EnemyProjectileState
 {
-    /// <summary>Botwoon's head, which the segment trails: its state starts the segment's death and colours it.</summary>
+    /// <summary>Botwoon's head, which the segment trails.</summary>
     internal RoomEnemyPlace Head { get; } = Ensure.NotNull(head);
+
+    /// <summary>The state his head holds, which starts the segment's death and colours it.</summary>
+    internal BotwoonEnemyState Botwoon { get; } = Ensure.NotNull(botwoon);
 
     /// <summary>The segment's place in the body, from zero (the tail) to the last, behind the head.</summary>
     internal int Index { get; } = Ensure.BetweenInclusive(0, BotwoonFightDefinitions.BodySegments - 1, index);

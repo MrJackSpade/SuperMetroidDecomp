@@ -69,5 +69,6 @@ public static partial class LoadStationNumberCodec
     /// <param name="source">What named the station, reported when it names none.</param>
     /// <exception cref="InvalidDataException"><paramref name="area"/>'s station list numbers no station <paramref name="number"/>.</exception>
     public static LoadStation Decode(AreaId area, int number, string source) =>
-        Find(area, number) ?? throw new InvalidDataException($"{source} names {area} load station {number}, which is no load station.");
+        LoadStationDefinitions.All.SingleOrDefault(station => station.Area == area && Numbers[station] == number)
+            ?? throw new InvalidDataException($"{source} names {area} load station {number}, which is no load station.");
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,7 +22,7 @@ internal static class KraidHealthThresholdsVerification
     {
         for (int instruction = 0; instruction < shifts; instruction++)
             AssertEqual((byte)0x4a, KraidHealthFractionRomByte(rom, shiftAddress + instruction), "Native initializer uses accumulator LSR");
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             state.InitialHealth = (ushort)raw;
@@ -39,5 +40,5 @@ internal static class KraidHealthThresholdsVerification
     }
 
     /// <summary>Reads one retail instruction byte to confirm the initializer uses accumulator LSR.</summary>
-    private static byte KraidHealthFractionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidHealthFractionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

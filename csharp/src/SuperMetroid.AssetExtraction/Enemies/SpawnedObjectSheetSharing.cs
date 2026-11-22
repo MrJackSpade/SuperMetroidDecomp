@@ -51,6 +51,7 @@ internal static partial class SpawnedObjectSheetSharing
         }
         // Each common picture joins the first common sheet whose colouring agrees with its own, or starts the next.
         var common = new List<PictureSheetPlan>();
+        var commonSheetOf = new Dictionary<HeldPicture, PictureSheetPlan>(ReferenceEqualityComparer.Instance);
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
             PictureSheetPlan? sheet = common.FirstOrDefault(plan => plan.TryTake(picture));
@@ -59,7 +60,7 @@ internal static partial class SpawnedObjectSheetSharing
                 sheet = new PictureSheetPlan(picture, $"Spawned-Common {common.Count}");
                 common.Add(sheet);
             }
-            picture.CommonSheet = sheet;
+            commonSheetOf.Add(picture, sheet);
         }
         // Each sheet keeps the pictures no other sheet holds, in its own colouring.
         var own = new PictureSheetPlan?[painted.Length];
@@ -88,8 +89,7 @@ internal static partial class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet is { } commonPlan ? installedOf[commonPlan]
-                        : throw new InvalidOperationException($"Common picture {frame.Key} was given no common sheet."), StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => installedOf[commonSheetOf[frame.Value]], StringComparer.Ordinal));
         }
         return new SharedSpawnedSheets(shares);
     }
@@ -131,9 +131,6 @@ internal static partial class SpawnedObjectSheetSharing
 
         /// <summary>Whether two or more sheets hold the picture, so it is held once on a common sheet.</summary>
         internal bool IsCommon => holders.Count > 1;
-
-        /// <summary>The common sheet the picture is held on; null until one holds it.</summary>
-        internal PictureSheetPlan? CommonSheet { get; set; }
 
         /// <summary>
         /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame

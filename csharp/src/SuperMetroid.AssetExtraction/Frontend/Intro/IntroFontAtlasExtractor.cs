@@ -21,7 +21,7 @@ public static partial class IntroFontAtlasExtractor
     {
         Ensure.NotNull(bus);
         byte[] decoded = RomDataReader.Decompress(
-            CartridgeImportSource.Require(bus),
+            bus,
             IntroCinematicSourceDefinitions.FontOne,
             maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
         if (decoded.Length < IntroFontAtlasFormat.ByteCount)

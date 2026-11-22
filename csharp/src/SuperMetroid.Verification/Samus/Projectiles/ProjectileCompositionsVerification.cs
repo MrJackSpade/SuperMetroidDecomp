@@ -130,13 +130,13 @@ internal static class ProjectileCompositionsVerification
         OamBuffer oam, ushort pointer, Position16<ScreenPixels> origin)
     {
         int record = 0x930000 | pointer;
-        ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);
+        ushort partCount = source.ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(source.ReadCartridgeWordFixedBank(partAddress)),
                 source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(source.ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
@@ -231,14 +231,14 @@ internal static class ProjectileCompositionsVerification
         MapPresentationInstalledRoomAssets roomAssets, InstalledScreenContent maps)
     {
         var random = new SharedRandom();
-        var game = new global::SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.ScreenContent = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         game.AdoptRuntime(runtime);
         game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
@@ -274,7 +274,7 @@ internal static class ProjectileCompositionsVerification
         static SamusColouredDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             target.Sprites.FinalizeFrame();
             return target.Sprites.Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
         }

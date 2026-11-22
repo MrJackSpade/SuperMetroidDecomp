@@ -16,7 +16,7 @@ public static partial class ProjectileTrailExtractor
         var frames = new Dictionary<string, ProjectileTrailAppearance>();
         for (int index = 0; index < ProjectileTrailVisualDefinitions.RecordCount; index++)
         {
-            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.MovementBank.Value | (ProjectileTrailSources.Records[index].Key + 2)));
             var appearance = new ProjectileTrailAppearance
             {

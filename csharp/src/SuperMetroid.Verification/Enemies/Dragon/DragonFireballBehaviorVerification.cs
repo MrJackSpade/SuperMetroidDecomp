@@ -20,17 +20,16 @@ internal static class DragonFireballBehaviorVerification
     /// </summary>
     internal static void VerifyDragonFireballBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DragonFireballNativeListAddresses.Extent, "Dragon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.SetSpawnWords(EnemyDefinitionId.Dragon, words => words);
-        body.Bind(EnemyDefinitionId.Dragon, body.KeptDefinition);
-        body.Bind(body.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        body.Position = body.Position.WithWhole(new(384, 160));
+        // The body and the wing its room lists after it are set up as their room's population sets them up (#2554).
+        Position16<RoomPixels> at = new(384, 160);
+        RoomEnemyPlace body = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Body), at),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Dragon, new DragonSpawnSettings(DragonPart.Wing), at))[0];
         body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook;
-        enemies.DragonBehavior.InitializeDragonBody(body);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Verification requires the Dragon's state.");
 
         state.Facing = HorizontalDirection.Left;

@@ -16,7 +16,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
         for (ushort selector = 0; selector < 4; selector++)
         {
             ushort random = unchecked((ushort)(selector << 9));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + selector * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0xa2be86 + selector * 2)),
                 NorfairLavaJumpDefinitions.Launch.Choose(random).RawValue,
                 $"Norfair lava jumper velocity {selector}");
         }
@@ -44,7 +44,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             place.Presence = EnemyPresence.None;
             runMain(place, state);
 
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
+            AssertEqual(rom.ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(SqueeptAction.RiseBeforeAnimationSwitch,
                 state.Action, $"Norfair lava jumper production handoff {random:X4}");

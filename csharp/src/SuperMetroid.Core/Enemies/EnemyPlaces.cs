@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The room's enemy places, in <see cref="EnemyPlaceOrder"/>, with the extent of the places the population and later
@@ -8,14 +8,12 @@ internal sealed partial class EnemyPlaces
 {
     /// <summary>
     /// Creates the places once, each given its ordinal and the record of what its removed occupants leave for their
-    /// neighbours, and reaching through <paramref name="species"/> the registry that creates its entities, which the room's
-    /// species are composed with these places to build.
+    /// neighbours.
     /// </summary>
-    internal EnemyPlaces(IEnemySpeciesSource species)
+    internal EnemyPlaces()
     {
-        Ensure.NotNull(species);
         _places = [.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(ordinal =>
-            new RoomEnemyPlace(ordinal, species, new RemovedEnemyLeftovers<EnemyOccupantStates>()))];
+            new RoomEnemyPlace(ordinal, new RemovedEnemyLeftovers<IEnemyEntity>()))];
     }
 
     /// <summary>The places, each created once with its ordinal.</summary>

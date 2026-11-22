@@ -27,6 +27,18 @@ internal static class BossBodySheetFixtures
     /// <summary>The installation's frames and its installed sheets, for a fixture whose boss draws no body layer.</summary>
     internal static BossBodyArtworkFixture Stock => new(inputs.Value.Bosses, InstalledFixtures.BossBodySheets);
 
+    /// <summary>
+    /// The library backgrounds' installed artwork, every catalog a room's library background reads (#2554), for a check to
+    /// replace the one it compares with <c>with</c>.
+    /// </summary>
+    internal static LibraryBackgroundArtwork LibraryArtwork => new()
+    {
+        TilemapArt = inputs.Value.BackgroundTilemaps,
+        SkyArt = inputs.Value.Skies,
+        HudArt = inputs.Value.Hud,
+        CharacterArt = inputs.Value.Characters,
+    };
+
     /// <summary>The frames <paramref name="owner"/> draws its body from in <paramref name="bosses"/>, and the sheets composed from them.</summary>
     /// <exception cref="InvalidDataException"><paramref name="bosses"/> holds no frames for <paramref name="owner"/>, or they cannot be pictured.</exception>
     internal static BossBodyArtworkFixture For(BossSourceArtwork bosses, BossBodyOwner owner) =>

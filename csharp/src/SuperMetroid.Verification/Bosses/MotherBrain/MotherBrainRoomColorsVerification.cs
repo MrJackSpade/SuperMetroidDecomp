@@ -43,7 +43,6 @@ internal static class MotherBrainRoomColorsVerification
 
         RoomEnemySystem enemies = CreateEnemy();
         MotherBrainEnemyState state = StagedState(enemies);
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
         for (int frame = 0; frame < 48; frame++)
         {
@@ -56,7 +55,7 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainFakeDeath.StopMotherBrainRoomFlash(state);
         AssertEqual(MotherBrainShades.FinalRoom, state.Colours.RoomShading.Shades[^1], "stopping the flash shows the steady grey room");
         AssertTrue(state.RoomFlash is null, "stopping the flash stops it playing");
-        enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));
 
@@ -115,14 +114,11 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>
-    /// Mother Brain's state in <paramref name="enemies"/>' first slot, with the body her room's entry attaches, not shown
-    /// until her phase-two transition reveals it (#1515).
+    /// Mother Brain placed in <paramref name="enemies"/> as her room's population places her, her glass set up first: the
+    /// encounter her body's setup began, with the body it attaches, not shown until her phase-two transition reveals it (#1515).
     /// </summary>
-    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
-    {
-        enemies.Presentation.AttachBossBody(BossBodyPartsConstants.Hidden(BossBodyOwner.MotherBrain));
-        return new(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-    }
+    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies) =>
+        MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
 
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
     private static RoomEnemySystem CreateEnemy()

@@ -17,7 +17,7 @@ internal static class BombTorizoDroolSineVerification
     internal static void VerifyBombTorizoDroolSine(CartridgeImportAddressSpace rom)
     {
         Action<RoomEnemySystem, RoomEnemyPlace> spawn =
-            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo.HeldOccupant(), torizo);
+            (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthDrool(torizo.HeldOccupant(), torizo, torizo.RequireSpeciesState<TorizoEnemyState>());
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
         {
@@ -71,9 +71,7 @@ internal static class BombTorizoDroolSineVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue;
 
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
-        torizo.BindTorizoFixtureState(parameter1);
+        RoomEnemyPlace torizo = enemies.PlaceTorizo(parameter1, new(0x0400, 0x0200));
 
         spawn(enemies, torizo);
 
@@ -103,7 +101,7 @@ internal static class BombTorizoDroolSineVerification
         int wordOffset)
     {
         int address = table + wordOffset;
-        return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        return rom.ReadCartridgeWord(address);
     }
 
 

@@ -9,7 +9,7 @@ internal static class FallingSparkAnimationsVerification
     /// <summary>Every program matches its native list.</summary>
     internal static void VerifyFallingSparkAnimations(CartridgeImportAddressSpace rom)
     {
-        int steps = Family.CompareAll(CartridgeImportSource.Require(rom));
+        int steps = Family.CompareAll(rom);
         Console.WriteLine($"  falling spark programs: {Entries.Length} programs ({steps} steps) match bank $86.");
     }
 }

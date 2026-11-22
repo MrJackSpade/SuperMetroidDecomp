@@ -117,7 +117,7 @@ internal static class CollectibleVisualsVerification
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>
     internal static ushort ReadCollectibleDrawWord(ISnesAddressSpace bus,
-        ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
+        ushort pointer) => bus.ReadCartridgeWordFixedBank(0x840000 | pointer);
 
     /// <summary>Runs collectible visual and pickup isolation checks.</summary>
     [VerificationCommand("--collectible-visuals")]

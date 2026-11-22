@@ -38,6 +38,9 @@ public static partial class SamusTerrainHazardCollision
     }
 
     /// <summary>Applies the solid spike reactions after a solid spike block of <paramref name="level"/> is contacted.</summary>
+    /// <param name="level">The room's level, whose heavy spikes may be harmless.</param>
+    /// <param name="samus">Samus, whom a damaging spike hurts.</param>
+    /// <param name="block">The contacted spike block.</param>
     internal static void ApplySolidSpikeCollision(
         RoomLevelData level,
         SamusState samus,

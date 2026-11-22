@@ -12,16 +12,15 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// eyes and greys the released statues show. Only the statue room builds one, with that room (#2382, #2426).
 /// </summary>
 [RoomLifetime]
-internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory, IGameplayShadingSource
+internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEnemySpawnFactory<TourianEntranceStatueSpawnSettings>, IGameplayShadingSource
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.TourianStatue], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    /// <remarks>Only the statue room can place these.</remarks>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, TourianEntranceStatueSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new TourianEntranceStatueEntity(this, occupant, place, common, settings));
 
     /// <summary>Spawns the scene's decorations and its unlock effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -147,14 +146,14 @@ internal sealed partial class TourianEntranceStatueBehavior : IEnemySpecies, IEn
     /// Initializes one of the statue scene's three placements (#2014): the first spawns the scene's decorations, and each
     /// shows the scene's entrance look until it leaves its place.
     /// </summary>
-    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant)
+    internal void InitializeTourianEntranceStatue(TourianEntranceStatueEntity occupant, TourianEntranceStatueSpawnSettings tourianEntranceStatueSpawnSettings)
     {
         Ensure.NotNull(occupant);
         _ = occupant.OccupiedPlace;
         DecorationBehavior decorations = Decorations;
         if (!_occupants.Contains(occupant))
             _occupants.Add(occupant);
-        if (occupant.Occupant.SpawnSettings<TourianEntranceStatueSpawnSettings>().Role == TourianEntranceStatueRole.SpawnsDecorations)
+        if (tourianEntranceStatueSpawnSettings.Role == TourianEntranceStatueRole.SpawnsDecorations)
         {
             foreach (TourianStatueDecoration decoration in TourianStatueDecorationDefinitions.SpawnOrder)
                 SpawnTourianEntranceStatueProjectile(decoration.Kind, decoration.Segment, decoration.Place, decorations);

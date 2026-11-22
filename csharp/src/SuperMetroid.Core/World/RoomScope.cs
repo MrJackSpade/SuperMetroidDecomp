@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
@@ -70,10 +71,10 @@ internal sealed partial record RoomScope
     public required RoomLibraryBackgroundPicture BackgroundImage { get; init; }
 
     /// <summary>
-    /// Resolves what pictures written over the room's layers show, or null in a tileset nothing writes pictures over (#1392,
-    /// #1466): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
+    /// The warnings the room's escapes write over its layers, or none in a room whose tileset has no warning picture sheet
+    /// (#1392, #1466, #2554): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
     /// </summary>
-    public required WrittenPictureResolver? WrittenPictures { get; init; }
+    public required RoomWarnings? Warnings { get; init; }
 
     /// <summary>Resolves what the room effect's liquid or atmosphere shows on the effect overlay (#1392, #1466, #1706).</summary>
     public required WrittenPictureResolver FxOverlayPictures { get; init; }
@@ -98,6 +99,12 @@ internal sealed partial record RoomScope
 
     /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay picture.</summary>
     public required RoomFxOverlayState FxOverlay { get; init; }
+
+    /// <summary>
+    /// The ground Samus's running footsteps and landings go by in this room (#2416), by its area and its own policy; the
+    /// room sets it as it loads, beside the liquid its effect gives her physics.
+    /// </summary>
+    public required RoomGround SamusGround { get; init; }
 
     /// <summary>The room's colour effects.</summary>
     public required ColourEffectSystem ColourEffects { get; init; }
@@ -146,6 +153,32 @@ internal sealed partial record RoomScope
         // Phantoon is defeated.
         BlockAnimations.Step(Ensure.NotNull(session).HasDefeatedAnyOf(Room.Area, DefeatedBosses.AreaBoss), ArtworkFrames);
         TourianStatues?.StepBlockAnimations();
+    }
+
+    /// <summary>
+    /// The room's gameplay shading (#1512): each owner of a colour effect names the shades and effects its state shows,
+    /// each later one showing over the earlier: the room's colour effects and the effect overlay colours, then its
+    /// bosses', then <paramref name="shownOver"/>, the display's fades, over all of them.
+    /// </summary>
+    /// <param name="shownOver">The owners of the fades of the whole display, in the order they are laid.</param>
+    internal GameplayShading Shading(IEnumerable<IGameplayShadingSource> shownOver)
+    {
+        var shading = new GameplayShadingBuilder();
+        foreach (IGameplayShadingSource source in ShadingSources.Concat(Ensure.NotNull(shownOver)))
+            source.ShadeGameplay(shading);
+        return shading.Build(Assets.BlockSheet.Sheet.Image, Assets.BlockSheet.Backdrop);
+    }
+
+    /// <summary>The owners of the colour effects the room shows, in the order they are laid over each other.</summary>
+    private IEnumerable<IGameplayShadingSource> ShadingSources
+    {
+        get
+        {
+            yield return ColourEffects;
+            yield return FxOverlay;
+            foreach (IGameplayShadingSource boss in Enemies.DisplaySources.ShadingSources)
+                yield return boss;
+        }
     }
 
     /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>

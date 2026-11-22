@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -18,5 +19,5 @@ internal sealed partial class RetainedGameplayFrames : IGameplayFramePublication
     }
 
     /// <inheritdoc />
-    public DisplayPacket Publish(SuperMetroidRuntime runtime, DisplayPacket current, int frameNumber) => current;
+    public DisplayPacket Publish(SuperMetroidRuntime runtime, RoomScope loaded, DisplayPacket current, int frameNumber) => current;
 }

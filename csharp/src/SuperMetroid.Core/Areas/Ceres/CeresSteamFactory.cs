@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="vents">The room's owner of the steam vents.</param>
 /// <param name="motions">The motions the room gives the vents it places.</param>
 [RoomLifetime]
-internal sealed partial class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemyEntityFactory
+internal sealed partial class CeresSteamFactory(CeresSteamBehavior vents, CeresSteamVentMotions motions) : IEnemySpawnFactory<CeresSteamSpawnSettings>
 {
 
     /// <summary>The room's owner of the steam vents.</summary>
@@ -21,11 +21,8 @@ internal sealed partial class CeresSteamFactory(CeresSteamBehavior vents, CeresS
     private readonly CeresSteamVentMotions _motions = Ensure.NotNull(motions);
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.SteamVent], Create);
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SteamVent];
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new CeresSteamEntity(_vents, occupant, place, common, _motions));
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, CeresSteamSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new CeresSteamEntity(_vents, occupant, place, common, _motions, settings));
 }

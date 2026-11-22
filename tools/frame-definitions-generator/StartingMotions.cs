@@ -10,9 +10,9 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// bound to in its kind's motion, which its base constructor call names either as a table naming every kind it serves
 /// (<c>startingMotions</c>), or as one motion for every kind it is bound to (<c>initial</c>), passed down through its own
 /// constructors' parameters from the construction that makes it. A table names its kinds outright; one motion reaches the
-/// kinds the spawners bind that construction's behaviour to, which their <c>Bind</c> calls name (through the spawn
-/// service handing <c>Bind</c> its own parameters). A kind several spawners bind to different behaviours starts with any
-/// of their motions.
+/// kinds the spawners bind that construction's behaviour to, which the projectile's construction names (through the spawn
+/// service handing the constructor its own parameters). A kind several spawners bind to different behaviours starts with
+/// any of their motions.
 /// </summary>
 internal sealed class StartingMotions
 {
@@ -56,8 +56,9 @@ internal sealed class StartingMotions
                 _constructions.Add(creation, Resolve(constructor, parameter => Argument.Of(creation.ArgumentList, parameter, bound), depth: 0));
             }
         }
-        IMethodSymbol bind = model.EnemyProjectile.GetMembers("Bind").OfType<IMethodSymbol>().SingleOrDefault()
-            ?? throw new InvalidDataException($"{model.EnemyProjectile.Name} declares no one Bind method.");
+        // A projectile is bound to its kind and its behaviour as it is built (#2554): its one constructor takes both.
+        IMethodSymbol bind = model.EnemyProjectile.InstanceConstructors.SingleOrDefault()
+            ?? throw new InvalidDataException($"{model.EnemyProjectile.Name} declares no one constructor binding its kind and behaviour.");
         IParameterSymbol kindParameter = bind.Parameters.Single(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomEnemyProjectileKind));
         IParameterSymbol behaviourParameter = bind.Parameters.Single(parameter => model.IsProjectileBehaviour((INamedTypeSymbol)parameter.Type));
         ReadBindings(bind, kindParameter, behaviourParameter, new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));

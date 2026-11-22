@@ -95,7 +95,7 @@ public static partial class EndingObjectArtworkFiles
 
         void Export(string name, int source, int count)
         {
-            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source,
+            byte[] decompressed = RomDataReader.Decompress(bus, source,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (decompressed.Length < count)
                 throw new InvalidDataException($"Ending OBJ source ${source:X6} is shorter than {name}'s native DMA.");
@@ -109,7 +109,7 @@ public static partial class EndingObjectArtworkFiles
 
         void ExportMap(string name, int source, int count)
         {
-            byte[] decoded = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source,
+            byte[] decoded = RomDataReader.Decompress(bus, source,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (decoded.Length < count)
                 throw new InvalidDataException($"Ending map source ${source:X6} is shorter than {name}'s native DMA.");

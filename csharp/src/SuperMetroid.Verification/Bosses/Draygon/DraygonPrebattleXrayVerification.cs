@@ -43,9 +43,9 @@ internal static class DraygonPrebattleXrayVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.Position = samus.Position.WithWhole(new(456, 459));
@@ -83,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
         boss.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0); // Dance completion selects the first swoop.
         runtime.StepFrame(0); // Build the authored swoop path.
-        int descentFrames = (boss.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
+        int descentFrames = ((boss.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var ordinary = (GameplaySceneLayer)combat.Layers[0];

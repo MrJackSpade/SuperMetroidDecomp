@@ -30,7 +30,7 @@ internal static class CrystalFlashColorsVerification
             ushort pointer = ReadWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * SamusShadeDefinitions.CrystalFlash.BodyRecordByteCount);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (pointer + color * 2)),
                     native.ResolveBody(frame, color),
                     $"Crystal Flash body frame {frame}, color {color} matches cartridge");
@@ -40,7 +40,7 @@ internal static class CrystalFlashColorsVerification
             ushort pointer = ReadWord(rom, SamusSourceDefinitions.BubblePointers.Value +
                 frame * sizeof(ushort));
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (pointer + color * 2)),
                     native.ResolveBubble(frame, color),
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
@@ -83,7 +83,7 @@ internal static class CrystalFlashColorsVerification
         Console.WriteLine("Crystal Flash colors: 136 stock words, 100 independent body/bubble calls reach CGRAM, ROM guard and strict values pass.");
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            RomDataReader.ReadWordFixedBank(bus, address);
 
         SamusState StartCrystalFlash()
         {
@@ -110,7 +110,7 @@ internal static class CrystalFlashColorsVerification
         {
             int address = SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * SamusShadeDefinitions.CrystalFlash.BodyRecordByteCount;
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
             forbidden.Add(address);
             forbidden.Add(address + 1);
             BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -119,7 +119,7 @@ internal static class CrystalFlashColorsVerification
         {
             int address = SamusSourceDefinitions.BubblePointers.Value +
                 frame * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
             forbidden.Add(address);
             forbidden.Add(address + 1);
             BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);

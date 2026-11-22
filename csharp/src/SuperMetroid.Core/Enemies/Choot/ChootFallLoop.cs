@@ -1,45 +1,60 @@
+using static SuperMetroid.Core.Enemies.Choot.ChootFallingPathDefinitions;
+
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// One loop of a falling Choot's path: the offsets from the falling origin it has still to show, one per update. Each
-/// falling update shows the next, and the update that finds none left ends the loop, so no update lies past the path.
+/// Where a falling Choot is in one loop of its falling path (#2554): at one of the path's samples, which says where it is
+/// from the falling origin, or past the loop's last update, when the next falling update ends the loop. A loop only
+/// starts at its path's first sample and only counts forward through its samples, so no place outside the path exists.
 /// </summary>
-public sealed partial class ChootFallLoop
+internal abstract partial class ChootFallLoop
 {
-    /// <summary>The offsets of the whole loop.</summary>
-    private readonly ReadOnlyMemory<Offset16<RoomPixels>> _loop;
+    /// <summary>Only the two places below exist.</summary>
+    private ChootFallLoop() { }
 
-    /// <summary>The offsets of the loop it has not yet shown.</summary>
-    private ReadOnlyMemory<Offset16<RoomPixels>> _unshown;
+    /// <summary>A loop of <paramref name="fallingPath"/> at its first update, at the path's first sample.</summary>
+    /// <exception cref="KeyNotFoundException"><paramref name="fallingPath"/> is not a defined path.</exception>
+    internal static AtSample Starting(ChootFallingPath fallingPath) => new(ChootFallingPathDefinitions.Paths[fallingPath].Samples, sample: 0, updatesIntoSample: 0);
 
-    /// <summary>Starts a loop that shows <paramref name="loop"/>'s offsets in turn.</summary>
-    private ChootFallLoop(ReadOnlyMemory<Offset16<RoomPixels>> loop)
+    /// <summary>A loop at one of its path's samples.</summary>
+    internal sealed partial class AtSample : ChootFallLoop
     {
-        _loop = loop;
-        _unshown = loop;
-    }
+        /// <summary>The samples of the path the loop follows, each one or more updates long.</summary>
+        private readonly ChootFallSample[] _samples;
 
-    /// <summary>A loop with no offset left to show, which the next falling update ends.</summary>
-    internal static ChootFallLoop Ended() => new(ReadOnlyMemory<Offset16<RoomPixels>>.Empty);
+        /// <summary>Which of <see cref="_samples"/> the loop is at.</summary>
+        [IntegerQuantity("sample along the falling path")]
+        private readonly int _sample;
 
-    /// <summary>A loop of <paramref name="fallingPath"/> that shows none of its offsets yet.</summary>
-    internal static ChootFallLoop Of(ChootFallingPath fallingPath) => new(ChootFalls.LoopOf(fallingPath));
+        /// <summary>How many of the sample's updates the loop has already counted.</summary>
+        [IntegerQuantity("updates the loop has counted at its sample")]
+        private readonly int _updatesIntoSample;
 
-    /// <summary>How many of the loop's offsets it has shown: the update of the loop the next falling update takes.</summary>
-    public int Age => _loop.Length - _unshown.Length;
-
-    /// <summary>Shows the loop's next offset, or answers false when it has shown every offset and the loop ends.</summary>
-    /// <param name="offset">The offset from the falling origin the update shows.</param>
-    internal bool TryShowNext(out Offset16<RoomPixels> offset)
-    {
-        if (_unshown.IsEmpty)
+        /// <summary>Creates the loop at a sample within its path.</summary>
+        internal AtSample(ChootFallSample[] samples, int sample, int updatesIntoSample)
         {
-            offset = default;
-            return false;
+            _samples = samples;
+            _sample = sample;
+            _updatesIntoSample = updatesIntoSample;
         }
 
-        offset = _unshown.Span[0];
-        _unshown = _unshown[1..];
-        return true;
+        /// <summary>The Choot's offset from the falling origin at this update of the loop.</summary>
+        internal Offset16<RoomPixels> Offset => _samples[_sample].Offset;
+
+        /// <summary>The loop one update on: the same sample's next update, the next sample's first, or past the loop's end.</summary>
+        internal ChootFallLoop Counted() =>
+            _updatesIntoSample + 1 < _samples[_sample].Updates ? new AtSample(_samples, _sample, _updatesIntoSample + 1)
+            : _sample + 1 < _samples.Length ? new AtSample(_samples, _sample + 1, updatesIntoSample: 0)
+            : Over.Instance;
+    }
+
+    /// <summary>A loop past its last update: the next falling update ends it.</summary>
+    internal sealed partial class Over : ChootFallLoop
+    {
+        /// <summary>The one loop past its end.</summary>
+        internal static Over Instance { get; } = new();
+
+        /// <summary>The place has no data, so one instance serves every Choot.</summary>
+        private Over() { }
     }
 }

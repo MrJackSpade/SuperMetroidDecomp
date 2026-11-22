@@ -90,6 +90,9 @@ internal sealed partial class EnemyRoomEffects
                 case ChozoStatueObjectAsked chozo:
                     site.RoomObjects.ChozoStatue.SpawnChozoStatueObject(site.Level, chozo.Request);
                     break;
+                case ChozoStatueHandAsked hand:
+                    site.RoomObjects.ChozoStatue.SpawnChozoStatueHand(site.Level, hand.Request, hand.Hand);
+                    break;
                 case TorizoBellyGlowRequest glow:
                     site.ColourEffects.StartTorizoBellyGlow(glow.Glow, glow.Torizo, site.Samus.EquippedItems);
                     break;

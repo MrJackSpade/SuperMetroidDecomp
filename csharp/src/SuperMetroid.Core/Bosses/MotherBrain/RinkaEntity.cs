@@ -7,9 +7,30 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    RinkaSpawnSettings settings, RinkaEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Rinka species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal RinkaEntity(RinkaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RinkaSpawnSettings settings)
+        : this(species, occupant, place, common, settings, species.InitializeRinka(settings, place))
+    {
+    }
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal RinkaSpawnSettings Settings { get; } = settings;
+
     /// <summary>Rinka's own shot reaction, built for this occupant.</summary>
     private EnemyShotReaction OwnShot => field ??= RinkaBehavior.RinkaShotReaction(this);
 
@@ -19,30 +40,35 @@ internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupa
     /// <summary>Rinka's own Power Bomb reaction, built for this occupant.</summary>
     private EnemyPowerBombReaction OwnPowerBomb => field ??= RinkaBehavior.RinkaPowerBombReaction(this);
 
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal RinkaEnemyState State { get; } = state;
+
     /// <summary>Runs Rinka's own death after a bomb's common damage leaves this Rinka without health.</summary>
-    internal void ResolveCombatAfterCommon(EnemyBombHitContext context) => species.ResolveRinkaCombatAfterCommon(Occupant, Ensure.NotNull(context).Enemy);
+    /// <param name="context">The bomb's hit.</param>
+    internal void ResolveCombatAfterCommon(EnemyBombHitContext context) =>
+        species.ResolveRinkaCombatAfterCommon(Occupant, Settings, Ensure.NotNull(context).Enemy, State);
 
     /// <summary>Runs Rinka's own death after a Power Bomb's common damage leaves this Rinka without health.</summary>
-    internal void ResolveCombatAfterCommon(EnemyPowerBombContext context) => species.ResolveRinkaCombatAfterCommon(Occupant, context.Enemy);
+    /// <param name="context">The blast meeting the Rinka.</param>
+    internal void ResolveCombatAfterCommon(EnemyPowerBombContext context) =>
+        species.ResolveRinkaCombatAfterCommon(Occupant, Settings, context.Enemy, State);
 
     /// <summary>
     /// Runs Rinka's own death after a shot's common damage leaves this Rinka without health; a shot that froze it at once
     /// skips it.
     /// </summary>
+    /// <param name="context">The shot's hit.</param>
     internal void ResolveCombatAfterCommon(EnemyShotHitContext context)
     {
         if (!Ensure.NotNull(context).Froze)
-            species.ResolveRinkaCombatAfterCommon(Occupant, context.Enemy);
+            species.ResolveRinkaCombatAfterCommon(Occupant, Settings, context.Enemy, State);
     }
 
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeRinka(Occupant, Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Settings, Place, State, frame);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunRinkaMainAi(Occupant, Place, frame);
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RinkaBehavior.AdvanceRinkaTypedAnimation(Place, State);
 
     /// <summary>Whether Rinka's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => Occupant.Definition.Touch == RinkaReactions.Touch || base.ReactsToTouch;
@@ -52,7 +78,7 @@ internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupa
     public override void ReactToTouch(EnemyTouchContext context)
     {
         if (Occupant.Definition.Touch == RinkaReactions.Touch)
-            species.ReactToRinkaTouch(Occupant, context);
+            species.ReactToRinkaTouch(Occupant, Settings, context, State);
         else
             base.ReactToTouch(context);
     }
@@ -69,7 +95,7 @@ internal sealed partial class RinkaEntity(RinkaBehavior species, RoomEnemyOccupa
     public override EnemyPowerBombReaction PowerBombReaction => LeavesPowerBombToSpecies ? OwnPowerBomb : base.PowerBombReaction;
 
     /// <summary>Runs a frozen Rinka's own step before the common thaw; true when it ended the turn.</summary>
-    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant);
+    public override bool PreemptFrozenTurn() => species.ThawOrDieWhileFrozen(Occupant, State);
 
     /// <summary>Rinka's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

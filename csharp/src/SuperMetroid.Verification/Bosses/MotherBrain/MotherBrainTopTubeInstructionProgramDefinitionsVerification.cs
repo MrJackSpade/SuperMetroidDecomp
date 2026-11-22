@@ -32,7 +32,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             InstructionMechanicsWord definition =
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
@@ -42,7 +42,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(rom);
 
         foreach (TopTubeLaunchCase item in
                  new TopTubeLaunchCase[]
@@ -111,8 +111,9 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            // The tubes fall in Mother Brain's encounter, whose colours they take, as her body's initializer loads it.
-            enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
+            // The tubes fall in Mother Brain's encounter, whose colours they take, as her room's population places her, her
+            // glass set up first, and her body's setup begins it.
+            _ = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
             return enemies;
         }
 

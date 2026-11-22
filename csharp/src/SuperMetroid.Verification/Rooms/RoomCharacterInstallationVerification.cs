@@ -53,7 +53,7 @@ internal static class RoomCharacterInstallationVerification
         LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
 
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
-        byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         AssertTrue(stock.GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
             "the extracted statue-ghost characters preserve every native character byte");
@@ -68,7 +68,7 @@ internal static class RoomCharacterInstallationVerification
         var nativeGhostVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeGhostVram,
             ghostTransfer.ListPointer, activeDoorPointer: 0);
-        SnesVram installedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = InstalledFixtures.BackgroundTilemaps, CharacterArt = stock });
+        SnesVram installedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = InstalledFixtures.BackgroundTilemaps, CharacterArt = stock });
         // The ghost's characters reach sprite characters only the statue ghost would draw, and it draws nothing, so the
         // installed replay writes them nowhere (#1466); the check above compares the installed characters byte for byte. The rest
         // of the upload matches the native one with that range left as the fresh video memory holds it.
@@ -147,7 +147,7 @@ internal static class RoomCharacterInstallationVerification
         var stockBackgroundVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeBackgroundVram,
             ceresBackgroundList, activeDoorPointer: 0);
-        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceresBackgroundList), picture: LibraryBackgroundPicture.Ordinary, artwork: new LibraryBackgroundArtwork { TilemapArt = stockBackgrounds });
+        LibraryBackgroundReplay.Execute(stockBackgroundVram, LibraryBackgroundProgramDefinitions.Get(ceresBackgroundList), picture: LibraryBackgroundPicture.Ordinary, artwork: SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = stockBackgrounds });
         AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
             "extracted Ceres background tilemap retains native VRAM words");
 
@@ -161,7 +161,7 @@ internal static class RoomCharacterInstallationVerification
         string skyName = RoomSkyTilemapFormat.FileName(skyPage);
         string skyStockPath = Path.Combine(backgroundImportData, skyName);
         AssertTrue(File.Exists(skyStockPath), "selected scrolling-sky page is extracted into the import data");
-        byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeSky = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             LibraryBackgroundOperands.SkyPageAddress(skyPage), landingSky.ByteCount);
         AssertTrue(BackgroundTileWordBytes.Of(stockSky.Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(nativeSky),
             "extracted scrolling-sky page retains native door-selected bytes");

@@ -14,23 +14,40 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
-internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
+/// <param name="ownState">What the enemy's setup built (#2554).</param>
+internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, RoomFloor floor, CeresDoorAnimationState ownState)
     : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the door occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
+    internal CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomFloor floor)
+        : this(doors, occupant, place, common, floor, doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.ElevatorDoor))
+    {
+    }
+
     /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>
     private const int RumbleDuration = 49;
 
     /// <summary>How many updates apart the destruction's explosions burst (#2281).</summary>
     private const int RumbleInterval = 5;
 
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        doors.Start(Place, HorizontalDirection.Right, CeresDoorSegment.ElevatorDoor);
-        Place.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
-        // Only the elevator door shows the door's own look (#1406, #1538).
-        doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
-    }
+    /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
+    private readonly CeresDoorAnimationState ownState = ownState;
+
+    /// <summary>The door's phase and destruction counters, intact from its setup.</summary>
+    private readonly CeresElevatorDoorState ownDoor = new() { Phase = CeresElevatorDoorPhase.Intact };
+
+    /// <summary>Shows the door's own look as it is set up: only the elevator door shows it (#1406, #1538).</summary>
+    public void Initialize() => doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
 
     /// <summary>What <see cref="RunMainAi"/> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
     [field: NonSerialized]
@@ -57,17 +74,17 @@ internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, R
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = ownDoor;
         RunMainAiForCeresElevatorDoorPhase[state.Phase](state);
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, ownState, context.Samus);
 
     /// <summary>Runs one update of the destruction.</summary>
     private void Explode()
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = ownDoor;
         if (state.Rumble.Count())
         {
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update

@@ -9,16 +9,14 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Kago], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.WithoutMainAi(new KagoEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, KagoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -46,20 +44,21 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Kago.</summary>
-    internal static void InitializeKago(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static KagoEnemyState InitializeKago(RoomEnemyPlace place)
     {
         var state = new KagoEnemyState();
-        place.SetSpeciesState(state);
 
         // The setup makes Kago's shell animate; its placement says the rest.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
+        return state;
     }
 
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    internal void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, RoomEnemyPlace place, KagoEnemyState state)
+    internal void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, KagoSpawnSettings kagoSpawnSettings, RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -71,7 +70,7 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
-        if (++state.HitsTaken > occupant.SpawnSettings<KagoSpawnSettings>().HitCount)
+        if (++state.HitsTaken > kagoSpawnSettings.HitCount)
         {
             // The shot's damage may already have killed the shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
@@ -88,10 +87,10 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
-    /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal static EnemyBombReaction KagoBombReaction(KagoEntity kago) => new()
+    /// <param name="afterCommon">The Kago's own method running its shell response.</param>
+    internal static EnemyBombReaction KagoBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
+        AfterCommon = afterCommon,
     };
 
     /// <summary>A Kago bug (#1760).</summary>
@@ -268,21 +267,20 @@ internal sealed partial class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, KagoEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
         EnemyAnimationPlayback.PlaySilently(place, KagoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
-    /// <param name="kago">The Kago the reaction is built for, whose sheet the objects it spawns draw from.</param>
-    internal static EnemyShotReaction KagoShotReaction(KagoEntity kago) => new()
+    /// <param name="afterCommon">The Kago's own method running its shell response.</param>
+    internal static EnemyShotReaction KagoShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-        AfterCommon = Ensure.NotNull(kago).ResolveShellAfterCommon,
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>

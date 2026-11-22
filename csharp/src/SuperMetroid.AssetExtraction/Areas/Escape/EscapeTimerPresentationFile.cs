@@ -18,8 +18,7 @@ public static partial class EscapeTimerPresentationFile
         try
         {
             document = JsonAssetDocument.Read<EscapeTimerPresentationDocument>(json,
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Escape timer presentation document is null.");
+                ArtworkJson.Options);
         }
         catch (JsonException error)
         {

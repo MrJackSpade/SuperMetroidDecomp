@@ -192,7 +192,7 @@ internal static partial class RoomBlockUploads
         {
             yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
-                    (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
+                    inputs.Bosses.KraidBackground
                         .RoomBackgroundTiles.Characters));
         }
     }
@@ -235,8 +235,7 @@ internal static partial class RoomBlockUploads
     /// </summary>
     private static IEnumerable<AnimatedCharacterPlacement> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
-        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
-            ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
+        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting;
         foreach (CrocomireMeltingIllustration illustration in MeltingOrder)
         {
             byte[] image = artwork.Characters(illustration).ToArray();
@@ -523,8 +522,15 @@ internal static partial class RoomBlockUploads
                 RidleyLooks = looks;
         }
 
-        /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
-        internal BgArtworkBindings? Bg3Content { get; private set; }
+        /// <summary>What the first room recorded showing BG3 shows its words over; none before a room is recorded.</summary>
+        private BgArtworkBindings? bg3Content;
+
+        /// <summary>Finds what the first room recorded showing BG3 shows its words over: false before a room is recorded.</summary>
+        internal bool TryGetBg3Content([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BgArtworkBindings? content)
+        {
+            content = bg3Content;
+            return content is not null;
+        }
 
         /// <summary>The room effects whose BG3 pages the tileset's rooms show.</summary>
         internal HashSet<RoomFxType> FxTypes { get; } = [];
@@ -535,7 +541,7 @@ internal static partial class RoomBlockUploads
         /// <summary>Records a room showing BG3 over <paramref name="content"/>'s layer-3 characters, with <paramref name="effects"/>' pages.</summary>
         internal void AddBg3(BgArtworkBindings content, IEnumerable<RoomFxType> effects)
         {
-            Bg3Content ??= content;
+            bg3Content ??= content;
             foreach (RoomFxType effect in effects)
             {
                 if (!FxTypes.Add(effect))

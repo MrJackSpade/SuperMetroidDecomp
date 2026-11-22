@@ -35,7 +35,7 @@ public static partial class RoomSkyTilemapArtworkFiles
         for (int page = 0; page < RoomSkyTilemapFormat.PageCount; page++)
         {
             string name = RoomSkyTilemapFormat.FileName(page);
-            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] native = RomDataReader.ReadFixedBank(bus,
                 LibraryBackgroundOperands.SkyPageAddress(page), RoomSkyTilemapFormat.PageByteCount);
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))

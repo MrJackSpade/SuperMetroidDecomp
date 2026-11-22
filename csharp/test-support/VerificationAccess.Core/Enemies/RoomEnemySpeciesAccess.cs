@@ -30,7 +30,6 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.Fireflea;
 using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Kago;
@@ -68,7 +67,6 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
-using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.OldTourianWall;
 using SuperMetroid.Core.World;
 
@@ -76,8 +74,9 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Verification's view of each owner the room's species composition built (#2571): the room system keeps no member per
-/// species, so a check reaches an owner through what the composition hands out, its factories, its frame participants and
-/// the capability holders that keep the owners they command, and a boss service through the composition itself.
+/// species, so a check reaches an owner as the game does, through the composition's frame participants (every species with
+/// room or frame lifecycle state) and the capability holders that keep the owners they command (#2554), and a boss
+/// service through the composition itself.
 /// </summary>
 internal static class RoomEnemySpeciesAccess
 {
@@ -85,32 +84,19 @@ internal static class RoomEnemySpeciesAccess
     private static IEnumerable<object> OwnersOf(RoomEnemySystem enemies)
     {
         RoomEnemySpecies species = enemies.SpeciesComposition;
-        foreach (IEnemyEntityFactory factory in species.Factories)
-        {
-            yield return factory;
-            switch (factory)
-            {
-                case RidleyEntityFactory ridley:
-                    yield return ridley.Norfair;
-                    yield return ridley.Ceres;
-                    break;
-                case SparkBehavior spark:
-                    yield return spark.FallingSparks;
-                    break;
-                default:
-                    // Every other factory is its species' only owner.
-                    break;
-            }
-        }
         foreach (IEnemySpecies participant in species.FrameParticipants)
+        {
             yield return participant;
+            if (participant is SparkBehavior spark)
+                yield return spark.FallingSparks;
+        }
         var spawns = (RoomEnemySpecies.ObjectSpawns)species.RoomObjectSpawns;
         yield return spawns.EyeDoor;
         yield return spawns.OldTourianWall;
         yield return spawns.EscapeExplosions;
         yield return ((RoomEnemySpecies.ObjectRequests)species.RoomObjectRequests).DownwardGate;
         yield return ((RoomEnemySpecies.LoaderOperations)species.LoaderHooks).PrePhantoonRoom;
-        if (species.TourianStatue is TourianStatueActors statue)
+        if (species.TourianStatue?.Actors is TourianStatueActors statue)
             yield return statue.Unlock;
     }
 
@@ -126,9 +112,6 @@ internal static class RoomEnemySpeciesAccess
     /// <summary>The owners of the room's species, by the names the room system once held them under.</summary>
     extension(RoomEnemySystem self)
     {
-        /// <summary>Samus's gunship: its landing, save prompt, boarding and exit, and its lift-offs after Ceres and the escape.</summary>
-        internal GunshipBehavior GunshipBehavior => Owner<GunshipBehavior>(self);
-
         /// <summary>Ridley's fireballs and the afterburn that trails them, in Ceres and Norfair, which Mother Brain's afterburn reuses.</summary>
         internal RidleyProjectiles RidleyProjectiles => self.SpeciesComposition.RidleyProjectiles;
 
@@ -255,9 +238,6 @@ internal static class RoomEnemySpeciesAccess
         /// <summary>The enemies that leap out of Norfair's lava and fall back in.</summary>
         internal SqueeptBehavior SqueeptBehavior => Owner<SqueeptBehavior>(self);
 
-        /// <summary>Maridia's glass tube, which a power bomb shatters.</summary>
-        internal NoobTubeBehavior NoobTubeBehavior => Owner<NoobTubeBehavior>(self);
-
         /// <summary>The ninja space pirates, which leap across their rooms and throw their claws.</summary>
         internal NinjaSpacePirateBehavior NinjaSpacePirateBehavior => Owner<NinjaSpacePirateBehavior>(self);
 
@@ -375,9 +355,6 @@ internal static class RoomEnemySpeciesAccess
         /// <summary>The Choots, Maridia's flat fish that leap when Samus comes near and glide back down.</summary>
         internal ChootBehavior ChootBehavior => Owner<ChootBehavior>(self);
 
-        /// <summary>Ridley in Ceres station: his fight over the Baby Metroid and his getaway.</summary>
-        internal CeresRidleyBehavior CeresRidleyBehavior => Owner<CeresRidleyBehavior>(self);
-
         /// <summary>Ceres station's doors and walls, and the quake that shakes them during the escape.</summary>
         internal CeresDoorBehavior CeresDoorBehavior => Owner<CeresDoorBehavior>(self);
 
@@ -404,9 +381,6 @@ internal static class RoomEnemySpeciesAccess
 
         /// <summary>The Beetoms, which leap at Samus, latch on and drain her energy.</summary>
         internal BeetomBehavior BeetomBehavior => Owner<BeetomBehavior>(self);
-
-        /// <summary>The Baby Metroid's meeting with Samus in Tourian, where it latches on and lets her go.</summary>
-        internal BabyMetroidCutsceneBehavior BabyMetroidCutsceneBehavior => Owner<BabyMetroidCutsceneBehavior>(self);
 
         /// <summary>The Atomics, the Wrecked Ship's spinning atoms that drift after Samus.</summary>
         internal AtomicBehavior AtomicBehavior => Owner<AtomicBehavior>(self);

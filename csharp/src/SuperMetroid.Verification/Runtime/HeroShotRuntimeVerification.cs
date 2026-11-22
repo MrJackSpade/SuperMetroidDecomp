@@ -38,7 +38,7 @@ internal static class HeroShotRuntimeVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
             var level = runtime.Room.LoadedLevelData;
             // Construct a finite corridor within the loaded room. Do not alter
@@ -51,7 +51,7 @@ internal static class HeroShotRuntimeVerification
                     y >= 32 || x == 54 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
                 level.SetBehavior(index, RoomBlockBehavior.None);
             }
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Position = samus.Position.WithWhole(new(512, 490));

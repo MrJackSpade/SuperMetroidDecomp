@@ -26,17 +26,21 @@ internal static class RetailAttractTests
             var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
             bool sawHold = false, returned = false, sawStart = false, sawUnload = false, sawRouting = false;
             RgbaPixel[]? held = null;
+            // The updates the final-image hold has counted since it began; none while no image holds.
+            int heldUpdates = 0;
             for (int tick = 0; tick < 8000; tick++)
             {
-                ControllerButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? ControllerButton.Start : ControllerButton.None;
+                bool wasHolding = legacy.IsAt(AttractDemoStep.Holding);
+                ControllerButton input = cancel && wasHolding && AttractDemoDefinitions.FinalImageHoldFrames - heldUpdates == 80 ? ControllerButton.Start : ControllerButton.None;
                 var expected = legacy.Step(input);
+                heldUpdates = !legacy.IsAt(AttractDemoStep.Holding) ? 0 : wasHolding ? heldUpdates + 1 : 0;
                 var actual = captured.StepCaptured(input);
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
-                sawStart |= legacy.IsAtAttractStep<AttractDemoStep.Starting>();
-                sawUnload |= legacy.IsAtAttractStep<AttractDemoStep.Unloading>();
-                sawRouting |= legacy.IsAtAttractStep<AttractDemoStep.Routing>();
+                sawStart |= legacy.IsAt(AttractDemoStep.Starting);
+                sawUnload |= legacy.IsAt(AttractDemoStep.Unloading);
+                sawRouting |= legacy.IsAt(AttractDemoStep.Routing);
                 bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;
                 if (demo || tick % 31 == 0)
                 {
@@ -44,11 +48,11 @@ internal static class RetailAttractTests
                     PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
-                if (legacy.AttractDemoHoldFramesRemaining > 0)
+                if (legacy.IsAt(AttractDemoStep.Holding))
                 {
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.
-                    if (legacy.AttractDemoHoldFramesRemaining == AttractDemoDefinitions.FinalImageHoldFrames)
+                    if (heldUpdates == 0)
                         held = legacy.PublishedPixels();
                     held ??= legacy.PublishedPixels();
                     if (!held.SequenceEqual(legacy.PublishedPixels())) throw new InvalidOperationException("Demo held frame changed.");

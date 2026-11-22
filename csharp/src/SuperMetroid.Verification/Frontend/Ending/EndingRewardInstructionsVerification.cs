@@ -42,9 +42,9 @@ internal static class EndingRewardInstructionsVerification
         for (int i = 0; i < catalog.Count; i++)
         {
             int operand = 0x8b0000 | operands[i];
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
+            ushort pointer = bus.ReadCartridgeWord(operand);
             int header = 0x8c0000 | pointer;
-            int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
+            int count = bus.ReadCartridgeWord(header);
             AssertEqual(pointer, CinematicSpritemapSources.Of(catalog[i].Pose), "reward original frame pointer");
             AssertEqual(count, catalog[i].StockPartCount, "reward original OAM part count");
             AssertEqual(names[i], catalog[i].Name, "reward published artwork key");

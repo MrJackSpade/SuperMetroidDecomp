@@ -7,12 +7,26 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the collision part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class HibashiCollisionPartEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyTypedAnimation
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class HibashiCollisionPartEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    HibashiCollisionPartState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => HibashiBehavior.InitializeHibashiCollisionPart(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the collision part occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal HibashiCollisionPartEntity(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(occupant, place, common, HibashiBehavior.InitializeHibashiCollisionPart(place))
+    {
+    }
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly HibashiCollisionPartState state = state;
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => HibashiBehavior.AdvanceHibashiCollisionPartTypedAnimation(Place, state);
 }

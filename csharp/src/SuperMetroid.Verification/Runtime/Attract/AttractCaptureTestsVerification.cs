@@ -9,6 +9,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
@@ -62,14 +63,14 @@ internal static class AttractCaptureTestsVerification
         /// <summary>The frames the case plays at most before it must have returned to the title.</summary>
         private const int TickLimit = 8000;
 
-        /// <summary>The names of the attract-demo steps the legacy game has run.</summary>
-        private HashSet<string> states = [];
-
-        /// <summary>Whether the first scene's route to the set's next scene has been turned to the title.</summary>
-        private bool routed;
+        /// <summary>The attract-demo steps the legacy game has run.</summary>
+        private HashSet<AttractDemoStep> states = [];
 
         /// <summary>Whether the demo's final image has been held.</summary>
         private bool sawHold;
+
+        /// <summary>The updates the legacy game's final-image hold has counted since it began; none while no image holds.</summary>
+        private int heldUpdates;
 
         /// <summary>Whether the case has returned to the title.</summary>
         private bool returned;
@@ -90,7 +91,8 @@ internal static class AttractCaptureTestsVerification
         internal bool Finished => returned || tick >= TickLimit;
 
         /// <summary>Whether the next frame is the one the cancelled case presses Start on.</summary>
-        internal bool AtCancelFrame => legacy.AttractDemoHoldFramesRemaining == CancelHoldFrame;
+        internal bool AtCancelFrame =>
+            legacy.IsAt(AttractDemoStep.Holding) && AttractDemoDefinitions.FinalImageHoldFrames - heldUpdates == CancelHoldFrame;
 
         /// <summary>
         /// A case continuing from this one's next frame: both games restored from exact debugger round trips, and what this
@@ -101,9 +103,9 @@ internal static class AttractCaptureTestsVerification
             var branch = new AttractRun(RoundTrip(legacy), RoundTrip(captured));
             branch.states = [.. states];
             branch.sawHold = sawHold;
+            branch.heldUpdates = heldUpdates;
             branch.returned = returned;
             branch.bounded = bounded;
-            branch.routed = routed;
             branch.held = held;
             branch.tick = tick;
             return branch;
@@ -112,26 +114,22 @@ internal static class AttractCaptureTestsVerification
         /// <summary>Steps both games one frame, pressing Start at the cancellation frame when <paramref name="cancel"/>.</summary>
         internal void Step(bool cancel)
         {
-            // The first scene plays sixteen scripted updates, and after it the title returns from its beginning, as after
-            // a set's last scene: the game enters each step as its own run would, with a shorter script and that route.
-            if (!bounded && legacy.IsAtAttractStep<AttractDemoStep.Starting>())
+            if (!bounded && legacy.IsAt(AttractDemoStep.Starting))
             {
                 foreach (var game in new[] { legacy, captured })
-                    game.Session.Enter(new AttractDemoStep.Starting(UpdateCountdown.Lasting(16)));
+                {
+                    game.Session.Enter(new AttractDemoGameSequence.Starting(game.Session, duration: 16));
+                    game.Session.Demo.ScenesBegun = game.Session.Demo.Set.Scenes.Count;
+                }
                 bounded = true;
             }
-            if (!routed && legacy.Session.GameState == SuperMetroidGameState.AttractDemo &&
-                legacy.Session.AttractDemoStep is AttractDemoStep.Routing { Route: AttractDemoRoute.NextScene })
-            {
-                foreach (var game in new[] { legacy, captured })
-                    game.Session.Enter(new AttractDemoStep.Routing(new AttractDemoRoute.TitleFromBeginning()));
-                routed = true;
-            }
             ControllerButton input = cancel && AtCancelFrame ? ControllerButton.Start : 0;
+            bool wasHolding = legacy.IsAt(AttractDemoStep.Holding);
             FrontendFrame expected = legacy.Step(input);
+            heldUpdates = !legacy.IsAt(AttractDemoStep.Holding) ? 0 : wasHolding ? heldUpdates + 1 : 0;
             CapturedFrontendFrame actual = captured.StepCaptured(input);
             if (legacy.GameState == SuperMetroidGameState.AttractDemo)
-                states.Add(legacy.Session.AttractDemoStep.Name);
+                states.Add(legacy.Session.AttractDemoStep);
             AssertEqual(expected.GameState, actual.Frame.GameState, "demo capture state");
             AssertSequenceEqual(expected.Audio.Events, actual.Frame.Audio.Events, "demo capture audio event order");
             bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;
@@ -141,13 +139,13 @@ internal static class AttractCaptureTestsVerification
                     $"demo frame {tick} pixel parity");
                 Samples++;
             }
-            if (legacy.AttractDemoHoldFramesRemaining > 0)
+            if (legacy.IsAt(AttractDemoStep.Holding))
             {
                 sawHold = true;
                 held ??= legacy.GetRetainedDisplay();
                 AssertTrue(ScenePixels.Same(held, legacy.GetRetainedDisplay()), "demo final-image hold stays pixel-identical");
             }
-            if (states.Contains(nameof(AttractDemoStep.Routing)) && legacy.IsAt(TitleStep.Showing))
+            if (states.Contains(AttractDemoStep.Routing) && legacy.IsAt(TitleStep.Showing))
             {
                 AssertTrue(ScenePixels.Same(legacy.GetRetainedDisplay(), actual.Snapshot), "demo return title frame");
                 returned = true;
@@ -157,7 +155,7 @@ internal static class AttractCaptureTestsVerification
 
         /// <summary>Checks the case held the demo's final image, passed both black transitions and returned to the title.</summary>
         internal void AssertCovered() =>
-            AssertTrue(sawHold && returned && states.Contains(nameof(AttractDemoStep.Starting))
-                && states.Contains(nameof(AttractDemoStep.Unloading)), "demo fixture exercises both black transitions and returns to title");
+            AssertTrue(sawHold && returned && states.Contains(AttractDemoStep.Starting)
+                && states.Contains(AttractDemoStep.Unloading), "demo fixture exercises both black transitions and returns to title");
     }
 }

@@ -23,7 +23,7 @@ internal static class SamusProjectileProgramsVerification
     /// <summary>Every program, record and header matches bank $93.</summary>
     internal static void VerifySamusProjectilePrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusSourceDefinitions.ProjectileDataBank.Value | (ushort)address);
 
         Dictionary<ushort, SamusProjectileSegment> byEntry = Enum.GetValues<SamusProjectileSegment>()

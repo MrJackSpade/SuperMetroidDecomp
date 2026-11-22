@@ -12,7 +12,7 @@ internal static class FuneNamiheAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyFuneNamiheAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingAt, FuneNamiheFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<FuneNamiheCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

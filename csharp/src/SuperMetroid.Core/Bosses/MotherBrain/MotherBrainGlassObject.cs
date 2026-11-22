@@ -14,11 +14,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// last stage the shattered glass shows, the destroyed event is set and the glass leaves the room.
 /// </summary>
 /// <param name="owner">The room's glass owner, which throws the shards and holds the boss and event state.</param>
+/// <param name="shards">The room's enemy projectiles, among which the glass's shards spawn.</param>
 [RoomLifetime]
-internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects owner) : RoomObjectBehaviour, IShootableRoomObject
+internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects owner, IMotherBrainGlassShardSpawner shards) : RoomObjectBehaviour, IShootableRoomObject
 {
     /// <summary>The room's glass owner.</summary>
     private readonly MotherBrainGlassObjects _owner = Ensure.NotNull(owner);
+
+    /// <summary>The room's enemy projectiles, among which the glass's shards spawn.</summary>
+    private readonly IMotherBrainGlassShardSpawner _shards = Ensure.NotNull(shards);
 
     /// <summary>Where the glass is in its course.</summary>
     internal MotherBrainGlassPhase Phase { get; set; } = new MotherBrainGlassPhase.Starting();
@@ -79,7 +83,7 @@ internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects own
         }
         else if (Phase is MotherBrainGlassPhase.Bursting { Stage: var burst })
         {
-            _owner.ThrowShards(place, burst.Burst.Second, context.Outcome);
+            _owner.ThrowShards(place, burst.Burst.Second, context.Outcome, _shards);
             if (burst is MotherBrainGlassStage.Bursts.Into into)
                 ShowStage(place, context, into.Next);
             else
@@ -101,7 +105,7 @@ internal sealed partial class MotherBrainGlassObject(MotherBrainGlassObjects own
     /// </summary>
     private void Burst(RoomObjectPlace place, RoomObjectStepContext context, MotherBrainGlassStage.Bursts stage)
     {
-        _owner.ThrowShards(place, stage.Burst.First, context.Outcome);
+        _owner.ThrowShards(place, stage.Burst.First, context.Outcome, _shards);
         MotherBrainGlassDraw followingImage = stage is MotherBrainGlassStage.Bursts.Into into
             ? into.Next.Image
             : MotherBrainGlassStageDefinitions.ShatteredImage;

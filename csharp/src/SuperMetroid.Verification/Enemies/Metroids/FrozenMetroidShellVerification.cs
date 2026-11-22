@@ -27,8 +27,8 @@ internal static class FrozenMetroidShellVerification
         enemy.Bind(EnemyDefinitionId.Metroid, enemy.KeptDefinition);
         enemy.Shading = PictureShading.Standard;
         enemy.SetSpawnWords(EnemyDefinitionId.Metroid, words => words);
-        enemies.MetroidBehavior.InitializeMetroid(enemy.HeldOccupant(), enemy);
-        var state = enemies.MetroidStates[0];
+        // The Metroid's setup builds the state its frozen step runs on, with the shell it holds.
+        MetroidEnemyState? state = enemies.MetroidBehavior.InitializeMetroid(enemy.HeldOccupant(), enemy.HeldOccupant().SpawnSettings<MetroidSpawnSettings>(), enemy);
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
         // The shell segment's second beat, the native alternating empty shell frame.
@@ -53,7 +53,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            MetroidBehavior.RunMetroidFrozen(enemy);
+            MetroidBehavior.RunMetroidFrozen(enemy, state);
             enemies.EffectActors.StepRoomEffectActors();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
@@ -78,7 +78,7 @@ internal static class FrozenMetroidShellVerification
             // lies at the same place and shows its own pictures. A shell picture that shows nothing draws nothing.
             Offset16<ScreenPixels> place = shell.Position.Whole.RelativeToCamera(Position16<RoomPixels>.Zero);
             SpawnedObjectSheet sheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid), shell.Graphics.Owner);
-            EnemyFrameId frameShown = shell.Frame.RequireEnemyFrame();
+            EnemyFrameId frameShown = shell.Frame.EnemyFrame ?? throw new InvalidOperationException("The frozen shell shows an enemy-sheet frame.");
             // The empty frame between the shell's flashes draws nothing and has no sheet picture (#2370).
             SpriteSheetFrame? shown = CommonEnemyEmptyFrames.DrawsNothing(frameShown) ? null
                 : sheet.ShowsNothing(EnemySheetDefinitions.EffectActorFrameName(frameShown)) ? null

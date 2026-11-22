@@ -72,9 +72,9 @@ internal static class CeresRidleyColorsVerification
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(fixtureAssets.EnemyTiles.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: fixtureAssets.EnemyTiles.Bosses);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        // Binding gives the place a fresh occupant, so the body is bound before it begins the encounter it holds (#2231).
-        place.Bind(EnemyDefinitionId.RidleyCeres, place.KeptDefinition);
-        enemies.CeresRidleyBehavior.Flight.InitializeCeresRidley(place);
+        // Ceres Ridley is placed as his room's population places him: his body begins the encounter it holds as it is set
+        // up (#2231).
+        enemies.PlaceAs<CeresRidleyEntity>(EnemyDefinitionId.RidleyCeres, EnemySpawnSettings.None, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         CheckCgram(enemies.CeresRidley() ?? throw new InvalidOperationException("Ceres Ridley initialization did not publish state."),
             document.Start.Length, CeresRidleyShadeDefinitionsConstants.StartCgramIndex,
             InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
@@ -82,7 +82,7 @@ internal static class CeresRidleyColorsVerification
         Action<RidleyEncounterState> eyeTick = RidleyReveal.TickEyeFadeIn;
         Action<RoomEnemyPlace, RidleyEncounterState> bodyTick = enemies.RidleyBody.Reveal.TickBodyFadeIn;
         Action<CeresRidleyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
-        var state = new CeresRidleyState(Position16<RoomPixels>.Zero) { RevealPhase = RidleyRevealPhase.FadeInEyes };
+        var state = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres()) { RevealPhase = RidleyRevealPhase.FadeInEyes };
         // The eye fade shows its sixteen shades from the darkest, the cartridge's last row, then holds his own eye colours,
         // its first row (#2247, #2409).
         for (int step = 0; step < RidleyEyeFadeDefinitions.ShadeCount + RidleyEyeFadeDefinitions.HoldUpdates; step++)
@@ -137,7 +137,7 @@ internal static class CeresRidleyColorsVerification
         activeRidley.Phase = CeresRidleyPhase.RetreatDelay;
         activeRidley.PhaseTimer.LastFor(1);
         activeRidley.Motion = RidleyMotion.Still;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, activeRidley, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
+        place.RunMainAi(SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
@@ -161,8 +161,8 @@ internal static class CeresRidleyColorsVerification
             // The station's escape steps the alarm (#2228).
             CeresEscape nativeEscape = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).CeresEscape;
             CeresEscape stockEscape = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).CeresEscape;
-            var nativeState = new CeresRidleyState(Position16<RoomPixels>.Zero);
-            var stockState = new CeresRidleyState(Position16<RoomPixels>.Zero);
+            var nativeState = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
+            var stockState = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
             for (ushort frame = 0; frame < CeresRidleyColorFormat.AlarmStepCount * 4; frame++)
             {
                 nativeEscape.StepAlarm(frame);
@@ -248,5 +248,5 @@ internal static class CeresRidleyColorsVerification
 
     /// <summary>Reads one BGR555 word from the pinned retail palette oracle.</summary>
     private static ushort ReadNativeCeresRidleyColor(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        RomDataReader.ReadWordFixedBank(rom, address);
 }

@@ -267,7 +267,7 @@ internal static void VerifyHudState()
 
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
-    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
         0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>
@@ -783,14 +783,16 @@ internal static void VerifyRoomLevelData()
         RoomTerrainBlock.Of(2, BlockMirroring.None, RoomCollisionType.GrappleBlock),
         RoomTerrainBlock.Of(3, BlockMirroring.None, RoomCollisionType.BombableBlock),
     ];
-    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x22), RoomBlockBehaviorCodec.Decode(0x33)];
+    // Each block's behaviour names a reaction its kind's dispatcher has (#2554): the grapple block's a permanent anchor, the
+    // bombable block's a respawning 2x2 break.
+    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x02), RoomBlockBehaviorCodec.Decode(0x03)];
     RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid(), []);
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(Position16<RoomBlocks>.Of(1, 1), block.Position, "room collision block position");
     AssertEqual(foreground[4], block.Terrain, "room collision reads the block's terrain");
-    AssertEqual(RoomBlockBehaviorCodec.Decode(0x22), block.Behavior, "room collision reads the block's behaviour");
+    AssertEqual(RoomBlockBehaviorCodec.Decode(0x02), block.Behavior, "room collision reads the block's behaviour");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType, "room collision kind");
     AssertEqual(2, block.VisualBlockIndex, "room collision block shown");
     AssertTrue(level.ForegroundPlane.Blocks.SequenceEqual(foreground.Select(terrain => terrain.Appearance).ToArray()),

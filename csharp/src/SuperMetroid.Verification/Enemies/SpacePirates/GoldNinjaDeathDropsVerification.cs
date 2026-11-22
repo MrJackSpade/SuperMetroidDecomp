@@ -26,9 +26,9 @@ internal static class GoldNinjaDeathDropsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MetalPirates);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place =>
             place.Holds(EnemyDefinitionId.PirateGoldNinja));
         samus.Control.LockOutPlayer();

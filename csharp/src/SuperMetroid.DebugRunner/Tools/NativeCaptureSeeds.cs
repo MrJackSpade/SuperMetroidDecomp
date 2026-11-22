@@ -24,7 +24,7 @@ internal static class NativeCaptureSeeds
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
                 ControllerButton input = scenario.Input(frame);
-                scenario.Runtime.StepFrame(input, new RuntimeFrameRequest());
+                ScenarioRooms.Step(scenario.Runtime, input, new RuntimeFrameRequest());
                 output.WriteLine(scenario.Row(frame, input));
                 if (!scenario.RecordsBombs(frame))
                     continue;
@@ -43,7 +43,7 @@ internal static class NativeCaptureSeeds
     internal static int ExportShallowWaterJumpSeed()
     {
         var scenario = new ShallowWaterJumpScenario(RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true));
-        var level = scenario.Runtime.Room.LoadedLevelData;
+        var level = ScenarioRooms.LoadedLevelData(scenario.Runtime);
         string output = Path.GetFullPath("csharp/test-temp/issue-1258-water-jump");
         Directory.CreateDirectory(output);
         using (var writer = new BinaryWriter(File.Create(Path.Combine(output, "room.bin"))))

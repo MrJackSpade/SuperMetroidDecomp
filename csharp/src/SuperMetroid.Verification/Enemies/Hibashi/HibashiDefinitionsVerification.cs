@@ -10,6 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Hibashi;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks migrated Hibashi hitbox tables and both actor instruction streams against cartridge data and ROM-free production execution.</summary>
 internal static class HibashiDefinitionsVerification
@@ -21,32 +22,34 @@ internal static class HibashiDefinitionsVerification
         const int yRadiusTable = 0xa68de7;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-        Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
-
-        RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
-        graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.KeptDefinition);
-        graphics.Position = graphics.Position.WithWholeY(0x0200);
-        initialize(graphics);
-        RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
-        hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.KeptDefinition);
-        hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
-        initialize(hitbox);
+        // The room's population load sets up the flame and then its collision part (#2554).
+        IReadOnlyList<RoomEnemyPlace> geyser = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(0, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(0, 0x0200)));
+        RoomEnemyPlace graphics = geyser[0];
+        RoomEnemyPlace hitbox = geyser[1];
 
         HibashiEruptionStep[] steps = HibashiAnimationsToolingConstants.EruptionSteps();
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
+        // The flame erupts as its animation plays: each of its steps raises its hitbox to the step's height and gives it
+        // the step's half-height, the first its half-width too. Each step is observed on the update it moves the hitbox.
+        // The flame's AI starts the eruption on the update its first wait runs out (#2340).
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        for (int update = 0; update < HibashiDefinitions.FirstWait; update++)
+            graphics.RunMainAi(samus);
+        object?[] eruptionUpdate = [graphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {
             HibashiEruptionStep frame = steps[frameIndex];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
+            AssertEqual(rom.ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
+            AssertEqual(rom.ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
                 $"Hibashi Y radius {frameIndex}");
 
             hitbox.Radius = hitbox.Radius.WithX(0);
-            applyStep(graphics, frame);
+            ushort before = hitbox.Position.Y.Whole;
+            for (int update = 0; update < 64 && hitbox.Position.Y.Whole == before; update++)
+                EnemyInstructionRunner.Process(eruptionUpdate);
             AssertEqual(unchecked((ushort)(0x0200 - frame.YOffset)), hitbox.Position.Y.Whole,
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,
@@ -58,35 +61,17 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initializeProgram = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
-
-        RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
-        programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.KeptDefinition);
-        programGraphics.Bind(programGraphics.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
-        initializeProgram(programGraphics);
-
-        RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
-        programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.KeptDefinition);
-        programHitbox.Bind(programHitbox.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
-        programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
-        initializeProgram(programHitbox);
-
-        // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
-        RoomEnemyPlace twinGraphics = programSystem.Places.InUpdateOrder[2];
-        twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
-        twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.KeptDefinition);
-        twinGraphics.Bind(twinGraphics.HeldOccupant().DefinitionId, programGraphics.KeptDefinition);
-        twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
-        initializeProgram(twinGraphics);
-        RoomEnemyPlace twinHitbox = programSystem.Places.InUpdateOrder[3];
-        twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.KeptDefinition);
-        twinHitbox.Bind(twinHitbox.HeldOccupant().DefinitionId, programGraphics.KeptDefinition);
-        twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
-        initializeProgram(twinHitbox);
+        // The room's population load sets up two geysers, each its flame and then its collision part; the second erupts in
+        // lockstep with the first, so its eruption sound is queued in the same frame.
+        IReadOnlyList<RoomEnemyPlace> geysers = programSystem.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(0x0180, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(0x0180, 0x0200)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiFlameSpawnSettings(InactiveTime: 0), new(448, 512)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Hibashi, new HibashiCollisionPartSpawnSettings(), new(448, 512)));
+        RoomEnemyPlace programGraphics = geysers[0];
+        RoomEnemyPlace programHitbox = geysers[1];
+        RoomEnemyPlace twinGraphics = geysers[2];
+        RoomEnemyPlace twinHitbox = geysers[3];
 
         object?[] graphicsArguments =
             [programGraphics, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
@@ -97,9 +82,12 @@ internal static class HibashiDefinitionsVerification
         object?[] twinHitboxArguments =
             [twinHitbox, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
 
-        // Both flames erupt, as their AI starts the eruption it plays (#2439).
-        foreach (int flame in (int[])[0, 2])
-            (programSystem.HibashiStates[flame] ?? throw new InvalidOperationException($"Verification requires programSystem.HibashiStates[{flame}].")).Action = HibashiAction.Active;
+        // Both flames erupt, as their AI starts the eruption it plays when their first wait runs out (#2439).
+        for (int update = 0; update < HibashiDefinitions.FirstWait; update++)
+        {
+            programGraphics.RunMainAi(samus);
+            twinGraphics.RunMainAi(samus);
+        }
 
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
@@ -118,8 +106,6 @@ internal static class HibashiDefinitionsVerification
         SoundEffectId eruption = HibashiDefinitions.EruptionSoundEffect;
         AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
             "each Hibashi graphics program queues its eruption sound");
-        AssertEqual(HibashiAction.Finished, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).Action,
-            "Hibashi graphics program finishes the eruption");
         AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");
         AssertEqual((ushort)0, programHitbox.Radius.Y,
@@ -128,16 +114,15 @@ internal static class HibashiDefinitionsVerification
             "Hibashi finished program hides graphics actor");
         AssertTrue(programHitbox.Contact.HasAny(EnemyContact.IgnoresSamus),
             "Hibashi finished program disables collision actor");
-        HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
-        HibashiCollisionPartState hitboxState = programSystem.HibashiCollisionPartStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
-        AnimationPlayback<HibashiSegment> graphicsAsleep = graphicsState.Playback;
-        AnimationPlayback<HibashiSegment> hitboxAsleep = hitboxState.Playback;
+        // Both programs sleep: a further update shows the same pose with the same time left.
+        (ushort Spritemap, int Hold) graphicsAsleep = (programGraphics.SpritemapPointer, programGraphics.AnimationClock.Hold);
+        (ushort Spritemap, int Hold) hitboxAsleep = (programHitbox.SpritemapPointer, programHitbox.AnimationClock.Hold);
         EnemyInstructionRunner.Process(graphicsArguments);
         EnemyInstructionRunner.Process(hitboxArguments);
-        AssertEqual(graphicsAsleep, graphicsState.Playback, "Hibashi graphics program sleeps after finishing");
-        AssertEqual(hitboxAsleep, hitboxState.Playback, "Hibashi hitbox program sleeps on its one pose");
-        AssertEqual(HibashiSegment.Flame, graphicsState.Playback.Animation.Phases[graphicsState.Playback.Place.Phase].Segment, "Hibashi graphics part runs the eruption");
-        AssertEqual(HibashiSegment.Hitbox, hitboxState.Playback.Animation.Phases[hitboxState.Playback.Place.Phase].Segment, "Hibashi hitbox part runs the collision-part animation");
+        AssertEqual(graphicsAsleep, (programGraphics.SpritemapPointer, programGraphics.AnimationClock.Hold), "Hibashi graphics program sleeps after finishing");
+        AssertEqual(hitboxAsleep, (programHitbox.SpritemapPointer, programHitbox.AnimationClock.Hold), "Hibashi hitbox program sleeps on its one pose");
+        AssertTrue(HibashiAnimationsTooling.Spritemaps(HibashiSegment.Hitbox).Contains(programHitbox.SpritemapPointer),
+            "Hibashi hitbox part shows the collision-part animation's pose");
         Suite(nameof(HibashiAnimationsVerification.VerifyHibashiAnimations), () => HibashiAnimationsVerification.VerifyHibashiAnimations(rom));
 
         Console.WriteLine(

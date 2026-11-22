@@ -93,26 +93,29 @@ internal static partial class BossBodySheetComposer
         return sheets;
     }
 
+    /// <summary>The first room state, in room order, whose population places <paramref name="owner"/>.</summary>
+    /// <exception cref="InvalidDataException">No room state shows the boss.</exception>
+    private static RoomStateSettings FirstStateShowing(BossBodyOwner owner)
+    {
+        EnemyDefinitionId enemy = Enemies[owner];
+        foreach (RoomDefinition room in RetailRooms.All)
+        {
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
+            {
+                if (state.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy))
+                    return state;
+            }
+        }
+        throw new InvalidDataException($"No room state shows {owner}.");
+    }
+
     /// <summary>
     /// Composes <paramref name="owner"/>'s sheet over the first room state, in room order, that shows the boss: the
     /// characters every frame reads there, as the tile word sheets were composed before (#1392).
     /// </summary>
     internal static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
-        EnemyDefinitionId enemy = Enemies[owner];
-        BossRoomCharacters? characters = null;
-        foreach (RoomDefinition room in RetailRooms.All)
-        {
-            RoomStateSettings? state = RoomStateLists.GetStates(room)
-                .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy));
-            if (state is not null)
-            {
-                characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
-                break;
-            }
-        }
-        if (characters is null)
-            throw new InvalidDataException($"No room state shows {owner}.");
+        BossRoomCharacters characters = RoomBlockUploads.ShownUnderBoss(inputs, FirstStateShowing(owner));
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
         var painter = new BossBodyPainter(owner, characters, colours);
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))
@@ -144,17 +147,17 @@ internal static partial class BossBodySheetComposer
         switch (owner)
         {
             case BossBodyOwner.Kraid:
-                return KraidFrames(bosses.KraidBackground ?? throw Missing(owner));
+                return KraidFrames(bosses.KraidBackground);
             case BossBodyOwner.Phantoon:
-                return EnemyFrames((bosses.PhantoonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.PhantoonBg2Frames.Writes);
             case BossBodyOwner.Draygon:
-                return EnemyFrames((bosses.DraygonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.DraygonBg2Frames.Writes);
             case BossBodyOwner.Crocomire:
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
-                return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
+                CrocomireMeltingArtwork melting = bosses.CrocomireMelting;
+                return [.. EnemyFrames(bosses.CrocomireBg2Frames.Writes),
                     .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
-                return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.MotherBrainBodyBg2Frames.Writes);
             default:
                 throw new InvalidDataException($"Undefined boss body owner {owner}.");
         }
@@ -303,6 +306,4 @@ internal static partial class BossBodySheetComposer
         }
     }
 
-    /// <summary>The failure for a boss whose installed artwork is missing.</summary>
-    private static InvalidDataException Missing(BossBodyOwner owner) => new($"The installed boss artwork has no {owner} body.");
 }

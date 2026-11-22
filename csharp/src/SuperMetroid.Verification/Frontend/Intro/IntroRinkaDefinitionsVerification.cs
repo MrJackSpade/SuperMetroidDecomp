@@ -24,9 +24,9 @@ internal static class IntroRinkaDefinitionsVerification
         {
             CinematicActorDefinition<IntroRinkaAnimation> actual = actors[index].Actor;
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.NoMotion,
+            AssertEqual(retail.ReadCartridgeWord((address + 2)), CinematicActorNativeMotions.NoMotion,
                 $"intro Rinka actor {index} routine: it holds still until its animation starts it moving");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(retail.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro Rinka actor {index} instruction list");
         }
 
@@ -35,12 +35,12 @@ internal static class IntroRinkaDefinitionsVerification
         for (int launch = 0; launch < launches.Length; launch++)
         {
             IntroRinkaLaunch actual = launches[launch];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + launch * 2)),
+            AssertEqual(retail.ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + launch * 2)),
                 actual.Position.X, $"intro Rinka {launch} initial X");
-            AssertEqual(unchecked((ushort)(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + launch * 2)) - 8)),
+            AssertEqual(unchecked((ushort)(retail.ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + launch * 2)) - 8)),
                 actual.Position.Y, $"intro Rinka {launch} biased initial Y");
             // The cartridge adds a half-pixel fraction to each Rinka's signed whole-pixel sideways word.
-            AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + launch * 2))), 0x8000),
+            AssertEqual(SignedSixteenSixteen.FromParts(unchecked((short)retail.ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + launch * 2))), 0x8000),
                 actual.Drift, $"intro Rinka {launch} sideways drift");
             AssertEqual(launch == 0 ? IntroRinkaFlight.StrikesSamus : IntroRinkaFlight.MissesSamus,
                 actual.Flight, $"intro Rinka {launch} strikes Samus only when launched first");

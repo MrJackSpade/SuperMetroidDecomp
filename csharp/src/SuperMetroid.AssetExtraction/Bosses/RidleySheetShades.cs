@@ -61,21 +61,20 @@ internal static partial class RidleySheetShades
     private static readonly int[] WarningColoursFromHud = [1, 3];
 
     /// <summary>The shades of both encounters' sprite sheets and the objects they spawn.</summary>
-    /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog? ceres, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(CeresRidleyColorCatalog ceres, BossSourceArtwork bosses)
     {
+        Ensure.NotNull(ceres);
         Ensure.NotNull(bosses);
-        return [.. CeresSprites(ceres ?? throw Missing("Ceres Ridley")), .. NorfairSprites(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
+        return [.. CeresSprites(ceres), .. NorfairSprites(bosses.NorfairRidleyColors)];
     }
 
     /// <summary>The shades of both encounters' rooms' pictures.</summary>
-    /// <exception cref="InvalidDataException">An encounter's colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Room(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         return [.. CeresRoom(maps.CeresRidleyColors, maps.CeresRidleyFloorColors),
-            .. NorfairRoom(bosses.NorfairRidleyColors ?? throw Missing("Norfair Ridley"))];
+            .. NorfairRoom(bosses.NorfairRidleyColors)];
     }
 
     /// <summary>
@@ -190,6 +189,4 @@ internal static partial class RidleySheetShades
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
 
-    /// <summary>The error for an encounter whose colours are not installed.</summary>
-    private static InvalidDataException Missing(string encounter) => new($"{encounter} is shaded from its installed colours.");
 }

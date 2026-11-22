@@ -60,7 +60,7 @@ internal sealed partial class SetCharacters
     }
 
     /// <summary>The characters as the room load leaves them.</summary>
-    internal SpriteArtwork Loaded { get; }
+    private SpriteArtwork Loaded { get; }
 
     /// <summary>
     /// The finished pictures of <paramref name="frame"/>, named for <paramref name="name"/> (#1538): for each encounter
@@ -109,14 +109,18 @@ internal sealed partial class SetCharacters
                 parts.Add(new FrameLookPart(encounter, [drawn.Looks[0]], null));
                 continue;
             }
-            EncounterArtwork shownAs = EncounterLookUploads.ShownAs(encounter.Encounter) ?? throw new InvalidDataException(
+            // A frame that changes picture with its encounter's look is pictured once per look gameplay shows.
+            if (EncounterLookUploads.ShownAs(encounter.Encounter) is EncounterArtwork shownAs)
+            {
+                parts.Add(new FrameLookPart(encounter, drawn.Looks, shownAs));
+                continue;
+            }
+            throw new InvalidDataException(
                 $"Frame {name} shows {distinct.Length} pictures in the looks of {encounter.Encounter}, whose looks gameplay never shows.");
-            parts.Add(new FrameLookPart(encounter, drawn.Looks, shownAs));
         }
-        FrameLookPart[] changing = [.. parts.Where(part => part.ShownAs is not null)];
-        FrameLookChange[] changes = [.. changing.Select(part => new FrameLookChange(
-            part.ShownAs ?? throw new InvalidOperationException($"Frame {name}'s changing part names no shown encounter."),
-            [.. part.Looks.Select(look => look.Name)]))
+        FrameLookChange[] changes = [.. parts.Select(part => part.ShownAs is EncounterArtwork shown
+            ? new FrameLookChange(shown, [.. part.Looks.Select(look => look.Name)])
+            : null).OfType<FrameLookChange>()
             .OrderBy(change => Installation.EnemySheetFiles.EncounterOrder.PlaceOf(change.Encounter))];
         var sources = new List<SheetFrameSource>();
         var blank = new List<string>();

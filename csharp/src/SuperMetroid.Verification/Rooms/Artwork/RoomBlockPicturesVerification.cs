@@ -282,9 +282,9 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(hud);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         return runtime;
     }
 
@@ -309,7 +309,7 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        WrittenPictureSheet sheet = (runtime.Room.Scope?.WrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
+        WrittenPictureSheet sheet = (runtime.Room.Scope?.Warnings ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).WithBackground.Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState(runtime.BossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
@@ -470,7 +470,9 @@ internal static class RoomBlockPicturesVerification
                     int expected = word.PaletteIndex * 4 + colour;
                     if (ShownRow(shownArtwork, cellY + y, transferPixels) is not ({ } shownPage, int row))
                         continue;
-                    var at = new Position16<ImagePixels>((cellX + x) % (shownPage.Size ?? throw new InvalidOperationException($"{room.Name}: an effect picture installs neither part.")).X, row);
+                    if (!shownPage.ShowsSomething(out Extent16<ImagePixels> shownSize))
+                        throw new InvalidOperationException($"{room.Name}: an effect picture installs neither part.");
+                    var at = new Position16<ImagePixels>((cellX + x) % shownSize.X, row);
                     // The message names the character's picture, which costs a lookup, so it is built only for a failing pixel.
                     if (!PaintsTwoBitInPart(shownPage, at, expected, word.PaletteIndex * 4, word.HasPriority))
                     {
@@ -554,9 +556,9 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(room);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int rebound = 0;
@@ -645,10 +647,10 @@ internal static class RoomBlockPicturesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         progress?.Invoke(runtime);
         runtime.LoadCartridgeRoomForDebug(room, state: state);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         // The tileset's animations and the characters each paints are the room's, read once for all its frames.
         var animations = new RoomAnimatedCharacters(UploadsOf(runtime).Options, BgCharacterSet.Tiles, AnimatedTilesOf(runtime, room.Name));
         int checkedPictures = 0, uploaded = 0;

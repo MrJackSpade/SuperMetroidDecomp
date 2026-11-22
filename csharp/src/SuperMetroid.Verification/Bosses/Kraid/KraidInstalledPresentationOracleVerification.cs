@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
@@ -50,7 +51,7 @@ internal static class KraidInstalledPresentationOracleVerification
         var head = new ushort[KraidWorkingMapDefinitions.HeadImageCells];
         for (int word = 0; word < head.Length; word++)
             head[word] = BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(word * 2));
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         return new ReadImportedKraidHeadFrameResult(state, KraidBodyFixtures.Tilemap(Blank(), head, Blank()));
 
         static ushort[] Blank() => Enumerable.Repeat(KraidWorkingMapDefinitions.BlankTile.PackedWord, KraidWorkingMapDefinitions.PageCells).ToArray();

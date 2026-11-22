@@ -25,6 +25,6 @@ internal static partial class TitleBabyAnimation
     internal static Animation<TitleBabySegment> Pulsing { get; } = Animation<TitleBabySegment>.Looping([Segments.Whole(TitleBabySegment.Pulse)]);
 
     /// <summary>Starts the pulse on its first pose, one update from its next.</summary>
-    internal static AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> Start() =>
-        AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue>.StartShowing(Segments, Pulsing, 1);
+    internal static ShowingAnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> Start() =>
+        ShowingAnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue>.StartShowing(Segments, Pulsing, 1);
 }

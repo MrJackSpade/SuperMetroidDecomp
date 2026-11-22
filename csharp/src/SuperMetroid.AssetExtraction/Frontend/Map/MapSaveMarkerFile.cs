@@ -21,8 +21,7 @@ public static partial class MapSaveMarkerFile
     public static MapSaveMarkerPositions Read(Stream json)
     {
         MapSaveMarkerDocument document;
-        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Save marker layout is null."); }
+        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid save marker layout JSON.", error); }
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
             document.Markers.Count != Ids().Count())

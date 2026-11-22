@@ -19,7 +19,7 @@ public static partial class RoomFxBlockAnimationAtlasExtractor
         Ensure.NotNull(bus);
         using var planar = new MemoryStream();
         foreach (RoomFxAtlasSegment segment in RoomFxBlockAnimationAtlasFile.Segments)
-            planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            planar.Write(RomDataReader.ReadFixedBank(bus,
                 RoomFxBlockAnimationSources.Of(segment), segment.ByteCount));
         if (planar.Length != RoomFxBlockAnimationAtlasFormat.TotalByteCount)
             throw new InvalidDataException(

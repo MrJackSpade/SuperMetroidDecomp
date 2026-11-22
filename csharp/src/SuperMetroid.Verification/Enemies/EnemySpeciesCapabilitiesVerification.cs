@@ -1,3 +1,9 @@
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
@@ -46,8 +52,8 @@ namespace SuperMetroid.Verification.Enemies;
 /// Confirms that the species entities answer the collision capabilities, private shot reactions and Ceres Ridley scene
 /// drawing exactly as the shared definition-keyed catalog and the Ridley room's door-identity test did before those answers
 /// moved onto the entities (#1312), with the private shot reactions in the definitions' shared-response form (#1759). The
-/// expected tables below are the removed catalog's answers, written out per definition; every bindable definition is bound
-/// through the production registry and asked through its entity.
+/// expected tables below are the removed catalog's answers, written out per definition; every definition is set up as the
+/// game sets it up (#2554), a part after its body, and asked through its entity.
 /// </summary>
 internal static class EnemySpeciesCapabilitiesVerification
 {
@@ -206,33 +212,78 @@ internal static class EnemySpeciesCapabilitiesVerification
     ];
 
     /// <summary>
-    /// Binds every room and auxiliary definition, and every definition the expected tables name, to one slot of a production
-    /// enemy system, then compares its entity's capabilities, its answer for every named callback and every probed callback
-    /// pointer, and its Ceres Ridley scene drawing with the hand-drawing flag clear and set, against the expected tables.
+    /// Sets every room and auxiliary definition, and every definition the expected tables name, up as the game does, then
+    /// compares its entity's capabilities, its answer for every probed shot reaction, and whether it shows Ceres Ridley's
+    /// room door's overlay, against the expected tables. A definition a room's population places is set up from the
+    /// population that lists it soonest, the entries listed before it set up first by the population load, so a part is set
+    /// up after its body; a definition only spawned joining an encounter is spawned by that encounter as its spawner spawns
+    /// it; any other is set up alone from the placement its spawner gives it.
     /// </summary>
     internal static void VerifyEnemySpeciesCapabilities()
     {
         Dictionary<EnemyDefinitionId, EnemyCapabilities> capabilities = ExpectedCapabilities();
         Dictionary<EnemyDefinitionId, EnemyReaction[]> privateReactions = ExpectedPrivateShotReactions();
-        IEnumerable<EnemyDefinitionId> definitions = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
+        List<EnemyDefinitionId> definitions = [.. RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
             .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys)
             .Concat(capabilities.Keys)
             .Concat(privateReactions.Keys)
-            .Distinct();
-
-        var enemies = EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
-            services: new VerificationRoomEnemyServices(null));
-        // The powered work robot's definition decides its power as it is placed (#2179); either power answers alike.
-        enemies.VerificationServices().IsAreaBossDefeated = () => true;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[1];
-        int bound = 0;
+            .Distinct()];
+        Dictionary<EnemyDefinitionId, PopulationListing> listings = SoonestListings();
+        var checkedDefinitions = new HashSet<EnemyDefinitionId>();
         int answers = 0;
-        foreach (EnemyDefinitionId definition in definitions)
+
+        foreach (IGrouping<RoomEnemyPopulationDefinition, EnemyDefinitionId> listed in definitions
+            .Where(listings.ContainsKey).GroupBy(definition => listings[definition].Population))
         {
+            RoomEnemySystem enemies = LoadThrough(listed.Key, listed.Max(definition => listings[definition].Index));
+            foreach (EnemyDefinitionId definition in listed)
+                Check(definition, enemies, enemies.Places.InUpdateOrder[listings[definition].Index]);
+        }
+
+        // Her fake death's tubes and her late fight's Baby join the encounter her body begins.
+        PopulationListing motherBrainListing = listings[EnemyDefinitionId.MotherBrainHead];
+        RoomEnemySystem motherBrainRoom = LoadThrough(motherBrainListing.Population, motherBrainListing.Index);
+        MotherBrainEnemyState motherBrain = motherBrainRoom.Places.InUpdateOrder[listings[EnemyDefinitionId.MotherBrainBody].Index]
+            .EntityOf<MotherBrainBodyEntity>().Encounter;
+        // Her fake death's tube collapse drops its first tube, which waits only for free enemy projectiles, on the first
+        // update her body's main AI runs it.
+        motherBrain.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
+        motherBrain.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
+        motherBrain.Body.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        Check(EnemyDefinitionId.MotherBrainTubes, motherBrainRoom, Holding(motherBrainRoom, EnemyDefinitionId.MotherBrainTubes));
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(motherBrain, RoomEnemyFrameFixtures.StandaloneSamus());
+        Check(EnemyDefinitionId.BabyMetroidCutscene, motherBrainRoom, MotherBrainBabyArrival.BabyOf(lateFight).Place);
+
+        // His breakup's pieces join the breakup his death begins: the last update of his death's explosions spawns them.
+        PopulationListing ridleyListing = listings[EnemyDefinitionId.Ridley];
+        RoomEnemySystem ridleyRoom = LoadThrough(ridleyListing.Population, ridleyListing.Index);
+        RoomEnemyPlace ridley = ridleyRoom.Places.InUpdateOrder[ridleyListing.Index];
+        NorfairRidleyState ridleyState = ridley.EntityOf<NorfairRidleyEntity>().Encounter;
+        ridleyState.Phase = NorfairRidleyPhase.DeathExplosions;
+        ridleyState.PhaseTimer.LastFor(1);
+        ridley.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        Check(EnemyDefinitionId.RidleyBreakupPiece, ridleyRoom, Holding(ridleyRoom, EnemyDefinitionId.RidleyBreakupPiece));
+
+        // The rest are placed by their spawners from placements of their own, each set up alone.
+        foreach (EnemyDefinitionId definition in definitions.Where(definition => !checkedDefinitions.Contains(definition)).ToList())
+        {
+            RoomEnemySystem enemies = NewRoomEnemies();
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             LeadingPartPlacement.Prepare(place, definition);
             place.Bind(definition, HeaderOf(definition));
-            IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
-            bound++;
+            _ = enemies.LoadAuthoredPopulation();
+            Check(definition, enemies, place);
+        }
+
+        AssertEqual(definitions.Count, checkedDefinitions.Count, "every definition is set up and asked once");
+        Console.WriteLine($"Enemy species capabilities: {checkedDefinitions.Count} definitions set up as the game sets them up answer the " +
+            $"removed catalog's collision capabilities, {answers} private shot reaction queries through their entities.");
+
+        void Check(EnemyDefinitionId definition, RoomEnemySystem enemies, RoomEnemyPlace place)
+        {
+            AssertEqual(definition, place.HeldOccupant().DefinitionId, $"{definition} is set up where the check asks it");
+            AssertTrue(checkedDefinitions.Add(definition), $"{definition} is asked once");
+            IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition}'s setup built no entity.");
 
             AssertEqual(capabilities.GetValueOrDefault(definition, EnemyCapabilities.None), entity.Capabilities,
                 $"{definition} collision capabilities");
@@ -246,19 +297,105 @@ internal static class EnemySpeciesCapabilitiesVerification
                 answers++;
             }
 
-            var doorState = new CeresRidleyRoomDoorState();
-            place.SetSpeciesState(doorState);
-            foreach (CeresRidleyRoomDoorLook look in new[] { CeresRidleyRoomDoorLook.Actor, CeresRidleyRoomDoorLook.Overlay })
+        }
+    }
+
+    /// <summary>Where a room's population lists a definition: the population and the entry's place in it.</summary>
+    /// <param name="Population">The population.</param>
+    /// <param name="Index">The entry's place in the population's list, which is the room place it is set up in.</param>
+    private readonly record struct PopulationListing(RoomEnemyPopulationDefinition Population, int Index);
+
+    /// <summary>
+    /// For every definition a room's population places, the population that lists it soonest, the fewest entries before
+    /// it, and the first such in the game's list order.
+    /// </summary>
+    private static Dictionary<EnemyDefinitionId, PopulationListing> SoonestListings()
+    {
+        var listings = new Dictionary<EnemyDefinitionId, PopulationListing>();
+        foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
+        {
+            ReadOnlySpan<RoomEnemyPlacement> placements = population.Placements.Span;
+            for (int index = 0; index < placements.Length; index++)
             {
-                doorState.Look = look;
-                bool showsOverlay = entity is CeresRidleyRoomDoorEntity door && door.Look == CeresRidleyRoomDoorLook.Overlay;
-                AssertEqual(definition == EnemyDefinitionId.CeresRidleyRoomDoor && look == CeresRidleyRoomDoorLook.Overlay, showsOverlay,
-                    $"{definition} shows the room door's overlay when the door's state says {look}");
+                if (!listings.TryGetValue(placements[index].DefinitionId, out PopulationListing listed) || index < listed.Index)
+                    listings[placements[index].DefinitionId] = new PopulationListing(population, index);
             }
         }
+        return listings;
+    }
 
-        Console.WriteLine($"Enemy species capabilities: {bound} bound definitions answer the removed catalog's collision " +
-            $"capabilities, {answers} private shot callback queries and Ceres Ridley scene drawing through their entities.");
+    /// <summary>
+    /// A new room's enemies loaded as a room loads them with <paramref name="population"/>'s entries through the one at
+    /// <paramref name="last"/>, in a walled room holding every one of their places.
+    /// </summary>
+    private static RoomEnemySystem LoadThrough(RoomEnemyPopulationDefinition population, int last)
+    {
+        RoomEnemyPlacement[] placements = population.Placements.Span[..(last + 1)].ToArray();
+        RoomEnemySystem enemies = NewRoomEnemies();
+        // The entries keep their population's name, so they draw from its artwork as its room's load has them.
+        enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(new PlacedRoomEnemyPopulationDefinition(population.Name, placements, deathQuota: 0),
+            BgArtworkFixtures.For(new SnesVram()), WalledRoomHolding(placements), RoomEnemyFrameFixtures.StandaloneSamus()));
+        return enemies;
+    }
+
+    /// <summary>The place of <paramref name="enemies"/> whose enemy is <paramref name="definition"/>, which a spawn has just placed.</summary>
+    /// <exception cref="InvalidOperationException">No place holds such an enemy.</exception>
+    private static RoomEnemyPlace Holding(RoomEnemySystem enemies, EnemyDefinitionId definition) =>
+        enemies.Places.InUpdateOrder.FirstOrDefault(place => place.Occupant?.DefinitionId == definition)
+            ?? throw new InvalidOperationException($"No enemy place holds {definition} after its spawn.");
+
+    /// <summary>
+    /// A room walled by solid blocks on every side with nothing inside, its far wall and floor a few blocks past the
+    /// furthest place <paramref name="placements"/> put their enemies at inside the room, as a room's floor lies under its
+    /// enemies, so an enemy whose setup drops it to the floor or sends it to a wall meets one before it can fall through
+    /// it; a place counted back from the far end of the room's coordinates lies before the room (<see cref="OffRoomPlaces"/>).
+    /// </summary>
+    private static RoomLevelData WalledRoomHolding(RoomEnemyPlacement[] placements)
+    {
+        int columns = RoomGridConversions.BlocksPerScreen, rows = RoomGridConversions.BlocksPerScreen;
+        foreach (RoomEnemyPlacement placement in placements)
+        {
+            if (placement.Placing is not EnemyPlacedAt { Position: var at } || CoordinateAxis.AsSigned(at.X) < 0 || CoordinateAxis.AsSigned(at.Y) < 0)
+                continue;
+            columns = Math.Max(columns, RoomGridConversions.PixelToBlock(at.X) + WallDistance);
+            rows = Math.Max(rows, RoomGridConversions.PixelToBlock(at.Y) + WallDistance);
+        }
+        var collision = new RoomCollisionType[columns * rows];
+        for (int row = 0; row < rows; row++)
+        {
+            for (int column = 0; column < columns; column++)
+            {
+                bool edge = row == 0 || row == rows - 1 || column == 0 || column == columns - 1;
+                collision[row * columns + column] = edge ? RoomCollisionType.SolidBlock : RoomCollisionType.Air;
+            }
+        }
+        return RoomLevelData.CollisionOnly(new(columns, rows), collision);
+    }
+
+    /// <summary>The blocks from the furthest enemy's block to the room's far wall and floor, the far one included.</summary>
+    private const int WallDistance = 4;
+
+    /// <summary>
+    /// A new room's enemies, in a room that can place any enemy, in a new game: no boss, mini-boss or Torizo of its area is
+    /// defeated, no story event has happened and no Zebetite is destroyed; the room's scrolls are its own.
+    /// </summary>
+    private static RoomEnemySystem NewRoomEnemies()
+    {
+        var services = new VerificationRoomEnemyServices(null)
+        {
+            IsAreaBossDefeated = () => false,
+            IsAreaMiniBossDefeated = () => false,
+            IsAreaTorizoDefeated = () => false,
+            HasEvent = _ => false,
+            ReadZebetitesDestroyed = () => 0,
+            SetRoomScrollState = (_, _) => { },
+            NextRandom = () => 0,
+            ReadRandom = () => 0,
+            SeedRandom = _ => { },
+            SetControlsLocked = _ => { },
+        };
+        return EnemySystemFixtures.PlacingAnyEnemy(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: services);
     }
 
     /// <summary>Runs the species capability equivalence check.</summary>

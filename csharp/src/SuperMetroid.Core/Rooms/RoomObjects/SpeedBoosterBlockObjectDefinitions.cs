@@ -56,7 +56,7 @@ internal static partial class SpeedBoosterBlockObjectDefinitions
     internal static BlockReactionChange PermanentCrumble { get; } = new(1, [.. Crumbling(CrumbleDuration), new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), 1)]);
 
     /// <summary>A bombed Speed Booster block's reveal: its block image for one update.</summary>
-    internal static BlockReactionChange BombReveal { get; } = new(1,
+    internal static LastingBlockReactionChange BombReveal { get; } = new(1,
     [
         new(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, 1),
     ]);

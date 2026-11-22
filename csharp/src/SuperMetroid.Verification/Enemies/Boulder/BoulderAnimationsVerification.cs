@@ -13,7 +13,7 @@ internal static class BoulderAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyBoulderAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             BoulderAnimations.Segments, BoulderAnimations.StartingAt, BoulderFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,

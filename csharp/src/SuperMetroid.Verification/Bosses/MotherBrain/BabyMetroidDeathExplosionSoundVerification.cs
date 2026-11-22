@@ -24,18 +24,17 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
-        var step = new BabyMetroidCutsceneStepResult(
-            new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), new BabyMetroidCutscenePhase.Flying.TakeFinalBlow(), BabyDeleted: false,
-            LatchSoundQueued: false, ReleaseDustClouds: [],
-            AmbientCrySoundQueued: false,
-            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
-            BabyFadeImage: null, RecoveryLightsImage: null, StartedAnimation: null, Visibility: BabyMetroidVisibilityRequest.Unchanged);
+        // Her late fight brings in the Baby, whose death sequence's first update sets off its first explosion.
+        MotherBrainRainbowBeamAttackSequence lateFight = MotherBrainBabyArrival.BringInBaby(state, runtime.Player.Samus);
+        BabyMetroidCutsceneEntity baby = MotherBrainBabyArrival.BabyOf(lateFight);
+        (lateFight.Baby ?? throw new InvalidOperationException("Verification requires the final beam's spawn to make the Baby.")).Phase =
+            new BabyMetroidCutscenePhase.Flying.DeathSequence();
 
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
+        baby.Place.RunMainAi(runtime.Player.Samus);
         // A runtime's requests go on into its session's queues, which admit them in request order (#2602).
         AssertSequenceEqual(
             new[] { MotherBrainSoundDefinitions.Explosion.SoundEffect },

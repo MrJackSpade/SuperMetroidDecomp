@@ -51,6 +51,9 @@ internal static partial class SamusProjectileSelection
         !beams.CanBeEquipped ? throw new InvalidOperationException($"{beams} fires no special attack.")
             : SpecialAttacks.TryGetValue(beams, out SamusProjectileKind kind) ? kind : null;
 
+    /// <summary>The kind of the particles of the special attack <paramref name="beams"/> fires, a combination whose attack has its own.</summary>
+    internal static SamusProjectileKind SpecialAttackParticles(SamusBeamCombination beams) => SpecialAttacks[beams];
+
     /// <summary>The kind <paramref name="echo"/> is.</summary>
     internal static SamusProjectileKind Echo(SamusBeamEcho echo) => Echoes[echo];
 

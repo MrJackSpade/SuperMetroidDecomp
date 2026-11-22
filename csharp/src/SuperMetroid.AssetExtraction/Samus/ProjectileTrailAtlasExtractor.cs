@@ -14,8 +14,8 @@ public static partial class ProjectileTrailAtlasExtractor
     /// <remarks>No filesystem output is written.</remarks>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailIceWaveTiles.Value, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
-        byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailMissileTiles.Value, ProjectileTrailAtlasDefinitions.MissileByteCount);
+        byte[] first = RomDataReader.ReadFixedBank(bus, SamusSourceDefinitions.ProjectileTrailIceWaveTiles.Value, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
+        byte[] second = RomDataReader.ReadFixedBank(bus, SamusSourceDefinitions.ProjectileTrailMissileTiles.Value, ProjectileTrailAtlasDefinitions.MissileByteCount);
         byte[] planar = first.Concat(second).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();

@@ -31,7 +31,7 @@ internal static class PauseMenuFixtureVerification
         ImportAreaMapPresentation stock = RetailImportPresentationFixture();
         InstalledScreenContent game = stock.Game;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), address, count);
+            bus, address, count);
         T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)), global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)) ?? throw new InvalidDataException(name);
         MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)));
 

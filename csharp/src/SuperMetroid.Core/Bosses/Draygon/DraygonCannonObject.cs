@@ -137,8 +137,7 @@ internal sealed partial class DraygonCannonObject : RoomObjectBehaviour, IShoota
     /// <summary>Starts <paramref name="animation"/> in <paramref name="phase"/> and draws its first picture at once.</summary>
     private void Show(RoomObjectPlace place, RoomObjectStepContext context, Animation<DraygonCannonSegment> animation, DraygonCannonPhase phase)
     {
-        player.Show(animation);
-        context.Draw(place, DraygonCannonDraws.Family, player.Showing);
+        context.Draw(place, DraygonCannonDraws.Family, player.Show(animation));
         Phase = phase;
     }
 }

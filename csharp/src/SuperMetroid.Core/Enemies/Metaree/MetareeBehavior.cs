@@ -10,16 +10,14 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>The Metaree species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Metaree], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetareeEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetareeEntity(this, occupant, place, common));
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -35,13 +33,14 @@ internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Starts the idle animation directly and initializes the place's dive, burrow, and animation-change state.</summary>
-    internal static void InitializeMetaree(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MetareeEnemyState InitializeMetaree()
     {
         var state = new MetareeEnemyState(MetareeAction.Idling);
-        place.SetSpeciesState(state);
 
         // The idle's first frame advances on the update the spawn's frame time runs out.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>What <see cref="RunMetareeMain"/> does for each <see cref="MetareeAction"/> member, each member's own arm.</summary>
@@ -142,14 +141,14 @@ internal sealed partial class MetareeBehavior : IEnemySpecies, IEnemyEntityFacto
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Metaree's main AI.</summary>
-    internal void RunMetareeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetareeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MetareeEnemyState metareeEnemyState, IEnemyAiFrame frame)
     {
-        RunMetareeMain(occupant, place, place.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
+        RunMetareeMain(occupant, place, metareeEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
-    internal static void AdvanceMetareeTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemyPlace place, MetareeEnemyState metareeEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, metareeEnemyState, SkreeMetareeAnimations.Segments,
             static (MetareeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -36,18 +36,18 @@ internal sealed partial class AudioEventSource
         foreach (SoundClockStep<SoundEffectLibrary, SoundEffectId> step in schedule.AsSpan(0, stepCount))
         {
             events.Add(new AudioEvent.ClockStep(step.SampleOffset, step.Steps, step.ChecksRequests));
-            if (!step.ChecksRequests)
+            if (step.Checks is not { } checks)
                 continue;
             // The clock checks the libraries in queue order, so the starts follow it.
             foreach (SoundEffectLibrary library in SoundEffectLibraries.InQueueOrder)
-                AddStart(events, step, step.RanChecks[library]);
+                AddStart(events, step, checks[library]);
         }
         Acknowledgements = clock.Acknowledgements;
         return [.. events];
     }
 
     /// <summary>
-    /// What an update does with each request (#2553): a data-set change pauses the clock for the load and is published, a
+    /// What an update does with each request (#2553): a data-set change or the shared sounds' install pauses the clock for the load and is published, a
     /// track or a stop is published as the track selected, and a sound request or its withdrawal goes to the clock.
     /// </summary>
     private static AudioRequestReactions<RequestApplying> RequestReactions { get; } = new(
@@ -58,7 +58,12 @@ internal sealed partial class AudioEventSource
             applying.Clock.PauseForMusicLoad();
             applying.Events.Add(new AudioEvent.ChangeMusicDataSet(change.DataSet));
         },
-        RequestSound: static (sound, applying) => applying.Clock.Request(sound.Sound.Library, sound.Sound),
+        InstallSharedSounds: static (_, applying) =>
+        {
+            applying.Clock.PauseForMusicLoad();
+            applying.Events.Add(new AudioEvent.InstallSharedSounds());
+        },
+        RequestSound: static (sound, applying) => applying.Clock.Request(sound.Sound.Library, new RequestedSound<SoundEffectId>(sound.Sound)),
         ClearSoundRequest: static (clear, applying) => applying.Clock.Request(clear.Library, null));
 
     /// <summary>An update applying its requests (#2553): the clock they reach and the events it publishes.</summary>
@@ -69,7 +74,7 @@ internal sealed partial class AudioEventSource
     /// <summary>A library starts a sound only for a changed request, other than none, taken at the previous check.</summary>
     private static void AddStart(List<AudioEvent> events, SoundClockStep<SoundEffectLibrary, SoundEffectId> step, SoundRequestCheck<SoundEffectId> check)
     {
-        if (check.Changed && check.Request is SoundEffectId sound)
+        if (check.Changed && check.Request?.Sound is SoundEffectId sound)
             events.Add(new AudioEvent.StartSoundEffect(sound, step.SampleOffset));
     }
 }

@@ -57,7 +57,7 @@ internal static class KraidNailContourMappingsVerification
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail left-offset oracle.</summary>
-    private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailLeftOffsetsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the four ledges' top boundaries.</summary>
     internal static void VerifyKraidNailTopBoundaries(CartridgeImportAddressSpace rom)
@@ -72,7 +72,7 @@ internal static class KraidNailContourMappingsVerification
     }
 
     /// <summary>Reads a source byte for the independent Kraid nail top-boundary oracle.</summary>
-    private static byte KraidNailTopBoundariesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailTopBoundariesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
     /// Decodes the contour record the walk reads past Kraid's four ledges from the cartridge and compares it with the
@@ -81,7 +81,7 @@ internal static class KraidNailContourMappingsVerification
     /// </summary>
     internal static void VerifyKraidNailPastLedges(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(address);
         KraidNailPastLedges installed = InstalledFixtures.BossAndIntroOverreads.KraidNailPastLedges;
         int pastLedges = KraidNailContourDefinitions.Ledges.Count;

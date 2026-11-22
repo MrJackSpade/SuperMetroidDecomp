@@ -28,12 +28,12 @@ internal static class XrayControlsVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
             runtime.Options.ControllerBindings = remapped
                 ? ControllerBindings.Default.AssignAndSwap(ControllerAction.Shoot, ControllerBindings.Default[SuperMetroid.Core.Input.ControllerAction.Dash])
                 : ControllerBindings.Default;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Position = samus.Position.WithWhole(new(128, 139));

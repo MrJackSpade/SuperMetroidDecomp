@@ -30,11 +30,11 @@ internal static class DoorAnimatedTilesVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.StatuesHallway);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
 
         // Select the source room's door into the statue room.
@@ -53,7 +53,8 @@ internal static class DoorAnimatedTilesVerification
 
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {
@@ -69,7 +70,7 @@ internal static class DoorAnimatedTilesVerification
         var reference = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         reference.HudSetup.InitializeHud(HudSnapshot.NewGame);
         reference.RoomLoader.InitializeStartingCeresRoom();
-        reference.RoomLoader.InitializeCeresStartSamus();
+        reference.RoomLoader.InitializeCeresStartSamus(reference.Room.LoadedScope);
         for (int area = 1; area <= 4; area++)
             reference.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         reference.LoadCartridgeRoomThroughDoorForVerification((entry ?? throw new InvalidOperationException("Verification requires entry.")));

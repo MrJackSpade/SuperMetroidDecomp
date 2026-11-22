@@ -36,9 +36,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     {
         var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
         var oracle = new ClipAudioBackend(assets);
-        SuperMetroidGame silent = CreateLandingSiteSession();
-        SuperMetroidGame playing = CreateLandingSiteSession();
-        playing.BindAudio(assets);
+        SuperMetroidGame silent = CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput.Silent);
+        SuperMetroidGame playing = CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(assets));
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
@@ -90,16 +89,18 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     }
 
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
-    private static SuperMetroidGame CreateLandingSiteSession()
+    private static SuperMetroidGame CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput audioOutput)
     {
         var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(
+            new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), audioOutput,
+            renderGameplayFrames: false, random: random);
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -117,8 +118,9 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
-            game.Session.Enter(DoorTransitionStep.EnteringDoor);
+            runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
+            game.Session.EnterDoor(runtime.RoomObjects.DoorContacts.EnteredDoor
+                ?? throw new InvalidOperationException("Verification requires the door block Samus met to be entered."));
             return;
         }
         throw new InvalidDataException("Landing Site has no door block.");

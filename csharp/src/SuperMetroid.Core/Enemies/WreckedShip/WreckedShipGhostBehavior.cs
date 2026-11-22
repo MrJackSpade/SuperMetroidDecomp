@@ -7,19 +7,18 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class WreckedShipGhostBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Coven], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new WreckedShipGhostEntity(occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WreckedShipGhostEntity(occupant, place, common));
 
     /// <summary>Initializes the Wrecked Ship ghost.</summary>
-    internal static void InitializeWreckedShipGhost(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WreckedShipGhostEnemyState InitializeWreckedShipGhost(RoomEnemyPlace place)
     {
         // The ghost starts animating, unseen and untouchable.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
@@ -37,7 +36,7 @@ internal sealed partial class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEn
         // (WreckedShipGhostAppearanceDefinitions.InitialDelay) expires, so the first white ramp begins from black rather than from the ghost's own colours.
         state.Fade = WreckedShipGhostFade.Dark;
         ShowFade(place, state);
-        place.SetSpeciesState(state);
+        return state;
     }
 
     /// <summary>Shows the ghost in the shade its fading colours are in (#1512).</summary>
@@ -290,13 +289,13 @@ internal sealed partial class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEn
     }
 
     /// <summary>Advances the Wrecked Ship ghost's typed animation.</summary>
-    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, WreckedShipGhostAnimations.Segments,
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemyPlace place, WreckedShipGhostEnemyState wreckedShipGhostEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, wreckedShipGhostEnemyState, WreckedShipGhostAnimations.Segments,
             static (WreckedShipGhostEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs the Wrecked Ship ghost's main AI.</summary>
-    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunWreckedShipGhostMainAi(RoomEnemyPlace place, WreckedShipGhostEnemyState wreckedShipGhostEnemyState, IEnemyAiFrame frame)
     {
-        RunWreckedShipGhostMain(place, place.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);
+        RunWreckedShipGhostMain(place, wreckedShipGhostEnemyState, frame.Samus);
     }
 }

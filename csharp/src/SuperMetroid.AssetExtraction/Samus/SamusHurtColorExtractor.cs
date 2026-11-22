@@ -31,7 +31,7 @@ public static partial class SamusHurtColorExtractor
     /// <summary>Decodes one complete sixteen-color native OBJ row into five-bit channel values.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] source = RomDataReader.ReadFixedBank(bus,
             address, SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort));
         var colors = new PaletteRgb5[SamusHurtColorFormat.ColorsPerPalette];
         for (int index = 0; index < colors.Length; index++)

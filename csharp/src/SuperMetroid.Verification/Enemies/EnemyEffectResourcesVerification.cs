@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -16,9 +17,11 @@ internal static class EnemyEffectResourcesVerification
     internal static void VerifyEnemyEffectResources()
     {
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
-        // runtime reads none. Crocomire's melt images are composed into his body sheet at installation (#1466), which
-        // fails on missing melt art; gameplay reads only his installed body sheet.
-        AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(new BossSourceArtwork(), BossBodyOwner.Crocomire),
+        // runtime reads none. Crocomire's melt images are composed into his body sheet at installation (#1466) from melt art
+        // every boss artwork holds; an installation whose melt sheet holds no characters fails as it loads the art, before
+        // any sheet is composed. Gameplay reads only his installed body sheet.
+        var noMeltArt = new SuperMetroid.AssetExtraction.Rooms.Artwork.RoomCharacterAtlas([]);
+        AssertThrows<InvalidDataException>(() => CrocomireMeltingArtwork.Load(noMeltArt, noMeltArt, Stream.Null, Stream.Null),
             "missing melt art fails the installation");
         Console.WriteLine("  Enemy effect resources: missing melt art fails the installation.");
     }

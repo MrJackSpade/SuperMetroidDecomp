@@ -17,6 +17,9 @@ public sealed partial class DachoraEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }
 
+    /// <summary>The speed-boost echoes its room lists after it, each joining as it is built (#2147, #2554).</summary>
+    internal DachoraEchoTrail Echoes { get; } = new();
+
     /// <summary>
     /// The speed in pixels per update while running, falling or shinesparking, horizontal while running and
     /// vertical after the launch. Each update's gain carries its fraction into the whole pixels.

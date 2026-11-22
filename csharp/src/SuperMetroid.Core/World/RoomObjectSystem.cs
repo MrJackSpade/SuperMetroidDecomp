@@ -94,9 +94,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Handles Draygon arena cannon room objects and their block changes.</summary>
     internal DraygonCannonObjects DraygonCannons { get; }
 
-    /// <summary>Runs Bomb Torizo's hand and statue room object sequences.</summary>
-    internal BombTorizoHandObjects BombTorizoHand { get; }
-
     /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
     internal NoobTubeObjects NoobTube { get; }
 
@@ -108,9 +105,6 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
 
     /// <summary>Opens and closes colored gates after their matching triggers.</summary>
     internal GateObjects Gates { get; }
-
-    /// <summary>Controls the Mother Brain chamber glass barrier and shatter sequence.</summary>
-    internal MotherBrainGlassObjects MotherBrainGlass { get; }
 
     /// <summary>Builds a room's room-object population into its places, in spawn order.</summary>
     internal RoomObjectPopulationLoader PopulationLoader { get; }
@@ -130,30 +124,29 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
     /// <summary>Creates one room's empty room-object list and the room-object family owners that run in it.</summary>
     /// <param name="room">The room the objects live in.</param>
     /// <param name="services">The room's service owners; each room-object family receives the ones it uses.</param>
+    /// <param name="reachedByEnemies">
+    /// The room's room-object places and sounds and the room objects its enemies reach, built before the enemies.
+    /// </param>
     /// <param name="visuals">The host's installed room-object artwork.</param>
     /// <param name="collectibleBlockPairs">
     /// The room's own block pairs its collectibles that show their own picture take in turn, created with the system by
     /// its builder so each room starts at the first pair.
     /// </param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
-    /// <param name="outputs">
-    /// Where the room objects' step sends what it makes: the update's audio requests, which their sounds and music join
-    /// (#2057), and the room's enemy projectiles, among which the projectiles they throw spawn.
-    /// </param>
-    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
-        RoomObjectOutputs outputs)
+    /// <param name="thrown">The room's enemy projectiles' spawners of the projectiles its room objects throw.</param>
+    internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectsReachedByEnemies reachedByEnemies,
+        RoomObjectVisuals visuals, CollectibleBlockPairs collectibleBlockPairs, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
+        RoomObjectThrownProjectileSpawners thrown)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
-        Ensure.NotNull(outputs);
-        RoomObjectThrownProjectileSpawners thrown = outputs.Thrown;
+        Ensure.NotNull(reachedByEnemies);
         Events = services.Events;
-        Places = new RoomObjectPlaceList();
-        Sounds = new RoomObjectSoundQueue(outputs.AudioRequests);
+        Places = reachedByEnemies.Places;
+        Sounds = reachedByEnemies.Sounds;
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
-        BreakableTerrain = new EnemyBreakableTerrainObjects(Places);
+        BreakableTerrain = reachedByEnemies.BreakableTerrain;
         Quicksand = new QuicksandObjects(Places);
         Scrolls = new ScrollObjects(Places);
         WreckedShipTreadmill = new WreckedShipTreadmillObjects(Places, Drawing);
@@ -162,12 +155,10 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         SamusEater = new SamusEaterObjects(services.Samus, Places);
         EscapeAnimals = new EscapeAnimalObjects(services.Events, Places, Drawing);
         SpeedBoosterEscape = new SpeedBoosterEscapeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake);
-        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.Enemies, services.RoomFx, Places);
+        ChozoStatue = new ChozoStatueObjects(room.System, room.Area, services.RoomFx, Places);
         DraygonCannons = new DraygonCannonObjects(services.Enemies);
-        BombTorizoHand = new BombTorizoHandObjects(services.Samus, Sounds, thrown.StatueFragments);
         NoobTube = new NoobTubeObjects(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies);
         Gates = new GateObjects(services.Samus, Places, Sounds);
-        MotherBrainGlass = new MotherBrainGlassObjects(services.Bosses, services.Events, Sounds, thrown.GlassShards);
         Stations = new StationObjects(room.System, services.Samus, Drawing, Places, Sounds);
         CollectibleObjects = new CollectibleObjects(room.System, services.Samus, services.RoomFx, Drawing, Places, collectibleBlockPairs, Sounds);
         EyeDoors = new EyeDoorObjects(room.System, services.Samus, services.Enemies, Sounds);
@@ -175,7 +166,7 @@ public sealed partial class RoomObjectSystem : IRoomObjects, ISamusRoomObjects
         GreyDoors = new GreyDoorObjects(room.System, room.Area, services.TourianStatue, Sounds);
         Tourian = new TourianObjects(services.Samus, services.Enemies, services.RoomFx, Places);
         CeresEscape = new CeresEscapeObjects(Places);
-        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls });
+        PopulationLoader = new RoomObjectPopulationLoader(new RoomObjectPopulationLoaderDependencies { BombTorizoHand = reachedByEnemies.BombTorizoHand, CollectibleObjects = CollectibleObjects, EyeDoors = EyeDoors, GreyDoors = GreyDoors, Stations = Stations, Gates = Gates, MotherBrainGlass = reachedByEnemies.MotherBrainGlass, Places = Places, SpeedBoosterEscape = SpeedBoosterEscape, DraygonCannons = DraygonCannons, NoobTube = NoobTube, Scrolls = Scrolls }, thrown);
         BlockReactions = new BlockReactionObjects(EscapeAnimals, Places, Drawing);
         BossRoomMutations = new BossRoomMutationObjects(Places);
     }

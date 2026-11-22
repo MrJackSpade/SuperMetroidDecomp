@@ -8,17 +8,62 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
     /// <inheritdoc/>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonBody];
+
+    /// <summary>
+    /// Draygon's body, built the same way wherever it is set up; his eye, tail and arms join the encounter his body offers
+    /// them as it sets up (<see cref="BeginDraygon"/>).
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.DraygonArms] = (occupant, place, common) => EnemyOccupant.Of(new DraygonArmsEntity(this, occupant, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonBody] = (occupant, place, common) => EnemyOccupant.Of(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonEye] = (occupant, place, common) => EnemyOccupant.Of(new DraygonEyeEntity(this, occupant, place, common, _bossArtwork)),
-        [EnemyDefinitionId.DraygonTail] = (occupant, place, common) => EnemyOccupant.Of(new DraygonTailEntity(this, occupant, place, common, _bossArtwork)),
-    };
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>(Definitions, Create);
+        registrar.Joins([EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms]);
+    }
+
+    /// <summary>Draygon's body (#2146).</summary>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new DraygonBodyEntity(this, occupant, place, common, _bossArtwork));
+
+    /// <summary>Where his body offers his other parts the creation that builds each of them joining his encounter.</summary>
+    private readonly EnemyPartOffers _partOffers;
+
+    /// <summary>
+    /// Sets his body up, beginning the encounter, and offers his eye, tail and arms, which his room lists right after his
+    /// body (#2298), the creation that builds each of them joining that encounter (#2554).
+    /// </summary>
+    /// <returns>The encounter, which the body holds from its setup.</returns>
+    internal DraygonEnemyState BeginDraygon(RoomEnemyOccupant body)
+    {
+        DraygonEnemyState state = Parts.InitializeDraygonBody(body);
+        var joining = new PartJoining(this, state);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonEye, joining.CreateEye);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonTail, joining.CreateTail);
+        _partOffers.Offer<EnemySpawnSettings>(EnemyDefinitionId.DraygonArms, joining.CreateArms);
+        return state;
+    }
+
+    /// <summary>The creations his body offers his eye, tail and arms (#2554): each joining the encounter his body began.</summary>
+    /// <param name="species">The Draygon species owner.</param>
+    /// <param name="encounter">The encounter his body began.</param>
+    private sealed partial class PartJoining(DraygonBehavior species, DraygonEnemyState encounter)
+    {
+        /// <summary>His eye, joining his encounter.</summary>
+        internal EnemyOccupant CreateEye(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonEyeEntity(species, occupant, place, common, species._bossArtwork, encounter));
+
+        /// <summary>His tail, joining his encounter.</summary>
+        internal EnemyOccupant CreateTail(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonTailEntity(species, occupant, place, common, species._bossArtwork, encounter));
+
+        /// <summary>His arms, joining his encounter.</summary>
+        internal EnemyOccupant CreateArms(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new DraygonArmsEntity(species, occupant, place, common, species._bossArtwork, encounter));
+    }
 
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,6 +105,7 @@ internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFacto
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
+        _partOffers = dependencies.PartOffers;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
         Shots = new DraygonShots(dependencies.DeathsAndDrops);
@@ -81,60 +127,10 @@ internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFacto
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Collision, Grab);
     }
 
-    /// <summary>What <see cref="RunDraygonBodyMain"/> does for each <see cref="DraygonPhase"/> member, each member's own arm.</summary>
-    [field: NonSerialized]
-    private IdentityTable<DraygonPhase, Action<SamusState, int, DraygonEnemyState>> RunDraygonBodyMainForDraygonPhase => field ??= new(new Dictionary<DraygonPhase, Action<SamusState, int, DraygonEnemyState>>
-    {
-        [DraygonPhase.IntroInitialDelay] = (samus, frameCounter, state) => Intro.RunDraygonIntroInitialDelay(state, samus, frameCounter),
-        [DraygonPhase.IntroDance] = (samus, frameCounter, state) => Intro.RunDraygonIntroDance(state, samus, frameCounter),
-        [DraygonPhase.SwoopSetup] = (samus, frameCounter, state) =>
-        {
-            if (state.PassDirection == HorizontalDirection.Right)
-            {
-                Swoops.SetupDraygonRightSwoop(state, samus, frameCounter);
-            }
-            else
-            {
-                Swoops.SetupDraygonLeftSwoop(state, samus, frameCounter);
-            }
-        },
-        [DraygonPhase.SwoopDescending] = (samus, frameCounter, state) => Swoops.DescendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state)),
-        [DraygonPhase.SwoopApex] = (samus, frameCounter, state) =>
-        {
-            if (state.PassDirection == HorizontalDirection.Right)
-            {
-                Swoops.CrossDraygonRightSwoopApex(state, samus, frameCounter);
-            }
-            else
-            {
-                Swoops.CrossDraygonLeftSwoopApex(state, samus, frameCounter);
-            }
-        },
-        [DraygonPhase.SwoopAscending] = (samus, frameCounter, state) => Swoops.AscendDraygonSwoop(state, samus, frameCounter, SwoopSideOf(state)),
-        [DraygonPhase.GoopSetup] = (samus, frameCounter, state) => Goop.SetupDraygonGoopPass(state, state.PassDirection, samus, frameCounter),
-        [DraygonPhase.GoopApproach] = (samus, frameCounter, state) => Goop.ApproachSamusForDraygonGoop(state, samus, frameCounter),
-        [DraygonPhase.GoopTail] = (samus, frameCounter, state) => Goop.FireDraygonGoop(state, state.PassDirection, samus, frameCounter),
-        [DraygonPhase.GoopRecovery] = (samus, frameCounter, state) => Goop.ExitDraygonGoopPass(state, state.PassDirection, samus),
-        [DraygonPhase.TryGrabSamus] = (samus, frameCounter, state) => Grab.ChaseAndTryToGrabSamus(state, samus, frameCounter),
-        [DraygonPhase.RepelGrapple] = (samus, frameCounter, state) => DraygonGrab.RepelDraygonWithGrapple(state, samus),
-        [DraygonPhase.CarrySamus] = (samus, frameCounter, state) => Grab.CarrySamusToDraygonSpiral(state, samus),
-        [DraygonPhase.FlailWithSamus] = (samus, frameCounter, state) => Grab.CarrySamusInDraygonSpiral(state, samus),
-        [DraygonPhase.BeginTailWhipWithSamus] = (samus, frameCounter, state) => Grab.BeginDraygonTailWhip(state, samus),
-        [DraygonPhase.TailWhipWithSamus] = (samus, frameCounter, state) => Grab.RunDraygonTailWhip(state, samus),
-        [DraygonPhase.FinalTailWhips] = (samus, frameCounter, state) => Grab.BeginDraygonFinalTailWhips(state, samus),
-        [DraygonPhase.FinalTailWhipsWait] = (samus, frameCounter, state) => Grab.WaitForDraygonFinalTailWhips(state, samus),
-        [DraygonPhase.ReleaseSamus] = (samus, frameCounter, state) => Grab.ReleaseSamusFromDraygon(state, samus),
-        [DraygonPhase.FlyStraightUp] = (samus, frameCounter, state) => Swoops.FlyDraygonStraightUp(state, samus, frameCounter),
-        [DraygonPhase.Dying] = (samus, frameCounter, state) => Death.DriftDyingDraygonToBurialPoint(state),
-        [DraygonPhase.DyingWaitForEvirs] = (samus, frameCounter, state) => Death.WaitForDraygonBurialEvirs(state, frameCounter),
-        [DraygonPhase.DyingFinish] = (samus, frameCounter, state) => Death.SinkDraygonBelowTheRoom(state, frameCounter, samus),
-    });
-
     /// <summary>Runs Draygon's body for one update.</summary>
-    private void RunDraygonBodyMain(RoomEnemyPlace body, SamusState samus, int frameCounter)
+    private void RunDraygonBodyMain(RoomEnemyPlace body, DraygonEnemyState state, SamusState samus, int frameCounter)
     {
-        DraygonEnemyState state = body.RequireSpeciesState<DraygonEnemyState>();
-        RunDraygonBodyMainForDraygonPhase[state.Phase](samus, frameCounter, state);
+        state.Step.Run(new DraygonPhaseUpdate(this, state, samus, frameCounter));
 
         // His arms, tail and eye are placed at his body once his phase has moved it, before the eye and each part's
         // animation run this update.
@@ -161,7 +157,7 @@ internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFacto
         DraygonSegment.ArmsFacingLeftIdle);
 
     /// <summary>The side of the swoop Draygon's pass flies (#2165).</summary>
-    private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
+    internal static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
         state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
     /// <summary>Advances the typed animation of <paramref name="part"/>, one of Draygon's parts, in <paramref name="context"/>.</summary>
@@ -171,10 +167,10 @@ internal sealed partial class DraygonBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Runs DraygonBody's main AI.</summary>
-    internal void RunDraygonBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunDraygonBodyMainAi(RoomEnemyPlace place, DraygonEnemyState draygonEnemyState, IEnemyAiFrame frame)
     {
         // Draygon times his turrets and smoke by the frame counter's place in a short repeating cycle.
-        RunDraygonBodyMain(place, frame.Samus, _frameContext.FrameCounter);
+        RunDraygonBodyMain(place, draygonEnemyState, frame.Samus, _frameContext.FrameCounter);
     }
 
     /// <summary>

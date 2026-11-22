@@ -15,9 +15,8 @@ internal static partial class PhantoonCollision
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Phantoon's
     /// pictures.</exception>
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame, PhantoonBodyHitArea bodyHitArea) =>
-        frame == EnemyFrameId.PhantoonBody
-            ? HitAreaComponents[bodyHitArea]
-            : frame is { } part && PartsWithoutHitboxes.Contains(part)
-                ? NoComponents
-                : throw new InvalidDataException($"Phantoon frame {frame} has no hitbox identity.");
+        frame is not { } shown ? []
+            : shown == EnemyFrameId.PhantoonBody ? HitAreaComponents[bodyHitArea]
+            : PartsWithoutHitboxes.Contains(shown) ? NoComponents
+            : throw new InvalidDataException($"Phantoon frame {frame} has no hitbox identity.");
 }

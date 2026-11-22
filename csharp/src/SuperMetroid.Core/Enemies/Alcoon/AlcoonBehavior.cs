@@ -8,16 +8,15 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyLoadedFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Alcoon], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.FromSurroundings(new AlcoonEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
+
+    /// <inheritdoc/>
+    public EnemyOccupant CreateLoaded(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
+        EnemyPopulationSurroundings surroundings) => EnemyOccupant.Running(new AlcoonEntity(this, occupant, place, common, surroundings));
 
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
@@ -49,7 +48,7 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactor
     private static AlcoonCueCases<ApplyAlcoonCueContext, AnimationContinuation<AlcoonSegment>?> ApplyAlcoonCueCases { get; } = new(
             Fire: static (fire, context) =>
             {
-                context.Owner.SpawnAlcoonFireball(context.Occupant, context.Place, fire.Launch);
+                context.Owner.SpawnAlcoonFireball(context.Occupant, context.Place, context.State, fire.Launch);
                 context.Owner._audio.QueueEnemySound(EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return (AnimationContinuation<AlcoonSegment>?)null;
             },
@@ -81,10 +80,10 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactor
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
-    private void InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal AlcoonEnemyState InitializeAlcoon(RoomEnemyPlace place, RoomLevelData level)
     {
         var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         state.WalkCyclesBeforeVolley = UpdateCountdown.Ended();
         state.SpawnPosition = place.Position.Whole;
@@ -115,6 +114,7 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactor
 
         state.LandingY = place.Position.Y.Whole;
         place.Position = place.Position.WithWholeY(state.SpawnPosition.Y);
+        return state;
     }
 
     /// <summary>What <see cref="RunAlcoonMain"/> does for each <see cref="AlcoonAction"/> member, each member's own arm.</summary>
@@ -373,32 +373,24 @@ internal sealed partial class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactor
     internal static readonly EnemyProjectileBehavior Fireball = new SingleMotionProjectileBehavior(
         context => FlyAlcoonFireball(context.Projectile, context.Level));
 
-    /// <summary>Runs Alcoon's initialization AI.</summary>
-    internal void SetUpAlcoon(RoomEnemyPlace place, EnemyPopulationSurroundings surroundings)
-    {
-        InitializeAlcoon(place, surroundings.Level);
-    }
-
     /// <summary>Runs Alcoon's main AI.</summary>
-    internal void RunAlcoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunAlcoonMainAi(RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, IEnemyAiFrame frame)
     {
-        RunAlcoonMain(place, place.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
+        RunAlcoonMain(place, alcoonEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, AlcoonEnemyState alcoonEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, alcoonEnemyState, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyAlcoonCue(occupant, place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
-    internal void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)
+    internal void SpawnAlcoonFireball(RoomEnemyOccupant occupant, RoomEnemyPlace alcoon, AlcoonEnemyState state, AlcoonFireballLaunch launch)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.AlcoonFireball, Fireball, SpriteGraphics.SpawnedBy(occupant, alcoon.Shading), new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning));
         if (projectile is null)
             return;
-
-        AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = FacesLeft(state);
 
         // The fireball takes its radii, damage, persistence, shot blocking, animation and motion from its definition

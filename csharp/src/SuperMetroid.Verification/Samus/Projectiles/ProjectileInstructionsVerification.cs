@@ -94,7 +94,7 @@ internal static class ProjectileInstructionsVerification
         var words = new HashSet<int>();
         foreach (ushort entry in entries)
         {
-            int a = 0x930000 | entry; ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
+            int a = 0x930000 | entry; ushort value = rom.ReadCartridgeWordFixedBank(a);
             words.Add(a);
             if (value == 0x8239) words.Add(a + 2);
             else if (value < 0x8000) words.Add(a + 6);
@@ -127,7 +127,9 @@ internal static class ProjectileInstructionsVerification
         {
             var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
             slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
-            var bomb = new SamusBomb(0);
+            // The bomb holds the bomb system's first place, its fuse burned out, so each update plays its animation.
+            bombs.Reset();
+            SamusBomb bomb = bombs.FirstBomb;
             bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
             bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
@@ -144,19 +146,19 @@ internal static class ProjectileInstructionsVerification
                     while (true)
                     {
                         AssertTrue(++operations < 16, "Reference stream reaches a frame or delete");
-                        int a = 0x930000 | pointer; ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
+                        int a = 0x930000 | pointer; ushort command = rom.ReadCartridgeWordFixedBank(a);
                         if (command == 0x822f) { deleted = true; break; }
-                        if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); continue; }
+                        if (command == 0x8239) { pointer = rom.ReadCartridgeWordFixedBank((a + 2)); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
-                        timer = command; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2))); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
+                        timer = command; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(rom.ReadCartridgeWordFixedBank((a + 2))); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                system.Animation.AdvanceProjectileAnimation(slot.HeldShot());
+                system.Animation.AdvanceProjectileAnimation(slot.HeldShot(), slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
                 AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
                 {
-                    bombs.AdvanceProjectileAnimation(bomb.HeldBomb());
+                    bombs.HandleBombsInOpenRoom();
                     AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome");
                 }
                 frames++;

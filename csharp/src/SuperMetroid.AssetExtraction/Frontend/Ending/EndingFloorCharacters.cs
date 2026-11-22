@@ -11,11 +11,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 public sealed partial class EndingFloorCharacters
 {
     /// <summary>Zebes zoom-out backdrop used by the side-cloud escape.</summary>
-    private readonly EndingFloorSceneArtwork sideCloudEscape;
+    private readonly EndingFloorSceneCharacters sideCloudEscape;
     /// <summary>Grey-cloud backdrop used by the top-and-bottom-cloud escape.</summary>
-    private readonly EndingFloorSceneArtwork topAndBottomCloudEscape;
+    private readonly EndingFloorSceneCharacters topAndBottomCloudEscape;
     /// <summary>Large Zebes backdrop used during the planet explosion.</summary>
-    private readonly EndingFloorSceneArtwork planetExplosion;
+    private readonly EndingFloorSceneCharacters planetExplosion;
 
     /// <summary>Installs the three decoded backdrop pairs and the complete post-credits beam/icon transfer.</summary>
     /// <param name="sideCloudEscape">Zebes zoom-out map and character lanes for the side-cloud escape.</param>
@@ -23,8 +23,8 @@ public sealed partial class EndingFloorCharacters
     /// <param name="planetExplosion">Large-Zebes map and character lanes for the explosion scene.</param>
     /// <param name="rewardIcon">Interleaved map and characters progressively uploaded during the post-credits reward jump.</param>
     /// <exception cref="ArgumentNullException">Any artwork argument is null.</exception>
-    public EndingFloorCharacters(EndingFloorSceneArtwork sideCloudEscape, EndingFloorSceneArtwork topAndBottomCloudEscape,
-        EndingFloorSceneArtwork planetExplosion, EndingRewardIconArtwork rewardIcon)
+    public EndingFloorCharacters(EndingFloorSceneCharacters sideCloudEscape, EndingFloorSceneCharacters topAndBottomCloudEscape,
+        EndingFloorSceneCharacters planetExplosion, EndingRewardIconCharacters rewardIcon)
     {
         this.sideCloudEscape = Ensure.NotNull(sideCloudEscape);
         this.topAndBottomCloudEscape = Ensure.NotNull(topAndBottomCloudEscape);
@@ -35,7 +35,7 @@ public sealed partial class EndingFloorCharacters
     /// <summary>Gets the map and character lanes for the selected ending backdrop.</summary>
     /// <param name="id">The escape or planet-explosion scene whose artwork is required.</param>
     /// <exception cref="ArgumentOutOfRangeException">The value does not identify one of the three supported scenes.</exception>
-    public EndingFloorSceneArtwork this[EndingFloorSceneId id] => id switch
+    public EndingFloorSceneCharacters this[EndingFloorSceneId id] => id switch
     {
         EndingFloorSceneId.SideCloudEscape => sideCloudEscape,
         EndingFloorSceneId.TopAndBottomCloudEscape => topAndBottomCloudEscape,
@@ -44,5 +44,5 @@ public sealed partial class EndingFloorCharacters
     };
 
     /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
-    public EndingRewardIconArtwork RewardIcon { get; }
+    public EndingRewardIconCharacters RewardIcon { get; }
 }

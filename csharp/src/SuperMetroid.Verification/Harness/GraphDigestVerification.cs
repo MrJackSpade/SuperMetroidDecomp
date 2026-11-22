@@ -140,6 +140,7 @@ internal static class GraphDigestVerification
     /// </summary>
     internal static T RoundTrip<T>(T value, params object[] content) where T : class
     {
+        IndexDefinitionsReachedBy(value, content);
         using var stream = new ChunkedGraphStream();
         DebuggerObjectGraphSerializer.Serialize(stream, value, Bound(content));
         stream.Position = 0;
@@ -339,6 +340,33 @@ internal static class GraphDigestVerification
 
     /// <summary>Whether the process's definition index was declared as a shared fixture.</summary>
     private static bool definitionsDeclared;
+
+    /// <summary>
+    /// Indexes, as a shared fixture, the catalogs a capture of <paramref name="value"/> asks that no capture of a graph of
+    /// its type has asked before (#1716, #1757): the first capture that meets an object of a type only some catalogs can
+    /// hold indexes those catalogs, a cost of the process's one definition index, as the declared index's is
+    /// (<see cref="DeclareDefinitions"/>), not of whichever suite first round-trips a graph of that type, such as a pause
+    /// menu's map, whose first capture indexes the map catalogs it reaches. A capture written nowhere asks them once per
+    /// type of graph; later captures of the type find them indexed.
+    /// </summary>
+    private static void IndexDefinitionsReachedBy(object value, object[] content)
+    {
+        Type graph = value.GetType();
+        lock (indexedGraphTypes)
+        {
+            if (!indexedGraphTypes.Add(graph))
+                return;
+        }
+        BoundObjectGraph bound = Bound(content);
+        _ = SuperMetroid.TestSupport.RepositoryInstallation.SharedFixtureTiming.Load($"Fixture: definition index of {graph.Name}", () =>
+        {
+            DebuggerObjectGraphSerializer.Serialize(Stream.Null, value, bound);
+            return graph;
+        });
+    }
+
+    /// <summary>The types of graph whose captures' catalogs were indexed as a shared fixture.</summary>
+    private static readonly HashSet<Type> indexedGraphTypes = [];
 
     /// <summary>
     /// The graph of <paramref name="content"/>, indexed now unless it was before; callers hold the lock. The fixture's

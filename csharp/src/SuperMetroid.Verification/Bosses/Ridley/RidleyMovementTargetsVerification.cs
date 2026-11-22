@@ -28,7 +28,7 @@ internal static class RidleyMovementTargetsVerification
             var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)
             {
-                native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + i * 2);
+                native[i] = rom.ReadCartridgeWord(address + i * 2);
                 AssertEqual(native[i], compiled(i), "Native Ridley target/divisor record");
             }
             return native;

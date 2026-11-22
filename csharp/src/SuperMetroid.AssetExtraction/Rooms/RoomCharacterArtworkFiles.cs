@@ -34,7 +34,7 @@ public static partial class RoomCharacterArtworkFiles
         Directory.CreateDirectory(importData);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
         foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
@@ -82,9 +82,16 @@ public static partial class RoomCharacterArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room character manifest {manifestPath} does not describe this installation.");
 
-        RoomCharacterAtlas? cre = null;
         var sheets = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>();
         foreach ((string name, RoomCharacterSource source) in sources)
+        {
+            if (source is RoomCharacterSource.OfSet(RoomCharacterSet set))
+                sheets.Add(set, Atlas(name));
+        }
+        return new RoomCharacterAtlases(Atlas(RoomCharacterSheetFiles.CreFileName), sheets);
+
+        // The page the manifest lists as name, checked against its hash and decoded.
+        RoomCharacterAtlas Atlas(string name)
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -103,11 +110,8 @@ public static partial class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
-            if (source is RoomCharacterSource.OfSet(RoomCharacterSet set)) sheets.Add(set, atlas);
-            else cre = atlas;
+            return atlas;
         }
-        return new RoomCharacterAtlases(
-            cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>
@@ -144,7 +148,7 @@ public static partial class RoomCharacterArtworkFiles
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), RoomTilesetSourceDefinitions.CreCharacters).Length;
+                RomDataReader.Decompress(bus, RoomTilesetSourceDefinitions.CreCharacters).Length;
         }
 
         /// <summary>A character set's sheet, which the cartridge stores compressed.</summary>
@@ -153,7 +157,7 @@ public static partial class RoomCharacterArtworkFiles
         {
             /// <inheritdoc/>
             internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
-                RomDataReader.Decompress(CartridgeImportSource.Require(bus), Ensure.NotNull(tilesets).Characters[Set]).Length;
+                RomDataReader.Decompress(bus, Ensure.NotNull(tilesets).Characters[Set]).Length;
         }
 
         /// <summary>A character set's sheet the cartridge stores uncompressed, at its fixed length.</summary>

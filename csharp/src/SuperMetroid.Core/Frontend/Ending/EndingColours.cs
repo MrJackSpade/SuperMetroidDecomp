@@ -114,16 +114,14 @@ internal sealed partial class EndingColours
     /// whiteout and the flyaway's clearing of it to black, each over those the scene brings in before it.
     /// </summary>
     /// <param name="space">The installed backdrops of the space behind the exploding planet.</param>
-    /// <exception cref="InvalidOperationException">The space behind the exploding planet shows while its backdrops are not installed.</exception>
-    internal RgbColor Backdrop(EndingSpaceBackdrops? space)
+    internal RgbColor Backdrop(EndingSpaceBackdrops space)
     {
         RgbColor backdrop = sceneBackdrop;
         if (FlashBackdrop(EndingFlash.SilhouetteBackdrop) is { } silhouette)
             backdrop = silhouette;
         if (ColourEffects.FrameOf(EndingColourEffectDefinitions.SpaceColours) is { } frame)
         {
-            backdrop = (space ?? throw new InvalidOperationException(
-                "The ending's explosion requires the installed backdrops of the space behind the exploding planet.")).Of(frame);
+            backdrop = Ensure.NotNull(space).Of(frame);
         }
         if (FlashBackdrop(EndingFlash.ExplosionWhiteout) is { } whiteout)
             backdrop = whiteout;

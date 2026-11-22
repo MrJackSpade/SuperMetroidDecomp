@@ -33,9 +33,9 @@ internal static class LookupSmallGameTablesVerification
         for (int tube = 0; tube < 5; tube++)
         {
             var body = MotherBrainFakeDeath.MotherBrainFallingTubeBody(MotherBrainFallingTubePopulationDefinitionsConstants2.Pieces.At(tube));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b5d + 2 * tube)), body.Radius.X, $"Falling tube {tube} X radius");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b67 + 2 * tube)), body.Radius.Y, $"Falling tube {tube} Y radius");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b71 + 2 * tube)), body.Floor, $"Falling tube {tube} floor");
+            AssertEqual(rom.ReadCartridgeWord((0xa98b5d + 2 * tube)), body.Radius.X, $"Falling tube {tube} X radius");
+            AssertEqual(rom.ReadCartridgeWord((0xa98b67 + 2 * tube)), body.Radius.Y, $"Falling tube {tube} Y radius");
+            AssertEqual(rom.ReadCartridgeWord((0xa98b71 + 2 * tube)), body.Floor, $"Falling tube {tube} floor");
         }
     }
 
@@ -43,19 +43,19 @@ internal static class LookupSmallGameTablesVerification
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
     {
         // The cartridge's table holds the fall gravity, then each bounce's, then a zero where the bomb expires.
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(rom.ReadCartridgeWord(0x86c550), MotherBrainBombBounceDefinitions.FallAcceleration.InTwoHundredFiftySixthsOfPixel,
             "The table's first entry is the ordinary fall gravity");
         // Each bounce leads to the next bounce's gravity, and the last to the landing, where the bomb has none.
         MotherBrainBombBounces stands = MotherBrainBombBounces.FirstFall.Bounced;
         int bounces = 1;
         for (; stands is MotherBrainBombBounces.Flying.Bouncing bouncing; bounces++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+            AssertEqual(rom.ReadCartridgeWord(0x86c550 + 2 * bounces),
                 bouncing.Gravity.Entry.InTwoHundredFiftySixthsOfPixel, $"Bomb gravity after bounce {bounces}");
             stands = bouncing.Bounced;
         }
         AssertEqual(MotherBrainBombBounceDefinitions.BounceAccelerations.Length + 1, bounces, "The bomb lands after its last authored bounce");
-        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86c550 + 2 * bounces),
+        AssertEqual(0, rom.ReadCartridgeWord(0x86c550 + 2 * bounces),
             "The cartridge ends the bounces with a zero");
         AssertTrue(stands is MotherBrainBombBounces.Landed, "The bomb expires after its last bounce");
     }
@@ -72,8 +72,8 @@ internal static class LookupSmallGameTablesVerification
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
             var dust = CrocomireBridgeCollapseDefinitions.CollapseDust[puff];
             ushort x = dust.X, y = dust.Y;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
+            AssertEqual(rom.ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
+            AssertEqual(rom.ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
         }
     }
 
@@ -86,7 +86,7 @@ internal static class LookupSmallGameTablesVerification
     /// </summary>
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort[] columnX = [.. Enumerable.Range(0, 16).Select(column => cartridge.ReadCartridgeWord(0x8fe551 + 2 * column))];
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
         {
@@ -111,9 +111,9 @@ internal static class LookupSmallGameTablesVerification
         {
             RinkaSpawnPointDefinition definition = RinkaSpawnPointDefinitions.SearchOrder[index];
             int record = 0xa2b75b + 6 * index;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), definition.Centre.X, $"Rinka spawn {definition.Point} X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), definition.Centre.Y, $"Rinka spawn {definition.Point} Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), MotherBrainNativeWords.RinkaSpawnPoints.Word(definition.Point),
+            AssertEqual(rom.ReadCartridgeWord(record), definition.Centre.X, $"Rinka spawn {definition.Point} X");
+            AssertEqual(rom.ReadCartridgeWord((record + 2)), definition.Centre.Y, $"Rinka spawn {definition.Point} Y");
+            AssertEqual(rom.ReadCartridgeWord((record + 4)), MotherBrainNativeWords.RinkaSpawnPoints.Word(definition.Point),
                 $"Rinka spawn {definition.Point} reservation token");
         }
     }
@@ -134,15 +134,15 @@ internal static class LookupSmallGameTablesVerification
 
                 // Rot-entry copy routine: per column, LDA rotEntryYOffset / CMP #limit / BPL / LDA src,X ...
                 int configuration = bank | Corpses.DeadTourianCorpseDefinitionsVerification.ConfigurationPointer(rom, species, variant);
-                int copy = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 4);
+                int copy = bank | rom.ReadCartridgeWord(configuration + 4);
                 for (int column = 0; column < layout.ColumnWordOffsets.Length; column++)
                 {
                     int block = copy + 20 * column;
                     AssertEqual((byte)0xc9, DeadTourianCorpseLayoutsRomByte(rom, block + 3), $"{name} column {column} CMP opcode");
-                    AssertEqual(layout.MaximumY, CartridgeImportSource.Require(rom).ReadCartridgeWord((block + 4)), $"{name} column {column} rot depth");
+                    AssertEqual(layout.MaximumY, rom.ReadCartridgeWord((block + 4)), $"{name} column {column} rot depth");
                     AssertEqual((byte)0xbd, DeadTourianCorpseLayoutsRomByte(rom, block + 8), $"{name} column {column} LDA abs,X opcode");
                     AssertEqual((ushort)(workBuffer / 2 + layout.ColumnWordOffsets[column]),
-                        (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((block + 9)) / 2), $"{name} column {column} word offset");
+                        (ushort)(rom.ReadCartridgeWord((block + 9)) / 2), $"{name} column {column} word offset");
                 }
                 AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, copy + 20 * layout.ColumnWordOffsets.Length),
                     $"{name} copy routine ends after its last column");
@@ -150,7 +150,7 @@ internal static class LookupSmallGameTablesVerification
                 // Initialization routine: per tile row, PHB / LDX #sheet / LDY #work / LDA #length-1 / MVN / PLB.
                 // Production does not call the graphics-initialization routine; locate it through
                 // the native configuration record's sixth word.
-                int init = bank | CartridgeImportSource.Require(rom).ReadCartridgeWord(configuration + 10);
+                int init = bank | rom.ReadCartridgeWord(configuration + 10);
                 for (int row = 0; row < layout.InitialGraphicsCopies.Length; row++)
                 {
                     var expected = layout.InitialGraphicsCopies[row];
@@ -158,11 +158,11 @@ internal static class LookupSmallGameTablesVerification
                     AssertEqual((byte)0xa2, DeadTourianCorpseLayoutsRomByte(rom, group + 1), $"{name} row {row} LDX opcode");
                     AssertEqual((byte)0xa0, DeadTourianCorpseLayoutsRomByte(rom, group + 4), $"{name} row {row} LDY opcode");
                     AssertEqual((byte)0x54, DeadTourianCorpseLayoutsRomByte(rom, group + 10), $"{name} row {row} MVN opcode");
-                    int sheetBase = CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 2)) - expected.SourceOffset;
+                    int sheetBase = rom.ReadCartridgeWord((group + 2)) - expected.SourceOffset;
                     tileSheetBase ??= sheetBase;
                     AssertEqual(tileSheetBase.Value, sheetBase, $"{name} row {row} shares the corpse tile sheet");
-                    AssertEqual(workBuffer + expected.DestinationOffset, CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 5)), $"{name} row {row} destination");
-                    AssertEqual(expected.Length - 1, CartridgeImportSource.Require(rom).ReadCartridgeWord((group + 8)), $"{name} row {row} length");
+                    AssertEqual(workBuffer + expected.DestinationOffset, rom.ReadCartridgeWord((group + 5)), $"{name} row {row} destination");
+                    AssertEqual(expected.Length - 1, rom.ReadCartridgeWord((group + 8)), $"{name} row {row} length");
                 }
                 AssertEqual((byte)0x60, DeadTourianCorpseLayoutsRomByte(rom, init + 14 * layout.InitialGraphicsCopies.Length), $"{name} copies end with RTS");
             }

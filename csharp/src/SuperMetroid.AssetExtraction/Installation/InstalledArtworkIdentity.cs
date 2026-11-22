@@ -34,51 +34,47 @@ public static partial class InstalledArtworkIdentity
         Ensure.NotNull(samusBody);
         if (!ReferenceEquals(artwork.SamusBodyArt, samusBody.Gameplay))
             throw new InvalidOperationException("The installed artwork set's Samus body was not bound from the body whose identity is asked for.");
-        return RoomPresentationIdentity.Create(Require(artwork.RoomVisualLayouts))
+        return RoomPresentationIdentity.Create(artwork.RoomVisualLayouts)
             .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBody.ContentIdentity))
             .Concat(RoomObjectPresentationIdentity.Create(new RoomObjectVisualCatalogSet
             {
-                ShotBlock = Require(artwork.RoomObjectShotBlockVisuals),
-                GrappleBlock = Require(artwork.RoomObjectGrappleBlockVisuals),
-                Station = Require(artwork.RoomObjectStationVisuals),
-                BlueDoor = Require(artwork.RoomObjectBlueDoorVisuals),
-                ColoredDoor = Require(artwork.RoomObjectColoredDoorVisuals),
-                GreyDoor = Require(artwork.RoomObjectGreyDoorVisuals),
-                EyeDoor = Require(artwork.RoomObjectEyeDoorVisuals),
-                MotherBrainGlass = Require(artwork.RoomObjectMotherBrainGlassVisuals),
-                NoobTube = Require(artwork.RoomObjectNoobTubeVisuals),
-                DownwardGate = Require(artwork.RoomObjectDownwardGateVisuals),
-                ElevatorPlatform = Require(artwork.RoomObjectElevatorPlatformVisuals),
-                EscapeGate = Require(artwork.RoomObjectEscapeGateVisuals),
-                BombTorizoHand = Require(artwork.RoomObjectBombTorizoHandVisuals),
-                DraygonCannon = Require(artwork.RoomObjectDraygonCannonVisuals),
-                PhantoonDoor = Require(artwork.RoomObjectPhantoonDoorVisuals),
-                ChozoStatue = Require(artwork.RoomObjectChozoStatueVisuals),
-                LinkedRestore = Require(artwork.RoomObjectLinkedRestoreVisuals),
-                TourianAccess = Require(artwork.RoomObjectTourianAccessVisuals),
-                SpeedBooster = Require(artwork.RoomObjectSpeedBoosterVisuals),
-                MaridiaElevatube = Require(artwork.RoomObjectMaridiaElevatubeVisuals),
-                SporeSpawnCeiling = Require(artwork.RoomObjectSporeSpawnCeilingVisuals),
-                SamusEater = Require(artwork.RoomObjectSamusEaterVisuals),
-                BotwoonWall = Require(artwork.RoomObjectBotwoonWallVisuals),
-                Kraid = Require(artwork.RoomObjectKraidVisuals),
-                Crocomire = Require(artwork.RoomObjectCrocomireVisuals),
-                MotherBrainFakeDeath = Require(artwork.RoomObjectMotherBrainFakeDeathVisuals),
-                Collectible = Require(artwork.RoomObjectCollectibleVisuals),
-                RevealAndWall = Require(artwork.RoomObjectRevealAndWallVisuals),
-                SetupBlocks = Require(artwork.RoomObjectSetupBlocks),
+                ShotBlock = artwork.RoomObjectShotBlockVisuals,
+                GrappleBlock = artwork.RoomObjectGrappleBlockVisuals,
+                Station = artwork.RoomObjectStationVisuals,
+                BlueDoor = artwork.RoomObjectBlueDoorVisuals,
+                ColoredDoor = artwork.RoomObjectColoredDoorVisuals,
+                GreyDoor = artwork.RoomObjectGreyDoorVisuals,
+                EyeDoor = artwork.RoomObjectEyeDoorVisuals,
+                MotherBrainGlass = artwork.RoomObjectMotherBrainGlassVisuals,
+                NoobTube = artwork.RoomObjectNoobTubeVisuals,
+                DownwardGate = artwork.RoomObjectDownwardGateVisuals,
+                ElevatorPlatform = artwork.RoomObjectElevatorPlatformVisuals,
+                EscapeGate = artwork.RoomObjectEscapeGateVisuals,
+                BombTorizoHand = artwork.RoomObjectBombTorizoHandVisuals,
+                DraygonCannon = artwork.RoomObjectDraygonCannonVisuals,
+                PhantoonDoor = artwork.RoomObjectPhantoonDoorVisuals,
+                ChozoStatue = artwork.RoomObjectChozoStatueVisuals,
+                LinkedRestore = artwork.RoomObjectLinkedRestoreVisuals,
+                TourianAccess = artwork.RoomObjectTourianAccessVisuals,
+                SpeedBooster = artwork.RoomObjectSpeedBoosterVisuals,
+                MaridiaElevatube = artwork.RoomObjectMaridiaElevatubeVisuals,
+                SporeSpawnCeiling = artwork.RoomObjectSporeSpawnCeilingVisuals,
+                SamusEater = artwork.RoomObjectSamusEaterVisuals,
+                BotwoonWall = artwork.RoomObjectBotwoonWallVisuals,
+                Kraid = artwork.RoomObjectKraidVisuals,
+                Crocomire = artwork.RoomObjectCrocomireVisuals,
+                MotherBrainFakeDeath = artwork.RoomObjectMotherBrainFakeDeathVisuals,
+                Collectible = artwork.RoomObjectCollectibleVisuals,
+                RevealAndWall = artwork.RoomObjectRevealAndWallVisuals,
+                SetupBlocks = artwork.RoomObjectSetupBlocks,
             }))
-            .Concat(GameplayPresentationIdentity.Create(Require(artwork.XrayRevealVisuals)))
-            .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingBackdrops)))
-            .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, Require(artwork.IntroCinematicArt).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, Require(artwork.SpriteSheets).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, Require(artwork.EnemySheets).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, Require(artwork.RoomBlockSheets).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.BossBodySheetDirectoryName, Require(artwork.BossBodySheets).ContentIdentity))
+            .Concat(GameplayPresentationIdentity.Create(artwork.XrayRevealVisuals))
+            .Concat(EndingPresentationIdentity.Create(artwork.EndingBackdrops))
+            .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, artwork.IntroCinematicArt.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.SpriteSheetDirectoryName, artwork.SpriteSheets.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.EnemySheetDirectoryName, artwork.EnemySheets.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.RoomBlockSheetDirectoryName, artwork.RoomBlockSheets.ContentIdentity))
+            .Append(KeyValuePair.Create(GameInstallationLayout.BossBodySheetDirectoryName, artwork.BossBodySheets.ContentIdentity))
             .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, enemies.DirectoryIdentity));
     }
-
-    /// <summary>Fails identity collection when a bound installation omits any required artwork catalog.</summary>
-    private static T Require<T>(T? catalog) where T : class =>
-        catalog ?? throw new InvalidOperationException($"The installed artwork set has no {typeof(T).Name}.");
 }

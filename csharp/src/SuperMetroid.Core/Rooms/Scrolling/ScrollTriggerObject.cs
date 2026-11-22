@@ -39,7 +39,6 @@ internal sealed partial class ScrollTriggerObject(RoomScrollChange change) : Roo
     {
         Ensure.NotNull(level);
         Triggered = false;
-        level.SetCollision(block, RoomCollisionType.SpecialAir);
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger));
+        level.SetCollisionAndBehavior(block, RoomCollisionType.SpecialAir, RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger));
     }
 }

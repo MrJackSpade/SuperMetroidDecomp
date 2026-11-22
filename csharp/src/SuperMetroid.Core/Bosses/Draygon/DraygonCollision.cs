@@ -11,8 +11,8 @@ internal static partial class DraygonCollision
     /// <summary>The collision components of Draygon frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Draygon's frames.</exception>
     internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && Components.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components)
-            ? components
+        frame is not { } shown ? []
+            : Components.TryGetValue(shown, out ImmutableArray<EnemyCollisionComponent> components) ? components
             : throw new InvalidDataException($"Draygon frame {frame} has no collision identity.");
 
     /// <summary>

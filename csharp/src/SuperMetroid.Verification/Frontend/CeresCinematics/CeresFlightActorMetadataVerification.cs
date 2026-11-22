@@ -17,13 +17,13 @@ internal static class CeresFlightActorMetadataVerification
     internal static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
-        ushort frontDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe57);
+        ushort frontDefinition = retail.ReadCartridgeWord(0x8bbe57);
         Suite(nameof(VerifyActor), () => VerifyActor(retail, front, frontDefinition, "front stars"));
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe84), front.InitialVelocity.RawValue, "front stars initial speed");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe8a), (int)CeresFlightActorDefinitions.FrontStarsStart.X, "front stars X");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe90), (int)CeresFlightActorDefinitions.FrontStarsStart.Y, "front stars Y");
-        PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe96), CeresSheetInks.SpriteSet(front.Colouring), "front stars attributes");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbec3),
+        AssertEqual(retail.ReadCartridgeWord(0x8bbe84), front.InitialVelocity.RawValue, "front stars initial speed");
+        AssertEqual(retail.ReadCartridgeWord(0x8bbe8a), (int)CeresFlightActorDefinitions.FrontStarsStart.X, "front stars X");
+        AssertEqual(retail.ReadCartridgeWord(0x8bbe90), (int)CeresFlightActorDefinitions.FrontStarsStart.Y, "front stars Y");
+        PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord(0x8bbe96), CeresSheetInks.SpriteSet(front.Colouring), "front stars attributes");
+        AssertEqual(retail.ReadCartridgeWord(0x8bbec3),
             CeresFlightActorDefinitions.FrontStarAcceleration.RawValue,
             "front stars acceleration");
 
@@ -37,11 +37,11 @@ internal static class CeresFlightActorMetadataVerification
             CeresRearViewActorRole role = CeresFlightActorDefinitions.RearViewSpawnOrder[index];
             CeresFlightActorDefinition actor = CeresFlightActors.RearViewActor(role);
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native rear spawn LDY");
-            ushort definition = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]);
+            ushort definition = retail.ReadCartridgeWord(spawnOperands[index]);
             VerifyActor(retail, actor, definition, $"rear {role}");
             AssertEqual(SignedEightEight.Zero, actor.InitialVelocity, "rear initializer leaves cleared timer");
             if (role != CeresRearViewActorRole.RearStars)
-                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (definition + 2))),
+                AssertEqual(retail.ReadCartridgeWord((ActorBank | (definition + 2))),
                     CinematicActorNativeMotions.CeresRearView[role], "rear initializer preserves the definition's routine, the role's drift");
             switch (role)
             {
@@ -55,18 +55,18 @@ internal static class CeresFlightActorMetadataVerification
                     VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "small asteroids");
                     break;
                 case CeresRearViewActorRole.Vortex:
-                    PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(actor.Colouring),
+                    PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord(0x8bbfc0), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear vortex attributes");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
+                    AssertEqual(retail.ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear vortex speed magnitude");
                     AssertTrue(!actor.DriftsRoundLoop, "rear vortex drifts on without coming round the loop");
                     break;
                 case CeresRearViewActorRole.RearStars:
-                    PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
+                    PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord(0x8bbeaf), CeresSheetInks.SpriteSet(actor.Colouring),
                         "rear stars attributes");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe9d), CinematicActorNativeMotions.CeresRearView[role],
+                    AssertEqual(retail.ReadCartridgeWord(0x8bbe9d), CinematicActorNativeMotions.CeresRearView[role],
                         "rear stars initializer routine override: the vortex's drift");
-                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfcb),
+                    AssertEqual(retail.ReadCartridgeWord(0x8bbfcb),
                         (-actor.HorizontalDelta).Fraction, "rear stars speed magnitude");
                     AssertTrue(!actor.DriftsRoundLoop, "rear stars drift on without coming round the loop");
                     break;
@@ -75,10 +75,10 @@ internal static class CeresFlightActorMetadataVerification
             }
         }
 
-        AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
-        AssertEqual((ushort)1, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
+        AssertEqual((ushort)1, retail.ReadCartridgeWord(0x8bbe51), "rear vortex native initializer parameter");
+        AssertEqual((ushort)1, retail.ReadCartridgeWord(0x8bbe5a), "rear stars native initializer parameter");
         AssertEqual(front.Animation, CeresFlightActors.RearViewActor(CeresRearViewActorRole.RearStars).Animation, "front/rear program alias");
-        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
+        AssertEqual(retail.ReadCartridgeWord((ActorBank | (frontDefinition + 2))),
             CinematicActorNativeMotions.CeresFrontStars, "front stars preserve the definition's routine, the rush toward Ceres");
         AssertEqual(SignedSixteenSixteen.Zero, front.HorizontalDelta, "front stars have callback-driven acceleration instead of fixed X velocity");
         AssertEqual(false, front.DriftsRoundLoop, "front stars do not drift round the loop");
@@ -89,7 +89,7 @@ internal static class CeresFlightActorMetadataVerification
             string name)
         {
             int address = ActorBank | definitionPointer;
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
+            AssertEqual(source.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actor.Animation),
                 $"{name} instruction list");
         }
 
@@ -99,11 +99,11 @@ internal static class CeresFlightActorMetadataVerification
             WrappedActorRomFields fields,
             string name)
         {
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(source.ReadCartridgeWord(fields.AttributeWord), CeresSheetInks.SpriteSet(actor.Colouring),
                 $"{name} attributes");
-            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
+            AssertEqual(source.ReadCartridgeWord(fields.DeltaWord), actor.HorizontalDelta.Fraction,
                 $"{name} speed");
-            AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
+            AssertEqual((ushort)0x01ff, source.ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.DriftsRoundLoop, $"{name} drifts round the Ceres scenes' loop");
         }
     }

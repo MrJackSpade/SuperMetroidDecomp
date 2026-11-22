@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted when each segment is placed, to refuse a chain its death would not delete, and once per kill by the chain's
-/// fatal-shot reaction after the common death, before the rest of the update runs (<see cref="RemovedEnemyLeftovers{TStates}"/>).
+/// fatal-shot reaction after the common death, before the rest of the update runs (<see cref="RemovedEnemyLeftovers{TEnemy}"/>).
 /// Evidence: the original fatal-shot reaction reads the chain owner's offset from the killed segment's record after the
 /// common death cleared it, and deletes the seven records from that offset.
 /// </remarks>

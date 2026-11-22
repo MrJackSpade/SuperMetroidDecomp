@@ -39,7 +39,6 @@ internal static class YardTrajectoriesVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber });
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[focus];
-            var state = enemies.YardStates[focus];
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -48,14 +47,13 @@ internal static class YardTrajectoriesVerification
             for (int frame = 0; frame < 1200; frame++)
             {
                 ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
-                var movement = (state ?? throw new InvalidOperationException("Verification requires state.")).Movement;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
                 enemies.StepStandaloneFrame(enemies.StandaloneFrame(assets.LevelData) with { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus });
                 int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
                 if (distance > largest)
                 {
                     largest = distance;
-                    Console.WriteLine($"Yard {focus}, frame {frame}, {movement}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.UnsignedWholePixels:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.UnsignedWholePixels:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
+                    Console.WriteLine($"Yard {focus}, frame {frame}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole})");
                 }
             }
             Console.WriteLine($"Yard {focus}: maximum axis step {largest}");
@@ -72,17 +70,18 @@ internal static class YardTrajectoriesVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0));
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
             var actor = enemies.Places.InUpdateOrder[0];
-            var state = enemies.YardStates[0];
+            // The Yard's setup builds the state its main AI, which the check drives, runs on.
+            YardEnemyState state = YardEnemyBehavior.InitializeYard(actor.HeldOccupant().SpawnSettings<YardSpawnSettings>(), actor);
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
+            state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.AirborneFacingDirection = facing;
-            state.Movement = YardMovement.Airborne;
+            state.Motion = new YardMotion.Airborne(YardDirections.ForAirborneFacing(state.AirborneFacingDirection).HidingAnimation);
             state.Behavior = YardBehavior.Dropped;
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) }.InPose(SamusPoseId.FacingLeftNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            enemies.StepStandaloneFrame(enemies.StandaloneFrame(floor) with { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus });
+            enemies.YardBehavior.RunYardMainAi(actor, state, PlacedEnemyAccess.AiFrame(samus, level: floor, camera: new(128, 128)));
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
@@ -96,7 +95,7 @@ internal static class YardTrajectoriesVerification
 
     /// <summary>Reads the parameter-selected crawl speed from the retail bank-$A3 table.</summary>
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
+        RomDataReader.ReadWordFixedBank(bus, 0xa3e5f0 + parameter * 2);
 
     /// <summary>Runs the Yard trajectory verification suite.</summary>
     [VerificationCommand("--yard-trajectories")]

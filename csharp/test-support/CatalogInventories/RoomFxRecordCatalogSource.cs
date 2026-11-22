@@ -110,7 +110,7 @@ internal static partial class RoomFxRecordCatalogSource
 
     /// <summary>The door word of the record at <paramref name="pointer"/>: a door's pointer, zero for a default, or the terminator.</summary>
     private static ushort DoorWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
+        RomDataReader.ReadWordFixedBank(bus, RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
 
     /// <summary>Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>.</summary>
     private static void Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomEffectDefinition> records, ushort pointer,
@@ -118,7 +118,7 @@ internal static partial class RoomFxRecordCatalogSource
     {
         int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
         RoomEffectDefinition record = RoomFxRecordCodec.Decode(area,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
+            RomDataReader.ReadFixedBank(bus, source, RoomFxToolingRomData.Record.ByteCount),
             $"room-FX record $83:{pointer:X4}");
         if (records.TryGetValue(pointer, out RoomEffectDefinition? existing))
         {

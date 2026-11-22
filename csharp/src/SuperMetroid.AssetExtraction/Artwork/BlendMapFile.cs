@@ -82,8 +82,8 @@ internal static partial class BlendMapFile
         if (document.Maps is null)
             throw new InvalidDataException($"Blend maps {name} list no maps.");
         var maps = new Dictionary<string, PictureMap<bool>>(StringComparer.Ordinal);
-        foreach ((string tag, MapDocument? map) in document.Maps)
-            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Blend maps {name} map {tag} is null.")));
+        foreach ((string tag, MapDocument map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map));
         return maps;
     }
 

@@ -21,11 +21,20 @@ public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.Boss
     /// <summary>Creates the state for Crocomire's body place.</summary>
     /// <param name="bodyOccupant">The enemy holding his body's place.</param>
     /// <param name="body">His body's place.</param>
-    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body)
+    /// <param name="tongue">The place of Crocomire's tongue, which his body offered its creation as he was placed (#2554).</param>
+    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace tongue)
     {
         BodyOccupant = bodyOccupant;
         Body = body;
+        Tongue = Ensure.NotNull(tongue);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire);
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
     public RoomEnemyOccupant BodyOccupant { get; }
@@ -62,25 +71,12 @@ public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.Boss
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>The enemy that joined as his tongue, or none before the tongue set up.</summary>
-    private RoomEnemyPlace? _tongue;
-
     /// <summary>
-    /// Crocomire's tongue (#2400), which joins the encounter as it sets up, right after his body, in a living room and a
-    /// defeated one alike; bridge collapse rests and hides it, while later melting phases reuse its actor.
+    /// The place of Crocomire's tongue (#2400), which his room lists right after his body, found as his body is placed; the
+    /// tongue joins the encounter there as it sets up, in a living room and a defeated one alike. Bridge collapse rests
+    /// and hides it, while later melting phases reuse its actor.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The tongue has not set up.</exception>
-    public RoomEnemyPlace Tongue => _tongue ?? throw new InvalidOperationException("Crocomire's tongue is reached before it set up.");
-
-    /// <summary>Joins <paramref name="tongue"/> as his tongue, as it sets up.</summary>
-    /// <exception cref="InvalidDataException">Another enemy already set up as his tongue.</exception>
-    internal void JoinTongue(RoomEnemyPlace tongue)
-    {
-        Ensure.NotNull(tongue);
-        if (_tongue is { } joined && !ReferenceEquals(joined, tongue))
-            throw new InvalidDataException($"Crocomire's tongue set up as enemy {tongue.Ordinal}, but enemy {joined.Ordinal} already is.");
-        _tongue = tongue;
-    }
+    public RoomEnemyPlace Tongue { get; }
 
     /// <summary>
     /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
@@ -88,10 +84,8 @@ public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.Boss
     /// </summary>
     internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
-    /// <summary>Hands his death over to the stage after the one he is at.</summary>
-    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
-    internal void AdvanceDeathStage() =>
-        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
+    /// <summary>Hands his death over to the stage after the one he is at; his course rests at his inert corpse.</summary>
+    internal void AdvanceDeathStage() => DeathStage = DeathStage.FollowingToRest;
 
     /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
     internal void RestAsCorpse() =>

@@ -22,7 +22,7 @@ public static partial class BossAndIntroOverreadFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         BossAndIntroOverreadDocument document = BossAndIntroOverreadDecoding.Decode(cartridge);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.BossAndIntroOverreadDocument>(BossAndIntroOverreadFormat.JsonOptions));
@@ -50,16 +50,13 @@ public static partial class BossAndIntroOverreadFiles
         Ensure.NotNull(document);
         if (document.Version != BossAndIntroOverreadFormat.Version)
             throw new InvalidDataException("Boss and intro overread file has an unsupported version.");
-        BossAndIntroOverreadDocument.ContourRecord contour = Require(document.KraidNailPastLedges, "Kraid nail contour record");
-        IReadOnlyList<BossAndIntroOverreadDocument.FallStep> steps = Require(document.ShellFragmentFallPastCurve, "shell fragment steps");
+        BossAndIntroOverreadDocument.ContourRecord contour = document.KraidNailPastLedges;
+        IReadOnlyList<BossAndIntroOverreadDocument.FallStep> steps = document.ShellFragmentFallPastCurve;
         if (!IsSignedWord(contour.LeftOffset) || !IsSignedWord(contour.Bound) || !IsSignedWord(document.CrocomireLastShotGradient))
             throw new InvalidDataException("Boss and intro overread file holds a word outside its range.");
         var fall = new List<SignedSixteenSixteen>();
-        foreach (BossAndIntroOverreadDocument.FallStep? step in steps)
-        {
-            BossAndIntroOverreadDocument.FallStep present = Require(step, "shell fragment step");
-            fall.Add(SignedSixteenSixteen.FromPixels(present.Pixels));
-        }
+        foreach (BossAndIntroOverreadDocument.FallStep step in steps)
+            fall.Add(SignedSixteenSixteen.FromPixels(step.Pixels));
         if (fall.Count == 0)
             throw new InvalidDataException("Boss and intro overread file holds no shell fragment steps.");
         return new BossAndIntroOverreadServices(
@@ -67,10 +64,6 @@ public static partial class BossAndIntroOverreadFiles
             new CrocomireLastShotGradient(document.CrocomireLastShotGradient),
             new ShellFragmentFallPastCurve(fall));
     }
-
-    /// <summary>Requires a value the file must hold.</summary>
-    private static T Require<T>(T? value, string name) where T : class =>
-        value ?? throw new InvalidDataException($"Boss and intro overread file has no {name}.");
 
     /// <summary>Whether a decoded value fits a signed word.</summary>
     private static bool IsSignedWord(int value) => value is >= short.MinValue and <= short.MaxValue;

@@ -38,9 +38,9 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Initialized retail room fixture stepped by this controller sequence.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
     /// <summary>Shutter enemy tracked for position comparison.</summary>
-    internal RoomEnemyPlace Platform => Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[SlotIndex];
+    internal RoomEnemyPlace Platform => ScenarioRooms.LoadedScope(Runtime).Enemies.Places.InUpdateOrder[SlotIndex];
 
     /// <summary>Places morphed, bomb-equipped Samus on or beside the selected shutter before the recorded sequence.</summary>
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
@@ -59,7 +59,7 @@ internal sealed class ShutterBombArcScenario
         Runtime = runtime;
         Runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         Runtime.RoomLoader.InitializeStartingCeresRoom();
-        Runtime.RoomLoader.InitializeCeresStartSamus();
+        Runtime.RoomLoader.InitializeCeresStartSamus(ScenarioRooms.LoadedScope(Runtime));
         Runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = Samus;
         var platform = Platform;
@@ -69,7 +69,7 @@ internal sealed class ShutterBombArcScenario
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
-        Runtime.StepFrame(0, new RuntimeFrameRequest());
+        ScenarioRooms.Step(Runtime, 0, new RuntimeFrameRequest());
     }
 
     /// <summary>The reported case: left shutter, starting on it, bombing every 8 frames, a 4-frame roll at 75.</summary>

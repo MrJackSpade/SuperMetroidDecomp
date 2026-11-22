@@ -37,7 +37,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         for (int row = 0; row < NorfairRidleyRevealDefinitions.RevealStepCount; row++)
         {
             int pointerAddress = (int)EnemySourceDefinitions.RevealSourcePointers + row * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
+            ushort pointer = RomDataReader.ReadWordFixedBank(bus, pointerAddress);
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
@@ -47,7 +47,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         }
         int terminatorAddress = (int)EnemySourceDefinitions.RevealSourcePointers +
             NorfairRidleyRevealDefinitions.RevealStepCount * sizeof(ushort);
-        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), terminatorAddress),
+        AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(bus, terminatorAddress),
             "Norfair Ridley reveal pointer table ends after fifteen color rows");
         forbidden.Add(terminatorAddress);
         forbidden.Add(terminatorAddress + 1);
@@ -95,7 +95,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), expected,
                 $"Norfair Ridley color source ${address:X6}");
         }
 
@@ -144,9 +144,8 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         {
             var enemy = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: artwork.Bosses);
             enemy.VerificationServices().IsAreaBossDefeated = () => false;
-            RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Ridley, place.KeptDefinition);
-            enemy.NorfairRidleyBehavior.Combat.InitializeNorfairRidley(place);
+            // The room's population load sets him up.
+            RoomEnemyPlace place = enemy.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Ridley))[0];
             NorfairRidleyState state = enemy.NorfairRidley() ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;

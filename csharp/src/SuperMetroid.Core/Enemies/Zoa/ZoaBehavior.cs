@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -6,23 +6,20 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Zoa], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new ZoaEntity(occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
-    internal static void AdvanceZoaAnimation(RoomEnemyPlace place)
+    internal static void AdvanceZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        ZoaEnemyState state = place.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, ZoaAnimations.Segments, ref playback,
             cue =>
@@ -37,7 +34,8 @@ internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue) => state.LaunchSpeed = cue.LaunchSpeed;
 
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
-    internal static void InitializeZoa(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static ZoaEnemyState InitializeZoa(RoomEnemyPlace place)
     {
         var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
         {
@@ -45,12 +43,12 @@ internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = place.Position.Whole,
         };
-        place.SetSpeciesState(state);
 
         // A resting Zoa holds the left-facing shooting animation it starts with, so asking for it again at rest starts
         // nothing.
         state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
+        return state;
     }
 
     /// <summary>What <see cref="RunZoaMain"/> does for each <see cref="ZoaAction"/> member, each member's own arm.</summary>
@@ -138,8 +136,8 @@ internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, ZoaAnimations.StartingWith(segment));
 
     /// <summary>Runs Zoa's main AI.</summary>
-    internal static void RunZoaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunZoaMainAi(RoomEnemyPlace place, ZoaEnemyState zoaEnemyState, IEnemyAiFrame frame)
     {
-        RunZoaMain(place, place.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);
+        RunZoaMain(place, zoaEnemyState, frame.Samus, frame.Camera);
     }
 }

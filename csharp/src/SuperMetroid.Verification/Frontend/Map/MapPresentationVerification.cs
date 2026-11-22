@@ -588,7 +588,7 @@ internal static class MapPresentationVerification
     /// <summary>Checks that the year card's first letter is the first spritemap its native text list names.</summary>
     private static void VerifyTitleSpriteSources(ISnesAddressSpace bus)
     {
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleCard.Year, 1)],
             "the year's first letter is the year card's first listed spritemap");
@@ -600,7 +600,7 @@ internal static class MapPresentationVerification
     /// </summary>
     private static void VerifyLiveMapCatalog(InstalledScreenContent original, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = original,
@@ -615,15 +615,15 @@ internal static class MapPresentationVerification
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         var room = runtime.Room.LoadedRoom;
         // The minimap's centre shows the map cell of the room screen Samus stands in.
         Position16<MapTiles> samusCell = room.MapPosition + new Offset16<MapTiles>(
-            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.X.Whole),
-            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole));
+            RoomGridConversions.PixelToScreen(runtime.Player.Samus.Position.X.Whole),
+            RoomGridConversions.PixelToScreen(runtime.Player.Samus.Position.Y.Whole));
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = runtime.Player.Samus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         Offset16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");

@@ -99,7 +99,7 @@ internal static class BeamFiredOverLastShotVerification
     private static void VerifyChainsawBurnsTheFuseItFinds()
     {
         var retail = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int ignitedWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90C301);
+        int ignitedWord = retail.ReadCartridgeWord(0x90C301);
 
         (SamusProjectileSystem projectiles, SamusBombProjectileSystem shared, SamusState samus) =
             NewFixture(SamusBeamFlags.Wave | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
@@ -150,8 +150,8 @@ internal static class BeamFiredOverLastShotVerification
     private static void VerifyFuseEachShotLeaves()
     {
         var retail = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        int ignitedWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90C301);
-        int reflectionWord = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x90BE3A);
+        int ignitedWord = retail.ReadCartridgeWord(0x90C301);
+        int reflectionWord = retail.ReadCartridgeWord(0x90BE3A);
         AssertEqual(ignitedWord, SamusProjectileMotionDefinitions.MissileIgnitionSpeed.InTwoHundredFiftySixthsOfPixel,
             "a missile ignites at the speed its ignition adds");
         AssertEqual(ignitedWord + reflectionWord,
@@ -197,7 +197,7 @@ internal static class BeamFiredOverLastShotVerification
             ("a crash echo", projectiles =>
             {
                 SamusProjectile echo = projectiles.Pool.OccupyAsFired(LastPlace, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho));
-                BeamCombos.InitializeComboShot(echo.HeldShot(), BeamComboShotKind.Echo);
+                BeamCombos.InitializeComboShot(echo.HeldShot(), new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho));
                 echo.HeldShot().Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(new TrigonometryAngle(echoAngle), new ShinesparkCrashEcho(ShinesparkCrashEchoRelease.Second)));
             }, echoAngle),
             ("a beam carrying a fuse", projectiles => FlyingBeam(projectiles, LastPlace).HeldShot().BeamFuse = UpdateCountdown.For(carriedFuse), carriedFuse),
@@ -206,7 +206,7 @@ internal static class BeamFiredOverLastShotVerification
                 SamusProjectile chainsaw = FlyingBeam(projectiles, LastPlace);
                 // The flying beam's place now holds the Chainsaw shot.
                 chainsaw.HeldShot().Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false);
-                chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb, kindState: null);
+                chainsaw.HeldShot().Install(SamusShotBehaviors.ChainsawPowerBomb);
                 chainsaw.HeldShot().BeamFuse = UpdateCountdown.For(chainsawFuseLeft);
             }, chainsawFuseLeft),
             ("a free place whose last beam carried a fuse", projectiles =>
@@ -334,7 +334,7 @@ internal static class BeamFiredOverLastShotVerification
         SamusProjectile shot = projectiles.Pool.OccupyAsFired(place, SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
         shot.HeldShot().Direction = SamusProjectileDirection.Right;
         shot.HeldShot().Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(200 + place, 90 + place));
-        shot.HeldShot().Install(SamusShotBehaviors.Beam, kindState: null);
+        shot.HeldShot().Install(SamusShotBehaviors.Beam);
         return shot;
     }
 

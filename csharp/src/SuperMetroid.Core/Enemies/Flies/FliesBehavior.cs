@@ -7,16 +7,14 @@ namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The Flies species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FliesBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new FliesEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mella, EnemyDefinitionId.Mellow, EnemyDefinitionId.MaridiaFly];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new FliesEntity(this, occupant, place, common));
 
     /// <summary>Provides the shared room RNG whose advance is part of each fly AI update.</summary>
     private readonly EnemyRoomBinding _room;
@@ -28,17 +26,18 @@ internal sealed partial class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a newly loaded fly at angle zero with its flight animation and clockwise motion.</summary>
-    internal static void InitializeFly(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static FlyEnemyState InitializeFly(RoomEnemyPlace place)
     {
         var state = new FlyEnemyState(FlyAction.Circling)
         {
             Angle = RotationAngle.Zero,
             Rotation = RotationDirection.Clockwise,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation);
         place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
+        return state;
     }
 
     /// <summary>What <see cref="RunFlyMain"/> does for each <see cref="FlyAction"/> member, each member's own arm.</summary>
@@ -59,12 +58,11 @@ internal sealed partial class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     });
 
     /// <summary>Advances room RNG and runs a fly's circle, attack or retreat phase.</summary>
-    private void RunFlyMain(RoomEnemyPlace place, SamusState samus)
+    private void RunFlyMain(RoomEnemyPlace place, FlyEnemyState state, SamusState samus)
     {
         // The flies advance the global RNG even though this family does not consume the
         // returned number. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         RunFlyMainForFlyAction[state.Action](place, samus, state);
     }
 
@@ -161,19 +159,18 @@ internal sealed partial class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Flies's typed animation.</summary>
-    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place)
+    internal static void AdvanceFliesTypedAnimation(RoomEnemyPlace place, FlyEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        FlyEnemyState state = place.RequireSpeciesState<FlyEnemyState>();
         AnimationPlayback<FlySegment> playback = state.Playback;
         EnemyAnimationPlayback.PlaySilently(place, FlyAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 
     /// <summary>Runs Flies's main AI.</summary>
-    internal void RunFliesMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunFliesMainAi(RoomEnemyPlace place, FlyEnemyState flyEnemyState, IEnemyAiFrame frame)
     {
-        RunFlyMain(place, frame.Samus);
+        RunFlyMain(place, flyEnemyState, frame.Samus);
     }
 }

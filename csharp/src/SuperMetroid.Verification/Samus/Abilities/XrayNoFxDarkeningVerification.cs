@@ -69,16 +69,16 @@ internal static class XrayNoFxDarkeningVerification
     /// </summary>
     private static SuperMetroidRuntime XrayWarmingUpIn(RoomDefinition room)
     {
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
+        var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(room);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         SamusPoseMetadata.RefreshCollisionRadii(samus);

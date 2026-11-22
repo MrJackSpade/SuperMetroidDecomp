@@ -75,7 +75,7 @@ internal static class GrappleBeamDefinitionsVerification
         // pointer for each folded two-degree angle pair through the next connection table.
         for (int point = 0; point < 2; point++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((GrappleBeamDefinitions.Rendering.PointTilePointers + point * sizeof(ushort)));
+            ushort pointer = bus.ReadCartridgeWord((GrappleBeamDefinitions.Rendering.PointTilePointers + point * sizeof(ushort)));
             TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
                 GrappleBeamDefinitionsRenderingConstants.PointTileByteCount,
                 $"Grapple point character frame {point}");
@@ -86,7 +86,7 @@ internal static class GrappleBeamDefinitionsVerification
                 GrappleBeamDefinitions.Rendering.SegmentTilePointers) / sizeof(ushort);
         for (int segment = 0; segment < segmentPointerCount; segment++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((GrappleBeamDefinitions.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
+            ushort pointer = bus.ReadCartridgeWord((GrappleBeamDefinitions.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
             TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
                 GrappleBeamDefinitions.Rendering.SegmentTileByteCount,
                 $"Grapple segment character set {segment}");
@@ -106,8 +106,8 @@ internal static class GrappleBeamDefinitionsVerification
                 direction < GrappleBeamDefinitionsConnectionsConstants.DirectionCount;
                 direction++)
             {
-                ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4));
-                ushort handler = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4 + 2));
+                ushort function = bus.ReadCartridgeWord((connectionTable + direction * 4));
+                ushort handler = bus.ReadCartridgeWord((connectionTable + direction * 4 + 2));
                 AssertTrue(SamusGrappleConnectionNative.Kinds.Decode(function, "grapple connection function") is
                     GrappleConnectionKind.Swinging or
                     GrappleConnectionKind.LockedInPlace,

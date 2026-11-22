@@ -115,7 +115,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltImage && frame.Hidden is not null),
                     $"melt dissolve call {call} shows his body as {meltImage}, through the dissolve's hidden columns");
             }
-            fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
+            fixture.Call(c => CrocomireMelting.FinishCrocomireMeltingPass);
         }
         Console.WriteLine("  Crocomire melt: band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing pass.");
     }

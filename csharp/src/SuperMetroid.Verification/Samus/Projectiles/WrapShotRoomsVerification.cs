@@ -35,11 +35,11 @@ internal static class WrapShotRoomsVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(setup.Room);
             var level = runtime.Room.LoadedLevelData;
             bool left = setup.Room == RoomDefinitions.GreenBrinstarMainShaft;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Position = samus.Position.WithWhole(new((ushort)setup.X, (ushort)setup.Y));
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -10,8 +11,7 @@ internal sealed partial record GraphicsSetUnplacedArtwork(UnplacedEnemyArtwork A
     internal override string Name => Artwork.ToString();
 
     /// <inheritdoc/>
-    internal override int? TileByteCount =>
-        EnemyTileSetDefinitions.UnplacedByteCounts.TryGetValue(Artwork, out int bytes) ? bytes : null;
+    internal override int TileByteCount => Ensure.Listed(EnemyTileSetDefinitions.UnplacedByteCounts, Artwork);
 
     /// <inheritdoc/>
     internal override int? FixedBlock =>

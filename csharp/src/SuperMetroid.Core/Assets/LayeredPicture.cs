@@ -24,7 +24,7 @@ public sealed partial record LayeredPicture(SpriteSheetFrame? Behind, SpriteShee
 
     /// <summary>The parts' width and height, or null for a picture that shows nothing.</summary>
     /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
-    public Extent16<ImagePixels>? Size
+    private Extent16<ImagePixels>? Size
     {
         get
         {
@@ -33,5 +33,19 @@ public sealed partial record LayeredPicture(SpriteSheetFrame? Behind, SpriteShee
                     $"A picture's behind part is {behind.Size.X}x{behind.Size.Y} and its in-front part {inFront.Size.X}x{inFront.Size.Y}.");
             return Behind?.Size ?? InFront?.Size;
         }
+    }
+
+    /// <summary>Whether the picture shows something, and then its parts' width and height in <paramref name="size"/>.</summary>
+    /// <param name="size">The parts' width and height, when the picture shows something.</param>
+    /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
+    public bool ShowsSomething(out Extent16<ImagePixels> size)
+    {
+        if (Size is { } shown)
+        {
+            size = shown;
+            return true;
+        }
+        size = default;
+        return false;
     }
 }

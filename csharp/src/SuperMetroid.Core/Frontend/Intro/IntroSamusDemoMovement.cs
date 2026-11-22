@@ -64,7 +64,7 @@ internal static partial class IntroSamusDemoMovement
             heldInput, newlyPressedInput, frameCounter, SamusElevatorFooting.Of(ElevatorActorStatus.Inactive)));
         bool collided = frame.GroundedMovement is { } grounded && grounded.Horizontal.Collided;
 
-        SamusPresentation.Animate(samus, new SamusAnimationStep { ControllerInput = heldInput, FrameCounter = frameCounter, Random = random });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = IntroCinematicDefinitions.Flashback.Ground, ControllerInput = heldInput, FrameCounter = frameCounter, Random = random });
 
         // The pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic

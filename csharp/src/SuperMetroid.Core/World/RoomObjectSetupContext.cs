@@ -20,4 +20,10 @@ internal sealed partial record RoomObjectSetupContext
 
     /// <summary>The room's room-object families whose setups keep state of their own.</summary>
     public required RoomObjectPopulationLoaderDependencies Families { get; init; }
+
+    /// <summary>
+    /// The room's enemy projectiles' spawners of the projectiles room objects throw (#2514), which Mother Brain's glass and
+    /// the Bomb Torizo statue's hand take as they set up.
+    /// </summary>
+    public required RoomObjectThrownProjectileSpawners Thrown { get; init; }
 }

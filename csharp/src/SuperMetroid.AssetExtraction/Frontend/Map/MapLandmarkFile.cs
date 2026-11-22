@@ -29,8 +29,7 @@ public static partial class MapLandmarkFile
     public static MapLandmarkPositions Read(Stream json)
     {
         MapLandmarkDocument document;
-        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map landmark layout is null."); }
+        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
         var ids = Ids().ToArray();
         if (document.Version != MapLandmarkFormat.Version || document.Markers is null || document.Markers.Count != ids.Length)

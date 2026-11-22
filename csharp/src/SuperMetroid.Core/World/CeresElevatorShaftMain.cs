@@ -19,7 +19,7 @@ internal sealed partial class CeresElevatorShaftMain(CeresElevatorShaftRoomMainS
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
         CeresElevatorShaftRoomMainResult result = shaft.Step(
-            update.Player.IntroducedSamus,
+            update.Player.Samus,
             update.Room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)

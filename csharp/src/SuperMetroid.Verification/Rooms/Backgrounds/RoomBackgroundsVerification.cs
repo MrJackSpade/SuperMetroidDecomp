@@ -117,7 +117,7 @@ internal static class RoomBackgroundsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         // The room-state data selects layer-2 scroll $00/$C0 for the main shaft (streams) and $01/$01 for Kraid (fixed).
         foreach ((RoomDefinition room, bool streams) in new[] { new VerifyPublishedRoomBackgroundsCase(RoomDefinitions.GreenBrinstarMainShaft, true), new VerifyPublishedRoomBackgroundsCase(RoomDefinitions.Kraid, false) })
         {

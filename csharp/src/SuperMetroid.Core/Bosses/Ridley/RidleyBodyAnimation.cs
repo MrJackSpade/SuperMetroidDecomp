@@ -136,11 +136,10 @@ internal sealed partial class RidleyBodyAnimation
     /// fragment shows on the update its clock first runs out, for
     /// <see cref="RidleyBreakupFrameDefinitions.PictureShowingUpdates"/>; it then rests on it, its clock stopped (#2454).
     /// </summary>
-    internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment)
+    internal static void AdvanceRidleyBreakupAnimation(RoomEnemyPlace fragment, RidleyExplosionFragmentState state)
     {
         if (!fragment.AnimationClock.Expire())
             return;
-        RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         if (state.ShowsPicture)
         {
             fragment.AnimationClock.Stop();

@@ -85,8 +85,7 @@ public sealed partial class GameplayMessageTitlePresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessageTitleDocument>(
-                source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Gameplay-message title document is null.");
+                source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

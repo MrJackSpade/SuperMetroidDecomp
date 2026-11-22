@@ -14,5 +14,10 @@ namespace SuperMetroid.Core.World;
 /// <param name="Floor">The room's turning floor, or null in a room that shows none.</param>
 /// <param name="ShaftTurn">The elevator shaft's turn, or null in a room that is no turning shaft.</param>
 /// <param name="TourianStatueRoom">The Tourian statue room, or null in every other room.</param>
+/// <param name="Warnings">
+/// The warnings the room's escapes write, or null in a room whose tileset has no warning picture sheet: only a room with it
+/// places Ceres Ridley, whose getaway writes Ceres's warning, and Mother Brain, whose death types Zebes's (#2554).
+/// </param>
 [RoomLifetime]
-internal sealed partial record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, ITourianStatueRoom? TourianStatueRoom);
+internal sealed partial record RoomEnemyScenery(RoomFloor? Floor, CeresElevatorShaftRoomMainState? ShaftTurn, TourianStatueRoom? TourianStatueRoom,
+    RoomWarnings? Warnings);

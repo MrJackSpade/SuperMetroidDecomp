@@ -178,11 +178,11 @@ internal static void VerifySamusHorizontalSpeed()
         controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
+        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Ground = dashAnimation.Ground, Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(1, dashAnimation.AnimationNumber, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
+        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Ground = dashAnimation.Ground, Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(0, dashAnimation.AnimationNumber, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 

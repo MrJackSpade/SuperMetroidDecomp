@@ -25,19 +25,16 @@ internal static class OverlappingEnemyShotsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies;
-        Action<RoomEnemyPlace, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) }.InPose(SamusPoseId.FacingRightNormalPose);
+        // The room's population load sets up three Beetoms stacked on one another (#2554).
+        _ = enemies.LoadPopulation(samus, [.. Enumerable.Repeat(PopulationPlacementAccess.Entry(EnemyDefinitionId.Beetom, new Position16<RoomPixels>(128, 128)), 3)]);
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Places.InUpdateOrder[index];
-            enemy.Bind(EnemyDefinitionId.Beetom, enemy.KeptDefinition);
-            enemy.Bind(enemy.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(enemy.HeldOccupant().DefinitionId));
-            enemy.Position = enemy.Position.WithWhole(new(128, 128));
+            // The Beetom was set up as its room's population sets it up, keeping its real callback and vulnerability, then
+            // is given enough health to observe damage independently from the death actor and drop machinery.
             enemy.Radius = new(enemy.Definition.Radius.X, enemy.Definition.Radius.Y);
-            // Keep the real Beetom callback and vulnerability, but enough health to
-            // observe damage independently from the death actor and drop machinery.
             enemy.Health = 180;
-            initialize(enemy, samus, 0);
             enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLegsTucked; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy.HeldOccupant());
         }
@@ -49,7 +46,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128));
         shot.HeldShot().Radius = new(4, 4);
         shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
-        shot.HeldShot().Behavior = SamusShotBehaviors.Missile;
+        shot.HeldShot().Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.Pending()));
 
         enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         foreach (var enemy in enemies.Places.InUpdateOrder.Take(3))

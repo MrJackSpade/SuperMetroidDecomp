@@ -12,13 +12,22 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 [RoomLifetime]
 internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
+    /// <summary>The gold and silver ninja Space Pirates, each with the settings its placement gives it.</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.PirateGoldNinja] = (occupant, place, common) => EnemyOccupant.Of(new GoldNinjaSpacePirateEntity(this, occupant, place, common)),
-        [EnemyDefinitionId.PirateSilverNinja] = (occupant, place, common) => EnemyOccupant.Of(new NinjaSpacePirateEntity(this, occupant, place, common)),
-    };
+        Ensure.NotNull(registrar).Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateGoldNinja], CreateGoldNinja);
+        registrar.Spawns<NinjaSpacePirateSpawnSettings>([EnemyDefinitionId.PirateSilverNinja], CreateSilverNinja);
+    }
+
+    /// <summary>The gold ninja Space Pirate.</summary>
+    private EnemyOccupant CreateGoldNinja(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new GoldNinjaSpacePirateEntity(this, occupant, place, common, settings));
+
+    /// <summary>The silver ninja Space Pirate.</summary>
+    private EnemyOccupant CreateSilverNinja(RoomEnemyOccupant occupant, NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NinjaSpacePirateEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;
@@ -43,12 +52,10 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     }
 
     /// <summary>Initializes the Ninja Space Pirate.</summary>
-    internal static void InitializeNinjaSpacePirate(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static NinjaSpacePirateEnemyState InitializeNinjaSpacePirate(NinjaSpacePirateSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
-        place.SetSpeciesState(state);
-
-        NinjaSpacePirateSpawnSettings settings = occupant.SpawnSettings<NinjaSpacePirateSpawnSettings>();
         bool startsAtLeft = settings.StartPost == NinjaSpacePirateStartPost.Left;
         NinjaSpacePirateSegment initial = startsAtLeft
             ? NinjaSpacePirateSegment.AwaitingSamusFacingRight
@@ -80,6 +87,7 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
         state.LeftPostX = state.PostsMidpointX - adjustedHalfSpan;
         place.Position = place.Position.WithX(FixedCoordinate.FromWhole(startsAtLeft ? state.LeftPostX : state.RightPostX));
         state.SpawnPosition = place.Position.Whole;
+        return state;
     }
 
     /// <summary>What <see cref="RunNinjaSpacePirateMain"/> does for each <see cref="NinjaSpacePirateAction"/> member, each member's own arm.</summary>
@@ -472,9 +480,8 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
     /// </summary>
-    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateCue cue, SamusState samus)
+    private NinjaSpacePirateSegment? ApplyNinjaSpacePirateCue(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState state, NinjaSpacePirateCue cue, SamusState samus)
     {
-        NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         return cue.Match(ApplyNinjaSpacePirateCueCases, new ApplyNinjaSpacePirateCueContext(occupant, place, state, samus, this));
     }
 
@@ -588,21 +595,21 @@ internal sealed partial class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEn
     }
 
     /// <summary>Runs the ninja Space Pirate's main AI.</summary>
-    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunNinjaSpacePirateMainAi(RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, IEnemyAiFrame frame)
     {
         RunNinjaSpacePirateMain(
             place,
-            place.RequireSpeciesState<NinjaSpacePirateEnemyState>(),
+            ninjaSpacePirateEnemyState,
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances the ninja Space Pirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        EnemyAnimationPlayback.Advance(place, NinjaSpacePirateAnimations.Segments,
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemyOccupant occupant, RoomEnemyPlace place, NinjaSpacePirateEnemyState ninjaSpacePirateEnemyState, EnemyAnimationCueContext context) =>
+        EnemyAnimationPlayback.Advance(place, ninjaSpacePirateEnemyState, NinjaSpacePirateAnimations.Segments,
             static (NinjaSpacePirateEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, cue, context.Samus) is { } continuesAt
+            (state, cue) => ApplyNinjaSpacePirateCue(occupant, place, ninjaSpacePirateEnemyState, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
 

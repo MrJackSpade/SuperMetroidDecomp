@@ -26,7 +26,7 @@ internal static class AirSpikeAlphaRadiusVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         const int SpikeColumn = 32, SpikeRow = 29;
@@ -42,7 +42,7 @@ internal static class AirSpikeAlphaRadiusVerification
                 ? SpikeHazardDefinitions.DamagingSpikeAirBehavior : RoomBlockBehavior.None);
         }
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);

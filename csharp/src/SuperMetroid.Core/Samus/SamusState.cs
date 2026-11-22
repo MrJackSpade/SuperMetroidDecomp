@@ -248,16 +248,6 @@ public sealed partial class SamusState
     public SamusPeriodicDamage PeriodicDamage { get; } = new();
 
     /// <summary>
-    /// The ground her footstep and landing effects go by (#2416): every room load sets its room's, and a scene that
-    /// loads no room sets its own; null until either does.
-    /// </summary>
-    internal RoomGround? Ground { get; set; }
-
-    /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
-    /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
-    internal RoomGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
-
-    /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
     /// </summary>
     public SamusShinesparkState Shinespark { get; }
@@ -584,7 +574,14 @@ public sealed partial class SamusState
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
-    /// <summary>The step of her pose's animation that Samus's animation frame is on.</summary>
+
+    /// <summary>
+    /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a
+    /// direction yet.
+    /// </summary>
+    public bool KnockbackPending => KnockbackHold.IsRunning && Knockback == Movement.SamusKnockback.None;
+
+    /// <summary>The step of the animation of <see cref="Pose"/> that Samus's animation frame is on.</summary>
     internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(Pose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>

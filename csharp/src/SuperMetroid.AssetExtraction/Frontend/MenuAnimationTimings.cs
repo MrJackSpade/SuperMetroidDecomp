@@ -14,7 +14,7 @@ internal static partial class MenuAnimationTimings
     /// <exception cref="InvalidDataException">The cartridge's reloads differ, which one installed hold cannot carry.</exception>
     internal static int MissileFrameDuration(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         int duration = RomDataReader.ReadWordFixedBank(cartridge, MenuAnimationSourceDefinitions.MissileFrameDurations);
         for (int frame = 1; frame < MenuMissileAnimationDefinitions.Roll.Count; frame++)
         {
@@ -27,5 +27,5 @@ internal static partial class MenuAnimationTimings
 
     /// <summary>The ticks the file-select helmet holds each frame.</summary>
     internal static int HelmetFrameDuration(ISnesAddressSpace bus) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuAnimationSourceDefinitions.HelmetFrameDuration);
+        RomDataReader.ReadWordFixedBank(bus, MenuAnimationSourceDefinitions.HelmetFrameDuration);
 }

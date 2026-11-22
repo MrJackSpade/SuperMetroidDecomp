@@ -181,7 +181,7 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native grapple definition byte solely for comparison with compiled data.</summary>
-    private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleFiringDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks normal and running X-origin aliases across all ten directions.</summary>
     internal static void VerifyGrappleOriginXSelection(CartridgeImportAddressSpace rom)
@@ -216,7 +216,7 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native Grapple origin byte for the comparison oracle.</summary>
-    private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleOriginFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
@@ -245,7 +245,7 @@ internal static class GrappleFiringDefinitionsVerification
     }
 
     /// <summary>Reads a native Grapple launch byte for the comparison oracle.</summary>
-    private static byte GrappleLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleLaunchFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
     internal static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
         Func<SamusPoseId> sourcePose)

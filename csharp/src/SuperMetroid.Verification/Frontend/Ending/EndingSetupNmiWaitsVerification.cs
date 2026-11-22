@@ -22,7 +22,7 @@ internal static class EndingSetupNmiWaitsVerification
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         game.Session.BeginZebesEscapeFade();
         while (game.IsAt(EndingStep.LeavingZebes))
             game.Step(0);

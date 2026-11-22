@@ -58,18 +58,17 @@ internal sealed partial class BlockReactionObjects
     }
 
     /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first room-object pass.</summary>
-    public bool TrySpawnCollisionBombBlock(
+    /// <param name="level">The room's level data.</param>
+    /// <param name="position">The bomb block Samus's contact breaks.</param>
+    /// <param name="change">The collision bomb block its break sets off (<see cref="BlockReactionChanges.TryCollisionBomb"/>).</param>
+    /// <returns>Whether the reaction took a place; a full room loses it.</returns>
+    internal bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior)
+        BlockReactionChange change)
     {
         Ensure.NotNull(level);
-        if (!BombableReactions.IsBreak(behavior.Bombable))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(behavior),
-                "Collision bomb-block behaviour must be one of the eight bomb-block breaks.");
-        }
+        Ensure.NotNull(change);
 
         // The reaction takes the first free place in update order, as every room object spawned in play does, and a full
         // room loses the spawn. One movement can set off several neighbouring blocks, each timed on its own.
@@ -82,8 +81,7 @@ internal sealed partial class BlockReactionObjects
         // This is not the block's earlier appearance: the setup shows the bomb-block parent in place of the block and
         // its mirroring, and multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
-        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
-            new RoomTerrainBlock(parent, block.CollisionType)));
+        place.Become(new BlockReactionObject(change, new RoomTerrainBlock(parent, block.CollisionType)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
@@ -165,17 +163,21 @@ internal sealed partial class BlockReactionObjects
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="bombable">The reaction the bombed block carries: a break or the empty reaction.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that set the reaction off.</param>
     public void SpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        BombableReaction bombable,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (behavior.Bombable is not ({ } bombable and not BombableReaction.Inert))
+        if (bombable == BombableReaction.Inert)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bombable),
                 "Bomb-reaction behaviour must be one of the bomb-block breaks or the empty reaction.");
         }
 
@@ -198,7 +200,7 @@ internal sealed partial class BlockReactionObjects
         if (bombable == BombableReaction.Nothing)
         {
             // The empty reaction's setup does nothing, and it leaves on its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return;
         }
 
@@ -219,7 +221,7 @@ internal sealed partial class BlockReactionObjects
         {
             // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
             // object has taken a place. This object does not change terrain and leaves on its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         },
         [ShotBlockReaction.RespawningBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
@@ -235,7 +237,7 @@ internal sealed partial class BlockReactionObjects
             // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
             // its shootable collision before the first animated breaking frame runs later in this pass, keeping
             // what it shows until then (#2502).
-            place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
+            place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
             level.SetCollision(position, block.Terrain.Deactivated().Collision);
             return true;
         },
@@ -246,7 +248,7 @@ internal sealed partial class BlockReactionObjects
         [ShotBlockReaction.Nothing] = (level, position, shootable, reaction, projectileFamily, place, block) =>
         {
             // The empty reactions leave the block alone, and the object still holds a place until its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         },
     });
@@ -263,7 +265,7 @@ internal sealed partial class BlockReactionObjects
         {
             // A normal bomb does not break this block. The setup redirects to the block's one-frame visible
             // reveal, deliberately leaving the live block and its collision untouched.
-            place.Become(new BlockReactionObject(yielding.Reveal));
+            place.Become(new LastingBlockReactionObject(yielding.Reveal));
             return true;
         }
 
@@ -317,10 +319,14 @@ internal sealed partial class BlockReactionObjects
         _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
 
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="special">The reaction the bombed special block carries.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that hit it.</param>
     public void SpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        SpecialBlockReaction special,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
@@ -333,15 +339,13 @@ internal sealed partial class BlockReactionObjects
         if (!setsOff)
             return;
 
-        if (behavior.Special is null)
-            throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special);
+        LastingBlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 
         if (_places.Spawn() is not { } place)
             return;
 
         place.Block = position;
-        place.Become(new BlockReactionObject(change));
+        place.Become(new LastingBlockReactionObject(change));
     }
 
     /// <summary>

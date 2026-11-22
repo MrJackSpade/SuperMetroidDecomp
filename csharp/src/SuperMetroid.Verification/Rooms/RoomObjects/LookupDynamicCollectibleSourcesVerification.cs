@@ -36,7 +36,7 @@ internal static class LookupDynamicCollectibleSourcesVerification
     }
 
     /// <summary>Reads an artwork byte from the retail source solely for the dynamic graphics oracle.</summary>
-    private static byte DynamicCollectibleSourcePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DynamicCollectibleSourcePointersRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks ascending identities for kinds four through twenty and rejects the four tanks.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()

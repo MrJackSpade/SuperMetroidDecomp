@@ -23,8 +23,7 @@ internal static class EyeWindowSnapshotTestsVerification
         foreach (int angle in new[] { 0, 1, 63, 64, 65, 127, 128, 191, 192, 193, 255 })
         foreach (ushort width in new ushort[] { 0, 1, 4 })
             Check(x, y, angle, width);
-        foreach (MorphBallEyeBeamPhase phase in new[] { MorphBallEyeBeamPhase.Inactive, MorphBallEyeBeamPhase.PendingInitialization })
-            AssertTrue(GameplayEffectCapture.CaptureMorphBallEyeBeam(new(phase, Position16<RoomPixels>.Zero, RotationAngle.Zero, TrigonometryAngle.Zero, RgbColor.Black), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
+        AssertTrue(GameplayEffectCapture.CaptureMorphBallEyeBeam(new(MorphBallEyeBeamPhase.PendingInitialization, Position16<RoomPixels>.Zero, RotationAngle.Zero, TrigonometryAngle.Zero, RgbColor.Black), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
         VerifyReportedEyeNativeEndpoints();
         Console.WriteLine($"  Eye window snapshots: {samples} cones across origins, angles and widths; drawn cartridge samples also pass.");
 

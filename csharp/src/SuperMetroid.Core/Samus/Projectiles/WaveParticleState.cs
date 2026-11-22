@@ -12,4 +12,8 @@ internal sealed partial class WaveParticleState(SpecialAttackParticle part) : Sp
     /// down each update it homes. The particle ends on its last.
     /// </summary>
     internal UpdateCountdown Lifetime { get; } = UpdateCountdown.Lasting(BeamComboDefinitions.WaveLifetime);
+
+    /// <inheritdoc/>
+    internal override BeamFiredOverLastShot.ReplacedShot ReplacedByBeam =>
+        new BeamFiredOverLastShot.ReplacedShot.SpecialAttackParticle(TrigonometryAngle.Zero);
 }

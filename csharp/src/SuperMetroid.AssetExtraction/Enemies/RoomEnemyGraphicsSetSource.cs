@@ -8,8 +8,9 @@ internal abstract partial record RoomEnemyGraphicsSetSource
     /// <summary>The source's name in diagnostics.</summary>
     internal abstract string Name { get; }
 
-    /// <summary>The bytes of the tile set the source uploads, or null when the import does not catalogue it.</summary>
-    internal abstract int? TileByteCount { get; }
+    /// <summary>The bytes of the tile set the source uploads, which the import catalogues for every source.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The import does not catalogue the source's tile set.</exception>
+    internal abstract int TileByteCount { get; }
 
     /// <summary>The fixed staging block the source uploads its tiles to; null when they follow the previous record's.</summary>
     internal abstract int? FixedBlock { get; }

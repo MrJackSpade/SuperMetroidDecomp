@@ -12,6 +12,9 @@ public sealed partial class BossBodySheet
     /// <summary>The frames by name.</summary>
     private readonly Dictionary<string, BossBodyFrame> frames;
 
+    /// <summary>The frames a dissolve erases, by name.</summary>
+    private readonly Dictionary<string, DissolvingBossBodyFrame> dissolving;
+
     /// <summary>Holds <paramref name="owner"/>'s frames cut from <paramref name="sheet"/>.</summary>
     /// <exception cref="InvalidDataException">A frame repeats a name, or a picture of it is not on the sheet.</exception>
     public BossBodySheet(BossBodyOwner owner, SpriteSheet sheet, IEnumerable<BossBodyFrame> frames)
@@ -19,14 +22,19 @@ public sealed partial class BossBodySheet
         Owner = owner;
         Sheet = Ensure.NotNull(sheet);
         var named = new Dictionary<string, BossBodyFrame>(StringComparer.Ordinal);
+        var dissolvingFrames = new Dictionary<string, DissolvingBossBodyFrame>(StringComparer.Ordinal);
         foreach (BossBodyFrame frame in Ensure.NotNull(frames))
         {
             if (frame.Shown is { } shown && shown.Picture.Sheet != sheet.Image)
                 throw new InvalidDataException($"{owner}'s body frame {frame.Name} is pictured off its sheet.");
             if (!named.TryAdd(frame.Name, frame))
                 throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
+            // A frame's constructor admits a dissolve only of the picture it shows.
+            if (frame.Dissolve is { } dissolve)
+                dissolvingFrames.Add(frame.Name, new DissolvingBossBodyFrame(frame, dissolve));
         }
         this.frames = named;
+        dissolving = dissolvingFrames;
     }
 
     /// <summary>The boss.</summary>
@@ -47,4 +55,10 @@ public sealed partial class BossBodySheet
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
     public BossBodyFrame Frame([InstalledKey] string name) =>
         frames.TryGetValue(name, out BossBodyFrame? frame) ? frame : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name}.");
+
+    /// <summary>The frame named <paramref name="name"/>, which a dissolve erases.</summary>
+    /// <exception cref="InvalidDataException">The sheet has no such frame that a dissolve erases.</exception>
+    public DissolvingBossBodyFrame Dissolving([InstalledKey] string name) =>
+        dissolving.TryGetValue(name, out DissolvingBossBodyFrame? frame) ? frame
+            : throw new InvalidDataException($"{Owner}'s body sheet has no frame {name} that a dissolve erases.");
 }

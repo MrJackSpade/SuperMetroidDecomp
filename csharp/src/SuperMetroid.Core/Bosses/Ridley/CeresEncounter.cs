@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -12,6 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="ceresRidley">Ceres Ridley.</param>
 /// <param name="escape">The station's escape, whose getaway the room main runs.</param>
 /// <param name="doors">The room's Ceres doors, the door of Ridley's room among them.</param>
+[RoomLifetime]
 internal sealed partial class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley, CeresEscape escape, CeresDoorBehavior doors) : ICeresEncounter
 {
     /// <inheritdoc/>

@@ -22,13 +22,14 @@ internal static class PowampSpikeBehaviorVerification
     /// </summary>
     internal static void VerifyPowampSpikeBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PowampSpikeNativeListAddresses.Extent, "Powamp-spike");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = PowampPairFixtures.PlacePair(enemies).Body;
+        PowampPair pair = PowampPairFixtures.PlacePair(enemies);
+        RoomEnemyPlace body = pair.Body;
         body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        PowampPairFixtures.ShootDeadAndRunDeathDelay(enemies, body);
+        PowampPairFixtures.ShootDeadAndRunDeathDelay(enemies, pair);
         EnemyProjectile[] spikes = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)];
         AssertEqual(8, spikes.Length, "a burst spawns all eight spikes");
         // Spawning searches the pool from its last place down, so the eighth spike takes the lowest of the eight places, and

@@ -26,7 +26,8 @@ internal static class FallingSparkLaunchDefinitionsVerification
         Action<EnemyProjectile> move = enemies.FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
         // The place's projectile before each spawn is a stale spark the check leaves there.
-        var projectile = enemies.Projectiles.Occupy(17, RoomEnemyProjectileKind.FallingSpark);
+        var sparkGraphics = new SpriteGraphics(SpawnedObjectOwner.Of(EnemyDefinitionId.Spark), source.Shading);
+        var projectile = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.FallingSpark, sparkGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -59,7 +60,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (int place in Enumerable.Range(0, SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity)) enemies.Projectiles.Occupy(place, RoomEnemyProjectileKind.FallingSpark);
+        FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.FallingSpark, sparkGraphics);
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);
@@ -69,5 +70,5 @@ internal static class FallingSparkLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native launch table as the independent speed oracle.</summary>
-    private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FallingSparkLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

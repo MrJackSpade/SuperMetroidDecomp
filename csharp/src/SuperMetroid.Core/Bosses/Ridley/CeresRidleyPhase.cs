@@ -94,7 +94,7 @@ public sealed partial class CeresRidleyPhase
     {
         // The escape runs its own step here, in his place in the update: nothing while the room main flies the
         // getaway, then the self-destruct warning and its alarm.
-        turn.Ridley.Escape.RunRidleysStep(turn.Place.FrameCounter);
+        turn.Ridley.Escape.RunRidleysStep(turn.Place.FrameCounter, turn.State.Warning);
     });
 
     /// <summary>

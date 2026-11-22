@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -37,7 +38,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// checks each such native frame holds a BG2 command component.
     /// </summary>
     private static HashSet<ushort> VerifyNativeDraygonBg2FrameSelectors(
-        ISnesAddressSpace rom, HashSet<ushort> draygonOamPointers)
+        CartridgeImportAddressSpace rom, HashSet<ushort> draygonOamPointers)
     {
         var draygonBg2Pointers = new HashSet<ushort>();
         // The Draygon oracle matches each typed frame to the operand of its native list frame.
@@ -51,8 +52,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             AssertTrue(Enumerable.Range(0, count).Any(component =>
             {
                 ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
-                ushort sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | record);
-                return CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | sprite)
+                ushort sprite = rom.ReadCartridgeWordFixedBank(0xa50000 | record);
+                return rom.ReadCartridgeWordFixedBank(0xa50000 | sprite)
                     == 0xfffe;
             }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
         }
@@ -272,11 +273,32 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         var enemies = EnemySystemFixtures.New((art is null ? EnemySessionFixtures.WithInstalledServices() : EnemySessionFixtures.WithInstalledServices(art.Enemies)), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art?.Bosses);
         // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
-        enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         EnemyFrameId? frame = RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer);
-        place.Bind(ExtendedFrameShower(frame), place.KeptDefinition);
-        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        EnemyDefinitionId shower = ExtendedFrameShower(frame);
+        RoomEnemyPlace place;
+        if (shower is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
+        {
+            // Kraid's arm and foot draw the pose their part of his encounter shows, with its step and depth (#2210), so
+            // Kraid is placed as his room places him and the limb's own entity draws (#2554).
+            _ = KraidPartsFixtures.PlaceKraid(enemies);
+            place = enemies.Places.InUpdateOrder.Single(candidate => candidate.Holds(shower));
+        }
+        else if (shower is EnemyDefinitionId.Ridley)
+        {
+            // Ridley is placed as his room's population places him, in a room whose Ridley is not beaten. His scene draws his
+            // tail and wings before his body while his movement animation runs, which this fixture stops, and his AI latches
+            // whether his body draws in the hurt flash, which holds his own colours here.
+            enemies.VerificationServices().IsAreaBossDefeated = () => false;
+            place = enemies.LoadFirstEntries(RoomEnemyPopulationDefinitions.Ridley, 1, RoomEnemyFrameFixtures.StandaloneSamus())[0];
+            (enemies.NorfairRidley() ?? throw new InvalidOperationException("Ridley's setup began his encounter.")).Motion = RidleyMotion.Still;
+        }
+        else
+        {
+            place = enemies.Places.InUpdateOrder[0];
+            place.Bind(shower, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        }
+        enemies.Drawing.Enqueue(place, reached: true);
         // A boss's part draws in a room whose boss has attached the body its body frames show on (#2573).
         BossBodyCanvasFixtures.AttachBodyOfPart(enemies, place);
         if (art is not null)
@@ -285,22 +307,12 @@ internal static class EnemyExtendedFrameArtworkVerification
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(place.HeldOccupant().DefinitionId));
             place.Shading = PictureShading.Standard;
         }
-        // Ridley's scene draws his tail and wings before his body while his movement animation runs, and his AI latches
-        // whether his body draws in the hurt flash; this fixture's animation is off and its latch holds his own colours.
-        if (place.Holds(EnemyDefinitionId.Ridley))
-        {
-            place.HoldRidley(new NorfairRidleyState());
-        }
         place.CollidesByFrameHitboxes = true;
         place.Frame = frame;
-        // Kraid's arm and foot show the pose their record stores, its step and depth, through their part state (#2210).
-        if (place.Occupant?.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
-        {
-            place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.Holds(EnemyDefinitionId.KraidArm)
-                ? new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).ArmState
-                : new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).FootState);
+        // Kraid's arm and foot show the pose their record stores, its step and depth, through their part of his encounter
+        // (#2210).
+        if (shower is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
             place.SpritemapPointer = pointer;
-        }
         if (frame is { } shown)
             SpawnedObjectFixtures.ShowDrawnLooks(enemies, SuperMetroid.AssetExtraction.Enemies.FrameDrawings.Of(shown));
         place.AnimationClock.HoldFor(7);
@@ -343,7 +355,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
+            ushort sprite = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
             int spriteAddress = ((int)new SnesAddress(bank, sprite));
             int parts = LittleEndianBytes.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
             if (parts == EnemyBg2FrameLayoutConstants.StreamMarker)
@@ -355,14 +367,14 @@ internal static class EnemyExtendedFrameArtworkVerification
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, cursor)));
+                    ushort destination = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, cursor)));
                     if (destination == 0xffff)
                     {
                         Block(bank, cursor, 2);
                         terminated = true;
                         break;
                     }
-                    ushort wordCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2)))));
+                    ushort wordCount = source.ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2)))));
                     int length = 4 + wordCount * 2;
                     Block(bank, cursor, length);
                     cursor = unchecked((ushort)(cursor + length));

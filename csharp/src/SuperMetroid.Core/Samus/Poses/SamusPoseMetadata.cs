@@ -514,18 +514,18 @@ internal static partial class SamusPoseMetadata
     }
 
     /// <summary>What <see cref="TrySetupPublishedBombJump"/> comes to for each <see cref="SamusBombJumpSetup"/> member, each member's own arm.</summary>
-    private static IdentityTable<SamusBombJumpSetup, Func<SamusState, SamusTerrain, int, GameplayAction, SamusMovementType, bool>> TrySetupPublishedBombJumpForSamusBombJumpSetup => field ??= new(new Dictionary<SamusBombJumpSetup, Func<SamusState, SamusTerrain, int, GameplayAction, SamusMovementType, bool>>
+    private static IdentityTable<SamusBombJumpSetup, Func<SamusState, SamusBombJump, SamusTerrain, int, GameplayAction, SamusMovementType, bool>> TrySetupPublishedBombJumpForSamusBombJumpSetup => field ??= new(new Dictionary<SamusBombJumpSetup, Func<SamusState, SamusBombJump, SamusTerrain, int, GameplayAction, SamusMovementType, bool>>
     {
-        [SamusBombJumpSetup.ForwardJump] = static (samus, terrain, frameCounter, controllerNewInput, movementType) => TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(samus, terrain, frameCounter, controllerNewInput, movementType),
-        [SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen] = static (samus, terrain, frameCounter, controllerNewInput, movementType) => TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(samus, terrain, frameCounter, controllerNewInput, movementType),
-        [SamusBombJumpSetup.KeepPose] = static (samus, terrain, frameCounter, controllerNewInput, movementType) =>
+        [SamusBombJumpSetup.ForwardJump] = static (samus, published, terrain, frameCounter, controllerNewInput, movementType) => TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(samus, published, terrain, frameCounter, controllerNewInput, movementType),
+        [SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen] = static (samus, published, terrain, frameCounter, controllerNewInput, movementType) => TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(samus, published, terrain, frameCounter, controllerNewInput, movementType),
+        [SamusBombJumpSetup.KeepPose] = static (samus, published, terrain, frameCounter, controllerNewInput, movementType) =>
         {
             // Samus's current pose becomes the special prospective pose. Because
             // that pose already matches, Samus's pose handling immediately arms the bomb jump.
-            ArmPublishedBombJump(samus);
+            ArmPublishedBombJump(samus, published);
             return true;
         },
-        [SamusBombJumpSetup.TurnedDown] = static (samus, terrain, frameCounter, controllerNewInput, movementType) =>
+        [SamusBombJumpSetup.TurnedDown] = static (samus, published, terrain, frameCounter, controllerNewInput, movementType) =>
         {
             throw new InvalidOperationException(
                 $"Bomb-jump setup reached a turned-down request for pose {samus.Pose}, which its rejection drops.");
@@ -533,7 +533,7 @@ internal static partial class SamusPoseMetadata
     });
 
     /// <summary>What <see cref="TrySetupPublishedBombJumpForSamusBombJumpSetup"/> does for <see cref="SamusBombJumpSetup.ForwardJump"/>, <see cref="SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen"/>.</summary>
-    private static bool TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(SamusState samus, SamusTerrain terrain, int frameCounter, GameplayAction controllerNewInput, SamusMovementType movementType)
+    private static bool TrySetupPublishedBombJumpForSamusBombJumpSetupForwardJump(SamusState samus, SamusBombJump published, SamusTerrain terrain, int frameCounter, GameplayAction controllerNewInput, SamusMovementType movementType)
     {
         // The jump reads the pose's facing, not its name: a pose that does not face left takes the right-facing path.
         SamusPoseId sourcePose = samus.Pose;
@@ -575,7 +575,7 @@ internal static partial class SamusPoseMetadata
         // The selected forward-jump poses are NOT the transition poses that
         // initialize ordinary jump speed (or apply the crouch jump offset).
         // This frame's velocity stays; bomb start replaces it next frame.
-        ArmPublishedBombJump(samus);
+        ArmPublishedBombJump(samus, published);
         return true;
     }
 
@@ -589,12 +589,12 @@ internal static partial class SamusPoseMetadata
         GameplayAction controllerNewInput)
     {
         Ensure.NotNull(terrain);
-        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || samus.BombJump is not { AwaitsPoseHandling: true })
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || samus.BombJump is not { AwaitsPoseHandling: true } published)
             return false;
 
         // The rejection above has dropped every turned-down request, and a frozen-time one where frozen time turns it down.
         SamusMovementType movementType = ReadMovementType(samus);
-        return TrySetupPublishedBombJumpForSamusBombJumpSetup[BombJumpSetupOf(samus)](samus, terrain, frameCounter, controllerNewInput, movementType);
+        return TrySetupPublishedBombJumpForSamusBombJumpSetup[BombJumpSetupOf(samus)](samus, published, terrain, frameCounter, controllerNewInput, movementType);
     }
 
     /// <summary>How a published bomb jump is set up from the way Samus moves (<see cref="SamusMovementTypeDefinitions"/>).</summary>
@@ -606,7 +606,7 @@ internal static partial class SamusPoseMetadata
     }
 
     /// <summary>Arms the published bomb jump.</summary>
-    internal static void ArmPublishedBombJump(SamusState samus)
+    internal static void ArmPublishedBombJump(SamusState samus, SamusBombJump published)
     {
         // Arming the bomb jump takes, rather than suspends, Samus's movement.
         // A suit-interrupted spark may still hold it despite the ordinary body pose.
@@ -617,7 +617,7 @@ internal static partial class SamusPoseMetadata
         SamusMovementHandOver.ToBombJump(samus);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        samus.BombJump = (samus.BombJump ?? throw new InvalidOperationException("Only a published bomb jump can be armed.")).Arm();
+        samus.BombJump = published.Arm();
         samus.BombJumpPhase = SamusBombJumpPhase.Starting;
         samus.BombJumpPoseInputLocked = true;
     }

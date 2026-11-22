@@ -23,9 +23,9 @@ internal static class YardSurfaceLossVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = place.Position.WithWhole(new(512, 512));
             place.Radius = new(8, 8);
-            var state = new YardEnemyState(YardMovement.HoldingStill)
+            var state = new YardEnemyState
             {
-                Movement = YardMovement.Crawling,
+                Motion = YardMotion.Crawling,
                 Crawl = YardDirection.OnFloorMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),

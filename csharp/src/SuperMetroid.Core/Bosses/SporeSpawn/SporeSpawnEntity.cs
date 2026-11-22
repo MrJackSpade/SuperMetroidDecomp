@@ -7,11 +7,26 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, SporeSpawnEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeSporeSpawn(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The SporeSpawn species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(species, occupant, place, common, species.InitializeSporeSpawn(occupant, place))
+    {
+    }
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly SporeSpawnEnemyState state = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);
@@ -21,7 +36,7 @@ internal sealed partial class SporeSpawnEntity(SporeSpawnBehavior species, RoomE
 
     /// <summary>The encounter his body holds from its initialization (#2231), which his own reactions act on (#2420).</summary>
     /// <exception cref="InvalidOperationException">The body has not initialized.</exception>
-    internal SporeSpawnEnemyState Encounter => Place.RequireSpeciesState<SporeSpawnEnemyState>();
+    internal SporeSpawnEnemyState Encounter => state;
 
     /// <summary>His own shot reaction, which resolves the rest of a shot on this encounter after the common damage.</summary>
     private EnemyShotReaction OwnShotReaction => field ??= species.SporeSpawnShotReactionOf(this);

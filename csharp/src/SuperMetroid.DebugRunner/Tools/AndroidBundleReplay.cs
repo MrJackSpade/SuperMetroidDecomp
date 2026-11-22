@@ -48,16 +48,17 @@ internal static class AndroidBundleReplay
         try
         {
             SuperMetroidGame game;
+            GameInstallation installation = RepositoryInstallation.Installation;
+            var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(
+                installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()), assets);
             if (seed is null)
             {
-                game = new SuperMetroidGame(journalSaves, recording.GameOptions.ToAssists());
+                // The host composes the game with its installed content and the clips it mixes (#2554).
+                game = GameSessionComposer.Create(journalSaves, recording.GameOptions.ToAssists(), content, storage: null);
             }
             else
             {
-                GameInstallation installation = RepositoryInstallation.Installation;
                 var identity = GameContentIdentity.Create(installation.LoadAudioClips(), installation.LoadMaps(), installation.LoadProjectiles());
-                var content = new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(
-                    installation.LoadGameArtwork(installation.LoadMaps(), installation.LoadProjectiles(), installation.LoadEnemyTiles(), installation.LoadSamusBody()), assets);
                 var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, content, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
@@ -68,7 +69,6 @@ internal static class AndroidBundleReplay
                     throw new InvalidDataException("Preserved seed saves differ from the journal reset header.");
             }
 
-            game.BindAudio(assets);
             var samples = new short[AudioSession.PcmSamplesPerFrame];
             using var videoHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             using var audioHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);

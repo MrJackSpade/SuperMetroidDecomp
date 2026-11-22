@@ -18,13 +18,18 @@ internal static class KraidFootCollisionDefinitionsVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();
-        var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-
-        RoomEnemyPlace installedFoot = installed.Places.InUpdateOrder[0];
-        installedFoot.Bind(EnemyDefinitionId.KraidFoot, EnemyDefinitionFixtures.Blank);
-        installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.KeptDefinition);
-        // The foot shows each recorded pose through its part state, which its collision reads (#2210).
-        installedFoot.SetSpeciesState<KraidPartState>(new KraidEnemyState(new KraidParts()).FootState);
+        var installed = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
+            services: new VerificationRoomEnemyServices(null));
+        // Kraid is placed as his room places him, his parts after his body, in a room that has not seen him beaten; his foot
+        // shows each recorded pose, which its collision reads (#2210).
+        installed.VerificationServices().IsAreaBossDefeated = () => false;
+        installed.VerificationServices().SetRoomScrollState = (_, _) => { };
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        installed.VerificationServices().IsAreaBossDefeated ??= () => false;
+        installed.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        _ = installed.PlaceKraid();
+        RoomEnemyPlace installedFoot = installed.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.KraidFoot));
         ushort[] frames =
         [
             KraidFootCollisionDefinitions.InitialFrame,
@@ -135,7 +140,7 @@ internal static class KraidFootCollisionDefinitionsVerification
     }
 
     /// <summary>Reads one native bank-$A7 collision byte for the independent hitbox oracle.</summary>
-    private static byte KraidFootCollisionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidFootCollisionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects all cartridge reads and writes while installed Kraid foot collision runs.</summary>
     private static CartridgeReadGuard NewKraidFootCollisionNoReadBus() =>

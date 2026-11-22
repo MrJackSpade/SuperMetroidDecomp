@@ -18,7 +18,7 @@ internal static class EnemyDropChanceDefinitionsVerification
     /// </summary>
     internal static void VerifyEnemyDropChanceDefinitions(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Health = 99,
@@ -26,7 +26,7 @@ internal static class EnemyDropChanceDefinitionsVerification
         };
         // The fixture's population is empty; drop selection reads the chances it is given.
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1], CompiledRoomEnemyDefinitions.Instance);
-        var projectile = new EnemyProjectile(1, default, RoomEnemyProjectileKind.EnemyDeathPickup, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
+        var projectile = new EnemyProjectile(1, default, RoomEnemyProjectileKind.EnemyDeathPickup, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         for (int table = 0; table < EnemyHeaderTableDefinitions.DropChancesCount; table++)
         {
             int word = EnemyHeaderTableDefinitions.FirstDropChances + table * EnemyHeaderTableDefinitions.DropChancesSize;

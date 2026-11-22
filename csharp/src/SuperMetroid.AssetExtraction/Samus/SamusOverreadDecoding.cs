@@ -136,23 +136,22 @@ internal static partial class SamusOverreadDecoding
     /// <exception cref="InvalidDataException">The copied bytes are not a prefix of the slice, or split the loading state.</exception>
     private static SamusOverreadDocument.Overwrite? ProgressionOverwrite(byte?[] slice)
     {
+        // The copy writes the slice from its start: its copied prefix is every byte before the first it left alone.
         int copied = 0;
         while (copied < slice.Length && slice[copied] is not null)
             copied++;
+        byte[] prefix = [.. slice.Take(copied).OfType<byte>()];
         if (slice.Skip(copied).Any(value => value is not null))
             throw new InvalidDataException("SpaceTime's copy reaches progression other than from its start.");
         if (copied == 0)
             return null;
-        byte[] Leading(int start, int end) =>
-            [.. slice[start..Math.Clamp(copied, start, end)].Select(value => value ?? throw new InvalidDataException("A copied progression byte is missing."))];
+        byte[] Leading(int start, int end) => prefix[start..Math.Clamp(copied, start, end)];
         int? loadingState = null;
         if (copied > ProgressionSliceLayout.LoadingGameStateOffset)
         {
             if (copied < ProgressionSliceLayout.ByteCount)
                 throw new InvalidDataException("SpaceTime's copy replaces only half the saved loading state.");
-            loadingState = BinaryPrimitives.ReadUInt16LittleEndian(
-                (byte[])[.. slice[ProgressionSliceLayout.LoadingGameStateOffset..].Select(value =>
-                    value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
+            loadingState = BinaryPrimitives.ReadUInt16LittleEndian(prefix.AsSpan(ProgressionSliceLayout.LoadingGameStateOffset));
         }
         BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(

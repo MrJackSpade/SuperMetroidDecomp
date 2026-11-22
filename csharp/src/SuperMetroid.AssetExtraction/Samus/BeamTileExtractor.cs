@@ -17,8 +17,8 @@ public static partial class BeamTileExtractor
         var files = new Dictionary<string, byte[]>();
         foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Pictured)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
-            byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
+            byte[] planar = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.CharacterDataBank.Value | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);

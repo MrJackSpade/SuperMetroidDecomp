@@ -19,7 +19,7 @@ internal static class MagdolliteLavaBehaviorVerification
     /// </summary>
     internal static void VerifyMagdolliteLavaBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, MagdolliteLavaNativeListAddresses.Extent, "Magdollite-lava");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;

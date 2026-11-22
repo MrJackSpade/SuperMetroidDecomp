@@ -1,12 +1,17 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The new game's narrated introduction, which sets up the new game once its last fade has gone black.</summary>
 /// <param name="session">The frontend session the introduction runs against.</param>
-internal sealed partial class IntroCinematicGamePhase(FrontendSession session) : IGamePhase
+/// <param name="intro">The introduction's screen (#2554).</param>
+internal sealed partial class IntroCinematicGamePhase(FrontendSession session, IntroCinematicState intro) : IFrontendPhase
 {
+    /// <summary>The introduction's screen.</summary>
+    internal IntroCinematicState Screen { get; } = Ensure.NotNull(intro);
+
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.IntroCinematic;
 
@@ -17,7 +22,7 @@ internal sealed partial class IntroCinematicGamePhase(FrontendSession session) :
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
-    public string Name => session.ActiveIntro.Phase.ToString();
+    public string Name => Screen.Phase.ToString();
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => false;
@@ -25,9 +30,9 @@ internal sealed partial class IntroCinematicGamePhase(FrontendSession session) :
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        session.ActiveIntro.Step(controllerInput);
-        session.display.PublishIntro(session.ActiveIntro);
-        if (session.ActiveIntro.CeresFlightFinished)
+        Screen.Step(controllerInput);
+        session.display.PublishIntro(Screen);
+        if (Screen.CeresFlightFinished)
         {
             // The intro ends once the SPACE COLONY fade has gone fully black: the next update sets up the new game,
             // which loads Ceres and saves its elevator checkpoint.

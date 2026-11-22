@@ -12,19 +12,48 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 [RoomLifetime]
 internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
+    /// <summary>
+    /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
+    /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
     [field: NonSerialized]
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= new Dictionary<EnemyDefinitionId, EnemyEntityCreation>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        [EnemyDefinitionId.Sciser] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser)),
-        [EnemyDefinitionId.Zero] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero)),
-        [EnemyDefinitionId.Viola] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola)),
-        [EnemyDefinitionId.Zeela] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-        [EnemyDefinitionId.Sova] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-        [EnemyDefinitionId.Zoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-        [EnemyDefinitionId.ArmoredZoomer] = (occupant, place, common) => EnemyOccupant.Of(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared)),
-        [EnemyDefinitionId.OrangeZoomer] = (occupant, place, common) => EnemyOccupant.Of(new OrangeZoomerEntity(this, occupant, place, common)),
-    };
+        Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], CreateSciser);
+        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Zero], CreateZero);
+        registrar.Spawns<ViolaSpawnSettings>([EnemyDefinitionId.Viola], CreateViola);
+        registrar.Spawns<CrawlerSpawnSettings>(
+            [EnemyDefinitionId.Zeela, EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer], CreateSharedCrawler);
+        registrar.Spawns<OrangeZoomerSpawnSettings>([EnemyDefinitionId.OrangeZoomer], CreateOrangeZoomer);
+    }
+
+    /// <summary>A Sciser, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateSciser(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings));
+
+    /// <summary>A Zero, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateZero(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings));
+
+    /// <summary>A Viola, crawling in its own animation family along the side of the block it is placed against.</summary>
+    private EnemyOccupant CreateViola(RoomEnemyOccupant occupant, ViolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(settings)));
+
+    /// <summary>A Zeela, Sova or Zoomer, crawling in the shared animation family.</summary>
+    private EnemyOccupant CreateSharedCrawler(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings));
+
+    /// <summary>An orange Zoomer.</summary>
+    private EnemyOccupant CreateOrangeZoomer(RoomEnemyOccupant occupant, OrangeZoomerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, settings));
+
+    /// <summary>
+    /// A Viola's settings as a crawler's: it starts crawling along the side of the block it is placed against, at its
+    /// placement's speed or the default one.
+    /// </summary>
+    private static CrawlerSpawnSettings OnBlockSide(ViolaSpawnSettings viola) =>
+        new(Ensure.NotNull(viola).BlockSide, viola.BlockSide, viola.CrawlSpeed);
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;
@@ -60,15 +89,14 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(RoomEnemyOccupant occupant, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static CrawlerEnemyState InitializeCrawler(CrawlerSpawnSettings settings, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The placement names the starting surface; the Viola's names only its block side, which it starts on.
-        CrawlerStartSettings settings = occupant.SpawnSettings<CrawlerStartSettings>();
-        CrawlerSurfaceOrientation orientation = settings.StartingSurface;
-        CrawlerSurfaceOrientation blockSide = settings.HeldBlockSide;
-        SignedEightEight? crawlSpeed = settings.StartingCrawlSpeed;
+        CrawlerSurfaceOrientation orientation = settings.Orientation;
+        CrawlerSurfaceOrientation blockSide = settings.BlockSide;
+        SignedEightEight? crawlSpeed = settings.CrawlSpeed;
 
-        SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
+        return SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
     }
 
     /// <summary>
@@ -76,7 +104,7 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     /// showing <paramref name="animationFamily"/>'s animations, its velocity the crawl speed signed for
     /// <paramref name="blockSide"/>; one placed without a crawl speed takes the default speed on its first landing.
     /// </summary>
-    private static void SetUpCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily, CrawlerSurfaceOrientation orientation,
+    private static CrawlerEnemyState SetUpCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily, CrawlerSurfaceOrientation orientation,
         CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed)
     {
         var state = new CrawlerEnemyState(CrawlerAction.Settling)
@@ -85,7 +113,6 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
             SurfaceFamily = animationFamily,
             Surface = orientation,
         };
-        Bind(place, state);
 
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
@@ -93,6 +120,7 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
         place.AnimationClock.StepOnNextUpdate();
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
+        return state;
     }
 
     /// <summary>Shared crawler velocity reset, also called by Yard after landing.</summary>
@@ -120,12 +148,23 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
         };
 
     /// <summary>Runs the orange Zoomer's setup, the shared one on its family's surfaces; its placement always names its speed.</summary>
-    internal static void InitializeOrangeZoomer(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static CrawlerEnemyState InitializeOrangeZoomer(OrangeZoomerSpawnSettings settings, RoomEnemyPlace place)
     {
-        CrawlerSpawnSettings settings = occupant.SpawnSettings<CrawlerSpawnSettings>();
-        SignedEightEight crawlSpeed = settings.CrawlSpeed ??
-            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
-        SetUpCrawler(place, CrawlerAnimationFamily.Shared, settings.Orientation, settings.BlockSide, crawlSpeed);
+        SignedEightEight crawlSpeed = settings.CrawlSpeed;
+
+        CrawlerSurfaceOrientation orientation = settings.Orientation;
+        var state = new CrawlerEnemyState(CrawlerAction.Settling)
+        {
+            SurfaceFamily = CrawlerAnimationFamily.Shared,
+            Surface = orientation,
+        };
+        state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
+            CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
+        place.Frame = EnemyFrameId.PointAtOrigin;
+        place.AnimationClock.StepOnNextUpdate();
+        state.Velocity = SignedForBlockSide(settings.BlockSide, new PixelVelocity<RoomPixels>(crawlSpeed, crawlSpeed));
+        return state;
     }
 
     /// <summary>What <see cref="RunOrangeZoomerMain"/> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
@@ -143,11 +182,10 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     /// tangent to pursue Samus and falls off during a Super Missile wall-impact earthquake.
     /// </summary>
     private void RunOrangeZoomerMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, CrawlerEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
         RunOrangeZoomerMainForCrawlerAction[state.Action](place, samus, level, state);
     }
 
@@ -169,9 +207,8 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     });
 
     /// <summary>Runs shared crawler main AI.</summary>
-    private void RunCrawlerMain(RoomEnemyPlace place, RoomLevelData level)
+    private void RunCrawlerMain(RoomEnemyPlace place, CrawlerEnemyState state, RoomLevelData level)
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
         RunCrawlerMainForCrawlerAction[state.Action](place, level, state);
     }
 
@@ -357,9 +394,6 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
         return velocity.X.ToSixteenSixteenDelta();
     }
 
-    /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
-    private static void Bind(RoomEnemyPlace place, CrawlerEnemyState state) =>
-        place.SetSpeciesState(state);
 
     /// <summary>The velocity's step with a whole-pixel probe margin added in the direction it moves.</summary>
     internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)
@@ -369,14 +403,14 @@ internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Runs the shared crawler main AI.</summary>
-    internal void RunCrawlerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunCrawlerMain(place, frame.Level);
+    internal void RunCrawlerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) => RunCrawlerMain(place, crawlerEnemyState, frame.Level);
 
     /// <summary>Runs orange Zoomer's Samus-tracking main AI.</summary>
-    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunOrangeZoomerMain(place, frame.Samus, frame.Level);
+    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) =>
+        RunOrangeZoomerMain(place, crawlerEnemyState, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, CrawlerAnimations.Segments,
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, crawlerEnemyState, CrawlerAnimations.Segments,
             static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 }

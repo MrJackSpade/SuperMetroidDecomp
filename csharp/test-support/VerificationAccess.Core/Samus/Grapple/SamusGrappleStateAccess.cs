@@ -1,5 +1,3 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
-
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Verification access to <see cref="SamusGrappleState"/> members production does not use.</summary>

@@ -27,7 +27,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Display.Latched is OrdinaryRoomFrameLatch, "the arena shows its ordinary layers, its blocks' pictures among them, before the getaway");
@@ -40,7 +40,7 @@ internal static class CeresRidleyBodyPublicationVerification
         double? previousAngle = null;
         foreach ((int nmiFrame, CeresFloorActorPicture wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorActorPicture.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorActorPicture.WingsRaised) })
         {
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
             AssertTrue(previousAngle is not { } previous || shown.Angle != previous, "the getaway turns Ridley between the two frames");

@@ -8,16 +8,14 @@ namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>The Skree species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Skree], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new SkreeEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skree];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkreeEntity(this, occupant, place, common));
 
     /// <summary>Queues the dive and floor-impact sound requests at their AI transitions.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -37,11 +35,12 @@ internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts a Skree in its idle action and initial shared animation.</summary>
-    internal static void InitializeSkree(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static SkreeEnemyState InitializeSkree()
     {
         var state = new SkreeEnemyState(SkreeAction.Idling);
-        place.SetSpeciesState(state);
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.SkreeIdling), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>What <see cref="RunSkreeMain"/> does for each <see cref="SkreeAction"/> member, each member's own arm.</summary>
@@ -69,9 +68,8 @@ internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     });
 
     /// <summary>Winds up near Samus, dives when the wind-up cue is ready, then burrows after floor contact.</summary>
-    internal void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    internal void RunSkreeMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState state, SamusState samus, RoomLevelData level)
     {
-        SkreeEnemyState state = place.RequireSpeciesState<SkreeEnemyState>();
         RunSkreeMainForSkreeAction[state.Action](occupant, place, samus, level, state);
     }
 
@@ -121,14 +119,14 @@ internal sealed partial class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkreeMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, SkreeEnemyState skreeEnemyState, IEnemyAiFrame frame)
     {
-        RunSkreeMain(occupant, place, frame.Samus, frame.Level);
+        RunSkreeMain(occupant, place, skreeEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, SkreeMetareeAnimations.Segments,
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemyPlace place, SkreeEnemyState skreeEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, skreeEnemyState, SkreeMetareeAnimations.Segments,
             static (SkreeEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -25,7 +25,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -56,7 +56,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
 
         // 8+8+10+10+11+11+12+12 frames, then $86:CAEE clears the flag and Delete removes it.
         for (int frame = 0; frame < 120 && Breaths() != 0; frame++)
-            runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
+            runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.Samus,
                 new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), new SuperMetroid.Core.Compatibility.ShortFrameCount(runtime.Enemies.NextStandaloneProjectileFrame()),
                 samusBombs: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem(), frameCounter: runtime.Enemies.FrameContext.EnemyPassCount);
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");

@@ -71,10 +71,10 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(!(enabled && eyeDoors.Contains(door)), runtime.System.HasOpenedDoor(door),
                     $"only eye-door deaths reset; door {door}, enabled={enabled}");
             AssertTrue(snapshot.Progress.CollectedItems.SetEquals(runtime.System.Progress.CollectedItems), "pickups preserved");
-            AssertEqual(slot.Inventory.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
-            AssertEqual(slot.Inventory.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
-            AssertEqual(slot.Inventory.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
-            AssertEqual(slot.Inventory.Missiles, runtime.Player.IntroducedSamus.Missiles, "ammo preserved");
+            AssertEqual(slot.Inventory.CollectedItems, runtime.Player.Samus.CollectedItems, "collected inventory preserved");
+            AssertEqual(slot.Inventory.EquippedItems, runtime.Player.Samus.EquippedItems, "equipment selection preserved");
+            AssertEqual(slot.Inventory.Health, runtime.Player.Samus.Health, "health preserved");
+            AssertEqual(slot.Inventory.Missiles, runtime.Player.Samus.Missiles, "ammo preserved");
             foreach (var (room, alive, defeated) in new VerifyBossResetOnLoadCase[]
                 { new VerifyBossResetOnLoadCase(0x9804, 0x981b, 0x9835), new VerifyBossResetOnLoadCase(0x9dc7, 0x9dd9, 0x9df3),
                   new VerifyBossResetOnLoadCase(0xb283, 0xb295, 0xb2af), new VerifyBossResetOnLoadCase(0xd8c5, 0xd8d7, 0xd8f1) })

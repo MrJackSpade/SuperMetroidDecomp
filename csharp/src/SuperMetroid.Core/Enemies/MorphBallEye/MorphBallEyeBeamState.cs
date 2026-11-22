@@ -6,11 +6,18 @@ using SuperMetroid.Core.Assets;namespace SuperMetroid.Core.Enemies.MorphBallEye
 /// </summary>
 public sealed partial class MorphBallEyeBeamState : IDisplayLatch
 {
-    /// <summary>The beam's lifetime, advanced before enemy AI and separate from the eye's own AI action.</summary>
-    public MorphBallEyeBeamPhase Phase { get; internal set; }
+    /// <summary>
+    /// The live beam (#2554): the eye body that cast it, whose position and aim the cone follows, and its lifetime; none
+    /// while no beam exists.
+    /// </summary>
+    internal MorphBallEyeBeamCast? Cast { get; private set; }
 
-    /// <summary>The eye body that cast the beam, whose position and aim the cone follows; none while no beam exists.</summary>
-    public RoomEnemyPlace? Body { get; internal set; }
+    /// <summary>Starts a beam cast by <paramref name="body"/>, whose state is <paramref name="eye"/>, pending its initialization.</summary>
+    internal void Request(RoomEnemyPlace body, MorphBallEyeEnemyState eye)
+    {
+        Reset();
+        Cast = new MorphBallEyeBeamCast(body, eye);
+    }
 
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero when the beam appears,
@@ -48,23 +55,13 @@ public sealed partial class MorphBallEyeBeamState : IDisplayLatch
     /// <summary>
     /// The cone the beam shows now: its phase, width and colour with its eye's position and aim; none while no beam exists.
     /// </summary>
-    private MorphBallEyeBeamCone? Cone()
-    {
-        if (Phase == MorphBallEyeBeamPhase.Inactive)
-            return null;
-        // A live beam always has an eye with its state; losing either is a corrupt enemy population.
-        RoomEnemyPlace body = Body
-            ?? throw new InvalidDataException($"Active Morph Ball eye beam in phase {Phase} has no eye body.");
-        MorphBallEyeEnemyState eye = body.SpeciesState<MorphBallEyeEnemyState>()
-            ?? throw new InvalidDataException($"Active Morph Ball eye beam's body in enemy place {body.Ordinal} has no eye state.");
-        return new MorphBallEyeBeamCone(Phase, body.Position.Whole, eye.Angle, AngularWidth, Color);
-    }
+    private MorphBallEyeBeamCone? Cone() =>
+        Cast is { } cast ? new MorphBallEyeBeamCone(cast.Phase, cast.Body.Position.Whole, cast.Eye.Angle, AngularWidth, Color) : null;
 
     /// <summary>Ends the beam's lifetime, releases its eye and returns its colour to black.</summary>
     internal void Reset()
     {
-        Phase = MorphBallEyeBeamPhase.Inactive;
-        Body = null;
+        Cast = null;
         AngularHalfWidth = RotationAngle.Zero;
         AngularHalfWidthGrowth = RotationAngle.Zero;
         NextColour = MorphBallEyeBeamColour.First;

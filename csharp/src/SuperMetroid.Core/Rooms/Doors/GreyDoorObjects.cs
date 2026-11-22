@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -49,8 +49,10 @@ internal sealed partial class GreyDoorObjects
         GreyDoorCondition.AreaTorizoDefeated => new GreyDoorLock.BossDefeated(_system, _area, DefeatedBosses.AreaTorizo),
         GreyDoorCondition.EnemyDeathQuota => new GreyDoorLock.EnemyDeathQuota(_system),
         GreyDoorCondition.Never => new GreyDoorLock.Never(),
-        GreyDoorCondition.TourianStatueFinished => new GreyDoorLock.TourianStatueFinished(_tourianStatue ??
-            throw new InvalidDataException("A grey door waits for the Tourian statue in a room other than the statue room.")),
+        // Only the statue room places a cap that waits for its statue; the room's caps are checked as they are set up.
+        GreyDoorCondition.TourianStatueFinished when _tourianStatue is { } statue => new GreyDoorLock.TourianStatueFinished(statue),
+        GreyDoorCondition.TourianStatueFinished =>
+            throw new InvalidDataException("A grey door waits for the Tourian statue in a room other than the statue room."),
         GreyDoorCondition.CrittersEscaped => new GreyDoorLock.EventSet(_system, StoryEvent.CrittersEscaped),
         _ => throw new InvalidDataException($"Undefined {nameof(GreyDoorCondition)} {condition}."),
     };
@@ -60,8 +62,7 @@ internal sealed partial class GreyDoorObjects
     {
         // A grey door's block becomes shootable and solid, as a coloured door's does, and keeps its picture and what it
         // shows (#2502).
-        level.SetCollision(block, RoomCollisionType.ShootableBlock);
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        level.SetCollisionAndBehavior(block, RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 
     /// <summary>

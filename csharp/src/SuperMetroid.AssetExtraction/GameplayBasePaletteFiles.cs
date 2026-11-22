@@ -118,7 +118,7 @@ public static partial class GameplayBasePaletteFiles
         var colors = new PaletteRgb5[count];
         for (int color = 0; color < count; color++)
         {
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address + color * 2);
+            int word = bus.ReadCartridgeWord(address + color * 2);
             colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;

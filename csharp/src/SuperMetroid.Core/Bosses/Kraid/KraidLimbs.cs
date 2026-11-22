@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -14,34 +15,48 @@ internal sealed partial class KraidLimbs
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, KraidParts parts, KraidEncounterAccess access)
+    internal KraidLimbs(EnemyRoomBinding room, RoomEarthquake earthquake, KraidEncounterAccess access)
     {
         _room = room;
         _earthquake = earthquake;
-        _parts = parts;
         _access = access;
     }
 
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
-    internal void InitializeKraidArm(RoomEnemyPlace arm)
+    /// <returns>The encounter the arm joins, which it holds from its setup.</returns>
+    internal KraidEnemyState InitializeKraidArm(RoomEnemyPlace arm, KraidEnemyState state)
     {
-        if (_parts.JoinEncounter(_room, arm, state => state.ArmState) is { } part)
-            part.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
+        // The arm joins the encounter its body began, which it holds from here (#2218).
+        Ensure.NotNull(state);
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+        {
+            KraidEncounterAccess.MarkKraidPartDead(arm);
+            return state;
+        }
+        arm.Shading = state.Parts.Body.Shading;
+        state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
+        return state;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
-    internal void InitializeKraidFoot(RoomEnemyPlace foot)
+    /// <returns>The encounter the foot joins, which it holds from its setup.</returns>
+    internal KraidEnemyState InitializeKraidFoot(RoomEnemyPlace foot, KraidEnemyState state)
     {
-        if (_parts.JoinEncounter(_room, foot, state => state.FootState) is not { } part)
-            return;
-        part.StartAnimation(KraidPartSegment.FootInitial);
-        part.Phase = KraidFootPhase.Resting;
+        // The foot joins the encounter its body began, which it holds from here (#2218).
+        Ensure.NotNull(state);
+        if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+        {
+            KraidEncounterAccess.MarkKraidPartDead(foot);
+            return state;
+        }
+        foot.Shading = state.Parts.Body.Shading;
+        state.FootState.StartAnimation(KraidPartSegment.FootInitial);
+        state.FootState.Phase = KraidFootPhase.Resting;
+        return state;
     }
 
     /// <summary>
@@ -116,36 +131,38 @@ internal sealed partial class KraidLimbs
     /// <returns>The slow arm animation when the speed cue switches the arm; otherwise null.</returns>
     private KraidPartSegment? ApplyKraidPartCue(KraidEnemyState state, KraidPartCue cue)
     {
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = state.Parts.Body;
         return ApplyKraidPartCueForKraidPartCue[cue](state, body);
     }
 
     /// <summary>Runs the grown body's thinking, and on its last update opens the mouth for its next attack.</summary>
-    internal static void RunKraidSecondPhaseThinking(KraidEnemyState state)
+    internal static void RunKraidSecondPhaseThinking(KraidEnemyState state, KraidStageRun.Fighting fight)
     {
         if (state.ThinkingWait.StepRunsOut())
         {
-            state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
-            state.StartHeadAnimation(KraidHeadSegment.Roar);
+            fight.Phase = KraidFightPhase.MouthOpenReaction;
+            fight.Head.Start(KraidHeadSegment.Roar, state.HeadHold);
         }
     }
 
     /// <summary>Starts growth only after the small-form transition requirements are met.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemyPlace body, KraidEnemyState state)
     {
-        if (body.Health >= state.SevenEighthsHealth)
+        // His foot's first-phase lunges, which look for his growth, run only while he fights his first phase.
+        if (body.Health >= state.SevenEighthsHealth || state.BodyState.Run is not KraidStageRun.Fighting fight)
             return false;
 
-        state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
+        fight.Phase = KraidFightPhase.HeadAnimationBeforeGrowth;
         state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.GrowthHeadAnimationUpdates);
 
-        state.ResumeHeadRoar(KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth);
+        // His growth resumes the roar from where his head's animation stands.
+        fight.Head.ResumeRoarForGrowth(state.HeadHold);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.GrowthShakeUpdates);
         state.FootState.StartAnimation(KraidPartSegment.FootInitial);
         state.FootState.Phase = KraidFootPhase.Resting;
-        RoomEnemyPlace arm = _parts.Arm;
+        RoomEnemyPlace arm = state.Parts.Arm;
         state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in state.Parts.Lints)
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         return true;
@@ -154,15 +171,15 @@ internal sealed partial class KraidLimbs
     /// <summary>
     /// Below half health the arm switches to its slow swing, but only while it swings normally.
     /// </summary>
-    private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
-        _parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
+    private static KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
+        state.Parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
             ? KraidPartSegment.ArmSlow
             : null;
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
-    internal void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
+    internal static void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
     {
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = state.Parts.Body;
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
         ShowWithinGameplayView(arm, cameraY);
@@ -226,7 +243,7 @@ internal sealed partial class KraidLimbs
     internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
     {
         KraidEnemyState state = part.Kraid;
-        RoomEnemyPlace body = _parts.Body;
+        RoomEnemyPlace body = part.Kraid.Parts.Body;
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
         ShowWithinGameplayView(foot, cameraY);
 

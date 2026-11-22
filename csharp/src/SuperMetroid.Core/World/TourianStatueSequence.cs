@@ -233,7 +233,7 @@ public sealed partial class TourianStatueSequence : IDisplayLatch
         {
             // A statue drawn in the room's background greys out on the room's pictures; a sprite statue greys out on its
             // sprite, which the grey-out hands its frames to (#2288).
-            SamusEquipmentFlags equipped = sequence._player.IntroducedSamus.EquippedItems;
+            SamusEquipmentFlags equipped = sequence._player.Samus.EquippedItems;
             if (definition.GreyedSprite is { } sprite)
                 sequence._roomColourEffects.StartShownOn(definition.ColourEffect, sequence._statue.SpriteStatueGreyOut(sprite), equipped);
             else

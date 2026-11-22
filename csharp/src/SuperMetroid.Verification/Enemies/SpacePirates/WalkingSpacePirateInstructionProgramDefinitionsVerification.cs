@@ -74,7 +74,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, 113);
+            RunFrames(enemies, place, state, samus, 113);
             AssertEqual(expected, state.Playback,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateMotherBrainLaser),
@@ -93,7 +93,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WalkingSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, frames);
+            RunFrames(enemies, place, state, samus, frames);
             // The stride has shown its first pose and stands before its second, after the walk's direction cue (#2166,
             // #2276).
             AssertEqual(new AnimationPlayback<WalkingSpacePirateSegment>(WalkingSpacePirateAnimations.StartingWith(program), PlaceOf(program, expectedSegment, 1)), state.Playback,
@@ -117,24 +117,27 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             // A left-facing Pirate's population entry with no options and no patrol reach, as the room load gives it.
             place.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(HorizontalDirection.Left, PirateLaserSpeed.Fast, WalkingSpacePirateShotWatch.IgnoresShots, PatrolReach: 0));
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
-            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place.HeldOccupant(), place);
+            // The Pirate's setup builds the state its animation, which the check plays, runs on.
+            WalkingSpacePirateEnemyState state = WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place.HeldOccupant().SpawnSettings<WalkingSpacePirateSpawnSettings>(), place);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return new WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, (enemies.WalkingSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WalkingSpacePirate state.")), samus);
+            return new WalkingSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, state, samus);
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemyPlace place,
+            WalkingSpacePirateEnemyState state,
             SamusState samus,
             int frames)
         {
-            object?[] arguments =
-                [place, samus, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            var context = new EnemyAnimationCueContext
+                { Samus = samus, Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Camera = Position16<RoomPixels>.Zero, ControllerInput = default };
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(arguments);
+                enemies.WalkingSpacePirateBehavior.AdvanceWalkingSpacePirateTypedAnimation(place.HeldOccupant(),
+                    place.HeldOccupant().SpawnSettings<WalkingSpacePirateSpawnSettings>(), place, state, context);
         }
     }
 

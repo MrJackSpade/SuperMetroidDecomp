@@ -323,8 +323,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         RequireSegmentFrames(KiHunterAnimations.Segments, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
-        RequireSegmentFrames(MagdolliteAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
-            nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");
+        RequireSegmentFrames(MagdolliteHeadAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteHeadAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteHeadAnimations.cs");
+        RequireSegmentFrames(MagdolliteBodyAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteBodyAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteBodyAnimations.cs");
+        RequireSegmentFrames(MagdolliteOverlayAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteOverlayAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteOverlayAnimations.cs");
         RequireSegmentFrames(MamaTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
         RequireSegmentFrames(BabyTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,

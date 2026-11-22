@@ -206,10 +206,11 @@ internal static partial class SamusGroundedPoseTransitions
                 $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose.");
         // Keep the old muzzle direction before starting the turn's pose. The next input phase
         // uses the handed shot to admit the turning HUD producer and forcibly release charge.
-        SamusTransitionShot sourceShot = SamusTransitionShot.FromPose(samus);
+        SamusTransitionShot? sourceShot = SamusTransitionShot.FromPose(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, expectedTarget);
-        samus.TransitionShot.Hand(sourceShot);
+        if (sourceShot is { } shot)
+            samus.TransitionShot.Hand(shot);
     }
 
     /// <summary>

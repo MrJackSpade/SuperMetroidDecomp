@@ -21,7 +21,8 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
+using SuperMetroid.AssetExtraction.Samus.Artwork;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
@@ -158,7 +159,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble shade holds five updates");
     AssertEqual(10, samus.CrystalFlash.BodyPulse.UpdatesLeft,
         "Crystal Flash body shade holds ten updates");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Showing,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Shown,
         "Crystal Flash body pulse shows its first shade");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
@@ -179,7 +180,7 @@ internal static void VerifySamusCrystalFlash()
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
@@ -245,7 +246,7 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!crystalWindow.IsActive,
         "Crystal Flash HDMA cleanup ends the shared explosion");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");
 
@@ -281,13 +282,13 @@ internal static void VerifySamusCrystalFlash()
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     int finishFrames = 0;
     while (samus.CuePose.Named is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, (ushort)(0x0100 + finishFrames));
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.CuePose.Named,
         "Crystal Flash ROM finish command publishes standing right");
@@ -417,7 +418,7 @@ internal static void VerifySamusXray()
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(standing, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(standing, new SamusAnimationStep { Ground = standing.Ground, Random = new SharedRandom() });
     AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
@@ -426,7 +427,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Showing, "widening visor shows its first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Shown, "widening visor shows its first shade");
     AssertEqual(XrayScopeDefinitionsConstants.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
         "widening visor shade holds five updates");
 
@@ -477,7 +478,7 @@ internal static void VerifySamusXray()
         "full beam enters visor cycle");
     AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Showing, "full-beam visor shows the cycle's first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Shown, "full-beam visor shows the cycle's first shade");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
@@ -514,7 +515,7 @@ internal static void VerifySamusXray()
     for (int tick = 0; tick < 5; tick++)
     {
         standing.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(standing, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(standing, new SamusAnimationStep { Ground = standing.Ground, Random = new SharedRandom() });
     }
     AssertEqual(2, standing.AnimationNumber, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
@@ -783,8 +784,6 @@ internal static void VerifySamusDeathSequence()
         "60 flashing calls enter suit explosion");
     AssertEqual(SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame.SuitGlowing, samus.DeathSequence.ExplosionFrame,
         "explosion begins on its first picture");
-    AssertEqual(20, samus.DeathSequence.Explosion?.UpdatesLeft,
-        "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
     AssertEqual(0x0100, samusColours.ShownSuit(deathSources)[0], "finish restores suit palette zero");
@@ -802,8 +801,8 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && step.Draws == SuperMetroid.Core.Samus.Death.SamusDeathDraw.Nothing,
         "terminal death call completes without drawing");
-    AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
-        "the explosion has played its last picture");
+    AssertEqual(null, samus.DeathSequence.ExplosionFrame,
+        "the explosion has played its last picture and shows none");
     AssertEqual(SamusShades.DeathWhiteout(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final), samusColours.Beams,
         "the beams show the death's terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");

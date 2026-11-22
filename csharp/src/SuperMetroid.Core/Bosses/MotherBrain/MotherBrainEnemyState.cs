@@ -2,6 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -27,15 +28,30 @@ public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.Bo
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
     /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
     internal MotherBrainEnemyState(RoomEnemyOccupant body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
-        MotherBrainBrainAnimation brain)
+        MotherBrainBrainAnimation brain, RoomWarning zebesWarning)
     {
+        ZebesWarning = Ensure.NotNull(zebesWarning);
         BodyOccupant = Ensure.NotNull(body);
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
+        BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain);
     }
+
+    /// <summary>
+    /// The room's background warning, which her death types Zebes's warning on (#1555, #2554): the glyphs typed, in the order
+    /// typed, each at its background cell. It lasts the room, as the encounter does.
+    /// </summary>
+    internal RoomWarning ZebesWarning { get; }
+
+    /// <summary>
+    /// The parts her body layer shows (#1466, #1515), which her setup attaches to the room's display and her body's frames
+    /// show on; hidden until her phase-two transition reveals it.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>
     /// The enemy holding her body's place (#2558), which owns the encounter: its definition's damage is her contact damage,
@@ -130,10 +146,10 @@ public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.Bo
     /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its images, or null while
     /// no flash runs.
     /// </summary>
-    internal AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
+    internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
-    /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
-    internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
+    /// <summary>Where the tube collapse stands: at its first tube, standing, until her fake-death flash starts it there.</summary>
+    internal MotherBrainTubeCollapseProgress TubeCollapse { get; set; } = MotherBrainTubeCollapseProgress.Start;
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
     public BossCountdown TubeCollapseTimer { get; } = new();
 
@@ -343,11 +359,6 @@ public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.Bo
     /// here.
     /// </summary>
     /// <returns>The late fight begun.</returns>
-    /// <summary>Her late fight, which a late-fight stage runs (#2560).</summary>
-    /// <exception cref="InvalidOperationException">Her late fight has not begun, which entering its first stage begins.</exception>
-    internal MotherBrainRainbowBeamAttackSequence LateFight =>
-        RainbowBeamSequence ?? throw new InvalidOperationException($"Mother Brain's body runs her {Stage} stage before her late fight began.");
-
     /// <summary>Begins her late fight (#2560): the rainbow beam's attack sequence, which runs every late-fight stage.</summary>
     internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 

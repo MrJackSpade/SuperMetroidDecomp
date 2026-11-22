@@ -113,7 +113,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal void DrawInto(SpriteFrameBuffer frame)
         {
             Enemies.Drawing.Advance(new(0, 0));
-            Enemies.Drawing.Draw(frame, new(0, 0), Samus);
+            Enemies.Drawing.Draw(Enemies.Drawing.Advance(new(0, 0)), frame, new(0, 0), Samus);
             Enemies.EffectActors.DrawRoomEffectActors(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);

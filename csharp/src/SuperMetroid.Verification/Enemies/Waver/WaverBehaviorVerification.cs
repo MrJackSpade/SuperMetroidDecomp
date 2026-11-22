@@ -27,8 +27,8 @@ internal static class WaverBehaviorVerification
             place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
             place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnWords(EnemyDefinitionId.Waver, words => words);
-            WaverBehavior.InitializeWaver(place.HeldOccupant(), place);
-            WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
+            // The Waver's setup builds the state its steps and its animation, which the check plays, run on.
+            WaverEnemyState state = WaverBehavior.InitializeWaver(place.HeldOccupant().SpawnSettings<WaverSpawnSettings>(), place);
             state.Playback = new(WaverAnimations.StartingWith(selector == WaverSegment.SteadyFacingLeft ? WaverSegment.SteadyFacingRight : WaverSegment.SteadyFacingLeft),
                 AnimationPlace.StartOfAnimation);
             WaverBehavior.SetWaverAnimation(place, state, selector);
@@ -39,7 +39,7 @@ internal static class WaverBehaviorVerification
             int duration = frames.Length == 1 ? 1 : 8;
             ushort[] shown = frames;
             string expected = EnemyInstructionRunner.ExpectedFrames(shown, shown.Select(_ => duration));
-            AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, frames.Length * duration + 2), $"Waver {selector} animation");
+            AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, frames.Length * duration + 2, () => WaverBehavior.AdvanceWaverTypedAnimation(place, state)), $"Waver {selector} animation");
             AssertEqual(selector is WaverSegment.SpinningFacingLeft or WaverSegment.SpinningFacingRight ? WaverAction.SpinFinished : WaverAction.Gliding,
                 state.Action, $"Waver {selector} spin-completion cue");
         }

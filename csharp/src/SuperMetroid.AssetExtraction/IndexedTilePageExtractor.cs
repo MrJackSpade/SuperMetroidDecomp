@@ -18,7 +18,7 @@ internal static partial class IndexedTilePageExtractor
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(identity);
         _ = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress, byteCount);
+        byte[] native = RomDataReader.ReadFixedBank(bus, sourceAddress, byteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var output = new MemoryStream();

@@ -7,16 +7,14 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Mochtroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Mochtroid], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MochtroidEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MochtroidEntity(this, occupant, place, common));
 
     /// <summary>Resolves axis movement against terrain in the order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
@@ -37,7 +35,8 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Initializes the Mochtroid.</summary>
-    internal static void InitializeMochtroid(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MochtroidEnemyState InitializeMochtroid(RoomEnemyPlace place)
     {
         // A new Mochtroid has started no animation, so its first request always starts one. Ordinary room loads
         // start every Mochtroid this way.
@@ -45,9 +44,9 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
         {
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
-        place.SetSpeciesState(state);
         SetMochtroidAnimation(
             place, state, MochtroidSegment.FreeFlight);
+        return state;
     }
 
     /// <summary>What <see cref="RunMochtroidMain"/> does for each <see cref="MochtroidMovementMode"/> member, each member's own arm.</summary>
@@ -60,11 +59,10 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Runs a Mochtroid for one update, resetting its movement before it moves.</summary>
     private void RunMochtroidMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, MochtroidEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        MochtroidEnemyState state = place.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         RunMochtroidMainForMochtroidMovementMode[selectedMode](place, samus, level, state);
@@ -193,19 +191,19 @@ internal sealed partial class MochtroidBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, MochtroidAnimations.Segments,
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, mochtroidEnemyState, MochtroidAnimations.Segments,
             static (MochtroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Mochtroid's main AI.</summary>
-    internal void RunMochtroidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMochtroidMainAi(RoomEnemyPlace place, MochtroidEnemyState mochtroidEnemyState, IEnemyAiFrame frame)
     {
-        RunMochtroidMain(place, frame.Samus, frame.Level);
+        RunMochtroidMain(place, mochtroidEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
-    internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Occupant, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
+    internal void ReactToMochtroidTouch(EnemyTouchContext context, MochtroidEnemyState mochtroidEnemyState) =>
+        ResolveMochtroidTouch(context.Occupant, mochtroidEnemyState, context.Samus, context.PseudoScrew);
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>
     internal static EnemyShotReaction MochtroidShotReaction { get; } = new();

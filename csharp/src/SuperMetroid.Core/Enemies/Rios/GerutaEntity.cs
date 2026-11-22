@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed partial class GerutaEntity(GerutaBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => GerutaBehavior.InitializeGeruta(Place);
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal GerutaEnemyState State { get; } = GerutaBehavior.InitializeGeruta();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunGerutaMainAi(Place, State, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GerutaBehavior.AdvanceGerutaTypedAnimation(Place, State);
 }

@@ -82,5 +82,5 @@ internal static class KiHunterMotionDefinitionsVerification
     }
 
     /// <summary>Reads the retail motion record as the oracle for the compiled constants.</summary>
-    private static byte KiHunterMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KiHunterMotionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

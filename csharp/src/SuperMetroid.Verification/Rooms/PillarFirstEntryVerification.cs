@@ -31,7 +31,7 @@ internal static class PillarFirstEntryVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(source);
         var level = runtime.Room.LoadedLevelData;
         int doorX = -1, doorY = -1;
@@ -48,7 +48,7 @@ internal static class PillarFirstEntryVerification
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");
         runtime.LoadCartridgeRoomForDebug(source,
             new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.ScrewAttack |
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |

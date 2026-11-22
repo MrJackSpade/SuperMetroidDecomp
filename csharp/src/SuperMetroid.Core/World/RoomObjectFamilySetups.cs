@@ -58,10 +58,10 @@ internal sealed partial class RoomObjectFamilySetups(RoomObjectSetupContext cont
     public void SetUpElevatorPlatform() => StationObjects.SetupElevatorPlatform(context.Room.Level, context.Place);
 
     /// <inheritdoc/>
-    public void SetUpMotherBrainGlass() => context.Families.MotherBrainGlass.SetupMotherBrainGlass(context.Room.Level, context.Place);
+    public void SetUpMotherBrainGlass() => context.Families.MotherBrainGlass.SetupMotherBrainGlass(context.Room.Level, context.Place, context.Thrown.GlassShards);
 
     /// <inheritdoc/>
-    public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses);
+    public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses, context.Thrown.StatueFragments);
 
     /// <inheritdoc/>
     public void SetUpMetroidRoomClearance(WatchedMetroidRoom watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);

@@ -31,7 +31,7 @@ public static partial class MagdollitePaletteCycleExtractor
                 int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                     (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
                      MagdollitePaletteCycle.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
+                int native = RomDataReader.ReadWordFixedBank(bus, source);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Magdollite color ${source:X6} has an unrepresentable high bit.");

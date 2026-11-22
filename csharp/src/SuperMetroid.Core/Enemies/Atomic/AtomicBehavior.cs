@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
@@ -6,27 +6,23 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemySpawnFactory<AtomicSpawnSettings>
 {
     /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Atomic], Create);
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new AtomicEntity(occupant, place, common));
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, AtomicSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new AtomicEntity(occupant, place, common, settings));
 
     /// <summary>Initializes the Atomic.</summary>
-    internal static void InitializeAtomic(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static AtomicEnemyState InitializeAtomic(AtomicSpawnSettings settings, RoomEnemyPlace place)
     {
         var state = new AtomicEnemyState();
-        place.SetSpeciesState(state);
 
         place.AnimationClock.Restart();
-
-        AtomicSpawnSettings settings = occupant.SpawnSettings<AtomicSpawnSettings>();
         state.Playback = new(AtomicAnimations.StartingWith(settings.Spin), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>
@@ -34,12 +30,12 @@ internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemyEntityFactor
     /// directions again every update.
     /// </summary>
     internal static void MoveAtomicTowardSamus(
-        RoomEnemyOccupant occupant, RoomEnemyPlace place,
+        AtomicSpawnSettings atomicSpawnSettings, RoomEnemyPlace place,
         SamusState samus)
     {
         // The Atomic moves towards Samus on each axis; being level with her counts as her being below or to the right, so
         // it moves down or right.
-        SignedSixteenSixteen speed = occupant.SpawnSettings<AtomicSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = atomicSpawnSettings.Speed;
         SignedSixteenSixteen vertical = speed.Toward(samus.Position.Y.Whole < place.Position.Y.Whole ? VerticalDirection.Up : VerticalDirection.Down);
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(vertical));
 
@@ -48,7 +44,7 @@ internal sealed partial class AtomicBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.AdvanceSilently(place, AtomicAnimations.Segments,
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemyPlace place, AtomicEnemyState atomicEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, atomicEnemyState, AtomicAnimations.Segments,
             static (AtomicEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 }

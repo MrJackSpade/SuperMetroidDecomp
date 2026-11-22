@@ -65,7 +65,7 @@ internal static class EnemyTileSourceArtworkAccess
         /// The same artwork with <paramref name="spritemaps"/> and <paramref name="extendedFrames"/> as its compositions,
         /// built through the constructor as the import builds it, for a fixture that authors its own frames.
         /// </summary>
-        internal EnemyTileSourceArtwork WithFrames(EnemySpritemapCatalog? spritemaps, EnemyExtendedFrameCatalog? extendedFrames) =>
+        internal EnemyTileSourceArtwork WithFrames(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extendedFrames) =>
             new global::SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork(self.Parts with { Spritemaps = spritemaps, ExtendedFrames = extendedFrames });
 
         /// <summary>Each installed sheet with its palette, in definition order.</summary>

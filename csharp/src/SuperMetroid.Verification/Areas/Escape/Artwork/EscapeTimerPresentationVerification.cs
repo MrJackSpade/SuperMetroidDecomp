@@ -26,9 +26,9 @@ internal static class EscapeTimerPresentationVerification
         byte[] extractedTiles = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(bus);
 
         var tileAtlas = EscapeTimerCharacters.Read(new MemoryStream(extractedTiles));
-        byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             EscapeTimerTileSourceConstants.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
-        byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             EscapeTimerTileSourceConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
         AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.First).Span),
             "first timer PNG page compiles to exact native characters");
@@ -84,7 +84,7 @@ internal static class EscapeTimerPresentationVerification
         for (int digit = 0; digit < 10; digit++)
         {
             ushort nativePointer = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
+                bus,
                 EscapeTimerPresentationDefinitions.DigitPointerTable + digit * sizeof(ushort));
             AssertEqual(nativePointer,
                 EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit),

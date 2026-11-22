@@ -88,13 +88,13 @@ internal static class CeresHazeVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         AssertTrue(runtime.Room.LoadedScope.CeresHaze is { Tint: CeresHazeTint.WhileRidleyLives }, "Ridley room spawns blue haze");
         runtime.System.RecordBossesDefeated(runtime.Room.LoadedRoom.Area, DefeatedBosses.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.WhileRidleyLives, "defeat cannot replace the current room's HDMA channel");
-        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.Samus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);

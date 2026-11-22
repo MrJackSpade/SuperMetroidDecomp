@@ -5,25 +5,71 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+/// <param name="settings">What the enemy's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    OwtchSpawnSettings settings, OwtchEnemyState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize() => OwtchBehavior.InitializeOwtch(Occupant, Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Owtch species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal OwtchEntity(OwtchBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        OwtchSpawnSettings settings)
+        : this(species, occupant, place, common, settings, OwtchBehavior.InitializeOwtch(settings, place))
+    {
+    }
+
+    /// <summary>The species' OwtchShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnOwtchShotReaction => field ??= OwtchBehavior.OwtchShotReaction(TurnShotAwayFromShell);
+
+    /// <summary>The species' OwtchBombReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyBombReaction OwnOwtchBombReaction => field ??= OwtchBehavior.OwtchBombReaction(ShellRejects);
+
+    /// <summary>What the enemy's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal OwtchSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly OwtchEnemyState state = state;
+
+    /// <summary>Whether the Owtch's shell turns a bomb away: it does unless the Owtch walks left.</summary>
+    /// <param name="context">The bomb meeting the Owtch.</param>
+    internal bool ShellRejects(EnemyBombContext context) => !OwtchBehavior.OwtchAcceptsOrdinaryShot(state);
+
+    /// <summary>
+    /// Turns an ordinary shot away from the Owtch's shell after the Super Missile quake, unless it walks left: a shot that
+    /// marks its collision ends where it struck.
+    /// </summary>
+    /// <param name="c">The shot meeting the Owtch.</param>
+    /// <returns>Whether the shell turned the shot away.</returns>
+    internal bool TurnShotAwayFromShell(in EnemyShotContext c)
+    {
+        if (OwtchBehavior.OwtchAcceptsOrdinaryShot(state))
+            return false;
+        if (c.MarksCollision)
+            c.Shot.Spend();
+        return true;
+    }
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Occupant, Place);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunOwtchMainAi(Settings, Place, state);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => OwtchBehavior.AdvanceOwtchTypedAnimation(Place, state);
 
     /// <summary>The Owtch's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwtchBehavior.OwtchShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == OwtchReactions.Shot ? OwnOwtchShotReaction : base.ShotReaction;
 
     /// <summary>The Owtch's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
-        context.SelectedShot == OwtchReactions.Shot ? OwtchBehavior.OwtchBombReaction : base.CommonBombDamageReaction(context);
+        context.SelectedShot == OwtchReactions.Shot ? OwnOwtchBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>The Owtch's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects: the species' own where its definition names it.</param>

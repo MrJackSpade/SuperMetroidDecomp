@@ -27,7 +27,7 @@ internal sealed partial class NorfairRidleyBehavior : IEnemySpecies, IRidleyReve
     internal NorfairRidleyCombat Combat { get; }
 
     /// <summary>Norfair Ridley's death: the roar, breakup, explosions and the drop.</summary>
-    internal NorfairRidleyDeath Death { get; }
+    private NorfairRidleyDeath Death { get; }
 
     /// <summary>Wires Ridley's fight, movement, tail, projectile, audio, and room collaborators.</summary>
     internal NorfairRidleyBehavior(NorfairRidleyBehaviorDependencies dependencies)

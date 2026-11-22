@@ -23,10 +23,10 @@ public static partial class GameplayMessageTitleExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
-            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            int setup = bus.ReadCartridgeWord(definition);
+            int draw = bus.ReadCartridgeWord((definition + 2));
+            int pointer = bus.ReadCartridgeWord((definition + 4));
+            int next = bus.ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
                 GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
                 next - pointer != GameplayMessageTilemapDefinitions.TilemapWidth * sizeof(ushort))
@@ -39,7 +39,7 @@ public static partial class GameplayMessageTitleExtractor
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int column = 0; column < GameplayMessageTilemapDefinitions.TilemapWidth; column++)
             {
-                BackgroundTile cell = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort))));
+                BackgroundTile cell = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((content + column * sizeof(ushort))));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
                     >= (GameplayMessageTilemapDefinitions.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
@@ -66,7 +66,7 @@ public static partial class GameplayMessageTitleExtractor
 
         var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
+            border[column] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessageTitlePresentation.Write(output, new()

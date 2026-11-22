@@ -867,42 +867,78 @@ internal sealed class CoreModel
         return false;
     }
 
+    /// <summary>Registrar calls that name the definitions a species creates (<c>EnemySpeciesRegistrar</c>).</summary>
+    private static readonly string[] RegistrarCreations = ["Spawns", "Loads", "Joins"];
+
     /// <summary>
-    /// Reads the definitions <paramref name="type"/> declares in its creations (#2553): the keys of a map naming each
-    /// definition's own creation, or the definitions, directly or through a parts table's keys, that one creation serves alike.
+    /// The collection expressions naming the definitions <paramref name="type"/> creates: its Definitions property's
+    /// initializer, or the definition lists its OfferCreations hands the registrar, each written in place or held by a
+    /// property or field initialized with one.
     /// </summary>
+    /// <exception cref="InvalidDataException">The type names its definitions neither way, or in a form this generator cannot read.</exception>
+    private List<CollectionExpressionSyntax> DefinitionCollections(INamedTypeSymbol type)
+    {
+        var declared = type.GetMembers("Definitions").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
+        var collections = new List<CollectionExpressionSyntax>();
+        // A species that declares its own definitions may still hand the registrar the parts that join them (Joins).
+        if (declared is [{ DeclaringSyntaxReferences: [var reference] }])
+        {
+            collections.Add(reference.GetSyntax() is PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax collection }
+                ? collection
+                : throw new InvalidDataException($"{type.ToDisplayString()}.Definitions is not initialized with a collection expression."));
+        }
+        foreach (IMethodSymbol offer in type.GetMembers("OfferCreations").OfType<IMethodSymbol>())
+        {
+            foreach (SyntaxReference syntax in offer.DeclaringSyntaxReferences)
+            {
+                SemanticModel model = ModelOf(syntax.SyntaxTree);
+                foreach (InvocationExpressionSyntax call in syntax.GetSyntax().DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    string? called = call.Expression switch
+                    {
+                        MemberAccessExpressionSyntax { Name.Identifier.Text: var name } => name,
+                        _ => null,
+                    };
+                    if (called is null || !RegistrarCreations.Contains(called) || call.ArgumentList.Arguments.Count == 0)
+                        continue;
+                    // The species' own Definitions, handed on, are already read.
+                    if (declared is [var own] && SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(call.ArgumentList.Arguments[0].Expression).Symbol, own))
+                        continue;
+                    collections.Add(DefinitionList(model, call.ArgumentList.Arguments[0].Expression, type));
+                }
+            }
+        }
+        return collections.Count != 0
+            ? collections
+            : throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but names its definitions neither in a Definitions property nor in its OfferCreations.");
+    }
+
+    /// <summary>The collection expression <paramref name="argument"/> is, or the one the property or field it names is initialized with.</summary>
+    /// <exception cref="InvalidDataException">The argument is neither.</exception>
+    private static CollectionExpressionSyntax DefinitionList(SemanticModel model, ExpressionSyntax argument, INamedTypeSymbol type)
+    {
+        if (argument is CollectionExpressionSyntax collection)
+            return collection;
+        SyntaxNode? declaration = model.GetSymbolInfo(argument).Symbol?.DeclaringSyntaxReferences is [var held] ? held.GetSyntax() : null;
+        return declaration switch
+        {
+            PropertyDeclarationSyntax { Initializer.Value: CollectionExpressionSyntax initializer } => initializer,
+            VariableDeclaratorSyntax { Initializer.Value: CollectionExpressionSyntax initializer } => initializer,
+            _ => throw new InvalidDataException($"{type.ToDisplayString()}.OfferCreations hands the registrar definitions this generator cannot read: {argument}"),
+        };
+    }
+
+    /// <summary>Reads the definitions <paramref name="type"/> declares, directly or through a parts table's keys.</summary>
     private Behaviour ReadBehaviour(INamedTypeSymbol type)
     {
-        var declared = type.GetMembers("Creations").OfType<IPropertySymbol>().Where(p => !p.IsStatic).ToList();
-        if (declared is not [{ DeclaringSyntaxReferences: [var reference] }])
-            throw new InvalidDataException($"{type.ToDisplayString()} creates enemies but does not declare one Creations property.");
-        if (reference.GetSyntax() is not PropertyDeclarationSyntax { ExpressionBody.Expression: AssignmentExpressionSyntax { Right: var built } } property)
-            throw new InvalidDataException($"{type.ToDisplayString()}.Creations is not built once by its expression body.");
-        SemanticModel model = ModelOf(property.SyntaxTree);
+        List<CollectionExpressionSyntax> collections = DefinitionCollections(type);
         var names = new List<string>();
         var parts = new Dictionary<string, IFieldSymbol>(StringComparer.Ordinal);
         var entries = new Dictionary<string, ExpressionSyntax>(StringComparer.Ordinal);
         ISymbol? partsTable = null;
-        IEnumerable<CollectionElementSyntax> elements;
-        switch (built)
+        foreach (CollectionElementSyntax element in collections.SelectMany(collection => collection.Elements))
         {
-            case BaseObjectCreationExpressionSyntax { Initializer.Expressions: var initializers }:
-                foreach (ExpressionSyntax entry in initializers)
-                {
-                    if (entry is not AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [var key] } })
-                        throw new InvalidDataException($"{type.ToDisplayString()}.Creations has an entry this generator cannot read: {entry}");
-                    names.Add(DefinitionName(model, key.Expression, type));
-                }
-                elements = [];
-                break;
-            case InvocationExpressionSyntax { ArgumentList.Arguments: [{ Expression: CollectionExpressionSyntax each }, _] }:
-                elements = each.Elements;
-                break;
-            default:
-                throw new InvalidDataException($"{type.ToDisplayString()}.Creations is built in a way this generator cannot read: {built}");
-        }
-        foreach (CollectionElementSyntax element in elements)
-        {
+            SemanticModel model = ModelOf(element.SyntaxTree);
             switch (element)
             {
                 case ExpressionElementSyntax { Expression: var expression }:
@@ -928,7 +964,7 @@ internal sealed class CoreModel
         if (names.Count == 0)
             throw new InvalidDataException($"{type.ToDisplayString()} declares no definitions.");
         string family = Regex.Replace(type.Name, "(Behavior|Factory)$", "");
-        return new Behaviour(type, family, RelativePath(property.SyntaxTree), names, partsTable, parts, entries);
+        return new Behaviour(type, family, RelativePath(collections[0].SyntaxTree), names, partsTable, parts, entries);
     }
 
     /// <summary>The EnemyDefinitionId member <paramref name="expression"/> names.</summary>
@@ -1045,6 +1081,11 @@ internal sealed class CoreModel
             _owners.Add(type, own);
             return own;
         }
+        if (SpeciesOwners(type) is { } placing)
+        {
+            _owners.Add(type, placing);
+            return placing;
+        }
         var contexts = new List<INamedTypeSymbol>();
         if (_creationContexts.TryGetValue(type, out List<INamedTypeSymbol>? sites))
             contexts.AddRange(sites);
@@ -1059,6 +1100,17 @@ internal sealed class CoreModel
             var single = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default) { derivedOwner };
             _owners[type] = single;
             return single;
+        }
+        // An entity base of one species family, whose derived entities, all in its own namespace, are all behaviours' code,
+        // is theirs (#2554: RidleyEntity under Norfair Ridley's entity and Ceres Ridley's, each placed by a factory of its
+        // own): dispatch into it is the engine running whichever enemy holds the place, never another behaviour's code. A
+        // base every family's entities derive from, as the common participation, stays shared.
+        if (contexts.Count == 0 && IsEntityType(type) && DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? family)
+            && family.All(derivedType => SymbolEqualityComparer.Default.Equals(derivedType.ContainingNamespace, type.ContainingNamespace))
+            && DerivedOwners(type) is { } derivedOwners)
+        {
+            _owners[type] = derivedOwners;
+            return derivedOwners;
         }
         HashSet<INamedTypeSymbol>? owners = new(SymbolEqualityComparer.Default);
         bool contributed = false;
@@ -1088,20 +1140,7 @@ internal sealed class CoreModel
     /// </summary>
     private INamedTypeSymbol? SingleDerivedOwner(INamedTypeSymbol type)
     {
-        if (_derived is null)
-        {
-            _derived = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
-            foreach (INamedTypeSymbol candidate in Types)
-            {
-                if (candidate.BaseType is { } baseType && IsSource(baseType.OriginalDefinition))
-                {
-                    if (!_derived.TryGetValue(baseType.OriginalDefinition, out List<INamedTypeSymbol>? derived))
-                        _derived.Add(baseType.OriginalDefinition, derived = []);
-                    derived.Add(candidate.OriginalDefinition);
-                }
-            }
-        }
-        if (!_derived.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
+        if (!DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
             return null;
         INamedTypeSymbol? owner = null;
         foreach (INamedTypeSymbol derivedType in derivedTypes)
@@ -1118,7 +1157,95 @@ internal sealed class CoreModel
     }
 
     /// <summary>Every Core type deriving directly from each Core class, built on first use.</summary>
+    private Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> DerivedTypes
+    {
+        get
+        {
+            if (_derived is null)
+            {
+                _derived = new Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+                foreach (INamedTypeSymbol candidate in Types)
+                {
+                    if (candidate.BaseType is { } baseType && IsSource(baseType.OriginalDefinition))
+                    {
+                        if (!_derived.TryGetValue(baseType.OriginalDefinition, out List<INamedTypeSymbol>? derived))
+                            _derived.Add(baseType.OriginalDefinition, derived = []);
+                        derived.Add(candidate.OriginalDefinition);
+                    }
+                }
+            }
+            return _derived;
+        }
+    }
+
+    /// <summary>Every Core type deriving directly from each Core class (<see cref="DerivedTypes"/>), once built.</summary>
     private Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>>? _derived;
+
+    /// <summary>
+    /// The behaviours whose code the types deriving directly from <paramref name="type"/> are, together; null when no type
+    /// derives from it, or one is shared code or still being resolved.
+    /// </summary>
+    private HashSet<INamedTypeSymbol>? DerivedOwners(INamedTypeSymbol type)
+    {
+        if (!DerivedTypes.TryGetValue(type, out List<INamedTypeSymbol>? derivedTypes))
+            return null;
+        var owners = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+        foreach (INamedTypeSymbol derivedType in derivedTypes)
+        {
+            // The marker of a type still being resolved is empty, so it, like shared code, gives no owners.
+            if (ResolveOwners(derivedType) is not { Count: > 0 } derivedOwners)
+                return null;
+            owners.UnionWith(derivedOwners);
+        }
+        return owners;
+    }
+
+    /// <summary>
+    /// The behaviours whose code a species is when factories of its own place its enemies (#2554): a type behaviours are
+    /// handed at their construction, which the enemy entities are handed too, as their species, as Mother Brain's species is
+    /// handed to her body's factory and to her parts' entities. It is those behaviours' code, as it was while the species
+    /// placed its enemies itself, never shared code every walk's dispatch reaches; null for any other type.
+    /// </summary>
+    private IReadOnlySet<INamedTypeSymbol>? SpeciesOwners(INamedTypeSymbol type)
+    {
+        if (_speciesOwners is null)
+        {
+            var handedTo = new Dictionary<INamedTypeSymbol, HashSet<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            foreach (INamedTypeSymbol behaviour in _behaviours.Keys)
+            {
+                foreach (IParameterSymbol parameter in behaviour.InstanceConstructors.SelectMany(constructor => constructor.Parameters))
+                {
+                    if (parameter.Type is not INamedTypeSymbol handed || !IsSource(handed.OriginalDefinition))
+                        continue;
+                    if (!handedTo.TryGetValue(handed.OriginalDefinition, out HashSet<INamedTypeSymbol>? behaviours))
+                        handedTo.Add(handed.OriginalDefinition, behaviours = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+                    behaviours.Add(behaviour);
+                }
+            }
+            // An entity is handed its species first, before its occupant, place and anything else it is built with.
+            var entitySpecies = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            foreach (INamedTypeSymbol candidate in Types)
+            {
+                if (!candidate.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i.OriginalDefinition, _entity)))
+                    continue;
+                foreach (IMethodSymbol constructor in candidate.InstanceConstructors)
+                {
+                    if (constructor.Parameters is [{ Type: INamedTypeSymbol species }, ..])
+                        entitySpecies.Add(species.OriginalDefinition);
+                }
+            }
+            _speciesOwners = new Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>>(SymbolEqualityComparer.Default);
+            foreach ((INamedTypeSymbol species, HashSet<INamedTypeSymbol> behaviours) in handedTo)
+            {
+                if (entitySpecies.Contains(species) && !_behaviours.ContainsKey(species))
+                    _speciesOwners.Add(species, behaviours);
+            }
+        }
+        return _speciesOwners.TryGetValue(type, out IReadOnlySet<INamedTypeSymbol>? owners) ? owners : null;
+    }
+
+    /// <summary>Each species factories of its own place, with those factories (<see cref="SpeciesOwners"/>), built on first use.</summary>
+    private Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>>? _speciesOwners;
 
     /// <summary>Indexes, for every Core interface and overridable member, the Core members implementing or overriding it.</summary>
     private void BuildDispatch()

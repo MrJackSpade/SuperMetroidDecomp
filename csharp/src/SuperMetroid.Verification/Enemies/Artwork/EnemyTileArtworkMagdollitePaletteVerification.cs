@@ -36,7 +36,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             int address = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                 (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
                  MagdollitePaletteCycle.FirstAnimatedColor + color) * sizeof(ushort);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom, address),
                 native.Resolve(frame, color),
                 $"Magdollite palette frame {frame} color {color} preserves native RGB5");
         }
@@ -59,8 +59,9 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
             member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, part);
             member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
             member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
-            member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         }
+        // The room's population load sets up the three parts in order (#2554).
+        _ = enemies.LoadAuthoredPopulation();
         AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[0])), enemies.MagdolliteBehavior.Glow,
             "a restarted Magdollite glow shows its first frame");
         Action step = enemies.MagdolliteBehavior.StepGlow;

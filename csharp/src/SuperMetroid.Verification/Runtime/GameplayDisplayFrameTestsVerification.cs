@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -42,7 +43,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         VerifyCeresModeTiming(runtime);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -95,9 +96,9 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
-        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         KraidEnemyState kraid = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
+        RoomEnemyPlace kraidBody = kraid.Parts.Body;
+        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         Offset16<BackgroundPixels>? bodyBefore = runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll;
         kraid.ShowsBodyLayer = true;
         AssertEqual(bodyBefore, runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll,
@@ -114,10 +115,11 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0].HeldOccupant(), runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
-        runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
-        // The room's display reads the body the encounter attached as it set up (#2194): this one's.
-        runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
+        // Her room's population set her up as the room loaded: the encounter is the one her body's setup began, and the room's
+        // display reads the hidden body it attached (#2194). Her body is placed with her and her death hides its layer.
+        MotherBrainEnemyState motherBrain = runtime.Enemies.Places.InUpdateOrder[0].EntityOf<MotherBrainBodyEntity>().Encounter;
+        motherBrain.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
+        motherBrain.DeathHidesBodyLayer = true;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!Registers(runtime).ShownLayers.HasFlag(ScreenLayers.BossBody), "the accepted NMI publishes Mother Brain's hidden body");
@@ -197,7 +199,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Suit pickup: the light beam is a live HDMA window; its COLDATA follows the NMI.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
         RgbColor suitBefore = runtime.PublishDisplayFrame().RoomLatch.Tints.SuitPickup;
@@ -232,7 +234,7 @@ internal static class GameplayDisplayFrameTestsVerification
         CeresEscape escape = runtime.Enemies.CeresEscape;
         RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
         escape.BeginGetaway();
-        escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, 0);
+        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, 0);
         FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");
@@ -243,7 +245,7 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
         // The getaway flies its remaining steps, and the update after its last hands on to the self-destruct warning.
         for (int update = 1; update <= CeresRidleyGetawayCurve.Duration; update++)
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, arena, update);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
         AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

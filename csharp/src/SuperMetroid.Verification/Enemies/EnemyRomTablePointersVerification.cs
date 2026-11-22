@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Tooling;
-using System.Reflection;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -76,10 +75,10 @@ internal static class EnemyRomTablePointersVerification
         CartridgeImportAddressSpace rom)
     {
 
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
+        AssertEqual(rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileLeft),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
+        AssertEqual(rom.ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRight),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
@@ -89,14 +88,14 @@ internal static class EnemyRomTablePointersVerification
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
-        Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
+            place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
+            // The room's population load builds the placement and initializes it.
+            _ = system.LoadAuthoredPopulation();
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
@@ -105,10 +104,12 @@ internal static class EnemyRomTablePointersVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace torizo = system.Places.InUpdateOrder[0];
-            torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, TorizoVariant.Golden);
-            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo);
+            // Golden Torizo is set up as his room's population sets him up (#2554), then stands in the posture of the case's
+            // parameter word, facing its way.
+            RoomEnemyPlace torizo = system.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.GoldenTorizo, new(128, 128)))[0];
+            TorizoEnemyState torizoState = torizo.RequireSpeciesState<TorizoEnemyState>();
+            torizoState.Posture = TorizoParameterFlagWords.PostureOf(facingRight ? 0x8000 : 0);
+            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo, torizoState);
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(

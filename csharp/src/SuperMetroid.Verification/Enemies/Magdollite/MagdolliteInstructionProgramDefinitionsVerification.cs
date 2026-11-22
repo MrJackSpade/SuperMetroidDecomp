@@ -25,47 +25,46 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
     internal static void VerifyMagdolliteInstructionProgramDefinitions(
         CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteSegment.LeftIdle, "left"));
-        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteSegment.RightIdle, "right"));
-        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteSegment.LeftThrow, "left"));
-        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteSegment.RightThrow, "right"));
-        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteSegment.LeftSubmerge, "left"));
-        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteSegment.RightSubmerge, "right"));
-        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteSegment.LeftEmerge, "left"));
-        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteSegment.RightEmerge, "right"));
+        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteHeadSegment.LeftIdle, "left"));
+        Suite(nameof(VerifyIdle), () => VerifyIdle(MagdolliteHeadSegment.RightIdle, "right"));
+        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteOverlaySegment.LeftThrow, "left"));
+        Suite(nameof(VerifyThrow), () => VerifyThrow(MagdolliteOverlaySegment.RightThrow, "right"));
+        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteHeadSegment.LeftSubmerge, "left"));
+        Suite(nameof(VerifySubmerge), () => VerifySubmerge(MagdolliteHeadSegment.RightSubmerge, "right"));
+        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteHeadSegment.LeftEmerge, "left"));
+        Suite(nameof(VerifyEmerge), () => VerifyEmerge(MagdolliteHeadSegment.RightEmerge, "right"));
 
-        MagdolliteSegment[] pillarPrograms =
+        MagdolliteBodySegment[] pillarPrograms =
         [
-            MagdolliteSegment.OneSegmentPillar,
-            MagdolliteSegment.TwoSegmentPillar,
-            MagdolliteSegment.ThreeSegmentPillar,
-            MagdolliteSegment.FourSegmentPillar,
-            MagdolliteSegment.FiveSegmentPillar,
-            MagdolliteSegment.SixSegmentPillar,
-            MagdolliteSegment.SevenSegmentPillar,
-            MagdolliteSegment.EightSegmentPillar,
+            MagdolliteBodySegment.OneSegmentPillar,
+            MagdolliteBodySegment.TwoSegmentPillar,
+            MagdolliteBodySegment.ThreeSegmentPillar,
+            MagdolliteBodySegment.FourSegmentPillar,
+            MagdolliteBodySegment.FiveSegmentPillar,
+            MagdolliteBodySegment.SixSegmentPillar,
+            MagdolliteBodySegment.SevenSegmentPillar,
+            MagdolliteBodySegment.EightSegmentPillar,
         ];
         for (int phase = 0; phase < pillarPrograms.Length; phase++)
-            VerifyStaticProgram(pillarPrograms[phase], typeof(MagdolliteBodyState), $"pillar {phase}");
-        Suite(nameof(VerifyStaticProgram), () => VerifyStaticProgram(
-            MagdolliteSegment.PillarCap,
-            typeof(MagdolliteOverlayState),
-            "pillar cap"));
+            VerifyPillar(pillarPrograms[phase], $"pillar {phase}");
+        Suite(nameof(VerifyCap), VerifyCap);
 
         Suite(nameof(MagdolliteAnimationsVerification.VerifyMagdolliteAnimations), () => MagdolliteAnimationsVerification.VerifyMagdolliteAnimations(rom));
         Console.WriteLine("Magdollite: idle, throw, submerge, emerge, pillar and cap programs with their cues pass.");
 
-        void VerifyIdle(MagdolliteSegment program, string direction)
+        void VerifyIdle(MagdolliteHeadSegment program, string direction)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) =
+            (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) =
                 CreateSystem(typeof(MagdolliteHeadState));
-            Install(place, state, program);
+            var state = (MagdolliteHeadState)part;
+            state.Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
+            place.AnimationClock.Restart();
             RunFrames(enemies, place, 55);
             AssertEqual(program, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment,
                 $"Magdollite {direction} idle remains inside its loop");
         }
 
-        void VerifyThrow(MagdolliteSegment program, string direction)
+        void VerifyThrow(MagdolliteOverlaySegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) =
                 CreateSystem(typeof(MagdolliteOverlayState));
@@ -73,7 +72,8 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             overlay.ThrowOrigin = place.Position.Whole;
             // The hand waits for the throw it starts (#2439).
             overlay.Action = MagdolliteOverlayAction.WaitingForThrowAnimation;
-            Install(place, state, program);
+            overlay.Playback = new(MagdolliteOverlayAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
+            place.AnimationClock.Restart();
             RunFrames(enemies, place, 80);
             AssertEqual(EnemySound.FireSpit, (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a pending Magdollite sound.")),
                 $"Magdollite {direction} throw sound");
@@ -85,13 +85,14 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 $"Magdollite {direction} throw finishes the hand's wait");
         }
 
-        void VerifySubmerge(MagdolliteSegment program, string direction)
+        void VerifySubmerge(MagdolliteHeadSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace head, MagdollitePartState state) =
                 CreateSystem(typeof(MagdolliteHeadState));
             // The head waits for the submerge it starts (#2439).
             ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForAttackAnimation;
-            Install(head, state, program);
+            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
+            head.AnimationClock.Restart();
             RunFrames(enemies, head, 80);
             AssertEqual(MagdolliteHeadAction.Submerged, ((MagdolliteHeadState)state).Action,
                 $"Magdollite {direction} submerge finishes the head's wait");
@@ -101,7 +102,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 $"Magdollite {direction} submerge reveals hand");
         }
 
-        void VerifyEmerge(MagdolliteSegment program, string direction)
+        void VerifyEmerge(MagdolliteHeadSegment program, string direction)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace head, MagdollitePartState state) =
                 CreateSystem(typeof(MagdolliteHeadState));
@@ -109,7 +110,8 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             enemies.Places.InUpdateOrder[2].Presence = enemies.Places.InUpdateOrder[2].Presence.Without(EnemyPresence.Hidden);
             // The head waits for the emergence it starts (#2439).
             ((MagdolliteHeadState)state).Action = MagdolliteHeadAction.WaitingForReturnAnimation;
-            Install(head, state, program);
+            ((MagdolliteHeadState)state).Playback = new(MagdolliteHeadAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
+            head.AnimationClock.Restart();
             RunFrames(enemies, head, 80);
             AssertEqual(MagdolliteHeadAction.Surfaced, ((MagdolliteHeadState)state).Action,
                 $"Magdollite {direction} emerge finishes the head's wait");
@@ -119,13 +121,29 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 $"Magdollite {direction} emerge hides hand");
         }
 
-        void VerifyStaticProgram(MagdolliteSegment program, Type part, string name)
+        void VerifyPillar(MagdolliteBodySegment program, string name)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState state) = CreateSystem(part);
-            Install(place, state, program);
+            (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) = CreateSystem(typeof(MagdolliteBodyState));
+            var state = (MagdolliteBodyState)part;
+            state.Playback = new(MagdolliteBodyAnimations.StartingAt[program], AnimationPlace.StartOfAnimation);
+            place.AnimationClock.Restart();
             RunFrames(enemies, place, 3);
-            // The playback holds past the last beat of an animation that holds there.
-            AnimationPlayback<MagdolliteSegment> playback = state.Playback;
+            AssertHeldAtEnd(state.Playback, program, name);
+        }
+
+        void VerifyCap()
+        {
+            (RoomEnemySystem enemies, RoomEnemyPlace place, MagdollitePartState part) = CreateSystem(typeof(MagdolliteOverlayState));
+            var state = (MagdolliteOverlayState)part;
+            state.Playback = new(MagdolliteOverlayAnimations.StartingAt[MagdolliteOverlaySegment.PillarCap], AnimationPlace.StartOfAnimation);
+            place.AnimationClock.Restart();
+            RunFrames(enemies, place, 3);
+            AssertHeldAtEnd(state.Playback, MagdolliteOverlaySegment.PillarCap, "pillar cap");
+        }
+
+        // The playback holds past the last beat of an animation that holds there.
+        static void AssertHeldAtEnd<TSegment>(AnimationPlayback<TSegment> playback, TSegment program, string name) where TSegment : struct
+        {
             AssertEqual(program, playback.Animation.Phases[playback.Place.Phase].Segment, $"Magdollite {name} stays in its program");
             AssertTrue(playback.Animation.End is AnimationEnd.Hold &&
                 playback.Place == AnimationPlace.HoldingIn(playback.Animation.Phases.Count - 1, playback.Animation.Phases[^1].BeatCount),
@@ -136,7 +154,6 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             Type selectedPart)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[index];
@@ -145,20 +162,15 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 member.Bind(EnemyDefinitionId.Magdollite, member.KeptDefinition);
                 member.Bind(member.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
-                initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
+            // The room's population load sets up the three parts in order (#2554).
+            _ = enemies.LoadAuthoredPopulation();
 
             // Each placement spawned as the part its parameter names; the selected part is the one whose state's type names
             // it (#2474).
             int position = Enumerable.Range(0, 3).Single(index => enemies.MagdolliteStates[index]?.GetType() == selectedPart);
             RoomEnemyPlace selected = enemies.Places.InUpdateOrder[position];
             return new CreateSystemResult(enemies, selected, (enemies.MagdolliteStates[position] ?? throw new InvalidOperationException("Verification requires the initialized Magdollite state.")));
-        }
-
-        static void Install(RoomEnemyPlace place, MagdollitePartState state, MagdolliteSegment program)
-        {
-            state.Playback = new(MagdolliteAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            place.AnimationClock.Restart();
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemyPlace place, int frames)

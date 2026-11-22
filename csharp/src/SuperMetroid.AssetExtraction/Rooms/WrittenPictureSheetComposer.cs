@@ -163,8 +163,9 @@ internal static partial class WrittenPictureSheetComposer
     /// </summary>
     /// <exception cref="InvalidDataException">No room of the tileset records what BG3 shows over.</exception>
     private static WrittenOptions Bg3Options(TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) =>
-        new(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, [],
-            uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."));
+        uploads.TryGetBg3Content(out BgArtworkBindings? content)
+            ? new(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, [], content)
+            : throw new InvalidDataException($"No room of {tileset} records what BG3 shows over.");
 
     /// <summary>
     /// The pictures effect <paramref name="type"/> shows of its transfer <paramref name="words"/> (#1706): a liquid's surface
@@ -257,7 +258,9 @@ internal static partial class WrittenPictureSheetComposer
                 if (!RoomAppearanceComposition.InputsOver(options.Set, [character], options.Options).IsEmpty)
                     throw new InvalidDataException($"{sheetName} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
             }
-            pictures.Add(Shown(part, part.Name, AppearanceAssignment.OfNoInput) ?? throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over."));
+            if (!TryShown(part, part.Name, AppearanceAssignment.OfNoInput, out ShownPicture? fixedPicture))
+                throw new InvalidDataException($"{sheetName} part {part.Name} reads a character its room loads nothing over.");
+            pictures.Add(fixedPicture);
         }
         var inputsOf = new Dictionary<string, ImmutableArray<AppearanceInput>>(StringComparer.Ordinal);
         // Each subject's pictures are installed as their two parts (#1634); the fixed parts and the frames cut from them, the
@@ -272,8 +275,7 @@ internal static partial class WrittenPictureSheetComposer
             foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
                 bool loaded = assignment.ShowsLoadThroughout;
-                ShownPicture? shown = Shown(subject, assignment.NameOf(subject.Name), assignment);
-                if (shown is not null)
+                if (TryShown(subject, assignment.NameOf(subject.Name), assignment, out ShownPicture? shown))
                 {
                     pictures.Add(shown);
                     split.Add(shown.Name);
@@ -321,9 +323,11 @@ internal static partial class WrittenPictureSheetComposer
         return new ComposedPictures(canvas.ToSplitRoomSheet(colours, frames, split, kind, keepsEmpty: true), inputsOf);
 
         // `subject`'s words as they show while its inputs take the values of `assignment`, named `name`, laid from its
-        // top-left written tile; null where a word's character shows nothing for them.
-        ShownPicture? Shown(WrittenSubject subject, string name, AppearanceAssignment assignment)
+        // top-left written tile, as `picture`; false where a word's character shows nothing for them.
+        bool TryShown(WrittenSubject subject, string name, AppearanceAssignment assignment,
+            [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ShownPicture? picture)
         {
+            picture = null;
             int left = subject.Words.Min(word => word.Corner.X), top = subject.Words.Min(word => word.Corner.Y);
             int right = subject.Words.Max(word => word.Corner.X), bottom = subject.Words.Max(word => word.Corner.Y);
             var origin = new Position16<ImagePixels>(left, top);
@@ -333,10 +337,11 @@ internal static partial class WrittenPictureSheetComposer
                 SnesBgTilemapWord word = written.Word;
                 if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, word.CharacterIndex, 1), assignment,
                         options.Options, content, out BgArtworkShown shown))
-                    return null;
+                    return false;
                 words.Add(new PictureWord(written.Corner - origin, new ShownWord(word, shown)));
             }
-            return new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words, subject.Origin);
+            picture = new ShownPicture(name, new(right - left + TilePixels, bottom - top + TilePixels), words, subject.Origin);
+            return true;
         }
 
         void Paint(Position16<ImagePixels> corner, ShownWord word)

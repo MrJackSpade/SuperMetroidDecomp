@@ -18,23 +18,23 @@ internal sealed partial class ChozoStatueObjects : IChozoStatueHand
     /// <summary>The room's room objects, which the hand checks and the statues' objects join.</summary>
     private readonly RoomObjectPlaceList _places;
 
-    /// <summary>Starts the statue's hand sequence, which the room's enemies run.</summary>
-    private readonly IChozoStatueHandActivation _hands;
+    /// <summary>
+    /// The statue each spawned hand belongs to, by the statue's site: a hand's block wakes the statue its spawn carried
+    /// (#2554). A room without a spawned hand has no hand block to touch.
+    /// </summary>
+    private readonly Dictionary<ChozoStatueSite, ChozoStatueHandTrigger> _hands = [];
     /// <summary>The room's liquid, which the Lower Norfair statue lowers.</summary>
     private readonly IRoomLiquid _roomFx;
 
     /// <summary>Binds Chozo hand behavior to its room services and room objects.</summary>
     /// <param name="system">The room's system and event state.</param>
     /// <param name="area">The room's area.</param>
-    /// <param name="hands">Starts the statue's hand sequence, which the room's enemies run.</param>
     /// <param name="roomFx">The room's liquid.</param>
     /// <param name="places">The room's room objects.</param>
-    internal ChozoStatueObjects(SharedGameState system, AreaId area, IChozoStatueHandActivation hands, IRoomLiquid roomFx,
-        RoomObjectPlaceList places)
+    internal ChozoStatueObjects(SharedGameState system, AreaId area, IRoomLiquid roomFx, RoomObjectPlaceList places)
     {
         _system = system;
         _area = area;
-        _hands = hands;
         _roomFx = roomFx;
         _places = places;
     }
@@ -48,7 +48,14 @@ internal sealed partial class ChozoStatueObjects : IChozoStatueHand
     {
         Ensure.NotNull(level);
         RoomBlockBehavior behavior = level.GetCollisionBlock(block).Behavior;
-        if (ChozoStatueSiteDefinitions.Sites.Values.SingleOrDefault(site => site.Area == _area && site.HandBehavior == behavior) is not { } site)
+        // The site whose hand behaviour the block has in its area is the hand's.
+        if (ChozoStatueSiteDefinitions.Sites.SingleOrDefault(entry => entry.Value.Area == _area && entry.Value.HandBehavior == behavior)
+            is not { Key: var handSite, Value: { } site })
+        {
+            return;
+        }
+        // The hand's block wakes the statue whose spawned hand made it the hand.
+        if (!_hands.TryGetValue(handSite, out ChozoStatueHandTrigger? hand))
             return;
         // The hand block is solid whether or not the touch is admitted. Samus morphed facing left is not admitted; only
         // these three poses are.
@@ -68,7 +75,8 @@ internal sealed partial class ChozoStatueObjects : IChozoStatueHand
             // Both triggers turn the hand block to air before waking the statue (#2502); its behaviour, picture and
             // what it shows survive until the room object the statue then spawns runs.
             level.SetCollision(block, RoomCollisionType.Air);
-            _hands.ActivateChozoStatueHand(level);
+            foreach (RoomObjectSpawnRequest<ChozoStatueRoomObject> request in hand.Activate())
+                SpawnChozoStatueObject(level, request);
         }
         check.Delete();
     }
@@ -95,6 +103,26 @@ internal sealed partial class ChozoStatueObjects : IChozoStatueHand
     }
 
     /// <summary>
+    /// Spawns the statue's hand <paramref name="request"/> names at its block, at the first free place in the update
+    /// order, and runs its setup; the spawned hand's block then wakes <paramref name="hand"/>.
+    /// </summary>
+    /// <remarks>When the room is full nothing is spawned or changed (<see cref="Compatibility.RoomObjectPlaces"/>).</remarks>
+    internal void SpawnChozoStatueHand(RoomLevelData level, RoomObjectSpawnRequest<ChozoStatueHandObject> request, ChozoStatueHandTrigger hand)
+    {
+        Ensure.NotNull(level);
+        Ensure.NotNull(hand);
+        var spawn = new ChozoStatueObjectSpawn(this, level, level.GridBlock(request.Block));
+        RoomObjectBehaviour roomObject = request.RoomObject.Create(spawn);
+        if (_places.Spawn() is not { } place)
+            return;
+
+        place.Block = spawn.Block;
+        place.Become(roomObject);
+        _hands.Add(hand.Site, hand);
+        request.RoomObject.SetUp(spawn);
+    }
+
+    /// <summary>
     /// The air block a crumbling plug's setup leaves after <paramref name="spawn"/>, showing the picture that spawn left
     /// (<see cref="CrumblePlugLeftBlock"/>).
     /// </summary>
@@ -112,8 +140,7 @@ internal sealed partial class ChozoStatueObjects : IChozoStatueHand
     internal static void WriteChozoBlock(RoomLevelData level, Position16<RoomBlocks> block,
         RoomCollisionType type, RoomBlockBehavior behavior)
     {
-        level.SetCollision(block, type);
-        level.SetBehavior(block, behavior);
+        level.SetCollisionAndBehavior(block, type, behavior);
     }
 
     /// <summary>Whether the Lower Norfair acid has been lowered, which the Lower Norfair hand checks as it starts.</summary>

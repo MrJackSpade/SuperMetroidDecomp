@@ -23,15 +23,14 @@ public sealed partial class SamusParticles
 /// <summary>Removes every particle, as room and Samus initialization do.</summary>
     public void Clear() => particles.Clear();
 
-    /// <summary>Starts a particle on its first step; dust rises as it shows, and every other kind but lava spray stays put.</summary>
-    /// <param name="kind">What it shows; lava spray starts through <see cref="SpawnLavaSpray"/>, which gives its drift.</param>
+    /// <summary>Starts a steady particle on its first step: dust rises as it shows, and splashes and bubbles stay put.</summary>
+    /// <param name="particle">What it shows, with its drift; lava spray starts through <see cref="SpawnLavaSpray"/>, which gives its drift.</param>
     /// <param name="position">Where it starts, in whole room pixels.</param>
     /// <param name="start">Whether it shows at once or after a hidden wait.</param>
-    internal void Spawn(SamusParticleKind kind, Position16<RoomPixels> position, SamusParticleStart start)
+    internal void Spawn(SamusSteadyParticle particle, Position16<RoomPixels> position, SamusParticleStart start)
     {
-        Offset16<RoomPixels> drift = Definition(kind).Drift
-            ?? throw new ArgumentOutOfRangeException(nameof(kind), kind, "A particle that drifts to one side starts with its drift.");
-        Add(new SamusParticle(kind, AnimationPlace.StartOfAnimation, start, position, drift));
+        Ensure.NotNull(particle);
+        Add(new SamusParticle(particle.Kind, AnimationPlace.StartOfAnimation, start, position, particle.Drift));
     }
 
     /// <summary>Starts a particle of lava spray on its first step, rising and drifting to one side as it shows.</summary>
@@ -76,11 +75,12 @@ public sealed partial class SamusParticles
                 particles.RemoveAt(index);
                 continue;
             }
-            if (particle.IsHidden)
+            // A hidden particle draws nothing; a shown one draws the picture its animation shows.
+            if (particle.Stage is not SamusParticleStage.Showing { Picture: var shown })
                 continue;
             if (Definition(particle.Kind).FollowsWaterSurface)
                 particle.HoldOnLine(waterSurfaceLine);
-            sprites.Add(Draw(particle, camera, sheets));
+            sprites.Add(Draw(particle, shown, camera, sheets));
         }
     }
 
@@ -88,10 +88,9 @@ public sealed partial class SamusParticles
     /// The draw of a shown particle wherever it lies; the display clips it (#1541). Splashes, spray and dust are eight-pixel
     /// pictures centred on the particle; the diving splash and bubbles are placed from it.
     /// </summary>
-    private static SamusColouredDraw Draw(SamusParticle particle, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
+    private static SamusColouredDraw Draw(SamusParticle particle, SamusAtmosphereFrame shown, Position16<RoomPixels> camera, InstalledSpriteSheets sheets)
     {
-        string frame = SamusAtmosphereSheetDefinitions.FrameName(
-            particle.Shown ?? throw new InvalidOperationException("A particle drawn shows no picture."));
+        string frame = SamusAtmosphereSheetDefinitions.FrameName(shown);
         Offset16<ScreenPixels> place = particle.Position.RelativeToCamera(camera);
         if (Definition(particle.Kind).Centred)
             place -= Offset16<ScreenPixels>.Of(SmallParticleHalfWidth, SmallParticleHalfWidth);

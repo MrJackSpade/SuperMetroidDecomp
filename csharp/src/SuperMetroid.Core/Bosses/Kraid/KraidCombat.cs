@@ -17,18 +17,15 @@ internal sealed partial class KraidCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Spawns room effect actors for Kraid's visual effects, and gives the place a dud flash took.</summary>
     private readonly RoomEffectActors _effectActors;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, KraidParts parts, EnemyCollision collision)
+    internal KraidCombat(EnemyProjectileEngine projectiles, EnemyAudioQueue audio, RoomEffectActors effectActors, EnemyCollision collision)
     {
         _projectiles = projectiles;
         _audio = audio;
         _effectActors = effectActors;
-        _parts = parts;
         _collision = collision;
     }
 
@@ -125,11 +122,12 @@ internal sealed partial class KraidCombat
     internal void ResolveKraidMouthProjectileHits(RoomEnemyOccupant kraid, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
         RoomEnemyPlace body = Ensure.NotNull(kraid).Place;
-        if (!state.BodyState.ShotsCollide)
+        // While he rises through the floor and once he sinks, his mouth lets every shot through.
+        if (state.BodyState.Run is not KraidStageRun.Risen { ShotsCollide: true } risen)
             return;
 
         int mouthHits = 0;
-        KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadPlayback);
+        KraidMouthHitbox? innerMouth = tested.Count == 0 ? null : KraidHeadAnimations.InnerMouthAt(risen.Head.Playback);
         if (innerMouth is { } inner)
         {
             KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
@@ -178,7 +176,7 @@ internal sealed partial class KraidCombat
             state.StartHurtFlash();
             state.MarkMouthReopen();
             if (body.Health < 1 && state.BodyState.Fights)
-                BeginKraidDeath(state);
+                BeginKraidDeath(state, risen.Head);
         }
     }
 
@@ -188,14 +186,15 @@ internal sealed partial class KraidCombat
     /// </summary>
     internal void ResolveKraidBodyProjectileHits(RoomEnemyPlace body, KraidEnemyState state, IReadOnlyList<KraidBehavior.KraidPassProjectile> tested)
     {
-        if (!state.BodyState.ShotsCollide)
+        // While he rises through the floor and once he sinks, his body lets every shot through.
+        if (state.BodyState.Run is not KraidStageRun.Risen { ShotsCollide: true } risen)
             return;
 
         bool chargedHit = false;
         int bodyHits = 0;
         if (tested.Count != 0)
         {
-            KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(state.HeadPlayback);
+            KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(risen.Head.Playback);
             KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             foreach (KraidBehavior.KraidPassProjectile projectile in tested)
             {
@@ -213,10 +212,9 @@ internal sealed partial class KraidCombat
             }
         }
 
-        if (bodyHits != 0 && state.BodyState.Stage == KraidBodyStage.Fighting &&
-            state.BodyState.FightPhase == KraidFightPhase.FirstPhaseThinking)
+        if (bodyHits != 0 && risen is KraidStageRun.Fighting { Phase: KraidFightPhase.FirstPhaseThinking } fight)
         {
-            state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
+            fight.Phase = KraidFightPhase.InitializeEyeGlow;
             if (chargedHit)
             {
                 state.ArmMouthReopens();
@@ -257,12 +255,12 @@ internal sealed partial class KraidCombat
     }
 
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
-    private void BeginKraidDeath(KraidEnemyState state)
+    private static void BeginKraidDeath(KraidEnemyState state, KraidRisenHead head)
     {
-        state.BodyState.DeathPhase = KraidDeathPhase.Initialize;
+        state.BodyState.Run = new KraidStageRun.Dying(KraidDeathPhase.Initialize, head);
         state.ClearMouthReactions();
         // His parts stop touching Samus while his death moves his body and breaks him up. The fingernails are left out: they delete themselves once his health reads zero.
-        foreach (RoomEnemyPlace part in _parts.AllButNails)
+        foreach (RoomEnemyPlace part in state.Parts.AllButNails)
             part.Contact = part.Contact.With(EnemyContact.IgnoresSamus);
     }
 

@@ -49,10 +49,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
-            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant(), statue),
+            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
             ChozoStatueSegment.WreckedShipIdle));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
-            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant(), statue),
+            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
             ChozoStatueSegment.LowerNorfairIdle));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
@@ -63,27 +63,28 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         void VerifyBand(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed {name} color {color} preserves native RGB5");
         }
 
         void VerifyLive(ushort variant, PictureShading expectedShading, string name,
-            Action<RoomEnemySystem, RoomEnemyPlace> initialize, ChozoStatueSegment? expectedProgram)
+            Func<RoomEnemySystem, RoomEnemyPlace, ChozoStatueState> initialize, ChozoStatueSegment? expectedProgram)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
             RoomEnemyPlace statue = enemies.Places.InUpdateOrder[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
-            initialize(enemies, statue);
+            // The statue's setup builds the state its animation runs on.
+            ChozoStatueState state = initialize(enemies, statue);
             // The import pre-colours each shade from the installed band whose words VerifyBand matched to the cartridge.
             AssertEqual(expectedShading, statue.Shading, $"live {name} shows its installed shade");
             if (expectedProgram is not null)
             {
                 AssertEqual(new AnimationPlayback<ChozoStatueSegment>(ChozoStatueAnimations.StartingWith(expectedProgram.Value), AnimationPlace.StartOfAnimation),
-                    (statue.SpeciesState<ChozoStatueState>()
-                        ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
+                    state.Playback,
                     $"{name} keeps native animation selection");
-                AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
+                // The native PLM request is the statue's hand, which every site asks its room for (#2562).
+                AssertTrue(enemies.PassEvents.Published.OfType<SuperMetroid.Core.Enemies.Chozo.ChozoStatueHandAsked>().Any(),
                     $"{name} still publishes its native PLM request");
             }
         }

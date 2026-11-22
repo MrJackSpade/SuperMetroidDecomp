@@ -64,17 +64,17 @@ internal static class ControllerButtonLookupsVerification
             for (int other = 0; other < ConstructorOrder.Length; other++)
                 AssertEqual(original[other == action ? requested : other == requested ? action : other],
                     result[ConstructorOrder[other]], $"button swap {ConstructorOrder[action]}/{requested} {ConstructorOrder[other]}");
-            AssertTrue(result.IsUniquePermutation, "swapped buttons remain a permutation");
+            AssertEqual(result, result.RequireUniquePermutation(), "swapped buttons remain a permutation");
         }
         foreach (ControllerButton rejected in new ControllerButton[] { ControllerButton.None, original[7], original[8],
                      original[0] | original[1], ControllerButton.Start, ControllerButtons.All })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(ControllerAction.Shoot, rejected),
                 $"reject nonassignable {rejected}");
-            AssertTrue(!bindings.With(ControllerAction.Shoot, rejected).IsUniquePermutation,
+            AssertThrows<InvalidDataException>(() => bindings.With(ControllerAction.Shoot, rejected).RequireUniquePermutation(),
                 "nonassignable button invalidates permutation");
         }
-        AssertTrue(!bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).IsUniquePermutation,
+        AssertThrows<InvalidDataException>(() => bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).RequireUniquePermutation(),
             "duplicate button invalidates permutation");
         // Bindings that leave a button to no action are not a permutation; a swap onto that button is refused rather than
         // leaving the action's old button bound twice.
@@ -107,6 +107,6 @@ internal static class ControllerButtonLookupsVerification
         foreach (ControllerAction action in Enum.GetValues<ControllerAction>())
             AssertEqual(ControllerWordCodec.FromJoypadWord(original[destinations[action]], "native default binding"), ControllerBindings.Default[action],
                 $"default action {action} WRAM {destinations[action]:X4}");
-        AssertTrue(ControllerBindings.Default.IsUniquePermutation, "native defaults form a permutation");
+        AssertEqual(ControllerBindings.Default, ControllerBindings.Default.RequireUniquePermutation(), "native defaults form a permutation");
     }
 }

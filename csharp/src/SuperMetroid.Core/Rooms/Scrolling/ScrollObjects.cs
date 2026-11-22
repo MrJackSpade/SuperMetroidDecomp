@@ -90,8 +90,7 @@ internal sealed partial class ScrollObjects
         // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
         // (#2502).
         RoomCollisionType collision = extension.Horizontal ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-        level.SetCollision(place.Block, collision);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Extending(extension.BlocksTowardTrigger));
+        level.SetCollisionAndBehavior(place.Block, collision, RoomBlockBehavior.Extending(extension.BlocksTowardTrigger));
 
         // An extension's whole effect is its setup, which removes it at once, freeing its place for the room's next object.
         place.Delete();

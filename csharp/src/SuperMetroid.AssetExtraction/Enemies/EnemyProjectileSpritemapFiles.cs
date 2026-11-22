@@ -31,7 +31,7 @@ public static partial class EnemyProjectileSpritemapFiles
         foreach (EnemyProjectilePresentationFrameDefinition frame in stored)
         {
             int operand = EnemyProjectileProgramFrameSources.Operand(frame.Frame);
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
+            int pointer = bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemySourceDefinitions.ProjectileInstructionBank, operand));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractProjectileParts(bus, CartridgeFormatDefinitions.EnemyProjectileSpritemapBank, pointer));
         }
         return EnemyProjectileSpritemapDocuments.Write(new EnemyProjectileSpritemapDocument

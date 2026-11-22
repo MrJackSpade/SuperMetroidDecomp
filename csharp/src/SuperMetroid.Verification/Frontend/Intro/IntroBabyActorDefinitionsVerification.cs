@@ -50,19 +50,19 @@ internal static class IntroBabyActorDefinitionsVerification
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
             ushort[] routines = [CinematicActorNativeMotions.MetroidEgg[MetroidEggBehavior.WaitsForSamus], CinematicActorNativeMotions.DeliveredBaby, CinematicActorNativeMotions.ExaminedBaby,
                 CinematicActorNativeMotions.ConfusedBaby[ConfusedBabyMotion.WaitingForHatch]];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), routines[index],
+            AssertEqual(retail.ReadCartridgeWord((definitionAddress + 2)), routines[index],
                 $"intro baby actor {index} routine: the behaviour the actor starts with");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(retail.ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.
             int initializer = IntroBabyActorDefinitions.NativeBank |
-                CartridgeImportSource.Require(retail).ReadCartridgeWord(definitionAddress);
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 1)), actual.Position.X,
+                retail.ReadCartridgeWord(definitionAddress);
+            AssertEqual(retail.ReadCartridgeWord((initializer + 1)), actual.Position.X,
                 $"intro baby actor {index} initializer X immediate");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
+            AssertEqual(retail.ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(actual.Colouring)),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord((initializer + 13)), IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(actual.Colouring)),
                 $"intro baby actor {index} initializer palette immediate");
         }
 
@@ -166,7 +166,7 @@ internal static class IntroBabyActorDefinitionsVerification
     private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 1);
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
-    private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte IntroBabyActorDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects production rereads of compiled Baby actor, instruction, demo-input and discovery-collision regions.</summary>
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>

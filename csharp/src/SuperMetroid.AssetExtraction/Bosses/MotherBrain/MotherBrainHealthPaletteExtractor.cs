@@ -31,12 +31,12 @@ internal static partial class MotherBrainHealthPaletteExtractor
         PaletteRgb5[] ReadState(int table, int state)
         {
             int pointer = table + state * sizeof(ushort);
-            int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
+            int source = (MotherBrainSourceDefinitions.Palettes.PaletteBank|bus.ReadCartridgeWord(pointer));
             var colours = new PaletteRgb5[MotherBrainRainbowPaletteGeometry.ColorCount];
             for (int color = 0; color < colours.Length; color++)
             {
                 int address = source + color * sizeof(ushort);
-                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int word = bus.ReadCartridgeWord(address);
                 colours[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return colours;

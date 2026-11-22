@@ -316,7 +316,7 @@ internal static class EnemyTerrainBlockAddressingVerification
     }
 
     /// <summary>The projectile the scan row check moves, placed afresh for each move.</summary>
-    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
+    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
 
     /// <summary>
     /// A room for the scan row checks: air, walls, spike and grapple blocks and extension links leading up to a row's
@@ -445,7 +445,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         var mover = new EnemyTerrain(roomObjects.BreakableTerrain);
-        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(84, 24)),
             Radius = new(4, 4),

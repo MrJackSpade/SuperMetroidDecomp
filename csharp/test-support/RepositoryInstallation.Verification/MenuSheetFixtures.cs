@@ -81,9 +81,26 @@ internal static class MenuSheetFixtures
         ArgumentNullException.ThrowIfNull(catalog);
         return ReferenceEquals(catalog, InstalledFixtures.ImportMaps.Sprites)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
-            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
+            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(WithMapSprites(InstalledFixtures.ImportMaps,
+                key as MapSpriteArtwork ?? throw new ArgumentException($"Map sprites are composed from map sprite artwork, not {key.GetType().Name}.", nameof(catalog)))),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
+
+    /// <summary>
+    /// The import presentation <paramref name="maps"/> with <paramref name="sprites"/> as its map sprites: built as the import
+    /// builds it, from the characters, colours and documents read back from <paramref name="maps"/>, the characters holding
+    /// <paramref name="sprites"/>.
+    /// </summary>
+    private static ImportAreaMapPresentation WithMapSprites(ImportAreaMapPresentation maps, MapSpriteArtwork sprites) =>
+        new(maps.Game,
+            new ImportPresentationCharacters(maps.Characters, sprites, maps.EscapeTimerTiles, maps.BlockAnimationAtlas, maps.WorldCharacters,
+                maps.IntroFont, maps.EndingFont, maps.TitleGraphics),
+            new ImportPresentationColours(maps.SamusColours, maps.TitlePalette, maps.Palettes, maps.CeresRidleyColors, maps.CeresRidleyFloorColors,
+                maps.MotherBrainHealthPalette, maps.MotherBrainRoomColors, maps.RoomFxPaletteBlends, maps.RoomPaletteFx,
+                maps.MotherBrainRainbowColours, maps.HighlightColours),
+            new ImportPresentationDocuments(maps.FileSelect, maps.Pause, maps.RoomFxPages, maps.Messages, maps.GameplayHud, maps.Screens,
+                new ImportMenuDocuments(maps.PauseSelectors, maps.PauseReserveTanks, maps.GameOverSource, maps.GameOptions, maps.EndingTextPresentation),
+                maps.StaffCredits));
 
     /// <summary>Pause sheets already composed, by selector presentation.</summary>
     private static readonly ConditionalWeakTable<PauseSelectorSourcePresentation, SpriteSheet> pauseSprites = new();

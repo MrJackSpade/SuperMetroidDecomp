@@ -92,5 +92,5 @@ internal static class LibraryBackgroundSourceInventory
 
     /// <summary>Reads a 24-bit source address operand from the fixed library-background command bank.</summary>
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        (CartridgeImportSource.Require(bus).ReadCartridgeLongFixedBank(LibraryBackgroundOperandDecoding.CommandListBank | pointer));
+        (bus.ReadCartridgeLongFixedBank(LibraryBackgroundOperandDecoding.CommandListBank | pointer));
 }

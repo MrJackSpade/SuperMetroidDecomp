@@ -246,7 +246,7 @@ public sealed partial class SamusProjectileSystem
         Ensure.NotNull(samus);
         Ensure.NotNull(samusBombs);
 
-        SoundRequest? queued = null;
+        BeamFiringResult? queuedSound = null;
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
@@ -281,26 +281,26 @@ public sealed partial class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                queued = Firing.HandleBeamInput(
+                queuedSound = Firing.HandleBeamInput(
                     terrain,
                     samus,
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    samusBombs).Request;
+                    samusBombs);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                queued = BeamFiringResult.Of(Firing.TryFireMissile(
+                queuedSound = BeamFiringResult.Of(Firing.TryFireMissile(
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
-                    samusBombs)?.Sound, SoundRequestPriority.Normal).Request;
+                    samusBombs)?.Sound, SoundRequestPriority.Normal);
             }
         }
         // Firing queues its sound as it fires, before any projectile moves.
-        if (queued is { } firing)
-            AudioRequests.QueueSound(firing.SoundEffect, firing.Priority);
+        if (queuedSound is { } firingSound)
+            AudioRequests.QueueSound(firingSound.Sound, firingSound.Priority);
     }
 
     /// <summary>
@@ -335,9 +335,11 @@ public sealed partial class SamusProjectileSystem
                 behavior.Run(new SamusShotUpdate(held, this, terrain, samus, cameraPosition, samusBombs, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
-            // explosion's first frame is selected in this same projectile pass.
-            if (shot.Occupant is { Playback: not null } playing)
-                Animation.AdvanceProjectileAnimation(playing);
+            // explosion's first frame is selected in this same projectile pass, in the animation the behaviour left. A
+            // behaviour that deleted its projectile leaves none: the game still steps its cleared place's animation, whose
+            // cleared wait runs on past its end, so it shows nothing more.
+            if (shot.Occupant is { Animation: { } animation } playing)
+                Animation.AdvanceProjectileAnimation(playing, animation);
         }
     }
 

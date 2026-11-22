@@ -99,7 +99,7 @@ public static partial class GameplayEffectCapture
     public static ColourAddWindowLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamCone beam, Position16<RoomPixels> cameraPosition)
     {
-        if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
+        if (beam.Phase is MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
         TrigonometryAngle angle = beam.Angle.ToTrigonometryAngle();

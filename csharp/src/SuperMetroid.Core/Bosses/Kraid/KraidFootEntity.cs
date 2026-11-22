@@ -7,14 +7,27 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidLimbEntity(species, occupant, place, common, species.Parts.FootReference)
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KraidEnemyState encounter)
+    : KraidLimbEntity(species, occupant, place, common, encounter)
 {
-    /// <inheritdoc/>
-    protected override void SetUp() => Species.Limbs.InitializeKraidFoot(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the foot occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static KraidFootEntity SetUp(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KraidEnemyState encounter) =>
+        new(species, occupant, place, common, species.Limbs.InitializeKraidFoot(place, encounter));
 
     /// <summary>The foot's own part of the encounter.</summary>
-    protected override KraidAnimatedPartState Part => Encounter.FootState;
+    internal override KraidAnimatedPartState Part => Encounter.FootState;
 
     /// <summary>The foot's hitboxes, which its pose places.</summary>
     public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>

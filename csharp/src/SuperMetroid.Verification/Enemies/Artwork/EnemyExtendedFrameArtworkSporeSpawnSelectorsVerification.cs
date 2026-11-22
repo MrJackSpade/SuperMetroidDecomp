@@ -35,7 +35,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         int framesCompared = 0;
         var allNativeSelectors = new HashSet<ushort>();
         // Spore Spawn's body runs typed programs (#1288); its cursor is compared as the native pointer it stands for.
-        var steps = BodyLists(CartridgeImportSource.Require(rom));
+        var steps = BodyLists(rom);
         foreach ((SporeSpawnBodySegment program, int frames) in programs)
         {
             ushort pointer = SporeSpawnNativeListAddresses.BodyEntry(program);
@@ -43,9 +43,15 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             var installedBus = NewSporeSpawnInstructionReadGuard(rom);
             var nativeTrace = ReadReferenceSporeSpawnProgram(rom, pointer, frames, allNativeSelectors);
             var installedTrace = new List<SporeSpawnProgramFrame>(frames);
+            // His death has asked for its drops from the update the first of them appears: a drop that rolls nothing plays
+            // its pause and goes, as the native record of the request stays.
+            bool dropsRequested = false;
             RunSporeSpawnProgram(program, frames, stock,
                 afterFrame: (system, place) =>
-                    installedTrace.Add(CaptureSporeSpawnProgramFrame(system, place, steps)));
+                {
+                    dropsRequested |= system.ActiveEnemyDropPickups > 0;
+                    installedTrace.Add(CaptureSporeSpawnProgramFrame(place, steps, dropsRequested));
+                });
             AssertEqual(nativeTrace.Count, installedTrace.Count,
                 $"Spore Spawn program {pointer:X4} installed frame count");
             // A stopped clock (#2454) counts nothing, while the native timer counts on from its sleep; the rest is compared.
@@ -140,7 +146,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     }
     /// <summary>Captures the live state compared with one native Spore Spawn instruction tick.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
-        RoomEnemySystem system, RoomEnemyPlace place, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps)
+        RoomEnemyPlace place, Dictionary<SporeSpawnBodySegment, NativeEnemyList<SporeSpawnBodySegment>> steps, bool dropsRequested)
     {
         SporeSpawnEnemyState state = place.RequireSpeciesState<SporeSpawnEnemyState>();
         var properties = new SuperMetroid.AssetExtraction.Enemies.EnemyPropertyState(
@@ -150,7 +156,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             place.SpritemapPointer, place.Position.Whole,
             checked((ushort)place.Health), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodePropertyWord(properties)), checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EncodeExtraPropertyWord(properties)),
             state.Movement, state.Angle.ToTrigonometryAngle().RawValue, checked((ushort)state.SwayRadius.Pixels),
-            state.DeathStarted, system.ActiveEnemyDropPickups > 0);
+            state.DeathStarted, dropsRequested);
     }
 
     /// <summary>

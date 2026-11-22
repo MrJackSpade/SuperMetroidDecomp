@@ -104,24 +104,24 @@ public static partial class IntroCinematicArtworkFiles
 
         var hashes = new Dictionary<string, string>();
         WriteSheet(IntroCinematicArtworkFormat.BackgroundFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.BackgroundCharacters,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount),
             IntroCinematicArtworkFormat.BackgroundByteCount);
         WriteSheet(IntroCinematicArtworkFormat.IntroObjectFileName,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
+            RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
                 IntroCinematicArtworkFormat.IntroObjectByteCount),
             IntroCinematicArtworkFormat.IntroObjectByteCount);
         WriteSheet(IntroCinematicArtworkFormat.CinematicObjectFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.ObjectCharacters,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.ObjectCharacters,
                 maximumOutputBytes: IntroCinematicArtworkFormat.CinematicObjectByteCount),
             IntroCinematicArtworkFormat.CinematicObjectByteCount);
         WritePage(IntroCinematicArtworkFormat.PortraitTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.SamusHeadTilemap,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
         WritePage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-            RomDataReader.Decompress(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.FirstNarrationTilemap,
+            RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,
                 maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageByteCount));
-        byte[] backgroundPages = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] backgroundPages = RomDataReader.Decompress(bus,
             IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
             maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundPageCount *
                 IntroCinematicArtworkFormat.BackgroundPageByteCount);
@@ -167,16 +167,16 @@ public static partial class IntroCinematicArtworkFiles
         WriteSprites(IntroScientistSpriteFormat.FileName, json => IntroScientistSpritePresentation.Write(json,
             new IntroScientistSpriteDocument { Version = IntroScientistSpriteFormat.Version, Frames = Frames(IntroScientistSpriteDefinitions.Frames) }));
         IntroCinematicPalette opening = WritePalette();
-        CeresFlightPalette? flight = null;
-        foreach ((string name, byte[] file) in CeresFlightArtworkExtractor.Extract(bus))
+        IReadOnlyDictionary<string, byte[]> flightFiles = CeresFlightArtworkExtractor.Extract(bus);
+        foreach ((string name, byte[] file) in flightFiles)
         {
             WriteFile(name, file);
-            if (name == CeresFlightPaletteFormat.FileName)
-                flight = CeresFlightPaletteFile.Read(new MemoryStream(file, writable: false));
         }
+        if (!flightFiles.TryGetValue(CeresFlightPaletteFormat.FileName, out byte[]? flightPalette))
+            throw new InvalidDataException("The Ceres flight extraction wrote no palette.");
         // The game reads the scenes' backdrops, taken once from their extracted colours, and neither palette (#1544).
         WriteFile(IntroBackdropFiles.FileName, IntroBackdropFiles.Extract(opening,
-            flight ?? throw new InvalidDataException("The Ceres flight extraction wrote no palette.")));
+            CeresFlightPaletteFile.Read(new MemoryStream(flightPalette, writable: false))));
         foreach ((string name, byte[] file) in CeresDestructionArtworkExtractor.Extract(bus))
         {
             WriteFile(name, file);
@@ -247,7 +247,7 @@ public static partial class IntroCinematicArtworkFiles
             for (int index = 0; index < cells.Length; index++)
             {
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
-                cells[index] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
+                cells[index] = RoomBackgroundTilemapCell.Of(bus.ReadCartridgeWord(source));
             }
             using var json = new MemoryStream();
             IntroFinalLineTilemap.Write(json, new IntroFinalLineTilemapDocument
@@ -269,7 +269,7 @@ public static partial class IntroCinematicArtworkFiles
                 int pointer = FrontendSourceDefinitions.IntroEyeFrameRecords +
                     Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, frame) * FrontendSourceDefinitions.IntroEyeFrameRecordStride;
                 int source = (int)SnesAddress.InBank(IntroCinematicSourceDefinitions.SpritemapBank, pointer);
-                int function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
+                int function = bus.ReadCartridgeWord(source);
                 if (function != IntroCinematicSourceDefinitions.PortraitTilemapDrawFunction ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
@@ -278,7 +278,7 @@ public static partial class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    cells[cellIndex] = RoomBackgroundTilemapCell.Of(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
+                    cells[cellIndex] = RoomBackgroundTilemapCell.Of(bus.ReadCartridgeWord(wordSource));
                 }
                 frames[place] = new IntroEyeTilemapFrame
                 {

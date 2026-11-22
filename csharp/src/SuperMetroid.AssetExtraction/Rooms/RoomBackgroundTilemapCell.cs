@@ -38,11 +38,13 @@ public sealed partial record RoomBackgroundTilemapCell
     /// <summary>Whether native bit 15 mirrors the selected character vertically when rendered.</summary>
     public required bool FlipY { get; init; }
 
-    /// <summary>The tile this cell places, or null when its tile or palette lies outside the schema.</summary>
-    internal BackgroundTile? Placement() =>
+    /// <summary>The tile this cell places.</summary>
+    /// <param name="cell">Names the cell in a failure.</param>
+    /// <exception cref="InvalidDataException">The cell's tile or palette lies outside the schema.</exception>
+    internal BackgroundTile Placement(string cell) =>
         (uint)TileColumn < RoomBackgroundTilemapFormat.TileColumns &&
         (uint)TileRow < RoomBackgroundTilemapFormat.TileRows &&
         (uint)Palette < RoomBackgroundTilemapFormat.PaletteCount
             ? new BackgroundTile(TileRow * RoomBackgroundTilemapFormat.TileColumns + TileColumn, Palette, FlipX, FlipY, Priority)
-            : null;
+            : throw new InvalidDataException($"{cell} has an invalid tile or palette.");
 }

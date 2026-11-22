@@ -93,18 +93,15 @@ internal static class EnemySpritemapArtworkVerification
         bull.Bind(EnemyDefinitionId.Bull, bull.KeptDefinition);
         bull.Bind(bull.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
-        new Action<RoomEnemyPlace>(fixturePlace => enemies.BullBehavior.InitializeBull(fixturePlace.HeldOccupant(), fixturePlace))(bull);
-        object?[] arguments =
-            [bull, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        // The Bull's setup builds the state its reaction and its animation, which the check plays, run on.
+        BullEnemyState state = enemies.BullBehavior.InitializeBull(bull.HeldOccupant().SpawnSettings<BullSpawnSettings>(), bull);
         for (int frame = 0; frame < 41; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            BullBehavior.AdvanceBullAnimation(bull, state);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
-        BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
-            "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, BullMovementDefinitions.ShotAngles.For(SamusProjectileDirection.Right));
         for (int frame = 0; frame < 61; frame++)
-            EnemyInstructionRunner.Process(arguments);
+            BullBehavior.AdvanceBullAnimation(bull, state);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Idle).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
     }
@@ -154,7 +151,7 @@ internal static class EnemySpritemapArtworkVerification
             "the room sprite-object pictures are exactly the spritemaps the native lists show");
         foreach (RoomEffectActorPicture picture in RoomEffectActorVisualDefinitionsConstants.Pictures)
         {
-            bool installed = picture.HitBurst is null && !CommonEnemyEmptyFrames.DrawsNothing(picture.RequireEnemyFrame());
+            bool installed = picture.EnemyFrame is { } enemyFrame && !CommonEnemyEmptyFrames.DrawsNothing(enemyFrame);
             AssertEqual(installed, installedSpritePointers.Contains(RoomEffectActorVisualDefinitionsConstants.Spritemap(picture)),
                 $"room sprite-object picture {picture} has installed enemy art unless it is Samus's hit burst or the empty frame");
         }
@@ -311,8 +308,7 @@ internal static class EnemySpritemapArtworkVerification
             bool stands = SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(nativeRoom, room) || SpriteFrameBufferAccess.DrawnStandsFor(sprites =>
                 {
                     RoomEnemySystem redrawn = drawnRoom ?? throw new InvalidOperationException("Verification requires the drawn room.");
-                    redrawn.Drawing.Advance(new(0, 0));
-                    redrawn.Drawing.Draw(sprites, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
+                    redrawn.Drawing.Draw(redrawn.Drawing.Advance(new(0, 0)), sprites, new(0, 0), RoomEnemyFrameFixtures.StandaloneSamus());
                 }, nativeRoom);
             if (!stands)
                 differing.Add($"{frame.Name} (drawn by {owner}): native {OamRecords(nativeRoom)}, installed {OamRecords(room)}");

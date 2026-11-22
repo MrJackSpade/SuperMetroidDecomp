@@ -13,16 +13,14 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Metroid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
-internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemySpawnFactory<MetroidSpawnSettings>
 {
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<EnemyDefinitionId, EnemyEntityCreation> Creations => field ??= EnemyEntityCreations.Each([EnemyDefinitionId.Metroid], Create);
 
-    /// <summary>Creates the entity of a newly installed occupant of <paramref name="place"/>, with the setup it has.</summary>
-    /// <param name="occupant">The occupant the entity is created for, which carries its identity and the entry it is spawned from.</param>
-    /// <param name="place">The place, already holding the occupant.</param>
-    /// <param name="common">The shared participation the entity composes.</param>
-    private EnemyOccupant Create(RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Of(new MetroidEntity(this, occupant, place, common));
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metroid];
+
+    /// <inheritdoc/>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, MetroidSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new MetroidEntity(this, occupant, place, common, settings));
 
     /// <summary>Supplies room RNG for the scattered death drops and idle cries.</summary>
     private readonly EnemyRoomBinding _room;
@@ -71,7 +69,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Initializes the Metroid.</summary>
-    internal void InitializeMetroid(RoomEnemyOccupant occupant, RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal MetroidEnemyState InitializeMetroid(RoomEnemyOccupant occupant, MetroidSpawnSettings metroidSpawnSettings, RoomEnemyPlace place)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(occupant, place.Shading);
         RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
@@ -87,10 +86,10 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
         {
             Drain = FractionalEnergyDrain.Start,
             Movement = MetroidMovement.Homing,
-            IceDamageToFreeze = occupant.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
+            IceDamageToFreeze = metroidSpawnSettings.IceDamageToFreeze,
         };
-        place.SetSpeciesState(state);
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>What <see cref="RunMetroidMain"/> does for each <see cref="MetroidMovement"/> member, each member's own arm.</summary>
@@ -104,9 +103,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     });
 
     /// <summary>Runs a Metroid for one update and whichever of its four movements it is in.</summary>
-    private void RunMetroidMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, SamusState samus, RoomLevelData level)
+    private void RunMetroidMain(RoomEnemyOccupant occupant, RoomEnemyPlace place, MetroidEnemyState state, SamusState samus, RoomLevelData level)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         RunMetroidMainForMetroidMovement[state.Movement](place, samus, level, state, targetY);
 
@@ -197,9 +195,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Runs a frozen Metroid's own step after the common thaw.</summary>
-    internal static void RunMetroidFrozen(RoomEnemyPlace place)
+    internal static void RunMetroidFrozen(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         if (state.EscapeMovesLeft.IsRunning)
         {
             state.EscapeMovesLeft.Count();
@@ -214,9 +211,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     /// Flashes the Metroid's outer bodies while it is hurt: its hit flash on alternate pairs of updates,
     /// its own colours between.
     /// </summary>
-    internal static void ApplyMetroidHurt(RoomEnemyPlace place)
+    internal static void ApplyMetroidHurt(RoomEnemyPlace place, MetroidEnemyState state)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         if (MetroidCadenceDefinitions.HurtOuterBodiesShowOwnColours.IsInSecondHalfAt(place.HurtFlash.UpdatesLeft))
         {
             state.Electricity.Graphics = state.Electricity.Graphics.In(place.Shading);
@@ -229,9 +225,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Resolves a Metroid's touch of Samus: her body attack throws it away from her; otherwise it drains her.</summary>
-    internal void ResolveMetroidTouch(RoomEnemyPlace place, SamusState samus)
+    internal void ResolveMetroidTouch(RoomEnemyPlace place, MetroidEnemyState state, SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
@@ -290,13 +285,12 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Handles an unfrozen Metroid's recoil and ice build-up after it takes a shot.</summary>
     internal void ResolveMetroidNonFrozenShot(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, MetroidEnemyState state,
         SamusProjectileType collisionProjectileType,
         int collisionProjectileDamage,
         Position16<RoomPixels> recoilOrigin,
         SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         SamusProjectileFamily family = collisionProjectileType.Family;
         if (state.Movement == MetroidMovement.AttachedToSamus)
         {
@@ -350,9 +344,8 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
-    internal static void FinishMetroidDeath(RoomEnemyPlace place, SamusState samus)
+    internal static void FinishMetroidDeath(MetroidEnemyState state, SamusState samus)
     {
-        MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
         state.Electricity.End();
         state.Shell.End();
         samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
@@ -421,24 +414,24 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
     /// detaches an attached one, and any other bomb applies its peculiar recoil from the first projectile
     /// (MetroidRecoilOrigin).
     /// </summary>
-    internal void ReactToMetroidBomb(EnemyBombContext c)
+    internal void ReactToMetroidBomb(EnemyBombContext c, MetroidEnemyState metroidEnemyState)
     {
         if (c.Enemy.Freeze.IsOver)
         {
             SamusProjectile recoilOrigin = MetroidRecoilOrigin.Of(c.OrdinaryProjectiles.Shots);
-            ResolveMetroidNonFrozenShot(c.Enemy, c.PlacedBomb.Type, c.PlacedBomb.Damage, recoilOrigin.Position.Whole, c.Samus);
+            ResolveMetroidNonFrozenShot(c.Enemy, metroidEnemyState, c.PlacedBomb.Type, c.PlacedBomb.Damage, recoilOrigin.Position.Whole, c.Samus);
         }
     }
 
     /// <summary>Runs Metroid's main AI.</summary>
-    internal void RunMetroidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMetroidMainAi(RoomEnemyOccupant occupant, RoomEnemyPlace place, MetroidEnemyState metroidEnemyState, IEnemyAiFrame frame)
     {
-        RunMetroidMain(occupant, place, frame.Samus, frame.Level);
+        RunMetroidMain(occupant, place, metroidEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>
-    internal void AdvanceMetroidTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, MetroidAnimations.Segments,
+    internal void AdvanceMetroidTypedAnimation(RoomEnemyPlace place, MetroidEnemyState metroidEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, metroidEnemyState, MetroidAnimations.Segments,
             static (MetroidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -447,17 +440,15 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
             });
 
     /// <summary>The Metroid Power Bomb reaction, which clears its outer body before generic death.</summary>
-    internal static EnemyPowerBombReaction PowerBombReaction { get; } = new()
+    /// <param name="finishesDeath">The Metroid's own method clearing its outer body.</param>
+    internal static EnemyPowerBombReaction PowerBombReaction(EnemyPowerBombStage finishesDeath) => new()
     {
-        Lethal = new EnemyPowerBombLethal.AfterStage(FinishMetroidDeath),
+        Lethal = new EnemyPowerBombLethal.AfterStage(finishesDeath),
     };
-
-    /// <summary>Clears a Metroid's outer body before a lethal Power Bomb's generic death.</summary>
-    private static void FinishMetroidDeath(EnemyPowerBombContext context) => FinishMetroidDeath(context.Enemy, context.Samus);
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation once the shot has marked its
     /// hit.</summary>
-    internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
+    internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c, MetroidEnemyState state)
     {
         RoomEnemyPlace enemy = c.Enemy;
         if (enemy.Freeze.IsRunning)
@@ -491,7 +482,7 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
                 // The death records the drop origin, the enemy's death spawns the explosion, and only then
                 // the drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
-                FinishMetroidDeath(enemy, c.Samus);
+                FinishMetroidDeath(state, c.Samus);
                 _deathsAndDrops.StartGenericEnemyDeath(c.Occupant, EnemyDeathExplosion.Big, c.Samus);
                 RequestMetroidDrops(dropOrigin, c.Samus);
             }
@@ -501,14 +492,15 @@ internal sealed partial class MetroidBehavior : IEnemySpecies, IEnemyEntityFacto
         // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
         // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
         c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Shot.Type, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, state, c.Shot.Type, c.Shot.Damage, MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;
     }
 
     /// <summary>The Metroid shot reaction, which routes ordinary projectile hits to its frozen and nonfrozen handling.</summary>
-    internal EnemyShotReaction ShotReaction => field ??= new()
+    /// <param name="resolvesShot">The Metroid's own method resolving the shot.</param>
+    internal static EnemyShotReaction ShotReaction(EnemyShotStage resolvesShot) => new()
     {
         AdmitsBombFamilies = true,
-        AfterSuperMissileQuake = ResolveMetroidOrdinaryShot,
+        AfterSuperMissileQuake = resolvesShot,
     };
 }

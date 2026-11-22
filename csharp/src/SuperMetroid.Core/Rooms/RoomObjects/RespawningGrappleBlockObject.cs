@@ -18,10 +18,10 @@ internal sealed partial class RespawningGrappleBlockObject
     }
 
     /// <summary>Gives the block its respawning Grapple reaction again, then restores its saved terrain.</summary>
-    private protected override void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context)
+    private protected override void RestoreBlock(RoomObjectPlace place, RoomObjectStepContext context, RoomTerrainBlock saved)
     {
         Ensure.NotNull(place);
         context.Level.SetBehavior(place.Block, BlockReactionObjectDefinitions.RespawningGrappleBehavior);
-        base.RestoreBlock(place, context);
+        base.RestoreBlock(place, context, saved);
     }
 }

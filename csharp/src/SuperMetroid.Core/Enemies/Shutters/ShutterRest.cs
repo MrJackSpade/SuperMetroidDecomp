@@ -24,7 +24,10 @@ public readonly partial record struct ShutterRest
     /// <summary>Whether the shutter stops at the end for good instead of resting a number of updates.</summary>
     public bool IsPermanent => _updates is null;
 
-    /// <summary>The AI updates a timed rest lasts.</summary>
-    /// <exception cref="InvalidOperationException">The rest is permanent and has no length.</exception>
-    public int Updates => _updates ?? throw new InvalidOperationException("A permanent shutter rest has no length.");
+    /// <summary>Finds the AI updates a timed rest lasts; a permanent rest has no length (#2554).</summary>
+    public bool TryGetUpdates(out int updates)
+    {
+        updates = _updates.GetValueOrDefault();
+        return _updates.HasValue;
+    }
 }

@@ -10,9 +10,13 @@ namespace SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>
 /// How two values of each type a published graph holds are compared (#2602), learned from the game's generated state-graph
-/// registration: the game's types through their generated field writers, the collections, arrays and enums their fields
-/// are declared with, and the methods delegates are made from. A value of a type nothing registers has no comparison,
-/// and two such values are not the same.
+/// registration: the game's types through their generated field writers, the collections and arrays their fields are
+/// declared with, and the methods delegates are made from; enums by their values. Types are learned as the comparisons
+/// meet them: each object of the game registers its own type and what its fields are declared with, so a comparison of a
+/// few frames registers only what those frames hold. A value nothing met so far registers, such as a framework collection
+/// reached through a field declared as an object, or a delegate made from a method of a type not met yet, has its
+/// comparison once the whole game is registered; a value of a type nothing registers has none, and two such values are not
+/// the same.
 /// </summary>
 internal sealed class GraphComparisons : IStateGraphRegistry
 {
@@ -22,19 +26,13 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     /// <summary>The process's comparisons: the game's simulation and import assemblies.</summary>
     internal static GraphComparisons Shared => shared.Value;
 
-    private static readonly Lazy<GraphComparisons> shared = new(static () =>
-    {
-        var comparisons = new GraphComparisons();
-        lock (comparisons.gate)
-        {
-            SuperMetroid.Core.GeneratedStateGraph.Register(comparisons);
-            SuperMetroid.AssetExtraction.GeneratedStateGraph.Register(comparisons);
-        }
-        return comparisons;
-    });
+    private static readonly Lazy<GraphComparisons> shared = new(static () => new GraphComparisons());
 
     /// <summary>Guards registration.</summary>
     private readonly Lock gate = new();
+
+    /// <summary>Whether the whole game is registered, after a value no object met so far registered.</summary>
+    private bool completed;
 
     /// <summary>Each registered runtime type's comparison.</summary>
     private readonly ConcurrentDictionary<Type, ValueComparison> byType = new();
@@ -80,26 +78,49 @@ internal sealed class GraphComparisons : IStateGraphRegistry
         Type type = value.GetType();
         if (byType.TryGetValue(type, out ValueComparison? known) || probed.TryGetValue(type, out known))
             return known;
+        // Two enum values of one type are the same when their values are.
+        if (type.IsEnum)
+            return byType.GetOrAdd(type, static _ => static (left, right, _) => left.Equals(right));
         lock (gate)
+            return Learned(value, type) ?? (CompleteRegistration() ? Learned(value, type) : null);
+    }
+
+    /// <summary>The comparison of <paramref name="value"/>'s type as far as the registration reaches; callers hold the lock.</summary>
+    private ValueComparison? Learned(object value, Type type)
+    {
+        if (byType.TryGetValue(type, out ValueComparison? known) || probed.TryGetValue(type, out known))
+            return known;
+        // An object of the game registers its own type, and is compared by all its fields rather than as whatever framework
+        // collection it also is.
+        if (value is IStateGraphNode node)
         {
-            // A construction of a generic type of the game made where no declaration names it registers itself, and is
-            // compared by all its fields rather than as whatever framework collection it also is.
-            if (value is IStateGraphNode node)
+            node.Describe(this);
+            if (byType.TryGetValue(type, out known))
+                return known;
+        }
+        foreach ((Func<object, bool> accepts, ValueComparison compare) in probes)
+        {
+            if (accepts(value))
             {
-                node.Describe(this);
-                if (byType.TryGetValue(type, out known))
-                    return known;
-            }
-            foreach ((Func<object, bool> accepts, ValueComparison compare) in probes)
-            {
-                if (accepts(value))
-                {
-                    probed.TryAdd(type, compare);
-                    return compare;
-                }
+                probed.TryAdd(type, compare);
+                return compare;
             }
         }
         return null;
+    }
+
+    /// <summary>Registers the whole game unless it is registered already; true when it registered it now.</summary>
+    private bool CompleteRegistration()
+    {
+        lock (gate)
+        {
+            if (completed)
+                return false;
+            completed = true;
+            SuperMetroid.Core.GeneratedStateGraph.Register(this);
+            SuperMetroid.AssetExtraction.GeneratedStateGraph.Register(this);
+            return true;
+        }
     }
 
     private void Put(Type type, ValueComparison compare) => byType.TryAdd(type, compare);
@@ -122,9 +143,27 @@ internal sealed class GraphComparisons : IStateGraphRegistry
             return false;
         if (!RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             return Bytes(left).SequenceEqual(Bytes(right));
+        // A run of the game's values holding references is compared element by element as it is met, through the values'
+        // own field writer, so no element is boxed and only the references they hold are queued.
+        if (typeof(T).IsValueType && ValueFields<T>.Write is { } write)
+        {
+            for (int index = 0; index < left.Length; index++)
+            {
+                if (!walk.SameFields(write, left[index], right[index]))
+                    return false;
+            }
+            return true;
+        }
         for (int index = 0; index < left.Length; index++)
             walk.Push(left[index], right[index]);
         return true;
+    }
+
+    /// <summary>The generated field writer of each of the game's value types, once the type is registered.</summary>
+    internal static class ValueFields<T>
+    {
+        /// <summary>Writes a value's fields; none until the type is registered.</summary>
+        internal static Action<IStateGraphWriter, T>? Write { get; set; }
     }
 
     /// <summary>The bytes of a run of values that hold no reference.</summary>
@@ -146,6 +185,26 @@ internal sealed class GraphComparisons : IStateGraphRegistry
         }
     }
 
+    /// <summary>
+    /// Whether two dictionaries hold the same entries in the same order: each entry's key and value are queued in pairs, so
+    /// an entry is compared by what it holds rather than as a pair no registration names.
+    /// </summary>
+    private static bool SameEntries<TKey, TValue>(IReadOnlyCollection<KeyValuePair<TKey, TValue>> left,
+        IReadOnlyCollection<KeyValuePair<TKey, TValue>> right, GraphWalk walk)
+    {
+        if (left.Count != right.Count)
+            return false;
+        using IEnumerator<KeyValuePair<TKey, TValue>> mine = left.GetEnumerator(), theirs = right.GetEnumerator();
+        while (mine.MoveNext())
+        {
+            if (!theirs.MoveNext())
+                return false;
+            walk.Push(mine.Current.Key, theirs.Current.Key);
+            walk.Push(mine.Current.Value, theirs.Current.Value);
+        }
+        return !theirs.MoveNext();
+    }
+
     /// <summary>Whether two sequences of counted collections hold the same elements in the same order.</summary>
     private static bool SameCollections<T>(IReadOnlyCollection<T> left, IReadOnlyCollection<T> right, GraphWalk walk) =>
         left.Count == right.Count && SameSequences(left, right, walk);
@@ -163,12 +222,18 @@ internal sealed class GraphComparisons : IStateGraphRegistry
 
     /// <inheritdoc/>
     public void Node<T>(StateGraphName name, Action<IStateGraphWriter, T> write, Func<IStateGraphReader, T>? create,
-        Action<T, IStateGraphVisitor> visit, string? packedSchema) =>
+        Action<T, IStateGraphVisitor> visit, string? packedSchema)
+    {
+        if (typeof(T).IsValueType)
+            ValueFields<T>.Write = write;
         Put(typeof(T), (left, right, walk) => walk.SameFields(write, (T)left, (T)right));
+    }
 
     /// <inheritdoc/>
-    public void Enum<TEnum>(StateGraphName name, bool flags) where TEnum : struct, Enum =>
-        Put(typeof(TEnum), static (left, right, _) => EqualityComparer<TEnum>.Default.Equals((TEnum)left, (TEnum)right));
+    public void Enum<TEnum>(StateGraphName name, bool flags) where TEnum : struct, Enum
+    {
+        // Every enum is compared by its value wherever a graph holds one (For), so none needs a comparison of its own.
+    }
 
     /// <inheritdoc/>
     public void Array<T>() => Put(typeof(T[]), static (left, right, walk) => SameRuns<T>((T[])left, (T[])right, walk));
@@ -204,11 +269,11 @@ internal sealed class GraphComparisons : IStateGraphRegistry
 
     /// <inheritdoc/>
     public void Dictionary<TKey, TValue>() where TKey : notnull => Put(typeof(Dictionary<TKey, TValue>), static (left, right, walk) =>
-        SameCollections((Dictionary<TKey, TValue>)left, (Dictionary<TKey, TValue>)right, walk));
+        SameEntries((Dictionary<TKey, TValue>)left, (Dictionary<TKey, TValue>)right, walk));
 
     /// <inheritdoc/>
     public void ConcurrentDictionary<TKey, TValue>() where TKey : notnull => Put(typeof(ConcurrentDictionary<TKey, TValue>), static (left, right, walk) =>
-        SameCollections((ConcurrentDictionary<TKey, TValue>)left, (ConcurrentDictionary<TKey, TValue>)right, walk));
+        SameEntries((ConcurrentDictionary<TKey, TValue>)left, (ConcurrentDictionary<TKey, TValue>)right, walk));
 
     /// <inheritdoc/>
     public void ImmutableArray<T>() => Put(typeof(ImmutableArray<T>), static (left, right, walk) =>
@@ -219,7 +284,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
 
     /// <inheritdoc/>
     public void ImmutableDictionary<TKey, TValue>() where TKey : notnull => Put(typeof(ImmutableDictionary<TKey, TValue>), static (left, right, walk) =>
-        SameCollections((ImmutableDictionary<TKey, TValue>)left, (ImmutableDictionary<TKey, TValue>)right, walk));
+        SameEntries((ImmutableDictionary<TKey, TValue>)left, (ImmutableDictionary<TKey, TValue>)right, walk));
 
     /// <inheritdoc/>
     public void ImmutableHashSet<T>() => Put(typeof(ImmutableHashSet<T>), static (left, right, walk) =>
@@ -230,7 +295,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     {
         if (begun.Add(typeof(FrozenDictionary<TKey, TValue>)))
             Probe<FrozenDictionary<TKey, TValue>>(static (left, right, walk) =>
-                SameCollections((FrozenDictionary<TKey, TValue>)left, (FrozenDictionary<TKey, TValue>)right, walk));
+                SameEntries((FrozenDictionary<TKey, TValue>)left, (FrozenDictionary<TKey, TValue>)right, walk));
     }
 
     /// <inheritdoc/>
@@ -286,7 +351,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
         // The read-only lists the compiler makes for collection expressions are named only inside the assembly that made
         // them, so they are recognized by the compiler's prefix and compared element by element.
         if (begun.Add(typeof(IReadOnlyList<T>)))
-            probes.Add((static value => value is IReadOnlyList<T> && value.GetType().Name.StartsWith("<>z__", StringComparison.Ordinal),
+            probes.Add((static value => value.GetType().Name.StartsWith("<>z__", StringComparison.Ordinal) && value is IReadOnlyList<T>,
                 static (left, right, walk) => SameCollections((IReadOnlyList<T>)left, (IReadOnlyList<T>)right, walk)));
     }
 
@@ -311,7 +376,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     {
         if (!byType.ContainsKey(typeof(TDelegate)))
         {
-            var methods = new DelegateMethods<TDelegate>();
+            var methods = new DelegateMethods<TDelegate>(this);
             byType[typeof(TDelegate)] = methods.Compare;
             delegates[typeof(TDelegate)] = methods;
         }
@@ -328,7 +393,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     }
 
     /// <inheritdoc/>
-    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe)
+    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates)
     {
         // The declared types index a restore's candidates; a comparison holds both values already.
     }
@@ -343,7 +408,7 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     /// The methods delegates of <typeparamref name="TDelegate"/> are made from, each by its name: two delegates are the same
     /// when they call the same methods in the same order on targets that are the same.
     /// </summary>
-    private sealed class DelegateMethods<TDelegate> where TDelegate : Delegate
+    private sealed class DelegateMethods<TDelegate>(GraphComparisons owner) where TDelegate : Delegate
     {
         /// <summary>Each method's name and how it is made for a target.</summary>
         private readonly List<(string Name, Func<object?, TDelegate?> Create)> methods = [];
@@ -366,8 +431,18 @@ internal sealed class GraphComparisons : IStateGraphRegistry
             return true;
         }
 
-        /// <summary>The name of the registered method <paramref name="call"/> calls, or none when no registered method does.</summary>
+        /// <summary>
+        /// The name of the registered method <paramref name="call"/> calls, or none when no registered method does once the
+        /// whole game is registered: a method is registered with the type declaring it, which may not have been met yet.
+        /// </summary>
         private string? MethodOf(Delegate call)
+        {
+            lock (owner.gate)
+                return Registered(call) ?? (owner.CompleteRegistration() ? Registered(call) : null);
+        }
+
+        /// <summary>The name of the method <paramref name="call"/> calls among those registered so far; callers hold the lock.</summary>
+        private string? Registered(Delegate call)
         {
             foreach ((string name, Func<object?, TDelegate?> create) in methods)
             {

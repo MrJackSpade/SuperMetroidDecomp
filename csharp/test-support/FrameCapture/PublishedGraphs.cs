@@ -20,26 +20,40 @@ internal static class PublishedGraphs
     internal static bool Same(object? left, object? right)
     {
         // Each pair of objects already compared, so a cycle closes on its pair. What a renderer shows is a function of the
-        // values it reads, so an object shared in one graph and copied in the other compares by its values.
-        var compared = new HashSet<(object Left, object Right)>(PairComparer.Instance);
-        var walk = new GraphWalk();
-        walk.Push(left, right);
-        while (walk.TryPop(out object? mine, out object? theirs))
+        // values it reads, so an object shared in one graph and copied in the other compares by its values. The pairs and
+        // the walk are this thread's, kept between comparisons, so a comparison of many frames grows neither again; they
+        // are emptied after each, so neither keeps the graphs alive.
+        HashSet<(object Left, object Right)> compared = comparedPairs ??= new HashSet<(object Left, object Right)>(PairComparer.Instance);
+        GraphWalk walk = walks ??= new GraphWalk();
+        try
         {
-            if (ReferenceEquals(mine, theirs))
-                continue;
-            if (mine is null || theirs is null)
-                return false;
-            Type type = mine.GetType();
-            if (type != theirs.GetType())
-                return false;
-            if (!type.IsValueType && !compared.Add((mine, theirs)))
-                continue;
-            if (GraphComparisons.Shared.For(mine) is not { } compare || !compare(mine, theirs, walk))
-                return false;
+            walk.Push(left, right);
+            while (walk.TryPop(out object? mine, out object? theirs))
+            {
+                if (mine is null || theirs is null)
+                    return false;
+                Type type = mine.GetType();
+                if (type != theirs.GetType())
+                    return false;
+                if (!type.IsValueType && !compared.Add((mine, theirs)))
+                    continue;
+                if (GraphComparisons.Shared.For(mine) is not { } compare || !compare(mine, theirs, walk))
+                    return false;
+            }
+            return true;
         }
-        return true;
+        finally
+        {
+            compared.Clear();
+            walk.Clear();
+        }
     }
+
+    /// <summary>This thread's compared pairs, kept between comparisons.</summary>
+    [ThreadStatic] private static HashSet<(object Left, object Right)>? comparedPairs;
+
+    /// <summary>This thread's walk, kept between comparisons.</summary>
+    [ThreadStatic] private static GraphWalk? walks;
 
     /// <summary>Compares pairs of objects by the identity of both.</summary>
     private sealed class PairComparer : IEqualityComparer<(object Left, object Right)>

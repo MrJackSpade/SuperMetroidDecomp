@@ -50,5 +50,17 @@ internal sealed class PackedWriter(BinaryWriter output, StateGraphTypes types, P
     public void WriteScalar<T>(T value) where T : unmanaged => types.Scalar<T>().WriteValue(Output, value);
 
     /// <inheritdoc/>
+    public void WriteValue<T>(T value) where T : struct
+    {
+        if (types.NodeOf<T>() is not { } node)
+        {
+            Write(value);
+            return;
+        }
+        Output.Write(true);
+        node.WriteTyped(this, value);
+    }
+
+    /// <inheritdoc/>
     public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum => Output.Write7BitEncodedInt(tables.Index(value));
 }

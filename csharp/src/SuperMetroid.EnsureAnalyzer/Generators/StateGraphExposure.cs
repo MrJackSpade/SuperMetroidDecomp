@@ -72,14 +72,16 @@ internal sealed class StateGraphExposure(StateGraphRun run)
         }
         // Each context's tests are one switch, compiled once, rather than a delegate per declared type.
         const int ChunkKeys = 300;
-        foreach ((INamedTypeSymbol? context, List<(string Key, string Tested)> tests) in probes)
+        foreach ((INamedTypeSymbol? context, List<(string Key, string Tested, bool Exact, bool Enumerates)> tests) in probes)
         {
             for (int start = 0; start < tests.Count; start += ChunkKeys)
             {
-                List<(string Key, string Tested)> chunk = [.. tests.Skip(start).Take(ChunkKeys)];
+                List<(string Key, string Tested, bool Exact, bool Enumerates)> chunk = [.. tests.Skip(start).Take(ChunkKeys)];
                 string keys = string.Join(", ", chunk.Select(test => StateGraphRun.Literal(test.Key)));
                 string arms = string.Concat(chunk.Select((test, index) => $"{index} => __value is {test.Tested}, "));
-                string line = $"__registry.DeclaredTypes(new string[] {{ {keys} }}, static (__index, __value) => __index switch {{ {arms}_ => false }});";
+                string exact = string.Join(", ", chunk.Select(test => test.Exact ? $"typeof({test.Tested})" : "null"));
+                string enumerates = string.Join(", ", chunk.Select(test => test.Enumerates ? "true" : "false"));
+                string line = $"__registry.DeclaredTypes(new string[] {{ {keys} }}, static (__index, __value) => __index switch {{ {arms}_ => false }}, new global::System.Type[] {{ {exact} }}, new bool[] {{ {enumerates} }});";
                 if (context is null)
                     run.AddAssemblyRegistration(line);
                 else
@@ -89,15 +91,15 @@ internal sealed class StateGraphExposure(StateGraphRun run)
     }
 
     /// <summary>Each context's declared-type tests, in the order the walk numbered the types.</summary>
-    private readonly List<(INamedTypeSymbol? Context, List<(string Key, string Tested)> Tests)> probes = [];
+    private readonly List<(INamedTypeSymbol? Context, List<(string Key, string Tested, bool Exact, bool Enumerates)> Tests)> probes = [];
 
     /// <summary>The tests to emit in <paramref name="context"/>.</summary>
-    private List<(string Key, string Tested)> TestsIn(INamedTypeSymbol? context)
+    private List<(string Key, string Tested, bool Exact, bool Enumerates)> TestsIn(INamedTypeSymbol? context)
     {
-        foreach ((INamedTypeSymbol? existing, List<(string Key, string Tested)> tests) in probes)
+        foreach ((INamedTypeSymbol? existing, List<(string Key, string Tested, bool Exact, bool Enumerates)> tests) in probes)
             if (SymbolEqualityComparer.Default.Equals(existing, context))
                 return tests;
-        var added = new List<(string Key, string Tested)>();
+        var added = new List<(string Key, string Tested, bool Exact, bool Enumerates)>();
         probes.Add((context, added));
         return added;
     }
@@ -119,8 +121,26 @@ internal sealed class StateGraphExposure(StateGraphRun run)
                 return;
             }
         }
-        TestsIn(context).Add((Key(type), StateGraphRun.Code(tested)));
+        TestsIn(context).Add((Key(type), StateGraphRun.Code(tested), IsExact(tested), Enumerates(tested)));
     }
+
+    /// <summary>
+    /// Whether an object of <paramref name="type"/> has exactly that runtime type: a value type, boxed as itself, or a sealed
+    /// class, which nothing derives from. An array is not, as the runtime lets arrays of related elements stand for it.
+    /// </summary>
+    private static bool IsExact(ITypeSymbol type) =>
+        type is INamedTypeSymbol { IsValueType: true } or INamedTypeSymbol { TypeKind: TypeKind.Class, IsSealed: true };
+
+    /// <summary>
+    /// Whether only an object that enumerates can be of <paramref name="type"/>: an array, or an interface that is or extends
+    /// the non-generic enumerable, as every collection interface does.
+    /// </summary>
+    private static bool Enumerates(ITypeSymbol type) =>
+        type is IArrayTypeSymbol ||
+        type is INamedTypeSymbol { TypeKind: TypeKind.Interface } named && (IsEnumerable(named) || named.AllInterfaces.Any(IsEnumerable));
+
+    /// <summary>Whether <paramref name="type"/> is the non-generic enumerable.</summary>
+    private static bool IsEnumerable(INamedTypeSymbol type) => type.ToDisplayString() == "System.Collections.IEnumerable";
 
     /// <summary>Whether <paramref name="outer"/> is <paramref name="inner"/> or contains it.</summary>
     private static bool Contains(INamedTypeSymbol outer, INamedTypeSymbol inner)

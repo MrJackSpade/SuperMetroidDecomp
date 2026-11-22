@@ -12,6 +12,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class ArrayStateType<T>(StateGraphTypes types) : StateGraphType(typeof(T[]), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <summary>Whether the elements are written as their raw bytes: scalars and packed pixels.</summary>
     private static readonly bool Raw =
         typeof(T) == typeof(bool) || typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte) || typeof(T) == typeof(short) ||

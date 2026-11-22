@@ -6,6 +6,9 @@ internal sealed class PrimitiveStateType<T>(StateGraphTypes types, string name, 
     : StateGraphType(typeof(T), types)
 {
     /// <inheritdoc/>
+    internal override bool ReachesObjects => false;
+
+    /// <inheritdoc/>
     protected override string Named() => name;
 
     /// <summary>Writes the scalar's bytes.</summary>

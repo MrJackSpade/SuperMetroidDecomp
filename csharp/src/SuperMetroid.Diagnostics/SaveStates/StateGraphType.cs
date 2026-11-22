@@ -23,6 +23,9 @@ internal abstract class StateGraphType(Type type, StateGraphTypes types)
     /// <summary>The name a state gives the type.</summary>
     internal string Name => name ??= Named();
 
+    /// <summary>Whether the name is worked out already, as it is once a state names the type.</summary>
+    internal bool IsNamed => name is not null;
+
     /// <summary>Works out the type's name.</summary>
     protected abstract string Named();
 
@@ -43,6 +46,12 @@ internal abstract class StateGraphType(Type type, StateGraphTypes types)
     internal virtual void Visit(object value, IStateGraphChildren children)
     {
     }
+
+    /// <summary>
+    /// Whether a value of the type can reach another object: false for a value type holding no reference, and for a
+    /// collection of such values, whose walk would hand nothing that reaches an object.
+    /// </summary>
+    internal virtual bool ReachesObjects => true;
 
     /// <summary>
     /// For a collection content fills on demand, a number every change to it advances; none for any other type.

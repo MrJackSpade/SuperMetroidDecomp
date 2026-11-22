@@ -163,7 +163,15 @@ public interface IStateGraphRegistry
     /// </summary>
     /// <param name="keys">The declared types' names.</param>
     /// <param name="probe">Whether an object is of the declared type at a place among <paramref name="keys"/>.</param>
-    void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe);
+    /// <param name="exact">
+    /// For each declared type an object of which has exactly that runtime type (a value type, a sealed class), the type, so
+    /// an object is matched to it by its runtime type rather than tested; none for any other.
+    /// </param>
+    /// <param name="enumerates">
+    /// For each declared type, whether only an object that enumerates can be of it (an array, a collection interface), so
+    /// an object that does not is not tested against it.
+    /// </param>
+    void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates);
 
     /// <summary>
     /// Registers what a location declared with the type <paramref name="key"/> names holds (#1716): the declared types of

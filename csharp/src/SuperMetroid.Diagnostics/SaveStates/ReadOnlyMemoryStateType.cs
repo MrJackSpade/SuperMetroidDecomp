@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
@@ -9,6 +10,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class ReadOnlyMemoryStateType<T>(StateGraphTypes types) : StateGraphType(typeof(ReadOnlyMemory<T>), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <inheritdoc/>
     protected override string Named() => "System.ReadOnlyMemory`1<" + Types.NameOf(typeof(T)) + ">";
 

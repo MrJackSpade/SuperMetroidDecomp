@@ -13,21 +13,40 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName name, bool flags) : StateGraphType(typeof(TEnum), types), IPackedEnumType
     where TEnum : struct, Enum
 {
-    /// <summary>Each member's stored name, worked out once.</summary>
-    private readonly ConcurrentDictionary<TEnum, string> memberNames = new();
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => false;
 
-    /// <summary>Each name decoded to a defined member.</summary>
-    private readonly ConcurrentDictionary<string, TEnum> decoded = new(StringComparer.Ordinal);
+    /// <summary>
+    /// Each member's stored name, worked out once, made when a state first writes a value of the enum: the registry holds
+    /// every enum of the game, and most are never written, so registering one makes nothing.
+    /// </summary>
+    private ConcurrentDictionary<TEnum, string>? memberNames;
 
-    /// <summary>The bits every defined member sets, for a flags enum.</summary>
-    private readonly ulong definedBits = Enum.GetValues<TEnum>().Aggregate(0UL, static (bits, member) => bits | Bits(member));
+    /// <summary>Each name decoded to a defined member, made when a state first reads a value of the enum.</summary>
+    private ConcurrentDictionary<string, TEnum>? decoded;
 
     /// <inheritdoc/>
     protected override string Named() => Types.Format(name);
 
     /// <summary>The stored name of <paramref name="value"/>.</summary>
-    internal string MemberName(TEnum value) =>
-        memberNames.TryGetValue(value, out string? known) ? known : memberNames.GetOrAdd(value, static member => member.ToString());
+    internal string MemberName(TEnum value)
+    {
+        ConcurrentDictionary<TEnum, string> names = memberNames ?? Made(ref memberNames, new ConcurrentDictionary<TEnum, string>());
+        return names.TryGetValue(value, out string? known) ? known : names.GetOrAdd(value, static member => member.ToString());
+    }
+
+    /// <summary>The cache <paramref name="field"/> holds, which is <paramref name="made"/> unless another thread made it first.</summary>
+    private static TCache Made<TCache>(ref TCache? field, TCache made) where TCache : class =>
+        Interlocked.CompareExchange(ref field, made, null) ?? made;
+
+    /// <summary>The bits every defined member sets, which a flags value's bits must lie within.</summary>
+    private static ulong DefinedBits()
+    {
+        ulong bits = 0;
+        foreach (TEnum member in Enum.GetValues<TEnum>())
+            bits |= Bits(member);
+        return bits;
+    }
 
     /// <inheritdoc/>
     internal override void Write(GraphWriter writer, object value)
@@ -44,17 +63,19 @@ internal sealed class EnumStateType<TEnum>(StateGraphTypes types, StateGraphName
     /// <exception cref="InvalidDataException">The name names no member of this build, or an undefined value.</exception>
     internal TEnum Decode(string text, bool zeroStorageSlot)
     {
-        if (decoded.TryGetValue(text, out TEnum known))
+        ConcurrentDictionary<string, TEnum> names = decoded ?? Made(ref decoded, new ConcurrentDictionary<string, TEnum>(StringComparer.Ordinal));
+        if (names.TryGetValue(text, out TEnum known))
             return known;
         if (!Enum.TryParse(text, ignoreCase: false, out TEnum value))
             throw new InvalidDataException($"Debugger state {Name} value '{text}' names no member of this build.");
         ulong bits = Bits(value);
         if (zeroStorageSlot && bits == 0)
             return value;
-        bool defined = flags ? (bits & ~definedBits) == 0 : Enum.IsDefined(value);
+        // A decoded name is kept, so each name's members are looked up once.
+        bool defined = flags ? (bits & ~DefinedBits()) == 0 : Enum.IsDefined(value);
         if (!defined)
             throw new InvalidDataException($"Debugger state {Name} value '{text}' is not a {(flags ? "combination of defined flags" : "defined member")}.");
-        decoded.TryAdd(text, value);
+        names.TryAdd(text, value);
         return value;
     }
 

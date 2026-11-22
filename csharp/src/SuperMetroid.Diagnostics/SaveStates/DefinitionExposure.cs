@@ -15,8 +15,17 @@ internal sealed class DefinitionExposure
     /// <summary>The catalogs, in their prefixes' ordinal order.</summary>
     private readonly IReadOnlyList<DefinitionCatalog> catalogs;
 
-    /// <summary>The declared types reached, each with its test and the catalogs reaching it.</summary>
-    private readonly List<(Func<int, object, bool> Probe, int Index, ulong[] Reaching)> declared = [];
+    /// <summary>
+    /// The declared types reached that an object of another runtime type can be of (a class others derive from, an interface,
+    /// an array), each with its test and the catalogs reaching it.
+    /// </summary>
+    private readonly List<(Func<int, object, bool> Probe, int Index, bool Enumerates, ulong[] Reaching)> declared = [];
+
+    /// <summary>
+    /// The catalogs reaching each declared type an object is of only when it has exactly that runtime type (a value type, a
+    /// sealed class), by the type: such an object is matched by its runtime type, never tested.
+    /// </summary>
+    private readonly Dictionary<Type, ulong[]> exactly = [];
 
     /// <summary>The catalogs that may hold an object of every type.</summary>
     private readonly ulong[] universal;
@@ -96,8 +105,19 @@ internal sealed class DefinitionExposure
         }
         for (int number = 0; number < reaching.Count; number++)
         {
-            if (reaching[number] is { } set && types.DeclaredProbes.TryGetValue(keys[number], out (Func<int, object, bool> Probe, int Index) test))
-                declared.Add((test.Probe, test.Index, set));
+            if (reaching[number] is not { } set ||
+                !types.DeclaredProbes.TryGetValue(keys[number], out (Func<int, object, bool> Probe, int Index, Type? Exact, bool Enumerates) test))
+                continue;
+            if (test.Exact is null)
+            {
+                declared.Add((test.Probe, test.Index, test.Enumerates, set));
+                continue;
+            }
+            // A runtime type two declared types are exactly (a type and its nullable form) is reached by both's catalogs.
+            if (!exactly.TryGetValue(test.Exact, out ulong[]? merged))
+                exactly.Add(test.Exact, merged = new ulong[words]);
+            for (int word = 0; word < words; word++)
+                merged[word] |= set[word];
         }
     }
 
@@ -115,9 +135,17 @@ internal sealed class DefinitionExposure
         if (found.TryGetValue(type, out DefinitionCatalog[]? known))
             return known;
         ulong[] set = [.. universal];
-        foreach ((Func<int, object, bool> probe, int index, ulong[] reaching) in declared)
+        if (exactly.TryGetValue(type, out ulong[]? exact))
         {
-            if (!probe(index, value))
+            for (int word = 0; word < set.Length; word++)
+                set[word] |= exact[word];
+        }
+        bool enumerates = value is System.Collections.IEnumerable;
+        foreach ((Func<int, object, bool> probe, int index, bool onlyEnumerating, ulong[] reaching) in declared)
+        {
+            // A declared type whose catalogs are all candidates already adds none, and one only an object that enumerates can
+            // be of holds no other, so whether the object is of either is not asked.
+            if ((onlyEnumerating && !enumerates) || Covers(set, reaching) || !probe(index, value))
                 continue;
             for (int word = 0; word < set.Length; word++)
                 set[word] |= reaching[word];
@@ -129,5 +157,16 @@ internal sealed class DefinitionExposure
         DefinitionCatalog[] result = [.. candidates];
         found.Add(type, result);
         return result;
+    }
+
+    /// <summary>Whether every catalog in <paramref name="catalogs"/> is in <paramref name="set"/>.</summary>
+    private static bool Covers(ulong[] set, ulong[] catalogs)
+    {
+        for (int word = 0; word < set.Length; word++)
+        {
+            if ((catalogs[word] & ~set[word]) != 0)
+                return false;
+        }
+        return true;
     }
 }

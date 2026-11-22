@@ -43,11 +43,14 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     /// <summary>Each runtime type a probe accepted, with its handling.</summary>
     private readonly ConcurrentDictionary<Type, StateGraphType> probed = new();
 
-    /// <summary>Each name's handling, built on the first restore after a registration.</summary>
-    private Dictionary<string, StateGraphType>? byName;
+    /// <summary>Each name's handling, indexed as restores ask for names (<see cref="Indexed"/>).</summary>
+    private readonly Dictionary<string, StateGraphType> byName = new(StringComparer.Ordinal);
 
-    /// <summary>Each name's type, built with <see cref="byName"/>.</summary>
-    private Dictionary<string, Type>? typesByName;
+    /// <summary>Each name's type, indexed with <see cref="byName"/>.</summary>
+    private readonly Dictionary<string, Type> typesByName = new(StringComparer.Ordinal);
+
+    /// <summary>The registrations whose names are not indexed yet: handlings and probes, and named types with their names.</summary>
+    private readonly List<object> unnamed = [];
 
     /// <summary>Starts a registry holding the scalars, strings and the framework's own stateless objects.</summary>
     internal StateGraphTypes()
@@ -57,18 +60,18 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         Put(new PlainObjectStateType(typeof(object), this, static () => new object()));
         Put(new PlainObjectStateType(typeof(Lock), this, static () => new Lock()));
         Array<object>();
-        probes.Add(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.Ordinal", StringComparer.Ordinal)));
-        probes.Add(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.OrdinalIgnoreCase", StringComparer.OrdinalIgnoreCase)));
-        probes.Add(new SingletonProbe(new SingletonStateType(this, "System.Collections.Generic.ReferenceEqualityComparer", ReferenceEqualityComparer.Instance)));
+        Probe(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.Ordinal", StringComparer.Ordinal)));
+        Probe(new SingletonProbe(new SingletonStateType(this, "System.StringComparer.OrdinalIgnoreCase", StringComparer.OrdinalIgnoreCase)));
+        Probe(new SingletonProbe(new SingletonStateType(this, "System.Collections.Generic.ReferenceEqualityComparer", ReferenceEqualityComparer.Instance)));
         // A type value is the runtime's own specialization of Type, accepted by what it is rather than registered by type.
-        probes.Add(new TypedProbe<Type>(new TypeIdentityStateType(this)));
+        Probe(new TypedProbe<Type>(new TypeIdentityStateType(this)));
     }
 
     /// <summary>The catalogs registered: each type's name and its static read-only members holding objects.</summary>
     internal List<(StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> Catalogs { get; } = [];
 
     /// <summary>The declared types the catalogs' members reach, each with the test of whether an object is of it (#1716).</summary>
-    internal Dictionary<string, (Func<int, object, bool> Probe, int Index)> DeclaredProbes { get; } = new(StringComparer.Ordinal);
+    internal Dictionary<string, (Func<int, object, bool> Probe, int Index, Type? Exact, bool Enumerates)> DeclaredProbes { get; } = new(StringComparer.Ordinal);
 
     /// <summary>What a location declared with each declared type holds (#1716).</summary>
     internal Dictionary<string, (bool Anything, IReadOnlyList<string> Held)> DeclaredHolds { get; } = new(StringComparer.Ordinal);
@@ -81,8 +84,6 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         lock (gate)
         {
             registration(this);
-            byName = null;
-            typesByName = null;
         }
     }
 
@@ -98,32 +99,29 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         Type type = value.GetType();
         if (byType.TryGetValue(type, out StateGraphType? known) || probed.TryGetValue(type, out known))
             return known;
+        // A construction of a generic type of the game made where no declaration names it registers itself. No probe accepts
+        // an object of the game's own types, so one is not asked about each probe's framework type first.
+        if (value is IStateGraphNode node)
+        {
+            lock (gate)
+                node.Describe(this);
+            if (byType.TryGetValue(type, out known))
+                return known;
+        }
         StateGraphType? found = null;
+        // A framework collection is accepted only by a probe of a collection, which is not asked about any other object.
+        bool enumerates = value is System.Collections.IEnumerable;
         lock (gate)
         {
             foreach (StateGraphProbe probe in probes)
             {
-                if (probe.Accepts(value) && (found is null || probe.MoreSpecificThan(found)))
+                if ((enumerates || !probe.AcceptsOnlyEnumerating) && probe.Accepts(value) && (found is null || probe.MoreSpecificThan(found)))
                     found = probe.Type;
             }
         }
         if (found is not null)
-        {
             probed.TryAdd(type, found);
-            return found;
-        }
-        // A construction of a generic type of the game made where no declaration names it registers itself.
-        if (value is IStateGraphNode node)
-        {
-            lock (gate)
-            {
-                node.Describe(this);
-                byName = null;
-                typesByName = null;
-            }
-            return byType.TryGetValue(type, out known) ? known : null;
-        }
-        return null;
+        return found;
     }
 
     /// <summary>The registered handling of values of exactly <paramref name="type"/>, or none.</summary>
@@ -149,60 +147,105 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
 
     /// <summary>The handling a state's type name names.</summary>
     /// <exception cref="InvalidDataException">This build has no type of the name.</exception>
-    internal StateGraphType Named(string name)
-    {
-        BuildNames();
-        return byName!.TryGetValue(name, out StateGraphType? type)
-            ? type
-            : throw new InvalidDataException(
-                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state names type '{name}', which this build does not have.");
-    }
+    internal StateGraphType Named(string name) =>
+        Indexed(byName, name) ?? throw new InvalidDataException(
+            $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state names type '{name}', which this build does not have.");
 
     /// <summary>The type a state's type identity names (#2060).</summary>
     /// <exception cref="InvalidDataException">This build has no type of the name.</exception>
-    internal Type TypeNamed(string name)
-    {
-        BuildNames();
-        return typesByName!.TryGetValue(name, out Type? type)
-            ? type
-            : throw new InvalidDataException(
-                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state names type '{name}', which this build does not have.");
-    }
+    internal Type TypeNamed(string name) =>
+        Indexed(typesByName, name) ?? throw new InvalidDataException(
+            $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: the state names type '{name}', which this build does not have.");
 
-    private void BuildNames()
+    /// <summary>
+    /// What <paramref name="index"/> holds under <paramref name="name"/>, indexing names until it is found: first the names
+    /// of the registrations a state has already named, such as every type a state this process wrote holds, then every
+    /// registration's, which a state written by another process needs. Working out a name takes those of its type
+    /// arguments, so the registry's thousands of types are named only when a state names one no capture has named.
+    /// </summary>
+    private T? Indexed<T>(Dictionary<string, T> index, string name) where T : class
     {
-        if (byName is not null && typesByName is not null)
-            return;
         lock (gate)
         {
-            var handled = new Dictionary<string, StateGraphType>(StringComparer.Ordinal);
-            var typed = new Dictionary<string, Type>(StringComparer.Ordinal);
-            foreach (StateGraphType type in byType.Values.Concat(probes.Select(probe => probe.Type)))
-            {
-                // A compiler-made list is written as the array it holds, under the array's name.
-                if (type is ICompilerReadOnlyList)
-                    continue;
-                if (handled.TryGetValue(type.Name, out StateGraphType? other) && !ReferenceEquals(other, type) && other.Type != type.Type)
-                    throw new InvalidOperationException($"Debugger state types {other.Type.FullName} and {type.Type.FullName} share the name {type.Name}.");
-                handled.TryAdd(type.Name, type);
-                typed.TryAdd(type.Name, type.Type);
-            }
-            foreach ((Type type, StateGraphName name) in names)
-                typed.TryAdd(Format(name), type);
-            // A type value of a constructed type is named by its full name (NameOf).
-            foreach (Type type in byType.Keys.Concat(names.Keys))
-                if (type.IsGenericType && type.FullName is { } full)
-                    typed.TryAdd(full, type);
-            typesByName = typed;
-            byName = handled;
+            if (index.TryGetValue(name, out T? known))
+                return known;
+            IndexNames(everything: false);
+            if (index.TryGetValue(name, out known))
+                return known;
+            IndexNames(everything: true);
+            return index.TryGetValue(name, out known) ? known : null;
         }
     }
 
+    /// <summary>
+    /// Indexes the registrations not indexed yet: those whose names are worked out already, or every one; callers hold the
+    /// lock.
+    /// </summary>
+    private void IndexNames(bool everything)
+    {
+        int kept = 0;
+        for (int index = 0; index < unnamed.Count; index++)
+        {
+            object registration = unnamed[index];
+            if (registration is StateGraphType type)
+            {
+                if (!everything && !type.IsNamed)
+                {
+                    unnamed[kept++] = registration;
+                    continue;
+                }
+                IndexName(type);
+            }
+            else
+            {
+                IndexName(((Type Type, StateGraphName Name))registration);
+            }
+        }
+        unnamed.RemoveRange(kept, unnamed.Count - kept);
+    }
+
+    /// <summary>Indexes a handling's name; callers hold the lock.</summary>
+    /// <exception cref="InvalidOperationException">Another type's handling has the name.</exception>
+    private void IndexName(StateGraphType type)
+    {
+        // A compiler-made list is written as the array it holds, under the array's name.
+        if (type is not ICompilerReadOnlyList)
+        {
+            if (byName.TryGetValue(type.Name, out StateGraphType? other) && !ReferenceEquals(other, type) && other.Type != type.Type)
+                throw new InvalidOperationException($"Debugger state types {other.Type.FullName} and {type.Type.FullName} share the name {type.Name}.");
+            byName.TryAdd(type.Name, type);
+            typesByName.TryAdd(type.Name, type.Type);
+        }
+        IndexFullName(type.Type);
+    }
+
+    /// <summary>Indexes a named type's name; callers hold the lock.</summary>
+    private void IndexName((Type Type, StateGraphName Name) named)
+    {
+        typesByName.TryAdd(Format(named.Name), named.Type);
+        IndexFullName(named.Type);
+    }
+
+    /// <summary>Indexes a constructed type by its full name, which a type value of it is named by (NameOf); callers hold the lock.</summary>
+    private void IndexFullName(Type type)
+    {
+        if (type.IsGenericType && type.FullName is { } full)
+            typesByName.TryAdd(full, type);
+    }
+
     /// <summary>Registers a handling unless the type has one.</summary>
-    private void Put(StateGraphType type) => byType.TryAdd(type.Type, type);
+    private void Put(StateGraphType type)
+    {
+        if (byType.TryAdd(type.Type, type))
+            unnamed.Add(type);
+    }
 
     /// <summary>Registers a probe for values the framework makes of types it does not name.</summary>
-    private void Probe(StateGraphProbe probe) => probes.Add(probe);
+    private void Probe(StateGraphProbe probe)
+    {
+        probes.Add(probe);
+        unnamed.Add(probe.Type);
+    }
 
     private void RegisterScalars()
     {
@@ -243,7 +286,11 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public bool Begin(Type type) => begun.Add(Ensure.NotNull(type));
 
     /// <inheritdoc/>
-    public void Name(Type type, StateGraphName name) => names.TryAdd(Ensure.NotNull(type), Ensure.NotNull(name));
+    public void Name(Type type, StateGraphName name)
+    {
+        if (names.TryAdd(Ensure.NotNull(type), Ensure.NotNull(name)))
+            unnamed.Add((type, name));
+    }
 
     /// <inheritdoc/>
     public void Node<T>(StateGraphName name, Action<IStateGraphWriter, T> write, Func<IStateGraphReader, T>? create,
@@ -293,14 +340,14 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public void FrozenDictionary<TKey, TValue>() where TKey : notnull
     {
         if (begun.Add(typeof(System.Collections.Frozen.FrozenDictionary<TKey, TValue>)))
-            Probe(new TypedProbe<System.Collections.Frozen.FrozenDictionary<TKey, TValue>>(new FrozenDictionaryStateType<TKey, TValue>(this)));
+            Probe(new TypedProbe<System.Collections.Frozen.FrozenDictionary<TKey, TValue>>(new FrozenDictionaryStateType<TKey, TValue>(this), enumerating: true));
     }
 
     /// <inheritdoc/>
     public void FrozenSet<T>()
     {
         if (begun.Add(typeof(System.Collections.Frozen.FrozenSet<T>)))
-            Probe(new TypedProbe<System.Collections.Frozen.FrozenSet<T>>(new FrozenSetStateType<T>(this)));
+            Probe(new TypedProbe<System.Collections.Frozen.FrozenSet<T>>(new FrozenSetStateType<T>(this), enumerating: true));
     }
 
     /// <inheritdoc/>
@@ -355,7 +402,7 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public void Method<TDelegate>(string name, Func<object?, TDelegate?> create) where TDelegate : Delegate
     {
         if (!byType.TryGetValue(typeof(TDelegate), out StateGraphType? type))
-            byType[typeof(TDelegate)] = type = new DelegateStateType<TDelegate>(this);
+            Put(type = new DelegateStateType<TDelegate>(this));
         ((DelegateStateType<TDelegate>)type).Add(name, create);
     }
 
@@ -363,10 +410,10 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members) => Catalogs.Add((type, members));
 
     /// <inheritdoc/>
-    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe)
+    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates)
     {
         for (int index = 0; index < keys.Count; index++)
-            DeclaredProbes.TryAdd(keys[index], (probe, index));
+            DeclaredProbes.TryAdd(keys[index], (probe, index, exact[index], enumerates[index]));
     }
 
     /// <inheritdoc/>

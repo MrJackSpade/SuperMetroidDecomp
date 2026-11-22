@@ -34,8 +34,9 @@ internal sealed partial class StateGraphRun
         foreach (INamedTypeSymbol level in chain)
         {
             code.Append(Declaration(level));
-            // A generic type's constructions may be made where no declaration names them, so each object registers its own.
-            if (SymbolEqualityComparer.Default.Equals(level, type) && LevelOf(type) is not null && IsGenericContext(type))
+            // Every object registers its own type when a registry first meets it: a generic type's constructions may be made
+            // where no declaration names them, and a registry that learns types as it meets them registers nothing else.
+            if (SymbolEqualityComparer.Default.Equals(level, type) && LevelOf(type) is not null)
                 code.Append($" : {Core}IStateGraphNode");
             code.AppendLine().AppendLine("{");
         }
@@ -105,7 +106,7 @@ internal sealed partial class StateGraphRun
         }
         if (extraRegistrations.TryGetValue(type, out List<string>? extra))
             registration.AddRange(extra);
-        if (level is not null && IsGenericContext(type))
+        if (level is not null)
             code.AppendLine($"    void {Core}IStateGraphNode.Describe({Registry} __registry) => __StateRegister(__registry);");
         code.AppendLine($"    internal static void __StateRegister({Registry} __registry)");
         code.AppendLine("    {");
@@ -373,6 +374,9 @@ internal sealed partial class StateGraphRun
             return $"__writer.WriteScalar<{Code(type)}>({expression});";
         if (type.TypeKind == TypeKind.Enum)
             return $"__writer.WriteEnum<{Code(type)}>({expression});";
+        // A field of a value type is handed over as itself, so a writer that knows the type writes it without boxing it.
+        if (type.TypeKind == TypeKind.Struct && type.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T && !type.IsRefLikeType)
+            return $"__writer.WriteValue<{Code(type)}>({expression});";
         return $"__writer.Write((object){expression});";
     }
 

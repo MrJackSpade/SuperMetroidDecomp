@@ -13,6 +13,9 @@ internal abstract class StateGraphProbe(StateGraphType type)
     /// <summary>Whether the probe accepts <paramref name="value"/>.</summary>
     internal abstract bool Accepts(object value);
 
+    /// <summary>Whether the probe accepts only an object that enumerates, so one that does not is not asked about.</summary>
+    internal virtual bool AcceptsOnlyEnumerating => false;
+
     /// <summary>Whether this probe's handling is to be preferred to <paramref name="other"/>, which accepts the same value.</summary>
     internal virtual bool MoreSpecificThan(StateGraphType other) => false;
 }

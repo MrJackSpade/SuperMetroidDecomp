@@ -313,8 +313,10 @@ internal sealed partial class SamusPoseInputList
 
     /// <summary>
     /// The poses the list can select, found the first time it is asked about by reading the list under every held chord
-    /// its transitions read and every part of that chord newly pressed.
+    /// its transitions read and every part of that chord newly pressed. It is worked out from the list alone, so a snapshot
+    /// neither holds nor works it out.
     /// </summary>
+    [field: NonSerialized]
     internal FrozenSet<SamusPoseId> SelectableTargets => field ??= SamusPoseInputTransitions.Selectable(this);
 
 

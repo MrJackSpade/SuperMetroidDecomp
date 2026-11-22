@@ -163,6 +163,9 @@ internal sealed class GraphWriter(BinaryWriter output, StateGraphTypes types, Bo
     public void WriteScalar<T>(T value) where T : unmanaged => Scalar(value);
 
     /// <inheritdoc/>
+    public void WriteValue<T>(T value) where T : struct => WriteElement(value);
+
+    /// <inheritdoc/>
     public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum
     {
         EnumStateType<TEnum> type = Types.EnumOf<TEnum>();

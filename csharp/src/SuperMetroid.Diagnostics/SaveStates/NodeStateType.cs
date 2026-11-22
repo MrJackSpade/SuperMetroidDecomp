@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
@@ -10,6 +11,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 internal sealed class NodeStateType<T>(StateGraphTypes types, StateGraphName name, Action<IStateGraphWriter, T> write,
     Func<IStateGraphReader, T>? create, Action<T, IStateGraphVisitor> visit, string? packedSchema) : StateGraphType(typeof(T), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => !typeof(T).IsValueType || RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <summary>
     /// For a value type whose fields are all scalars, enums or such value types, its schema, which an array of it is
     /// packed with; none otherwise.

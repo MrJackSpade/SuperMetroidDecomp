@@ -18,8 +18,15 @@ internal sealed class GraphWalk
     /// <summary>The fields of the right graph's object being compared.</summary>
     internal FieldRecorder Right { get; } = new();
 
-    /// <summary>Queues two values to compare.</summary>
-    internal void Push(object? left, object? right) => pending.Push((left, right));
+    /// <summary>Forgets the pairs a previous comparison left queued when it found a difference.</summary>
+    internal void Clear() => pending.Clear();
+
+    /// <summary>Queues two values to compare; the same object, or nothing on both sides, is the same and is not queued.</summary>
+    internal void Push(object? left, object? right)
+    {
+        if (!ReferenceEquals(left, right))
+            pending.Push((left, right));
+    }
 
     /// <summary>The next pair of values to compare, or false when none is left.</summary>
     internal bool TryPop(out object? left, out object? right)
@@ -95,6 +102,19 @@ internal sealed class GraphWalk
 
         /// <inheritdoc/>
         public void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum => Append(MemoryMarshal.AsBytes(new ReadOnlySpan<TEnum>(in value)));
+
+        /// <summary>
+        /// Records a value of one of the game's value types as its own fields, in order, without boxing it: both objects
+        /// compared are of one type, so their values of it are compared field by field either way. A value of a type not
+        /// registered yet is recorded as itself.
+        /// </summary>
+        public void WriteValue<T>(T value) where T : struct
+        {
+            if (GraphComparisons.ValueFields<T>.Write is { } write)
+                write(this, value);
+            else
+                Values.Add(value);
+        }
 
         /// <summary>Appends a scalar's bytes.</summary>
         private void Append(ReadOnlySpan<byte> bytes)

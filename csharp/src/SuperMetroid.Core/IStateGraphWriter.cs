@@ -27,4 +27,12 @@ public interface IStateGraphWriter
     /// <typeparam name="TEnum">The enum.</typeparam>
     /// <param name="value">The member.</param>
     void WriteEnum<TEnum>(TEnum value) where TEnum : struct, Enum;
+
+    /// <summary>
+    /// Writes a value of a value type, as <see cref="Write"/> writes it boxed: a writer that knows the type writes its fields
+    /// without boxing it.
+    /// </summary>
+    /// <typeparam name="T">The value's type.</typeparam>
+    /// <param name="value">The value.</param>
+    void WriteValue<T>(T value) where T : struct;
 }

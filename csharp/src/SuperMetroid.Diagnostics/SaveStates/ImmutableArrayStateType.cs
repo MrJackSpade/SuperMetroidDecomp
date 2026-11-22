@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
@@ -9,6 +10,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class ImmutableArrayStateType<T>(StateGraphTypes types) : StateGraphType(typeof(ImmutableArray<T>), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <inheritdoc/>
     protected override string Named() => "System.Collections.Immutable.ImmutableArray`1<" + Types.NameOf(typeof(T)) + ">";
 

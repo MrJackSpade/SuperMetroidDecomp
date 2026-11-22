@@ -1,9 +1,14 @@
+using System.Runtime.CompilerServices;
+
 namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>A list of <typeparamref name="T"/>: its capacity, then its elements.</summary>
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class ListStateType<T>(StateGraphTypes types) : StateGraphType(typeof(List<T>), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <inheritdoc/>
     protected override string Named() => "System.Collections.Generic.List`1<" + Types.NameOf(typeof(T)) + ">";
 

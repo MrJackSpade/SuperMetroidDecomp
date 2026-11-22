@@ -120,7 +120,8 @@ internal sealed class BoundObjectGraph
                 unloaded.Add(current);
             if (type.Version(current) is { } version && trackedCollections.Add(current))
                 collections.Add(new GrowingCollection(current, type, version));
-            walker.Visit(current, type, prefix: null);
+            if (type.ReachesObjects)
+                walker.Visit(current, type, prefix: null);
         }
     }
 
@@ -287,11 +288,16 @@ internal sealed class BoundObjectGraph
         /// <summary>Indexes a reference, or walks a value through to the references it holds.</summary>
         private void Held(object value, string? whole, StateGraphField? field, int element)
         {
-            if (value.GetType().IsValueType)
+            Type runtimeType = value.GetType();
+            if (runtimeType.IsValueType)
             {
-                if (value.GetType().IsPrimitive || value.GetType().IsEnum)
+                // A registered scalar, enum or value holding no reference reaches nothing, and neither does any other scalar.
+                StateGraphType? known = graph.types.Registered(runtimeType);
+                if (known is { ReachesObjects: false } || runtimeType.IsPrimitive || runtimeType.IsEnum)
                     return;
-                StateGraphType type = graph.TypeOf(value);
+                StateGraphType type = known ?? graph.TypeOf(value);
+                if (!type.ReachesObjects)
+                    return;
                 string step = whole ?? (field is not null ? FieldStep(field) : ElementStep(element));
                 Visit(value, type, step + StepSeparator);
                 return;

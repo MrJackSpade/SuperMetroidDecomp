@@ -11,6 +11,9 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// <typeparam name="T">The element type.</typeparam>
 internal sealed class GridStateType<T>(StateGraphTypes types) : StateGraphType(typeof(T[,]), types)
 {
+    /// <inheritdoc/>
+    internal override bool ReachesObjects => RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+
     /// <summary>Whether the elements are written as their raw bytes.</summary>
     private static readonly bool Raw = !RuntimeHelpers.IsReferenceOrContainsReferences<T>() && typeof(T).IsPrimitive;
 

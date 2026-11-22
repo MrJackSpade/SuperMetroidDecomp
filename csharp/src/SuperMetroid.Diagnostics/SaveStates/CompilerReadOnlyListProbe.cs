@@ -11,7 +11,10 @@ internal sealed class CompilerReadOnlyListProbe<T>(CompilerReadOnlyListStateType
 {
     /// <inheritdoc/>
     internal override bool Accepts(object value) =>
-        value is IReadOnlyList<T> && value.GetType().Name.StartsWith("<>z__", StringComparison.Ordinal);
+        value.GetType().Name.StartsWith("<>z__", StringComparison.Ordinal) && value is IReadOnlyList<T>;
+
+    /// <inheritdoc/>
+    internal override bool AcceptsOnlyEnumerating => true;
 
     /// <inheritdoc/>
     internal override bool MoreSpecificThan(StateGraphType other) =>

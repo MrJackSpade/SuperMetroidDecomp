@@ -276,7 +276,12 @@ internal static class RidleyFullMovieVerification
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
 
-    /// <summary>Checks RNG consumption while pause enters a room HDMA callback already in progress.</summary>
+    /// <summary>
+    /// Checks RNG consumption through a whole pause in Ridley's lava room, entered by Start from main gameplay: each pause
+    /// step's first update, reached through the pause's own flow, consumes the generator as that step's random step says.
+    /// The pause preparation runs the room's lava wave, already running from the darkening's gameplay, before its advance;
+    /// each pause-screen update advances it once; the darkening and brightening leave it to the gameplay they run.
+    /// </summary>
     internal static void VerifyPauseDispatcherRandom()
     {
         var random = new SharedRandom();
@@ -285,22 +290,44 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
+        runtime.Player.Samus.Control.Unlock();
         game.AdoptRuntime(runtime);
-        // The recorded pause enters an already-running room HDMA callback.
-        runtime.RoomFxOverlay.AdvanceLiquidMotion(runtime.System, false);
-        foreach (var step in new[] { PauseStep.PreparingPauseScreen, PauseStep.FadingIn,
-            PauseStep.Menu, PauseStep.FadingOut, PauseStep.RestoringGameplay,
-            PauseStep.DarkeningGameplay, PauseStep.BrighteningGameplay })
+        game.Session.Enter(SuperMetroidGameState.MainGameplay);
+        game.Step(ControllerButton.Start);
+        AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), $"Start begins the pause's darkening; ended in {game.GameState}");
+
+        var reached = new List<PauseStep>();
+        for (int update = 0; game.GameState == SuperMetroidGameState.Pause; update++)
         {
+            AssertTrue(update < 400, $"the pause returns to main gameplay; steps reached {string.Join(", ", reached)}");
+            PauseStep step = game.Session.PauseStep;
+            // Start, held through the pause screen's repeat delay, unpauses.
+            ControllerButton input = step == PauseStep.Menu ? ControllerButton.Start : 0;
+            if (reached.Contains(step))
+            {
+                game.Step(input);
+                continue;
+            }
+            reached.Add(step);
+            if (step is PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay)
+            {
+                // The gameplay these steps run advances the generator itself; the update's own random step leaves it.
+                int beforeGameplay = runtime.System.RandomNumber;
+                game.AdvanceMenuRandom(game.Session.RunningPhase, game.MatchGameplay(game.Session.RunningPhase));
+                AssertEqual(beforeGameplay, runtime.System.RandomNumber, $"the pause's {step} leaves the generator to its gameplay");
+                game.Step(input);
+                continue;
+            }
+            // A pause-screen update runs no gameplay: the generator changes only by the update's own random step.
             runtime.System.SetRandomNumber(0x117d);
-            game.Session.Enter(step);
-            game.AdvanceMenuRandom(game.Session.RunningPhase, game.MatchGameplay(game.Session.RunningPhase));
-            bool gameplayOwnsRandom = step is PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay;
-            ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
-                step == PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;
+            game.Step(input);
+            ushort expected = step == PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;
             AssertEqual(expected, runtime.System.RandomNumber,
-                "pause entry runs lava HDMA before RNG; paused dispatches advance once; gameplay fades retain runtime ownership");
+                $"the pause's {step}: pause entry runs lava HDMA before RNG; paused dispatches advance once");
         }
+        PauseStep[] flow = [PauseStep.DarkeningGameplay, PauseStep.PreparingPauseScreen, PauseStep.FadingIn, PauseStep.Menu,
+            PauseStep.FadingOut, PauseStep.RestoringGameplay, PauseStep.BrighteningGameplay];
+        AssertTrue(reached.SequenceEqual(flow), $"the pause runs each of its steps in order; ran {string.Join(", ", reached)}");
         Console.WriteLine("Pause RNG: all five pause-only dispatchers advance once; gameplay fades avoid duplicate advances.");
     }
 

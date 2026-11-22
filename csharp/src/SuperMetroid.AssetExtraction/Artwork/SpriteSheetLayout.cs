@@ -168,22 +168,28 @@ internal sealed partial class SpriteSheetLayout
     }
 
     /// <summary>
-    /// The sprite colour ink <paramref name="ink"/> shows as the family draws it: the colour of the ink's own row with the
-    /// family's palette bits ORed in. A sheet's ink is its part's own row and colour (#1512), so parts whose rows the bits
-    /// fold together keep separate inks, which a draw selecting another row shows apart.
+    /// The sprite colour ink <paramref name="ink"/> shows as a draw ORing <paramref name="drawRow"/> into its parts shows it:
+    /// the colour of the ink's own row with that row ORed in, the family's palette bits as the family draws it. A sheet's ink
+    /// is its part's own row and colour (#1512), so parts whose rows the bits fold together keep separate inks, which a draw
+    /// selecting another row shows apart.
     /// </summary>
-    private int DrawnColourOf(int ink) => ((ink / RowColours) | sources.PaletteBits) * RowColours + ink % RowColours;
+    private static int DrawnColourOf(int ink, int drawRow) => ((ink / RowColours) | drawRow) * RowColours + ink % RowColours;
+
+    /// <summary>The sprite colour ink <paramref name="ink"/> shows as the family draws it, its palette bits ORed in.</summary>
+    private int DrawnColourOf(int ink) => DrawnColourOf(ink, sources.PaletteBits);
 
     /// <summary>
     /// <paramref name="shade"/>, which names the sprite colours it recolours, over the sheet's inks in rising order: each
-    /// ink drawn in one of those colours shows that colour's shade.
+    /// ink drawn in one of those colours shows that colour's shade, as the family draws it or as the row the shade's draws
+    /// select draws it (<see cref="SheetShade.DrawRow"/>).
     /// </summary>
     private SheetShade InkShade(SheetShade shade)
     {
         var shown = new Dictionary<int, RgbColor>();
+        int drawRow = shade.DrawRow ?? sources.PaletteBits;
         for (int ink = 0; ink < sources.SpriteColours.Length; ink++)
         {
-            if (shade.InkColours.TryGetValue(DrawnColourOf(ink), out RgbColor colour))
+            if (shade.InkColours.TryGetValue(DrawnColourOf(ink, drawRow), out RgbColor colour))
                 shown.Add(ink, colour);
         }
         return SheetShade.Of(shade.Shade, shown) with { TakesColourMath = shade.TakesColourMath };
@@ -382,6 +388,7 @@ internal sealed partial class SpriteSheetLayout
             foreach (SheetShade shade in shades)
             {
                 writer.Write(shade.Shade.Key);
+                writer.Write(shade.DrawRow ?? -1);
                 writer.Write(shade.InkColours.Count);
                 foreach (int ink in shade.InkColours.Keys)
                     writer.Write(ink);

@@ -196,12 +196,17 @@ internal static partial class BossSheetShades
         return OwnRowShades.TryGetValue(enemy, out Func<BossSourceArtwork, int, IReadOnlyList<SheetShade>>? shades) ? shades(bosses, firstInk) : [];
     }
 
-    /// <summary>The shades of Crocomire's sprites: his skeleton's arm and the wall spikes, each in its own row.</summary>
+    /// <summary>
+    /// The shades of Crocomire's sprites: his skeleton's arm and the wall spikes, each in its own row. His skeleton's arm
+    /// shows only on his skeleton, which he draws with palette index zero ($A4:999B, as its instruction list starts), so
+    /// each of its parts in its own row: the arm's in the arm's row (#2643).
+    /// </summary>
     /// <exception cref="InvalidDataException">His colours are not installed.</exception>
     private static IReadOnlyList<SheetShade> CrocomireSprites(BossSourceArtwork bosses)
     {
         CrocomireColorCatalog crocomire = bosses.CrocomireColors;
-        return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm)),
+        return [SheetShade.Run(CrocomireShades.SkeletonArm, CrocomireSkeletonArmRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.SkeletonArm))
+                with { DrawRow = EnemySheetRowDefinitions.Common },
             SheetShade.Run(CrocomireShades.WallSpikes, CrocomireWallSpikesRow * LoadedSetColours.RowColours, Crocomire(crocomire, CrocomireBand.WallSpikes))];
     }
 

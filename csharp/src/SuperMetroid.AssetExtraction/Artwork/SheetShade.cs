@@ -21,6 +21,13 @@ internal sealed partial record SheetShade(PictureShade Shade, ImmutableSortedDic
     /// </summary>
     internal bool TakesColourMath { get; init; }
 
+    /// <summary>
+    /// The palette row the draws showing the shade select in place of the family's, whose inks show the shade's colours as
+    /// that row draws them (#2643): Crocomire's skeleton-arm colours, which show only on his skeleton, drawn with palette
+    /// index zero, so each part in its own row. Null for a shade shown on the family's draws.
+    /// </summary>
+    internal int? DrawRow { get; init; }
+
     /// <summary>The inks the shade recolours, in rising order.</summary>
     internal IEnumerable<int> Inks => InkColours.Keys;
 

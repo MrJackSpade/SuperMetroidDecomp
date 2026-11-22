@@ -83,7 +83,8 @@ internal static class RoomTerrainBlockAddressingVerification
                 Position16<RoomBlocks>? expected = reached >= 0 && reached < width * height ? BlockAtPlace(reached, width) : null;
                 Offset16<RoomBlocks> step = vertical ? Offset16<RoomBlocks>.Of(0, offset) : Offset16<RoomBlocks>.Of(offset, 0);
                 string context = $"a {(vertical ? "vertical" : "horizontal")} link of {offset} from {block} in a {width}x{height} room";
-                Position16<RoomBlocks>? stepped = room.Level.GridBlockStepped(block, step);
+                Position16<RoomBlocks>? stepped = room.Level.TryGridBlockStepped(block, step, out Position16<RoomBlocks> reachedBlock)
+                    ? reachedBlock : null;
                 if (stepped != expected)
                     AssertEqual(expected, stepped, context);
 

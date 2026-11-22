@@ -220,19 +220,10 @@ public sealed class RoomLevelData
     }
 
     /// <summary>
-    /// The block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
+    /// Finds the block of the room's grid <paramref name="step"/> blocks from <paramref name="block"/> in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), as Samus's collision extensions, her shots' and the grapple's extension
-    /// links and a Wave shot's straddled read reach it: a column step past a row's end continues on the next row.
-    /// </summary>
-    /// <param name="block">The block stepped from.</param>
-    /// <param name="step">The columns and rows stepped.</param>
-    /// <returns>The block reached, or null when the step leads before the room's first block or past its grid.</returns>
-    internal Position16<RoomBlocks>? GridBlockStepped(Position16<RoomBlocks> block, Offset16<RoomBlocks> step) =>
-        TryGridBlockStepped(block, step, out Position16<RoomBlocks> reached) ? reached : null;
-
-    /// <summary>
-    /// Finds the grid block <paramref name="step"/> leads to from <paramref name="block"/> in the room's reading order, as
-    /// <see cref="GridBlockStepped"/> does; false when it leads before the room's first block or past its grid.
+    /// links and a Wave shot's straddled read reach it: a column step past a row's end continues on the next row; false
+    /// when the step leads before the room's first block or past its grid.
     /// </summary>
     /// <param name="block">The block stepped from.</param>
     /// <param name="step">The columns and rows stepped.</param>

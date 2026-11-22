@@ -574,11 +574,6 @@ public sealed class SamusState
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
-    /// <summary>
-    /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
-    /// the knockback movement type because the game also uses that type for crystal-flash art.
-    /// </summary>
-    public bool KnockbackActive => Knockback is Movement.SamusKnockback.Moving;
 
     /// <summary>
     /// Whether a hit's knockback waits for her movement to admit it: its producer's countdown runs and no knockback holds a

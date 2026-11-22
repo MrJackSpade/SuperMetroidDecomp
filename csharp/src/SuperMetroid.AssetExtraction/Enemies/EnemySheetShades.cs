@@ -54,11 +54,6 @@ internal sealed partial class EnemySheetShades
             .Concat(FrameColouringDefinitions.Frames.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.FrameName(entry.Key), entry.Value))),
         StringComparer.Ordinal));
 
-    /// <summary>Each catalogued common spawner's frame colouring by the sheet frame name its frame takes.</summary>
-    private static readonly Lazy<Dictionary<string, CommonSpawnerShades>> CommonFrameColourings = new(() =>
-        FrameColouringDefinitions.CommonProjectiles.ToDictionary(entry => EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry => entry.Value,
-            StringComparer.Ordinal));
-
     /// <summary>The installed artwork the effects' colours come from.</summary>
     private readonly EnemySheetInputs inputs;
 
@@ -198,8 +193,6 @@ internal sealed partial class EnemySheetShades
             HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | paletteBits))];
             if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
                 Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
-            else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
-                Lay(Common([common]).Inks, rows, $"frame {pictures.Name}'s common spawner colouring");
             else
             {
                 foreach (EnemyDefinitionId spawner in sharedSpawners.SpawnersOf(pictures.Name))
@@ -507,8 +500,8 @@ internal sealed partial class EnemySheetShades
 
     /// <summary>
     /// Each enemy whose spawned objects show its encounter's sprite colours on the sheets they spawn onto, with those shades:
-    /// the Tourian statue scene's looks, the Ridleys' sprite colours and Mother Brain's; the objects every other enemy spawns
-    /// show only the bosses' own objects' shades.
+    /// the Tourian statue scene's looks, the Ridleys' sprite colours, Mother Brain's and the n00b tube's crack colours; the
+    /// objects every other enemy spawns show only the bosses' own objects' shades.
     /// </summary>
     private Dictionary<EnemyDefinitionId, Func<IEnumerable<SheetShade>>> SpawnedObjectEffects()
     {
@@ -524,13 +517,22 @@ internal sealed partial class EnemySheetShades
             [EnemyDefinitionId.MotherBrainHead] = motherBrain,
             [EnemyDefinitionId.MotherBrainTubes] = motherBrain,
             [EnemyDefinitionId.BabyMetroidCutscene] = motherBrain,
+            [EnemyDefinitionId.NoobTubeCrack] = () => [TubeCracks()],
         };
     }
 
+    /// <summary>The n00b tube's crack colours, which its cracks, shards and released air show.</summary>
+    private SheetShade TubeCracks()
+    {
+        ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors;
+        return SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+            Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks));
+    }
+
     /// <summary>
-    /// The shades the objects of a common spawner show on the shared sheet (#1513), as its presence names them: the n00b
-    /// tube's cracks, the Ceres elevator concealer's cleared colour, the Ceres doors' looks the escape's falling tiles show,
-    /// and Ridley's sprite colours.
+    /// The shades the objects of a common spawner show on the shared sheet (#1513), as its presence names them: the Ceres
+    /// elevator concealer's cleared colour, the Ceres doors' looks the escape's falling tiles show, and Ridley's sprite
+    /// colours.
     /// </summary>
     internal SheetShadeSet Common(IEnumerable<CommonSpawnerShades> named)
     {
@@ -541,11 +543,6 @@ internal sealed partial class EnemySheetShades
         {
             switch (shades)
             {
-                case CommonSpawnerShades.TubeCracks:
-                    ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors;
-                    inks.Add(SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
-                        Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)));
-                    break;
                 case CommonSpawnerShades.CeresElevatorConcealer:
                     // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
                     inks.Add(SheetShade.Run(CeresElevatorShades.ConcealerCleared,

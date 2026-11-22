@@ -5,9 +5,9 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -66,20 +66,18 @@ internal static partial class FrameColouringDefinitions
         [EnemyProjectileFrameId.MotherBrainGlassShardUpRightTurned315] = MotherBrainRoomEntry,
     };
 
-    /// <summary>
-    /// The projectile frames always drawn in one colouring: the bosses' (<see cref="BossProjectiles"/>), and every frame of
-    /// the Tourian statue scene's statue programs, drawn in the scene's entrance colours.
-    /// </summary>
-    internal static IReadOnlyDictionary<EnemyProjectileFrameId, FrameColouring> Projectiles { get; } = new Dictionary<EnemyProjectileFrameId, FrameColouring>(
-        BossProjectiles.Concat(TourianStatueProjectileAnimations.Segments.Frames
-            .Select(frame => KeyValuePair.Create(frame, TourianStatueEntrance))));
+    /// <summary>The n00b tube's crack colours, which its cracks' initialization installs before any of its pieces spawns.</summary>
+    private static readonly FrameColouring TubeCracks = new(EnemyDefinitionId.NoobTubeCrack, [ChozoAndTubeShades.TubeCracks]);
 
     /// <summary>
-    /// The projectile frames a common spawner's objects always draw in its shades: every piece of the n00b tube (its
-    /// crack, shards and bubbles), drawn in the crack colours its cracks' initialization installs.
+    /// The projectile frames always drawn in one colouring: the bosses' (<see cref="BossProjectiles"/>), every frame of
+    /// the Tourian statue scene's statue programs, drawn in the scene's entrance colours, and every piece of the n00b tube
+    /// (its crack, shards and bubbles), drawn in its crack colours.
     /// </summary>
-    internal static IReadOnlyDictionary<EnemyProjectileFrameId, CommonSpawnerShades> CommonProjectiles { get; } =
-        NoobTubeProjectileAnimations.ShownFrames.ToDictionary(frame => frame, _ => CommonSpawnerShades.TubeCracks);
+    internal static IReadOnlyDictionary<EnemyProjectileFrameId, FrameColouring> Projectiles { get; } = new Dictionary<EnemyProjectileFrameId, FrameColouring>(
+        BossProjectiles
+            .Concat(TourianStatueProjectileAnimations.Segments.Frames.Select(frame => KeyValuePair.Create(frame, TourianStatueEntrance)))
+            .Concat(NoobTubeProjectileAnimations.ShownFrames.Select(frame => KeyValuePair.Create(frame, TubeCracks))));
 
     /// <summary>The enemy frames: Mother Brain's tubes, drawn from her room's entry in the tube colours it loads.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, FrameColouring> Frames { get; } = new Dictionary<EnemyFrameId, FrameColouring>

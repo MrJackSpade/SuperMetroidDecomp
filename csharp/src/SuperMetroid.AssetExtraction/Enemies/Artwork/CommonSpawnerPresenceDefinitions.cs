@@ -91,7 +91,6 @@ internal static partial class CommonSpawnerPresenceDefinitions
         [CommonSpawner.EnemyCollision] = EveryEnemy,
         [CommonSpawner.EyeDoorBehavior] = new() { RoomObjects = EyeDoors },
         [CommonSpawner.FallingSparksBehavior] = new() { Enemies = [EnemyDefinitionId.Spark] },
-        [CommonSpawner.NoobTubeBehavior] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
         [CommonSpawner.OldTourianEscapeShaftWallBehavior] = new() { Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape] },
         [CommonSpawner.DownwardGateBehavior] = new() { RoomObjects = Gates },
         [CommonSpawner.SaveStationElectricity] = new() { RoomObjects = [RoomObjectKind.SaveStation] },

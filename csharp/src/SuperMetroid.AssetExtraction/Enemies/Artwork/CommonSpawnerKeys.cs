@@ -18,7 +18,6 @@ internal static partial class CommonSpawnerKeys
         [CommonSpawner.EnemyCollision] = "EnemyCollision",
         [CommonSpawner.EyeDoorBehavior] = "EyeDoorBehavior",
         [CommonSpawner.FallingSparksBehavior] = "FallingSparksBehavior",
-        [CommonSpawner.NoobTubeBehavior] = "NoobTubeBehavior",
         [CommonSpawner.OldTourianEscapeShaftWallBehavior] = "OldTourianEscapeShaftWallBehavior",
         [CommonSpawner.DownwardGateBehavior] = "DownwardGateBehavior",
         [CommonSpawner.SaveStationElectricity] = "SaveStationElectricity",

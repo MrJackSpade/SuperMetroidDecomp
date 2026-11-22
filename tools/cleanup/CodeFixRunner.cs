@@ -194,8 +194,13 @@ internal static class WorkspaceLoad
         if (failures.Count > 0)
             throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
         var ordered = await OpeningOrder(loaded.Projects, listed);
+        // Every analyzer and generator the projects reference loads from memory, so the build the cleanup runs while the
+        // workspace lives can rewrite them (#2614).
+        InMemoryAnalyzerLoader analyzers = InMemoryAnalyzerLoader.Shared;
+        ordered = [.. ordered.Select(project => project.WithAnalyzerReferences([.. project.AnalyzerReferences.Select(analyzers.Take)]))];
         var workspace = new AdhocWorkspace(MSBuildMefHostServices.DefaultServices);
-        workspace.AddSolution(SolutionInfo.Create(loaded.Id, loaded.Version, loaded.FilePath, ordered, loaded.AnalyzerReferences));
+        workspace.AddSolution(SolutionInfo.Create(loaded.Id, loaded.Version, loaded.FilePath, ordered,
+            [.. loaded.AnalyzerReferences.Select(analyzers.Take)]));
         return workspace;
     }
 
@@ -1651,13 +1656,13 @@ internal sealed class SolutionFixer
 
     /// <summary>
     /// Every exported code fix provider for the language in one fixer assembly, constructed once. The assembly and the
-    /// dependencies beside it are read into memory (<see cref="FixerLoadContext"/>), so no file of theirs stays open: the
-    /// build the cleanup runs while this process lives rewrites the repository analyzer and its code fixes (#2614).
+    /// dependencies beside it are read into memory (<see cref="InMemoryAnalyzerLoader"/>), so no file of theirs stays
+    /// open: the build the cleanup runs while this process lives rewrites the repository analyzer and its code fixes (#2614).
     /// </summary>
     private static List<CodeFixProvider> LoadProviders(string path, string language)
     {
         var providers = new List<CodeFixProvider>();
-        foreach (Type type in new FixerLoadContext(path).LoadFixer().GetTypes())
+        foreach (Type type in InMemoryAnalyzerLoader.Shared.LoadFromPath(path).GetTypes())
         {
             if (type.IsAbstract || !typeof(CodeFixProvider).IsAssignableFrom(type)
                 || type.GetCustomAttribute<ExportCodeFixProviderAttribute>() is not { } export
@@ -2303,34 +2308,103 @@ internal static class ProjectLists
 }
 
 /// <summary>
-/// Loads a fixer assembly, and the assemblies beside it it depends on, from their bytes, so the files stay free for the
-/// builds that rewrite them while the cleanup runs (#2614). An assembly the process already holds, Roslyn's among them,
-/// is the process's own, so the fixers share its types.
+/// Loads the analyzers, source generators and code fixes the runner runs from their bytes, so no file of theirs stays open
+/// while this process lives: the build the cleanup runs in it rewrites the repository analyzer and its code fixes (#2614,
+/// MSB3021/MSB3027). The workspace's own loader maps each analyzer file it loads, which holds it until the process ends.
+/// Each directory's assemblies share a load context of their own; a dependency binds to the one beside the assembly that
+/// needs it, or else to one any analyzer reference names (a language's analyzers depend on their shared assembly a
+/// directory up); an assembly the host resolves itself (Roslyn's, the framework's and the runner's own) is the host's, so
+/// the analyzers share its types.
 /// </summary>
-/// <param name="fixer">The fixer assembly's path.</param>
-internal sealed class FixerLoadContext(string fixer) : System.Runtime.Loader.AssemblyLoadContext(Path.GetFileNameWithoutExtension(fixer))
+internal sealed class InMemoryAnalyzerLoader : IAnalyzerAssemblyLoader
 {
-    /// <summary>The directory the fixer and its own dependencies are in.</summary>
-    private readonly string directory = Path.GetDirectoryName(Path.GetFullPath(fixer))
-        ?? throw new ArgumentException($"{fixer} has no directory.", nameof(fixer));
+    /// <summary>The one loader the runner's workspace and fixers share.</summary>
+    public static InMemoryAnalyzerLoader Shared { get; } = new();
 
-    /// <summary>The fixer assembly, read from its bytes.</summary>
-    public Assembly LoadFixer() => FromBytes(Path.GetFullPath(fixer));
+    /// <summary>The simple names of the assemblies the host resolves itself: those its trusted platform list names.</summary>
+    private static readonly HashSet<string> HostAssemblies =
+        [.. ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(Path.GetFileNameWithoutExtension).OfType<string>()];
+
+    /// <summary>The load context of each directory analyzers are loaded from, by full path.</summary>
+    private readonly ConcurrentDictionary<string, DirectoryContext> contexts = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The path of each assembly an analyzer reference names, loaded or a dependency, by simple name.</summary>
+    private readonly ConcurrentDictionary<string, string> located = new(StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
-    protected override Assembly? Load(AssemblyName assemblyName)
+    public void AddDependencyLocation(string fullPath) => Locate(fullPath);
+
+    /// <inheritdoc />
+    public Assembly LoadFromPath(string fullPath) => ContextOf(Locate(fullPath)).FromPath(Path.GetFullPath(fullPath));
+
+    /// <summary>Records where the assembly at <paramref name="fullPath"/> is; returns its full path.</summary>
+    private string Locate(string fullPath)
     {
-        if (Default.Assemblies.Any(loaded => string.Equals(loaded.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)))
-            return null;
-        string candidate = Path.Combine(directory, $"{assemblyName.Name}.dll");
-        return File.Exists(candidate) ? FromBytes(candidate) : null;
+        string full = Path.GetFullPath(fullPath);
+        located.TryAdd(Path.GetFileNameWithoutExtension(full), full);
+        return full;
     }
 
-    /// <summary>The assembly at <paramref name="path"/>, read into memory; the file is closed once it is read.</summary>
-    private Assembly FromBytes(string path)
+    /// <summary>The load context of the directory holding <paramref name="fullPath"/>.</summary>
+    private DirectoryContext ContextOf(string fullPath)
     {
-        using var image = new MemoryStream(File.ReadAllBytes(path));
-        return LoadFromStream(image);
+        string directory = Path.GetDirectoryName(fullPath)
+            ?? throw new ArgumentException($"{fullPath} has no directory.", nameof(fullPath));
+        return contexts.GetOrAdd(directory, directory => new DirectoryContext(directory, this));
+    }
+
+    /// <summary>
+    /// The assembly named <paramref name="name"/> an analyzer reference located outside <paramref name="directory"/>,
+    /// loaded in its own directory's context; none when no reference names it.
+    /// </summary>
+    private Assembly? LocatedElsewhere(string name, string directory) =>
+        located.TryGetValue(name, out string? path) && !string.Equals(Path.GetDirectoryName(path), directory, StringComparison.OrdinalIgnoreCase)
+            ? ContextOf(path).FromPath(path)
+            : null;
+
+    /// <summary>
+    /// <paramref name="reference"/> loading through this loader; a reference that is not a file is kept as it is.
+    /// </summary>
+    public AnalyzerReference Take(AnalyzerReference reference) =>
+        reference is AnalyzerFileReference file
+            ? references.GetOrAdd(Path.GetFullPath(file.FullPath), fullPath => new AnalyzerFileReference(fullPath, this))
+            : reference;
+
+    /// <summary>The one reference of each analyzer file, by full path, which every project referencing it shares.</summary>
+    private readonly ConcurrentDictionary<string, AnalyzerFileReference> references = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The assemblies of one directory, each read from its bytes once.</summary>
+    /// <param name="directory">The directory.</param>
+    /// <param name="loader">The loader, which knows the assemblies other directories hold.</param>
+    private sealed class DirectoryContext(string directory, InMemoryAnalyzerLoader loader) : System.Runtime.Loader.AssemblyLoadContext($"analyzers {directory}")
+    {
+        /// <summary>Each assembly read, by full path.</summary>
+        private readonly Dictionary<string, Assembly> loaded = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>The assembly at <paramref name="fullPath"/>, read into memory once; the file is closed once it is read.</summary>
+        public Assembly FromPath(string fullPath)
+        {
+            lock (loaded)
+            {
+                if (loaded.TryGetValue(fullPath, out Assembly? assembly))
+                    return assembly;
+                using var image = new MemoryStream(File.ReadAllBytes(fullPath));
+                assembly = LoadFromStream(image);
+                loaded[fullPath] = assembly;
+                return assembly;
+            }
+        }
+
+        /// <inheritdoc />
+        protected override Assembly? Load(AssemblyName assemblyName)
+        {
+            if (assemblyName.Name is not { } name || HostAssemblies.Contains(name) ||
+                Default.Assemblies.Any(held => string.Equals(held.GetName().Name, name, StringComparison.OrdinalIgnoreCase)))
+                return null;
+            string candidate = Path.Combine(directory, $"{name}.dll");
+            return File.Exists(candidate) ? FromPath(candidate) : loader.LocatedElsewhere(name, directory);
+        }
     }
 }
 

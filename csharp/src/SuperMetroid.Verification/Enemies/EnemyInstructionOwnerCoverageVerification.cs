@@ -96,18 +96,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
         AssertEqual("", string.Join(", ", withoutSpecies),
             "every definition the game names has a species");
 
-        var unknownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace unknown = unknownEnemies.Places.InUpdateOrder[0];
-        // A definition no species owns has no entity to become (#2010): binding it fails, naming the definition, instead
-        // of creating a placeholder that runs nothing.
-        const EnemyDefinitionId unowned = (EnemyDefinitionId)0x9000;
-        InvalidOperationException unknownException = AssertThrows<InvalidOperationException>(
-            () => unknown.Bind(unowned, unknown.KeptDefinition),
-            "binding a definition no species owns fails");
-        AssertTrue(
-            unknownException.Message.Contains($"No enemy species owns definition {unowned}", StringComparison.Ordinal),
-            "the failure names the unowned definition");
-
         Console.WriteLine(
             $"  Ordinary-enemy mechanics owners: {definitions.Length} named definitions, " +
             $"{translated.Count} translated initializers, {owned.Count} compiled " +

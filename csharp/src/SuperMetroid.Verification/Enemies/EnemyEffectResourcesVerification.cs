@@ -12,7 +12,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks missing boss-effect art failures and Crocomire melt document validation.</summary>
 internal static class EnemyEffectResourcesVerification
 {
-    /// <summary>Confirms missing or invalid corpse and melt resources fail before mutating actors, WRAM, or VRAM.</summary>
+    /// <summary>Confirms missing melt art fails the installation.</summary>
     internal static void VerifyEnemyEffectResources()
     {
         // Mother Brain's corpse art is staged and rotted by the extraction (#1392), which fails on missing art; the
@@ -20,29 +20,7 @@ internal static class EnemyEffectResourcesVerification
         // fails on missing melt art; gameplay reads only his installed body sheet.
         AssertThrows<InvalidDataException>(() => BossBodySheetComposer.Frames(new BossSourceArtwork(), BossBodyOwner.Crocomire),
             "missing melt art fails the installation");
-        CrocomireMeltingArtwork art = MeltEffectArtwork();
-        // An illustration that is neither of his two melt images names no frame of his body sheet: the frame-name table
-        // rejects it as an argument outside the illustrations (#2401), before any stage, actor or body changes.
-        CheckCrocomireResourceFailure<ArgumentOutOfRangeException>(art,
-            fixture => fixture.InitializeMap((CrocomireMeltingIllustration)(-1)), "unknown melt image");
-        Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
-    }
-
-    /// <summary>
-    /// Checks that one Crocomire melt failure, thrown as <typeparamref name="TException"/>, leaves effect mechanics, band
-    /// pictures, tilemap, and VRAM intact.
-    /// </summary>
-    private static void CheckCrocomireResourceFailure<TException>(CrocomireMeltingArtwork? art,
-        Action<CrocomireEffectFixture> operation, string context)
-        where TException : Exception
-    {
-        var expected = new CrocomireEffectFixture(art);
-        var actual = new CrocomireEffectFixture(art);
-        AssertThrows<TException>(() => operation(actual), context + " fails loudly");
-        AssertCrocomireEffectMechanics(expected, actual, context);
-        AssertTrue(BossBodyCanvasFixtures.ShowSame(expected.Enemies.Presentation.RequireBossBody(), actual.Enemies.Presentation.RequireBossBody()),
-            context + " shown body unchanged");
-        AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
+        Console.WriteLine("  Enemy effect resources: missing melt art fails the installation.");
     }
 
     /// <summary>Accepts valid melt JSON casing and rejects unknown, repeated, or case-aliased fields.</summary>

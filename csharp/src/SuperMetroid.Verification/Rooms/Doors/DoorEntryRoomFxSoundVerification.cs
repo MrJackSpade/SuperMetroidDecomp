@@ -76,7 +76,8 @@ internal static class DoorEntryRoomFxSoundVerification
         AssertTrue(selected, "Rising Tide has an exit");
         var audio = game.AudioForVerification;
         SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
         game.Step(0);
 
         AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,

@@ -751,7 +751,8 @@ internal static class RidleyFullMovieVerification
         FixedCoordinate xFixed = samus.Kinematics.Position.X, yFixed = samus.Kinematics.Position.Y;
         game.AdoptRuntime(runtime);
         global::SuperMetroid.Core.PrivateState.Set(game.Session, "LastAudioRoomState", (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State));
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
         AssertEqual(0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");

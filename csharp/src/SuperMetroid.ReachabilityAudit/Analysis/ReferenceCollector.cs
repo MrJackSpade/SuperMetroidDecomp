@@ -22,14 +22,76 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     /// <summary>Every repository symbol referenced anywhere, reachable or not.</summary>
     public HashSet<string> Referenced { get; } = [];
 
-    /// <summary>Walks repository source trees and records each declaration's explicit and implicit symbol uses.</summary>
+    /// <summary>
+    /// Walks repository source trees and the trees the project's source generators wrote (#2614), and records each
+    /// declaration's explicit and implicit symbol uses. Generated code is owned by the repository declaration it was
+    /// generated into (<see cref="SymbolIdentity.GeneratedOwnerKey"/>), so what it uses is reached when that declaration is.
+    /// </summary>
     public void Collect(Project project, Compilation compilation)
     {
-        foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
+        foreach (var tree in compilation.SyntaxTrees.Where(tree => identity.IsRepositorySource(tree) || identity.IsGenerated(tree)))
         {
+            bool generated = identity.IsGenerated(tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
-                Visit(project, SemanticModels.At(compilation, tree, node), node);
+            {
+                var model = SemanticModels.At(compilation, tree, node);
+                if (generated)
+                    VisitGeneratedDeclaration(project, model, node);
+                Visit(project, model, node);
+            }
         }
+    }
+
+    /// <summary>
+    /// A member generated code declares overriding a repository member or implementing one explicitly needs that member
+    /// to compile, whoever calls it: the member it was generated into references it (#2614).
+    /// </summary>
+    private void VisitGeneratedDeclaration(Project project, SemanticModel model, SyntaxNode node)
+    {
+        if (node is not (BaseMethodDeclarationSyntax or BasePropertyDeclarationSyntax) || model.GetDeclaredSymbol(node) is not { } declared ||
+            OwnerKey(project, model, node.ChildNodes().FirstOrDefault() ?? node) is not { } owner)
+            return;
+        IEnumerable<ISymbol?> needed = declared switch
+        {
+            IMethodSymbol method => [method.OverriddenMethod, .. method.ExplicitInterfaceImplementations],
+            IPropertySymbol property => [property.OverriddenProperty, .. property.ExplicitInterfaceImplementations],
+            IEventSymbol @event => [@event.OverriddenEvent, .. @event.ExplicitInterfaceImplementations],
+            _ => [],
+        };
+        foreach (ISymbol? member in needed)
+        {
+            if (identity.Key(member) is not { } memberKey)
+                continue;
+            Referenced.Add(memberKey);
+            graph.Edge(owner, memberKey);
+        }
+    }
+
+    /// <summary>
+    /// The key a reference from <paramref name="owner"/> to <paramref name="target"/> reaches, or none when it reaches no
+    /// declaration (#2614). A symbol only generated code declares stands for the declaration owning it
+    /// (<see cref="SymbolIdentity.GeneratedOwnerKey"/>). Code a generator derives from a declaration does not use what it
+    /// is derived from, which it would lose with it: the members generated into a repository type
+    /// (<paramref name="generatedInto"/>) writing, restoring and listing the type's own fields, properties and catalog
+    /// members do not use the type or its members, while what they name elsewhere (the state contracts, the runtime's
+    /// helpers, another type or its members) they use: a type they name only because a member they derive from is
+    /// declared with it is kept until that member goes, and goes in the next round. A type only generated code declares
+    /// lists what its assembly declares (a
+    /// registry naming every type and enum of its assembly, through the members generated into each type): naming a
+    /// repository type, or a member generated into one, is not using it.
+    /// </summary>
+    private string? TargetKey(string owner, ISymbol? target, INamedTypeSymbol? generatedInto)
+    {
+        if (generatedInto is not null && SymbolIdentity.Normalize(target) is { } normalized &&
+            WithinType(normalized, generatedInto))
+            return null;
+        string? key = identity.Key(target);
+        string? generatedKey = key is null ? identity.GeneratedOwnerKey(target) : null;
+        if (!owner.StartsWith(SymbolIdentity.GeneratedKeyPrefix, StringComparison.Ordinal))
+            return key ?? generatedKey;
+        if (key is not null)
+            return SymbolIdentity.Normalize(target) is INamedTypeSymbol ? null : key;
+        return generatedKey is not null && generatedKey.StartsWith(SymbolIdentity.GeneratedKeyPrefix, StringComparison.Ordinal) ? generatedKey : null;
     }
 
     /// <summary>Attributes a syntax node's references to its declaration, including implicit base construction.</summary>
@@ -92,7 +154,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         {
             foreach (string dispatchKey in FrameworkDispatch.CallKeys(target))
                 graph.DispatchCall(owner, dispatchKey);
-            if (identity.Key(target) is not { } targetKey)
+            if (TargetKey(owner, target, GeneratedInto(model, node)) is not { } targetKey)
                 continue;
             Referenced.Add(targetKey);
             graph.Edge(owner, targetKey);
@@ -409,6 +471,31 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         return false;
     }
 
+    /// <summary>
+    /// The repository type the generated code holding <paramref name="node"/> was generated into, the nearest type
+    /// declaration around it when that type is a repository declaration; none outside generated code.
+    /// </summary>
+    private INamedTypeSymbol? GeneratedInto(SemanticModel model, SyntaxNode node) =>
+        identity.IsGenerated(node.SyntaxTree) && node.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault() is { } declaration &&
+        model.GetDeclaredSymbol(declaration) is INamedTypeSymbol type && identity.Key(type) is not null
+            ? type
+            : null;
+
+    /// <summary>Whether <paramref name="symbol"/> is <paramref name="type"/> or is declared inside it.</summary>
+    private static bool WithinType(ISymbol symbol, INamedTypeSymbol type)
+    {
+        for (ISymbol? current = symbol; current is not null; current = current.ContainingType)
+            if (SymbolEqualityComparer.Default.Equals(current.OriginalDefinition, type.OriginalDefinition))
+                return true;
+        return false;
+    }
+
+    /// <summary>
+    /// The key of a declaration a reference is made from: a repository declaration's, or, for one only generated code
+    /// declares, the declaration owning it (<see cref="SymbolIdentity.GeneratedOwnerKey"/>, #2614).
+    /// </summary>
+    private string? DeclarationKey(ISymbol? declared) => identity.Key(declared) ?? identity.GeneratedOwnerKey(declared);
+
     /// <summary>The declaration whose reachability makes this reference happen.</summary>
     private string? OwnerKey(Project project, SemanticModel model, SyntaxNode node)
     {
@@ -419,11 +506,11 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 case GlobalStatementSyntax when model.Compilation.GetEntryPoint(CancellationToken.None) is { } entry:
                     return roots.EntryPointKey(entry, project.Name);
                 case VariableDeclaratorSyntax { Parent.Parent: BaseFieldDeclarationSyntax } field:
-                    return identity.Key(model.GetDeclaredSymbol(field));
+                    return DeclarationKey(model.GetDeclaredSymbol(field));
                 case BaseMethodDeclarationSyntax or PropertyDeclarationSyntax or IndexerDeclarationSyntax
                     or EventDeclarationSyntax or EnumMemberDeclarationSyntax or BaseTypeDeclarationSyntax
                     or DelegateDeclarationSyntax:
-                    return identity.Key(model.GetDeclaredSymbol(ancestor));
+                    return DeclarationKey(model.GetDeclaredSymbol(ancestor));
                 default:
                     break;
             }

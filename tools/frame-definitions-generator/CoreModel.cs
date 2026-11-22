@@ -490,6 +490,8 @@ internal sealed class CoreModel
     /// </summary>
     private Unit? CallerOf(SemanticModel semantic, SyntaxNode node)
     {
+        if (node is ExpressionSyntax expression && ConstructedMember(semantic, expression) is { } constructed)
+            return Unit.Member(constructed);
         foreach (SyntaxNode ancestor in node.Ancestors())
         {
             ISymbol? declared = ancestor switch
@@ -751,6 +753,55 @@ internal sealed class CoreModel
         if (definition.PartialImplementationPart is { } implementation)
             definition = implementation;
         return IsSource(definition) ? definition : null;
+    }
+
+    /// <summary>
+    /// The member of its own type a constructor assigns <paramref name="creation"/>, a projectile behaviour's construction,
+    /// to straight away (<c>Spark = new(…)</c>, an instance field or data property of the constructor's type), or null
+    /// (#2554). Such a construction is the member's code, as a getter building the behaviour on first read was: the code
+    /// reading the member spawns with it and reaches it, and the constructor, which code outside the member's readers runs
+    /// (a combat component the shared enemy composition builds), does not.
+    /// </summary>
+    public ISymbol? ConstructedMember(SemanticModel semantic, ExpressionSyntax creation)
+    {
+        if (creation is not BaseObjectCreationExpressionSyntax
+            || creation.Parent is not AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.SimpleAssignmentExpression } assignment
+            || assignment.Right != creation || assignment.Parent is not ExpressionStatementSyntax
+            || creation.FirstAncestorOrSelf<ConstructorDeclarationSyntax>() is not { } constructorDeclaration
+            || creation.Ancestors().TakeWhile(ancestor => ancestor != constructorDeclaration).Any(ancestor => ancestor is AnonymousFunctionExpressionSyntax or LocalFunctionStatementSyntax)
+            || semantic.GetDeclaredSymbol(constructorDeclaration) is not { IsStatic: false } constructor
+            || semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { ContainingType: var created } || !IsProjectileBehaviour(created))
+        {
+            return null;
+        }
+        ISymbol? member = semantic.GetSymbolInfo(assignment.Left).Symbol switch
+        {
+            IFieldSymbol { IsStatic: false, IsImplicitlyDeclared: false } field when IsSource(field) => field.OriginalDefinition,
+            IPropertySymbol { IsStatic: false } property when NormalizeProperty(property) is { } normalized && IsDataProperty(normalized) => normalized,
+            _ => null,
+        };
+        return member is not null && SymbolEqualityComparer.Default.Equals(member.ContainingType.OriginalDefinition, constructor.ContainingType.OriginalDefinition)
+            ? member
+            : null;
+    }
+
+    /// <summary>The constructions <paramref name="member"/>'s type's constructors assign straight to it (<see cref="ConstructedMember"/>).</summary>
+    public IEnumerable<ExpressionSyntax> ConstructionsAssignedTo(ISymbol member)
+    {
+        foreach (IMethodSymbol constructor in GameConstructors.Of(member.ContainingType))
+        {
+            foreach (SyntaxReference reference in constructor.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
+            {
+                if (reference.GetSyntax() is not ConstructorDeclarationSyntax declaration)
+                    continue;
+                SemanticModel semantic = ModelOf(declaration.SyntaxTree);
+                foreach (BaseObjectCreationExpressionSyntax creation in declaration.DescendantNodes().OfType<BaseObjectCreationExpressionSyntax>())
+                {
+                    if (SymbolEqualityComparer.Default.Equals(ConstructedMember(semantic, creation), member))
+                        yield return creation;
+                }
+            }
+        }
     }
 
     /// <summary>Whether <paramref name="property"/> is data: an auto-property or one with an initializer.</summary>

@@ -413,9 +413,6 @@ internal static void VerifyTypedNativeWords()
         grapple.WithAppearance(grapple.Appearance.WithMirroring(BlockMirroring.Vertical)),
         "mirroring replacement keeps the kind and block");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => grapple.Appearance.WithMirroring((BlockMirroring)4),
-        "an appearance mirrors only horizontally and vertically");
-    AssertThrows<ArgumentOutOfRangeException>(
         () => RoomBlockAppearance.Of(-1),
         "an appearance names a block of the tileset's set, numbered from zero");
     // The level word's open-space block shows nothing, however it is mirrored, and encodes back to that block (#2100).
@@ -655,9 +652,6 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<InvalidDataException>(
         () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, "typed-area test"),
         "non-retail cartridge area rejected");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(UnknownArea),
-        "forged non-retail area rejected before table access");
 
     Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
 }

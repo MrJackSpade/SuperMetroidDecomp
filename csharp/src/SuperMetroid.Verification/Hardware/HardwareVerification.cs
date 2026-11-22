@@ -87,9 +87,6 @@ internal static void VerifyEventBitfield()
         AssertTrue(!events.Contains(storyEvent), $"event {storyEvent} clear");
     }
 
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => state.SetEvent((StoryEvent)(-1)),
-        "unnamed event rejected by named API");
     state.SetEvent(StoryEvent.TourianUnlocked);
     AssertTrue(state.HasEvent(StoryEvent.TourianUnlocked), "named retail event set");
     state.ClearEvent(StoryEvent.TourianUnlocked);

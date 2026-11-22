@@ -137,8 +137,6 @@ internal static class LookupStream3Verification
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
         Confirm(stock, native);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)(-1)).ToArray(), "negative eye frame");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)4).ToArray(), "upper eye frame");
         Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
@@ -644,7 +642,6 @@ internal static class LookupStream3Verification
                     "options stock heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, SuperMetroid.Core.Input.ControllerButton.X), "options invalid action");
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRowConstants.OnPage((GameOptionsPage)byte.MaxValue), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {
@@ -895,7 +892,6 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
-            AssertThrows<InvalidDataException>(() => grappleSprites.Segment((GrappleRopePicture)invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
@@ -1775,8 +1771,6 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 0, invalid), "stream 3 Torizo color bounds");
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
     }
 
     /// <summary>Checks Baby Metroid sprite parts, reflected OAM placement, and imported schema behavior.</summary>

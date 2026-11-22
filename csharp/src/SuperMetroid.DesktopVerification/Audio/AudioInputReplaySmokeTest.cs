@@ -38,7 +38,7 @@ public static class AudioInputReplaySmokeTest
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
+            DesktopAccess.LoadAudioClips(), recording.GameOptions.ToAssists());
 
         int framesExecuted = 0;
         bool projectileFired = false;
@@ -149,7 +149,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
 
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
+            DesktopAccess.LoadAudioClips(), recording.GameOptions.ToAssists());
         for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
         {
             try
@@ -190,7 +190,7 @@ public static class AudioInputReplaySmokeTest
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(recording.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), recording.GameOptions.ToAssists());
+            DesktopAccess.LoadAudioClips(), recording.GameOptions.ToAssists());
         var samples = new short[AudioSession.PcmSamplesPerFrame];
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;

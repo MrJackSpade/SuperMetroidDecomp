@@ -23,20 +23,19 @@ internal static class HostIndependentAudioAcknowledgementsVerification
 
     /// <summary>
     /// The SFX handshake must not depend on whether a host renders audio (#1303). Two
-    /// identical Landing Site sessions enter the same door with library 2 already waiting
-    /// for an echo. The silent subject has no audio catalog and no host audio calls (audio
-    /// disabled or no device); the playing subject binds the catalog and copies its PCM every
-    /// update (audio enabled). Every frame must agree. Backends publish no acknowledgements
+    /// identical Landing Site sessions, each mixing the installed clips as every game does, enter
+    /// the same door with library 2 already waiting for an echo. The silent subject's host makes
+    /// no audio calls (audio disabled or no device); the playing subject's host copies its PCM
+    /// every update (audio enabled). Every frame must agree. Backends publish no acknowledgements
     /// (#1304), so the oracle for the playing subject's PCM is a separate backend driven only by
-    /// the silent subject's published audio events: the events a session publishes without
-    /// synthesis must reproduce the synthesizing session's sound exactly.
+    /// the silent subject's published audio events: the events a session publishes must reproduce
+    /// the sound the copying host plays exactly.
     /// </summary>
     internal static void VerifyHostIndependentAudioAcknowledgements()
     {
-        var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-        var oracle = new ClipAudioBackend(assets);
-        SuperMetroidGame silent = CreateLandingSiteSession(new SuperMetroid.Core.Audio.GameAudioOutput.Muted());
-        SuperMetroidGame playing = CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(assets));
+        var oracle = new ClipAudioBackend(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AudioClips);
+        SuperMetroidGame silent = CreateLandingSiteSession();
+        SuperMetroidGame playing = CreateLandingSiteSession();
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
@@ -88,11 +87,11 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     }
 
     /// <summary>Builds a retail gameplay session standing in the Landing Site with a reset audio queue.</summary>
-    private static SuperMetroidGame CreateLandingSiteSession(SuperMetroid.Core.Audio.GameAudioOutput audioOutput)
+    private static SuperMetroidGame CreateLandingSiteSession()
     {
         var random = new SharedRandom();
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(
-            new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), audioOutput,
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(
+            new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
             renderGameplayFrames: false, random: random);
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);

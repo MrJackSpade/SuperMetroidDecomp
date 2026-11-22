@@ -40,8 +40,8 @@ internal sealed class MovieReplayVideo : IMovieRecorder, IDisposable
     }
 
     /// <summary>The synthesized audio a recorded game mixes, built in before its first update.</summary>
-    public SuperMetroid.Core.Audio.GameAudioOutput Audio { get; } = SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(
-        SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips().Clips);
+    public SuperMetroid.Core.Audio.ClipAudioLibrary Audio { get; } = 
+        SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.LoadAudioClips().Clips;
 
     /// <summary>Runs one production update and appends its picture and sound.</summary>
     internal FrontendFrame Step(SuperMetroidGame game, ControllerButton input)

@@ -23,7 +23,7 @@ public static class PauseAudioSmokeTest
         SaveSlotStore saves = SeedCrateriaSave();
         // The game draws the title and file screens from installed artwork and mixes the installed clips, as hosts build it.
         var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(
-            saves, SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(RepositoryInstallation.Installation.LoadAudioClips().Clips),
+            saves, RepositoryInstallation.Installation.LoadAudioClips().Clips,
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true });
         var samples = new short[AudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;

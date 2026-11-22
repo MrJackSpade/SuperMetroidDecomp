@@ -53,17 +53,17 @@ public sealed partial class SuperMetroidGame
     /// <param name="hostServices">The compatibility services and display policy: <see cref="SuperMetroidGameHostServices.Default"/>
     /// for a host on the game's own timing, or the timing a recorded session ran with.</param>
     /// <param name="random">The session's random number generator, which the frontend and every gameplay runtime share.</param>
-    /// <param name="audioOutput">What the session's audio produces for its host.</param>
+    /// <param name="audioClips">The installed clips the session's audio mixes for its host.</param>
     /// <param name="artwork">The installed catalogs the game draws from.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         GameplayAssists? assists,
         SuperMetroidGameHostServices hostServices,
         SharedRandom random,
-        GameAudioOutput audioOutput,
+        ClipAudioLibrary audioClips,
         GameArtwork artwork)
     {
-        Session = new FrontendSession(saves, assists, hostServices, random, audioOutput, artwork);
+        Session = new FrontendSession(saves, assists, hostServices, random, audioClips, artwork);
     }
 
     /// <summary>The session's saves, which the host persists after <see cref="SavesChanged"/>.</summary>
@@ -81,12 +81,12 @@ public sealed partial class SuperMetroidGame
 
     /// <summary>
     /// Copies the last update's interleaved stereo samples (<see cref="AudioSession.PcmSamplesPerFrame"/>) into host-owned
-    /// storage: the game's sound mixed from the clips it was built with, or silence from a muted game.
+    /// storage: the game's sound mixed from the clips it was built with.
     /// </summary>
     /// <remarks>
     /// The output is presentation only. Each update advances the session's sound acceptance clock and its sound-effect
-    /// acknowledgements whatever the output, so gameplay is identical with audio enabled, disabled, or without an output
-    /// device.
+    /// acknowledgements whether or not a host copies the sound, so gameplay is identical with audio enabled, disabled, or
+    /// without an output device.
     /// </remarks>
     /// <exception cref="ArgumentException"><paramref name="destination"/> holds fewer than one update's samples.</exception>
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);

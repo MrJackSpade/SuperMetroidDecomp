@@ -44,7 +44,7 @@ internal static class SimulationProfile
     private static ProfileResult Measure(RoomDefinition room, bool paused)
     {
         var game = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-            SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(DesktopAccess.LoadAudioClips()), new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
+            DesktopAccess.LoadAudioClips(), new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
         long nonzeroPcmSamples = 0;
         SimulationStepCost Step(ControllerButton input)

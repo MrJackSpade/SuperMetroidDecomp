@@ -25,7 +25,7 @@ public static partial class GameSessionComposer
     {
         Ensure.NotNull(content);
         var game = new SuperMetroidGame(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom(),
-            GameAudioOutput.MixedFrom(content.AudioClips), content.Artwork);
+            content.AudioClips, content.Artwork);
         if (storage is not null)
             game.SavesChanged += () => storage.Persist(game.Saves);
         return game;

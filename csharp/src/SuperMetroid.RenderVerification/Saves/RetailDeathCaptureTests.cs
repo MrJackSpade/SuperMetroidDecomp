@@ -29,8 +29,8 @@ internal static class RetailDeathCaptureTests
     {
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
         var audioAssets = DesktopAccess.LoadAudioClips();
-        var legacy = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
-        var captured = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), SuperMetroid.Core.Audio.GameAudioOutput.MixedFrom(audioAssets), options);
+        var legacy = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), audioAssets, options);
+        var captured = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), audioAssets, options);
         var legacyAudio = new short[AudioSession.PcmSamplesPerFrame];
         var capturedAudio = new short[AudioSession.PcmSamplesPerFrame];
         long sequence = 0;

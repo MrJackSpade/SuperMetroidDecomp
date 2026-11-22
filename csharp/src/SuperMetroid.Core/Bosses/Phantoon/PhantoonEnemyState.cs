@@ -28,7 +28,7 @@ public sealed partial class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossB
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
-        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon, this);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon);
         CarriedParts = [MouthPart, TentaclesPart, EyePart];
     }
 

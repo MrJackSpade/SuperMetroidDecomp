@@ -39,7 +39,8 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     direction,
-                    RoomObjectBlock: new(0x20, 0x08)));
+                    RoomObjectBlock: new(0x20, 0x08),
+                    Spawner: new ProjectilesSpawnShards(enemies.MotherBrainBehavior.Projectiles)));
 
                 EnemyProjectile shard =
                     enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && !before.Contains(projectile));
@@ -106,4 +107,13 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86ce41 and < 0x86ce6d,
                 address => $"Mother Brain glass shard attempted migrated definition read ${address:X6}.");
+
+    /// <summary>The shard spawner the glass's room object would hand a shard: Mother Brain's projectiles.</summary>
+    /// <param name="projectiles">Mother Brain's projectiles, which spawn the shard.</param>
+    private sealed class ProjectilesSpawnShards(MotherBrainProjectiles projectiles) : IMotherBrainGlassShardSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) =>
+            projectiles.SpawnMotherBrainGlassProjectile(request);
+    }
 }

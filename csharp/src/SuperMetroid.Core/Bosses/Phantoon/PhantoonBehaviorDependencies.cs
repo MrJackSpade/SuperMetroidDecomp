@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
@@ -16,9 +15,6 @@ internal sealed partial record PhantoonBehaviorDependencies
     /// <summary>The enemy projectiles Phantoon's fight fires and spawns.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>The room's earthquake, which Phantoon's fight starts.</summary>
-    public required RoomEarthquake Earthquake { get; init; }
-
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
@@ -28,8 +24,11 @@ internal sealed partial record PhantoonBehaviorDependencies
     /// <summary>The enemy update's random number, frame counter and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>The enemies' touches, shots and bombs with Samus, which Phantoon's fight reacts to.</summary>
-    public required EnemyCollision Collision { get; init; }
+    /// <summary>
+    /// His touch, his hits and his flames' drops, built by the room's composition from the room's earthquake, sound
+    /// requests, touches and shots and deaths alone, as Crocomire's encounter access is.
+    /// </summary>
+    public required PhantoonCombat Combat { get; init; }
 
     /// <summary>The enemies' death explosions and drops, which Phantoon's fight spawns.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }

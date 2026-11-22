@@ -108,9 +108,10 @@ internal static class RoomObjectFixtures
 
     /// <summary>
     /// Where a fixture's thrown projectiles would spawn: a fixture has no enemy projectiles, so a thrown projectile that
-    /// spawns fails there; checks read the step's thrown requests instead.
+    /// spawns fails there; checks read the step's thrown requests instead, and a check that sets a thrower up by hand hands
+    /// it these.
     /// </summary>
-    private static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
+    internal static readonly RoomObjectThrownProjectileSpawners UnspawnedThrows = new(new NoEnemyProjectiles(), new NoEnemyProjectiles());
 
     /// <summary>A fixture's absent enemy projectiles, which fail any thrown projectile's spawn.</summary>
     private sealed class NoEnemyProjectiles : SuperMetroid.Core.Bosses.MotherBrain.IMotherBrainGlassShardSpawner,

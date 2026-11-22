@@ -38,7 +38,7 @@ public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.Bo
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
-        BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain, this);
+        BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain);
     }
 
     /// <summary>

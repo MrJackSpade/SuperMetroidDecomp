@@ -32,7 +32,8 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             enemies.TorizoBehavior.Attacks.SpawnBombTorizoStatueBreakingProjectile(
                 new BombTorizoStatueProjectileRequest(
                     index,
-                    RoomObjectBlock: new(10, 20)));
+                    RoomObjectBlock: new(10, 20),
+                    Spawner: new AttacksSpawnFragments(enemies.TorizoBehavior.Attacks)));
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive) ??
                 throw new InvalidDataException(
                     $"Bomb Torizo statue fragment {index} failed to allocate.");
@@ -97,4 +98,13 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
     private static CartridgeReadGuard NewBombTorizoStatueFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86a7ab and < 0x86a81b,
             address => $"Bomb Torizo statue fragment attempted migrated table read ${address:X6}.");
+
+    /// <summary>The fragment spawner the hand's room object would hand a fragment: the room's Torizo attacks.</summary>
+    /// <param name="attacks">The Torizo attacks that spawn the fragment.</param>
+    private sealed class AttacksSpawnFragments(TorizoAttacks attacks) : IBombTorizoStatueFragmentSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
+            attacks.SpawnBombTorizoStatueBreakingProjectile(request);
+    }
 }

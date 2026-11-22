@@ -171,7 +171,8 @@ internal sealed partial class RoomEnemySpecies
         var polypBehavior = new PolypBehavior(enemies.Room, enemies.Projectiles);
         var platformsBehavior = new PlatformsBehavior(enemies.Terrain);
         var pipeBugsBehavior = new PipeBugsBehavior(enemies.Places);
-        var phantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { PartOffers = partOffers, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops , BossArtwork = enemies.BossArtworkBinding, PassEvents = enemies.PassEvents, Encounters = enemies.BossEncounters, Places = enemies.Places });
+        var phantoonCombat = new PhantoonCombat(enemies.Room, enemies.Earthquake, enemies.Audio, enemies.Collision, enemies.DeathsAndDrops);
+        var phantoonBehavior = new PhantoonBehavior(new PhantoonBehaviorDependencies { PartOffers = partOffers, Room = enemies.Room, Projectiles = enemies.Projectiles, Audio = enemies.Audio, Presentation = enemies.Presentation, FrameContext = enemies.FrameContext, Combat = phantoonCombat, DeathsAndDrops = enemies.DeathsAndDrops , BossArtwork = enemies.BossArtworkBinding, PassEvents = enemies.PassEvents, Encounters = enemies.BossEncounters, Places = enemies.Places });
         var owtchBehavior = new OwtchBehavior(enemies.Room);
         var oldTourianEscapeShaftWallBehavior = new OldTourianEscapeShaftWallBehavior(enemies.Projectiles, enemies.Audio);
         var nuclearWaffleBehavior = new NuclearWaffleBehavior(enemies.Projectiles, enemies.EffectActors, enemies.Audio);
@@ -193,7 +194,10 @@ internal sealed partial class RoomEnemySpecies
         var magdolliteBehavior = new MagdolliteBehavior(enemies.Room, enemies.Projectiles, enemies.Places, enemies.Collision, enemies.DeathsAndDrops, enemies.Audio, partOffers);
         var holtzBehavior = new HoltzBehavior(enemies.Room, enemies.Terrain, enemies.Places, enemies.Audio, partOffers);
         var kzanBehavior = new KzanBehavior(enemies.Places, enemies.Audio);
-        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { Places = enemies.Places, PartOffers = partOffers, PassEvents = enemies.PassEvents, Room = enemies.Room, Terrain = enemies.Terrain, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Audio = enemies.Audio, EffectActors = enemies.EffectActors, Presentation = enemies.BossPresentation, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance  });
+        var kraidAccess = new KraidEncounterAccess(enemies.Room, enemies.Audio);
+        var kraidProjectiles = new KraidProjectiles(enemies.Room, enemies.Terrain, enemies.Collision, enemies.DeathsAndDrops, kraidAccess);
+        var kraidCombat = new KraidCombat(enemies.Projectiles, enemies.Audio, enemies.EffectActors, enemies.Collision);
+        var kraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { Places = enemies.Places, PartOffers = partOffers, PassEvents = enemies.PassEvents, Room = enemies.Room, Projectiles = enemies.Projectiles, Earthquake = enemies.Earthquake, Presentation = enemies.BossPresentation, DeathsAndDrops = enemies.DeathsAndDrops, CameraDistance = enemies.CameraDistance, Access = kraidAccess, KraidProjectiles = kraidProjectiles, Combat = kraidCombat });
         var kiHunterBehavior = new KiHunterBehavior(enemies.Room, enemies.Terrain, enemies.Projectiles, enemies.Audio, enemies.Places, partOffers);
         var kagoBehavior = new KagoBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.DeathsAndDrops, enemies.RoomStatus, enemies.Audio);
         var hoppersBehavior = new HoppersBehavior(enemies.Room, enemies.Terrain, enemies.Audio);

@@ -94,7 +94,7 @@ internal sealed partial class MotherBrainBody
         });
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
-        _presentation.AttachBossBody(state.BodyParts);
+        _presentation.AttachBossBody(new PlacedBossBody(state.BodyParts, state));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _passEvents.Publish(new MotherBrainAcidChange(MotherBrainRoomFxDefinitions.AcidRises));

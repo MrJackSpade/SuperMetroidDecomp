@@ -70,7 +70,7 @@ internal sealed partial class RoomObjectFramePhase
         IReadOnlyList<RoomObjectProjectileRequest> thrown =
             room.RoomObjects.Untouched.Step(room.LevelData, FrameInputs(GameplayAction.None, room, samus));
         EnemyRoomEffects.ApplyPendingDownwardGateProjectileRequests(EnemyRoomEffectSite.Of(room, samus));
-        SpawnThrownProjectiles(thrown, room.RoomObjects.Thrown);
+        SpawnThrownProjectiles(thrown);
     }
 
     /// <summary>The room objects' inputs for a step with <paramref name="newlyPressed"/> newly pressed.</summary>
@@ -88,13 +88,13 @@ internal sealed partial class RoomObjectFramePhase
 
     /// <summary>
     /// Spawns the enemy projectiles the step's room objects threw, in the order they threw them, each through the spawner
-    /// of its kind among <paramref name="spawners"/>: Mother Brain's glass's shards and the Bomb Torizo statue hand's
-    /// fragments. The glass and the hand never share a room, so one step throws only one of the two kinds.
+    /// its thrower gave it: Mother Brain's glass's shards and the Bomb Torizo statue hand's fragments. The glass and the
+    /// hand never share a room, so one step throws only one of the two kinds.
     /// </summary>
-    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown, RoomObjectThrownProjectileSpawners spawners)
+    private static void SpawnThrownProjectiles(IReadOnlyList<RoomObjectProjectileRequest> thrown)
     {
         foreach (RoomObjectProjectileRequest projectile in thrown)
-            projectile.Spawn(spawners);
+            projectile.Spawn();
     }
 
     /// <summary>Runs the ordinary room-object phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
@@ -121,7 +121,7 @@ internal sealed partial class RoomObjectFramePhase
             foreach (StationActivationEvent station in step.StationActivations)
                 _waitingMessages.Enqueue(new WaitingMessage.Station(station, opening));
             OpenNextMessage();
-            SpawnThrownProjectiles(step.ThrownProjectiles, room.RoomObjects.Thrown);
+            SpawnThrownProjectiles(step.ThrownProjectiles);
         }
     }
 

@@ -11,6 +11,6 @@ internal static class EnemyPresentationAccess
         /// <summary>The body the room's boss attached, whose parts show its frames.</summary>
         /// <exception cref="InvalidOperationException">No boss has attached a body of parts.</exception>
         internal BossBodyParts RequireBossBody() =>
-            self.BossBodyDisplay as BossBodyParts ?? throw new InvalidOperationException("No boss has attached its body of parts.");
+            (self.BossBodyDisplay as PlacedBossBody)?.Parts ?? throw new InvalidOperationException("No boss has attached its body of parts.");
     }
 }

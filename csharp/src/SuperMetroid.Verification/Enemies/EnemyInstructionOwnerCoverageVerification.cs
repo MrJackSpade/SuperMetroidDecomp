@@ -20,6 +20,9 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Bosses.Ridley;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>Audits instruction ownership for every named retail enemy definition and population variant.</summary>
 internal static class EnemyInstructionOwnerCoverageVerification
@@ -46,12 +49,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
         // A population that places no enemy sets none up.
         RoomEnemyPopulationDefinition[] populations = [.. ReadRetailPopulations(rom).Where(population => population.Placements.Length > 0)];
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
-        // A definition no room places is one only code spawns, joining the encounter of the enemy that spawns it: the room's
-        // species registry places none of them from a population, so no population record sets one up.
-        HashSet<EnemyDefinitionId> placed = [.. populations.SelectMany(population => population.Placements.ToArray()).Select(record => record.DefinitionId)];
-        EnemyDefinitionId[] unplaced = [.. definitions.Where(definition => !placed.Contains(definition))];
-        AssertEqual(string.Join(", ", CodeSpawnedDefinitions.Order()), string.Join(", ", unplaced.Order()),
-            "the named definitions no room places are the ones only code spawns");
         // The shared installed fixtures every room's enemy system and Samus are built from load here, as timed shared
         // fixture loads, so the workers below only read them.
         _ = InstalledFixtures.EnemyOverreads;
@@ -64,10 +61,16 @@ internal static class EnemyInstructionOwnerCoverageVerification
         // terrain, whose blocks an enemy's setup reads (an Alcoon lands on its floor), after the room's objects, which an
         // enemy's setup reaches (Mother Brain's glass, Bomb Torizo's hand), each part with the body placed before it. Each
         // room loads in systems of its own, the rooms across the machine's cores (#1757), each writing only its own records'
-        // outcomes, which are gathered in population order once every room has loaded.
+        // outcomes, which are gathered in population order once every room has loaded. A definition no room places is one
+        // only code spawns, joining the encounter of the enemy that spawns it, which the room's species registry refuses to
+        // place from a population: each is set up as its spawner's encounter spawns it, in a room of its own that places the
+        // spawner (#2554), whose outcomes follow the populations'.
         Dictionary<RoomEnemyPopulationDefinition, SelectedRoom> rooms = RoomsPlacing();
-        var audits = new RecordOutcome[populations.Length][];
-        ParallelSweep.For(0, audits.Length, index => audits[index] = AuditPopulation(rooms[populations[index]]));
+        var audits = new RecordOutcome[populations.Length + SpawningEncounters.Length][];
+        ParallelSweep.For(0, audits.Length, index => audits[index] = index < populations.Length
+            ? AuditPopulation(rooms[populations[index]])
+            : AuditSpawningEncounter(SpawningEncounters[index - populations.Length], populations, rooms));
+        int spawnedOutcomes = audits.Skip(populations.Length).Sum(audit => audit.Length);
 
         HashSet<EnemyDefinitionId> named = [.. definitions];
         var audited = new HashSet<EnemyDefinitionId>();
@@ -87,8 +90,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
         AssertEqual(150, definitions.Length,
             "owner audit enumerates every named retail enemy definition a room places or code spawns, the five Ceres doors and walls included");
-        AssertEqual(definitions.Length - unplaced.Length, audited.Count,
-            "owner audit sets up every named retail enemy definition a room places");
+        AssertEqual("", string.Join(", ", definitions.Where(definition => !audited.Contains(definition))),
+            "owner audit sets up every named retail enemy definition, as a room places it or its spawner's encounter spawns it");
         AssertTrue(owned.Length > 90,
             "owner audit reaches the translated instruction-processing surface");
         // Each entry names its definition by identity (#2554), no longer by a header address.
@@ -96,9 +99,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "every translated instruction-processing enemy runs a typed animation");
 
         Console.WriteLine(
-            $"  Ordinary-enemy mechanics owners: {definitions.Length - unplaced.Length} of {definitions.Length} named definitions set up through " +
-            $"{populations.Length} retail populations ({unplaced.Length} only code spawns), {owned.Length} compiled instruction-processing owners, " +
-            "each running a typed animation.");
+            $"  Ordinary-enemy mechanics owners: {audited.Count} of {definitions.Length} named definitions set up through " +
+            $"{populations.Length} retail populations and {SpawningEncounters.Length} spawning encounters ({spawnedOutcomes} spawned enemies), " +
+            $"{owned.Length} compiled instruction-processing owners, each running a typed animation.");
     }
 
     /// <summary>What setting one population record's enemy up found.</summary>
@@ -118,6 +121,114 @@ internal static class EnemyInstructionOwnerCoverageVerification
     /// each population record's enemy after its setup, in the place the load put it.
     /// </summary>
     private static RecordOutcome[] AuditPopulation(SelectedRoom room)
+    {
+        LoadedRoom loaded = LoadRoom(room);
+        RoomEnemyPlacement[] records = room.State.EnemyPopulation.Placements.ToArray();
+        var outcomes = new RecordOutcome[records.Length];
+        for (int index = 0; index < records.Length; index++)
+        {
+            RoomEnemyPlace place = loaded.Places[index];
+            AssertEqual(records[index].DefinitionId, place.HeldOccupant().DefinitionId, $"the load places record {index}'s enemy in its own place");
+            outcomes[index] = OutcomeOf(place);
+        }
+        return outcomes;
+    }
+
+    /// <summary>
+    /// What setting <paramref name="place"/>'s enemy up found. A place still marked deleted after its enemy's setup (the n00b
+    /// tube crack's palette-only record) is emptied by the scheduler before any AI or instruction frame.
+    /// </summary>
+    private static RecordOutcome OutcomeOf(RoomEnemyPlace place)
+    {
+        bool processesInstructions = place.Processing.HasAny(EnemyProcessing.Animates) && !place.Presence.HasAny(EnemyPresence.Deleted);
+        return new RecordOutcome(place.HeldOccupant().DefinitionId, processesInstructions, place.Entity is IEnemyTypedAnimation);
+    }
+
+    /// <summary>
+    /// An encounter that spawns named definitions no room places, run on the enemy that spawns them.
+    /// </summary>
+    /// <param name="Spawner">The enemy whose encounter spawns them, which a retail room places.</param>
+    /// <param name="Spawned">The definitions the encounter spawns.</param>
+    /// <param name="Run">Runs the encounter on the spawner's place in its loaded room until it has spawned them.</param>
+    private sealed record SpawningEncounter(EnemyDefinitionId Spawner, EnemyDefinitionId[] Spawned, Action<LoadedRoom, RoomEnemyPlace> Run);
+
+    /// <summary>
+    /// The encounters that spawn the named definitions no room places, each as the game runs it: Ridley's death breaks him
+    /// into his breakup's pieces on the last update of its explosions, Ceres Ridley's retreat places his getaway chamber's
+    /// walls as its delay runs out before he hands the room to the getaway, and Mother Brain's fake death drops her first
+    /// falling tube before her late fight's final beam brings in the Baby.
+    /// </summary>
+    private static readonly SpawningEncounter[] SpawningEncounters =
+    [
+        new(EnemyDefinitionId.Ridley, [EnemyDefinitionId.RidleyBreakupPiece], RunRidleyDeath),
+        new(EnemyDefinitionId.RidleyCeres, [EnemyDefinitionId.CeresGetawayChamberWall], RunCeresRidleyGetaway),
+        new(EnemyDefinitionId.MotherBrainBody, [EnemyDefinitionId.MotherBrainTubes, EnemyDefinitionId.BabyMetroidCutscene], RunMotherBrainCollapseAndLateFight),
+    ];
+
+    /// <summary>
+    /// Loads the first retail room that places <paramref name="encounter"/>'s spawner, as the room's load does, runs the
+    /// encounter on the spawner, and reads each enemy it spawned after its setup, in the place the spawn put it.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No retail room places the spawner.</exception>
+    private static RecordOutcome[] AuditSpawningEncounter(SpawningEncounter encounter, RoomEnemyPopulationDefinition[] populations,
+        Dictionary<RoomEnemyPopulationDefinition, SelectedRoom> rooms)
+    {
+        int Spawner(RoomEnemyPopulationDefinition population) =>
+            Array.FindIndex(population.Placements.ToArray(), record => record.DefinitionId == encounter.Spawner);
+        RoomEnemyPopulationDefinition placing = populations.FirstOrDefault(population => Spawner(population) >= 0)
+            ?? throw new InvalidOperationException($"No retail room places {encounter.Spawner}, whose encounter spawns {string.Join(", ", encounter.Spawned)}.");
+        LoadedRoom loaded = LoadRoom(rooms[placing]);
+        encounter.Run(loaded, loaded.Places[Spawner(placing)]);
+        RoomEnemyPlace[] spawned = [.. loaded.Enemies.Places.InUpdateOrder.Where(place =>
+            place.Occupant is { } occupant && encounter.Spawned.Contains(occupant.DefinitionId))];
+        foreach (EnemyDefinitionId definition in encounter.Spawned)
+        {
+            AssertTrue(spawned.Any(place => place.HeldOccupant().DefinitionId == definition),
+                $"{encounter.Spawner}'s encounter spawns {definition}");
+        }
+        return [.. spawned.Select(OutcomeOf)];
+    }
+
+    /// <summary>Runs Lower Norfair Ridley's main AI on the last update of his death's explosions, which breaks him up.</summary>
+    private static void RunRidleyDeath(LoadedRoom room, RoomEnemyPlace body) =>
+        NorfairRidleyDeathFixtures.RunPhase(body, body.EntityOf<NorfairRidleyEntity>().Encounter, NorfairRidleyPhase.DeathExplosions, 1, room.Samus);
+
+    /// <summary>
+    /// Runs Ceres Ridley's main AI on the last update of his retreat's delay, which places the getaway chamber's walls, and
+    /// on the next, which hands the room to the getaway as it begins, and then the getaway room main's first step.
+    /// </summary>
+    private static void RunCeresRidleyGetaway(LoadedRoom room, RoomEnemyPlace body)
+    {
+        CeresRidleyState ridley = body.EntityOf<CeresRidleyEntity>().Encounter;
+        ridley.Phase = CeresRidleyPhase.RetreatDelay;
+        ridley.PhaseTimer.LastFor(1);
+        body.RunMainAi(room.Samus);
+        body.RunMainAi(room.Samus);
+        AssertEqual(CeresEscapeStage.Getaway, room.Enemies.CeresEscape.Stage, "Ceres Ridley hands the room to the getaway after his retreat");
+        room.Enemies.CeresEscape.RunGetawayRoomMain(room.Samus, RoomBackgroundsFixtures.CeresFloor(), 0);
+    }
+
+    /// <summary>
+    /// Runs Mother Brain's body's main AI as her fake death's tube collapse begins, which drops its first tube once enough
+    /// enemy projectiles are free, and then on the last update of her late fight's final-beam wait, which brings in the Baby.
+    /// </summary>
+    private static void RunMotherBrainCollapseAndLateFight(LoadedRoom room, RoomEnemyPlace body)
+    {
+        MotherBrainEnemyState motherBrain = body.EntityOf<MotherBrainBodyEntity>().Encounter;
+        motherBrain.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
+        motherBrain.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
+        motherBrain.Body.RunMainAi(room.Samus);
+        _ = MotherBrainBabyArrival.BringInBaby(motherBrain, room.Samus);
+    }
+
+    /// <summary>A retail room loaded as its load sets it up: its enemies, the places its population's records hold, and Samus.</summary>
+    /// <param name="Enemies">The room's enemies.</param>
+    /// <param name="Places">Each population record's place, in the records' order.</param>
+    /// <param name="Samus">Samus, beside whom the room's enemies are set up.</param>
+    private sealed record LoadedRoom(RoomEnemySystem Enemies, IReadOnlyList<RoomEnemyPlace> Places, SamusState Samus);
+
+    /// <summary>Loads <paramref name="room"/>'s terrain, its objects and then its enemy population, as the room's load does.</summary>
+    private static LoadedRoom LoadRoom(SelectedRoom room)
     {
         RoomLevelData terrain = LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, InstalledFixtures.RoomAssets).LevelData;
         // The room's objects set up before its enemies, in a game that has seen no story event and beaten no boss.
@@ -141,28 +252,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
         // A species whose setup writes its room's screens' scrolls (Crocomire's) writes them into a room the check keeps no
         // scroll grid for.
         enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
-        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadRoom(room.State.EnemyPopulation, NewSamus(), terrain);
-        RoomEnemyPlacement[] records = room.State.EnemyPopulation.Placements.ToArray();
-        var outcomes = new RecordOutcome[records.Length];
-        for (int index = 0; index < records.Length; index++)
-        {
-            RoomEnemyPlace place = places[index];
-            AssertEqual(records[index].DefinitionId, place.HeldOccupant().DefinitionId, $"the load places record {index}'s enemy in its own place");
-            // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is removed by
-            // the scheduler before any AI or instruction frame.
-            bool processesInstructions = place.Processing.HasAny(EnemyProcessing.Animates) && !place.Presence.HasAny(EnemyPresence.Deleted);
-            outcomes[index] = new RecordOutcome(records[index].DefinitionId, processesInstructions, place.Entity is IEnemyTypedAnimation);
-        }
-        return outcomes;
+        SamusState samus = NewSamus();
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadRoom(room.State.EnemyPopulation, samus, terrain);
+        return new LoadedRoom(enemies, places, samus);
     }
-
-    /// <summary>
-    /// The named definitions only code spawns, each joining the encounter of the enemy that spawns it: Ridley's breakup
-    /// pieces as he dies, the Ceres getaway chamber's walls as Ceres Ridley escapes, the Baby Metroid Mother Brain's last
-    /// beam brings in, and the glass tubes that fall in her room.
-    /// </summary>
-    private static readonly EnemyDefinitionId[] CodeSpawnedDefinitions =
-        [EnemyDefinitionId.RidleyBreakupPiece, EnemyDefinitionId.CeresGetawayChamberWall, EnemyDefinitionId.BabyMetroidCutscene, EnemyDefinitionId.MotherBrainTubes];
 
     /// <summary>
     /// The bank-$A0 headers no room places and no code spawns: Bang, the spinning turtle eye, the horizontal shutter, the

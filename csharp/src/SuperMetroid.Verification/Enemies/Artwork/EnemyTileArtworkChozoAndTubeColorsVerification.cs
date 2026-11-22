@@ -50,10 +50,10 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive(0, PictureShading.Shaded(ChozoAndTubeShades.WreckedShipStatue),
-            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
+            "Wrecked Ship Chozo", (enemies, _) => enemies.LoadAuthoredPopulation(),
             ChozoStatueSegment.WreckedShipIdle));
         Suite(nameof(VerifyLive), () => VerifyLive(2, PictureShading.Shaded(ChozoAndTubeShades.LowerNorfairStatue),
-            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue.HeldOccupant().SpawnSettings<ChozoStatueSpawnSettings>(), statue),
+            "Lower Norfair Chozo", (enemies, _) => enemies.LoadAuthoredPopulation(),
             ChozoStatueSegment.LowerNorfairIdle));
 
         visual.TubeCracks[5] = visual.TubeCracks[5] with { Blue = 32 };
@@ -75,6 +75,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
             RoomEnemyPlace statue = enemies.Places.InUpdateOrder[0];
             statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
+            // The room's population load sets the statue up as the entry the check authored on its place places it.
             initialize(enemies, statue);
             // The import pre-colours each shade from the installed band whose words VerifyBand matched to the cartridge.
             AssertEqual(expectedShading, statue.Shading, $"live {name} shows its installed shade");
@@ -84,7 +85,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
                     (statue.SpeciesState<ChozoStatueState>()
                         ?? throw new InvalidOperationException($"{name} has no statue state.")).Playback,
                     $"{name} keeps native animation selection");
-                AssertTrue(enemies.ChozoStatueObjectRequests.Count != 0,
+                // The native PLM request is the statue's hand, which every site asks its room for (#2562).
+                AssertTrue(enemies.PassEvents.Published.OfType<SuperMetroid.Core.Enemies.Chozo.ChozoStatueHandAsked>().Any(),
                     $"{name} still publishes its native PLM request");
             }
         }

@@ -60,11 +60,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorFormat.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        var state = new PhantoonEnemyState(body.BoundFor(EnemyDefinitionId.PhantoonBody), body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
-        enemies.BeginPhantoonAsSetUp(state);
+        // His room's population load sets his parts up, his body's setup beginning his encounter, in a room whose boss lives.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        RoomEnemyPlace body = enemies.LoadRoom(SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.PhantoonDefault, RoomEnemyFrameFixtures.StandaloneSamus(),
+            RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0];
+        PhantoonEnemyState state = body.EntityOf<PhantoonBodyEntity>().Encounter;
         // His live colour handlers name the shades of his body and room and the typed fades between them (#1512, #2251);
         // the import pre-colours each settled colouring from the installed colours, which this compares with the catalog.
         IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(stock.Bosses);

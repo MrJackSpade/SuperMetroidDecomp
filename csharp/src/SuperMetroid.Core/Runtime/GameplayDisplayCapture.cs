@@ -162,7 +162,7 @@ public static partial class GameplayDisplayCapture
             // The statue room's descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. The descent also gives the statue sprites zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + descent);
+            backgroundScroll = backgroundScroll.WithY(StatueDescentBackgroundRow(scrolls.ForegroundPosition, descent));
         LatchedScrollingSky? sky = latched.Scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
         // Lava, water or the sky moves the background's lines.
@@ -189,6 +189,17 @@ public static partial class GameplayDisplayCapture
         };
         return new(layer, Hud(latched));
     }
+
+    /// <summary>
+    /// The background row the statue room shows at the screen's top (#2305, #2631): the foreground camera's row plus the
+    /// statues' <paramref name="descent"/>. The camera's position wraps past the room's top, as a door transition's view
+    /// does, so its row is taken signed (<see cref="CameraPastRoomEdge.Signed"/>), a few rows above the origin reading as
+    /// a small negative row rather than one past the signed range.
+    /// </summary>
+    /// <param name="camera">The camera position the frame's actors were drawn against.</param>
+    /// <param name="descent">How far the statues move the background vertically, between minus their distance and zero.</param>
+    internal static int StatueDescentBackgroundRow(Position16<RoomPixels> camera, int descent) =>
+        CameraPastRoomEdge.Signed(camera.Y) + descent;
 
     /// <summary>
     /// The boss's body the frame shows as its own layer (#1352-#1356, #2031, #2573), or null in a room no boss shows a body

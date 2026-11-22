@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -121,6 +122,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0,
                     EnemySpawnSettingsCodec.FirstParameterPlacing(definitionPointer), 0)];
 
+        // The open room every record sets up in is built once for the definition: an enemy's setup reads the room's blocks
+        // and changes none (blocks change only through room objects, which these enemy systems have none of), so each
+        // record finds it as built. Building it per record was the most of the check's allocation (about 500 KB a record).
+        RoomLevelData room = RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
         bool definitionTranslated = false;
         bool definitionNeedsOwner = false;
         bool definitionHasOwner = false;
@@ -161,7 +166,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             bool translatedRecord = true;
             try
             {
-                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
+                EnemyLifecycle.SetUpEnemy(place, new EnemyPopulationSurroundings(room, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), GameplayAction.None, default));
             }
             catch (Exception exception)
                 when (IsUntranslatedEnemyInitializer(

@@ -64,7 +64,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         foreach ((bool left, BeetomSegment hop) in new[] { new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(true, BeetomSegment.HopLeft), new BeetomInstructionProgramDefinitionsVerifyBeetomInstructionProgramDefinitionsCase(false, BeetomSegment.HopRight) })
         {
             state.Begin(BeetomAction.StartShortHop, left ? HorizontalDirection.Left : HorizontalDirection.Right);
-            enemies.BeetomBehavior.RunBeetomMainAi(place, new ClockedEnemyAiFrame(
+            enemies.BeetomBehavior.RunBeetomMainAi(place, state, new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(openRoom, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
                 new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero)));
             AssertEqual(BeetomAction.ShortHopRising, state.Action, $"the Beetom's update starts its {hop}");

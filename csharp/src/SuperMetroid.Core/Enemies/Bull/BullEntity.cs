@@ -23,19 +23,11 @@ internal sealed partial class BullEntity(BullBehavior species, RoomEnemyOccupant
 
     /// <summary>Kicks the Bull straight up from a bomb that left its health alone.</summary>
     /// <param name="context">The bomb's hit.</param>
-    internal void KickFromUndamagingHit(EnemyBombHitContext context)
-    {
-        if (Ensure.NotNull(context).Enemy.Health == context.HealthBefore)
-            BullBehavior.ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.BombKickAngle);
-    }
+    internal void KickFromUndamagingHit(EnemyBombHitContext context) => BullBehavior.KickFromUndamagingBomb(context, state);
 
     /// <summary>Kicks the Bull along a shot that froze it or left its health alone.</summary>
     /// <param name="context">The shot's hit.</param>
-    internal void KickFromUndamagingHit(EnemyShotHitContext context)
-    {
-        if (Ensure.NotNull(context).Froze || context.Enemy.Health == context.HealthBefore)
-            BullBehavior.ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.ShotAngles.For(context.ProjectileDirection));
-    }
+    internal void KickFromUndamagingHit(EnemyShotHitContext context) => BullBehavior.KickFromUndamagingShot(context, state);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) =>

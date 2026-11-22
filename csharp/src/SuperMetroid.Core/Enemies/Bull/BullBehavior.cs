@@ -194,6 +194,24 @@ internal sealed partial class BullBehavior : IEnemySpecies, IEnemySpawnFactory<B
         EnemyAnimationPlayback.AdvanceSilently(place, bullEnemyState, BullAnimations.Segments,
             static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
+    /// <summary>Kicks a Bull straight up from a bomb that left its health alone.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    /// <param name="state">The Bull's state.</param>
+    internal static void KickFromUndamagingBomb(EnemyBombHitContext context, BullEnemyState state)
+    {
+        if (Ensure.NotNull(context).Enemy.Health == context.HealthBefore)
+            ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.BombKickAngle);
+    }
+
+    /// <summary>Kicks a Bull along a shot that froze it or left its health alone.</summary>
+    /// <param name="context">The shot's hit.</param>
+    /// <param name="state">The Bull's state.</param>
+    internal static void KickFromUndamagingShot(EnemyShotHitContext context, BullEnemyState state)
+    {
+        if (Ensure.NotNull(context).Froze || context.Enemy.Health == context.HealthBefore)
+            ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.ShotAngles.For(context.ProjectileDirection));
+    }
+
     /// <summary>
     /// Applies Bull's immune-hit recoil after common bomb damage handling: a bomb that leaves the Bull's health alone kicks
     /// it straight up (<see cref="BullMovementDefinitions.BombKickAngle"/>), so a killed Bull has no reaction.

@@ -139,9 +139,7 @@ internal sealed partial class FrontendSession
     internal T? ScreenAs<T>()
         where T : class, IFrontendScreen => Screen as T;
     /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
-    private SuperMetroidRuntime? runtime;
-    /// <summary>Live gameplay runtime, absent during frontend-only phases.</summary>
-    internal SuperMetroidRuntime? Runtime => runtime;
+    internal SuperMetroidRuntime? Runtime { get; set; }
     /// <summary>The options every selected game starts with: unchosen until the options menu first closes.</summary>
     internal GameplayOptionsChoice OptionsChoice { get; private set; } = GameplayOptionsChoice.Unchosen;
     /// <summary>Keeps <paramref name="options"/>'s choices for the selected game the menu starts.</summary>
@@ -478,7 +476,7 @@ internal sealed partial class FrontendSession
             // Attract scripts retain the default controls and options of their private runtime.
             Selected = attract ? null : OptionsChoice.StartingOptions,
         });
-        runtime = created;
+        Runtime = created;
         return created;
     }
 
@@ -685,13 +683,13 @@ internal sealed partial class FrontendSession
     /// <summary>The session's random number generator, which the frontend and every gameplay runtime share.</summary>
     internal SharedRandom Random { get; }
     /// <summary>A soft reset discards every gameplay owner; the menu owners keep the random generator and the frame clock.</summary>
-    internal void DiscardRuntime() => runtime = null;
+    internal void DiscardRuntime() => Runtime = null;
     /// <summary>Transfers the camera position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntime()
     {
         // File-map selection may release when no runtime was ever created.
-        runtime?.LeaveCameraFractions();
-        runtime = null;
+        Runtime?.LeaveCameraFractions();
+        Runtime = null;
     }
 
     /// <summary>

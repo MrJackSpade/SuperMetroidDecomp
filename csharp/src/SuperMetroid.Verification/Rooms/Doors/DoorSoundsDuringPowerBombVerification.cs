@@ -40,7 +40,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         game.Step(0);
         // A real power bomb, laid and set off through gameplay, explodes as Samus enters the door.
         PowerBombDetonation.ExplodeThroughGameplay(runtime, buttons => game.Step(buttons));
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;

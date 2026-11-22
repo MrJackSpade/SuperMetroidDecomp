@@ -402,7 +402,7 @@ internal static partial class SwapchainTests
             SuperMetroidRuntime runtime = game.GameplayRuntimeForVerification;
             runtime.LoadCartridgeRoomForDebug(room, camera);
             // Samus stands on the floor at the middle of the screen: her bottom row is the one above the floor's top.
-            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.IntroducedSamus;
+            SuperMetroid.Core.Samus.SamusState samus = runtime.Player.Samus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(camera.X + 128,
                 floorBlockRow * 16 - samus.Kinematics.Radius.Y));
             runtime.FrameBoundary.BeginAcceptedFrame(0);

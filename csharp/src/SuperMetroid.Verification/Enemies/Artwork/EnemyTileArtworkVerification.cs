@@ -52,7 +52,8 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
+
 using SuperMetroid.Core.Compatibility;
 
 /// <summary>Coordinates retail tile and palette comparisons with installed enemy artwork and live consumers.</summary>
@@ -296,6 +297,16 @@ internal static class EnemyTileArtworkVerification
         var fixture = new EnemyTileFixture();
         var (bus, _, colours, stock) = fixture;
         VerifyInstalledZebetiteColors(bus, colours, stock);
+        return 0;
+    }
+
+    /// <summary>Runs only the installed Spore Spawn colour comparison against retail.</summary>
+    [VerificationCommand("--spore-spawn-colors")]
+    internal static int SporeSpawnColorsCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, _, colours, stock) = fixture;
+        Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, colours, stock));
         return 0;
     }
 

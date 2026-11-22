@@ -82,6 +82,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, band);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(band)), body.Shading,
                 $"live Spore Spawn health band {band}");
+            // His stalk shows his body's colours (#2628).
+            AssertTrue(state.StalkLinks.Count > 0 && state.StalkLinks.All(link => link.Projectile.Graphics.Shading == body.Shading),
+                $"live Spore Spawn's stalk shows health band {band} with his body");
             AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[shown], colour), $"live Spore Spawn health band {band}");
         }
 
@@ -91,6 +94,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnDeathShade(body, state, step);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(step)), body.Shading,
                 $"live Spore Spawn death frame {frame}");
+            AssertTrue(state.StalkLinks.All(link => link.Projectile.Graphics.Shading == body.Shading),
+                $"live Spore Spawn's stalk shows death frame {frame} with his body");
             AssertShade(sprites, SporeSpawnShades.DeathSprite(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, frame, colour),
                 $"live Spore Spawn Sprite death frame {frame}");
             AssertShade(room, SporeSpawnShades.DeathLevel(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Level, frame, colour),

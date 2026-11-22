@@ -473,11 +473,22 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
     /// <param name="Owner">The <see cref="SporeSpawnBehavior"/> reacting.</param>
     private readonly partial record struct ApplySporeSpawnCueContext(RoomEnemyPlace Body, SporeSpawnEnemyState State, SamusState Samus, SporeSpawnBehavior Owner);
 
-    /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/>.</summary>
+    /// <summary>Shows <paramref name="band"/>'s colours of <paramref name="state"/> on his <paramref name="body"/> and his stalk.</summary>
     internal static void ShowSporeSpawnHealthShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnHealthBand band)
     {
         state.Colours.ShowHealth(band);
+        ShowSporeSpawnColours(body, state);
+    }
+
+    /// <summary>
+    /// Shows his colours on his <paramref name="body"/> and the links of his stalk (#2628): the game draws his stalk in his
+    /// body's colours, so his health bands and death fade recolour it with his body.
+    /// </summary>
+    private static void ShowSporeSpawnColours(RoomEnemyPlace body, SporeSpawnEnemyState state)
+    {
         body.Shading = state.Colours.Sprites;
+        foreach (SporeSpawnStalkLink link in state.StalkLinks)
+            link.Projectile.Graphics = link.Projectile.Graphics.In(state.Colours.Sprites);
     }
 
     /// <summary>
@@ -487,7 +498,7 @@ internal sealed partial class SporeSpawnBehavior : IEnemySpecies, IEnemySpawnFac
     internal static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
     {
         state.Colours.ShowDeath(step);
-        body.Shading = state.Colours.Sprites;
+        ShowSporeSpawnColours(body, state);
     }
 
     /// <summary>Draws one random number to place a hardening dust burst and request its sound.</summary>

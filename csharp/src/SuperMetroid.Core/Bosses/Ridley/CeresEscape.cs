@@ -69,8 +69,9 @@ internal sealed partial class CeresEscape : IGameplayShadingSource
 
     /// <summary>
     /// The chamber's walls the getaway scene shows around its turning floor (#1545, #1989): the chamber wall's pictures of the
-    /// chamber's left and right walls, standing at their room points in the doors' escaping colours, behind the floor
-    /// and the actors.
+    /// chamber's left and right walls, standing at their room points behind the floor and the actors, in the doors' normal
+    /// colours (#2621). The wall actors are set up as Ridley's retreat ends, before his getaway begins the escape, so their
+    /// setup gives them the colours a door has before the escape, as every door set up then.
     /// </summary>
     internal ImmutableArray<PerspectiveFloorScenery> ChamberWalls() =>
     [
@@ -80,7 +81,7 @@ internal sealed partial class CeresEscape : IGameplayShadingSource
 
     /// <summary>The chamber wall <paramref name="frame"/> pictures, standing at <paramref name="point"/>.</summary>
     private PerspectiveFloorScenery ChamberWall(EnemyFrameId frame, Position16<RoomPixels> point) =>
-        new(_presentation.SheetPicture(EnemyDefinitionId.CeresGetawayChamberWall, frame), point, CeresDoorShades.InEscapingColours);
+        new(_presentation.SheetPicture(EnemyDefinitionId.CeresGetawayChamberWall, frame), point, CeresDoorShades.InNormalColours);
 
     /// <summary>
     /// Begins the getaway as Ridley hands the room to it: publishes his escape, sets up the floor's angle, scroll, zoom and

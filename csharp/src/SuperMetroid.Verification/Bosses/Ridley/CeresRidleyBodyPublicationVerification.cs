@@ -61,7 +61,8 @@ internal static class CeresRidleyBodyPublicationVerification
 
     /// <summary>
     /// The getaway shows the chamber's two walls behind its turning floor (#1545), each picture's origin on its wall's room
-    /// point, on a plane scrolled with the camera the actors are drawn against.
+    /// point, in the doors' colours from before the escape (#2621), on a plane scrolled with the camera the actors are drawn
+    /// against.
     /// </summary>
     private static void VerifyChamberWalls(TurningRoomLayer mode7, Position16<RoomPixels> camera)
     {
@@ -73,6 +74,10 @@ internal static class CeresRidleyBodyPublicationVerification
             PlacedPlanePicture placed = walls.Plane.Pictures[wall];
             AssertEqual(new Offset16<PlanePixels>(points[wall].X - placed.Picture.Origin.X, points[wall].Y - placed.Picture.Origin.Y),
                 placed.Corner, $"wall {wall}'s picture places its origin on the wall's room point");
+            // The wall actors are set up before the getaway begins the escape, so the walls keep the doors' colours from
+            // before the escape (#2621).
+            AssertEqual(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorShades.InNormalColours, placed.Shading,
+                $"wall {wall} shows the doors' colours from before the escape");
         }
         AssertEqual(camera.AsPlaneOffset(), walls.Scroll, "the walls scroll with the actors' camera");
     }

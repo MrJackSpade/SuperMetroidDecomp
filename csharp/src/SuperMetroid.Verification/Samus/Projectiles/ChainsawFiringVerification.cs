@@ -139,16 +139,17 @@ internal static class ChainsawFiringVerification
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = CreateProjectileFixture();
         combatProjectiles.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), combatShared, new SharedGameState(new SharedRandom()));
-        var combat = CreateEnemyDropFixture(samus, [1]);
+        // The stand-in, reacting to shots as an ordinary enemy does, is the room's population, set up as the room's load
+        // sets up an entry naming no setting of its own (#2554); the check then stands it where it asks, with its own health.
+        var combat = CreateEnemyDropFixture(samus, [1],
+            population: [PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn,
+                SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyPlaceFixtures.StandIn,
+                    SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Blank(EnemyPlaceFixtures.StandIn)))],
+            authored: new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
+            {
+                [EnemyPlaceFixtures.StandIn] = EnemyDefinitionFixtures.Blank with { Shot = EnemyReaction.OrdinaryShot },
+            });
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.KeptDefinition);
-        target.Bind(target.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
-        {
-            Shot = EnemyReaction.OrdinaryShot,
-        });
-        // The stand-in reacts to shots as the species the population load builds (#2554); the check then stands it where
-        // it asks, with its own health.
-        combat.System.SetUpAsPopulated(target);
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;

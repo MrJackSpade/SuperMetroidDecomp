@@ -25,7 +25,7 @@ internal static class PowampAnimationsVerification
             + NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, BalloonEntries,
             PowampAnimations.BalloonSegments, PowampAnimations.BalloonStartingAt.ToDictionary(), PowampFrameToolingDefinitions.BalloonSpritemap, NoOwnerInstructions);
         Console.WriteLine($"  Powamp animations: {BodyEntries.Length + BalloonEntries.Length} segments ({beats} beats) and "
-            + $"{PowampAnimations.BodyStartingAt.Count + PowampAnimations.BalloonStartingAt.Count} animations match bank $A8.");
+            + $"{PowampAnimations.BodyStartingAt.Count() + PowampAnimations.BalloonStartingAt.Count()} animations match bank $A8.");
     }
 
     /// <summary>The cue rules of lists that use no owner instructions.</summary>

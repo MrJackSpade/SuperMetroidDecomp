@@ -53,7 +53,7 @@ internal static class MotherBrainPlasmaImpactVerification
         var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)
         {
-            shots.HandleShots(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
+            shots.HandleShots(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
             Hit();
             AssertEqual(17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,

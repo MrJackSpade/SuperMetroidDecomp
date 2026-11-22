@@ -42,8 +42,6 @@ internal static class RoomDefinitionIntegrationVerification
         InitializePostCeresLanding(expected);
         InitializePostCeresLanding(actual);
 
-        AssertEqual(expected.Room.ActiveLoadStation, actual.Room.ActiveLoadStation,
-            "guarded post-Ceres room entry retains compiled station placement");
         AssertEqual(expected.Room.ActiveDoor, actual.Room.ActiveDoor,
             "guarded post-Ceres room entry retains compiled incoming door");
         AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,

@@ -61,7 +61,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         // An escape starts at its duration and ends on the step that reaches zero.
         for (int timer = 1; timer <= MetroidBehaviorDefinitions.EscapeDuration; timer++)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
@@ -95,7 +95,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         }
 
         // A Metroid frozen while it escapes strains its moves away, flashing, and keeps none once they are spent.
-        var frozenPlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
+        var frozenPlace = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
         frozenPlace.Bind(EnemyDefinitionId.Metroid, frozenPlace.KeptDefinition);
         var frozen = new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),

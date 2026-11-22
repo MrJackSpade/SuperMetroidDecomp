@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms;
+
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -5,9 +7,21 @@ namespace SuperMetroid.Core.Enemies;
 /// reaction that does nothing, and the inert hurt. An entity answers from them for every contact its definition names a
 /// shared response for; a species' own reactions are its entity's, which it checks before these.
 /// </summary>
-/// <param name="collision">The enemy system's collision, resolved at use because the system builds it after its species.</param>
-internal sealed partial class EnemyCommonParticipation(Func<EnemyCollision> collision)
+[RoomLifetime]
+internal sealed partial class EnemyCommonParticipation
 {
+    /// <summary>The enemy system's collision, resolved at use because the system builds it after its species.</summary>
+    private readonly Func<EnemyCollision> _collision;
+
+    /// <summary>
+    /// Creates the participation each room's enemy system shares with the entities it builds. It takes the collision in an
+    /// ordinary constructor rather than a primary one, so a restore of the game's state makes the participation before it
+    /// reads the enemy system the collision resolves through: that system holds the participation, and a state can reach
+    /// the participation first, through an entity a species' part offer holds (#2554).
+    /// </summary>
+    /// <param name="collision">The enemy system's collision, resolved at use because the system builds it after its species.</param>
+    internal EnemyCommonParticipation(Func<EnemyCollision> collision) => _collision = Ensure.NotNull(collision);
+
     /// <summary>
     /// The shot reaction of the ordinary and the ignoring shot: the common shot reaction. An ignoring hitbox or
     /// definition stops the shot, and nothing else happens.
@@ -38,7 +52,7 @@ internal sealed partial class EnemyCommonParticipation(Func<EnemyCollision> coll
     internal void ReactToTouch(EnemyTouchContext context)
     {
         if (context.Occupant.Definition.Touch == EnemyReaction.OrdinaryTouch)
-            collision().ResolveOrdinaryTouch(context);
+            _collision().ResolveOrdinaryTouch(context);
     }
 
     /// <summary>

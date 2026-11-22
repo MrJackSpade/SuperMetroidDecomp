@@ -20,11 +20,9 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// created before the species that are composed with them (#2553).
     /// </summary>
     /// <param name="ordinal">The place's position in allocation and processing order.</param>
-    /// <param name="common">The shared participation every entity built in the place composes.</param>
     /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
-    internal RoomEnemyPlace(int ordinal, EnemyCommonParticipation common, RemovedEnemyLeftovers<IEnemyEntity> leftovers)
+    internal RoomEnemyPlace(int ordinal, RemovedEnemyLeftovers<IEnemyEntity> leftovers)
     {
-        Common = Ensure.NotNull(common);
         _leftovers = Ensure.NotNull(leftovers);
         Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
     }
@@ -71,9 +69,6 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// A place's earlier occupant's partners read it as gone only once it is free.
     /// </summary>
     internal bool IsFree => History is NeverPopulatedEnemyPlace or PopulatedEnemyPlace { Occupancy: VacatedEnemyPlace };
-
-    /// <summary>The shared participation every entity built in the place composes.</summary>
-    private EnemyCommonParticipation Common { get; }
 
     /// <summary>The enemy occupying the place, bound with its identity; null while the place is empty.</summary>
     internal IEnemyEntity? Entity => BoundEntity?.Entity;
@@ -130,8 +125,10 @@ public sealed partial class RoomEnemyPlace : ISolidEnemy, IEnemyTerrainBody
     /// </summary>
     /// <param name="occupant">The occupant the place was just bound to.</param>
     /// <param name="build">How the occupant's species builds it where it is set up.</param>
+    /// <param name="common">The room's shared participation, which the entity composes.</param>
     /// <returns>The entity with the setup and main AI it runs.</returns>
-    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build) => Hold(Ensure.NotNull(build).Create(occupant, this, Common));
+    internal EnemyOccupant Build(RoomEnemyOccupant occupant, IEnemyBuild build, EnemyCommonParticipation common) =>
+        Hold(Ensure.NotNull(build).Create(occupant, this, Ensure.NotNull(common)));
 
     /// <summary>Holds <paramref name="built"/> as the place's entity.</summary>
     private EnemyOccupant Hold(EnemyOccupant built)

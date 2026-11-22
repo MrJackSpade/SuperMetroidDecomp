@@ -46,7 +46,7 @@ internal static class MamaTurtleShellContourVerification
         AssertTrue(!MamaTurtleShell.TryGetSurface(24, out _),
             "Mama Turtle shell stands over no actor at right distance twenty-four");
 
-        var mama = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
+        var mama = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
         Action<RoomEnemyPlace, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 

@@ -165,7 +165,7 @@ internal static class DragonAnimationDefinitionsVerification
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemyPlace NewDragonAnimationPlace(int index) =>
-        new RoomEnemyPlace(index, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
+        new RoomEnemyPlace(index, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
     private static DragonWingState NewDragonAnimationState() => new();

@@ -31,7 +31,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         foreach (Offset16<RoomPixels> displacement in displacements)
         foreach (bool sitDown in new[] { false, true })
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
@@ -47,7 +47,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
         foreach (int velocity in velocities)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),

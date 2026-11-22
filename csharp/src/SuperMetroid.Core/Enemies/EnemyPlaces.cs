@@ -7,21 +7,14 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed partial class EnemyPlaces
 {
     /// <summary>
-    /// Creates the places once, each given its ordinal, the record of what its removed occupants leave for their
-    /// neighbours and the shared participation every entity built in it composes.
+    /// Creates the places once, each given its ordinal and the record of what its removed occupants leave for their
+    /// neighbours.
     /// </summary>
-    internal EnemyPlaces(EnemyCommonParticipation common)
+    internal EnemyPlaces()
     {
-        Common = Ensure.NotNull(common);
         _places = [.. Enumerable.Range(0, EnemyPlaceOrder.Capacity).Select(ordinal =>
-            new RoomEnemyPlace(ordinal, common, new RemovedEnemyLeftovers<IEnemyEntity>()))];
+            new RoomEnemyPlace(ordinal, new RemovedEnemyLeftovers<IEnemyEntity>()))];
     }
-
-    /// <summary>
-    /// The shared participation every entity built in a place composes, which the room's species registry shares too, so
-    /// a binding through the registry and a build in a place compose the same one.
-    /// </summary>
-    internal EnemyCommonParticipation Common { get; }
 
     /// <summary>The places, each created once with its ordinal.</summary>
     private readonly RoomEnemyPlace[] _places;

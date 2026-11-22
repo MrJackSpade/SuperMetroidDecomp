@@ -98,7 +98,7 @@ internal static class ZoaAnimationDefinitionsVerification
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemyPlace NewZoaAnimationPlace() =>
-        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
+        new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Checks the started animation and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(

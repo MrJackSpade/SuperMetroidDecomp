@@ -6,12 +6,18 @@ namespace SuperMetroid.Core.Enemies;
 /// target.
 /// </summary>
 /// <typeparam name="TSettings">The settings the creation takes.</typeparam>
-/// <param name="create">The named method.</param>
-internal sealed partial class MethodLoadedCreation<TSettings>(EnemyLoadedCreation<TSettings> create) : SpeciesLoadedCreation<TSettings>
+internal sealed partial class MethodLoadedCreation<TSettings> : SpeciesLoadedCreation<TSettings>
     where TSettings : EnemySpawnSettings
 {
     /// <summary>The named method.</summary>
-    private readonly EnemyLoadedCreation<TSettings> _create = Ensure.NotNull(create);
+    private readonly EnemyLoadedCreation<TSettings> _create;
+
+    /// <summary>
+    /// Holds the named method. An ordinary constructor, not a primary one, so a restore of the game's state makes the creation
+    /// before it reads its method's target: a state can reach the creation again from inside its method's target (#2554).
+    /// </summary>
+    /// <param name="create">The named method.</param>
+    internal MethodLoadedCreation(EnemyLoadedCreation<TSettings> create) => _create = Ensure.NotNull(create);
 
     /// <inheritdoc/>
     internal override EnemyOccupant Create(RoomEnemyOccupant occupant, TSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,

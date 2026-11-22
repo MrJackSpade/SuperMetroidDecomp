@@ -17,13 +17,19 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
     private readonly EnemyPlaces _places;
     /// <summary>Selects the places that interact with Samus this frame.</summary>
     private readonly EnemyProcessingWindow _processingWindow;
+    /// <summary>
+    /// The shared participation every entity built in the room's places composes, which the room's species registry
+    /// shares too, so a binding through the registry and a build in a place compose the same one.
+    /// </summary>
+    private readonly EnemyCommonParticipation _common;
 
-    /// <summary>Binds the room, places and processing window the lifecycle works in.</summary>
-    internal EnemyLifecycle(EnemyRoomBinding room, EnemyPlaces places, EnemyProcessingWindow processingWindow)
+    /// <summary>Binds the room, places, processing window and shared participation the lifecycle works with.</summary>
+    internal EnemyLifecycle(EnemyRoomBinding room, EnemyPlaces places, EnemyProcessingWindow processingWindow, EnemyCommonParticipation common)
     {
         _room = room;
         _places = places;
         _processingWindow = processingWindow;
+        _common = Ensure.NotNull(common);
     }
 
     /// <summary>
@@ -60,10 +66,10 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
     /// Runs the setup of the enemy the room's population load has just placed: its own, or the one it runs from the load's
     /// <paramref name="surroundings"/>, which the load has; nothing for an enemy that has none.
     /// </summary>
-    internal static void SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings)
+    private void SetUpEnemy(RoomEnemyOccupant occupant, PopulationEnemySpawn spawn, EnemyPopulationSurroundings surroundings)
     {
         Ensure.NotNull(surroundings);
-        EnemyOccupant built = Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(spawn).Loaded(surroundings));
+        EnemyOccupant built = Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(spawn).Loaded(surroundings), _common);
         built.Initialization?.Initialize();
         built.SurroundingsInitialization?.Initialize(surroundings);
     }
@@ -73,8 +79,8 @@ internal sealed partial class EnemyLifecycle : IEnemyLifecycle
     /// for an enemy that has none. Such a spawn has no population load's surroundings, so a setup that reads them is the
     /// population load's alone.
     /// </summary>
-    internal static void SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) =>
-        Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(build)).Initialization?.Initialize();
+    private void SetUpSpawnedEnemy(RoomEnemyOccupant occupant, IEnemyBuild build) =>
+        Ensure.NotNull(occupant).Place.Build(occupant, Ensure.NotNull(build), _common).Initialization?.Initialize();
 
     /// <summary>Exposes setting up a listed enemy from its population entry to the enemy loader.</summary>
     RoomEnemyOccupant IEnemyLifecycle.InitializePlaceFromDefinition(

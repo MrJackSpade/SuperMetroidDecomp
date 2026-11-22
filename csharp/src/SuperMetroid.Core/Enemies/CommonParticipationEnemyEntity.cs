@@ -19,9 +19,6 @@ internal abstract partial class CommonParticipationEnemyEntity(RoomEnemyOccupant
     /// <summary>The place the enemy occupies; its definition names the shared responses.</summary>
     internal RoomEnemyPlace Place { get; } = place;
 
-    /// <summary>The shared responses.</summary>
-    protected EnemyCommonParticipation Common { get; } = common;
-
     /// <inheritdoc/>
     public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
@@ -45,7 +42,7 @@ internal abstract partial class CommonParticipationEnemyEntity(RoomEnemyOccupant
 
     /// <summary>Runs the shared touch reaction the definition names.</summary>
     /// <param name="context">The touch.</param>
-    public virtual void ReactToTouch(EnemyTouchContext context) => Common.ReactToTouch(context);
+    public virtual void ReactToTouch(EnemyTouchContext context) => common.ReactToTouch(context);
 
     /// <summary>The shared shot reaction the definition names, or the reaction of an enemy shots pass.</summary>
     public virtual EnemyShotReaction ShotReaction => EnemyCommonParticipation.ShotReaction(Occupant.Definition);

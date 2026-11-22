@@ -18,7 +18,7 @@ internal static class WorkRobotLaserBehaviorVerification
         IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, WorkRobotLaserNativeListAddresses.Extent, "Work Robot laser");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var robot = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>())
+        var robot = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),

@@ -26,7 +26,7 @@ internal static class WaverAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             WaverSegment selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
             var state = new WaverEnemyState
             {
                 Playback = new(WaverAnimations.StartingWith(selector == WaverSegment.SteadyFacingLeft

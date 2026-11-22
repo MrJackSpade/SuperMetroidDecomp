@@ -21,7 +21,7 @@ internal static class RidleyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewRidleyCollisionNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>());
+        var nativePlace = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
         compiledPlace.Bind(EnemyDefinitionId.Ridley, EnemyDefinitionFixtures.Blank);
         // The reference slot is read by the independent test-side cartridge

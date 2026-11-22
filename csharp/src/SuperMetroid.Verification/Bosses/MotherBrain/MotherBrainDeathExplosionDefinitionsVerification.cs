@@ -28,8 +28,8 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            var body = new RoomEnemyPlace(0, StandaloneFixtureSpecies.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry.Common, new RemovedEnemyLeftovers<IEnemyEntity>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()));
+            var body = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
+            MotherBrainEnemyState motherBrain = enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, new RemovedEnemyLeftovers<IEnemyEntity>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()));
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],

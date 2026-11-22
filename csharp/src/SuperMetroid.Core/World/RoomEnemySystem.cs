@@ -293,10 +293,11 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, Ensure.NotNull(dependencies.Looks), compatibility.FadeStepCount);
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
-        Places = new EnemyPlaces(new EnemyCommonParticipation(CollisionOfRoom));
+        var common = new EnemyCommonParticipation(CollisionOfRoom);
+        Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, Places);
-        Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
+        Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow, common);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);
         Earthquake = Ensure.NotNull(dependencies.Earthquake);
         PuyoCeilingTurn = compatibility.PuyoCeilingTurn;
@@ -308,7 +309,7 @@ public sealed partial class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplayS
         GrappleBehavior = new GrappleBehavior(Lifecycle, DeathsAndDrops);
         SpeciesComposition = new RoomEnemySpecies(new RoomEnemySpeciesDependencies
         {
-            Session = session, Room = Room, Places = Places, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
+            Session = session, Room = Room, Places = Places, Common = common, Lifecycle = Lifecycle, Audio = Audio, Projectiles = Projectiles,
             EffectActors = EffectActors, Collision = Collision, DeathsAndDrops = DeathsAndDrops, Terrain = Terrain,
             Earthquake = Earthquake, PassEvents = PassEvents, FrameContext = FrameContext, Presentation = Presentation,
             BossPresentation = BossPresentation, BossArtworkBinding = BossArtworkBinding, BossEncounters = BossEncounters,

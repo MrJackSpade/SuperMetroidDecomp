@@ -34,7 +34,7 @@ internal static class ShaktoolChainHolding
                 [.. segments.Select((segment, listed) => new ShaktoolChainSegment(places[listed], segment, new ShaktoolSegmentState()))], motion);
             ShaktoolBehavior species = enemies.ShaktoolBehavior;
             foreach (RoomEnemyPlace place in places.Take(segments.Length).Where(place => place.Holds(EnemyDefinitionId.Shaktool)))
-                _ = place.Build(place.HeldOccupant(), new SegmentBuild(species, place.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>(), chain));
+                _ = place.Build(place.HeldOccupant(), new SegmentBuild(species, place.HeldOccupant().SpawnSettings<ShaktoolSpawnSettings>(), chain), enemies.SpeciesComposition.Registry.Common);
             return chain;
         }
     }

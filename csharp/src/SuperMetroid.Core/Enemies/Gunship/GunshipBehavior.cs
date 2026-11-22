@@ -39,7 +39,7 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
         EnemyPopulationSurroundings surroundings)
     {
         var top = new GunshipTopEntity(this, occupant, place, common, surroundings);
-        _partOffers.OfferLoaded<GunshipSpawnSettings>(EnemyDefinitionId.ShipBottomEntrance, new PadJoining(this, top).CreateBottom);
+        _partOffers.OfferLoaded<GunshipSpawnSettings>(EnemyDefinitionId.ShipBottomEntrance, new PadJoining(this, top.State.Pieces).CreateBottom);
         return EnemyOccupant.Running(top);
     }
 
@@ -53,13 +53,16 @@ internal sealed partial class GunshipBehavior : IEnemyEntityFactory
     /// the top hull opens and closes.
     /// </summary>
     /// <param name="species">The gunship species owner.</param>
-    /// <param name="top">The top hull, whose pad animation a later pad plays.</param>
-    private sealed partial class PadJoining(GunshipBehavior species, GunshipTopEntity top)
+    /// <param name="pieces">
+    /// The ship the top hull set up, whose pad animation a later pad plays. The creation holds the ship's pieces, not the
+    /// top hull's entity, so a restore of the game's state never rebuilds that entity from inside its own creation's offer.
+    /// </param>
+    private sealed partial class PadJoining(GunshipBehavior species, GunshipPieces pieces)
     {
         /// <summary>The bottom hull, or the entrance pad playing the top hull's pad animation.</summary>
         internal EnemyOccupant CreateBottom(RoomEnemyOccupant occupant, GunshipSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common,
             EnemyPopulationSurroundings surroundings) =>
-            species.CreateBottom(occupant, settings, place, common, surroundings, top.State.Pieces.EntrancePadPiece);
+            species.CreateBottom(occupant, settings, place, common, surroundings, pieces.EntrancePadPiece);
     }
 
     /// <summary>

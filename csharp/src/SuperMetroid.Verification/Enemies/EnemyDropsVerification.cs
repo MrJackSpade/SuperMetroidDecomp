@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Hardware;
@@ -90,21 +91,17 @@ internal static class EnemyDropsVerification
     {
         var samus = CreateDropTestSamus();
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
-        var fixture = CreateEnemyDropFixture(samus, [1]);
+        // An ordinary enemy that respawns if killed, a Skultera touching Samus as every ordinary enemy does, set up as its
+        // room's population load sets it up (#2554).
+        var fixture = CreateEnemyDropFixture(samus, [1], CompiledRoomEnemyDefinitions.Instance,
+            [PopulationPlacementAccess.Entry(EnemyDefinitionId.Skultera, EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Skultera,
+                EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.Skultera) with { Parameter1 = 3 }, Position16<RoomPixels>.Zero))
+                with { Presence = EnemyPresence.RespawnsIfKilled }]);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
-        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
-        {
-            Touch = EnemyReaction.OrdinaryTouch,
-        });
-        SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
-        enemy.Contact = EnemyContact.None;
-        enemy.Processing = EnemyProcessing.None;
-        enemy.Presence = EnemyPresence.RespawnsIfKilled;
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
@@ -490,9 +487,6 @@ internal static class EnemyDropsVerification
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);
     }
 
-    /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
-    private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
-        bus.WriteBytes(0xb48014, [2]);
 
     /// <summary>Groups the synthetic bus, loaded enemy system, one-block level and the Samus whose drops it rolls for pickup checks.</summary>
     internal readonly record struct EnemyDropFixture(

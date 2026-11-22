@@ -56,6 +56,9 @@ internal sealed class CoreModel
     private readonly HashSet<INamedTypeSymbol> _families = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, Behaviour> _behaviours = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, List<INamedTypeSymbol>> _creationContexts = new(SymbolEqualityComparer.Default);
+
+    /// <summary>For each type, the static methods of its own that construct it: the factories its callers build it through.</summary>
+    private readonly Dictionary<INamedTypeSymbol, HashSet<IMethodSymbol>> _selfFactories = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<INamedTypeSymbol, IReadOnlySet<INamedTypeSymbol>?> _owners = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<ISymbol, List<ISymbol>> _dispatch = new(SymbolEqualityComparer.Default);
     private readonly Dictionary<IFieldSymbol, INamedTypeSymbol> _starts = new(SymbolEqualityComparer.Default);
@@ -1094,6 +1097,14 @@ internal sealed class CoreModel
                     if (!_creationContexts.TryGetValue(key2, out List<INamedTypeSymbol>? contexts))
                         _creationContexts.Add(key2, contexts = []);
                     contexts.Add(contextType.OriginalDefinition);
+                    if (SymbolEqualityComparer.Default.Equals(contextType.OriginalDefinition, key2)
+                        && node.Ancestors().OfType<MethodDeclarationSyntax>().FirstOrDefault() is { } factory
+                        && model.GetDeclaredSymbol(factory) is { IsStatic: true } factoryMethod)
+                    {
+                        if (!_selfFactories.TryGetValue(key2, out HashSet<IMethodSymbol>? factories))
+                            _selfFactories.Add(key2, factories = new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
+                        factories.Add(factoryMethod.OriginalDefinition);
+                    }
                     // A family constructed in code, not by a typed-start entry its kind names, must be spawned by some code.
                     if (_families.Contains(key2) && !node.Ancestors().Any(_startEntries.Contains))
                         _constructedFamilies.Add(key2);
@@ -1142,6 +1153,20 @@ internal sealed class CoreModel
             contexts.AddRange(sites);
         if (type.ContainingType is { } container)
             contexts.Add(container.OriginalDefinition);
+        // A type its own static factory builds (#2554: an entity's SetUp running its species' setup and constructing it) is
+        // built where that factory is called: its callers' code is the code constructing it, as the behaviour constructing
+        // the entity directly was. A call outside every member is shared code.
+        bool calledOutsideMembers = false;
+        foreach (IMethodSymbol factory in _selfFactories.GetValueOrDefault(type) ?? [])
+        {
+            foreach (CallSite site in CallSites(factory))
+            {
+                if (site.Caller is { } caller)
+                    contexts.Add(caller.Type.OriginalDefinition);
+                else
+                    calledOutsideMembers = true;
+            }
+        }
         _owners.Add(type, Resolving);
         // A base never constructed itself, outside every type, whose derived types are all one behaviour's code is that
         // behaviour's code split across types (#2146: CrocomireEntity under the body's and the tongue's entities), as a
@@ -1180,7 +1205,7 @@ internal sealed class CoreModel
             owners.UnionWith(contextOwners);
             contributed = true;
         }
-        IReadOnlySet<INamedTypeSymbol>? result = owners is not null && contributed ? owners : null;
+        IReadOnlySet<INamedTypeSymbol>? result = owners is not null && contributed && !calledOutsideMembers ? owners : null;
         _owners[type] = result;
         return result;
     }

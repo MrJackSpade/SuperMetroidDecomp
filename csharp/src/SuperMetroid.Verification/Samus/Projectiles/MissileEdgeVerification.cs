@@ -38,8 +38,8 @@ internal static class MissileEdgeVerification
             for (int frame = 0; frame < 20; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                shared.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
-                projectiles.StepFrame(SamusTerrain.InRoom(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(edge == 1 ? 192 : 384), 0), shared, new SharedGameState(new SharedRandom()));
+                shared.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                projectiles.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(edge == 1 ? 192 : 384), 0), shared, new SharedGameState(new SharedRandom()));
                 if (frame == 0) AssertEqual(4, samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Shots[0];

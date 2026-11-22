@@ -128,7 +128,7 @@ internal static class GrappleEnemyDeathVerification
             fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32]);
-            var result = SamusGrappleMovement.StepAndCommit(SamusTerrain.InRoom(movementRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            var result = SamusGrappleMovement.StepAndCommit(new RoomTerrain(movementRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)SamusPoseNumbers.Number(pose):X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,

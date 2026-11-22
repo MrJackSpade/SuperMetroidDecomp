@@ -491,7 +491,7 @@ internal static void VerifySamusExtraDisplacement()
     standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStanding(
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         standing,
         frameCounter: 0,
         controllerInput: 0);
@@ -512,7 +512,7 @@ internal static void VerifySamusExtraDisplacement()
     negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStanding(
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         negative,
         frameCounter: 1,
         controllerInput: 0);
@@ -529,7 +529,7 @@ internal static void VerifySamusExtraDisplacement()
     FixedCoordinate transitionYBefore = transition.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         transition,
         GameplayAction.Jump,
         frameCounter: 0);
@@ -548,7 +548,7 @@ internal static void VerifySamusExtraDisplacement()
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
     SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled),
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         rising,
         GameplayAction.Jump,
         frameCounter: 0);
@@ -566,7 +566,7 @@ internal static void VerifySamusExtraDisplacement()
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
-    MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(bouncingBall), SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), bouncingBall, controllerInput: 0, frameCounter: 0);
+    MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(bouncingBall), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), bouncingBall, controllerInput: 0, frameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement.RawValue,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
     AssertEqual(0, bouncingBall.Kinematics.VerticalVelocity.Speed.Whole,

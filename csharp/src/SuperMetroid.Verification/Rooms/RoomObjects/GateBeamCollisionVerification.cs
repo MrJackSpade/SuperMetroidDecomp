@@ -41,8 +41,8 @@ internal static class GateBeamCollisionVerification
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         GameplayAction input = GameplayAction.Shoot;
-        bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
-        shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 224), bombs, new SharedGameState(new SharedRandom()));
+        bombs.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+        shots.StepFrame(new RoomTerrain(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 224), bombs, new SharedGameState(new SharedRandom()));
         var shot = shots.Shots[0];
         AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false).AsFamily(SamusProjectileFamily.BeamExplosion), shot.HeldShot().Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
@@ -82,11 +82,11 @@ internal static class GateBeamCollisionVerification
             // as the unfired place the check used before did.
             SamusProjectileOccupant held = shot.HeldShot();
             bool result = false;
-            if (wave && horizontal) WaveShotTerrainMoves.MoveWaveShotHorizontally(SamusTerrain.InRoom(level, roomObjects), held, InstalledFixtures.SamusOverreads.StraddledTerrain);
-            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(SamusTerrain.InRoom(level, roomObjects), held);
+            if (wave && horizontal) WaveShotTerrainMoves.MoveWaveShotHorizontally(new RoomTerrain(level, roomObjects), held, InstalledFixtures.SamusOverreads.StraddledTerrain);
+            else if (wave) ProjectileTerrainCollision.ScanVerticalWaveShotReactions(new RoomTerrain(level, roomObjects), held);
             else result = horizontal
-                ? ProjectileTerrainCollision.MoveHorizontally(SamusTerrain.InRoom(level, roomObjects), held)
-                : ProjectileTerrainCollision.MoveVertically(SamusTerrain.InRoom(level, roomObjects), held);
+                ? ProjectileTerrainCollision.MoveHorizontally(new RoomTerrain(level, roomObjects), held)
+                : ProjectileTerrainCollision.MoveVertically(new RoomTerrain(level, roomObjects), held);
             AssertEqual(full ? 40 : 1, roomObjects.Places.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlockByIndex(first).Terrain, "Gate scan does not mutate terrain");

@@ -150,8 +150,8 @@ internal static class RightFacingGateGlitchVerification
                 for (int frame = 0; frame < 30; frame++)
                 {
                     GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                    bombs.StepFrame(SamusTerrain.InRoom(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
-                    shots.StepFrame(SamusTerrain.InRoom(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, shotProgression);
+                    bombs.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                    shots.StepFrame(new RoomTerrain(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)cameraX, (ushort)cameraY), bombs, shotProgression);
                     if (!gatePlace.Active || gatePlace.Behaviour is not DownwardGateObject)
                         throw new InvalidOperationException($"The Pink Brinstar gate left its slot at ({x}, {y}), frame {frame}.");
                     if (gatePlace.Behaviour is DownwardGateObject { Triggered: true })

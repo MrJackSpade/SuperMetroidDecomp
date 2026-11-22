@@ -37,7 +37,7 @@ internal static class CeilingWrapVerification
             shot.HeldShot().Direction = SamusProjectileDirection.Right;
             for (int call = 0; call < 45; call++)
             {
-                system.TerrainCollision.RunInitialBeamCollision(SamusTerrain.InRoom(level, roomObjects), shot.HeldShot(), true);
+                system.TerrainCollision.RunInitialBeamCollision(new RoomTerrain(level, roomObjects), shot.HeldShot(), true);
                 int owner = roomObjects.Places.ActiveCount == 0 ? 0 : level.Size.RowMajorIndex(roomObjects.PopulationPlaces[0].Block) * 2;
                 string actual = $"{tileX},{call},{roomObjects.Places.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];

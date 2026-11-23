@@ -27,6 +27,9 @@ public partial class ActorVisual : Node2D
     /// <summary>Whether the picture is mirrored left to right.</summary>
     private bool _mirrored;
 
+    /// <summary>Which row of the picture shows at each row down from its top, when it is shown row by row.</summary>
+    private IReadOnlyList<int?>? _rows;
+
     /// <summary>Gives the visual where to load pictures from and shows its starting picture.</summary>
     public void Bind(ContentLibrary content)
     {
@@ -46,6 +49,16 @@ public partial class ActorVisual : Node2D
     public void Mirror(bool mirrored)
     {
         _mirrored = mirrored;
+        QueueRedraw();
+    }
+
+    /// <summary>
+    /// Shows the picture row by row: at each row down from its top, the row of the picture named there, or nothing.
+    /// For something that crumbles or falls apart. Null shows the picture whole again.
+    /// </summary>
+    public void ShowRows(IReadOnlyList<int?>? rows)
+    {
+        _rows = rows;
         QueueRedraw();
     }
 
@@ -69,6 +82,22 @@ public partial class ActorVisual : Node2D
         if (_texture is null)
             return;
         var size = _texture.GetSize();
+        if (_rows is { } rows)
+        {
+            for (int row = 0; row < rows.Count && row < (int)size.Y; row++)
+            {
+                if (rows[row] is not { } shown)
+                    continue;
+                var from = new Rect2(0, shown, size.X, 1);
+                Rect2 at = _mirrored
+                    ? new Rect2(-PictureOffset.X, PictureOffset.Y + row, -size.X, 1)
+                    : new Rect2(PictureOffset.X, PictureOffset.Y + row, size.X, 1);
+                DrawTextureRectRegion(_texture, at, from);
+            }
+
+            return;
+        }
+
         var area = new Rect2(PictureOffset, size);
         if (_mirrored)
             area = new Rect2(new Vector2(-PictureOffset.X, PictureOffset.Y), new Vector2(-size.X, size.Y));

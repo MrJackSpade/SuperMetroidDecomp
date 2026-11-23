@@ -22,6 +22,7 @@ public static class SamusLooks
         CrawlingState => "morph_ball",
         KnockedBackState => samus.Form == Player.Crawling ? "morph_ball" : "knocked_back",
         DyingState => "dying",
+        CarriedState => "carried",
         _ => samus.Form == Player.Crawling ? "morph_ball" : "standing",
     };
 }

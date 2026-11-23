@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -11,7 +12,7 @@ namespace Game.Enemies;
 /// "throw" lets it go. It arcs down and blows up on the first wall or floor it meets.
 /// </summary>
 /// <remarks>Its timelines are "held_right", "held_left" and "impact".</remarks>
-public partial class TorizoSuperMissile : TorizoShot
+public partial class TorizoSuperMissile : CuedProjectile
 {
     /// <summary>The speed it is thrown at, in pixels an update.</summary>
     [Export, DataValue("throw_speed")]

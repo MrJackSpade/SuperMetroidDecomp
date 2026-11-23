@@ -252,6 +252,16 @@ public partial class Samus : Player
             Aim = Aim.Forward;
     }
 
+    /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
+    /// <exception cref="ArgumentException">She cannot select it now.</exception>
+    public void Select(string item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        if (item.Length > 0 && !CanSelect(item))
+            throw new ArgumentException($"Samus cannot select \"{item}\" now.", nameof(item));
+        Selected = item;
+    }
+
     /// <summary>Selects the beam alone.</summary>
     public void SelectBeam()
     {

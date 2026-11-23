@@ -25,11 +25,14 @@ public partial class Backdrop : Node2D
     /// <summary>The loaded picture.</summary>
     private Texture2D? _texture;
 
+    /// <summary>The loaded picture, for a kind of backdrop that draws it its own way.</summary>
+    protected Texture2D? Texture => _texture;
+
     /// <summary>The size of the room the layer fills, in pixels.</summary>
     private Vector2I _roomSize;
 
     /// <summary>Loads the layer's picture.</summary>
-    internal void Setup(ContentLibrary content, Vector2I roomSize)
+    internal virtual void Setup(ContentLibrary content, Vector2I roomSize)
     {
         _roomSize = roomSize;
         _texture = Picture.Length > 0 ? content.LoadTexture(Picture) : null;
@@ -37,7 +40,7 @@ public partial class Backdrop : Node2D
     }
 
     /// <summary>Places the layer for a view whose top-left corner is at <paramref name="viewTopLeft"/> in the room.</summary>
-    internal void Follow(Vector2I viewTopLeft) =>
+    internal virtual void Follow(Vector2I viewTopLeft) =>
         Position = new Vector2(viewTopLeft.X * (1 - ScrollShare.X), viewTopLeft.Y * (1 - ScrollShare.Y));
 
     /// <inheritdoc/>

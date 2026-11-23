@@ -17,7 +17,12 @@ public partial class TypedText : Label
     [Export]
     public string Sound { get; set; } = "";
 
+    /// <summary>How many letters appear for each sound: 1 sounds every letter, 2 every second one.</summary>
+    [Export]
+    public int LettersPerSound { get; set; } = 1;
+
     private string _text = "";
+    private int _letters;
     private int _shown;
     private int _wait;
 
@@ -34,6 +39,7 @@ public partial class TypedText : Label
         _text = text;
         _shown = 0;
         _wait = 0;
+        _letters = 0;
         Text = text;
         VisibleCharacters = 0;
     }
@@ -60,7 +66,14 @@ public partial class TypedText : Label
         _shown++;
         VisibleCharacters = _shown;
         _wait = Math.Max(0, UpdatesPerCharacter - 1);
-        if (Sound.Length > 0 && !char.IsWhiteSpace(appeared))
+        // Going on to the next line takes no time of its own.
+        while (_shown < _text.Length && char.IsControl(_text[_shown]))
+            _shown++;
+        VisibleCharacters = _shown;
+        if (char.IsWhiteSpace(appeared))
+            return;
+        _letters++;
+        if (Sound.Length > 0 && _letters % Math.Max(1, LettersPerSound) == 0)
             sounds?.Request(Sound, channel: "text");
     }
 }

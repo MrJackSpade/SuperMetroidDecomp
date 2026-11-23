@@ -544,6 +544,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             Die();
     }
 
+    /// <summary>The energy <paramref name="hit"/> would take from the player as they are equipped now.</summary>
+    public int EnergyLostTo(Hit hit) => DamageFrom(hit);
+
     /// <summary>Whether a hit can land on the player at the moment. A game with states in which the player cannot be hit says so here.</summary>
     protected virtual bool AcceptsHit(Hit hit) => true;
 

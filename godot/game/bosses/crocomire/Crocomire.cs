@@ -188,6 +188,9 @@ public partial class Crocomire : Enemy
     private int _rumble;
     private int _rumbleRepeats;
     private int _rumbleOffset;
+
+    /// <summary>How far the wall it hides behind is rattled up or down this update, in pixels; zero when it is not.</summary>
+    public int WallRumble => _dying == Dying.Rumbling ? _rumbleOffset : 0;
     private bool _rumbleToExtreme;
     private bool _skeletonCollapsed;
     private TimelinePlayer? _tongue;
@@ -666,7 +669,6 @@ public partial class Crocomire : Enemy
         if (_rumbleOffset != target)
         {
             _rumbleOffset += _rumbleOffset >= target ? -speed : speed;
-            Position = PixelPosition.FromWhole(Position.X.Whole, 54 + _rumbleOffset);
             return;
         }
 

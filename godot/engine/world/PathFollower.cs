@@ -23,7 +23,7 @@ public sealed class PathFollower
     }
 
     private readonly IReadOnlyList<PixelPosition> _points;
-    private readonly Pixels _speed;
+    private Pixels _speed;
     private readonly AtEnd _atEnd;
     private int _next = 1;
     private int _direction = 1;
@@ -40,6 +40,14 @@ public sealed class PathFollower
         _speed = speed;
         _atEnd = atEnd;
         Position = points[0];
+    }
+
+    /// <summary>How far the mover goes each update.</summary>
+    /// <exception cref="ArgumentException">The speed is not positive.</exception>
+    public Pixels Speed
+    {
+        get => _speed;
+        set => _speed = value > Pixels.Zero ? value : throw new ArgumentException("A path is followed at a speed above nothing.", nameof(value));
     }
 
     /// <summary>Where the mover is on the path.</summary>

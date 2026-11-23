@@ -17,6 +17,16 @@ public partial class Terrain : Node2D, ITerrainShape
     [Export(PropertyHint.File)]
     public string LayoutFile { get; set; } = "";
 
+    /// <summary>
+    /// How far the terrain is shown from where it is, in pixels: a wall that rattles is shown shifted while it does.
+    /// It changes nothing about where the terrain is.
+    /// </summary>
+    public Vector2I ShownShift
+    {
+        get => new((int)Position.X, (int)Position.Y);
+        set => Position = value;
+    }
+
     /// <summary>The loaded layout.</summary>
     private TerrainLayout? _layout;
 

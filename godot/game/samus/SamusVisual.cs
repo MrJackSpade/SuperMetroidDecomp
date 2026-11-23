@@ -30,6 +30,18 @@ public partial class SamusVisual : Node2D
     [Export]
     public Color ChargedTint { get; set; } = new(1.3f, 1.3f, 1.3f);
 
+    /// <summary>How many colours the glow of the hyper beam runs through before it comes round.</summary>
+    [Export]
+    public int GlowSteps { get; set; } = 12;
+
+    /// <summary>How strongly that glow colours her, from none to wholly.</summary>
+    [Export]
+    public float GlowStrength { get; set; } = 0.6f;
+
+    /// <summary>How bright that glow is.</summary>
+    [Export]
+    public float GlowBrightness { get; set; } = 1.4f;
+
     private TimelinePlayer? _player;
     private string _playing = "";
 
@@ -63,11 +75,16 @@ public partial class SamusVisual : Node2D
         // After a hit she flickers: shown on one update and hidden on the next.
         picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0);
         picture.Tint(
-            samus.State is ShinesparkState || samus.IsBoosting ? BoostTint
+            samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
+            : samus.State is ShinesparkState || samus.IsBoosting ? BoostTint
             : samus.HasStoredShine ? StoredShineTint
             : samus.Weapons.IsCharged ? ChargedTint
             : Colors.White);
     }
+
+    /// <summary>The colour of one step of the glow that runs through every colour.</summary>
+    private Color GlowTint(int step) =>
+        Color.FromHsv((float)(step % GlowSteps) / GlowSteps, GlowStrength, 1f) * new Color(GlowBrightness, GlowBrightness, GlowBrightness);
 
     /// <summary>The name of the timeline that shows her now, or empty when her data has none for it.</summary>
     private static string TimelineFor(Samus samus)

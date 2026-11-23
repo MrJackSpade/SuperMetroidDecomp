@@ -683,6 +683,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         return touching.FirstOrDefault(collider => collider.RoomRect.Overlaps(player));
     }
 
+    /// <summary>Whether the player is standing on the enemy's solid or pressed against it.</summary>
+    protected bool PlayerRestsAgainstIt()
+    {
+        if (Solid is not { Enabled: true } solid)
+            return false;
+        PixelRect body = Room.Player.BodyRect;
+        var reach = new PixelRect(body.Left - 1, body.Top - 1, body.Width + 2, body.Height + 2);
+        return reach.Overlaps(solid.RoomRect);
+    }
+
     /// <summary>
     /// Called each update that a part of the enemy touches the player. The engine's enemy hurts the player with its
     /// contact damage; an enemy that does something else to whoever it touches says so here.

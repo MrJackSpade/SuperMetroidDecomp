@@ -511,7 +511,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | Type | Owns and manages | Does not |
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
-| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". | Apply physics or damage. The player and enemies ask it and act on the answer. |
+| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its type names the splash and sound of something crossing its surface, which the player leaves as their feet do. | Apply physics or damage. The player and enemies ask it and act on the answer. |
 | `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (a picture tiled over the view and drifting: fog, rain, spores, heat's shimmer) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |

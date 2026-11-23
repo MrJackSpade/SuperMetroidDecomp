@@ -58,6 +58,12 @@ internal sealed partial class StateGraphRun
     private readonly INamedTypeSymbol? nonSerialized;
     private readonly INamedTypeSymbol? inlineArray;
 
+    /// <summary>
+    /// The interface every game type with generated members implements, through which it registers itself when a registry
+    /// first meets it (#2656), whether or not this compilation can see its members.
+    /// </summary>
+    private readonly INamedTypeSymbol? stateGraphNode;
+
     /// <summary>The source types that get members, every one declared partial within partial containers.</summary>
     private readonly HashSet<INamedTypeSymbol> covered = new(SymbolEqualityComparer.Default);
 
@@ -84,7 +90,15 @@ internal sealed partial class StateGraphRun
         this.catalogs = catalogs;
         nonSerialized = compilation.GetTypeByMetadataName("System.NonSerializedAttribute");
         inlineArray = compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.InlineArrayAttribute");
+        stateGraphNode = compilation.GetTypeByMetadataName("SuperMetroid.Core.IStateGraphNode");
     }
+
+    /// <summary>
+    /// Whether a type registers itself when a registry first meets it (#2656): a game type with generated members, which
+    /// another assembly that cannot see those members still sees implement <c>IStateGraphNode</c>.
+    /// </summary>
+    internal bool DescribesItself(INamedTypeSymbol type) =>
+        stateGraphNode is not null && type.AllInterfaces.Contains(stateGraphNode, SymbolEqualityComparer.Default);
 
     /// <summary>Writes every covered type's members and the assembly's registrar.</summary>
     internal void Generate()

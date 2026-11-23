@@ -75,7 +75,7 @@ godot/
     core/          GameSession, GameLoop, GameMode, Progress, SaveFile, Options, SoundRequests
     shared/        the values of section 4
     collision/     CollisionWorld, Collider, Mover
-    input/         InputSampler, GameInput, bindings
+    input/         InputSampler, GameInput, GameAction, the input sources (the player's devices, a recording)
     audio/         AudioDirector
     content/       ContentLibrary, the values-from-files mechanism, the asset file formats
     actors/        Enemy, Projectile, Pickup, Effect
@@ -106,6 +106,14 @@ godot/
 - Something only one thing uses lives in that thing's folder: its states, a projectile only it fires. Something
   several things use lives in the shared folder for its type.
 - C# files are named for their one class. Scenes and resources use Godot's snake_case. Namespaces mirror folders.
+- **This game's names** (equipment, amounts, hit kinds, areas, bosses, story events, music, toggles, actions) are
+  lists of constants in `game/data/`, one class per list. Code refers to the constant; data files, scenes and saves
+  write the name itself. Every name is lower-case words joined by underscores, because a name is also a file name
+  and a key in a text file. A boss's defeat is the fact `<boss>_defeated`. The lists were written from the old
+  code's lists; the sounds are not listed yet.
+- `game/SuperMetroid.cs` is this game's `GameDefinition` class and `game/game_definition.tres` its resource, which
+  the project setting names. Samus's files are in the namespace `Game`, for the reason the player's are in
+  `Engine.Actors`.
 - The engine's stand-in content for its tests is a minimal player, a test enemy, a small hand-written room layout
   and a test `GameDefinition`.
 
@@ -210,18 +218,43 @@ families. When several enemies share behaviour, the pull is to make a family bas
 (section 6, "Shared movement") or more in `Enemy` itself if every enemy has it. Access is tight so that the only
 way to change a thing is to ask it, which is what keeps move 4 true.
 
+**How the engine's code spells these rules.** The engine in `godot/engine/` is written; these are the conventions
+it settled, and new code follows them.
+
+- **Exact places beside Godot's.** Everything placed in a room has `new PixelPosition Position`, hiding `Node2D`'s
+  floating-point one. Gameplay reads and writes the exact one only; `EntityNode.Show` copies it to the node once per
+  update for drawing, and `EntityNode.StartingPlace` reads where a scene placed the node, once, as it enters its
+  room. Nothing else reads a node's own position.
+- **Distances in the inspector.** A distance or speed that is a setting is exported as a plain number, so the
+  inspector can show and edit fractions of a pixel, and is turned into `Pixels` with `Pixels.FromNumber` once, as
+  the values are filled. No arithmetic is done on the number.
+- **What every placed thing shares** is in `EntityNode` (its place, its colliders, reading collider sizes from its
+  data file), which is a set of functions the base classes call, not a base class.
+- **Small interfaces name capabilities:** `IRoomEntity` (enters a room and has a place), `IPlaced` (present only
+  when a condition holds), `IHittable` (takes hits), `ITriggerTarget` (can be told something by a `Trigger`),
+  `IMoves` (a movement component: it is stepped and reports what it met), `IHasValues` (its values come from a data
+  file).
+- **Namespaces follow folders,** with two exceptions made so that code reads naturally: the player's files in
+  `engine/actors/player/` are in `Engine.Actors`, because `Player` is both the folder and the class; and the
+  project does not use C#'s implicit usings for threading, because `Barrier` is the engine's type.
+- **An enemy can be asleep** (`Sleep`, `Wake`, its own methods): asleep, it is not stepped and cannot be hit, as
+  one waiting for an encounter to begin. Separately, the room does not step an enemy further from the view than
+  the room's active margin.
+
 ## 4. Values, resources and core
 
 ### Values (`engine/shared/`)
 
 | Type | What it is | Holds and does |
 | --- | --- | --- |
-| `PixelPosition`, `PixelVelocity` | Exact position and signed velocity | Whole pixels plus a fraction; adding, comparing, converting for display. Never floats. |
+| `Pixels` | An exact distance along one axis | Whole pixels plus a fraction of a pixel, the fraction always a non-negative part of one pixel. Adding, comparing, replacing either part alone, converting for display. Never floats. |
+| `PixelPosition`, `PixelOffset`, `PixelVelocity` | A place in a room; a distance and direction; a signed speed | Each is two `Pixels`, across and down. A velocity is the offset moved in one update. Position plus offset is a position; position minus position is an offset. |
 | `PixelRect` | Integer rectangle | A collider's shape. |
 | `Facing`, `Aim` | Left or right; where a weapon points | Plain enums used by every actor. No per-actor direction enums. |
 | `Countdown` | A timer in updates | Counts down, reports when it ends. |
 | `WrappingCounter` | A counter that wraps | Wraps by itself at its own limit. Used only where the wrap is something the player can observe. |
-| `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. |
+| `GameRandom` | The gameplay random generator | One per session. Cosmetics never use it. It draws from an `IRandomSequence`: the engine's plain one by default, or one the `GameDefinition` supplies when a game's outcomes must follow a particular sequence. |
+| `GameAction`, `GameInput` | An action by name; one update's input | The engine names its standard actions; a game adds its own by name. A `GameInput` says which actions are held and which were newly pressed. |
 | `GameClock` | The count of updates played | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. |
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |
@@ -265,9 +298,9 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `PickupType` | A kind of drop | Which inventory amount it adds to, and how much. |
 | `BlockType` | A reactive tile | Its rules (section 5). |
 | `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
-| `Area` | An area of the world | Name, its rooms, its map: the cells, what each shows, and its markers. |
+| `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. |
 | `FrameTimeline` | A timed sequence gameplay follows | Ordered steps, each with a picture to show, how many updates it lasts, and optional named cues; and where it loops or ends. |
-| `DemoRecording` | One title-screen demo | The recorded inputs, the room it plays in, and what the player starts with. |
+| `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. `RecordedInputSource` plays it to the `InputSampler`. |
 | `GameText` | The game's words | Every message, menu label, narration line and credit, by name, per language. |
 | `GameDefinition` | The game the engine is running | The one thing the engine is pointed at: the first screen, the player's scene, the HUD, this game's lists (equipment and ammunition kinds, hit kinds, item types, bosses and story events, areas, music and sounds, input actions, options, extra game modes and session services) and its compatibility answers. Everything the engine knows about a particular game, it learns from this. |
 
@@ -293,8 +326,32 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SoundRequests` | What gameplay has asked to hear and, as gameplay sees it, what is still sounding | Accepting or refusing each request by priority, and answering "is this sound still going". Advanced once per update. | Play anything. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. | Know which room the player is in. |
 
-The engine provides the modes any game has: loading, playing, room transition, paused, message box and death. This
-game adds title, attract demo, file select, options, game over, time up, and one per cinematic.
+`SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one.
+`RoomVersion` is one set of a room's settings (its layout file, which of the layout's patches are in place, its music) with the `Condition` it applies under.
+
+**The engine's modes.** The engine provides the modes any game has. This game adds title, attract demo, file
+select, options, game over, time up, and one per cinematic.
+
+| Mode | Does | Hands over to |
+| --- | --- | --- |
+| `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control. |
+| `RoomTransitionMode` | Fades out, takes the old room down and sets the next up with the player arriving at the exit the old one led to, fades in. Neither room is stepped meanwhile. | The same `PlayingMode`. |
+| `PausedMode` | Nothing; play is still beneath it. A game's pause screen is its own mode doing the same. | The same `PlayingMode`, on pause. |
+| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. | The mode it was laid over, on confirm. |
+| `LoadingMode` | Begins the session's game again and puts the session's save slot into it, if the slot holds one. | A new `PlayingMode` in the saved room, or the first room. |
+| `Cinematic` (base, `engine/ui/`) | Plays update by update; confirm skips it unless it says otherwise. | The mode it names. |
+
+- **Laid over, or replacing.** A mode says which mode it is laid over (`Keeps`). That mode stays on screen, is not
+  stepped, and is told when control comes back (`Resume`). Any other hand-over ends the mode that finished, and
+  everything it was laid over.
+- **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
+  message, `RequestSave` for a save. The mode in control takes the request and acts on it.
+- **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
+  `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
+  game's is its game-over screen.
+- **Where a game plugs in** is always the `GameDefinition`: the pause mode, the mode after death, the first mode,
+  how a room is made, the folders its words, sounds and music are in, how many save slots it has, its own actions
+  and the buttons they are bound to until the player chooses otherwise.
 
 **What is remembered.** A room forgets everything when it is left: enemies return, blocks regrow, barriers close.
 The only things that survive are facts in `Progress`.
@@ -302,7 +359,11 @@ The only things that survive are facts in `Progress`.
 - Anything that must survive has a setting, "remembered as", holding a name. An item collected, a boss defeated, a
   barrier opened for good, a story event: each is a name in `Progress`.
 - The name is given where the thing is placed. It is unique across the whole game, and the game is checked for
-  duplicates and for a remembered thing with no name when it loads.
+  duplicates and for a remembered thing with no name when it loads. The `GameDefinition` lists every room's scene;
+  as the game loop starts, `RememberedNames` looks at everything placed in each and the game does not start if any
+  name is shared or anything that must be remembered (an item, a boss encounter) has none. Every mistake is
+  reported at once, with its room and its thing. A new kind of thing that must be remembered says so itself
+  (`MustBeRemembered`).
 - A thing asks `Progress` about its own name when its room is set up and sets itself up accordingly. Nothing else
   restores it.
 
@@ -475,6 +536,9 @@ in `engine/actors/player/`.
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
   change into and out of it. A game that shows its low form as something else supplies the look, not the mechanic.
+- **A mechanic may need equipment.** Each of those mechanics has a second setting naming the equipment that must be
+  switched on for it to work, empty when it needs none. The states ask "may the player do this now", which is the
+  switch and the equipment together. A game ties an item to a mechanic by naming it there, with no code.
 
 | System | What the engine does | What the game supplies |
 | --- | --- | --- |
@@ -517,7 +581,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | Not in control | In the gunship, collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
-  switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her.
+  switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
+  says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one

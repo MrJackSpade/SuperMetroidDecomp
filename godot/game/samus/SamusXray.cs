@@ -1,0 +1,117 @@
+using Engine.Shared;
+using Engine.World;
+using Godot;
+
+namespace Game;
+
+/// <summary>
+/// Samus's X-ray scope: a cone of sight from her visor that opens as she holds it, swings up and down, and shows the
+/// hidden blocks it passes over for what they are. It is a child of Samus and only looks; it changes nothing but
+/// which blocks are hidden.
+/// </summary>
+public partial class SamusXray : Node2D
+{
+    /// <summary>How far above her middle the scope looks from, in pixels.</summary>
+    [Export]
+    public int EyeHeight { get; set; } = 12;
+
+    /// <summary>The widest the cone opens to each side of its middle, in 256ths of a turn.</summary>
+    [Export]
+    public int WidestHalfWidth { get; set; } = 10;
+
+    /// <summary>The furthest the cone's middle swings up or down from level, in 256ths of a turn.</summary>
+    [Export]
+    public int WidestSwing { get; set; } = 54;
+
+    private int _openedFor;
+    private int _swing;
+    private int _halfWidth;
+    private Vector2 _eye;
+    private bool _facingLeft;
+
+    /// <summary>Whether the scope is being looked through.</summary>
+    public bool IsOpen { get; private set; }
+
+    /// <summary>Opens the scope, level, with its cone closed.</summary>
+    public void Open(Samus samus)
+    {
+        IsOpen = true;
+        _openedFor = 0;
+        _swing = 0;
+        _halfWidth = 0;
+        QueueRedraw();
+    }
+
+    /// <summary>Closes the scope.</summary>
+    public void Close()
+    {
+        IsOpen = false;
+        QueueRedraw();
+    }
+
+    /// <summary>
+    /// Plays one update of looking: the cone opens a little more, swings by <paramref name="swing"/> (up when
+    /// negative), and every hidden block inside it that sight reveals is shown.
+    /// </summary>
+    public void Look(Samus samus, int swing)
+    {
+        _openedFor++;
+        _halfWidth = Math.Min(WidestHalfWidth, WidestHalfWidth * _openedFor / Math.Max(1, samus.XrayOpeningUpdates));
+        _swing = Math.Clamp(_swing + swing, -WidestSwing, WidestSwing);
+        _facingLeft = samus.Facing == Facing.Left;
+        var eye = new PixelPosition(samus.Position.X, samus.Position.Y - Pixels.FromWhole(EyeHeight));
+        _eye = new Vector2(0, -EyeHeight);
+
+        int reach = samus.XrayReach;
+        int forward = _facingLeft ? -1 : 1;
+        var sweep = new PixelRect(_facingLeft ? eye.X.Whole - reach : eye.X.Whole, eye.Y.Whole - reach, reach, reach * 2);
+        Terrain terrain = samus.Room.Terrain;
+        foreach (Block block in terrain.BlocksIn(sweep))
+        {
+            if (!block.Hidden || !block.Type.RevealedBySight)
+                continue;
+            long across = (block.Rect.Left + block.Rect.Width / 2 - eye.X.Whole) * forward;
+            long down = block.Rect.Top + block.Rect.Height / 2 - eye.Y.Whole;
+            if (IsInCone(across, down))
+                terrain.RevealBySight(block.Rect);
+        }
+
+        QueueRedraw();
+    }
+
+    /// <summary>Whether a point lies inside the cone, given how far ahead of and below the eye it is.</summary>
+    private bool IsInCone(long ahead, long below)
+    {
+        if (ahead <= 0)
+            return false;
+        // The cone lies between its upper and lower edges; a point is inside when it is below the upper and above the lower.
+        (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
+        (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
+        return upperAhead * below - upperBelow * ahead >= 0 && lowerAhead * below - lowerBelow * ahead <= 0;
+    }
+
+    /// <summary>A direction at <paramref name="angle"/> below level, as distances ahead and below, scaled by 4096.</summary>
+    private static (long Ahead, long Below) Direction(int angle)
+    {
+        Pixels size = Pixels.FromWhole(4096);
+        return (Turns.Cosine(angle, size).Whole, Turns.Sine(angle, size).Whole);
+    }
+
+    /// <inheritdoc/>
+    public override void _Draw()
+    {
+        if (!IsOpen)
+            return;
+        float forward = _facingLeft ? -1 : 1;
+        (long upperAhead, long upperBelow) = Direction(_swing - _halfWidth);
+        (long lowerAhead, long lowerBelow) = Direction(_swing + _halfWidth);
+        const float length = 400f / 4096f;
+        Vector2[] cone =
+        [
+            _eye,
+            _eye + new Vector2(upperAhead * forward, upperBelow) * length,
+            _eye + new Vector2(lowerAhead * forward, lowerBelow) * length,
+        ];
+        DrawColoredPolygon(cone, new Color(1, 1, 1, 0.35f));
+    }
+}

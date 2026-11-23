@@ -1,0 +1,20 @@
+using Engine.Actors.Components;
+using Engine.Shared;
+
+namespace Engine.Actors;
+
+/// <summary>Standing at a station while it works: the player does not move or act until the station is done.</summary>
+public sealed class UsingStationState : PlayerState
+{
+    /// <inheritdoc/>
+    public override bool CanAttack => false;
+
+    /// <inheritdoc/>
+    public override bool InControl => false;
+
+    /// <inheritdoc/>
+    public override void Enter(Player owner) => owner.Velocity = PixelVelocity.Zero;
+
+    /// <inheritdoc/>
+    public override State<Player> Step(Player owner) => this;
+}

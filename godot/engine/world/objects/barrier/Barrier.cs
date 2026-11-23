@@ -1,0 +1,202 @@
+using Engine.Collision;
+using Engine.Content;
+using Engine.Shared;
+using Godot;
+
+namespace Engine.World.Objects;
+
+/// <summary>
+/// A solid object with health that only certain damage wears down, or that opens when told to. It stands wherever
+/// something must be got through and knows nothing about exits. Door caps, gates, shutters, breakable walls and the
+/// shell around a held item are all barriers with different settings. It can be told to "open" and "close".
+/// </summary>
+public partial class Barrier : RoomObject, IHittable, ITriggerTarget
+{
+    /// <summary>What an open barrier does.</summary>
+    public enum ComesBackWhen
+    {
+        /// <summary>It stays open.</summary>
+        Never,
+
+        /// <summary>It closes once the player has gone through and is clear of it.</summary>
+        AfterPassing,
+
+        /// <summary>It is closed again when its room is next set up.</summary>
+        NextSetup,
+    }
+
+    /// <summary>How a barrier that was opened and remembered is set up afterwards.</summary>
+    public enum RememberedAsWhat
+    {
+        /// <summary>Already open.</summary>
+        Open,
+
+        /// <summary>Closed, but as a plain barrier any hit opens.</summary>
+        Plain,
+    }
+
+    /// <summary>How much damage opens it.</summary>
+    [Export, DataValue("health")]
+    public int MaxHealth { get; set; } = 1;
+
+    /// <summary>The amount each accepted hit kind takes off, by the kind's name. A kind not listed does nothing.</summary>
+    [Export]
+    public Godot.Collections.Dictionary<string, int> DamagedBy { get; set; } = [];
+
+    /// <summary>The amount a hit of any kind not listed takes off; zero when only listed kinds damage it.</summary>
+    [Export, DataValue("any_hit")]
+    public int AnyHit { get; set; }
+
+    /// <summary>A condition that holds the barrier shut while it is false; null when nothing does.</summary>
+    [Export]
+    public Condition? HeldShutBy { get; set; }
+
+    /// <summary>What an open barrier does.</summary>
+    [Export]
+    public ComesBackWhen ComesBack { get; set; } = ComesBackWhen.NextSetup;
+
+    /// <summary>How the barrier is set up once it has been opened and remembered.</summary>
+    [Export]
+    public RememberedAsWhat Remembered { get; set; }
+
+    private int _health;
+    private bool _plain;
+    private bool _playerWasInside;
+
+    /// <summary>Whether the barrier is open.</summary>
+    public bool IsOpen { get; private set; }
+
+    /// <summary>Whether the barrier is held shut by its condition right now.</summary>
+    public bool IsSealed => !IsOpen && HeldShutBy is not null && !HeldShutBy.IsTrue(Room);
+
+    /// <summary>How much more damage opens it.</summary>
+    public int HealthLeft => _health;
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        if (!data.Has("damaged_by"))
+            return;
+        DamagedBy = [];
+        foreach ((string kind, DataNode amount) in data.Get("damaged_by").Entries())
+            DamagedBy[kind] = amount.AsInt();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnEnterRoom()
+    {
+        _health = MaxHealth;
+        IsOpen = false;
+        _plain = false;
+        SetSolid(true);
+        if (!IsRemembered)
+            return;
+        if (Remembered == RememberedAsWhat.Open)
+        {
+            IsOpen = true;
+            SetSolid(false);
+            Room.MarkGone(Name);
+        }
+        else
+        {
+            _plain = true;
+            _health = 1;
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsOpen;
+
+    /// <inheritdoc/>
+    public HitResult TakeHit(Hit hit, Collider part)
+    {
+        if (IsOpen)
+            return HitResult.Ignored;
+        if (IsSealed)
+            return HitResult.Absorbed;
+        int damage = _plain ? 1 : DamageFrom(hit);
+        if (damage <= 0)
+            return HitResult.Absorbed;
+        _health -= damage;
+        if (_health > 0)
+            return HitResult.Hurt;
+        Open();
+        return HitResult.Destroyed;
+    }
+
+    /// <summary>Opens the barrier: it stops blocking, is recorded as gone, and is remembered if it is one that is.</summary>
+    public void Open()
+    {
+        if (IsOpen)
+            return;
+        IsOpen = true;
+        _playerWasInside = false;
+        SetSolid(false);
+        Room.MarkGone(Name);
+        Remember();
+    }
+
+    /// <summary>Closes the barrier at full strength.</summary>
+    public void Close()
+    {
+        if (!IsOpen)
+            return;
+        IsOpen = false;
+        _health = _plain ? 1 : MaxHealth;
+        SetSolid(true);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnStep()
+    {
+        if (!IsOpen || ComesBack != ComesBackWhen.AfterPassing)
+            return;
+        Collider? solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
+        if (solid is null)
+            return;
+        bool inside = solid.RoomRect.OverlapsOrTouches(Room.Player.BodyRect);
+        if (_playerWasInside && !inside)
+            Close();
+        _playerWasInside = inside;
+    }
+
+    /// <inheritdoc/>
+    public void Triggered(string what)
+    {
+        switch (what)
+        {
+            case "open":
+                Open();
+                break;
+            case "close":
+                Close();
+                break;
+            default:
+                throw new ArgumentException($"A barrier can be told to \"open\" or \"close\", not \"{what}\".", nameof(what));
+        }
+    }
+
+    /// <summary>How much a hit takes off: the most that any kind it carries takes off, or what any hit does.</summary>
+    private int DamageFrom(Hit hit)
+    {
+        int most = 0;
+        bool listed = false;
+        foreach (HitKind kind in hit.Kinds)
+        {
+            if (!DamagedBy.TryGetValue(kind.Name, out int amount))
+                continue;
+            listed = true;
+            most = Math.Max(most, amount);
+        }
+
+        return listed ? most : AnyHit;
+    }
+
+    /// <summary>Turns the barrier's solid and its hurtboxes on or off together.</summary>
+    private void SetSolid(bool solid)
+    {
+        foreach (Collider collider in EntityNode.CollidersOf(this))
+            collider.Enabled = solid;
+    }
+}

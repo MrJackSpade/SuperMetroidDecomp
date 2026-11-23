@@ -191,6 +191,9 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         everythingRegistered = true;
         foreach ((Func<string, IStateGraphRegistry, bool> _, Action<IStateGraphRegistry> everything) in assemblies)
             everything(this);
+        // Registering a kind declares nothing further, so the declarations listed now are every one.
+        foreach (IDeclaredCollectionKinds kinds in declaredKinds.ToArray())
+            kinds.RegisterAll();
     }
 
     /// <summary>The handling of <paramref name="value"/>'s type.</summary>
@@ -223,6 +226,7 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
                 foreach (Delegate call in made.GetInvocationList())
                     Declaring(call.Method.DeclaringType ?? type);
             }
+            DeclaredKinds(type);
         }
         if (byType.TryGetValue(type, out known))
             return known;
@@ -247,9 +251,14 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     {
         if (byType.TryGetValue(type, out StateGraphType? known))
             return known;
-        // A type registered by no declaration is asked about once; a later registration of it is found above.
-        if (declaringAsked.TryAdd(type, true))
-            RegisterDeclaring(type);
+        lock (gate)
+        {
+            // A type registered by no declaration has its declarations registered once; a later registration of it is found
+            // above, and a declared collection kind registers whenever its declaration has.
+            if (declaringAsked.TryAdd(type, true))
+                Declaring(type);
+            DeclaredKinds(type);
+        }
         return byType.TryGetValue(type, out known) ? known : null;
     }
 
@@ -507,30 +516,108 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     public void KeyValuePair<TKey, TValue>() => Put(new KeyValuePairStateType<TKey, TValue>(this));
 
     /// <inheritdoc/>
+    /// <remarks>Each kind is registered the first time a state meets a value of it (<see cref="DeclaredKinds"/>, #2619).</remarks>
     public void Sequence<T>()
     {
+        if (begun.Add(typeof(SequenceKinds<T>)))
+            Declare(sequences, typeof(T), new SequenceKinds<T>(this));
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Each kind is registered the first time a state meets a value of it (<see cref="DeclaredKinds"/>, #2619).</remarks>
+    public void Map<TKey, TValue>() where TKey : notnull
+    {
+        if (begun.Add(typeof(MapKinds<TKey, TValue>)))
+            Declare(maps, (typeof(TKey), typeof(TValue)), new MapKinds<TKey, TValue>(this));
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>Each kind is registered the first time a state meets a value of it (<see cref="DeclaredKinds"/>, #2619).</remarks>
+    public void Set<T>()
+    {
+        if (begun.Add(typeof(SetKinds<T>)))
+            Declare(sets, typeof(T), new SetKinds<T>(this));
+    }
+
+    /// <summary>Registers the read-only lists the compiler makes for collection expressions of <typeparamref name="T"/>.</summary>
+    internal void CompilerList<T>()
+    {
         Array<T>();
-        List<T>();
-        ImmutableArray<T>();
-        ReadOnlyCollection<T>();
         if (begun.Add(typeof(CompilerReadOnlyList<T>)))
             Probe(new CompilerReadOnlyListProbe<T>(new CompilerReadOnlyListStateType<T>(this)));
     }
 
-    /// <inheritdoc/>
-    public void Map<TKey, TValue>() where TKey : notnull
+    /// <summary>The declared sequences by element type, whose kinds register as a state first meets each.</summary>
+    private readonly Dictionary<Type, IDeclaredCollectionKinds> sequences = [];
+
+    /// <summary>The declared maps by key and value type, whose kinds register as a state first meets each.</summary>
+    private readonly Dictionary<(Type Key, Type Value), IDeclaredCollectionKinds> maps = [];
+
+    /// <summary>The declared sets by member type, whose kinds register as a state first meets each.</summary>
+    private readonly Dictionary<Type, IDeclaredCollectionKinds> sets = [];
+
+    /// <summary>Every declared sequence, map and set, in the order declared.</summary>
+    private readonly List<IDeclaredCollectionKinds> declaredKinds = [];
+
+    /// <summary>Records a declaration whose kinds register as a state first meets each; callers hold the lock.</summary>
+    private void Declare<TKey>(Dictionary<TKey, IDeclaredCollectionKinds> index, TKey key, IDeclaredCollectionKinds kinds) where TKey : notnull
     {
-        Dictionary<TKey, TValue>();
-        FrozenDictionary<TKey, TValue>();
-        ImmutableDictionary<TKey, TValue>();
+        index.Add(key, kinds);
+        declaredKinds.Add(kinds);
+        if (everythingRegistered)
+            kinds.RegisterAll();
     }
 
-    /// <inheritdoc/>
-    public void Set<T>()
+    /// <summary>
+    /// Registers the handling of <paramref name="runtime"/> when it is a kind a declared sequence, map or set may hold and
+    /// no state has met one before (#2619): an array, list, immutable array or read-only collection of a sequence's element
+    /// type, the compiler's read-only list of a type a sequence's element type is assignable from, or a dictionary, hash
+    /// set, immutable or frozen one of a map's or set's types; callers hold the lock.
+    /// </summary>
+    private void DeclaredKinds(Type runtime)
     {
-        HashSet<T>();
-        FrozenSet<T>();
-        ImmutableHashSet<T>();
+        if (runtime.IsSZArray)
+        {
+            if (sequences.TryGetValue(runtime.GetElementType()!, out IDeclaredCollectionKinds? sequence))
+                sequence.Register(typeof(Array));
+            return;
+        }
+        if (!runtime.IsGenericType)
+            return;
+        Type[] arguments = runtime.GetGenericArguments();
+        Type kind = runtime.GetGenericTypeDefinition();
+        // A frozen collection is the framework's specialization of FrozenDictionary or FrozenSet, its own type internal.
+        for (Type? frozen = runtime.BaseType; frozen is not null; frozen = frozen.BaseType)
+        {
+            if (frozen.IsGenericType && frozen.GetGenericTypeDefinition() is var definition &&
+                (definition == typeof(System.Collections.Frozen.FrozenDictionary<,>) || definition == typeof(System.Collections.Frozen.FrozenSet<>)))
+            {
+                kind = definition;
+                arguments = frozen.GetGenericArguments();
+                break;
+            }
+        }
+        if (arguments.Length == 2)
+        {
+            if (maps.TryGetValue((arguments[0], arguments[1]), out IDeclaredCollectionKinds? map))
+                map.Register(kind);
+            return;
+        }
+        if (arguments.Length != 1)
+            return;
+        if (sets.TryGetValue(arguments[0], out IDeclaredCollectionKinds? set) && set.Register(kind))
+            return;
+        if (sequences.TryGetValue(arguments[0], out IDeclaredCollectionKinds? declared) && declared.Register(kind))
+            return;
+        // The compiler's list of an element type is a list of every type the element type is assignable to.
+        if (runtime.Name.StartsWith("<>z__", StringComparison.Ordinal))
+        {
+            foreach ((Type element, IDeclaredCollectionKinds kinds) in sequences)
+            {
+                if (element.IsAssignableFrom(arguments[0]))
+                    kinds.Register(typeof(CompilerListKind));
+            }
+        }
     }
 
     /// <inheritdoc/>

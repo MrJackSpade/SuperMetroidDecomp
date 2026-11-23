@@ -733,7 +733,8 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `GameHud` (base) | `engine/ui/` | Being what is shown over play: kept on screen by `PlayingMode`, presented once as play begins and told to show things as they are as each room is set up and after each update. The `GameDefinition` names a game's scene of one. | Know what a particular game shows. |
 | `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon, the minimap and, during an escape, the countdown; its places and pictures come from its data file. | Change any of them. |
 | `PauseScreen` | `game/pause/` | The map and equipment screens; switching equipment through the player's `Inventory`. | Hold inventory state. |
-| Menus | `game/menus/` | Title, file select, options, game over. Each is a `GameMode`. | Touch a running session. |
+| `ChoiceList` | `engine/ui/` | A list of lines with one marked: up and down move the mark, and confirm and cancel are reported to whoever steps it. | Hold words or act on a choice. |
+| Menus | `game/menus/` | Title (`TitleMode`), file select (`FileSelectMode`), options (`OptionsMode`), game over (`GameOverMode`). Each is a `GameMode`; their words come from `GameText`. The game starts on the title, and the game over screen is what follows a death. The title's attract demos are not carried over. | Touch a running session. |
 | `AudioDirector` | `engine/audio/` | Playing the music a room or event asks for and the sounds `SoundRequests` accepted. | Affect gameplay by its timing. |
 | `InputSampler` | `engine/input/` | Producing one `GameInput` of actions per update from the player's devices and bindings, or from a recorded demo. | Let anything else read devices. |
 | `ContentLibrary` | `engine/content/` | Loading art, audio, layouts and data files, by their path in the assets tree. | Read the ROM or reference the extractor. |

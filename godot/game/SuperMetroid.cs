@@ -17,6 +17,12 @@ public partial class SuperMetroid : GameDefinition
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
 
+    /// <summary>The game starts on its title screen.</summary>
+    public override GameMode CreateFirstMode() => FirstMode is null ? new Menus.TitleMode() : base.CreateFirstMode();
+
+    /// <summary>After a death comes the game over screen.</summary>
+    public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();
+
     /// <summary>This game adds the escape countdown.</summary>
     public override IReadOnlyList<ISessionService> CreateServices() => [new Escape()];
 

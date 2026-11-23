@@ -71,8 +71,13 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// <inheritdoc/>
     public void Triggered(string what)
     {
-        if (what != "start")
-            throw new ArgumentException($"A room sequence can be told to \"start\", not \"{what}\".", nameof(what));
-        Start();
+        if (what == "start")
+            Start();
+        else
+            OnTold(what);
     }
+
+    /// <summary>Called when the sequence is told anything but "start". A sequence that knows other words acts on them here.</summary>
+    protected virtual void OnTold(string what) =>
+        throw new ArgumentException($"The room sequence \"{Name}\" can be told to \"start\", not \"{what}\".", nameof(what));
 }

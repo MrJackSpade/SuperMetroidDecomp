@@ -513,6 +513,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
 | `CameraZone` | A region with its own scrolling limits, which can be opened or closed. | Anything else. |
 | `Trigger` | A region that calls one named method when the player enters it, optionally only when a `Condition` holds. | Hold logic. |
+| `Relay` | Turning a word it is told into what the room does about it, by its rules: telling another thing a word, putting a terrain patch in place or taking one back, changing the music, shaking the room, recording a fact. A boss that only knows it has woken tells a relay; the relay's rules open the camera zone and close the door. | Hold behaviour, or accept a word it has no rule for. |
 
 **Why, and extending it.** A room is a container that forgets. That one decision is why "remembered as" and
 "present when" exist: instead of each object managing its own persistence and each room having variants, there is
@@ -897,6 +898,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - Room versions: every case where the old code had more than one "state" of a room.
 
 ### Room sequences
+
+A sequence is told "start", and one that knows other words acts on them. `TypedWarning` (`game/sequences/`) types
+a warning across the screen and tells what is listed when it is over; Mother Brain's room and Ceres use it.
 
 Ceres: the elevator arrival, the falling debris, Ridley's getaway. Crateria: the gunship landing. Brinstar and
 Norfair: the Dachora shaft camera, Crocomire's room shaking. Maridia: the transport tube ride. Tourian: the

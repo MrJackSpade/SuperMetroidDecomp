@@ -206,7 +206,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     }
 
     /// <inheritdoc/>
-    public bool IsHitBy(HitSide side) => _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded;
+    public virtual bool IsHitBy(HitSide side) => _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded;
+
+    /// <summary>
+    /// Whether the projectile delivers its hit at the moment. Its settings say whether it ever does; a projectile of
+    /// its own class that is harmless for part of its life says when here.
+    /// </summary>
+    protected virtual bool DeliversHitNow => _settings.DeliversHit;
 
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
@@ -328,7 +334,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         Position = next;
         PixelRect area = Area;
         bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
-        bool hitsTerrain = _settings.DeliversHit &&
+        bool hitsTerrain = DeliversHitNow &&
             _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
 
         if (passes && hitsTerrain)
@@ -353,7 +359,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             return false;
         }
 
-        if (!_settings.DeliversHit)
+        if (!DeliversHitNow)
             return true;
 
         if (_settings.HitsEachUpdate)

@@ -20,12 +20,12 @@ About = "kraid_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/brinstar/mini_kraid.json"
+LayoutFile = "rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/brinstar/mini_kraid.json"
+LayoutFile = "rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json"
 Music = "boss_room_tension"
 
 [sub_resource type="Resource" id="r4"]
@@ -46,7 +46,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/brinstar/mini_kraid.json"
+LayoutFile = "rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json"
 
 [node name="ToKraidEyeDoor" type="Node2D" parent="."]
 script = ExtResource("5")

@@ -11,7 +11,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/norfair/grapple_tutorial2.json"
+LayoutFile = "rooms/norfair/grapple_tutorial2_in_unheated_norfair.json"
 KeepsMusic = true
 
 [node name="GrappleTutorial2" type="Node2D"]
@@ -22,7 +22,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/norfair/grapple_tutorial2.json"
+LayoutFile = "rooms/norfair/grapple_tutorial2_in_unheated_norfair.json"
 
 [node name="ToGrappleTutorial1" type="Node2D" parent="."]
 script = ExtResource("4")

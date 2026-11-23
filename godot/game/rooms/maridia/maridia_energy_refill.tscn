@@ -10,7 +10,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/maridia/energy_refill_room_door_on_left.json"
+LayoutFile = "rooms/maridia/energy_refill_room_door_on_left_in_blue_refill.json"
 KeepsMusic = true
 
 [node name="MaridiaEnergyRefill" type="Node2D"]
@@ -21,7 +21,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/maridia/energy_refill_room_door_on_left.json"
+LayoutFile = "rooms/maridia/energy_refill_room_door_on_left_in_blue_refill.json"
 
 [node name="ToDraygonSave" type="Node2D" parent="."]
 script = ExtResource("4")

@@ -20,12 +20,12 @@ About = "zebes_awake"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/crateria/gauntlet_entrance.json"
+LayoutFile = "rooms/crateria/gauntlet_entrance_in_upper_crateria.json"
 Music = "lower_crateria"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/gauntlet_entrance.json"
+LayoutFile = "rooms/crateria/gauntlet_entrance_in_upper_crateria.json"
 KeepsMusic = true
 
 [node name="GauntletEntrance" type="Node2D"]
@@ -36,7 +36,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/gauntlet_entrance.json"
+LayoutFile = "rooms/crateria/gauntlet_entrance_in_upper_crateria.json"
 
 [node name="ToGauntletEnergyTank" type="Node2D" parent="."]
 script = ExtResource("5")

@@ -28,12 +28,12 @@ Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r2")])
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
 When = SubResource("r3")
-LayoutFile = "rooms/crateria/elevator_to_blue_brinstar.json"
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/elevator_to_blue_brinstar.json"
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
 Music = "crateria_arrival"
 
 [node name="ElevatorToBlueBrinstar" type="Node2D"]
@@ -44,7 +44,7 @@ Versions = Array[ExtResource("2")]([SubResource("r4"), SubResource("r5")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/elevator_to_blue_brinstar.json"
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
 
 [node name="ToMorphBall" type="Node2D" parent="."]
 script = ExtResource("5")

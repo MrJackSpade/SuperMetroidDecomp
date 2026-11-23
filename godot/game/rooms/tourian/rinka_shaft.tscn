@@ -10,7 +10,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/tourian/rinka_shaft.json"
+LayoutFile = "rooms/tourian/rinka_shaft_in_tourian.json"
 Music = "tourian"
 
 [node name="RinkaShaft" type="Node2D"]
@@ -21,7 +21,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/tourian/rinka_shaft.json"
+LayoutFile = "rooms/tourian/rinka_shaft_in_tourian.json"
 
 [node name="ToMotherBrain" type="Node2D" parent="."]
 script = ExtResource("4")

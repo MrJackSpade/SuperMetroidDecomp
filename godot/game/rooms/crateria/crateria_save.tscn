@@ -10,7 +10,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/crateria/save_room_door_on_right.json"
+LayoutFile = "rooms/crateria/save_room_door_on_right_in_save_station.json"
 Music = "lower_crateria"
 
 [node name="CrateriaSave" type="Node2D"]
@@ -21,7 +21,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/crateria/save_room_door_on_right.json"
+LayoutFile = "rooms/crateria/save_room_door_on_right_in_save_station.json"
 
 [node name="ToParlor" type="Node2D" parent="."]
 script = ExtResource("4")

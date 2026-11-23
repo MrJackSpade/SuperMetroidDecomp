@@ -14,7 +14,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/crateria/east_ocean.json"
+LayoutFile = "rooms/crateria/east_ocean_in_upper_crateria.json"
 Music = "samus_theme"
 
 [node name="EastOcean" type="Node2D"]
@@ -25,7 +25,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/crateria/east_ocean.json"
+LayoutFile = "rooms/crateria/east_ocean_in_upper_crateria.json"
 
 [node name="ToElectricDeath" type="Node2D" parent="."]
 script = ExtResource("4")

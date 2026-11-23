@@ -18,12 +18,12 @@ About = "phantoon_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/wrecked_ship/phantoon.json"
+LayoutFile = "rooms/wrecked_ship/phantoon_in_wrecked_ship_power_on.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/wrecked_ship/phantoon.json"
+LayoutFile = "rooms/wrecked_ship/phantoon_in_wrecked_ship_power_off.json"
 Music = "boss_room_tension"
 
 [sub_resource type="Resource" id="r4"]
@@ -44,7 +44,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/wrecked_ship/phantoon.json"
+LayoutFile = "rooms/wrecked_ship/phantoon_in_wrecked_ship_power_off.json"
 
 [node name="ToBasement" type="Node2D" parent="."]
 script = ExtResource("5")

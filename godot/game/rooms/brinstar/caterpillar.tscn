@@ -15,7 +15,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/brinstar/caterpillar.json"
+LayoutFile = "rooms/brinstar/caterpillar_in_red_brinstar_kraid.json"
 Music = "red_brinstar"
 
 [node name="Caterpillar" type="Node2D"]
@@ -26,7 +26,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/brinstar/caterpillar.json"
+LayoutFile = "rooms/brinstar/caterpillar_in_red_brinstar_kraid.json"
 
 [node name="ToAlphaPowerBomb" type="Node2D" parent="."]
 script = ExtResource("4")

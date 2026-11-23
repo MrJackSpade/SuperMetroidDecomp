@@ -13,7 +13,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/norfair/grapple_beam.json"
+LayoutFile = "rooms/norfair/grapple_beam_in_unheated_norfair.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r2"]
@@ -34,7 +34,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/norfair/grapple_beam.json"
+LayoutFile = "rooms/norfair/grapple_beam_in_unheated_norfair.json"
 
 [node name="ToGrappleTutorial1" type="Node2D" parent="."]
 script = ExtResource("4")

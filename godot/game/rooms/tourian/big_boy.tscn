@@ -20,12 +20,12 @@ About = "baby_metroid_music_skipped"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/tourian/big_boy.json"
+LayoutFile = "rooms/tourian/big_boy_in_tourian.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/tourian/big_boy.json"
+LayoutFile = "rooms/tourian/big_boy_in_tourian.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
@@ -41,7 +41,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/tourian/big_boy.json"
+LayoutFile = "rooms/tourian/big_boy_in_tourian.json"
 
 [node name="ToDustTorizo" type="Node2D" parent="."]
 script = ExtResource("5")

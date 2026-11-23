@@ -34,12 +34,12 @@ Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r2")])
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
 When = SubResource("r3")
-LayoutFile = "rooms/crateria/pit.json"
+LayoutFile = "rooms/crateria/pit_in_lower_crateria.json"
 Music = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/pit.json"
+LayoutFile = "rooms/crateria/pit_in_old_tourian.json"
 Music = "crateria_arrival"
 
 [sub_resource type="Resource" id="r6"]
@@ -70,7 +70,7 @@ Versions = Array[ExtResource("2")]([SubResource("r4"), SubResource("r5")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/pit.json"
+LayoutFile = "rooms/crateria/pit_in_old_tourian.json"
 
 [node name="ToClimb" type="Node2D" parent="."]
 script = ExtResource("5")

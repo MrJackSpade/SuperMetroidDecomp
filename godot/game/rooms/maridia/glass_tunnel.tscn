@@ -19,12 +19,12 @@ About = "maridia_tube_broken"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/maridia/glass_tunnel_when_maridia_noob_tube_broken.json"
+LayoutFile = "rooms/maridia/glass_tunnel_when_maridia_noob_tube_broken_in_sandless_maridia.json"
 Music = "red_brinstar"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/maridia/glass_tunnel_default.json"
+LayoutFile = "rooms/maridia/glass_tunnel_default_in_sandless_maridia.json"
 Music = "red_brinstar"
 
 [node name="GlassTunnel" type="Node2D"]
@@ -35,7 +35,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/maridia/glass_tunnel_default.json"
+LayoutFile = "rooms/maridia/glass_tunnel_default_in_sandless_maridia.json"
 
 [node name="ToEastTunnel" type="Node2D" parent="."]
 script = ExtResource("5")

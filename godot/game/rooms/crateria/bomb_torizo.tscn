@@ -27,7 +27,7 @@ About = "escape_started"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/crateria/bomb_torizo.json"
+LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 KeepsMusic = true
 Patches = PackedStringArray("wall_shot_blocks")
 
@@ -39,12 +39,12 @@ About = "bomb_torizo_defeated"
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
 When = SubResource("r3")
-LayoutFile = "rooms/crateria/bomb_torizo.json"
+LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/bomb_torizo.json"
+LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r6"]
@@ -125,7 +125,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubRes
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/bomb_torizo.json"
+LayoutFile = "rooms/crateria/bomb_torizo_in_lower_crateria.json"
 
 [node name="ToFlyway" type="Node2D" parent="."]
 script = ExtResource("5")

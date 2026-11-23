@@ -14,7 +14,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/crateria/statues.json"
+LayoutFile = "rooms/crateria/statues_in_map_statues.json"
 Music = "tourian_statues"
 
 [sub_resource type="Resource" id="r2"]
@@ -35,7 +35,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/crateria/statues.json"
+LayoutFile = "rooms/crateria/statues_in_map_statues.json"
 
 [node name="ToStatuesHallway" type="Node2D" parent="."]
 script = ExtResource("4")

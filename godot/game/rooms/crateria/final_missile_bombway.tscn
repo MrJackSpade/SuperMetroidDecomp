@@ -18,12 +18,12 @@ About = "zebes_awake"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/crateria/final_missile_bombway.json"
+LayoutFile = "rooms/crateria/final_missile_bombway_in_lower_crateria.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/final_missile_bombway.json"
+LayoutFile = "rooms/crateria/final_missile_bombway_in_lower_crateria.json"
 KeepsMusic = true
 
 [node name="FinalMissileBombway" type="Node2D"]
@@ -34,7 +34,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/final_missile_bombway.json"
+LayoutFile = "rooms/crateria/final_missile_bombway_in_lower_crateria.json"
 
 [node name="ToFinalMissile" type="Node2D" parent="."]
 script = ExtResource("5")

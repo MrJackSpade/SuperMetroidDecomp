@@ -12,7 +12,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/maridia/mt_everest.json"
+LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
 KeepsMusic = true
 
 [node name="MtEverest" type="Node2D"]
@@ -23,7 +23,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/maridia/mt_everest.json"
+LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
 
 [node name="ToCrabShaft" type="Node2D" parent="."]
 script = ExtResource("4")

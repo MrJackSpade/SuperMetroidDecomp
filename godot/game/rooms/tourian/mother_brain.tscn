@@ -24,7 +24,7 @@ About = "mother_brain_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/tourian/mother_brain.json"
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r3"]
@@ -35,12 +35,12 @@ About = "mother_brain_glass_destroyed"
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
 When = SubResource("r3")
-LayoutFile = "rooms/tourian/mother_brain.json"
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
-LayoutFile = "rooms/tourian/mother_brain.json"
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r6"]
@@ -76,7 +76,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubRes
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/tourian/mother_brain.json"
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
 
 [node name="ToRinkaShaft" type="Node2D" parent="."]
 script = ExtResource("5")

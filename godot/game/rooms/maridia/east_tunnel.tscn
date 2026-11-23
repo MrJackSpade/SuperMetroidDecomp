@@ -14,7 +14,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/maridia/east_tunnel.json"
+LayoutFile = "rooms/maridia/east_tunnel_in_sandless_maridia.json"
 Music = "red_brinstar"
 
 [node name="EastTunnel" type="Node2D"]
@@ -25,7 +25,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/maridia/east_tunnel.json"
+LayoutFile = "rooms/maridia/east_tunnel_in_sandless_maridia.json"
 
 [node name="ToCrabHole" type="Node2D" parent="."]
 script = ExtResource("4")

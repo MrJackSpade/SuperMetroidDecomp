@@ -18,7 +18,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/norfair/wasteland.json"
+LayoutFile = "rooms/norfair/wasteland_in_heated_norfair.json"
 KeepsMusic = true
 
 [node name="Wasteland" type="Node2D"]
@@ -29,7 +29,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/norfair/wasteland.json"
+LayoutFile = "rooms/norfair/wasteland_in_heated_norfair.json"
 
 [node name="ToMetalPirates" type="Node2D" parent="."]
 script = ExtResource("4")

@@ -14,7 +14,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/brinstar/below_spazer.json"
+LayoutFile = "rooms/brinstar/below_spazer_in_red_brinstar_kraid.json"
 Music = "red_brinstar"
 
 [node name="BelowSpazer" type="Node2D"]
@@ -25,7 +25,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/brinstar/below_spazer.json"
+LayoutFile = "rooms/brinstar/below_spazer_in_red_brinstar_kraid.json"
 
 [node name="ToSkreeBoost" type="Node2D" parent="."]
 script = ExtResource("4")

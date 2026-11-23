@@ -30,8 +30,9 @@ with comments allowed.
 
 ## Room layouts
 
-A room's scene never holds its tiles. Each version of a room names a layout, `rooms/<area>/<level>.json`, and the
-layout is the old room level of that name as that area's rooms use it; a level several areas use is written once for
+A room's scene never holds its tiles. Each version of a room names a layout,
+`rooms/<area>/<level>_in_<graphics set>.json`, and the layout is the old room level of that name as that area's rooms
+use it, drawn with that set of graphics; a level several areas use, or one drawn with two sets, is written once for
 each. Beyond the tiles themselves, a layout answers for these things the old code did with objects placed over the
 level:
 

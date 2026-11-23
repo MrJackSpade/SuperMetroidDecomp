@@ -22,13 +22,13 @@ About = "crocomire_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/norfair/crocomire.json"
+LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
 KeepsMusic = true
 Patches = PackedStringArray("bridge_collapsed", "spike_wall_open")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/norfair/crocomire.json"
+LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
 Music = "kraid_and_phantoon_battle"
 
 [sub_resource type="Resource" id="r4"]
@@ -49,7 +49,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/norfair/crocomire.json"
+LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
 
 [node name="ToCrocomireSpeedway" type="Node2D" parent="."]
 script = ExtResource("5")

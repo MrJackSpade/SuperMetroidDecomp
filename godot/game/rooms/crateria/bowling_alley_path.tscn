@@ -13,7 +13,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/crateria/bowling_alley_path.json"
+LayoutFile = "rooms/crateria/bowling_alley_path_in_upper_crateria.json"
 KeepsMusic = true
 
 [node name="BowlingAlleyPath" type="Node2D"]
@@ -24,7 +24,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/crateria/bowling_alley_path.json"
+LayoutFile = "rooms/crateria/bowling_alley_path_in_upper_crateria.json"
 
 [node name="ToPreBowling" type="Node2D" parent="."]
 script = ExtResource("4")

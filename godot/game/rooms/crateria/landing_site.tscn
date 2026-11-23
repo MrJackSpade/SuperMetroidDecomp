@@ -24,7 +24,7 @@ About = "escape_started"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/crateria/landing_site.json"
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
@@ -35,7 +35,7 @@ About = "power_bombs"
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
 When = SubResource("r3")
-LayoutFile = "rooms/crateria/landing_site.json"
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Music = "samus_theme"
 
 [sub_resource type="Resource" id="r5"]
@@ -46,12 +46,12 @@ About = "zebes_awake"
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("2")
 When = SubResource("r5")
-LayoutFile = "rooms/crateria/landing_site.json"
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Music = "crateria_arrival_zebes_awake"
 
 [sub_resource type="Resource" id="r7"]
 script = ExtResource("2")
-LayoutFile = "rooms/crateria/landing_site.json"
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 Music = "crateria_arrival"
 
 [sub_resource type="Resource" id="r8"]
@@ -107,7 +107,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubRes
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/crateria/landing_site.json"
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
 
 [node name="ToCrateriaPowerBombs" type="Node2D" parent="."]
 script = ExtResource("5")

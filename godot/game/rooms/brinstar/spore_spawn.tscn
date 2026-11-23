@@ -17,13 +17,13 @@ About = "spore_spawn_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/brinstar/spore_spawn.json"
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
 Music = "elevator"
 Patches = PackedStringArray("ceiling_open")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/brinstar/spore_spawn.json"
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
 Music = "mini_boss_battle"
 
 [sub_resource type="Resource" id="r4"]
@@ -39,7 +39,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/brinstar/spore_spawn.json"
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
 
 [node name="ToSporeSpawnKihunters" type="Node2D" parent="."]
 script = ExtResource("5")

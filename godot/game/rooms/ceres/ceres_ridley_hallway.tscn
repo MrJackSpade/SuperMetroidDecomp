@@ -19,12 +19,12 @@ About = "ceres_ridley_defeated"
 [sub_resource type="Resource" id="r2"]
 script = ExtResource("2")
 When = SubResource("r1")
-LayoutFile = "rooms/ceres/ceres_ridley_hallway.json"
+LayoutFile = "rooms/ceres/ceres_ridley_hallway_in_white_ceres.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
-LayoutFile = "rooms/ceres/ceres_ridley_hallway.json"
+LayoutFile = "rooms/ceres/ceres_ridley_hallway_in_blue_ceres.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
@@ -40,7 +40,7 @@ Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
-LayoutFile = "rooms/ceres/ceres_ridley_hallway.json"
+LayoutFile = "rooms/ceres/ceres_ridley_hallway_in_blue_ceres.json"
 
 [node name="ToCeresRidley" type="Node2D" parent="."]
 script = ExtResource("5")

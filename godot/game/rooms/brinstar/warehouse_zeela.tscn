@@ -12,7 +12,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/brinstar/warehouse_zeela.json"
+LayoutFile = "rooms/brinstar/warehouse_zeela_in_red_brinstar_kraid.json"
 Music = "red_brinstar"
 
 [sub_resource type="Resource" id="r2"]
@@ -28,7 +28,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/brinstar/warehouse_zeela.json"
+LayoutFile = "rooms/brinstar/warehouse_zeela_in_red_brinstar_kraid.json"
 
 [node name="ToWarehouseEnergyTank" type="Node2D" parent="."]
 script = ExtResource("4")

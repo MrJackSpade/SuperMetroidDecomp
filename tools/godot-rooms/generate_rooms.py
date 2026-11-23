@@ -222,7 +222,11 @@ def music_of(state: legacy.State, nearby_set: str) -> dict[str, str]:
 
 
 def layout_of(room: legacy.Room, state: legacy.State) -> str:
-    return f'rooms/{snake(room.area)}/{snake(state.level)}.json'
+    """
+    The layout of a state: its level as drawn with its set of graphics. One level drawn with two sets, a ship with
+    its power off and on, is two layouts.
+    """
+    return f'rooms/{snake(room.area)}/{snake(state.level)}_in_{snake(state.graphics_set)}.json'
 
 
 CONDITION = 'res://engine/world/Condition.cs'

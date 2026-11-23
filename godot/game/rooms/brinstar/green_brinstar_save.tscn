@@ -10,7 +10,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/brinstar/save_room_door_on_right.json"
+LayoutFile = "rooms/brinstar/save_room_door_on_right_in_save_station.json"
 Music = "green_brinstar"
 
 [node name="GreenBrinstarSave" type="Node2D"]
@@ -21,7 +21,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/brinstar/save_room_door_on_right.json"
+LayoutFile = "rooms/brinstar/save_room_door_on_right_in_save_station.json"
 
 [node name="ToGreenBrinstarMainShaft" type="Node2D" parent="."]
 script = ExtResource("4")

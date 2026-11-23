@@ -12,7 +12,7 @@
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
-LayoutFile = "rooms/norfair/purple_farming.json"
+LayoutFile = "rooms/norfair/purple_farming_in_heated_norfair.json"
 KeepsMusic = true
 
 [node name="PurpleFarming" type="Node2D"]
@@ -23,7 +23,7 @@ Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
-LayoutFile = "rooms/norfair/purple_farming.json"
+LayoutFile = "rooms/norfair/purple_farming_in_heated_norfair.json"
 
 [node name="ToPurpleShaft" type="Node2D" parent="."]
 script = ExtResource("4")

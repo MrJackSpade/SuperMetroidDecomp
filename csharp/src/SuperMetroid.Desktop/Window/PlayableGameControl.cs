@@ -289,6 +289,8 @@ public sealed class PlayableGameControl : UserControl
         if (stateStore is not null)
             stateStore.Dispose();
         stateStore = CreateStateStore();
+        // The store readies itself here, as the session loads, so no door's automatic save state stalls the game (#2619).
+        stateStore.Prepare(game);
         if (driver is null)
         {
             // The reset seed is captured after disk SRAM has been validated/copied but

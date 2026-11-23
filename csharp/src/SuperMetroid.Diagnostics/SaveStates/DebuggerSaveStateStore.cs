@@ -29,10 +29,18 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// <summary>Installed asset receipt compared with each state's serialized content digests.</summary>
     private readonly GameContentIdentity contentIdentity;
     /// <summary>
-    /// The installed content the host binds into its games, indexed once: a capture names what the game holds of it by
-    /// path, and a restore resolves those paths against it (#1507). Installed content never changes.
+    /// The installed content the host binds into its games, indexed once as the store is created, with the session it serves
+    /// (#2619): a capture names what the game holds of it by path, and a restore resolves those paths against it (#1507).
+    /// Installed content never changes; a capture indexes what the content loaded since. Indexing it on a first capture made
+    /// the session's first door transition, which takes the first automatic save state, stall while it walked the content.
     /// </summary>
-    private readonly Lazy<BoundObjectGraph> bound;
+    private readonly BoundObjectGraph bound;
+    /// <summary>
+    /// What the game's static members hold, each named by its path among them (#1623), taken as the store is created
+    /// (#2619): building it runs every definition catalog's initialization, which the session's first door autosave paid
+    /// for, stalling for seconds, when the first serialization built it.
+    /// </summary>
+    private readonly DefinitionObjects definitions;
 
     /// <summary>Creates a state store with a verified source digest and optional host policy override.</summary>
     internal DebuggerSaveStateStore(
@@ -44,9 +52,12 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     {
         Ensure.NotNull(contentIdentity);
         Ensure.NotNull(content);
-        bound = new Lazy<BoundObjectGraph>(() => new BoundObjectGraph([content]));
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Ensure.LengthEqual(romDigest, SHA256.HashSizeInBytes);
+        var indexing = System.Diagnostics.Stopwatch.StartNew();
+        bound = new BoundObjectGraph([content]);
+        definitions = DefinitionObjects.Process;
+        Console.WriteLine($"Indexed the installed content for debugger states in {indexing.ElapsedMilliseconds} ms.");
         // Null preserves the captured policy for exact replay. Interactive hosts
         // explicitly supply their active INI options instead of trusting old state.
         this.hostOptions = hostOptions;
@@ -83,6 +94,24 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             hostOptions,
             contentIdentity,
             content);
+    }
+
+    /// <summary>
+    /// Readies the store to capture <paramref name="game"/> without stalling it (#2619), where its session loads: indexes every
+    /// definition catalog a capture can name an object of, which runs the catalogs' initialization, and writes the game once
+    /// to nowhere, so the writers a capture runs are built. A first capture made them otherwise, which stalled the session's
+    /// first door transition, whose automatic save state is its first capture, and a door into a room whose objects were
+    /// first named.
+    /// </summary>
+    public void Prepare(SuperMetroidGame game)
+    {
+        Ensure.NotNull(game);
+        var preparing = System.Diagnostics.Stopwatch.StartNew();
+        definitions.IndexAll();
+        using var scratch = new MemoryStream();
+        bound.Refresh();
+        DebuggerObjectGraphSerializer.Serialize(scratch, game, bound, definitions);
+        Console.WriteLine($"Prepared debugger states for the session in {preparing.ElapsedMilliseconds} ms.");
     }
 
     /// <summary>Formats manual slots as decimal digits and the dedicated automatic slot as <c>auto</c>.</summary>
@@ -165,8 +194,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         int previous = Volatile.Read(ref lastPayloadLength);
         using var payload = new MemoryStream((int)Math.Min(previous + (long)previous / 8, Array.MaxLength));
         // The content may have loaded parts of itself since the last save.
-        bound.Value.Refresh();
-        DebuggerObjectGraphSerializer.Serialize(payload, game, bound.Value);
+        bound.Refresh();
+        DebuggerObjectGraphSerializer.Serialize(payload, game, bound, definitions);
         // The capture keeps the serialized bytes in the array they were written to rather than copying them out.
         ArraySegment<byte> written = payload.TryGetBuffer(out ArraySegment<byte> buffer)
             ? buffer
@@ -296,7 +325,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         SuperMetroidGame game;
         try
         {
-            game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(decompressed, bound.Value);
+            game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(decompressed, bound, definitions);
         }
         catch (InvalidDataException exception) when (
             exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))

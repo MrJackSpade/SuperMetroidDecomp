@@ -74,6 +74,19 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
     /// <summary>The catalogs and what each may hold; callers hold the lock.</summary>
     internal Declarations Declared => field ??= Declare();
 
+    /// <summary>
+    /// Indexes every catalog now (#2619): a store that captures the game's state builds them all as it is created, where the
+    /// session loads, so no capture stalls the game while it runs the catalogs' initialization and indexes what they hold.
+    /// </summary>
+    internal void IndexAll()
+    {
+        lock (gate)
+        {
+            foreach (DefinitionCatalog catalog in Declared.ByPrefix.Values)
+                _ = catalog.Graph;
+        }
+    }
+
     private Declarations Declare()
     {
         var catalogs = types.Catalogs

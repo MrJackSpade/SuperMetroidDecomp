@@ -477,6 +477,8 @@ Every kind here is the engine's except `Gunship`.
 | When open | Gone; or slid aside and able to close again. | A door cap is gone; a gate slides. |
 | Comes back | Never; when the player has passed; when its room is next set up. | A door cap returns when the room is next set up. |
 | Remembered as | A name; once opened and remembered, it is set up open, or as a plain barrier. | A red door, once opened, is a blue door from then on. |
+| Tells when opened | Things told a word as it opens. | A gate's switch tells its gate to open. |
+| Looks and sounds | From its data: how it shows shut, held shut, hurt, opening, open and closing, and the sounds of opening, closing, a hit that wears it down and a hit while it is held shut. One that shows itself opening goes on blocking until it has. | A door cap flashes when a missile wears it down and swings open. |
 
 Door caps, gates, shutters, breakable walls and the shell around a held item are all `Barrier`s.
 

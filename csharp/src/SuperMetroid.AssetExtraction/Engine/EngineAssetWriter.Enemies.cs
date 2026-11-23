@@ -40,6 +40,7 @@ public sealed partial class EngineAssetWriter
         WriteCuedEnemies();
         WriteSpittingEnemies();
         WriteMoreCuedEnemies();
+        WritePartedEnemies();
     }
 
     /// <summary>The Atomic: its four ways of spinning.</summary>

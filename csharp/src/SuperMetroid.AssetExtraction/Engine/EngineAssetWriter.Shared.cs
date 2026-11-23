@@ -45,9 +45,12 @@ public sealed partial class EngineAssetWriter
 
         foreach (RoomEffectActorKind kind in SharedEffects)
         {
-            IReadOnlyList<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> beats = RoomEffectActorAnimations.Segments.Beats(RoomEffectActorSegment.Of(kind));
+            (List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> lead, List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>>? cycle) =
+                EngineTimelines.Played(RoomEffectActorAnimations.Segments, RoomEffectActorAnimations.StartingWith(kind));
+            if (cycle is not null)
+                throw new InvalidDataException($"The lesser effect {kind} never ends, which an effect left in a room must.");
             string file = EffectFile(kind);
-            _tree.WriteData(file, SharedTimeline(file, beats, null, EffectFrame, static (NoAnimationCue _) => null));
+            _tree.WriteData(file, SharedTimeline(file, lead, null, EngineEnemy.EffectFrame, static (NoAnimationCue _) => null));
         }
 
         foreach (DustExplosionAnimation animation in Enum.GetValues<DustExplosionAnimation>())
@@ -78,11 +81,6 @@ public sealed partial class EngineAssetWriter
         WritePickup(EnemyPickupKind.SuperMissile, "super missile", "super_missiles", null, EnemyPickupDefinitions.SuperMissileAmount, EnemySound.AmmoPickup);
         WritePickup(EnemyPickupKind.PowerBomb, "power bomb", "power_bombs", null, EnemyPickupDefinitions.PowerBombAmount, EnemySound.AmmoPickup);
     }
-
-    /// <summary>The name of the picture of a lesser effect's frame on the installed sheets.</summary>
-    private static string EffectFrame(RoomEffectActorPicture picture) => picture.EnemyFrame is { } frame
-        ? EnemySheetDefinitions.EffectActorFrameName(frame)
-        : throw new InvalidDataException("A lesser effect that every room shares shows a picture that is not on the enemies' sheets.");
 
     /// <summary>What an event of a death becomes in the timeline its remains play.</summary>
     private static string? DeathCue(EnemyDeathAndDropCue cue) => cue switch

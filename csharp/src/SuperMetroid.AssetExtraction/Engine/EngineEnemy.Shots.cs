@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -87,13 +88,33 @@ internal sealed partial class EngineEnemy
     /// Writes the timeline of one of the old game's lesser effects as this enemy's rooms draw it, under its own
     /// folder, and returns the timeline's data file.
     /// </summary>
-    internal string SpawnedEffect(string name, SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind kind) =>
-        SpawnedTimelineAt($"{Folder}/{name}.json",
-            SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorAnimations.Segments.Beats(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment.Of(kind)), null,
-            static (SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorPicture picture) => picture.EnemyFrame is { } frame
-                ? EnemySheetDefinitions.EffectActorFrameName(frame)
-                : throw new InvalidDataException("A lesser effect shows a picture that is not on the enemies' sheets."),
-            static (NoAnimationCue _) => null);
+    internal string SpawnedEffect(string name, RoomEffectActorKind kind)
+    {
+        (List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> lead, List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>>? cycle) =
+            EngineTimelines.Played(RoomEffectActorAnimations.Segments, RoomEffectActorAnimations.StartingWith(kind));
+        return SpawnedTimelineAt($"{Folder}/{name}.json", lead, cycle, EffectFrame, static (NoAnimationCue _) => null);
+    }
+
+    /// <summary>The name of the picture of a lesser effect's frame on the installed sheets.</summary>
+    internal static string EffectFrame(RoomEffectActorPicture picture) => picture.EnemyFrame is { } frame
+        ? EnemySheetDefinitions.EffectActorFrameName(frame)
+        : throw new InvalidDataException("A lesser effect shows a picture that is not on the enemies' sheets.");
+
+    /// <summary>
+    /// Adds a timeline of its own that is one of the old game's lesser effects: something drawn with the enemy as a
+    /// part of it. Its pictures are on the sheets of what the enemy spawns and are cut to a size of their own, so the
+    /// timeline says where they lie beyond where the enemy's own pictures do.
+    /// </summary>
+    internal EngineEnemy SpawnedLook(string name, RoomEffectActorKind kind)
+    {
+        (List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> lead, List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>>? cycle) =
+            EngineTimelines.Played(RoomEffectActorAnimations.Segments, RoomEffectActorAnimations.StartingWith(kind));
+        IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EffectFrame(frame!.Value));
+        EngineSheetPictures pictures = _sheets.CutSpawned(_tree, $"{Folder}/{name}", EnemyDefinitionIdKeys.Installed.Of(_id), frames);
+        JsonObject timeline = EngineTimelines.Of(lead, cycle, picture => pictures.Of(EffectFrame(picture)), static (NoAnimationCue _) => null);
+        timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX - Pictures.OffsetX, ["y"] = pictures.OffsetY - Pictures.OffsetY };
+        return Timeline(name, timeline);
+    }
 
     /// <summary>
     /// The offset of a projectile's pictures that leaves them where its timeline puts them: without one a projectile

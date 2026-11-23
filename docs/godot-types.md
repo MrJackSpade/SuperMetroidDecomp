@@ -294,7 +294,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `EnemyStats` | An enemy | Health, contact damage, its reactions to hits, its `DropTable`. |
 | `DropTable` | What something leaves behind | The chance of each `PickupType`, and of nothing. |
 | `WeaponStats` | A weapon | The `Hit` it delivers, speed, cooldown, cost, how many may be live at once, and its projectile's settings. |
-| `ItemType` | A permanent upgrade | What it grants, its message, its picture. |
+| `ItemType` | A permanent upgrade | What it grants, its message, its picture or the timeline that shows it, the sound of collecting it, and the fanfare played while its message shows and how long the message is held. |
 | `PickupType` | A kind of drop | Which inventory amount it adds to, and how much. |
 | `BlockType` | A reactive tile | Its rules (section 5). |
 | `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
@@ -338,7 +338,7 @@ select, options, game over, time up, and one per cinematic.
 | `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control. |
 | `RoomTransitionMode` | Fades out, takes the old room down and sets the next up with the player arriving at the exit the old one led to, fades in. Neither room is stepped meanwhile. | The same `PlayingMode`. |
 | `PausedMode` | Nothing; play is still beneath it. A game's pause screen is its own mode doing the same. | The same `PlayingMode`, on pause. |
-| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. | The mode it was laid over, on confirm. |
+| `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. A message may come with a fanfare, after which the music there was comes back, and may be held up a set time before it can be dismissed. | The mode it was laid over, on confirm. |
 | `LoadingMode` | Begins the session's game again and puts the session's save slot into it, if the slot holds one. | A new `PlayingMode` in the saved room, or the first room. |
 | `Cinematic` (base, `engine/ui/`) | Plays update by update; confirm skips it unless it says otherwise. | The mode it names. |
 

@@ -100,7 +100,7 @@ public partial class PlayingMode : GameMode
         if (Session.TakeQuestion() is { } question)
             return new MessageBoxMode(this, question.Message, question.Answered);
         if (Session.TakeMessage() is { } message)
-            return new MessageBoxMode(this, message);
+            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates };
         if (Room.ExitEntered is { } exit)
             return new RoomTransitionMode(this, exit);
         if (input.WasPressed(GameAction.Pause) && Session.Player.State.InControl)

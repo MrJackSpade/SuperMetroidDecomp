@@ -120,17 +120,22 @@ public sealed class GameSession
     public Node Host => _host;
 
     /// <summary>The messages asked for and not yet shown, by name, in the order they were asked for.</summary>
-    private readonly Queue<string> _messages = new();
+    private readonly Queue<(string Message, string Fanfare, int HoldUpdates)> _messages = new();
 
     /// <summary>Asks for a message to be shown. The mode in control shows it.</summary>
-    public void RequestMessage(string message)
+    /// <param name="message">The message, by name.</param>
+    /// <param name="fanfare">Music played while it shows, by name, after which the music there was comes back; empty for none.</param>
+    /// <param name="holdUpdates">How many updates it stays up before it can be dismissed.</param>
+    public void RequestMessage(string message, string fanfare = "", int holdUpdates = 0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
-        _messages.Enqueue(message);
+        ArgumentNullException.ThrowIfNull(fanfare);
+        ArgumentOutOfRangeException.ThrowIfNegative(holdUpdates);
+        _messages.Enqueue((message, fanfare, holdUpdates));
     }
 
-    /// <summary>Takes the next message waiting to be shown, or null when none is.</summary>
-    public string? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
+    /// <summary>Takes the next message waiting to be shown, with its fanfare and how long it is held, or null when none is.</summary>
+    public (string Message, string Fanfare, int HoldUpdates)? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
 
     /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>
     private (string Message, Action<bool> Answered)? _question;

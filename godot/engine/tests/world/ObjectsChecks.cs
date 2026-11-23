@@ -130,7 +130,7 @@ public sealed class ObjectsChecks
         Expect.Equal(5, world.Player.Inventory.Capacity("missiles"));
         Expect.Equal(5, world.Player.Inventory.Amount("missiles"));
         Expect.True(world.Session.Progress.Has("tank in open room"));
-        Expect.Equal("missile_tank", world.Session.TakeMessage() ?? "");
+        Expect.Equal("missile_tank", world.Session.TakeMessage()?.Message ?? "");
         Expect.Equal(0, world.Room.Objects.Count);
     }
 

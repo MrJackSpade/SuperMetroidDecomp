@@ -138,6 +138,14 @@ public sealed class Weapons
             _heldFor = 0;
     }
 
+    /// <summary>Makes the player wait at least <paramref name="updates"/> before the next shot, as something that has hold of them does.</summary>
+    public void WaitAtLeast(int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        if (_cooldown.Remaining < updates)
+            _cooldown = Countdown.Of(updates);
+    }
+
     /// <summary>Moves the cooldown on by one update and forgets shots that have ended.</summary>
     public void StepCooldown()
     {

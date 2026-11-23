@@ -1,4 +1,5 @@
 using Engine.Core;
+using Engine.Shared;
 using Godot;
 
 namespace Game;
@@ -15,4 +16,7 @@ public partial class SuperMetroid : GameDefinition
 
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
+
+    /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
+    public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
 }

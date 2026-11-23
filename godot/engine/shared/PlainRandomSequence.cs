@@ -15,6 +15,16 @@ public sealed class PlainRandomSequence : IRandomSequence
     }
 
     /// <inheritdoc/>
+    public uint Current => _state;
+
+    /// <inheritdoc/>
+    public void Restart(uint seed)
+    {
+        ArgumentOutOfRangeException.ThrowIfZero(seed);
+        _state = seed;
+    }
+
+    /// <inheritdoc/>
     public uint Next()
     {
         _state ^= _state << 13;

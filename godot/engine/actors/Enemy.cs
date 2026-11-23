@@ -252,7 +252,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Visual?.Show(_animation.Current.Picture);
     }
 
-    /// <summary>Called for each cue the enemy's timeline reaches.</summary>
+    /// <summary>
+    /// Called for each cue the enemy's timeline reaches that is the enemy's own. The base acts on three itself:
+    /// "sound:" and a sound's name asks for that sound, "always_active" makes the enemy go on behaving however far
+    /// from the view it is, and "not_always_active" ends that.
+    /// </summary>
     protected virtual void OnCue(string cue)
     {
     }
@@ -442,7 +446,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         foreach (string cue in _animation.Step())
         {
-            OnCue(cue);
+            // Three cues mean the same for every enemy; the rest are the enemy's own.
+            if (cue.StartsWith("sound:", StringComparison.Ordinal))
+                Sound(cue["sound:".Length..]);
+            else if (cue == "always_active")
+                AlwaysActive = true;
+            else if (cue == "not_always_active")
+                AlwaysActive = false;
+            else
+                OnCue(cue);
             if (IsDead)
                 return;
         }

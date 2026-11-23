@@ -19,6 +19,12 @@ public sealed class GameRandom
     /// <summary>The next number of the sequence, as it comes.</summary>
     public uint Next() => _sequence.Next();
 
+    /// <summary>The number last drawn, without drawing again.</summary>
+    public RandomDraw Last => new(_sequence.Current);
+
+    /// <summary>Starts the sequence again from <paramref name="seed"/>, as a game whose outcomes follow a fixed course does at set points.</summary>
+    public void Restart(uint seed) => _sequence.Restart(seed);
+
     /// <summary>
     /// Draws the next number of the sequence for something that settles several things from one draw, each from its
     /// own part of the number.

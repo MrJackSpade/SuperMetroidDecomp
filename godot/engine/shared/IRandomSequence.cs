@@ -8,4 +8,10 @@ public interface IRandomSequence
 {
     /// <summary>The next number of the sequence, any 32-bit value.</summary>
     uint Next();
+
+    /// <summary>The number the sequence last gave, without moving on.</summary>
+    uint Current { get; }
+
+    /// <summary>Starts the sequence again from <paramref name="seed"/>.</summary>
+    void Restart(uint seed);
 }

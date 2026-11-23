@@ -42,7 +42,22 @@ public sealed partial class EngineAssetWriter
                 ("idle", BoyonSegment.Idle), ("bouncing", BoyonSegment.Bouncing))
             .Write();
 
+        var fallingPaths = new System.Text.Json.Nodes.JsonObject();
+        foreach (ChootFallingPath path in Enum.GetValues<ChootFallingPath>())
+        {
+            ChootFallingPathDefinition fall = ChootFallingPathDefinitions.Paths[path];
+            fallingPaths[EngineSheets.FileName(path.ToString())] = new System.Text.Json.Nodes.JsonObject
+            {
+                ["loop_fall"] = fall.LoopYDistance,
+                ["samples"] = EngineNames.List(fall.Samples.Select(sample => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
+                {
+                    ["x"] = sample.Offset.X, ["y"] = sample.Offset.Y, ["updates"] = sample.Updates,
+                })),
+            };
+        }
+
         Enemy("enemies/choot.json", "Choot", EnemyDefinitionId.Choot).BodyColliders(Ordinary)
+            .Group("falling_paths", fallingPaths)
             .Looks(ChootAnimations.Segments, ChootAnimations.StartingWith,
                 static (ChootCue cue) => cue.Kind == ChootCueKind.ProcessOffScreen ? EngineNames.AlwaysActive : EngineNames.NotAlwaysActive,
                 ("idle", ChootSegment.Idle), ("jumping", ChootSegment.Jumping), ("falling", ChootSegment.Falling))

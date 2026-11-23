@@ -85,6 +85,8 @@ public sealed partial class EngineAssetWriter
             .Value("break_effect", DustFile(BoulderMotionDefinitions.BreakDust))
             .Value("break_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderBreakSound))
             .Value("impact_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderImpactSound))
+            // Where on the curve each of its rebounds starts, one for each time it lands; after the last it rolls.
+            .Group("rebound_marks", EngineNames.List(Enumerable.Range(0, BoulderBounces.ImpactCount).Select(landed => EngineNames.Marks(BoulderBounces.RestartPlace(landed)))))
             .Looks(BoulderAnimations.Segments, BoulderAnimations.StartingWith, ("left", BoulderSegment.Left), ("right", BoulderSegment.Right))
             .Write();
         Enemy("enemies/bull.json", "Bull", EnemyDefinitionId.Bull).BodyColliders(Ordinary)
@@ -115,7 +117,27 @@ public sealed partial class EngineAssetWriter
             .Looks(MochtroidAnimations.Segments, MochtroidAnimations.StartingWith,
                 ("free", MochtroidSegment.FreeFlight), ("attached", MochtroidSegment.Attached))
             .Write();
+        var hops = new System.Text.Json.Nodes.JsonObject();
+        foreach ((string name, PuyoHopType type) in new[]
+                 {
+                     ("small", PuyoHopType.NormalSmall), ("big", PuyoHopType.NormalBig), ("long", PuyoHopType.NormalLong), ("giant", PuyoHopType.Giant),
+                     ("dropping", PuyoHopType.Dropping), ("dropped_small", PuyoHopType.DroppedSmall), ("dropped_big", PuyoHopType.DroppedBig),
+                 })
+        {
+            PuyoHopDefinition hop = PuyoHopDefinitions.Hops[type];
+            hops[name] = new System.Text.Json.Nodes.JsonObject
+            {
+                ["height"] = hop.JumpHeight,
+                ["across"] = hop.XPixels,
+                // Both steps are in the parts of a mark the Godot game's curve counts by, which are the old game's.
+                ["search_step"] = hop.LaunchSearchStep.InTwoHundredFiftySixthsOfMark,
+                ["curve_step"] = hop.CurveStep.InTwoHundredFiftySixthsOfMark,
+                ["drop_speed"] = EngineNames.Number(hop.DropSpeed),
+            };
+        }
+
         Enemy("enemies/puyo.json", "Puyo", EnemyDefinitionId.Puyo).BodyColliders(Ordinary)
+            .Group("hops", hops)
             .Looks(PuyoAnimations.Segments, PuyoAnimations.StartingWith,
                 ("grounded_slow", PuyoSegment.GroundedSlow), ("grounded_medium", PuyoSegment.GroundedMedium),
                 ("grounded_fast", PuyoSegment.GroundedFast), ("upright", PuyoSegment.Upright),
@@ -125,6 +147,10 @@ public sealed partial class EngineAssetWriter
         Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
             .Value("dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
             .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
+            .Group("touch_areas", EngineNames.List(DeadTorizoTouchDefinitions.TouchHitboxes.ToArray().Select(area => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
+            {
+                ["left"] = area.Left, ["top"] = area.Top, ["right"] = area.Right, ["bottom"] = area.Bottom,
+            })))
             .Looks(DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingWith, ("corpse", DeadTorizoSegment.Stationary))
             .Write();
 

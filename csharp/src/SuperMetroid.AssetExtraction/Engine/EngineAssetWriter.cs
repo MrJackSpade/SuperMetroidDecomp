@@ -13,11 +13,13 @@ public sealed partial class EngineAssetWriter
 {
     private readonly EngineAssetTree _tree;
     private readonly EngineSheets _sheets;
+    private readonly GameInstallation _installation;
 
     private EngineAssetWriter(GameInstallation installation, string assets)
     {
         _tree = new EngineAssetTree(assets);
         _sheets = new EngineSheets(installation.ContentDirectory);
+        _installation = installation;
     }
 
     /// <summary>

@@ -39,6 +39,12 @@ def main() -> None:
             kind = bases.get(kind, '')
         return found
 
+    # The source of each type of the Godot project, by the type's name.
+    type_sources: dict[str, str] = {}
+    for source_path in glob.glob(os.path.join(REPO, 'godot', 'game', '**', '*.cs'), recursive=True):
+        name = os.path.basename(source_path)[:-3].split('.')[0]
+        type_sources[name] = type_sources.get(name, '') + open(source_path, encoding='utf-8').read()
+
     # Values every enemy's file is given without being asked: by the writer of every enemy, not by each one's own.
     always = {'health', 'contact_damage', 'speed_curve'}
     unset: list[str] = []
@@ -59,6 +65,20 @@ def main() -> None:
                 if name not in values(kind):
                     print(f'{os.path.basename(path)}: {file} is given {name}, which {kind} does not read')
                     problems += 1
+            # What the type's own code asks its file for outright, beyond its named values: a list, a group. A file
+            # without one of these cannot be read, so each must be given, and is a problem where it is not.
+            groups = set(re.findall(r'\.Group\("(\w+)"', chain))
+            shots = set(re.findall(r'\.Shot\("(\w+)"', chain))
+            source = type_sources.get(kind, '')
+            asked = set(re.findall(r'(?<![\w.])data\.(?:List|Get|Text|Int|Distance|Flag|Number)\("(\w+)"\)', source))
+            guarded = set(re.findall(r'data\.Has\("(\w+)"\)', source))
+            for name in sorted(asked - guarded - groups - {'colliders', 'timelines'}):
+                print(f'{os.path.basename(path)}: {file} is not given "{name}", which {kind} asks its file for')
+                problems += 1
+            fired = set(re.findall(r'(?:Fire|FireAtPlayer|Shot)\("(\w+)"', source))
+            for name in sorted(fired - shots):
+                print(f'{os.path.basename(path)}: {file} is not given the shot "{name}", which {kind} fires')
+                problems += 1
             left = {name: default for name, default in defaults_of(kind).items() if name not in given and name not in always}
             nameless = sorted(name for name, default in left.items() if default == '\\"\\"')
             if '--unset' in sys.argv:

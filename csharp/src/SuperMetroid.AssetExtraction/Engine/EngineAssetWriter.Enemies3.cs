@@ -174,6 +174,22 @@ public sealed partial class EngineAssetWriter
             .Looks(KzanAnimations.Segments, KzanAnimations.StartingWith, ("idle", KzanSegment.Idle))
             .Write();
         Enemy("enemies/polyp.json", "Polyp", EnemyDefinitionId.Polyp)
+            .Value("first_launch_mark", EngineNames.Marks(PolypLaunchDefinitions.FirstLaunchPlace))
+            .Value("reach", PolypLaunchDefinitions.LaunchReach)
+            // The sixteen speeds across a rock may be lobbed with and the eight waits between rocks, each picked by a number drawn.
+            .Group("rock_drifts", EngineNames.List(EngineNames.Each(PolypLaunchDefinitions.XVelocity).Select(EngineNames.Number)))
+            .Group("cooldowns", EngineNames.List(EngineNames.Each(PolypLaunchDefinitions.Cooldown)))
+            .Shot("rock", RoomEnemyProjectileKind.PolypRock, static (polyp, shot, projectile) =>
+            {
+                shot["scene"] = "res://game/enemies/polyp/polyp_rock.tscn";
+                projectile["timeline"] = polyp.SpawnedTimeline("rock", PolypRockAnimations.Segments, PolypRockAnimations.StartingAt[PolypRockSegment.LavaRock], EngineEnemy.EndsOnly);
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+                projectile["meeting_terrain"] = "passes_through";
+                EngineEnemy.GoneOutOfView(projectile);
+            })
+            .ProjectileData("enemies/polyp_rock.json", "PolypRock",
+                ("curve_marks", EngineNames.Marks(PolypLaunchDefinitions.RockFallStep)),
+                ("fastest_fall_mark", EngineNames.Marks(PolypLaunchDefinitions.RockFastestFallPlace)))
             .Looks(PolypAnimations.Segments, PolypAnimations.StartingWith, ("stationary", PolypSegment.Stationary))
             .Write();
     }

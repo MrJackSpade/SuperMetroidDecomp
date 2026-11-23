@@ -224,7 +224,7 @@ internal static partial class EngineDefaults
         ["EyeDoorSpit"] = [("burst_timeline", "\"\"")],
         ["FaceBlock"] = [("wakes_with", "\"\""), ("glow_updates", "16")],
         ["FakeKraid"] = [("step_pixels", "4"), ("death_drops", "4"), ("cry_sound", "\"\""), ("spike_sound", "\"\"")],
-        ["FallingSpark"] = [("gravity", "0.25"), ("fall_speed_limit", "4"), ("skitter_times", "4"), ("skip_speed", "0.5"), ("skip_lift", "2"), ("trail_every", "4"), ("trail_effect", "\"\"")],
+        ["FallingSpark"] = [("gravity", "0.25"), ("fall_speed_limit", "4"), ("skitter_times", "4"), ("skip_speed", "0.5"), ("skip_lift", "2"), ("trail_every", "4"), ("skitter_timeline", "\"\""), ("trail_effect", "\"\"")],
         ["Fly"] = [("reach", "112"), ("wheel_step", "16"), ("rest_updates", "24"), ("dive_across_speed", "2"), ("dive_down_speed", "4")],
         ["Fune"] = [("mouth_drop", "0")],
         ["Gamet"] = [("rise_speed", "1")],

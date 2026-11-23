@@ -39,6 +39,32 @@ internal static partial class EngineNames
     /// <summary>A distance or speed as a plain number of pixels.</summary>
     internal static JsonNode Number(SignedEightEight value) => JsonValue.Create(value.Pixels);
 
+    /// <summary>A place on the curve of speeds as a whole number of its marks.</summary>
+    /// <exception cref="InvalidDataException">The place lies between two marks.</exception>
+    internal static int Marks(SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace place) =>
+        place.InTwoHundredFiftySixthsOfMark == SuperMetroid.Core.Enemies.QuadraticSpeedCurvePlace.FromMarks(place.WholeMarks).InTwoHundredFiftySixthsOfMark
+            ? place.WholeMarks
+            : throw new InvalidDataException("A place on the curve of speeds lies between two marks, where a whole mark was wanted.");
+
+    /// <summary>Every outcome of one of the old game's rolls, in the order of the numbers rolled: the first for a roll of nought.</summary>
+    internal static IEnumerable<TOutcome> Each<TOutcome>(SuperMetroid.Core.Compatibility.WeightedRandomChoice<TOutcome> choice)
+    {
+        for (int rolled = 0; rolled < choice.Field.Outcomes; rolled++)
+            yield return choice.Choose(rolled << choice.Field.Shift);
+    }
+
+    /// <summary>A list of numbers, as a data file writes one.</summary>
+    internal static JsonArray List(IEnumerable<JsonNode> numbers)
+    {
+        var list = new JsonArray();
+        foreach (JsonNode number in numbers)
+            list.Add(number);
+        return list;
+    }
+
+    /// <summary>A list of whole numbers, as a data file writes one.</summary>
+    internal static JsonArray List(IEnumerable<int> numbers) => List(numbers.Select(number => (JsonNode)JsonValue.Create(number)));
+
     /// <summary>A distance or speed as it is written inside a cue.</summary>
     internal static string InCue(SignedSixteenSixteen value) => value.Pixels.ToString(CultureInfo.InvariantCulture);
 }

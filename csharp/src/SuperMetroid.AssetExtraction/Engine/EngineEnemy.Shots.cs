@@ -61,17 +61,39 @@ internal sealed partial class EngineEnemy
     internal string SpawnedTimeline<TEvent>(
         string name, IReadOnlyList<IAnimationBeat<EnemyProjectileFrameId, TEvent>> lead, IReadOnlyList<IAnimationBeat<EnemyProjectileFrameId, TEvent>>? cycle,
         Func<TEvent, string?> cue)
+        where TEvent : notnull =>
+        SpawnedTimelineAt($"{Folder}/{name}.json", lead, cycle, EnemySheetDefinitions.ProjectileFrameName, cue);
+
+    /// <summary>
+    /// Writes a timeline of pictures from the sheets of what it spawns to a data file of any name, cutting the
+    /// pictures into a folder named as the file is, and returns the file.
+    /// </summary>
+    internal string SpawnedTimelineAt<TFrame, TEvent>(
+        string file, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> lead, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> frameName,
+        Func<TEvent, string?> cue)
+        where TFrame : struct
         where TEvent : notnull
     {
-        string file = $"{Folder}/{name}.json";
         IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
-            .Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value));
-        EngineSheetPictures pictures = _sheets.CutSpawned(_tree, $"{Folder}/{name}", EnemyDefinitionIdKeys.Installed.Of(_id), frames);
-        JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), cue);
+            .Select(frame => frameName(frame!.Value));
+        EngineSheetPictures pictures = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], EnemyDefinitionIdKeys.Installed.Of(_id), frames);
+        JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(frameName(frame)), cue);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
         _tree.WriteData(file, timeline);
         return file;
     }
+
+    /// <summary>
+    /// Writes the timeline of one of the old game's lesser effects as this enemy's rooms draw it, under its own
+    /// folder, and returns the timeline's data file.
+    /// </summary>
+    internal string SpawnedEffect(string name, SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind kind) =>
+        SpawnedTimelineAt($"{Folder}/{name}.json",
+            SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorAnimations.Segments.Beats(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment.Of(kind)), null,
+            static (SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorPicture picture) => picture.EnemyFrame is { } frame
+                ? EnemySheetDefinitions.EffectActorFrameName(frame)
+                : throw new InvalidDataException("A lesser effect shows a picture that is not on the enemies' sheets."),
+            static (NoAnimationCue _) => null);
 
     /// <summary>
     /// The offset of a projectile's pictures that leaves them where its timeline puts them: without one a projectile
@@ -112,6 +134,8 @@ internal sealed partial class EngineEnemy
     {
         var data = new JsonObject();
         EngineDefaults.Fill(data, type);
+        if (data.ContainsKey("speed_curve"))
+            data["speed_curve"] = EngineAssetWriter.SpeedCurveFile;
         foreach ((string name, JsonNode? value) in values)
         {
             if (!data.ContainsKey(name))

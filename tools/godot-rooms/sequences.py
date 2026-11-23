@@ -38,6 +38,9 @@ TUBE_ARRIVES_BELOW = (128, 2496)
 TUBE_PAST_END = -8
 TUBE_HOLDS = (16, 22)
 
+# The old code's backgrounds that are no picture: none, the layer a boss's body is drawn on, and that layer cleared.
+NOT_PICTURES = {'null', 'BossBody', 'Cleared', 'KraidAlive'}
+
 # The guardians of the Tourian statue, each with a visual and a grey one over it.
 GUARDIANS = ['Kraid', 'Phantoon', 'Draygon', 'Ridley']
 
@@ -67,7 +70,7 @@ class Sequences:
         whole = f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})'
 
         # The background, where the room has a picture of its own for one; a room's layout draws the others.
-        if state.background != 'null' and 'TurningFloor' not in state.properties:
+        if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties:
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
                 'Picture': quoted(f'backdrops/{snake(state.background)}.png'),
@@ -106,6 +109,12 @@ class Sequences:
             self.links.append((shaking, 'Crocomire', named['Crocomire']))
         if state.setup == 'RunStatueUnlockingAnimations':
             self.statue_hall(ctx, named)
+        if state.main == 'DachoraShaftCamera':
+            # Once the screen over the top of the shaft is open to the view, the screen beside it is closed.
+            shaft = sequence('brinstar/DachoraShaftCamera.cs', 'ShaftCamera', {'StartsWhen': ctx.always()})
+            self.placed.append(shaft)
+            self.links.append((shaft, 'ShaftTop', named['Screen4x1']))
+            self.links.append((shaft, 'Beside', named['Screen3x1']))
         if state.main == 'MaridiaElevatube':
             # The tube takes whoever comes in at one end out at the other: each ride rests past the far end and
             # brings an arrival back to it, which carries them out by that end's exit.

@@ -890,12 +890,13 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their
   barriers are held shut by "this room has no live enemies".
-- `Spawner`: pipe bug pipes; Rinka sources.
+- `Spawner`: Rinka sources. The pipe bugs are enemies that go back into their pipes by themselves.
 - `Hazard`: the Samus-eating plants; Ceres steam (its reach follows its plume by its timeline's cues, and each
   vent waits a different, chance length before it first blows).
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
-- `Scenery`: the Tourian entrance statue, as the pictures its hall's sequence shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
+- `Scenery`: none placed. The Tourian entrance statue is a plain node holding the pictures its hall's sequence
+  shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, because each has a state
   machine no setting of `Scenery` gives; the face blocks and the corpses are enemies.
 

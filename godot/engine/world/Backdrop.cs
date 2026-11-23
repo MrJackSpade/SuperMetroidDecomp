@@ -8,7 +8,7 @@ namespace Engine.World;
 /// scenery does. It affects nothing in play.
 /// </summary>
 [Tool]
-public partial class Backdrop : Node2D
+public partial class Backdrop : Node2D, IPlaced
 {
     /// <summary>The layer's picture, as a path within the assets tree.</summary>
     [Export(PropertyHint.File)]
@@ -33,6 +33,10 @@ public partial class Backdrop : Node2D
     /// <summary>How far the picture drifts each update, in pixels, as clouds do: a picture that repeats comes round again.</summary>
     [Export]
     public Vector2 Drift { get; set; }
+
+    /// <inheritdoc/>
+    [Export]
+    public Condition? PresentWhen { get; set; }
 
     /// <summary>How far the picture has drifted.</summary>
     private Vector2 _drifted;

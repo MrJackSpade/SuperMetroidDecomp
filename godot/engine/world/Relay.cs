@@ -8,11 +8,15 @@ namespace Engine.World;
 /// say what follows: which camera zone opens, which patch of terrain changes, what the music becomes, what appears. It holds no
 /// behaviour of its own, and a word none of its rules is for is a mistake.
 /// </summary>
-public partial class Relay : Node, ITriggerTarget
+public partial class Relay : Node, ITriggerTarget, IPlaced
 {
     /// <summary>What it does on hearing each word.</summary>
     [Export]
     public Godot.Collections.Array<RelayRule> Rules { get; set; } = [];
+
+    /// <inheritdoc/>
+    [Export]
+    public Condition? PresentWhen { get; set; }
 
     /// <inheritdoc/>
     public void Triggered(string what)

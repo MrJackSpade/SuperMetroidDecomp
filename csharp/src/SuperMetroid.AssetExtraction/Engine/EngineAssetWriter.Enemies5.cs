@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Rios;
+using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Spatial;
 
@@ -169,5 +170,56 @@ public sealed partial class EngineAssetWriter
         }
 
         powamp.Write();
+
+        // The work robot: all it does is written in its animations, so each of its timelines is named for the old
+        // segment it plays, and its cues name the timelines they lead to. The robot without power is the same thing
+        // standing in one of three poses, whose pictures are on a sheet of their own.
+        static string RobotLook(WorkRobotSegment segment) => segment switch
+        {
+            WorkRobotSegment.StandingFacingLeft => "standing_left",
+            WorkRobotSegment.FacingLeftShotSamusAhead => "shot_left_ahead",
+            WorkRobotSegment.FacingLeftShotSamusBehind => "shot_left_behind",
+            WorkRobotSegment.FacingRightShotSamusAhead => "shot_right_ahead",
+            WorkRobotSegment.FacingRightShotSamusBehind => "shot_right_behind",
+            _ => EngineSheets.FileName(segment.ToString()),
+        };
+        static string? RobotCue(WorkRobotCue cue) => cue switch
+        {
+            WorkRobotCue.Step { Move: var move } => $"step:{move.HorizontalPixels}:{EngineNames.Side(move.Facing)}:{RobotLook(move.WallAnimation)}" +
+                (move.Ledge is { } ledge ? $":{EngineNames.Side(ledge.ProbeSide)}:{RobotLook(ledge.FallAnimation)}:{EngineNames.Side(ledge.FallFacing)}" : ""),
+            WorkRobotCue.TryLaser fire => "laser:" + fire.Laser switch
+            {
+                WorkRobotLaser.Upward => "up",
+                WorkRobotLaser.Horizontal => "level",
+                WorkRobotLaser.Downward => "down",
+                _ => throw new InvalidDataException($"A work robot fires a laser {fire.Laser}, which this does not know."),
+            } + ":" + RobotLook(fire.Firing),
+            WorkRobotCue.Signal { Kind: WorkRobotCueKind.Footstep } => "footstep",
+            WorkRobotCue.Signal { Kind: WorkRobotCueKind.CountDownLaserCooldown } => "cool",
+            _ => throw new InvalidDataException($"A work robot's animation raises {cue}, which this does not know."),
+        };
+        static void RobotLaser(EngineEnemy robot, JsonObject shot, JsonObject projectile)
+        {
+            shot["speed"] = EngineNames.Number(WorkRobotLaserDefinitions.Speed);
+            shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.WorkRobotLaserSound);
+            projectile["timeline"] = robot.SpawnedTimeline("laser", WorkRobotLaserAnimations.Segments,
+                WorkRobotLaserAnimations.StartingAt[WorkRobotLaserSegment.Flare], EngineEnemy.EndsOnly);
+            projectile["picture_offset"] = EngineEnemy.NoOffset();
+        }
+
+        EngineEnemy robot = Enemy("enemies/work_robot.json", "WorkRobot", EnemyDefinitionId.WorkRobot, "WorkRobot", "UnpoweredWorkRobot")
+            .BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("laser_cooldown", WorkRobotLaserDefinitions.CooldownBase)
+            .Value("turn_delay", WorkRobotLaserDefinitions.TurnDelay)
+            .Value("recoil_delay", WorkRobotLaserDefinitions.RecoilDelay)
+            .Value("muzzle_ahead", WorkRobotLaserDefinitions.MuzzleAhead)
+            .Value("muzzle_above", WorkRobotLaserDefinitions.MuzzleAbove)
+            .Value("laser_slant_speed", EngineNames.Number(WorkRobotLaserDefinitions.DiagonalVerticalSpeed))
+            .Value("footstep_sound", EngineNames.Sound(EnemySoundEffectDefinitions.WorkRobotFootstepSound))
+            .Shot("laser_level", RoomEnemyProjectileKind.WorkRobotLaserHorizontal, RobotLaser)
+            .Shot("laser_diagonal", RoomEnemyProjectileKind.WorkRobotLaserDiagonal, RobotLaser);
+        foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)
+            robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
+        robot.Write();
     }
 }

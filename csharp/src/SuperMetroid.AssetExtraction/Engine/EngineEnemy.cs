@@ -58,9 +58,12 @@ internal sealed partial class EngineEnemy
     /// <summary>The file's values so far.</summary>
     internal JsonObject Data { get; } = [];
 
-    /// <summary>The picture of one of its frames; none for the frame that shows nothing.</summary>
+    /// <summary>
+    /// The picture of one of its frames, found by the name the installed sheets keep the frame under; none for the
+    /// frame that shows nothing.
+    /// </summary>
     internal string Picture(EnemyFrameId frame) =>
-        frame == EnemyFrameId.PointAtOrigin ? "" : Pictures.Of(EnemyFrameNameDefinitions.Names[frame]);
+        frame == EnemyFrameId.PointAtOrigin ? "" : Pictures.Of(EnemySheetDefinitions.FrameName(frame));
 
     /// <summary>Gives a value by name.</summary>
     internal EngineEnemy Value(string name, JsonNode? value)

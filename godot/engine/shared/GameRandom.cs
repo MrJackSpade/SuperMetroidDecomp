@@ -19,6 +19,12 @@ public sealed class GameRandom
     /// <summary>The next number of the sequence, as it comes.</summary>
     public uint Next() => _sequence.Next();
 
+    /// <summary>
+    /// Draws the next number of the sequence for something that settles several things from one draw, each from its
+    /// own part of the number.
+    /// </summary>
+    public RandomDraw Draw() => new(_sequence.Next());
+
     /// <summary>A number from 0 up to, not including, <paramref name="count"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The count is not positive.</exception>
     public int NextBelow(int count)

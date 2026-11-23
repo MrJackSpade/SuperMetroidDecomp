@@ -5,8 +5,9 @@ namespace Engine.Actors.Movement;
 
 /// <summary>
 /// Following the surface it is on, around corners: along floors, up walls, across ceilings and back down, always in
-/// the same sense. Stepping off the end of a surface it turns round the outside corner; meeting a wall it turns up the
-/// inside one.
+/// the same sense. Each update it presses toward its surface and, finding it there, moves along it. Meeting something
+/// ahead it turns onto that; finding its surface gone it turns round the end of it. A crawler that keeps finding
+/// nothing lets go and falls until it lands.
 /// </summary>
 public sealed class SurfaceCrawl
 {
@@ -29,102 +30,169 @@ public sealed class SurfaceCrawl
     /// <summary>How far it travels along its surface each update.</summary>
     public Pixels Speed { get; set; } = Pixels.FromParts(0, Pixels.FractionsPerPixel / 2);
 
-    /// <summary>Whether it goes round clockwise: rightward along a floor, down a wall on its left.</summary>
-    public bool Clockwise { get; set; } = true;
+    /// <summary>How many updates in a row it may find no surface before it lets go and falls.</summary>
+    public int MissesBeforeFalling { get; set; } = 4;
+
+    /// <summary>The downward speed a falling crawler gains each update.</summary>
+    public Pixels FallGravity { get; set; } = Pixels.FromParts(0, Pixels.FractionsPerPixel / 2);
+
+    /// <summary>The fastest a crawler falls.</summary>
+    public Pixels FallSpeedLimit { get; set; } = Pixels.FromWhole(4);
+
+    /// <summary>The speed along its surface a crawler takes on landing from a fall; null keeps the speed it had.</summary>
+    public Pixels? SpeedOnLanding { get; set; }
+
+    /// <summary>The way it presses across: toward the wall it clings to, or the way it crawls along a floor or ceiling.</summary>
+    private int _across = 1;
+
+    /// <summary>The way it presses down: toward the floor or ceiling it clings to, or the way it crawls along a wall.</summary>
+    private int _down = 1;
+
+    private int _misses;
+    private Pixels _fallSpeed;
+    private bool _onWallBeforeFall;
 
     /// <summary>The side the surface it clings to is on.</summary>
-    public Clings Side { get; set; } = Clings.Below;
+    public Clings Side { get; private set; } = Clings.Below;
 
-    /// <summary>The part of a pixel travelled toward the next whole one.</summary>
-    private Pixels _carried;
+    /// <summary>Whether it has let go and is falling.</summary>
+    public bool IsFalling { get; private set; }
 
-    /// <summary>Moves <paramref name="mover"/> for one update along its surface.</summary>
-    public MoveReport Step(IMoves mover)
+    /// <summary>
+    /// Puts the crawler on a surface, going one way round: clockwise is rightward along a floor, down a wall on its
+    /// left, leftward along a ceiling and up a wall on its right.
+    /// </summary>
+    public void Start(Clings side, bool clockwise)
     {
-        _carried += Speed;
-        bool turned = false;
-        while (_carried >= Pixels.FromWhole(1))
+        Side = side;
+        (_across, _down) = side switch
         {
-            _carried -= Pixels.FromWhole(1);
-            turned |= StepOnePixel(mover);
-        }
-
-        return new MoveReport(false, false, false, turned, false);
+            Clings.Below => (clockwise ? 1 : -1, 1),
+            Clings.Above => (clockwise ? -1 : 1, -1),
+            Clings.Left => (-1, clockwise ? 1 : -1),
+            Clings.Right => (1, clockwise ? -1 : 1),
+            _ => throw new InvalidOperationException($"Undefined side {side}."),
+        };
+        IsFalling = false;
+        _misses = 0;
     }
 
-    /// <summary>Moves one pixel along the surface, turning a corner if there is one. Returns whether it turned.</summary>
-    private bool StepOnePixel(IMoves mover)
+    /// <summary>Makes the crawler let go of its surface and fall, as when the room shakes.</summary>
+    public void LetGo()
+    {
+        if (IsFalling)
+            return;
+        _onWallBeforeFall = Side is Clings.Left or Clings.Right;
+        IsFalling = true;
+        _fallSpeed = Pixels.Zero;
+    }
+
+    /// <summary>
+    /// Moves <paramref name="mover"/> for one update. With <paramref name="pursued"/> given, a crawler that is free to
+    /// go either way along its surface goes toward that place.
+    /// </summary>
+    public MoveReport Step(IMoves mover, PixelPosition? pursued = null)
+    {
+        if (IsFalling)
+            return StepFalling(mover);
+        return Side is Clings.Left or Clings.Right ? StepOnWall(mover, pursued) : StepOnFloorOrCeiling(mover, pursued);
+    }
+
+    /// <summary>Crawls along a wall: presses across into it, then moves up or down along it.</summary>
+    private MoveReport StepOnWall(IMoves mover, PixelPosition? pursued)
     {
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
-        ICollisionOwner owner = body.CollisionOwner;
         MoveOptions crawl = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
-        (int alongX, int alongY) = Along(Side);
-        (int intoX, int intoY) = Into(Side);
-        PixelRect here = body.RoomRect;
-
-        // An inside corner: something is in the way ahead, so it climbs onto it.
-        if (!room.IsFree(here.MovedBy(alongX, alongY), owner, crawl))
+        if (room.MoveAcross(body, (Speed + Pixels.FromWhole(1)) * _across, crawl).Blocked)
         {
-            Side = Clockwise ? Previous(Side) : Next(Side);
-            return true;
+            _misses = 0;
+            if (room.MoveDown(body, Speed * _down, crawl).Blocked)
+            {
+                // An inside corner: what stopped it is its new surface, and it goes on along that away from the wall.
+                _across = -_across;
+                Side = _down > 0 ? Clings.Below : Clings.Above;
+                return new MoveReport(false, _down > 0, _down < 0, true, false);
+            }
+
+            if (pursued is { } target && (target.Y.Whole >= mover.Position.Y.Whole) == (_down < 0))
+                _down = -_down;
+            Show(mover);
+            return MoveReport.Nothing;
         }
 
-        mover.Position += PixelOffset.FromWhole(alongX, alongY);
-        here = body.RoomRect;
-
-        // An outside corner: the surface has ended beneath it, so it goes round and down onto the next face.
-        if (room.IsFree(here.MovedBy(intoX, intoY), owner, crawl))
+        if (++_misses >= MissesBeforeFalling)
         {
-            mover.Position += PixelOffset.FromWhole(intoX, intoY);
-            Side = Clockwise ? Next(Side) : Previous(Side);
-            return true;
+            LetGo();
+            return MoveReport.Nothing;
         }
 
-        return false;
+        // An outside corner: the wall has ended, and it turns round the end onto the face beyond.
+        _down = -_down;
+        Side = _down > 0 ? Clings.Below : Clings.Above;
+        return new MoveReport(false, false, false, true, false);
     }
 
-    /// <summary>The step along a surface on the given side, in the mover's sense of travel.</summary>
-    private (int X, int Y) Along(Clings side)
+    /// <summary>Crawls along a floor or ceiling: presses down or up into it, then moves across along it.</summary>
+    private MoveReport StepOnFloorOrCeiling(IMoves mover, PixelPosition? pursued)
     {
-        (int x, int y) = side switch
+        Mover room = mover.Room.Mover;
+        Collider body = mover.MovingBody;
+        MoveOptions press = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        // Along a floor it climbs and follows slopes as anything walking does.
+        MoveOptions along = Side == Clings.Below ? MoveOptions.Plain with { ClimbPerPixel = 2, FollowGroundDown = 2 } : press;
+        if (room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, press).Blocked)
         {
-            Clings.Below => (1, 0),
-            Clings.Right => (0, -1),
-            Clings.Above => (-1, 0),
-            Clings.Left => (0, 1),
-            _ => throw new InvalidOperationException($"Undefined side {side}."),
-        };
-        return Clockwise ? (x, y) : (-x, -y);
+            _misses = 0;
+            if (room.MoveAcross(body, Speed * _across, along).Blocked)
+            {
+                _down = -_down;
+                Side = _across > 0 ? Clings.Right : Clings.Left;
+                return new MoveReport(true, false, false, true, false);
+            }
+
+            if (pursued is { } target && (target.X.Whole >= mover.Position.X.Whole) == (_across < 0))
+                _across = -_across;
+            Show(mover);
+            return MoveReport.Nothing;
+        }
+
+        if (++_misses >= MissesBeforeFalling)
+        {
+            LetGo();
+            return MoveReport.Nothing;
+        }
+
+        _across = -_across;
+        Side = _across > 0 ? Clings.Right : Clings.Left;
+        return new MoveReport(false, false, false, true, false);
     }
 
-    /// <summary>The step into the surface on the given side.</summary>
-    private static (int X, int Y) Into(Clings side) => side switch
+    /// <summary>Falls until something stops it, and then crawls on from where it landed.</summary>
+    private MoveReport StepFalling(IMoves mover)
     {
-        Clings.Below => (0, 1),
-        Clings.Right => (1, 0),
-        Clings.Above => (0, -1),
-        Clings.Left => (-1, 0),
-        _ => throw new InvalidOperationException($"Undefined side {side}."),
-    };
+        MoveOptions fall = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
+        if (!mover.Room.Mover.MoveDown(mover.MovingBody, _fallSpeed, fall).Blocked)
+        {
+            if (_fallSpeed < FallSpeedLimit)
+                _fallSpeed += FallGravity;
+            return MoveReport.Nothing;
+        }
 
-    /// <summary>The side after <paramref name="side"/>, going round by way of the floor, the left wall, the ceiling and the right wall.</summary>
-    private static Clings Next(Clings side) => side switch
-    {
-        Clings.Below => Clings.Left,
-        Clings.Left => Clings.Above,
-        Clings.Above => Clings.Right,
-        Clings.Right => Clings.Below,
-        _ => throw new InvalidOperationException($"Undefined side {side}."),
-    };
+        if (SpeedOnLanding is { } speed)
+            Speed = speed;
+        _fallSpeed = Pixels.Zero;
+        _misses = 0;
+        IsFalling = false;
+        // It goes on as it was before it let go: a crawler that fell off a wall presses toward that wall again.
+        Side = _onWallBeforeFall ? (_across > 0 ? Clings.Right : Clings.Left) : (_down > 0 ? Clings.Below : Clings.Above);
+        return new MoveReport(false, true, false, false, true);
+    }
 
-    /// <summary>The side before <paramref name="side"/>, in the same order.</summary>
-    private static Clings Previous(Clings side) => side switch
+    /// <summary>Gives the mover the facing and speed its crawl has, for whoever shows it.</summary>
+    private void Show(IMoves mover)
     {
-        Clings.Below => Clings.Right,
-        Clings.Right => Clings.Above,
-        Clings.Above => Clings.Left,
-        Clings.Left => Clings.Below,
-        _ => throw new InvalidOperationException($"Undefined side {side}."),
-    };
+        mover.Velocity = new PixelVelocity(Speed * _across, Speed * _down);
+        mover.Facing = _across < 0 ? Facing.Left : Facing.Right;
+    }
 }

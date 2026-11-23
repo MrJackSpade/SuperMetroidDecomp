@@ -212,7 +212,8 @@ public sealed class MovementChecks
         // An 8 by 8 body sitting on top of the tile.
         foreach (Engine.Collision.Collider collider in EntityNode.CollidersOf(enemy))
             collider.Rect = new PixelRect(-4, -4, 8, 8);
-        var crawl = new SurfaceCrawl { Speed = Pixels.FromWhole(1), Clockwise = true, Side = SurfaceCrawl.Clings.Below };
+        var crawl = new SurfaceCrawl { Speed = Pixels.FromWhole(1) };
+        crawl.Start(SurfaceCrawl.Clings.Below, clockwise: true);
 
         var sides = new List<SurfaceCrawl.Clings> { crawl.Side };
         for (int update = 0; update < 120; update++)

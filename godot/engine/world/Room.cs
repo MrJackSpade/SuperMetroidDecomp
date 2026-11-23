@@ -332,6 +332,9 @@ public partial class Room : Node2D
         }
     }
 
+    /// <summary>How hard the room is shaking right now; zero when it is still.</summary>
+    public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.Strength ?? 0;
+
     /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
     public void Shake(int strength, int updates)
     {

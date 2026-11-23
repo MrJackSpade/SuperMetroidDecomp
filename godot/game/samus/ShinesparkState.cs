@@ -10,7 +10,8 @@ namespace Game;
 /// <summary>
 /// A shinespark: with a shine stored, a jump winds her up and then launches her in a straight line, across, up or
 /// diagonally, faster and faster, hurting what she passes through and costing her energy as she goes. It ends against
-/// something solid, or when her energy runs low, and holds her there for a moment.
+/// something solid, or when her energy runs low. There she is held while two echoes of her circle out, round and
+/// back in; then, after a moment, the echoes are let go and fly off, and she is free.
 /// </summary>
 public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 {
@@ -21,7 +22,23 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         Crashed,
     }
 
+    private enum Crash
+    {
+        Expanding,
+        Circling,
+        Contracting,
+        Holding,
+    }
+
+    /// <summary>How far the echoes move out or in each update, how far out they circle from, how far each turns an update, and how far they circle in all.</summary>
+    private const int CrashRadiusStep = 4, CrashCirclingRadius = 12, CrashTurn = 4, CrashTravel = 128;
+
     private Stage _stage;
+    private Crash _crash;
+    private int _crashRadius;
+    private int _crashTravelled;
+    private int _firstAngle, _secondAngle;
+    private ShinesparkEcho? _firstEcho, _secondEcho;
     private Countdown _left;
     private int _across;
     private int _down;
@@ -68,8 +85,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
                 Fly(samus);
                 return this;
             case Stage.Crashed:
-                _left = _left.Stepped();
-                if (_left.IsRunning)
+                if (!StepCrash(samus))
                     return this;
                 samus.EndBoost();
                 return owner.StateAtRest();
@@ -138,7 +154,84 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         if (!stopped && !spent)
             return;
         _stage = Stage.Crashed;
-        _left = Countdown.Of(samus.ShinesparkCrashUpdates);
+        (_crash, _crashRadius, _crashTravelled) = (Crash.Expanding, 0, 0);
+        (_firstAngle, _secondAngle) = samus.Facing == Facing.Left ? (32, 160) : (224, 96);
+        samus.Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
         samus.Room.Session.Sounds.Request(Sounds.ShinesparkEnd, channel: "samus");
+        if (samus.ShinesparkEchoShot.Length == 0)
+            return;
+        ShotType shot = ShotType.Read(samus.Room.Content.ReadData(samus.ShinesparkEchoShot));
+        _firstEcho = Echo(samus, shot, _firstAngle);
+        _secondEcho = Echo(samus, shot, _secondAngle);
+    }
+
+    /// <inheritdoc/>
+    public override void Exit(Player owner)
+    {
+        // Echoes still circling when she is taken out of this some other way go with it.
+        if (_stage == Stage.Crashed && _crash != Crash.Holding)
+        {
+            _firstEcho?.Dismiss(owner.Room);
+            _secondEcho?.Dismiss(owner.Room);
+        }
+
+        (_firstEcho, _secondEcho) = (null, null);
+    }
+
+    private static ShinesparkEcho Echo(Samus samus, ShotType shot, int angle)
+    {
+        var echo = shot.Launch(samus.Position, PixelVelocity.Zero, HitSide.Player, samus, samus) as ShinesparkEcho
+            ?? throw new InvalidOperationException($"The shot \"{samus.ShinesparkEchoShot}\" is not a shinespark echo's.");
+        echo.Circle(samus, angle, 0);
+        samus.Room.Spawn(echo);
+        return echo;
+    }
+
+    /// <summary>Plays one update of the crash and returns whether it is over.</summary>
+    private bool StepCrash(Samus samus)
+    {
+        switch (_crash)
+        {
+            case Crash.Expanding:
+                // They are out far enough once they had been before this step.
+                bool farEnough = _crashRadius >= CrashCirclingRadius;
+                _crashRadius += CrashRadiusStep;
+                if (farEnough)
+                    _crash = Crash.Circling;
+                break;
+
+            case Crash.Circling:
+                int turn = samus.Facing == Facing.Left ? -CrashTurn : CrashTurn;
+                (_firstAngle, _secondAngle) = (_firstAngle + turn, _secondAngle + turn);
+                _crashTravelled += CrashTurn;
+                if (_crashTravelled >= CrashTravel)
+                    _crash = Crash.Contracting;
+                break;
+
+            case Crash.Contracting:
+                _crashRadius -= CrashRadiusStep;
+                if (_crashRadius <= 0)
+                {
+                    (_crash, _crashRadius) = (Crash.Holding, 0);
+                    _left = Countdown.Of(samus.ShinesparkCrashUpdates);
+                }
+
+                break;
+
+            default:
+                _left = _left.Stepped();
+                if (_left.IsRunning)
+                    return false;
+
+                // The echoes are let go along the line the spark flew: to either side of it, or along a diagonal.
+                (int first, int second) = _across == 0 ? (64, 192) : _down == 0 ? (0, 128) : _across > 0 ? (224, 96) : (32, 160);
+                _firstEcho?.Fly(first);
+                _secondEcho?.Fly(second);
+                return true;
+        }
+
+        _firstEcho?.Circle(samus, _firstAngle, _crashRadius);
+        _secondEcho?.Circle(samus, _secondAngle, _crashRadius);
+        return false;
     }
 }

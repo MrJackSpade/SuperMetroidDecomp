@@ -592,6 +592,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | In the air | Spin jumping. |
 | Abilities | Grappling, shinesparking, crystal flash, X-ray. |
 | Done to her | Bomb jumping, drained, grabbed, shoved (thrown aside by Ridley as he leaves Ceres). |
+| Her weapons' own ways | A full charge with power bombs selected and just one of the wave, ice, spazer and plasma beams carried lets loose that beam's special attack (`SpecialAttack`, four lights that move about her by their kind). A full charge carried into the morph ball throws a spread of five bombs, higher the longer down is held (`Bomb` can be thrown). A shinespark's crash holds her while two echoes of her circle, and then lets them fly (`ShinesparkEcho`). |
 | Not in control | Facing forward where something puts her (in the gunship, on the pad that sets her down in Ceres), collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball

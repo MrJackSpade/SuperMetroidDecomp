@@ -70,6 +70,16 @@ public partial class Samus : Player
     [Export, DataValue("shinespark_least_energy")]
     public int ShinesparkLeastEnergy { get; set; } = 30;
 
+    /// <summary>
+    /// The special attacks, by the one beam she must carry for each: the data file of the shot of its four lights.
+    /// </summary>
+    [Export]
+    public Godot.Collections.Dictionary<string, string> SpecialAttackShots { get; set; } = [];
+
+    /// <summary>The echoes a shinespark throws off as it ends, by the data file of their shot; empty for none.</summary>
+    [Export(PropertyHint.File)]
+    public string ShinesparkEchoShot { get; set; } = "";
+
     /// <summary>How many updates she is held where a shinespark ended.</summary>
     [Export, DataValue("shinespark_crash_updates")]
     public int ShinesparkCrashUpdates { get; set; } = 30;
@@ -117,6 +127,8 @@ public partial class Samus : Player
     private Countdown _boostStageLeft = Countdown.Over;
     private int _boostStage = -1;
     private bool _autoCancel;
+    private bool _spreadCharged;
+    private int _spreadHeld;
     private bool _wasWallJumping;
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
@@ -378,6 +390,35 @@ public partial class Samus : Player
     protected override void Attack(GameInput input)
     {
         string weapon = WeaponInHand();
+
+        // A full charge is remembered for as long as the button stays down, even into the morph ball.
+        bool held = input.IsHeld(GameAction.Attack);
+        bool beamCharged = Weapons.Selected?.Name == Arsenal.Beam && Weapons.IsCharged;
+        if (!held)
+            (_spreadCharged, _spreadHeld) = (false, 0);
+        else if (beamCharged)
+            _spreadCharged = true;
+
+        if (weapon == Arsenal.Beam && beamCharged && !held && Selected == Amounts.PowerBombs && SpecialAttackShot() is { } special)
+        {
+            LetLooseSpecialAttack(special);
+            return;
+        }
+
+        if (weapon == Arsenal.Bomb && _spreadCharged && Inventory.IsOn(Equipment.Bombs) && Weapons.LiveOf(Arsenal.Bomb).Count == 0)
+        {
+            // Holding down winds the throw up higher, for a while; otherwise the five bombs go at once.
+            Weapons.StepCooldown();
+            if (input.IsHeld(GameAction.Down) && _spreadHeld < SpreadWindUpUpdates)
+            {
+                _spreadHeld++;
+                return;
+            }
+
+            ThrowBombSpread();
+            return;
+        }
+
         if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
         {
             Weapons.StepCooldown();
@@ -393,6 +434,63 @@ public partial class Samus : Player
             SelectBeam();
         if (Amounts.All.Contains(Selected) && Inventory.Amount(Selected) == 0)
             SelectBeam();
+    }
+
+    /// <summary>How long holding down can go on winding a bomb spread up, and how many updates of it throw a pixel higher.</summary>
+    private const int SpreadWindUpUpdates = 192, SpreadUpdatesPerPixel = 64;
+
+    /// <summary>The five bombs of a spread, left to right: how long each lies before it bursts, and how it is thrown.</summary>
+    private static readonly (int Fuse, double Across, double Down)[] SpreadBombs =
+    [
+        (120, -1, 0), (110, -0.5, -1), (100, 0, -1.5), (110, 0.5, -1), (120, 1, 0),
+    ];
+
+    /// <summary>
+    /// The shot of the special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
+    /// beams. Null when she carries none of them or more than one.
+    /// </summary>
+    private string? SpecialAttackShot()
+    {
+        string[] carried = [.. new[] { Equipment.WaveBeam, Equipment.IceBeam, Equipment.Spazer, Equipment.PlasmaBeam }.Where(Inventory.IsOn)];
+        return carried.Length == 1 ? SpecialAttackShots[carried[0]] : null;
+    }
+
+    /// <summary>Spends a power bomb on a special attack: its four lights are let loose about her.</summary>
+    private void LetLooseSpecialAttack(string file)
+    {
+        Inventory.Spend(Amounts.PowerBombs, 1);
+        ShotType shot = ShotType.Read(Room.Content.ReadData(file));
+        for (int part = 0; part < 4; part++)
+        {
+            var light = shot.Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
+                ?? throw new InvalidOperationException($"The shot \"{file}\" is not a special attack's.");
+            light.Begin(part, Facing == Facing.Right);
+            Room.Spawn(light);
+        }
+
+        if (shot.Sound.Length > 0)
+            Room.Session.Sounds.Request(shot.Sound, channel: "weapons");
+        Weapons.DropCharge();
+        Weapons.WaitAtLeast(Weapons.Named(Arsenal.Beam).CooldownFor(Inventory, charged: true));
+        if (Inventory.Amount(Amounts.PowerBombs) == 0)
+            SelectBeam();
+    }
+
+    /// <summary>Throws the five bombs of a spread from where she is, higher the longer down was held.</summary>
+    private void ThrowBombSpread()
+    {
+        WeaponStats bomb = Weapons.Named(Arsenal.Bomb);
+        ProjectileSettings settings = bomb.ShotsFor(Inventory, charged: false)[0].Projectile;
+        int higher = _spreadHeld / SpreadUpdatesPerPixel;
+        foreach ((int fuse, double across, double down) in SpreadBombs)
+        {
+            var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = fuse }) as Bomb
+                ?? throw new InvalidOperationException("Samus's bomb is not a bomb.");
+            thrown.Throw(new PixelVelocity(Pixels.FromNumber(across), Pixels.FromNumber(down - higher)), Pixels.FromNumber(Medium.Gravity));
+        }
+
+        Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));
+        (_spreadCharged, _spreadHeld) = (false, 0);
     }
 
     /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>

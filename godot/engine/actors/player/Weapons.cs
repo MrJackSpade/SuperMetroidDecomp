@@ -203,6 +203,25 @@ public sealed class Weapons
     }
 
     /// <summary>Makes a weapon's projectile: one of its scene, or a plain one.</summary>
+    /// <summary>
+    /// Launches one projectile of a weapon by hand, with its own place, speed and settings, counted among that
+    /// weapon's live ones. For a player whose weapon can be let loose some way firing does not cover.
+    /// </summary>
+    public Projectile Launch(Player player, WeaponStats weapon, PixelPosition at, PixelVelocity velocity, ProjectileSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(player);
+        ArgumentNullException.ThrowIfNull(weapon);
+        ArgumentNullException.ThrowIfNull(settings);
+        if (!_live.TryGetValue(weapon.Name, out List<Projectile>? live))
+            _live[weapon.Name] = live = [];
+        Hit hit = weapon.HitFor(player.Inventory, charged: false) with { Direction = velocity.OverOneUpdate, Source = player };
+        Projectile projectile = Make(weapon);
+        projectile.Launch(hit, at, velocity, settings, player);
+        player.Room.Spawn(projectile);
+        live.Add(projectile);
+        return projectile;
+    }
+
     private static Projectile Make(WeaponStats weapon)
     {
         if (weapon.Scene.Length == 0)

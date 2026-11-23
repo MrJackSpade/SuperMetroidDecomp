@@ -453,7 +453,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. | The `Hit` or ongoing damage it does, or its hold. |
 | `BossEncounter` | Changing the music, starting the boss, and recording the defeat in `Progress`. | Which boss; remembered as. |
-| `Creature` | A harmless animal that moves by its own behaviour and cannot be hurt. | — |
+| `Creature` | A harmless animal that moves by its own behaviour and cannot be hurt. The base shows the timelines its data names, passes it their cues, and moves it through terrain. | — |
 | `Scenery` | A fixture that reacts visibly to the player or events, with no effect on play beyond an optional solid body. | — |
 | `Gunship` (this game's) | Landing, taking off, saving and refilling. | — |
 
@@ -861,7 +861,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   barriers are held shut by "this room has no live enemies".
 - `Spawner`: pipe bug pipes; Rinka sources.
 - `Hazard`: the Samus-eating plants; Ceres steam.
-- `Creature`: the Etecoons and the Dachora, during play and during the escape.
+- `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
+  (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
 - `Scenery`: the Tourian entrance statue. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, because each has a state
   machine no setting of `Scenery` gives; the face blocks and the corpses are enemies.

@@ -30,6 +30,10 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <summary>The loaded layout.</summary>
     private TerrainLayout? _layout;
 
+    /// <summary>How many updates the terrain has been stepped, and whether any of its tiles steps through pictures.</summary>
+    private long _updates;
+    private bool _hasMovingTiles;
+
     /// <summary>The tiles in place right now, by row then column: the layout's, with any patches applied.</summary>
     private TileDefinition[][] _tiles = [];
 
@@ -72,6 +76,8 @@ public partial class Terrain : Node2D, ITerrainShape
             throw new InvalidOperationException($"The terrain \"{Name}\" names no layout file.");
         _content = content;
         _layout = TerrainLayout.Read(content.ReadData(LayoutFile));
+        _updates = 0;
+        _hasMovingTiles = _layout.Tiles.Any(row => row.Any(tile => tile.Frames.Count > 0));
         _tiles = _layout.Tiles.Select(row => row.ToArray()).ToArray();
         _replacedBy.Clear();
         _blocks.Clear();
@@ -241,7 +247,8 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <param name="isOccupied">Says whether something occupies a rectangle of the room, which stops a block regrowing there.</param>
     public void Step(Func<PixelRect, bool> isOccupied)
     {
-        bool changed = false;
+        _updates++;
+        bool changed = _hasMovingTiles;
         foreach (Block block in _blocks)
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
         if (changed)
@@ -320,7 +327,7 @@ public partial class Terrain : Node2D, ITerrainShape
             for (int column = 0; column < _tiles[row].Length; column++)
             {
                 TileDefinition tile = _tiles[row][column];
-                string picture = tile.Picture;
+                string picture = tile.PictureAt(_updates);
                 if (tile.Kind == TileKind.Block && _blockAt[row][column] is { } block)
                 {
                     if (block.Broken || block.Rect.Left != column * size || block.Rect.Top != row * size)

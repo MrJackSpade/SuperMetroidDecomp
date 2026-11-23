@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -14,6 +14,8 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
 [ext_resource type="PackedScene" path="res://game/objects/dachora/escape_dachora.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="14"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="15"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="16"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -200,4 +202,22 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r12")
 RememberedAs = "bomb_torizo_grey_door_facing_right"
 Remembered = 1
+PresentWhen = SubResource("r1")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("15")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 240
+HighSurface = 184
+MoveSpeed = 0.0625
+MoveDelay = 48
+PresentWhen = SubResource("r1")
+
+[node name="LiquidMoves" type="Node2D" parent="."]
+script = ExtResource("16")
+position = Vector2(0, 0)
+Size = Vector2i(256, 256)
+What = "rise"
+Target = NodePath("../Liquid")
 PresentWhen = SubResource("r1")

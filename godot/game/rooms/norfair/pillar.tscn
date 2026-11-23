@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" path="res://game/enemies/nuclear_waffle/nuclear_waffle.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -86,3 +89,28 @@ script = ExtResource("7")
 position = Vector2(768, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 232
+HighSurface = 16
+MoveSpeed = 0.125
+MoveDelay = 80
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+
+[node name="LiquidMoves" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+Size = Vector2i(1024, 256)
+What = "rise"
+Target = NodePath("../Liquid")
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25

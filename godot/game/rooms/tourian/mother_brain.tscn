@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://game/bosses/mother_brain/mother_brain_glass.tscn" id="11"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="12"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -163,6 +164,14 @@ script = ExtResource("13")
 position = Vector2(768, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 232
+HighSurface = 232
+PresentWhen = SubResource("r9")
 
 [node name="FromTourianEscape1ToMotherBrain" type="Marker2D" parent="."]
 position = Vector2(128, 128)

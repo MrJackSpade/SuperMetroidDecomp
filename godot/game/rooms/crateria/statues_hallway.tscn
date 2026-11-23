@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="5"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="6"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -77,3 +78,9 @@ script = ExtResource("6")
 position = Vector2(1024, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="Fog" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+EffectName = "fog"
+Picture = "effects/fog.png"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -160,3 +161,13 @@ Size = Vector2i(128, 16)
 What = "open"
 Once = false
 Target = NodePath("../Screen0x1Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 191
+HighSurface = 191
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

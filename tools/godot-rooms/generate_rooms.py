@@ -14,6 +14,7 @@ A room's scene holds:
 - a marker for each place play can begin at in it: where a save resumes, where an elevator sets down, where Samus
   is set down in Ceres and where her gunship lands;
 - its camera zones, and the triggers that open and close them (see camera.py);
+- its liquid and its room effects: heat, rain, fog, spores, the Fireflea rooms' dark (see fx.py);
 - its enemies, each with the settings its placement gives it (see enemies.py), and its room objects: door caps,
   items, stations, gates and the rest (see objects.py). One placed in some versions of the room and not in others is
   present only when one of those versions is the one in force.
@@ -30,6 +31,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import camera  # noqa: E402
 import enemies  # noqa: E402
+import fx  # noqa: E402
 import legacy  # noqa: E402
 import objects  # noqa: E402
 
@@ -245,6 +247,9 @@ class Context:
     def killed(self, enemies_killed: int) -> str:
         return self._about(8, str(enemies_killed))
 
+    def entered_at(self, entry_point: str) -> str:
+        return self._about(9, entry_point)
+
     def all_of(self, parts: list[str]) -> str:
         return self._of(4, parts)
 
@@ -276,6 +281,7 @@ class Generator:
         self.scroll_layouts = legacy.scroll_layouts()
         self.scroll_changes = legacy.scroll_changes()
         self.door_setups = legacy.door_setups()
+        self.room_fx = legacy.room_fx()
         self.object_lists = legacy.object_populations()
         # The kinds of enemy no rule places yet, with how many placements of each were passed over.
         self.unplaced: dict[str, int] = {}
@@ -411,6 +417,12 @@ class Generator:
             things.extend(view.placed)
             for trigger, zone in view.links:
                 links[id(trigger)] = {'Target': zone}
+            # Its liquid and its room effects.
+            shown, told = fx.things(self.room_fx[state.fx], room, ctx,
+                                    lambda door: self.arrival_in(key, self.doors[door]) or 'From' + door)
+            things.extend(shown)
+            for teller, target in told:
+                links[id(teller)] = {'Target': target}
 
             # Two alike in one version are two things; two alike in two versions are one thing in both.
             counts: dict[tuple, int] = {}

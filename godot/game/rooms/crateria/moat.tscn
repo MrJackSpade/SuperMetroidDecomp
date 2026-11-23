@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -65,3 +66,10 @@ script = ExtResource("7")
 position = Vector2(256, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+TypeFile = "liquids/water.json"
+LowSurface = 176
+HighSurface = 176

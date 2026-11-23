@@ -29,4 +29,7 @@ public enum ConditionKind
 
     /// <summary>Have at least so many enemies been killed in this room since it was set up? The number is what the condition is about.</summary>
     EnemiesKilled,
+
+    /// <summary>Was this room entered at the named entry point?</summary>
+    EnteredAt,
 }

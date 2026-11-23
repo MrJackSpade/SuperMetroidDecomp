@@ -181,6 +181,13 @@ class Objects:
     def mother_brain_glass_setup(self, block, setup, gates) -> None:
         self.placed.append(Placed(B + 'mother_brain/mother_brain_glass.tscn', 'MotherBrainGlass', {'AlwaysActive': 'true'}, at=corner(block)))
 
+    def speed_booster_escape_setup(self, block, setup, gates) -> None:
+        # The lava's chase begins as the hall is entered from the Speed Booster's room, until it has been outrun once.
+        ctx = self.ctx
+        self.placed.append(Placed('res://game/rooms/norfair/SpeedBoosterLavaquake.cs', 'Lavaquake', {
+            'StartsAtEntry': quoted('ToSpeedBooster'), 'RememberedAs': quoted('outran_lava_quake')},
+            at=None, enemy=False, kind='Node', only_when=ctx.none_of([ctx.fact('outran_lava_quake')])))
+
     def metroid_room_clearance_setup(self, block, setup, gates) -> None:
         ctx = self.ctx
         self.placed.append(Placed('res://game/rooms/RoomWatch.cs', 'Cleared', {

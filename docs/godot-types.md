@@ -258,7 +258,7 @@ it settled, and new code follows them.
 | `GameClock` | The count of updates played | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. |
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |
-| `Condition` | A yes-or-no question about the game's state, held as data | One of: a named fact in `Progress` is set; this room has no live enemies; the player owns a named piece of equipment; the player can carry some of a named amount; at least so many enemies have been killed in this room since it was set up; a named thing placed in this room is dead or open; or all, any or none of a list of conditions. |
+| `Condition` | A yes-or-no question about the game's state, held as data | One of: a named fact in `Progress` is set; this room has no live enemies; the player owns a named piece of equipment; the player can carry some of a named amount; at least so many enemies have been killed in this room since it was set up; the room was entered at a named entry point; a named thing placed in this room is dead or open; or all, any or none of a list of conditions. |
 | `RoomEntry` | How the player arrives in a room | Which room, through which exit or station, and what the player carries in (speed, state). The room transition builds it; the room and the player read it. |
 
 **Hits carry several kinds.** One shot can be several things at once. A hit carries every kind that is true of it,
@@ -935,7 +935,10 @@ Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is
 it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
 rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
 statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
-statue's descent), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. The escape:
+statue's descent), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
+waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
+(`SpeedBoosterLavaquake`). The escape:
 explosions and shaking in each escape room (`EscapeRoom`).
 
 ### Projectiles and effects

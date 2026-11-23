@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,7 +7,8 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -60,57 +61,63 @@ position = Vector2(0, 736)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
-[node name="Steam" parent="." instance=ExtResource("8")]
+[node name="CeresElevator" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+EffectName = "ceres_haze"
+Picture = "effects/ceres_haze.png"
+
+[node name="Steam" parent="." instance=ExtResource("9")]
 position = Vector2(94, 108)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam2" parent="." instance=ExtResource("8")]
+[node name="Steam2" parent="." instance=ExtResource("9")]
 position = Vector2(162, 108)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam3" parent="." instance=ExtResource("8")]
+[node name="Steam3" parent="." instance=ExtResource("9")]
 position = Vector2(158, 200)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam4" parent="." instance=ExtResource("8")]
+[node name="Steam4" parent="." instance=ExtResource("9")]
 position = Vector2(98, 200)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam5" parent="." instance=ExtResource("8")]
+[node name="Steam5" parent="." instance=ExtResource("9")]
 position = Vector2(94, 296)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam6" parent="." instance=ExtResource("8")]
+[node name="Steam6" parent="." instance=ExtResource("9")]
 position = Vector2(162, 296)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam7" parent="." instance=ExtResource("8")]
+[node name="Steam7" parent="." instance=ExtResource("9")]
 position = Vector2(158, 392)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam8" parent="." instance=ExtResource("8")]
+[node name="Steam8" parent="." instance=ExtResource("9")]
 position = Vector2(98, 408)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam9" parent="." instance=ExtResource("8")]
+[node name="Steam9" parent="." instance=ExtResource("9")]
 position = Vector2(94, 504)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam10" parent="." instance=ExtResource("8")]
+[node name="Steam10" parent="." instance=ExtResource("9")]
 position = Vector2(162, 504)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam11" parent="." instance=ExtResource("8")]
+[node name="Steam11" parent="." instance=ExtResource("9")]
 position = Vector2(114, 600)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")

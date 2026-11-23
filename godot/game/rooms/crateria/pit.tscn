@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -9,10 +9,11 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="10"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="11"]
-[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="12"]
-[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="13"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -302,7 +303,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x1Foot")
 
-[node name="PirateGreyWalking" parent="." instance=ExtResource("10")]
+[node name="Fog" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "fog"
+Picture = "effects/fog.png"
+PresentWhen = SubResource("r9")
+
+[node name="PirateGreyWalking" parent="." instance=ExtResource("11")]
 position = Vector2(616, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
@@ -311,7 +319,7 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWall" parent="." instance=ExtResource("11")]
+[node name="PirateGreyWall" parent="." instance=ExtResource("12")]
 position = Vector2(717, 63)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -320,7 +328,7 @@ SlowJump = false
 JumpSpan = 32
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking2" parent="." instance=ExtResource("10")]
+[node name="PirateGreyWalking2" parent="." instance=ExtResource("11")]
 position = Vector2(505, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 0
@@ -329,7 +337,7 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking3" parent="." instance=ExtResource("10")]
+[node name="PirateGreyWalking3" parent="." instance=ExtResource("11")]
 position = Vector2(376, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
@@ -338,7 +346,7 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking4" parent="." instance=ExtResource("10")]
+[node name="PirateGreyWalking4" parent="." instance=ExtResource("11")]
 position = Vector2(104, 128)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
@@ -347,7 +355,7 @@ FlinchesFromShots = true
 PatrolReach = 32
 PresentWhen = SubResource("r3")
 
-[node name="MissileTank" parent="." instance=ExtResource("12")]
+[node name="MissileTank" parent="." instance=ExtResource("13")]
 position = Vector2(88, 424)
 TypeFile = "items/missile_tank.json"
 RememberedAs = "pit_exposed_missile_tank"
@@ -362,7 +370,7 @@ Remembered = 1
 PresentWhen = SubResource("r3")
 
 [node name="ZebesWakes" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r8")
 Until = SubResource("r7")
 Records = PackedStringArray("zebes_awake")
@@ -377,7 +385,7 @@ Remembered = 1
 PresentWhen = SubResource("r3")
 
 [node name="ZebesWakes2" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("14")
 StartsWhen = SubResource("r8")
 Until = SubResource("r7")
 Records = PackedStringArray("zebes_awake")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -109,4 +110,12 @@ FallSpeed = 4
 FallWait = 20
 FallDistance = 104
 AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water.json"
+LowSurface = 168
+HighSurface = 168
 PresentWhen = SubResource("r1")

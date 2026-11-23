@@ -1,17 +1,31 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/amphitheatre.json"
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 9
+About = "ToRedKihunterShaft"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
 
 [node name="Amphitheatre" type="Node2D"]
 script = ExtResource("2")
@@ -41,7 +55,7 @@ LeadsToExit = "ToAmphitheatre"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="PirateGoldWalking" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking" parent="." instance=ExtResource("6")]
 position = Vector2(448, 208)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -49,7 +63,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 16
 
-[node name="PirateGoldWalking2" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking2" parent="." instance=ExtResource("6")]
 position = Vector2(704, 176)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -57,7 +71,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 8
 
-[node name="PirateGoldWalking3" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking3" parent="." instance=ExtResource("6")]
 position = Vector2(696, 560)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -65,7 +79,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 8
 
-[node name="PirateGoldWalking4" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking4" parent="." instance=ExtResource("6")]
 position = Vector2(344, 288)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 1
@@ -73,7 +87,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 8
 
-[node name="PirateGoldWalking5" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking5" parent="." instance=ExtResource("6")]
 position = Vector2(464, 1088)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -81,7 +95,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 16
 
-[node name="PirateGoldWalking6" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking6" parent="." instance=ExtResource("6")]
 position = Vector2(197, 1104)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -89,7 +103,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 160
 
-[node name="PirateGoldWalking7" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking7" parent="." instance=ExtResource("6")]
 position = Vector2(893, 925)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -97,7 +111,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 16
 
-[node name="PirateGoldWalking8" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking8" parent="." instance=ExtResource("6")]
 position = Vector2(960, 784)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -105,7 +119,7 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 16
 
-[node name="PirateGoldWalking9" parent="." instance=ExtResource("5")]
+[node name="PirateGoldWalking9" parent="." instance=ExtResource("6")]
 position = Vector2(568, 416)
 DataFile = "enemies/walking_pirate_gold.json"
 StartsFacing = 0
@@ -113,34 +127,80 @@ LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 8
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
+[node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("6")]
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(992, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Screen0x4Foot" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(0, 1248)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x4Foot" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(256, 1248)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x4Foot" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(512, 1248)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen3x4Foot" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(768, 1248)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 208
+HighSurface = 208
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+PresentWhen = SubResource("r2")
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25
+PresentWhen = SubResource("r2")
+
+[node name="Liquid2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 1256
+HighSurface = 208
+MoveSpeed = 0.5
+MoveDelay = 96
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+PresentWhen = SubResource("r3")
+
+[node name="LiquidMoves" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Size = Vector2i(1024, 1280)
+What = "rise"
+Target = NodePath("../Liquid2")
+PresentWhen = SubResource("r3")
+
+[node name="Heat2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25
+PresentWhen = SubResource("r3")

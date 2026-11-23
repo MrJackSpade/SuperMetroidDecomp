@@ -86,6 +86,17 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         Surface = _level;
     }
 
+    /// <summary>Puts where the surface lies at a height at once, in pixels down from the room's top; it goes on from there to where it was heading.</summary>
+    public void PutAt(int height)
+    {
+        _level = Pixels.FromWhole(height);
+        Surface = _level + _tide;
+        QueueRedraw();
+    }
+
+    /// <summary>Ends whatever wait is left before it starts toward where it is heading.</summary>
+    public void EndWait() => _waiting = 0;
+
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 

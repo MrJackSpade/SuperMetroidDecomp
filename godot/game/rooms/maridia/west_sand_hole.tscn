@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/boulder/boulder.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -92,6 +93,13 @@ RememberedAs = "west_sand_hole_chozo_reserve_tank"
 [node name="ItemShell" parent="." instance=ExtResource("8")]
 position = Vector2(240, 64)
 PresentWhen = SubResource("r3")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 214
+HighSurface = 214
 
 [node name="FromWestAqueductQuicksandToWestSandHole" type="Marker2D" parent="."]
 position = Vector2(384, 128)

@@ -393,6 +393,37 @@ def door_setups() -> dict[str, list[tuple[tuple[int, int], str]]]:
     return result
 
 
+def _room_effect(expression: str) -> dict | None:
+    """One of the old code's room effects as its parts; None for no effect."""
+    if expression.strip() == 'null':
+        return None
+    a = call_arguments(expression)
+    tide = re.search(r'LiquidTide\.(\w+)', a[7])
+    return {
+        'start': None if a[0] == 'null' else int(a[0]), 'target': None if a[1] == 'null' else int(a[1]),
+        'speed': a[2], 'delay': int(a[3]), 'type': last_name(a[4]), 'tide': tide.group(1) if tide else 'None',
+        'colours': re.findall(r'ColourEffectId\.(\w+)', a[8]), 'tint': last_name(a[10]),
+    }
+
+
+def room_fx() -> dict[str, dict]:
+    """
+    Each effect selection a room state can name: the effect shown on coming in by each of certain doors, and the
+    effect shown otherwise.
+    """
+    text = without_comments(read('Fx', 'RoomFxDefinitions.cs'))
+    result = {}
+    for name, expression in properties_of(text, r'public static RoomFxSelection (\w+) \{ get; \} ='):
+        arguments = call_arguments(expression)
+        listed = arguments[0].strip()
+        doors = []
+        for entry in split_arguments(listed[1:matching(listed, 0) - 1]):
+            door, effect = call_arguments(entry)
+            doors.append((last_name(door), _room_effect(effect)))
+        result[name] = {'doors': doors, 'default': _room_effect(arguments[1])}
+    return result
+
+
 def load_stations() -> dict[str, tuple[str, tuple[int, int]]]:
     """The places play can begin at: for each, the door that leads to its room, and where Samus is put there."""
     text = without_comments(read('Rooms', 'RoomObjects', 'LoadStationPlacementDefinitions.cs'))

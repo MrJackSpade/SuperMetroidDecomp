@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/boulder/boulder.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -67,6 +68,13 @@ RememberedAs = "east_sand_hole_exposed_missile_tank"
 position = Vector2(408, 264)
 TypeFile = "items/power_bomb_tank.json"
 RememberedAs = "east_sand_hole_exposed_power_bomb_tank"
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 214
+HighSurface = 214
 
 [node name="FromEastAqueductQuicksandToEastSandHole" type="Marker2D" parent="."]
 position = Vector2(128, 128)

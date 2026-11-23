@@ -89,8 +89,11 @@ public sealed class D3D11RenderWorker
     /// <summary>Thread-safe count of successful DXGI presentation results, including retained redraws; excludes occlusion/stale-generation attempts and is not a simulation-frame counter.</summary>
     public long PresentedFrames => Interlocked.Read(ref presented);
 
-    /// <summary>How many packets the worker has submitted and presented, or found occluded or stale, since it started.</summary>
-    public long SubmittedFrames => Interlocked.Read(ref presented) + Interlocked.Read(ref occluded) + Interlocked.Read(ref stale);
+    /// <summary>The publication sequence of the packet the worker last submitted, presented or found occluded or stale.</summary>
+    public long LastSubmittedSequence => Interlocked.Read(ref lastSubmittedSequence);
+
+    /// <summary>Backs <see cref="LastSubmittedSequence"/>; zero before the first packet.</summary>
+    private long lastSubmittedSequence;
 
     /// <summary>Each packet's timing since <see cref="StartFrameLog"/>, in the order the worker submitted them; null before.</summary>
     private System.Collections.Concurrent.ConcurrentQueue<RenderedFrameTiming>? frameLog;
@@ -317,6 +320,7 @@ public sealed class D3D11RenderWorker
                                 throw new InvalidOperationException($"Undefined {nameof(D3D11PresentationResult)} {presentationResult}.");
                         }
                         retained = packet;
+                        Interlocked.Exchange(ref lastSubmittedSequence, packet.Identity.Sequence);
                         recovery.Submitted();
                         // Both dimensions are published as one atomic word for the host's queries.
                         Interlocked.Exchange(ref lastDrawnSize, ((long)clientSize.X << 32) | clientSize.Y);

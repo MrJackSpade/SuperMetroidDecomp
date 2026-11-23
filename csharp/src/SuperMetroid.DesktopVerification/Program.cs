@@ -96,11 +96,6 @@ internal static class Program
                     await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName), null);
                     return;
                 }
-                if (args is [DesktopMovieReplay.Flag, var measuredMovie, DesktopMovieReplay.FrameTimesFlag, var frameTimes])
-                {
-                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(measuredMovie), null, frameTimes);
-                    return;
-                }
                 if (args is [DesktopMovieReplay.Flag, var timedMovie, DesktopMovieReplay.UntilFlag, var updates])
                 {
                     await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(timedMovie),

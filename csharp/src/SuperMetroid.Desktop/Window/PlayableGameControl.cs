@@ -635,12 +635,12 @@ public sealed class PlayableGameControl : UserControl
         long started = Stopwatch.GetTimestamp();
         do
         {
-            long submitted = worker.SubmittedFrames;
             PlaybackBatchResult batch = PlaybackFrameBatch.Run(1, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
             if (batch.LastFrame is not { } frame)
                 return;
             RefreshFrame(frame);
-            while (worker.SubmittedFrames == submitted)
+            // The worker takes only the newest packet, so the next frame waits until this one's own packet is submitted.
+            while (worker.LastSubmittedSequence < displaySequence)
             {
                 worker.ThrowIfFaulted();
                 Thread.Yield();

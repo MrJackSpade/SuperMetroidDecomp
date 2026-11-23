@@ -32,11 +32,10 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     private static readonly TimeSpan SlowUpdate = TimeSpan.FromMilliseconds(34);
 
     /// <summary>Drives the host from <paramref name="session"/>, stopping after <paramref name="until"/> updates when given.</summary>
-    internal MovieFrameDriver(ConvertedMovieSession session, int? until, bool measure = false)
+    internal MovieFrameDriver(ConvertedMovieSession session, int? until)
     {
         this.session = Ensure.NotNull(session);
         this.until = until;
-        measured = measure ? [] : null;
     }
 
     /// <summary>The movie's final report line, or the exception that ended it.</summary>
@@ -52,24 +51,8 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     public string Progress => $"movie update {InputsSupplied}";
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// A movie replay checks gameplay, not timing, so it runs as fast as the host can step and present (#1511); a measured
-    /// replay presents every frame (#2653).
-    /// </remarks>
-    public HostFramePacing Pacing => measured is null ? HostFramePacing.Unpaced : HostFramePacing.EachFramePresented;
-
-    /// <summary>Each update's timing and place in a measured replay (#2653); null for any other.</summary>
-    private readonly List<MeasuredUpdate>? measured;
-
-    /// <summary>The host's latest published frame's sequence, read as each update completes in a measured replay.</summary>
-    internal Func<long>? DisplaySequence { get; set; }
-
-    /// <summary>When the update now running took its input.</summary>
-    private long updateStarted;
-
-    /// <summary>Each update a measured replay ran, in order.</summary>
-    /// <exception cref="InvalidOperationException">The replay is not measured.</exception>
-    internal IReadOnlyList<MeasuredUpdate> MeasuredUpdates => measured ?? throw new InvalidOperationException("The replay is not measured.");
+    /// <remarks>A movie replay checks gameplay, not timing, so it runs as fast as the host can step and present (#1511).</remarks>
+    public HostFramePacing Pacing => HostFramePacing.Unpaced;
 
     /// <summary>Hands the host the session's game, which the session created by the movie's one initial-state import.</summary>
     /// <remarks>The host's installed content is not used: the session imports the movie's initial state itself. A
@@ -100,24 +83,14 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
             return null;
         }
         InputsSupplied++;
-        updateStarted = System.Diagnostics.Stopwatch.GetTimestamp();
         return input;
     }
 
     /// <summary>Lets the session compare the frame the host just ran; its first divergence ends the movie.</summary>
     public void FrameCompleted(FrontendFrame frame)
     {
-        // The host runs its first frame as it is built, before the replay hands it the frame sequence and starts the render
-        // worker's log; the measurement starts with the frames after it.
-        if (measured is not null && DisplaySequence is { } sequence)
-        {
-            SuperMetroidGame game = session.Game;
-            measured.Add(new MeasuredUpdate(InputsSupplied, session.Position?.SourceFrame, frame.Phase,
-                game.GameplayActiveRoom?.Name, game.GameplayActiveRoomState?.Name,
-                System.Diagnostics.Stopwatch.GetElapsedTime(updateStarted).TotalMilliseconds, sequence()));
-        }
         // A timed run reports each update the host took long over, with where the movie stood (#2619).
-        else if (until is not null && sinceLast.IsRunning && sinceLast.Elapsed > SlowUpdate)
+        if (until is not null && sinceLast.IsRunning && sinceLast.Elapsed > SlowUpdate)
             Console.WriteLine($"slow update {InputsSupplied} (source frame {session.Position?.SourceFrame}, {frame.Phase}): {sinceLast.Elapsed.TotalMilliseconds:F0} ms");
         sinceLast.Restart();
         try

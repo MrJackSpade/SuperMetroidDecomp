@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
@@ -135,8 +136,7 @@ public partial class MotherBrain : ITriggerTarget
     private Pixels _brainFall;
     private bool _brainDetached;
     private Color _headTint = Colors.White;
-    private int _rotUpdates;
-    private int _rotRow;
+    private CorpseRot? _rot;
     private bool _escapeTextDone;
 
     private void ReadDeathValues(DataNode data)
@@ -422,7 +422,7 @@ public partial class MotherBrain : ITriggerTarget
             case Death.CorpseTipsOver:
                 if (--_timer > 0)
                     return false;
-                (_rotUpdates, _rotRow) = (0, 0);
+                _rot = null;
                 _death = Death.CorpseRotsAway;
                 return false;
 
@@ -551,19 +551,15 @@ public partial class MotherBrain : ITriggerTarget
     /// </summary>
     private bool RotCorpse()
     {
-        _rotUpdates++;
-        // Each row starts two updates after the one below it and falls two rows an update.
-        while (_rotRow < CorpseRows && _rotUpdates >= _rotRow * 2 + (_rotRow + 1) / 2 + 1)
+        _rot ??= new CorpseRot(CorpseRows);
+        bool left = _rot.Step(() =>
         {
-            _rotRow++;
-            PixelPosition at = _head + PixelOffset.FromWhole(-16 + Random.Last.Part(0, 5), 16);
-            Leave(CorpseDustEffect, at);
+            Leave(CorpseDustEffect, _head + PixelOffset.FromWhole(-16 + Random.Last.Part(0, 5), 16));
             if (Room.Session.Clock.Updates % 8 == 0)
                 Sound(CorpseDustSound);
-        }
-
-        _headTint = new Color(_headTint.R, _headTint.G, _headTint.B, 1f - (float)_rotRow / CorpseRows);
-        return _rotRow < CorpseRows;
+        });
+        GetNodeOrNull<ActorVisual>("Head")?.ShowRows(_rot.Rows);
+        return left;
     }
 
     /// <summary>Dust and blasts go off at the way out, at its places in turn.</summary>

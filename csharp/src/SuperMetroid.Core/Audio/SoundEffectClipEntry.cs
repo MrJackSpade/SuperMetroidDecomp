@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One sound effect rendered dry (#1305): it sounds the same whichever music data set is loaded (#2057).
+/// One sound effect rendered dry (#1305), as a music data set plays it (#2057, #2645).
 /// Frame zero is the request check that accepted the request.
 /// </summary>
 /// <param name="Sound">The sound effect, whose library plays it.</param>

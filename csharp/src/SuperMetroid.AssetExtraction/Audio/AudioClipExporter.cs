@@ -193,20 +193,119 @@ internal static partial class AudioClipExporter
         }
 
         SoundEffectClipPolicy policy = Policy(key.Library, key.Command, effect.Policy);
+        InstalledSoundEffectShape shape = RenderShape(catalog, root, files, scans, effect, key, context);
+        return new InstalledSoundEffectClip(sound, policy, shape)
+        {
+            ByDataSet = [.. DataSetShapes(catalog, root, files, scans, effect, key, context, shape)],
+        };
+    }
+
+    /// <summary>Renders one effect's shape with <paramref name="context"/>'s bank loaded after the shared sounds, or with them alone.</summary>
+    private static InstalledSoundEffectShape RenderShape(
+        ExtractedAudioAssetCatalog catalog,
+        string root,
+        ConcurrentDictionary<string, Lazy<AudioClipFile>> files,
+        Dictionary<string, SoundEffectProgramScan> scans,
+        AudioSoundEffectMetadata effect,
+        SoundEffectKey key,
+        AudioBank? context)
+    {
         bool loops = effect.ChannelPrograms.Any(program => scans[program].RepeatsForever);
         if (loops)
         {
             IReadOnlyList<SoundEffectRendering.LoopingLayer> layers =
                 SoundEffectRendering.RenderLoopingLayers(catalog, context, key.Library, key.Command, effect.ChannelPrograms.Count);
-            return new InstalledSoundEffectClip(sound, policy, new InstalledLoopingSoundEffect(
+            return new InstalledLoopingSoundEffect(
                 [.. layers.Select(layer => new InstalledLoopingSoundEffectLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]));
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart))]);
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, context, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
-        return new InstalledSoundEffectClip(sound, policy, new InstalledOneShotSoundEffect(shot.ActiveFrames,
-            shot.Clip.Length == 0 ? null : Write(root, SoundEffectDirectory, files, shot.Clip)));
+        return new InstalledOneShotSoundEffect(shot.ActiveFrames,
+            shot.Clip.Length == 0 ? null : Write(root, SoundEffectDirectory, files, shot.Clip));
     }
+
+    /// <summary>
+    /// The effect's shape in each music data set that plays it differently from <paramref name="shape"/>, its render in
+    /// <paramref name="context"/> (#2645, #2648, #2650, #2652): each data set redefines instruments past the shared sounds',
+    /// and the game plays a sound with the instruments the loaded set holds, so a set that changes an instrument record the
+    /// effect keys, or the sample it plays, plays the effect with its own. Each such set's render is kept where it differs.
+    /// </summary>
+    private static IEnumerable<InstalledSoundEffectSetShape> DataSetShapes(
+        ExtractedAudioAssetCatalog catalog,
+        string root,
+        ConcurrentDictionary<string, Lazy<AudioClipFile>> files,
+        Dictionary<string, SoundEffectProgramScan> scans,
+        AudioSoundEffectMetadata effect,
+        SoundEffectKey key,
+        AudioBank? context,
+        InstalledSoundEffectShape shape)
+    {
+        AudioBank home = context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
+        int[] records = [.. effect.ChannelPrograms.SelectMany(program => scans[program].Records()).Distinct()];
+        var byBank = new Dictionary<AudioBank, InstalledSoundEffectShape?>();
+        foreach (MusicDataSet set in Enum.GetValues<MusicDataSet>())
+        {
+            AudioBank bank = AudioAssetCatalogDefinitions.BankOf(set);
+            if (!byBank.TryGetValue(bank, out InstalledSoundEffectShape? inSet))
+            {
+                inSet = bank != home && InstrumentsDiffer(catalog, records, home, bank) && PlaysAll(catalog, scans, effect, bank)
+                    ? RenderShape(catalog, root, files, scans, effect, key, bank)
+                    : null;
+                if (inSet is not null && SameShape(inSet, shape))
+                    inSet = null;
+                byBank[bank] = inSet;
+            }
+            if (inSet is not null)
+                yield return new InstalledSoundEffectSetShape(set, inSet);
+        }
+    }
+
+    /// <summary>
+    /// Whether <paramref name="bank"/> can play every instrument the effect keys. A set that leaves one empty, past its table
+    /// or on a sample it does not load is one the game never plays the effect in: the credits' and the last Metroid's sets,
+    /// which load no enemy's sounds' instruments, and no sound of theirs reaches them. The effect keeps its own clip there.
+    /// </summary>
+    private static bool PlaysAll(ExtractedAudioAssetCatalog catalog, Dictionary<string, SoundEffectProgramScan> scans,
+        AudioSoundEffectMetadata effect, AudioBank bank) =>
+        UnplayableInstruments(catalog, scans, effect, bank).Length == 0;
+
+    /// <summary>
+    /// Whether <paramref name="bank"/> holds a different instrument record than <paramref name="home"/> for any of
+    /// <paramref name="records"/>, or a different sample for one: either changes how the effect sounds.
+    /// </summary>
+    private static bool InstrumentsDiffer(ExtractedAudioAssetCatalog catalog, IReadOnlyList<int> records, AudioBank home, AudioBank bank)
+    {
+        IReadOnlyList<AudioInstrumentMetadata> homeTable = catalog.GetInstrumentBank(home), table = catalog.GetInstrumentBank(bank);
+        ManagedPcmSampleBank homeSamples = catalog.GetSampleBank(home), samples = catalog.GetSampleBank(bank);
+        foreach (int record in records)
+        {
+            AudioInstrumentMetadata? before = record < homeTable.Count ? homeTable[record] : null;
+            AudioInstrumentMetadata? after = record < table.Count ? table[record] : null;
+            if (before != after)
+                return true;
+            if (after is null || after.UsesNoise)
+                continue;
+            homeSamples.Samples.TryGetValue(after.SourceOrNoiseRate, out ManagedPcmSample? homeSample);
+            samples.Samples.TryGetValue(after.SourceOrNoiseRate, out ManagedPcmSample? sample);
+            if (!SameSample(homeSample, sample))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>Whether two samples play the same: both absent, or the same rate, loop and PCM.</summary>
+    private static bool SameSample(ManagedPcmSample? a, ManagedPcmSample? b) =>
+        a is null || b is null ? a is null && b is null
+            : a.SampleRate == b.SampleRate && a.LoopSampleIndex == b.LoopSampleIndex && a.Samples.Span.SequenceEqual(b.Samples.Span);
+
+    /// <summary>Whether two shapes play the same clips the same way.</summary>
+    private static bool SameShape(InstalledSoundEffectShape a, InstalledSoundEffectShape b) => (a, b) switch
+    {
+        (InstalledOneShotSoundEffect one, InstalledOneShotSoundEffect other) => one == other,
+        (InstalledLoopingSoundEffect one, InstalledLoopingSoundEffect other) => one.Layers.SequenceEqual(other.Layers),
+        _ => false,
+    };
 
     /// <summary>
     /// The request's acceptance and start policy, read from the driver's own rules: applying its

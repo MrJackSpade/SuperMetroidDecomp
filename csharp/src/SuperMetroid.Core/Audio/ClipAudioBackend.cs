@@ -211,7 +211,8 @@ public sealed partial class ClipAudioBackend
     private void StartSoundEffect(SoundEffectId soundEffect, long now)
     {
         ClipLibraryState library = State.Libraries[soundEffect.Library];
-        SoundEffectClipEntry sound = catalog.GetSoundEffect(soundEffect);
+        // The sound plays with the instruments the loaded music data set holds (#2645).
+        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.ClipSet, soundEffect);
         if (library.Rejects(sound.Policy))
             return;
 

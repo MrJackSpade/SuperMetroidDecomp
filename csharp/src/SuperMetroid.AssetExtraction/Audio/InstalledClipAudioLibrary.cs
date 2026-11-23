@@ -23,7 +23,7 @@ public sealed partial class InstalledClipAudioLibrary
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
     {
         Clips = new ClipAudioLibrary(Validated(manifest).InitialBeat, manifest.Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
-            source);
+            [.. manifest.SoundEffects.SelectMany(entry => entry.PlayedSetEntries())], source);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
         ContentIdentity = contentIdentity;
@@ -59,7 +59,18 @@ public sealed partial class InstalledClipAudioLibrary
         }
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
-            switch (entry.Shape)
+            ValidateShape(entry.Sound, entry.Shape);
+            foreach (InstalledSoundEffectSetShape set in entry.ByDataSet)
+                ValidateShape(entry.Sound, set.Shape);
+        }
+        return manifest;
+    }
+
+    /// <summary>Checks one shape of <paramref name="sound"/>: its clips have frames and its loops lie within them.</summary>
+    private static void ValidateShape(SoundEffectId sound, InstalledSoundEffectShape shape)
+    {
+        {
+            switch (shape)
             {
                 case InstalledOneShotSoundEffect { Clip: { } clip }:
                     ValidateClip(clip);
@@ -67,20 +78,19 @@ public sealed partial class InstalledClipAudioLibrary
                 case InstalledOneShotSoundEffect:
                     break;
                 case InstalledLoopingSoundEffect { Layers.Count: 0 }:
-                    throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
+                    throw new InvalidDataException($"Never-ending {sound} has no layers.");
                 case InstalledLoopingSoundEffect looping:
                     foreach (InstalledLoopingSoundEffectLayer layer in looping.Layers)
                     {
                         ValidateClip(layer.Clip);
                         if (layer.LoopStart < 0 || layer.LoopStart >= layer.Clip.Frames)
-                            throw new InvalidDataException($"{entry.Sound} has inconsistent loop bounds.");
+                            throw new InvalidDataException($"{sound} has inconsistent loop bounds.");
                     }
                     break;
                 default:
-                    throw new InvalidDataException($"{entry.Sound} has no shape.");
+                    throw new InvalidDataException($"{sound} has no shape.");
             }
         }
-        return manifest;
     }
 
     /// <summary>Checks a clip has frames.</summary>

@@ -36,6 +36,8 @@ namespace SuperMetroid.AssetExtraction;
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.InstalledLoopingSoundEffectLayer), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_InstalledLoopingSoundEffectLayer")]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.InstalledOneShotSoundEffect), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_InstalledOneShotSoundEffect")]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.InstalledSoundEffectClip), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_InstalledSoundEffectClip")]
+[JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.InstalledSoundEffectSetShape), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_InstalledSoundEffectSetShape")]
+[JsonSerializable(typeof(global::System.Collections.Generic.IReadOnlyList<global::SuperMetroid.AssetExtraction.Audio.InstalledSoundEffectSetShape>), TypeInfoPropertyName = "System_Collections_Generic_IReadOnlyList_SuperMetroid_AssetExtraction_Audio_InstalledSoundEffectSetShape")]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.InstalledSoundEffectShape), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_InstalledSoundEffectShape")]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_Synthesis_AudioAssetManifest")]
 [JsonSerializable(typeof(global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioBankMetadata), TypeInfoPropertyName = "SuperMetroid_AssetExtraction_Audio_Synthesis_AudioBankMetadata")]

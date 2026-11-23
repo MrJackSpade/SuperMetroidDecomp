@@ -39,5 +39,5 @@ public sealed partial record AudioClipManifest(
     /// <c>RoomSoundStop</c>, where version 10 named it in the library's sound list, and holds each different sound once, under its one
     /// name, where version 10 held 27 more names for sounds identical to another's.
     /// </summary>
-    public const int CurrentFormatVersion = 11;
+    public const int CurrentFormatVersion = 12;
 }

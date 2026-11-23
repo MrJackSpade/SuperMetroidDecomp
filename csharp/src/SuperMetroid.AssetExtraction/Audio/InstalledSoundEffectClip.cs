@@ -14,6 +14,16 @@ public sealed partial record InstalledSoundEffectClip(
     SoundEffectClipPolicy Policy,
     InstalledSoundEffectShape Shape)
 {
+    /// <summary>
+    /// The sound's shape in each music data set that plays it differently (#2645, #2648, #2650, #2652): one that redefines an
+    /// instrument it plays. Every other set plays <see cref="Shape"/>.
+    /// </summary>
+    public IReadOnlyList<InstalledSoundEffectSetShape> ByDataSet { get; init; } = [];
+
     /// <summary>The entry the game plays; a method, so the manifest does not store it.</summary>
     public SoundEffectClipEntry PlayedEntry() => new(Sound, Policy, Shape.PlayedShape());
+
+    /// <summary>The entry the game plays in each data set of <see cref="ByDataSet"/>.</summary>
+    public IEnumerable<SoundEffectSetClipEntry> PlayedSetEntries() =>
+        ByDataSet.Select(set => new SoundEffectSetClipEntry(set.DataSet, new SoundEffectClipEntry(Sound, Policy, set.Shape.PlayedShape())));
 }

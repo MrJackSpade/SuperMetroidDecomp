@@ -33,15 +33,21 @@ internal sealed partial record SoundEffectProgramScan(bool RepeatsForever, IRead
     /// zero pitch and envelope sound nothing, or a BRR source <paramref name="samples"/> does not map. A noise instrument
     /// keys source zero.
     /// </summary>
+    /// <summary>The instrument records this program keys, a percussion instrument at the power-on percussion base.</summary>
+    internal IEnumerable<int> Records() => Instruments.Select(instrument => RecordOf(instrument));
+
+    /// <summary>The record <paramref name="instrument"/> keys: its own, or for percussion its record past the percussion base.</summary>
+    private static int RecordOf(int instrument) => SpcDriverBytes.IsPercussion(instrument)
+        ? unchecked((byte)(instrument + SpcDriverDefinitions.Instruments.PercussionBias))
+        : instrument;
+
     internal IEnumerable<string> UnplayableInstruments(IReadOnlyList<AudioInstrumentMetadata> table, ManagedPcmSampleBank samples)
     {
         Ensure.NotNull(table);
         Ensure.NotNull(samples);
         foreach (int instrument in Instruments)
         {
-            int index = SpcDriverBytes.IsPercussion(instrument)
-                ? unchecked((byte)(instrument + SpcDriverDefinitions.Instruments.PercussionBias))
-                : instrument;
+            int index = RecordOf(instrument);
             if (index >= table.Count)
             {
                 yield return $"instrument ${instrument:X2} past the {table.Count}-entry table";

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -12,10 +12,12 @@
 [ext_resource type="PackedScene" path="res://game/bosses/torizo/bomb_torizo_hand.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
-[ext_resource type="PackedScene" path="res://game/objects/dachora/escape_dachora.tscn" id="13"]
-[ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="14"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="15"]
-[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+[ext_resource type="PackedScene" path="res://game/objects/dachora/escape_dachora.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="15"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="16"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="17"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="18"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -27,6 +29,7 @@ script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/crateria/bomb_torizo.json"
 KeepsMusic = true
+Patches = PackedStringArray("wall_shot_blocks")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("1")
@@ -81,33 +84,38 @@ About = "animals_escaped"
 
 [sub_resource type="Resource" id="r13"]
 script = ExtResource("1")
-Kind = 6
-Parts = Array[ExtResource("1")]([SubResource("r1")])
+Kind = 4
+Parts = Array[ExtResource("1")]([])
 
 [sub_resource type="Resource" id="r14"]
 script = ExtResource("1")
-Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r13")])
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [sub_resource type="Resource" id="r15"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r14")])
+
+[sub_resource type="Resource" id="r16"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
 
-[sub_resource type="Resource" id="r16"]
-script = ExtResource("1")
-Kind = 5
-Parts = Array[ExtResource("1")]([SubResource("r14"), SubResource("r15")])
-
 [sub_resource type="Resource" id="r17"]
 script = ExtResource("1")
-Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r16"), SubResource("r6")])
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r15"), SubResource("r16")])
 
 [sub_resource type="Resource" id="r18"]
 script = ExtResource("1")
 Kind = 4
-Parts = Array[ExtResource("1")]([SubResource("r16"), SubResource("r11")])
+Parts = Array[ExtResource("1")]([SubResource("r17"), SubResource("r6")])
+
+[sub_resource type="Resource" id="r19"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r17"), SubResource("r11")])
 
 [node name="BombTorizo" type="Node2D"]
 script = ExtResource("3")
@@ -133,7 +141,7 @@ position = Vector2(219, 179)
 AwakeningMusic = "torizo_awakening"
 FightMusic = "ridley_and_draygon_battle"
 VictoryMusic = "elevator"
-PresentWhen = SubResource("r17")
+PresentWhen = SubResource("r18")
 
 [node name="Encounter" type="Node2D" parent="."]
 script = ExtResource("7")
@@ -141,21 +149,21 @@ position = Vector2(0, 0)
 Size = Vector2i(256, 256)
 RememberedAs = "bomb_torizo_defeated"
 Boss = NodePath("../BombTorizo")
-PresentWhen = SubResource("r16")
+PresentWhen = SubResource("r17")
 
 [node name="Bombs" parent="." instance=ExtResource("8")]
 position = Vector2(200, 168)
 TypeFile = "items/bombs.json"
 RememberedAs = "bomb_torizo_chozo_bombs"
-PresentWhen = SubResource("r16")
+PresentWhen = SubResource("r17")
 
 [node name="ItemShell" parent="." instance=ExtResource("9")]
 position = Vector2(192, 160)
-PresentWhen = SubResource("r18")
+PresentWhen = SubResource("r19")
 
 [node name="BombTorizoHand" parent="." instance=ExtResource("10")]
 position = Vector2(208, 176)
-PresentWhen = SubResource("r16")
+PresentWhen = SubResource("r17")
 
 [node name="GreyCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 96)
@@ -163,7 +171,7 @@ DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r9")
 RememberedAs = "bomb_torizo_grey_door"
 Remembered = 1
-PresentWhen = SubResource("r16")
+PresentWhen = SubResource("r17")
 
 [node name="Screen0x0Foot" type="Node2D" parent="."]
 script = ExtResource("12")
@@ -171,25 +179,31 @@ position = Vector2(0, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
-[node name="EscapeDachora" parent="." instance=ExtResource("13")]
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+Picture = "backdrops/crateria_mechanical.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="EscapeDachora" parent="." instance=ExtResource("14")]
 position = Vector2(224, 184)
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon" parent="." instance=ExtResource("14")]
+[node name="EscapeEtecoon" parent="." instance=ExtResource("15")]
 position = Vector2(128, 200)
 Waits = false
 StartsFacing = 0
 RunSpeed = 2
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon2" parent="." instance=ExtResource("14")]
+[node name="EscapeEtecoon2" parent="." instance=ExtResource("15")]
 position = Vector2(160, 200)
 Waits = false
 StartsFacing = 1
 RunSpeed = 2.5
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon3" parent="." instance=ExtResource("14")]
+[node name="EscapeEtecoon3" parent="." instance=ExtResource("15")]
 position = Vector2(232, 200)
 Waits = true
 StartsFacing = 1
@@ -205,7 +219,7 @@ Remembered = 1
 PresentWhen = SubResource("r1")
 
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("15")
+script = ExtResource("16")
 position = Vector2(0, 0)
 TypeFile = "liquids/acid.json"
 LowSurface = 240
@@ -215,9 +229,14 @@ MoveDelay = 48
 PresentWhen = SubResource("r1")
 
 [node name="LiquidMoves" type="Node2D" parent="."]
-script = ExtResource("16")
+script = ExtResource("17")
 position = Vector2(0, 0)
 Size = Vector2i(256, 256)
 What = "rise"
 Target = NodePath("../Liquid")
+PresentWhen = SubResource("r1")
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("18")
+StartsWhen = SubResource("r13")
 PresentWhen = SubResource("r1")

@@ -28,6 +28,7 @@ public partial class SpeedBoosterLavaquake : RoomSequence
     public Godot.Collections.Array<Vector3I> Rises { get; set; } = [new(1835, 447, 176), new(1290, 359, 224), new(580, 256, 224)];
 
     private bool _moving;
+    private bool _idle;
     private int _passed;
 
     /// <inheritdoc/>
@@ -37,13 +38,15 @@ public partial class SpeedBoosterLavaquake : RoomSequence
         int samus = room.Player.Position.X.Whole;
         if (elapsed == 0)
         {
-            (_moving, _passed) = (false, 0);
-            // Without the Speed Booster there is no chase.
-            if (!room.Player.Inventory.Owns(Equipment.SpeedBooster))
-                return true;
-            lava.MoveSpeed = StartSpeed;
+            // Without the Speed Booster there is no chase, and nothing to have outrun.
+            (_moving, _passed, _idle) = (false, 0, !room.Player.Inventory.Owns(Equipment.SpeedBooster));
+            if (!_idle)
+                lava.MoveSpeed = StartSpeed;
             return false;
         }
+
+        if (_idle)
+            return false;
 
         if (!_moving)
         {

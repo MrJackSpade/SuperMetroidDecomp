@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,8 +6,12 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/bosses/ridley/ridley.tscn" id="6"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/TurningFloor.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresGetaway.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -27,8 +31,18 @@ Music = ""
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 0
+About = "ceres_ridley_escaped"
 
 [node name="CeresRidley" type="Node2D"]
 script = ExtResource("3")
@@ -55,17 +69,40 @@ DataFile = "bosses/ceres_ridley.json"
 OnCeres = true
 FightMusic = "ridley_and_draygon_battle"
 AlwaysActive = true
-PresentWhen = SubResource("r4")
+ToldWhenGone = Array[NodePath]([NodePath("../Getaway")])
+PresentWhen = SubResource("r5")
+
+[node name="RidleyRoomDoor" parent="." instance=ExtResource("7")]
+position = Vector2(16, 127)
+DataFile = "objects/ceres_ridley_room_door.json"
+HeldShutBy = SubResource("r6")
 
 [node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(0, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
-[node name="CeresRidley2" type="Node2D" parent="."]
-script = ExtResource("8")
+[node name="Shaking" type="Node" parent="."]
+script = ExtResource("9")
+StartsWhen = SubResource("r4")
+
+[node name="Haze" type="Node2D" parent="."]
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 Picture = "effects/ceres_haze.png"
-PresentWhen = SubResource("r4")
+
+[node name="Floor" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/ceres_ridley_floor.png"
+
+[node name="Getaway" type="Node" parent="."]
+script = ExtResource("12")
+HeadingPicture = "text/emergency.png"
+Message = "ceres_self_destruct_warning"
+Subtitle = "ceres_self_destruct_subtitle"
+LetterSound = "typing"
+Floor = NodePath("../Floor")
+ToldWhenCountdownBegins = Array[NodePath]([NodePath("../Shaking")])

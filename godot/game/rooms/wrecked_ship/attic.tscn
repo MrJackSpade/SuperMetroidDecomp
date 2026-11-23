@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -9,9 +9,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="10"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="11"]
-[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="12"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -314,7 +315,13 @@ position = Vector2(1120, 224)
 DataFile = "objects/door_cap_blue_up.json"
 PresentWhen = SubResource("r6")
 
-[node name="KihunterYellow" parent="." instance=ExtResource("10")]
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_experiment_room.png"
+ScrollShare = Vector2(0.75, 0.9921875)
+
+[node name="KihunterYellow" parent="." instance=ExtResource("11")]
 position = Vector2(1049, 200)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = true
@@ -322,7 +329,7 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow2" parent="." instance=ExtResource("10")]
+[node name="KihunterYellow2" parent="." instance=ExtResource("11")]
 position = Vector2(511, 142)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = false
@@ -330,7 +337,7 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow3" parent="." instance=ExtResource("10")]
+[node name="KihunterYellow3" parent="." instance=ExtResource("11")]
 position = Vector2(1493, 118)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = false
@@ -362,7 +369,7 @@ Spin = "up_right_turning"
 Speed = 0.5
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow4" parent="." instance=ExtResource("10")]
+[node name="KihunterYellow4" parent="." instance=ExtResource("11")]
 position = Vector2(1256, 200)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = true
@@ -370,55 +377,55 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Spark" parent="." instance=ExtResource("11")]
+[node name="Spark" parent="." instance=ExtResource("12")]
 position = Vector2(224, 88)
 Does = 2
 SpellUpdates = 144
 PresentWhen = SubResource("r1")
 
-[node name="Spark2" parent="." instance=ExtResource("11")]
+[node name="Spark2" parent="." instance=ExtResource("12")]
 position = Vector2(304, 184)
 Does = 1
 SpellUpdates = 80
 PresentWhen = SubResource("r1")
 
-[node name="Spark3" parent="." instance=ExtResource("11")]
+[node name="Spark3" parent="." instance=ExtResource("12")]
 position = Vector2(656, 184)
 Does = 1
 SpellUpdates = 32
 PresentWhen = SubResource("r1")
 
-[node name="Spark4" parent="." instance=ExtResource("11")]
+[node name="Spark4" parent="." instance=ExtResource("12")]
 position = Vector2(752, 104)
 Does = 2
 SpellUpdates = 128
 PresentWhen = SubResource("r1")
 
-[node name="Spark5" parent="." instance=ExtResource("11")]
+[node name="Spark5" parent="." instance=ExtResource("12")]
 position = Vector2(880, 216)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark6" parent="." instance=ExtResource("11")]
+[node name="Spark6" parent="." instance=ExtResource("12")]
 position = Vector2(1072, 136)
 Does = 2
 SpellUpdates = 128
 PresentWhen = SubResource("r1")
 
-[node name="Spark7" parent="." instance=ExtResource("11")]
+[node name="Spark7" parent="." instance=ExtResource("12")]
 position = Vector2(1232, 136)
 Does = 2
 SpellUpdates = 112
 PresentWhen = SubResource("r1")
 
-[node name="Spark8" parent="." instance=ExtResource("11")]
+[node name="Spark8" parent="." instance=ExtResource("12")]
 position = Vector2(1488, 184)
 Does = 1
 SpellUpdates = 16
 PresentWhen = SubResource("r1")
 
-[node name="Spark9" parent="." instance=ExtResource("11")]
+[node name="Spark9" parent="." instance=ExtResource("12")]
 position = Vector2(1584, 120)
 Does = 2
 SpellUpdates = 96
@@ -433,7 +440,7 @@ Remembered = 1
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes" type="Node" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 StartsWhen = SubResource("r5")
 Until = SubResource("r4")
 Records = PackedStringArray("zebes_awake")
@@ -448,7 +455,7 @@ Remembered = 1
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes2" type="Node" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 StartsWhen = SubResource("r5")
 Until = SubResource("r4")
 Records = PackedStringArray("zebes_awake")
@@ -463,7 +470,7 @@ Remembered = 1
 PresentWhen = SubResource("r1")
 
 [node name="ZebesWakes3" type="Node" parent="."]
-script = ExtResource("12")
+script = ExtResource("13")
 StartsWhen = SubResource("r5")
 Until = SubResource("r4")
 Records = PackedStringArray("zebes_awake")

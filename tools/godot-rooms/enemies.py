@@ -37,6 +37,8 @@ class Placed:
     only_when: str | None = None
     # For something that is a script and no scene: the kind of node it is.
     kind: str = 'Node2D'
+    # Nodes placed under it: each one's name, script and settings.
+    children: list[tuple[str, str, dict[str, str]]] = field(default_factory=list)
     # For a boss: the name its defeat is recorded under.
     boss: str = ''
     # For a Chozo statue that comes to life: which of the two it is.
@@ -668,7 +670,22 @@ def boss(kind: str) -> Rule:
 for kind in BOSSES:
     RULES[kind] = boss(kind)
 
-RULES['NoobTubeCrack'] = part
+# The crack is the glass tube's own; the wall that seals Ceres's elevator room and the pictures of the Tourian
+# statue belong to those rooms' sequences.
+for kind in ('NoobTubeCrack', 'CeresElevatorRoomWall', 'TourianStatue'):
+    RULES[kind] = part
+
+
+@rule('CeresElevatorDoor')
+def ceres_elevator_door(p, index, listed):
+    return Placed(O + 'ceres_elevator_door/ceres_elevator_door.tscn', 'ElevatorDoor', {}, enemy=False)
+
+
+@rule('CeresRidleyRoomDoor')
+def ceres_ridley_room_door(p, index, listed):
+    # It shows itself shutting as Samus comes in, and is held shut until Ridley has gone.
+    return Placed(O + 'ceres_door/ceres_door.tscn', 'RidleyRoomDoor', {
+        'DataFile': quoted('objects/ceres_ridley_room_door.json'), 'HeldShutBy': 'fact:ceres_ridley_escaped'}, enemy=False)
 
 
 @rule('RidleyCeres')

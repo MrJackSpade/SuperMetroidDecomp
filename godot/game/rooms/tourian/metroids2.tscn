@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka_source.tscn" id="7"]
 [ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="8"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -135,6 +136,12 @@ StartsWhen = SubResource("r4")
 Until = SubResource("r5")
 Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r7")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+Picture = "backdrops/tourian_mechanical_room.png"
+ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Cleared2" type="Node" parent="."]
 script = ExtResource("8")

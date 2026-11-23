@@ -24,7 +24,7 @@ HEAT_DAMAGE = 25
 TIDES = {'Small': (8, 0.75, 1.125), 'Large': (32, 0.5, 0.875)}
 
 # The overlays the old code's kinds of effect are, by the name each is known by.
-OVERLAYS = {'Rain': 'rain', 'Fog': 'fog', 'Spores': 'spores', 'CeresElevator': 'ceres_haze', 'CeresRidley': 'ceres_haze'}
+OVERLAYS = {'Rain': 'rain', 'Fog': 'fog', 'Spores': 'spores'}
 
 # The waters of Maridia, which differ in colour.
 WATERS = {'GreenMaridiaWater': 'green', 'IndigoMaridiaWater': 'indigo', 'PurpleMaridiaWater': 'purple', 'TealMaridiaWater': 'teal'}

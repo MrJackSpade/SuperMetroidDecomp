@@ -31,7 +31,7 @@ CANNONS = ['UpperLeft', 'LowerLeft', 'UpperRight', 'LowerRight']
 
 # What the old code places that is not a thing here: storage it kept for a room, and platforms that are part of the
 # room's blocks in the new layouts.
-NOT_THINGS = {'EscapeRoomHeldPlaceSetup', 'WreckedShipAtticHeldPlaceSetup', 'ElevatorPlatformSetup'}
+NOT_THINGS = {'EscapeRoomHeldPlaceSetup', 'WreckedShipAtticHeldPlaceSetup', 'ElevatorPlatformSetup', 'MotherBrainEscapeRoomGateSetup'}
 
 
 def corner(block: tuple[int, int]) -> tuple[int, int]:

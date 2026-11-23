@@ -15,6 +15,7 @@ A room's scene holds:
   is set down in Ceres and where her gunship lands;
 - its camera zones, and the triggers that open and close them (see camera.py);
 - its liquid and its room effects: heat, rain, fog, spores, the Fireflea rooms' dark (see fx.py);
+- its room sequences with what they are given, and its backdrop (see sequences.py);
 - its enemies, each with the settings its placement gives it (see enemies.py), and its room objects: door caps,
   items, stations, gates and the rest (see objects.py). One placed in some versions of the room and not in others is
   present only when one of those versions is the one in force.
@@ -34,6 +35,7 @@ import enemies  # noqa: E402
 import fx  # noqa: E402
 import legacy  # noqa: E402
 import objects  # noqa: E402
+import sequences  # noqa: E402
 
 GODOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'godot'))
 INSTALLED = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'SuperMetroid', 'game')
@@ -128,8 +130,9 @@ class Scene:
 
     def node(self, name: str, parent: str | None, properties: dict[str, str], script: str | None = None,
              instance: str | None = None, kind: str = 'Node2D') -> None:
-        # The root's name is its own; everything else here is placed straight under it and must differ.
-        if parent is not None:
+        # The root's name is its own; everything placed straight under it must differ, and so must what is placed
+        # under any one of those.
+        if parent == '.':
             if name in self.names:
                 raise ValueError(f'Two nodes of one scene are named {name}.')
             self.names.add(name)
@@ -423,6 +426,15 @@ class Generator:
             things.extend(shown)
             for teller, target in told:
                 links[id(teller)] = {'Target': target}
+            # Its sequences, what they move, and its backdrop.
+            by_name: dict[str, enemies.Placed] = {}
+            for placed in things:
+                by_name.setdefault(placed.name, placed)
+            chosen_on = conditional[version][0] if version < len(conditional) else ''
+            played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'))
+            things.extend(played.placed)
+            for teller, name, told_things in played.links:
+                links.setdefault(id(teller), {})[name] = told_things
 
             # Two alike in one version are two things; two alike in two versions are one thing in both.
             counts: dict[tuple, int] = {}
@@ -474,7 +486,17 @@ class Generator:
             if placed.at is not None:
                 properties['position'] = f'Vector2({placed.at[0]}, {placed.at[1]})'
             for name, value in placed.properties.items():
-                properties[name] = scene.packed(value[len('scene:'):]) if value.startswith('scene:') else value
+                if value.startswith('scene:'):
+                    value = scene.packed(value[len('scene:'):])
+                elif value.startswith('fact:'):
+                    value = scene.resource(CONDITION, {'Kind': '0', 'About': quoted(value[len('fact:'):])})
+                elif value.startswith('rules:'):
+                    # A relay's one rule: the word it hears and the terrain patch it applies, shaking the room.
+                    _, hears, patch = value.split(':')
+                    rule = 'res://engine/world/RelayRule.cs'
+                    value = scene.listed(rule, [scene.resource(rule, {
+                        'Hears': quoted(hears), 'AppliesPatch': quoted(patch), 'ShakeStrength': '1', 'ShakeUpdates': '60'})])
+                properties[name] = value
             for name, target in named.items():
                 if isinstance(target, list):
                     properties[name] = 'Array[NodePath]([' + ', '.join(f'NodePath("../{names[one]}")' for one in target) + '])'
@@ -486,10 +508,13 @@ class Generator:
             present = present or placed.only_when
             if present is not None:
                 properties['PresentWhen'] = present
-            if placed.scene.endswith('.cs'):
-                scene.node(names[mine], '.', properties, script=placed.scene, kind=placed.kind)
-            else:
+            if placed.scene.endswith('.tscn'):
                 scene.node(names[mine], '.', properties, instance=placed.scene)
+            else:
+                # A script alone, or a plain node that something else moves and shows.
+                scene.node(names[mine], '.', properties, script=placed.scene or None, kind=placed.kind)
+            for child, script, settings in placed.children:
+                scene.node(child, names[mine], settings, script=script)
 
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
@@ -505,11 +530,16 @@ class Generator:
                 'LayoutFile': quoted(layout_of(room, state)),
                 **music_of(state, self.nearby_music_set(key)),
             }
+            patches = []
+            if state.setup in sequences.ESCAPE_PATCHES:
+                patches.append(sequences.ESCAPE_PATCHES[state.setup])
             if 'BossDead' in expression:
                 beaten = AREA_BOSSES[(room.area, legacy.last_name(legacy.call_arguments(expression)[0]))]
                 if beaten in enemies.BEATEN_PATCHES and any(p.enemy in enemies.BOSSES and enemies.BOSSES[p.enemy][1] == beaten
                                                             for p in self.populations[base_state.enemies]):
-                    settings['Patches'] = 'PackedStringArray(' + ', '.join(quoted(patch) for patch in enemies.BEATEN_PATCHES[beaten]) + ')'
+                    patches += enemies.BEATEN_PATCHES[beaten]
+            if patches:
+                settings['Patches'] = 'PackedStringArray(' + ', '.join(quoted(patch) for patch in patches) + ')'
             versions.append(scene.resource('res://engine/world/RoomVersion.cs', settings))
         base = self.states[default]
         versions.append(scene.resource('res://engine/world/RoomVersion.cs', {

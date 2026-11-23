@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -11,8 +11,9 @@
 [ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
-[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="12"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="13"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -398,6 +399,13 @@ AtEntry = "ToPhantoon"
 What = "close"
 Target = NodePath("../Screen4x0Foot")
 
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_columns_tubes.png"
+ScrollShare = Vector2(0.75, 0.75)
+PresentWhen = SubResource("r6")
+
 [node name="WorkRobot" parent="." instance=ExtResource("7")]
 position = Vector2(77, 176)
 Powered = true
@@ -412,25 +420,25 @@ Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Atomic" parent="." instance=ExtResource("12")]
+[node name="Atomic" parent="." instance=ExtResource("13")]
 position = Vector2(152, 77)
 Spin = "up_right_turning"
 Speed = 0.5
 PresentWhen = SubResource("r1")
 
-[node name="Atomic2" parent="." instance=ExtResource("12")]
+[node name="Atomic2" parent="." instance=ExtResource("13")]
 position = Vector2(638, 168)
 Spin = "up_right_turning_back"
 Speed = 0.5
 PresentWhen = SubResource("r1")
 
-[node name="Atomic3" parent="." instance=ExtResource("12")]
+[node name="Atomic3" parent="." instance=ExtResource("13")]
 position = Vector2(852, 73)
 Spin = "up_right_turning_back"
 Speed = 0.5
 PresentWhen = SubResource("r1")
 
-[node name="Spark" parent="." instance=ExtResource("13")]
+[node name="Spark" parent="." instance=ExtResource("14")]
 position = Vector2(1145, 106)
 Does = 1
 SpellUpdates = 32
@@ -439,4 +447,11 @@ PresentWhen = SubResource("r1")
 [node name="BlueCap3" parent="." instance=ExtResource("8")]
 position = Vector2(1248, 96)
 DataFile = "objects/door_cap_blue_left.json"
+PresentWhen = SubResource("r1")
+
+[node name="Backdrop2" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_columns_tubes.png"
+ScrollShare = Vector2(0.75, 0)
 PresentWhen = SubResource("r1")

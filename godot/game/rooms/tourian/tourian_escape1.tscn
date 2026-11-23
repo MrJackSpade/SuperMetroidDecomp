@@ -1,16 +1,24 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/tourian/tourian_escape1.json"
 Music = "escape"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="TourianEscape1" type="Node2D"]
 script = ExtResource("2")
@@ -40,7 +48,7 @@ LeadsToExit = "ToTourianEscape1"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
 
-[node name="ShutterDestroyable" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable" parent="." instance=ExtResource("6")]
 position = Vector2(440, 64)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -52,7 +60,7 @@ RestAfterUp = 0
 RestAfterDown = -1
 AlwaysActive = true
 
-[node name="ShutterDestroyable2" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable2" parent="." instance=ExtResource("6")]
 position = Vector2(440, 192)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -64,7 +72,7 @@ RestAfterUp = -1
 RestAfterDown = 0
 AlwaysActive = true
 
-[node name="ShutterDestroyable3" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable3" parent="." instance=ExtResource("6")]
 position = Vector2(360, 64)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -76,7 +84,7 @@ RestAfterUp = 0
 RestAfterDown = -1
 AlwaysActive = true
 
-[node name="ShutterDestroyable4" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable4" parent="." instance=ExtResource("6")]
 position = Vector2(360, 192)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -88,7 +96,7 @@ RestAfterUp = -1
 RestAfterDown = 0
 AlwaysActive = true
 
-[node name="ShutterDestroyable5" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable5" parent="." instance=ExtResource("6")]
 position = Vector2(280, 64)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -100,7 +108,7 @@ RestAfterUp = 0
 RestAfterDown = -1
 AlwaysActive = true
 
-[node name="ShutterDestroyable6" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable6" parent="." instance=ExtResource("6")]
 position = Vector2(280, 192)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -112,7 +120,7 @@ RestAfterUp = -1
 RestAfterDown = 0
 AlwaysActive = true
 
-[node name="ShutterDestroyable7" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable7" parent="." instance=ExtResource("6")]
 position = Vector2(200, 64)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -124,7 +132,7 @@ RestAfterUp = 0
 RestAfterDown = -1
 AlwaysActive = true
 
-[node name="ShutterDestroyable8" parent="." instance=ExtResource("5")]
+[node name="ShutterDestroyable8" parent="." instance=ExtResource("6")]
 position = Vector2(200, 192)
 DataFile = "enemies/shutter_destroyable.json"
 Trigger = 0
@@ -136,6 +144,16 @@ RestAfterUp = -1
 RestAfterDown = 0
 AlwaysActive = true
 
-[node name="BlueCap" parent="." instance=ExtResource("6")]
+[node name="BlueCap" parent="." instance=ExtResource("7")]
 position = Vector2(96, 192)
 DataFile = "objects/door_cap_blue_up.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+Picture = "backdrops/tourian_pipe_room_letterbox.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("9")
+StartsWhen = SubResource("r2")

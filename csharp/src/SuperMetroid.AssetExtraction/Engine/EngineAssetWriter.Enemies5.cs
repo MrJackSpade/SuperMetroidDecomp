@@ -3,6 +3,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.Powamp;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Spatial;
@@ -118,5 +120,54 @@ public sealed partial class EngineAssetWriter
         }
 
         maw.Write();
+
+        // The Powamp: a body and the balloon over it. The balloon's timelines say how full it is at each step, which is
+        // how high it sits.
+        static string Pose(PowampBalloonPose pose) => EngineSheets.FileName(pose.ToString());
+        var balloonHeights = new JsonObject();
+        foreach (PowampBalloonPose pose in Enum.GetValues<PowampBalloonPose>())
+            balloonHeights[Pose(pose)] = PowampMotionDefinitions.BalloonHeights[pose];
+        EngineEnemy powamp = Enemy("enemies/powamp.json", "Powamp", EnemyDefinitionId.Powamp).BodyColliders("Body", "Hurtbox", "BalloonHurtbox")
+            .Value("rise_distance", PowampMotionDefinitions.UngrappledRise)
+            .Value("rest_updates", PowampMotionDefinitions.RestDuration)
+            .Value("inflation_updates", PowampMotionDefinitions.InflationDuration)
+            .Value("death_delay", PowampMotionDefinitions.DeathDelay)
+            .Value("wiggle_step_updates", PowampMotionDefinitions.WiggleStepDuration)
+            .Value("spike_quickening", EngineNames.Number(PowampMotionDefinitions.SpikeAccelerations[CompassDirection.Right].X))
+            .Group("balloon_heights", balloonHeights)
+            .Group("wiggle", EngineNames.List(PowampMotionDefinitions.WiggleOffsets))
+            .Timeline("body_slow", PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt[PowampBodySegment.BodySlow])
+            .Timeline("body_fast", PowampAnimations.BodySegments, PowampAnimations.BodyStartingAt[PowampBodySegment.BodyFast])
+            // Its eight spikes gather speed the way each is thrown, and end on what they meet.
+            .Shot("spike", RoomEnemyProjectileKind.PowampSpike, static (thrower, _, projectile) =>
+            {
+                projectile["timeline"] = thrower.SpawnedTimeline("spike", PowampSpikeAnimations.Segments, PowampSpikeAnimations.StartingAt[PowampSpikeSegment.Flying], EngineEnemy.EndsOnly);
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+                projectile["motion"] = "accelerating";
+                projectile["acceleration"] = EngineNames.Number(PowampMotionDefinitions.SpikeAccelerations[CompassDirection.Right].X);
+            });
+        foreach ((string name, PowampBalloonSegment segment) in new[]
+                 {
+                     ("deflated", PowampBalloonSegment.Deflated), ("inflating", PowampBalloonSegment.InflatingFromDeflated),
+                     ("inflating_from_halfway", PowampBalloonSegment.InflatingFromHalfway), ("sinking", PowampBalloonSegment.StartSinking),
+                 })
+        {
+            (List<SuperMetroid.Core.Animation.IAnimationBeat<PowampBalloonPose, SuperMetroid.Core.Animation.NoAnimationCue>> lead,
+                List<SuperMetroid.Core.Animation.IAnimationBeat<PowampBalloonPose, SuperMetroid.Core.Animation.NoAnimationCue>>? cycle) =
+                EngineTimelines.Played(PowampAnimations.BalloonSegments, PowampAnimations.BalloonStartingAt[segment]);
+            JsonObject timeline = EngineTimelines.Of(lead, cycle, pose => powamp.Picture(PowampAnimations.BalloonFrames[pose]),
+                static (SuperMetroid.Core.Animation.NoAnimationCue _) => null);
+            // Each step says which pose its picture is, for the balloon's height.
+            foreach (JsonNode? step in timeline["steps"]!.AsArray())
+            {
+                string shown = step!["picture"]!.GetValue<string>();
+                PowampBalloonPose pose = Enum.GetValues<PowampBalloonPose>().Single(posed => powamp.Picture(PowampAnimations.BalloonFrames[posed]) == shown);
+                step["cues"] = new JsonArray("pose:" + Pose(pose));
+            }
+
+            powamp.Timeline(name, timeline);
+        }
+
+        powamp.Write();
     }
 }

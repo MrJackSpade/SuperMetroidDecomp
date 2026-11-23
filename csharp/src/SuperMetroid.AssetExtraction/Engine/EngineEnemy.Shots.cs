@@ -17,7 +17,8 @@ internal sealed partial class EngineEnemy
 
     /// <summary>
     /// Adds one of its shots, by the name the Godot enemy fires it by: the hit and the size the old game gives the
-    /// projectile of <paramref name="kind"/>, and whether it lives on after hurting Samus and stops her shots.
+    /// projectile of <paramref name="kind"/>, whether it lives on after hurting Samus, and whether her shots meet it.
+    /// One her shots meet is destroyed by them, as the old game's is unless its own code makes it a dud.
     /// It is not taken away for leaving the view, since the old game's is not. <paramref name="more"/> adds whatever
     /// else the shot and its projectile are given.
     /// </summary>
@@ -30,7 +31,7 @@ internal sealed partial class EngineEnemy
             ["width"] = Math.Max(1, old.Radius.X * 2),
             ["height"] = Math.Max(1, old.Radius.Y * 2),
             ["meeting_target"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact) ? "passes_through_and_rehits" : "ends",
-            ["met_by_shot"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "stops_shot" : "ignored",
+            ["met_by_shot"] = old.Properties.HasFlag(EnemyProjectilePropertyFlags.BlocksShots) ? "destroyed" : "ignored",
             ["view_margin"] = -1,
         };
         if (old.Properties.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))

@@ -50,6 +50,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/torizo_shot.json` | `CuedProjectile` |  |
 | `bosses/torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |
 | `bosses/torizo_super_missile.json` | `TorizoSuperMissile` | gravity, throw_speed |
+| `cinematics/intro_egg.json` | `IntroEgg` | cry_sound, hatch_sound, slime, slime_splash |
+| `cinematics/intro_mother_brain.json` | `IntroMotherBrain` | big_explosion, contact_damage, health, ring, small_explosion |
 | `enemies/alcoon.json` | `Alcoon` | contact_damage, emerge_across_distance, emerge_down_distance, emerge_jump_speed, emerge_sound, gravity, health, hide_distance, hide_jump_speed, muzzle_across, muzzle_up, stride |
 | `enemies/alcoon_fireball.json` | `AlcoonFireball` | slowing, steady_speed |
 | `enemies/armored_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
@@ -214,6 +216,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 
 | File | Patches |
 | --- | --- |
+| `cinematics/intro_discovery_room.json` |  |
+| `cinematics/intro_mother_brain_room.json` |  |
 | `rooms/brinstar/alpha_power_bomb.json` |  |
 | `rooms/brinstar/below_spazer.json` |  |
 | `rooms/brinstar/beta_power_bomb.json` |  |

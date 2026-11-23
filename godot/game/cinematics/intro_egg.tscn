@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://game/cinematics/IntroEgg.cs" id="1"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+
+[node name="IntroEgg" type="Node2D"]
+script = ExtResource("1")
+DataFile = "cinematics/intro_egg.json"
+
+[node name="Egg" type="Node2D" parent="."]
+script = ExtResource("2")
+
+[node name="Baby" type="Node2D" parent="."]
+script = ExtResource("2")

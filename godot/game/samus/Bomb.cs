@@ -15,7 +15,7 @@ public partial class Bomb : Projectile
     {
         if (Launcher is not Samus samus || Settings.EndingBurst.Length == 0)
             return;
-        ProjectileSettings burst = Burst.Read(room.Content.ReadData(Settings.EndingBurst)).Settings;
+        ProjectileSettings burst = ShotType.Read(room.Content.ReadData(Settings.EndingBurst)).Settings;
         var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, burst.Width / 2, burst.Height / 2);
         if (blast.Overlaps(samus.BodyRect))
             samus.BombJump(Position);

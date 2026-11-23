@@ -13,6 +13,20 @@ public sealed class Inventory
     private readonly HashSet<string> _switchedOn = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _amounts = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _capacities = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _needs = new(StringComparer.Ordinal);
+
+    /// <summary>Whether the player is in the named need: short of something, and not yet recovered.</summary>
+    public bool IsInNeed(string need) => _needs.Contains(need);
+
+    /// <summary>Records that the player has fallen into the named need, or has recovered from it.</summary>
+    public void SetInNeed(string need, bool inNeed)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(need);
+        if (inNeed)
+            _needs.Add(need);
+        else
+            _needs.Remove(need);
+    }
 
     /// <summary>The equipment owned, for saving.</summary>
     public IReadOnlyCollection<string> Owned => _owned;

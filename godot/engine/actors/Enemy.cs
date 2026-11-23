@@ -8,10 +8,21 @@ using Godot;
 namespace Engine.Actors;
 
 /// <summary>
-/// What an enemy is. The base owns what every enemy has: health, reacting to a hit, being hurt, statuses such as
-/// frozen, dying, dropping a pickup, hurting the player on contact, and being stepped by its room. A particular enemy
-/// adds only its own behaviour. A boss is an enemy too: one scene, its parts child nodes with their own hurtboxes.
+/// What an enemy is. The base owns what every enemy has: health, reacting to a hit, being hurt and stunned, statuses
+/// such as frozen, dying and what it leaves, hurting the player on contact, its timelines and its shots, and being
+/// stepped by its room. A particular enemy adds only its own behaviour. A boss is an enemy too: one scene, its parts
+/// child nodes with their own hurtboxes.
 /// </summary>
+/// <remarks>
+/// Beside its simple values, an enemy's data file may give:
+/// <code>
+/// "reactions": [ ... ], "drops": { ... }, "colliders": { ... }, "timelines": { ... },
+/// "shots": { "spit": { "damage": 10, "speed": 2, "projectile": { ... } } },
+/// "hurt_flash_updates": 8, "stunned_while_hurt": true, "hurt_sound": "cry", "status_sounds": { "frozen": "enemy_frozen" },
+/// "death": { "effect": "effects/small_explosion.json", "sound": "enemy_killed" },
+/// "picture_offset": { "x": -8, "y": -8 }
+/// </code>
+/// </remarks>
 public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, IHasValues, Movement.IMoves
 {
     /// <inheritdoc/>
@@ -43,12 +54,29 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     [Export]
     public Facing StartsFacing { get; set; } = Facing.Left;
 
+    /// <summary>Whether it goes on behaving however far from the view it is.</summary>
+    [Export]
+    public bool AlwaysActive { get; set; }
+
+    /// <summary>How many updates it flashes for after being hurt.</summary>
+    public int HurtFlashUpdates { get; private set; } = 8;
+
+    /// <summary>Whether it stops behaving while it flashes from being hurt.</summary>
+    public bool StunnedWhileHurt { get; private set; } = true;
+
     private Room? _room;
     private Health? _health;
     private Reactions _reactions = Reactions.None;
     private DropTable _drops = DropTable.Nothing;
     private Countdown _unhittable = Countdown.Over;
     private Countdown _statusLeft = Countdown.Over;
+    private Countdown _flash = Countdown.Over;
+    private TimelinePlayer? _animation;
+    private readonly Dictionary<string, ShotType> _shots = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _statusSounds = new(StringComparer.Ordinal);
+    private string _hurtSound = "";
+    private string _deathEffect = "";
+    private string _deathSound = "";
 
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
@@ -83,14 +111,38 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Wakes the enemy.</summary>
     public void Wake() => IsAsleep = false;
 
-    /// <summary>Whether it was hurt in this update, for a flash.</summary>
+    /// <summary>Whether it was hurt in this update.</summary>
     public bool WasJustHurt { get; private set; }
+
+    /// <summary>Whether it is flashing from being hurt.</summary>
+    public bool IsFlashing => _flash.IsRunning;
+
+    /// <summary>Its timelines, by name.</summary>
+    public TimelineSet Timelines { get; private set; } = TimelineSet.None;
+
+    /// <summary>The name of the timeline it is showing; empty for none.</summary>
+    public string Playing { get; private set; } = "";
+
+    /// <summary>Whether the timeline it is showing, one that does not loop, has played through.</summary>
+    public bool AnimationIsOver => _animation is { IsOver: true };
 
     /// <summary>The collider it moves through terrain with, if it has one.</summary>
     protected Collider? Body { get; private set; }
 
     /// <summary>The collider that blocks and carries the player, if it has one.</summary>
     protected Collider? Solid { get; private set; }
+
+    /// <summary>What shows it, if its scene gives it a visual.</summary>
+    protected ActorVisual? Visual { get; private set; }
+
+    /// <summary>Where the player is: what most enemies aim at and move toward.</summary>
+    protected PixelPosition Target => Room.Player.Position;
+
+    /// <summary>The side of it the player is on.</summary>
+    protected Facing TowardPlayer => Room.Player.Position.X < Position.X ? Facing.Left : Facing.Right;
+
+    /// <summary>The gameplay random generator.</summary>
+    protected GameRandom Random => Room.Session.Random;
 
     /// <inheritdoc/>
     public void EnterRoom(Room room)
@@ -104,7 +156,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
         _solidWhenNotFrozen = Solid is { Enabled: true };
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+        {
             visual.Bind(room.Content);
+            Visual ??= visual;
+        }
+
         OnEnterRoom();
     }
 
@@ -113,7 +169,33 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         _reactions = data.Has("reactions") ? Reactions.Read(data.List("reactions")) : Reactions.None;
         _drops = data.Has("drops") ? DropTable.Read(data.Get("drops")) : DropTable.Nothing;
+        Timelines = TimelineSet.ReadFrom(data);
         EntityNode.ReadColliders(this, data);
+        HurtFlashUpdates = data.Has("hurt_flash_updates") ? data.Int("hurt_flash_updates") : 8;
+        StunnedWhileHurt = !data.Has("stunned_while_hurt") || data.Flag("stunned_while_hurt");
+        _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";
+        _deathEffect = data.Has("death") && data.Get("death").Has("effect") ? data.Get("death").Text("effect") : "";
+        _deathSound = data.Has("death") && data.Get("death").Has("sound") ? data.Get("death").Text("sound") : "";
+        _statusSounds.Clear();
+        if (data.Has("status_sounds"))
+        {
+            foreach ((string status, DataNode sound) in data.Get("status_sounds").Entries())
+                _statusSounds[status] = sound.AsText();
+        }
+
+        _shots.Clear();
+        if (data.Has("shots"))
+        {
+            foreach ((string name, DataNode shot) in data.Get("shots").Entries())
+                _shots[name] = ShotType.Read(shot);
+        }
+
+        if (data.Has("picture_offset"))
+        {
+            var offset = new Vector2I(data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y"));
+            foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+                visual.PictureOffset = offset;
+        }
     }
 
     /// <summary>Called once as the enemy enters its room, after its values are loaded.</summary>
@@ -122,8 +204,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
-    /// Plays one update: its timers move on, it behaves unless a status stops it, and it hurts the player if they are
-    /// touching it.
+    /// Plays one update: its timers move on, it behaves unless a status or a hurt stops it, its timeline moves on, and
+    /// it hurts the player if they are touching it.
     /// </summary>
     internal void Step()
     {
@@ -131,6 +213,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (IsAsleep)
             return;
         _unhittable = _unhittable.Stepped();
+        bool wasFlashing = _flash.IsRunning;
+        _flash = _flash.Stepped();
         if (Status.Length > 0)
         {
             _statusLeft = _statusLeft.Stepped();
@@ -140,17 +224,73 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
         if (!IsFrozen)
         {
-            Behave();
+            if (!(StunnedWhileHurt && wasFlashing))
+            {
+                Behave();
+                if (!IsDead)
+                    StepAnimation();
+            }
+
             if (!IsDead)
                 TouchPlayer();
         }
+
+        if (!IsDead)
+            ShowLook();
     }
 
     /// <summary>This enemy's own behaviour for one update.</summary>
     protected abstract void Behave();
 
+    /// <summary>Shows the timeline named <paramref name="name"/> from its start. Naming the one showing changes nothing unless <paramref name="restart"/> is asked for.</summary>
+    protected void Play(string name, bool restart = false)
+    {
+        if (name == Playing && !restart && _animation is not null)
+            return;
+        Playing = name;
+        _animation = new TimelinePlayer(Timelines.Get(name));
+        Visual?.Show(_animation.Current.Picture);
+    }
+
+    /// <summary>Called for each cue the enemy's timeline reaches.</summary>
+    protected virtual void OnCue(string cue)
+    {
+    }
+
+    /// <summary>The shot of the given name from its data file.</summary>
+    /// <exception cref="InvalidOperationException">The enemy's data gives it no shot of that name.</exception>
+    protected ShotType Shot(string name) =>
+        _shots.TryGetValue(name, out ShotType? shot) ? shot : throw new InvalidOperationException($"The enemy \"{Name}\" has no shot named \"{name}\".");
+
+    /// <summary>Launches one of its shots from <paramref name="at"/> at <paramref name="velocity"/>, and returns the projectile.</summary>
+    protected Projectile Fire(string shot, PixelPosition at, PixelVelocity velocity)
+    {
+        ShotType type = Shot(shot);
+        Projectile projectile = type.Launch(at, velocity, HitSide.Enemies, this, this);
+        Room.Spawn(projectile);
+        if (type.Sound.Length > 0)
+            Room.Session.Sounds.Request(type.Sound, channel: "enemies");
+        return projectile;
+    }
+
+    /// <summary>Launches one of its shots from <paramref name="at"/> straight at the player, at the shot's own speed.</summary>
+    protected Projectile FireAtPlayer(string shot, PixelPosition at)
+    {
+        ShotType type = Shot(shot);
+        PixelOffset toPlayer = Target - at;
+        int angle = Turns.AngleOf(toPlayer.X.Whole, toPlayer.Y.Whole);
+        return Fire(shot, at, new PixelVelocity(Turns.Cosine(angle, type.Speed), Turns.Sine(angle, type.Speed)));
+    }
+
+    /// <summary>Asks for a sound.</summary>
+    protected void Sound(string sound)
+    {
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "enemies");
+    }
+
     /// <inheritdoc/>
-    public bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsDead && !IsAsleep;
+    public virtual bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsDead && !IsAsleep;
 
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
@@ -166,17 +306,21 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
         int damage = reaction.DamageFrom(hit.Damage);
         bool lethal = damage > 0 && Health.WouldBeEmptiedBy(damage);
-        bool takesStatus = reaction.StatusWhen == StatusWhen.Always || (reaction.StatusWhen == StatusWhen.InsteadOfDying && lethal);
+        bool takesStatus = reaction.StatusWhen == StatusWhen.Always ||
+            (reaction.StatusWhen == StatusWhen.InsteadOfDying && lethal && Status != reaction.Status);
         if (takesStatus)
-            BeginStatus(reaction.Status, reaction.StatusUpdates);
-        if (reaction.StatusWhen == StatusWhen.InsteadOfDying && lethal)
+            BeginStatus(reaction.Status, Room.StatusUpdatesFor(reaction.Status, reaction.StatusUpdates));
+        if (reaction.StatusWhen == StatusWhen.InsteadOfDying && takesStatus)
             return HitResult.Hurt;
         if (damage == 0)
             return takesStatus ? HitResult.Hurt : HitResult.Absorbed;
 
         Health.Take(damage);
         _unhittable = Countdown.Of(reaction.UnhittableUpdates);
+        _flash = Countdown.Of(HurtFlashUpdates);
         WasJustHurt = true;
+        if (!IsFrozen)
+            Sound(_hurtSound);
         if (Health.IsEmpty)
         {
             Die();
@@ -192,23 +336,45 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// </summary>
     protected virtual Reaction ReactionTo(Hit hit, Collider part) => _reactions.To(hit);
 
+    /// <summary>The enemy's reactions as its data file gives them.</summary>
+    protected Reactions Reactions => _reactions;
+
     /// <summary>Called when a hit hurt the enemy without destroying it.</summary>
     protected virtual void OnHurt(Hit hit, Collider part)
     {
     }
 
-    /// <summary>Destroys the enemy: it is recorded as gone, leaves its drop, and is taken out of its room.</summary>
+    /// <summary>Destroys the enemy: it is recorded as gone, leaves its death effect and its drop, and is taken out of its room.</summary>
     public void Die()
     {
         if (IsDead)
             return;
         IsDead = true;
         Room.MarkGone(Name);
-        string? drop = _drops.Roll(Room.Session.Random, Room.Player.Inventory, file => PickupType.Read(Room.Content.ReadData(file)).AddsTo);
-        if (drop is not null)
-            Room.Spawn(Pickup.Of(PickupType.Read(Room.Content.ReadData(drop)), Position));
+        if (_deathEffect.Length > 0)
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(_deathEffect)), Position));
+        Sound(_deathSound);
+        Drop(_drops, Position);
         OnDied();
         Room.Remove(this);
+    }
+
+    /// <summary>Takes the enemy out of its room with no death: no effect, no drop, and not recorded as gone.</summary>
+    protected void Vanish()
+    {
+        if (IsDead)
+            return;
+        IsDead = true;
+        Room.Remove(this);
+    }
+
+    /// <summary>Rolls a drop table and leaves what it gives at <paramref name="at"/>.</summary>
+    protected void Drop(DropTable table, PixelPosition at)
+    {
+        Inventory inventory = Room.Player.Inventory;
+        string? drop = table.Roll(Room.Session.Random, inventory, file => PickupType.Read(Room.Content.ReadData(file)).IsUsefulTo(inventory));
+        if (drop is not null)
+            Room.Spawn(Pickup.Of(PickupType.Read(Room.Content.ReadData(drop)), at));
     }
 
     /// <summary>Called as the enemy is destroyed, before it leaves its room.</summary>
@@ -220,15 +386,23 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     public void BeginStatus(string status, int updates)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(status);
+        bool wasFrozen = IsFrozen;
         Status = status;
         _statusLeft = Countdown.Of(updates);
         if (IsFrozen && Solid is not null)
             Solid.Enabled = true;
+        if (IsFrozen != wasFrozen || !wasFrozen)
+            Sound(_statusSounds.GetValueOrDefault(status, ""));
         OnStatusBegan(status);
     }
 
     /// <summary>Called as the enemy is put in a status.</summary>
     protected virtual void OnStatusBegan(string status)
+    {
+    }
+
+    /// <summary>Called as a status the enemy was in ends.</summary>
+    protected virtual void OnStatusEnded(string status)
     {
     }
 
@@ -240,18 +414,64 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     protected MoveResult MoveDown(MoveOptions options) =>
         Room.Mover.MoveDown(RequireBody(), Velocity.Y, options);
 
+    /// <summary>Moves the enemy across by <paramref name="distance"/>, treating slopes as walls, and returns whether something stopped it.</summary>
+    protected bool MoveAcrossBy(Pixels distance) =>
+        Room.Mover.MoveAcross(RequireBody(), distance, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall }).Blocked;
+
+    /// <summary>Moves the enemy down by <paramref name="distance"/>, upward when negative, and returns whether something stopped it.</summary>
+    protected bool MoveDownBy(Pixels distance) =>
+        Room.Mover.MoveDown(RequireBody(), distance, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall }).Blocked;
+
     /// <summary>Whether the enemy stands on terrain or a solid.</summary>
     protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.Plain);
 
+    /// <summary>Whether the player's body is within the given distances of the enemy, across and down.</summary>
+    protected bool PlayerIsWithin(int across, int down)
+    {
+        PixelOffset toPlayer = Target - Position;
+        return toPlayer.X.Abs() < Pixels.FromWhole(across) && toPlayer.Y.Abs() < Pixels.FromWhole(down);
+    }
+
     /// <inheritdoc/>
     public void ShowPosition() => EntityNode.Show(this, Position);
+
+    /// <summary>Moves the enemy's timeline on by one update and hands it the cues reached.</summary>
+    private void StepAnimation()
+    {
+        if (_animation is null)
+            return;
+        foreach (string cue in _animation.Step())
+        {
+            OnCue(cue);
+            if (IsDead)
+                return;
+        }
+
+        Visual?.Show(_animation.Current.Picture);
+    }
+
+    /// <summary>Shows the enemy as it is: flashing when hurt, tinted when frozen.</summary>
+    private void ShowLook()
+    {
+        if (Visual is null)
+            return;
+        Visual.Tint(IsFrozen ? FrozenTint : _flash.IsRunning && _flash.Remaining % 2 == 0 ? HurtTint : Colors.White);
+    }
+
+    /// <summary>The tint of a frozen enemy.</summary>
+    private static readonly Color FrozenTint = new(0.6f, 0.8f, 1.5f);
+
+    /// <summary>The tint of an enemy flashing from a hit.</summary>
+    private static readonly Color HurtTint = new(2f, 2f, 2f);
 
     /// <summary>Ends the enemy's status.</summary>
     private void EndStatus()
     {
         if (IsFrozen && Solid is not null)
             Solid.Enabled = _solidWhenNotFrozen;
+        string ended = Status;
         Status = "";
+        OnStatusEnded(ended);
     }
 
     /// <summary>Whether the enemy's solid collider is on when it is not frozen.</summary>
@@ -271,7 +491,15 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         var direction = new PixelOffset(Room.Player.Position.X >= Position.X ? Pixels.FromWhole(1) : Pixels.FromWhole(-1), Pixels.Zero);
         Collider hurtbox = Room.Player.Hurtbox;
-        Room.Player.TakeHit(new Hit(ContactDamage, HitSide.Enemies, HitKind.Contact) { Direction = direction, Source = this }, hurtbox);
+        HitResult result = Room.Player.TakeHit(
+            new Hit(ContactDamage, HitSide.Enemies, HitKind.Contact) { Direction = direction, Source = this }, hurtbox);
+        if (result is HitResult.Hurt or HitResult.Destroyed)
+            OnTouchedPlayer();
+    }
+
+    /// <summary>Called when the enemy's touch has hurt the player.</summary>
+    protected virtual void OnTouchedPlayer()
+    {
     }
 
     /// <summary>The enemy's body collider, which moving needs.</summary>

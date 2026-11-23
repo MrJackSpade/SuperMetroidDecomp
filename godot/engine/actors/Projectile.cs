@@ -381,7 +381,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (_settings.EndingEffect.Length > 0)
             room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), Position));
         if (_settings.EndingBurst.Length > 0)
-            room.Spawn(Burst.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, Side, _launcher, Hit.Source));
+            room.Spawn(ShotType.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, PixelVelocity.Zero, Side, _launcher, Hit.Source));
         if (_settings.EndingSound.Length > 0)
             room.Session.Sounds.Request(_settings.EndingSound);
         OnEnded(room);

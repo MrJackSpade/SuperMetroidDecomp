@@ -35,6 +35,16 @@ public partial class Room : Node2D
     [Export]
     public int ActiveMargin { get; set; } = 64;
 
+    /// <summary>
+    /// How many updates a status lasts in this room, by the status's name, in place of what the hit that gave it says.
+    /// A status not listed lasts as long as the hit says.
+    /// </summary>
+    [Export]
+    public Godot.Collections.Dictionary<string, int> StatusUpdates { get; set; } = [];
+
+    /// <summary>How many updates a status lasts in this room, when a hit says it lasts <paramref name="updates"/>.</summary>
+    public int StatusUpdatesFor(string status, int updates) => StatusUpdates.TryGetValue(status, out int inRoom) ? inRoom : updates;
+
     private GameSession? _session;
     private Player? _player;
     private Terrain? _terrain;
@@ -354,6 +364,8 @@ public partial class Room : Node2D
     /// <summary>Whether an enemy is close enough to the view to be active.</summary>
     private bool IsActive(Enemy enemy)
     {
+        if (enemy.AlwaysActive)
+            return true;
         PixelRect view = Session.Camera.View;
         var active = new PixelRect(view.Left - ActiveMargin, view.Top - ActiveMargin, view.Width + ActiveMargin * 2, view.Height + ActiveMargin * 2);
         return active.Contains(enemy.Position.X.Whole, enemy.Position.Y.Whole);

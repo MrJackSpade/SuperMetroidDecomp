@@ -14,6 +14,8 @@ public partial class Pickup : Node2D, IRoomEntity
     private PickupType? _type;
     private Room? _room;
     private Countdown _left;
+    private TimelinePlayer? _timeline;
+    private ActorVisual? _visual;
 
     /// <summary>A pickup of <paramref name="type"/> lying centred on <paramref name="at"/>.</summary>
     public static Pickup Of(PickupType type, PixelPosition at)
@@ -36,12 +38,30 @@ public partial class Pickup : Node2D, IRoomEntity
     {
         _room = room;
         _left = Countdown.Of(Type.LastsUpdates);
-        if (Type.Picture.Length > 0)
+        string picture = Type.Picture;
+        if (Type.Timeline.Length > 0)
         {
-            var visual = new ActorVisual { Picture = Type.Picture, PictureOffset = new Vector2I(-Type.Size / 2, -Type.Size / 2) };
-            AddChild(visual);
-            visual.Bind(room.Content);
+            _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(Type.Timeline)));
+            picture = _timeline.Current.Picture;
         }
+
+        if (picture.Length == 0 && _timeline is null)
+            return;
+        _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(-Type.Size / 2, -Type.Size / 2) };
+        AddChild(_visual);
+        _visual.Bind(room.Content);
+    }
+
+    /// <summary>Gives the pickup to the player now, as something that reaches out for it does.</summary>
+    public void Collect()
+    {
+        Room room = _room ?? throw new InvalidOperationException("The pickup is not in a room.");
+        if (room.IsLeaving(this))
+            return;
+        Type.GiveTo(room.Player.Inventory);
+        if (Type.Sound.Length > 0)
+            room.Session.Sounds.Request(Type.Sound, channel: "pickups");
+        room.Remove(this);
     }
 
     /// <summary>Plays one update: the pickup is collected if the player touches it, and otherwise ages.</summary>
@@ -50,9 +70,14 @@ public partial class Pickup : Node2D, IRoomEntity
         Room room = _room ?? throw new InvalidOperationException("The pickup is not in a room.");
         if (Area.Overlaps(room.Player.BodyRect))
         {
-            room.Player.Inventory.Add(Type.AddsTo, Type.Quantity);
-            room.Remove(this);
+            Collect();
             return;
+        }
+
+        if (_timeline is not null)
+        {
+            _timeline.Step();
+            _visual?.Show(_timeline.Current.Picture);
         }
 
         _left = _left.Stepped();

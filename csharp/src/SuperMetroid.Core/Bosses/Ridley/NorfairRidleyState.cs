@@ -32,14 +32,17 @@ public sealed partial class NorfairRidleyState : RidleyEncounterState
     /// rests.
     /// </summary>
     /// <exception cref="InvalidOperationException">His roar's hold has not begun it.</exception>
-    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> ArenaReveal
-    {
-        get => field ?? throw new InvalidOperationException("Lower Norfair Ridley's arena reveal has not begun: his roar's hold begins it.");
-        private set;
-    }
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> ArenaReveal =>
+        arenaReveal ?? throw new InvalidOperationException("Lower Norfair Ridley's arena reveal has not begun: his roar's hold begins it.");
+
+    /// <summary>
+    /// His arena's reveal once his roar's hold has begun it, or none before: what a debugger state captures of him, which a
+    /// door's autosave takes as Samus enters before his roar (#2649).
+    /// </summary>
+    private AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue>? arenaReveal;
 
     /// <summary>Begins his arena's reveal as his roar's hold starts: its first step shows on the hold's first update.</summary>
-    internal void BeginArenaReveal() => ArenaReveal = RidleyFadeAnimations.ArenaRevealing();
+    internal void BeginArenaReveal() => arenaReveal = RidleyFadeAnimations.ArenaRevealing();
 
     /// <summary>The countdown of the swoop phase he flies, apart from his phase timer: each stage of his swoop lasts its own updates.</summary>
     public BossCountdown SwoopPhaseTimer { get; } = new();

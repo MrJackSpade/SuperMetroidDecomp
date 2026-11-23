@@ -49,11 +49,17 @@ public sealed partial class NorfairPipeBugState
     /// <exception cref="InvalidOperationException">The member's formation has not launched it.</exception>
     internal NorfairPipeBugRole Role
     {
-        get => field ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
+        get => assignedRole ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
         set
         {
-            field = Ensure.NotNull(value);
+            assignedRole = Ensure.NotNull(value);
             Departure.LastFor(value.StaggerTarget);
         }
     }
+
+    /// <summary>
+    /// The role its formation assigned it, or none before it launches it: what a debugger state captures of the member, which
+    /// a door's autosave takes while a follower still waits (#2649).
+    /// </summary>
+    private NorfairPipeBugRole? assignedRole;
 }

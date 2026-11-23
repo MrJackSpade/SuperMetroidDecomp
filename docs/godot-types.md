@@ -849,11 +849,14 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
 - `RoomExit`: every door, and the far end of every elevator.
-- `Carrier`: every elevator; the Maridia transport tube; the Chozo statues that lower Samus.
+- `Carrier`: every elevator; the Maridia transport tube. The two Chozo statues that come to life are one enemy
+  scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
+  Samus in its hand, and the other lowers the room's liquid.
 - `Platform`: Tripper, Kamer, the suspensor platform.
 - `Station`: save, energy refill, missile refill, map.
 - `Item`: every upgrade and expansion.
-- `Gunship`: the ship, as one object.
+- `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her own state, in the gunship.
+  It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their
   barriers are held shut by "this room has no live enemies".
 - `Spawner`: pipe bug pipes; Rinka sources.

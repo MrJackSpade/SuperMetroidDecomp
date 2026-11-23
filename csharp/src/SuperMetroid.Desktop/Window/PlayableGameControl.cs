@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
@@ -91,8 +90,6 @@ public sealed class PlayableGameControl : UserControl
     private ControllerInputRecorder? inputRecorder;
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
     private DebuggerSaveStateStore stateStore;
-    /// <summary>Whether the session's store has readied its debugger states, which the first gameplay frame does (#2619).</summary>
-    private bool debuggerStatesPrepared;
     /// <summary>Room last shown in the window caption.</summary>
     private RoomDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
@@ -292,7 +289,6 @@ public sealed class PlayableGameControl : UserControl
         if (stateStore is not null)
             stateStore.Dispose();
         stateStore = CreateStateStore();
-        debuggerStatesPrepared = false;
         if (driver is null)
         {
             // The reset seed is captured after disk SRAM has been validated/copied but
@@ -519,14 +515,6 @@ public sealed class PlayableGameControl : UserControl
                         Door: game.GameplayActiveDoor?.Name,
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
-            }
-            // The first gameplay frame, as the save finishes loading, readies the debugger states the door autosaves
-            // capture, so no door stalls the game building them (#2619); a title-screen game holds content no state names.
-            if (!debuggerStatesPrepared && hostOptions.DoorTransitionAutosave && driver is null
-                && game.GameState == SuperMetroidGameState.MainGameplay)
-            {
-                stateStore.Prepare(game);
-                debuggerStatesPrepared = true;
             }
             DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, driver is not null,
                 previousGameState, stateStore, game);

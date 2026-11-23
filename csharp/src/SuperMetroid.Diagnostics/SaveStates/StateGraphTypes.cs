@@ -66,14 +66,8 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
         Probe(new TypedProbe<Type>(new TypeIdentityStateType(this)));
     }
 
-    /// <summary>The catalogs registered: each type's name and its static read-only members holding objects.</summary>
-    internal List<(StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> Catalogs { get; } = [];
-
-    /// <summary>The declared types the catalogs' members reach, each with the test of whether an object is of it (#1716).</summary>
-    internal Dictionary<string, (Func<int, object, bool> Probe, int Index, Type? Exact, bool Enumerates)> DeclaredProbes { get; } = new(StringComparer.Ordinal);
-
-    /// <summary>What a location declared with each declared type holds (#1716).</summary>
-    internal Dictionary<string, (bool Anything, IReadOnlyList<string> Held)> DeclaredHolds { get; } = new(StringComparer.Ordinal);
+    /// <summary>The catalogs registered: each type, its name and its static read-only members holding objects.</summary>
+    internal List<(Type Catalog, StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> Catalogs { get; } = [];
 
     /// <summary>Adds an assembly's registration.</summary>
     /// <param name="registration">The assembly's generated registration.</param>
@@ -403,17 +397,8 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     }
 
     /// <inheritdoc/>
-    public void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members) => Catalogs.Add((type, members));
-
-    /// <inheritdoc/>
-    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates)
-    {
-        for (int index = 0; index < keys.Count; index++)
-            DeclaredProbes.TryAdd(keys[index], (probe, index, exact[index], enumerates[index]));
-    }
-
-    /// <inheritdoc/>
-    public void Holds(string key, bool anything, IReadOnlyList<string> held) => DeclaredHolds.TryAdd(key, (anything, held));
+    public void Catalog(Type catalog, StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members) =>
+        Catalogs.Add((Ensure.NotNull(catalog), type, members));
 
     /// <summary>The type standing for the read-only lists the compiler makes for collection expressions of <typeparamref name="T"/>.</summary>
     private sealed class CompilerReadOnlyList<T>;

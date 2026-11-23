@@ -397,21 +397,9 @@ internal sealed class GraphComparisons : IStateGraphRegistry
     private readonly Dictionary<Type, object> delegates = [];
 
     /// <inheritdoc/>
-    public void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members)
+    public void Catalog(Type catalog, StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members)
     {
         // A published graph is compared by its values; where a catalog member lives does not change them.
-    }
-
-    /// <inheritdoc/>
-    public void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates)
-    {
-        // The declared types index a restore's candidates; a comparison holds both values already.
-    }
-
-    /// <inheritdoc/>
-    public void Holds(string key, bool anything, IReadOnlyList<string> held)
-    {
-        // The declared types index a restore's candidates; a comparison holds both values already.
     }
 
     /// <summary>

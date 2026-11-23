@@ -58,8 +58,6 @@ internal static class DoorTransitionAutosaveVerification
                 BuildIdentity.Version);
             var store = DebuggerSaveStateStore.ForInstalledGame(directory, null, identity,
                 new SuperMetroid.Diagnostics.Sessions.InstalledSessionContent(RepositoryInstallation.Artwork, assets));
-            // The host readies the store as its session loads (#2619).
-            store.Prepare(game);
             string storeDirectory = (Path.GetDirectoryName(store.GetSlotPath(0)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(store.GetSlotPath(0))."));
             Directory.CreateDirectory((storeDirectory));
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)

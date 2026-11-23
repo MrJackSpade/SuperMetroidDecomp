@@ -273,7 +273,7 @@ internal static class GraphDigestVerification
 
     /// <summary>
     /// The serialized debugger-state graph, naming what it reaches of <paramref name="content"/> by path and what the
-    /// game's static members hold through <paramref name="definitions"/> instead of the process's index (#1716).
+    /// game's static members hold through <paramref name="definitions"/> instead of the process's index (#2619).
     /// </summary>
     internal static byte[] SerializeGraphThrough(object value, DefinitionObjects definitions, object[] content)
     {
@@ -284,7 +284,7 @@ internal static class GraphDigestVerification
 
     /// <summary>
     /// Restores a serialized graph bound to <paramref name="content"/>, resolving what the game's static members hold
-    /// through <paramref name="definitions"/> instead of the process's index (#1716).
+    /// through <paramref name="definitions"/> instead of the process's index (#2619).
     /// </summary>
     internal static T RestoreGraphThrough<T>(byte[] graph, DefinitionObjects definitions, object[] content) where T : class
     {
@@ -311,11 +311,10 @@ internal static class GraphDigestVerification
 
     /// <summary>
     /// Declares the process's index of the objects the game's static members hold (<see cref="DefinitionObjects.Process"/>)
-    /// and indexes the catalogs every capture asks, those whose members reach a location any object can be held in, as a
-    /// shared fixture (#1757): the declaration reads every type of the game's assembly and every capture of the process
-    /// names catalog objects through the one index, so its cost is a shared fixture's, as the installed content index's
-    /// is (#1532), not a cost of whichever suite first captures. Catalogs only some objects' types can reach are still
-    /// indexed by the capture that first meets one. Callers hold the lock.
+    /// and indexes the catalogs initialized so far, as a shared fixture (#1757): the declaration reads every type of the
+    /// game's assembly and every capture of the process names catalog objects through the one index, so its cost is a
+    /// shared fixture's, as the installed content index's is (#1532), not a cost of whichever suite first captures.
+    /// Catalogs initialized later are indexed by the next capture (#2619). Callers hold the lock.
     /// </summary>
     private static void DeclareDefinitions()
     {
@@ -341,12 +340,11 @@ internal static class GraphDigestVerification
     private static bool definitionsDeclared;
 
     /// <summary>
-    /// Indexes, as a shared fixture, the catalogs a capture of <paramref name="value"/> asks that no capture of a graph of
-    /// its type has asked before (#1716, #1757): the first capture that meets an object of a type only some catalogs can
-    /// hold indexes those catalogs, a cost of the process's one definition index, as the declared index's is
-    /// (<see cref="DeclareDefinitions"/>), not of whichever suite first round-trips a graph of that type, such as a pause
-    /// menu's map, whose first capture indexes the map catalogs it reaches. A capture written nowhere asks them once per
-    /// type of graph; later captures of the type find them indexed.
+    /// Indexes, as a shared fixture, the catalogs initialized since the last capture, as a capture of <paramref name="value"/>
+    /// does (#1757, #2619): the first capture of a graph type, such as a pause menu's map, which the suite initialized the
+    /// map catalogs for, indexes them, a cost of the process's one definition index, as the declared index's is
+    /// (<see cref="DeclareDefinitions"/>), not of whichever suite first round-trips a graph of that type. A capture written
+    /// nowhere indexes them once per type of graph.
     /// </summary>
     private static void IndexDefinitionsReachedBy(object value, object[] content)
     {

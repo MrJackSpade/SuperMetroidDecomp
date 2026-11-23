@@ -67,6 +67,17 @@ internal sealed class BoundObjectGraph
     internal BoundObjectGraph(StateGraphTypes types, IReadOnlyList<(string Name, object Root)> roots)
     {
         this.types = Ensure.NotNull(types);
+        Add(roots);
+    }
+
+    /// <summary>
+    /// Indexes every object reachable from <paramref name="roots"/> not indexed yet, breadth first in the list's order, each
+    /// root named by its name, which a path's first step gives. An object already indexed keeps its path.
+    /// </summary>
+    /// <param name="roots">More bound objects, each with a name no root has that holds no step separator.</param>
+    /// <exception cref="ArgumentException">Two roots share a name, or a name holds a step separator.</exception>
+    internal void Add(IReadOnlyList<(string Name, object Root)> roots)
+    {
         Ensure.NotNull(roots);
         var pending = new Queue<object>();
         foreach ((string name, object root) in roots)
@@ -152,20 +163,6 @@ internal sealed class BoundObjectGraph
                 : origin.Named;
             paths.Add(value, path);
         }
-        return true;
-    }
-
-    /// <summary>
-    /// Whether <paramref name="value"/> is a bound object, with its path and its depth: how many steps from a root the walk
-    /// first reached it, a root's being zero. Indexing is breadth first, so no path to it from a root is shorter.
-    /// </summary>
-    internal bool TryGetPath(object value, [NotNullWhen(true)] out string? path, out int depth)
-    {
-        depth = 0;
-        if (!TryGetPath(value, out path))
-            return false;
-        for (object? parent = origins[value].Parent; parent is not null; parent = origins[parent].Parent)
-            depth++;
         return true;
     }
 

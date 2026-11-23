@@ -17,9 +17,6 @@ internal sealed partial class StateGraphRun
         lines.Add(line);
     }
 
-    /// <summary>Adds a line to the assembly registrar.</summary>
-    internal void AddAssemblyRegistration(string line) => assemblyRegistrations.Add(line);
-
     private string EmitType(INamedTypeSymbol type)
     {
         var code = new StringBuilder();
@@ -108,6 +105,10 @@ internal sealed partial class StateGraphRun
             registration.AddRange(extra);
         if (level is not null)
             code.AppendLine($"    void {Core}IStateGraphNode.Describe({Registry} __registry) => __StateRegister(__registry);");
+        // A catalog marks itself initialized as its type initializer runs, so a debugger state indexes only the catalogs
+        // whose members hold objects and never runs a catalog's initializer itself (#2619).
+        if (CatalogTypes.Contains(type))
+            code.AppendLine($"    private static readonly bool __StateCatalogInitialized = {Core}StateGraphCatalogInitializations.Mark(typeof({self}));");
         code.AppendLine($"    internal static void __StateRegister({Registry} __registry)");
         code.AppendLine("    {");
         code.AppendLine($"        if (!__registry.Begin(typeof({self}))) return;");
@@ -120,20 +121,29 @@ internal sealed partial class StateGraphRun
     {
         string access = level.Access;
         string s = level.Suffix;
-        // Field names, the way a state names each field.
-        for (int index = 0; index < level.Own.Count; index++)
-            code.AppendLine($"    private static readonly {FieldType} __StateField_{s}_{index} = new({Literal(level.Declared)}, {Literal(level.Own[index].Name)});");
-        if (level.InlineLength > 0)
+        // Field names, the way a state names each field, held by a class of their own (#2619): reading one runs only that
+        // class's initializer, never the type's, so walking a value of the type off the game thread runs none of the game's
+        // static initializers.
+        int parameters = level.Primary?.Parameters.Length ?? 0;
+        if (level.Own.Count > 0 || level.InlineLength > 0 || parameters > 0)
         {
-            code.Append($"    private static readonly {FieldType}[] __StateElements_{s} = [");
-            code.Append(string.Join(", ", Enumerable.Range(0, level.InlineLength).Select(index => $"new({Literal(level.Declared)}, \"#{index}\")")));
-            code.AppendLine("];");
+            code.AppendLine($"    private static class __StateFields_{s}");
+            code.AppendLine("    {");
+            for (int index = 0; index < level.Own.Count; index++)
+                code.AppendLine($"        internal static readonly {FieldType} __StateField_{s}_{index} = new({Literal(level.Declared)}, {Literal(level.Own[index].Name)});");
+            if (level.InlineLength > 0)
+            {
+                code.Append($"        internal static readonly {FieldType}[] __StateElements_{s} = [");
+                code.Append(string.Join(", ", Enumerable.Range(0, level.InlineLength).Select(index => $"new({Literal(level.Declared)}, \"#{index}\")")));
+                code.AppendLine("];");
+            }
+            for (int index = 0; index < parameters; index++)
+                code.AppendLine($"        internal static readonly {FieldType} __StateArgumentField_{s}_{index} = new({Literal(level.Declared)}, {Literal("(" + level.Primary!.Parameters[index].Name + ")")});");
+            code.AppendLine("    }");
         }
         int mapped = level.Arguments.Count(argument => argument is not null);
         if (level.Primary is not null)
         {
-            for (int index = 0; index < level.Primary.Parameters.Length; index++)
-                code.AppendLine($"    private static readonly {FieldType} __StateArgumentField_{s}_{index} = new({Literal(level.Declared)}, {Literal("(" + level.Primary.Parameters[index].Name + ")")});");
             if (!level.IsSealed)
             {
                 for (int index = 0; index < level.Primary.Parameters.Length; index++)
@@ -157,7 +167,7 @@ internal sealed partial class StateGraphRun
                 {
                     if (level.Arguments[index] is not { } argument)
                         continue;
-                    code.AppendLine($"        __writer.Field(__StateArgumentField_{s}_{index});");
+                    code.AppendLine($"        __writer.Field(__StateFields_{s}.__StateArgumentField_{s}_{index});");
                     code.AppendLine("        " + WriteValue(level.Primary.Parameters[index].Type, argument));
                 }
             }
@@ -181,7 +191,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        __writer.Fields({level.InlineLength});");
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
-            code.AppendLine($"            __writer.Field(__StateElements_{s}[__index]);");
+            code.AppendLine($"            __writer.Field(__StateFields_{s}.__StateElements_{s}[__index]);");
             code.AppendLine("            " + WriteValue(InlineElementOf(level), "this[__index]"));
             code.AppendLine("        }");
         }
@@ -209,14 +219,14 @@ internal sealed partial class StateGraphRun
         if (level.InlineLength > 0)
         {
             if (level.InlineElement is { } inlineElement && HoldsReferences(inlineElement, []))
-                code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++) __visitor.Child(__StateElements_{s}[__index], this[__index]);");
+                code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++) __visitor.Child(__StateFields_{s}.__StateElements_{s}[__index], this[__index]);");
         }
         else
         {
             for (int index = 0; index < level.Own.Count; index++)
             {
                 if (HoldsReferences(level.Own[index].Type, []))
-                    code.AppendLine($"        __visitor.Child(__StateField_{s}_{index}, {level.Own[index].Expression});");
+                    code.AppendLine($"        __visitor.Child(__StateFields_{s}.__StateField_{s}_{index}, {level.Own[index].Expression});");
             }
         }
         code.AppendLine("    }");
@@ -236,7 +246,7 @@ internal sealed partial class StateGraphRun
             for (int index = 0; index < level.Own.Count; index++)
             {
                 Member member = level.Own[index];
-                code.AppendLine($"        __reader.Field(__StateField_{s}_{index});");
+                code.AppendLine($"        __reader.Field(__StateFields_{s}.__StateField_{s}_{index});");
                 string read = ReadValue(member.Type);
                 code.AppendLine("        " + (member.Kind switch
                 {
@@ -266,7 +276,7 @@ internal sealed partial class StateGraphRun
                 IParameterSymbol parameter = level.Primary.Parameters[index];
                 arguments.Add(level.Arguments[index] is null
                     ? "default"
-                    : $"__reader.Argument<{Code(parameter.Type)}>({ordinal++}, {mapped}, __StateArgumentField_{s}_{index}, out {Code(parameter.Type)} __argument{index})");
+                    : $"__reader.Argument<{Code(parameter.Type)}>({ordinal++}, {mapped}, __StateFields_{s}.__StateArgumentField_{s}_{index}, out {Code(parameter.Type)} __argument{index})");
             }
             code.AppendLine($" : this({string.Join(", ", arguments)})");
         }
@@ -286,7 +296,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        __reader.Fields({level.InlineLength});");
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
-            code.AppendLine($"            __reader.Field(__StateElements_{s}[__index]);");
+            code.AppendLine($"            __reader.Field(__StateFields_{s}.__StateElements_{s}[__index]);");
             code.AppendLine($"            this[__index] = {ReadValue(InlineElementOf(level))};");
             code.AppendLine("        }");
         }
@@ -298,7 +308,7 @@ internal sealed partial class StateGraphRun
                 Member member = level.Own[index];
                 if (level.Exact.Contains(member.Name))
                     continue;
-                code.AppendLine($"        __reader.Field(__StateField_{s}_{index});");
+                code.AppendLine($"        __reader.Field(__StateFields_{s}.__StateField_{s}_{index});");
                 // A captured parameter is set by the primary constructor's argument; its value is read past.
                 code.AppendLine(member.Kind == MemberKind.Captured
                     ? $"        _ = {ReadValue(member.Type)};"
@@ -322,7 +332,7 @@ internal sealed partial class StateGraphRun
         {
             if (!all && level.Exact.Contains(level.Own[index].Name))
                 continue;
-            code.AppendLine($"        __writer.Field(__StateField_{level.Suffix}_{index});");
+            code.AppendLine($"        __writer.Field(__StateFields_{level.Suffix}.__StateField_{level.Suffix}_{index});");
             code.AppendLine("        " + WriteValue(level.Own[index].Type, level.Own[index].Expression));
         }
     }
@@ -679,7 +689,8 @@ internal sealed partial class StateGraphRun
 
     /// <summary>
     /// Registers each covered non-generic type's static read-only members holding an object other than a string as a
-    /// definition catalog (#1623), under the type that declares them, in their names' ordinal order.
+    /// definition catalog (#1623), under the type that declares them, in their names' ordinal order, and gives the type the
+    /// field marking it initialized as its type initializer runs (#2619).
     /// </summary>
     private void CollectCatalogs()
     {
@@ -711,20 +722,15 @@ internal sealed partial class StateGraphRun
                 Codecs(memberType, seen, lines);
             foreach (string line in lines)
                 AddRegistration(type, line);
-            AddRegistration(type, $"__registry.Catalog({NameExpression(type)}, new {Core}StateGraphCatalogMember[] {{ " +
-                string.Join(", ", members.Select(member => $"new({Literal(member.Name)}, {Literal(StateGraphExposure.Key(member.Type))}, static () => {Code(type)}.@{member.Name})")) +
+            AddRegistration(type, $"__registry.Catalog(typeof({Code(type)}), {NameExpression(type)}, new {Core}StateGraphCatalogMember[] {{ " +
+                string.Join(", ", members.Select(member => $"new({Literal(member.Name)}, static () => {Code(type)}.@{member.Name})")) +
                 " });");
             CatalogTypes.Add(type);
-            foreach ((string _, ITypeSymbol memberType) in members)
-                CatalogMemberTypes.Add(memberType);
         }
     }
 
     /// <summary>The types registered as catalogs.</summary>
-    internal List<INamedTypeSymbol> CatalogTypes { get; } = [];
-
-    /// <summary>The types the catalogs' members are declared with.</summary>
-    internal List<ITypeSymbol> CatalogMemberTypes { get; } = [];
+    private HashSet<INamedTypeSymbol> CatalogTypes { get; } = new(SymbolEqualityComparer.Default);
 
     /// <summary>The compilation.</summary>
     internal Compilation Compilation { get; }
@@ -751,11 +757,11 @@ internal sealed partial class StateGraphRun
         code.AppendLine($"    public static void Register({Registry} registry)");
         code.AppendLine("    {");
         code.AppendLine("        Types(registry);");
-        code.AppendLine("        Exposure(registry);");
+        code.AppendLine("        Enums(registry);");
         code.AppendLine("    }");
         EmitChunked(code, "Types", [.. types.Where(type => covered.Contains(type) && type.ContainingType is null && type.TypeParameters.Length == 0)
             .Select(type => $"{Code(type)}.__StateRegister(__registry);")]);
-        EmitChunked(code, "Exposure", assemblyRegistrations);
+        EmitChunked(code, "Enums", assemblyRegistrations);
         code.AppendLine("}");
         return code.ToString();
     }

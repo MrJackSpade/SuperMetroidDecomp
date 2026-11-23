@@ -8,8 +8,8 @@ namespace SuperMetroid.Generators;
 /// marked <c>[assembly: StateGraphAssembly]</c> every class, struct and record is partial, and each gets: a constructor
 /// restoring it from a state, methods writing its fields and handing the fields that can reach other objects to a visitor,
 /// and a registration naming it, the collections, arrays and enums its fields are declared with, and the methods delegates
-/// are made from. With <c>Catalogs</c> the assembly also registers its static read-only members as definition catalogs and
-/// what each may hold (#1623, #1716). See <see cref="StateGraphRun"/>.
+/// are made from. With <c>Catalogs</c> the assembly also registers its static read-only members as definition catalogs, each
+/// marking itself initialized as its type initializer runs (#1623, #2619). See <see cref="StateGraphRun"/>.
 /// </summary>
 [Generator(LanguageNames.CSharp)]
 public sealed class StateGraphGenerator : IIncrementalGenerator

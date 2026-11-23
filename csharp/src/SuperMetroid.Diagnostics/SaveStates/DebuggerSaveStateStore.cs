@@ -36,9 +36,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// </summary>
     private readonly BoundObjectGraph bound;
     /// <summary>
-    /// What the game's static members hold, each named by its path among them (#1623), taken as the store is created
-    /// (#2619): building it runs every definition catalog's initialization, which the session's first door autosave paid
-    /// for, stalling for seconds, when the first serialization built it.
+    /// What the game's static members hold, each named by its path among them (#1623): the catalogs the game has initialized,
+    /// each indexed on the index's own thread as soon as it is initialized (#2619), so no capture stalls the game walking them.
     /// </summary>
     private readonly DefinitionObjects definitions;
 
@@ -57,6 +56,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         var indexing = System.Diagnostics.Stopwatch.StartNew();
         bound = new BoundObjectGraph([content]);
         definitions = DefinitionObjects.Process;
+        definitions.IndexInBackground();
         Console.WriteLine($"Indexed the installed content for debugger states in {indexing.ElapsedMilliseconds} ms.");
         // Null preserves the captured policy for exact replay. Interactive hosts
         // explicitly supply their active INI options instead of trusting old state.
@@ -94,24 +94,6 @@ internal sealed class DebuggerSaveStateStore : IDisposable
             hostOptions,
             contentIdentity,
             content);
-    }
-
-    /// <summary>
-    /// Readies the store to capture <paramref name="game"/> without stalling it (#2619), as its save loads: indexes every
-    /// definition catalog a capture can name an object of, which runs the catalogs' initialization, and writes the game once
-    /// to nowhere, so the writers a capture runs are built. A first capture made them otherwise, which stalled the session's
-    /// first door transition, whose automatic save state is its first capture, and a door into a room whose objects were
-    /// first named.
-    /// </summary>
-    public void Prepare(SuperMetroidGame game)
-    {
-        Ensure.NotNull(game);
-        var preparing = System.Diagnostics.Stopwatch.StartNew();
-        definitions.IndexAll();
-        using var scratch = new MemoryStream();
-        bound.Refresh();
-        DebuggerObjectGraphSerializer.Serialize(scratch, game, bound, definitions);
-        Console.WriteLine($"Prepared debugger states for the session in {preparing.ElapsedMilliseconds} ms.");
     }
 
     /// <summary>Formats manual slots as decimal digits and the dedicated automatic slot as <c>auto</c>.</summary>

@@ -148,33 +148,12 @@ public interface IStateGraphRegistry
     /// <param name="create">Makes the delegate for a target, or answers none when the target is not one the method takes.</param>
     void Method<TDelegate>(string name, Func<object?, TDelegate?> create) where TDelegate : Delegate;
 
-    /// <summary>Registers a definition catalog: a type's static read-only members holding objects (#1623).</summary>
+    /// <summary>
+    /// Registers a definition catalog: a type's static read-only members holding objects (#1623). The type marks itself
+    /// initialized as its type initializer runs (<see cref="StateGraphCatalogInitializations"/>, #2619).
+    /// </summary>
+    /// <param name="catalog">The type.</param>
     /// <param name="type">The type's name.</param>
     /// <param name="members">Its members, in their names' ordinal order.</param>
-    void Catalog(StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members);
-
-    /// <summary>
-    /// Registers types the locations the catalogs' members reach are declared with (#1716), each named by its key, with the
-    /// test of whether an object is of the type at a place among them.
-    /// </summary>
-    /// <param name="keys">The declared types' names.</param>
-    /// <param name="probe">Whether an object is of the declared type at a place among <paramref name="keys"/>.</param>
-    /// <param name="exact">
-    /// For each declared type an object of which has exactly that runtime type (a value type, a sealed class), the type, so
-    /// an object is matched to it by its runtime type rather than tested; none for any other.
-    /// </param>
-    /// <param name="enumerates">
-    /// For each declared type, whether only an object that enumerates can be of it (an array, a collection interface), so
-    /// an object that does not is not tested against it.
-    /// </param>
-    void DeclaredTypes(IReadOnlyList<string> keys, Func<int, object, bool> probe, IReadOnlyList<Type?> exact, IReadOnlyList<bool> enumerates);
-
-    /// <summary>
-    /// Registers what a location declared with the type <paramref name="key"/> names holds (#1716): the declared types of
-    /// the locations it holds in turn, or anything at all.
-    /// </summary>
-    /// <param name="key">The declared type's name.</param>
-    /// <param name="anything">Whether the location can hold an object of any type.</param>
-    /// <param name="held">The names of the declared types it holds.</param>
-    void Holds(string key, bool anything, IReadOnlyList<string> held);
+    void Catalog(Type catalog, StateGraphName type, IReadOnlyList<StateGraphCatalogMember> members);
 }

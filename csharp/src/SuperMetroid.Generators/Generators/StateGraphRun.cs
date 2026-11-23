@@ -67,10 +67,10 @@ internal sealed partial class StateGraphRun
     /// <summary>Each node type's level, worked out once.</summary>
     private readonly Dictionary<INamedTypeSymbol, Level?> levels = new(SymbolEqualityComparer.Default);
 
-    /// <summary>The registrations each type's own registration adds: delegate methods, catalogs, declared-type probes.</summary>
+    /// <summary>The registrations each type's own registration adds: delegate methods and catalogs.</summary>
     private readonly Dictionary<INamedTypeSymbol, List<string>> extraRegistrations = new(SymbolEqualityComparer.Default);
 
-    /// <summary>The assembly registrar's own lines.</summary>
+    /// <summary>The assembly registrar's own lines: the enums no covered type registers.</summary>
     private readonly List<string> assemblyRegistrations = [];
 
     internal StateGraphRun(Compilation compilation, SourceProductionContext output, bool partialOnly, bool catalogs)
@@ -97,10 +97,7 @@ internal sealed partial class StateGraphRun
         CollectDelegateMethods();
         RegisterEnums(Compilation.Assembly.GlobalNamespace);
         if (catalogs)
-        {
             CollectCatalogs();
-            new StateGraphExposure(this).Collect();
-        }
         foreach (INamedTypeSymbol type in types)
         {
             if (covered.Contains(type))

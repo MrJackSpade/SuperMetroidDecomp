@@ -354,8 +354,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <inheritdoc/>
     public virtual bool IsHitBy(HitSide side) => side != HitSide.Enemies && !IsDead && !IsAsleep;
 
+    /// <summary>Makes the enemy flash for <paramref name="updates"/> updates, as a hit that hurt it does.</summary>
+    protected void FlashFor(int updates) => _flash = Countdown.Of(updates);
+
     /// <inheritdoc/>
-    public HitResult TakeHit(Hit hit, Collider part)
+    public virtual HitResult TakeHit(Hit hit, Collider part)
     {
         if (IsDead)
             return HitResult.Ignored;

@@ -406,6 +406,39 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         return true;
     }
 
+    /// <summary>
+    /// Moves the projectile across by <paramref name="distance"/> a pixel at a time, stopping short of terrain. For a
+    /// projectile of its own class that moves itself and meets terrain its own way. Returns whether terrain stopped it.
+    /// </summary>
+    protected bool MoveAcrossMeetingTerrain(Room room, Pixels distance) => MoveMeetingTerrain(room, new PixelOffset(distance, Pixels.Zero));
+
+    /// <summary>
+    /// Moves the projectile down by <paramref name="distance"/>, upward when negative, a pixel at a time, stopping short
+    /// of terrain. Returns whether terrain stopped it.
+    /// </summary>
+    protected bool MoveDownMeetingTerrain(Room room, Pixels distance) => MoveMeetingTerrain(room, new PixelOffset(Pixels.Zero, distance));
+
+    /// <summary>Moves the projectile along one axis until terrain is in the way.</summary>
+    private bool MoveMeetingTerrain(Room room, PixelOffset offset)
+    {
+        PixelPosition target = Position + offset;
+        int across = target.X.Whole - Position.X.Whole, down = target.Y.Whole - Position.Y.Whole;
+        for (int moved = 0; moved < Math.Abs(across) + Math.Abs(down); moved++)
+        {
+            if (room.Terrain.IsSolidIn(Area.MovedBy(Math.Sign(across), Math.Sign(down)), SlopeTreatment.Wall))
+            {
+                // It rests against what stopped it, with nothing left over.
+                Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
+                return true;
+            }
+
+            Position += PixelOffset.FromWhole(Math.Sign(across), Math.Sign(down));
+        }
+
+        Position = new PixelPosition(target.X.WithWhole(Position.X.Whole), target.Y.WithWhole(Position.Y.Whole));
+        return false;
+    }
+
     /// <summary>Called as the projectile is stopped by terrain or a solid, before it ends.</summary>
     protected virtual void OnMetTerrain(Room room)
     {

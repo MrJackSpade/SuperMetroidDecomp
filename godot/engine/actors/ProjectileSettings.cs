@@ -166,6 +166,9 @@ public sealed record ProjectileSettings
     /// <summary>The sound asked for as it ends, by name; empty for none.</summary>
     public string EndingSound { get; init; } = "";
 
+    /// <summary>What it may leave when a shot destroys it; null for one that leaves nothing.</summary>
+    public DropTable? Drops { get; init; }
+
     /// <summary>Reads settings from a data file's group. Anything not given keeps its plain value.</summary>
     public static ProjectileSettings Read(DataNode data)
     {
@@ -194,6 +197,7 @@ public sealed record ProjectileSettings
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",
+            Drops = data.Has("drops") ? DropTable.Read(data.Get("drops")) : null,
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");

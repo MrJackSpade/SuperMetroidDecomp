@@ -1,0 +1,608 @@
+using Engine.Actors;
+using Engine.Actors.Components;
+using Engine.Actors.Movement;
+using Engine.Collision;
+using Engine.Content;
+using Engine.Shared;
+using Godot;
+
+namespace Game.Enemies;
+
+/// <summary>
+/// Botwoon: a serpent that lives in a wall full of holes. It weaves out of one hole and into another along set
+/// paths, its long body following exactly where its head went, and now and then stops with its head out to spit a
+/// fan of acid at Samus. Only its head can be hurt. As it weakens it moves and spits faster. Killed, it falls to
+/// the floor piece by piece, and the wall it lived in crumbles.
+/// </summary>
+/// <remarks>
+/// Its head plays "hidden", and "moving_" and "spitting_" followed by one of the eight ways it can point; the cue
+/// "spit_frame" of a spitting timeline lets the volley go. The visuals "Body1" through "Body13", tail first, play
+/// "body_" or "tail_" and a way, and the hitboxes "BodyHit1" through "BodyHit13" are those segments. Its data gives
+/// its four holes under "holes", in the room's own pixels, and its paths under "paths": where each runs from and to,
+/// whether through the open or inside the wall, and its steps as one digit each, 0 for up and on round clockwise.
+/// Its shot is "spit". Its falls follow the speed curve its data names.
+/// </remarks>
+public partial class Botwoon : Enemy
+{
+    /// <summary>The terrain patch that brings its wall down when it dies.</summary>
+    [Export]
+    public string WallPatch { get; set; } = "";
+
+    /// <summary>The music that plays once it is dead, by name.</summary>
+    [Export]
+    public string VictoryMusic { get; set; } = "";
+
+    /// <summary>How many updates pass before it first moves.</summary>
+    [Export, DataValue("opening_delay")]
+    public int OpeningDelay { get; set; } = 256;
+
+    /// <summary>How far down the room its floor is, in pixels: where its pieces land.</summary>
+    [Export, DataValue("floor_y")]
+    public int FloorY { get; set; } = 200;
+
+    /// <summary>How many updates pass between its death and its head falling.</summary>
+    [Export, DataValue("pre_fall_wait")]
+    public int PreFallWait { get; set; } = 16;
+
+    /// <summary>How many updates the wall takes to come down.</summary>
+    [Export, DataValue("wall_updates")]
+    public int WallUpdates { get; set; } = 192;
+
+    /// <summary>How many things it drops as the wall comes down.</summary>
+    [Export, DataValue("wall_drops")]
+    public int WallDrops { get; set; } = 16;
+
+    /// <summary>How far across the room the wall is, in pixels: where its explosions are.</summary>
+    [Export, DataValue("wall_x")]
+    public int WallX { get; set; } = 232;
+
+    /// <summary>The effect of an explosion, by the data file of its timeline.</summary>
+    [Export, DataValue("explosion_effect")]
+    public string ExplosionEffect { get; set; } = "";
+
+    /// <summary>The effect of a puff of smoke.</summary>
+    [Export, DataValue("smoke_effect")]
+    public string SmokeEffect { get; set; } = "";
+
+    /// <summary>The sound of an explosion, by name.</summary>
+    [Export, DataValue("explosion_sound")]
+    public string ExplosionSound { get; set; } = "";
+
+    /// <summary>The data file of the speed curve its falls follow.</summary>
+    [Export, DataValue("speed_curve")]
+    public string SpeedCurveFile { get; set; } = "";
+
+    private const int Segments = 13;
+    private const int Trail = 256;
+    private const int FallStep = 192;
+
+    private static readonly string[] Ways = ["up", "up_right", "right", "down_right", "down", "down_left", "left", "up_left"];
+    private static readonly (int X, int Y)[] Steps = [(0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)];
+
+    // How fast it moves and spits, and how closely its body follows, by how hurt it is: whole, below half, below a quarter.
+    private static readonly (int Speed, int Spacing, int SpitSpeed)[] Stages = [(2, 6, 2), (3, 4, 3), (4, 3, 4)];
+
+    private sealed record Path(int From, int To, bool InsideWall, int[] Steps);
+
+    private enum Phase
+    {
+        InitialDelay,
+        Choosing,
+        OnPath,
+        Spitting,
+        DeathDelay,
+        HeadFalling,
+        WaitingForBody,
+        WallFalling,
+    }
+
+    private enum HeadDoing
+    {
+        FollowingMovement,
+        Aiming,
+        WaitingForSpitFrame,
+        SpitAimed,
+        Cooldown,
+    }
+
+    private enum Death
+    {
+        Alive,
+        AwaitingTailExit,
+        Dying,
+    }
+
+    private readonly List<(int X, int Y)> _holes = [];
+    private readonly List<Path> _paths = [];
+    private readonly (int X, int Y)[] _trail = new (int X, int Y)[Trail];
+    private readonly (int X, int Y)[] _headTrail = new (int X, int Y)[4];
+    private readonly (int X, int Y)[] _segmentAt = new (int X, int Y)[Segments];
+    private readonly bool[] _segmentHidden = new bool[Segments];
+    private readonly int[] _segmentFallWait = new int[Segments];
+    private readonly int[] _segmentFallPlace = new int[Segments];
+    private readonly bool[] _segmentLanded = new bool[Segments];
+    private SpeedCurve? _curve;
+    private TimelinePlayer? _ripple;
+    private Phase _phase;
+    private HeadDoing _head;
+    private Death _death;
+    private Countdown _wait;
+    private Countdown _spitCooldown;
+    private int _ring;
+    private int _stage;
+    private int _targetHole;
+    private Path? _path;
+    private bool _pathBackward;
+    private int _pathStep;
+    private bool _towardHole = true;
+    private bool _finished;
+    private bool _insideHole = true;
+    private bool _wasInsideHole = true;
+    private bool _holeLatch;
+    private bool _firstAction = true;
+    private bool _tailExited;
+    private int? _savedRing;
+    private int _startingHealth;
+    private int _spitAngle;
+    private int _headFallPlace;
+    private int _wallAge;
+    private int _largeIn = 1;
+    private int _smallIn = 1;
+
+    /// <inheritdoc/>
+    public override bool IsHitBy(HitSide side) => _death == Death.Alive && !_insideHole && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _holes.Clear();
+        _holes.AddRange(data.List("holes").Select(hole => (hole.Int("x"), hole.Int("y"))));
+        if (_holes.Count != 4)
+            throw data.Problem("must list four holes: left, bottom, top, right");
+        _paths.Clear();
+        foreach (DataNode path in data.List("paths"))
+        {
+            int[] steps = [.. path.Text("steps").Select(step => step - '0')];
+            if (steps.Any(step => step is < 0 or > 7))
+                throw path.Problem("has a step that is not one of the eight ways, 0 through 7");
+            _paths.Add(new Path(path.Int("from"), path.Int("to"), path.Flag("inside_wall"), steps));
+        }
+    }
+
+    /// <inheritdoc/>
+    protected override void OnEnterRoom()
+    {
+        _curve = SpeedCurve.Read(Room.Content.ReadData(SpeedCurveFile));
+        _ripple = new TimelinePlayer(Timelines.Get("body_right"));
+        _wait = Countdown.Of(OpeningDelay);
+        _startingHealth = MaxHealth;
+        AlwaysActive = true;
+        Play("hidden");
+        (int X, int Y) here = (Position.X.Whole, Position.Y.Whole);
+        Array.Fill(_trail, here);
+        Array.Fill(_headTrail, here);
+        Array.Fill(_segmentAt, here);
+        Array.Fill(_segmentHidden, true);
+        ShowBody();
+    }
+
+    /// <inheritdoc/>
+    protected override void OnCue(string cue)
+    {
+        if (cue == "spit_frame")
+            _head = HeadDoing.SpitAimed;
+    }
+
+    /// <inheritdoc/>
+    protected override bool DiesAtOnce(Hit hit)
+    {
+        // Dead, it carries on until the last of it is out of the wall, and only then falls.
+        if (_death == Death.Alive)
+            _death = Death.AwaitingTailExit;
+        return false;
+    }
+
+    /// <inheritdoc/>
+    protected override void Touch(Collider part)
+    {
+        if (_death == Death.Alive && !(part.Role == ColliderRole.Hurtbox && _insideHole))
+            base.Touch(part);
+    }
+
+    /// <inheritdoc/>
+    protected override void Behave()
+    {
+        if (_death == Death.AwaitingTailExit && _tailExited)
+        {
+            _death = Death.Dying;
+            _phase = Phase.DeathDelay;
+            _wait = Countdown.Of(PreFallWait);
+            _tailExited = false;
+            for (int segment = 0; segment < Segments; segment++)
+                _segmentFallWait[segment] = 160 - 8 * segment;
+        }
+
+        switch (_phase)
+        {
+            case Phase.InitialDelay:
+                if (Ends(ref _wait))
+                    _phase = Phase.Choosing;
+                break;
+
+            case Phase.Choosing:
+                Choose();
+                break;
+
+            case Phase.OnPath:
+                if (_finished)
+                {
+                    _phase = Phase.Choosing;
+                    _finished = false;
+                    _towardHole = true;
+                    if (_insideHole)
+                        _holeLatch = false;
+                    break;
+                }
+
+                MoveOneUpdate();
+                break;
+
+            case Phase.Spitting:
+                if (_head != HeadDoing.FollowingMovement)
+                {
+                    StepHead();
+                    break;
+                }
+
+                _phase = Phase.OnPath;
+                _insideHole = _death != Death.AwaitingTailExit && Random.Draw().Part(0, 1) == 1;
+                _wasInsideHole = _insideHole;
+                if (_insideHole)
+                {
+                    _holeLatch = false;
+                    _savedRing = null;
+                }
+
+                ChoosePath();
+                break;
+
+            case Phase.DeathDelay:
+                if (Ends(ref _wait))
+                    _phase = Phase.HeadFalling;
+                break;
+
+            case Phase.HeadFalling:
+                Position += new PixelOffset(Pixels.Zero, Curve.SpeedAt(_headFallPlace));
+                if (Position.Y.Whole < FloorY)
+                {
+                    _headFallPlace += FallStep;
+                    break;
+                }
+
+                Position = new PixelPosition(Position.X, Position.Y.WithWhole(FloorY));
+                _phase = Phase.WaitingForBody;
+                Explode(Position);
+                Visual?.SetShown(false);
+                break;
+
+            case Phase.WaitingForBody:
+                if (_segmentLanded[0])
+                    BeginWallFall();
+                break;
+
+            case Phase.WallFalling:
+                WallFall();
+                break;
+        }
+
+        if (_death == Death.Dying)
+            FallBody();
+        ShowBody();
+    }
+
+    /// <summary>Counts one update of a running wait, and returns whether that ended it.</summary>
+    private static bool Ends(ref Countdown wait)
+    {
+        if (wait.IsOver)
+            return false;
+        wait = wait.Stepped();
+        return wait.IsOver;
+    }
+
+    /// <summary>The name of the way an offset points, of eight.</summary>
+    private static string WayOf(int across, int down) =>
+        Ways[Turns.Wrap(Turns.AngleOf(across, down) + Turns.PerTurn / 4 + Turns.PerTurn / 16) * Ways.Length / Turns.PerTurn];
+
+    /// <summary>The speed curve its falls follow.</summary>
+    private SpeedCurve Curve => _curve ?? throw new InvalidOperationException("Botwoon is not in a room.");
+
+    /// <summary>Decides what comes next once a movement is done: another path, or a stop to spit.</summary>
+    private void Choose()
+    {
+        if (!_finished)
+        {
+            MoveOneUpdate();
+            DetectHole();
+            return;
+        }
+
+        bool takesPath = _insideHole || _firstAction || _stage != 0 || Random.Draw().Part(1, 3) < 3;
+        _firstAction = false;
+        _finished = false;
+        if (takesPath)
+        {
+            _phase = Phase.OnPath;
+            _head = HeadDoing.FollowingMovement;
+            ChoosePath();
+        }
+        else
+        {
+            _phase = Phase.Spitting;
+            _head = HeadDoing.Aiming;
+        }
+    }
+
+    /// <summary>Picks its next path by chance, from where it is to another hole, and sets how fast it now goes.</summary>
+    private void ChoosePath()
+    {
+        if (!_insideHole)
+        {
+            int health = Health.Current;
+            _stage = health == 0 || health >= _startingHealth / 2 ? 0 : health >= _startingHealth / 4 ? 1 : 2;
+        }
+
+        int[] others = [.. Enumerable.Range(0, 4).Where(hole => hole != _targetHole)];
+        int draw = Random.Draw().Part(3, 2);
+        int from = _targetHole;
+        // In the open any hole may be next, even the one it is at; inside the wall the last of the others is likeliest.
+        int to = _insideHole ? others[Math.Min(draw, 2)] : draw < 3 ? others[draw] : from;
+        Path path = _insideHole
+            ? _paths.Single(candidate => candidate.InsideWall && ((candidate.From == from && candidate.To == to) || (candidate.From == to && candidate.To == from)))
+            : _paths.Single(candidate => !candidate.InsideWall && candidate.From == from && candidate.To == to);
+        _path = path;
+        _pathBackward = _insideHole && path.From != from;
+        _pathStep = _pathBackward ? path.Steps.Length - 2 : 0;
+        _targetHole = to;
+        _towardHole = false;
+    }
+
+    /// <summary>Moves its head one update, records where it went, and brings its body along behind.</summary>
+    private void MoveOneUpdate()
+    {
+        (int speed, int spacing, _) = Stages[_stage];
+        if (_towardHole)
+        {
+            // Homing on its hole, it stops the moment it has passed through the hole's mouth.
+            (int x, int y) = _holes[_targetHole];
+            int bearing = Turns.AngleOf(Math.Clamp(x - Position.X.Whole, -255, 255), Math.Clamp(y - Position.Y.Whole, -255, 255));
+            if (_insideHole == _wasInsideHole)
+            {
+                Position += new PixelOffset(Turns.Cosine(bearing, Pixels.FromWhole(speed)), Turns.Sine(bearing, Pixels.FromWhole(speed)));
+            }
+            else
+            {
+                _wasInsideHole = _insideHole;
+                _finished = true;
+            }
+        }
+        else if (_path is { } path)
+        {
+            (int X, int Y) moved = (0, 0);
+            for (int taken = 0; taken < speed; taken++)
+            {
+                if (_pathStep < 0 || _pathStep >= path.Steps.Length)
+                {
+                    _finished = true;
+                    return;
+                }
+
+                (int x, int y) = Steps[path.Steps[_pathStep]];
+                moved = (moved.X + x, moved.Y + y);
+                _pathStep += _pathBackward ? -1 : 1;
+            }
+
+            Position += _pathBackward ? PixelOffset.FromWhole(-moved.X, -moved.Y) : PixelOffset.FromWhole(moved.X, moved.Y);
+        }
+
+        _trail[_ring] = (Position.X.Whole, Position.Y.Whole);
+        int place = Wrap(_ring - spacing);
+        for (int segment = Segments - 1; segment >= 0; segment--)
+        {
+            if (_savedRing == place)
+            {
+                // This segment is at the mouth of the hole the head passed: it goes in, or comes out.
+                _segmentHidden[segment] = !_segmentHidden[segment];
+                if (segment == 0)
+                {
+                    _holeLatch = false;
+                    _tailExited = !_insideHole;
+                    _savedRing = null;
+                }
+            }
+
+            _segmentAt[segment] = _trail[place];
+            place = Wrap(place - spacing);
+        }
+
+        StepHead();
+        _ring = Wrap(_ring + 1);
+    }
+
+    /// <summary>A place in its trail brought within the ring.</summary>
+    private static int Wrap(int place) => ((place % Trail) + Trail) % Trail;
+
+    /// <summary>Notes when its head passes through the mouth of a hole, going in or coming out.</summary>
+    private void DetectHole()
+    {
+        if (_holeLatch)
+            return;
+        for (int hole = _holes.Count - 1; hole >= 0; hole--)
+        {
+            int across = Position.X.Whole - (_holes[hole].X - 4), down = Position.Y.Whole - (_holes[hole].Y - 4);
+            if (across is < 0 or >= 8 || down is < 0 or >= 8)
+                continue;
+            _holeLatch = true;
+            _insideHole = !_insideHole;
+            _savedRing = _ring;
+            return;
+        }
+    }
+
+    /// <summary>Moves what its head is doing on by one update.</summary>
+    private void StepHead()
+    {
+        switch (_head)
+        {
+            case HeadDoing.FollowingMovement:
+                (int X, int Y) oldest = _headTrail[^1];
+                int across = Position.X.Whole - oldest.X, down = Position.Y.Whole - oldest.Y;
+                if (across != 0 || down != 0)
+                {
+                    ZIndex = _insideHole ? -1 : 1;
+                    Play(_insideHole ? "hidden" : $"moving_{WayOf(across, down)}");
+                }
+
+                for (int index = _headTrail.Length - 1; index > 0; index--)
+                    _headTrail[index] = _headTrail[index - 1];
+                _headTrail[0] = (Position.X.Whole, Position.Y.Whole);
+                break;
+
+            case HeadDoing.Aiming:
+                ZIndex = 1;
+                PixelOffset toSamus = Target - Position;
+                _spitAngle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
+                Play($"spitting_{WayOf(toSamus.X.Whole, toSamus.Y.Whole)}");
+                _head = HeadDoing.WaitingForSpitFrame;
+                break;
+
+            case HeadDoing.SpitAimed:
+                // A fan of five, an eighth of a turn to either side of her.
+                int speed = Stages[_stage].SpitSpeed;
+                for (int shot = 0; shot < 5; shot++)
+                {
+                    int angle = _spitAngle + (shot - 2) * (Turns.PerTurn / 16);
+                    Fire("spit", PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole), new PixelVelocity(Turns.Cosine(angle, Pixels.FromWhole(speed)), Turns.Sine(angle, Pixels.FromWhole(speed))));
+                }
+
+                _spitCooldown = Countdown.Of(48);
+                _head = HeadDoing.Cooldown;
+                break;
+
+            case HeadDoing.Cooldown:
+                if (Ends(ref _spitCooldown))
+                    _head = HeadDoing.FollowingMovement;
+                break;
+        }
+    }
+
+    /// <summary>Lets its body fall, each segment after its own wait, the one nearest the head first.</summary>
+    private void FallBody()
+    {
+        for (int segment = Segments - 1; segment >= 0; segment--)
+        {
+            if (_segmentLanded[segment])
+                continue;
+            if (_segmentFallWait[segment] > 0)
+            {
+                _segmentFallWait[segment]--;
+                continue;
+            }
+
+            (int x, int y) = _segmentAt[segment];
+            y += Math.Max(1, Curve.SpeedAt(_segmentFallPlace[segment]).Whole);
+            _segmentFallPlace[segment] += FallStep;
+            if (y >= FloorY)
+            {
+                y = FloorY;
+                _segmentLanded[segment] = true;
+                _segmentHidden[segment] = true;
+                Explode(PixelPosition.FromWhole(x, y));
+            }
+
+            _segmentAt[segment] = (x, y);
+        }
+    }
+
+    /// <summary>Leaves an explosion, with its sound.</summary>
+    private void Explode(PixelPosition at)
+    {
+        if (ExplosionEffect.Length > 0)
+            LeaveEffect(ExplosionEffect, PixelPosition.FromWhole(at.X.Whole, at.Y.Whole));
+        Sound(ExplosionSound);
+    }
+
+    /// <summary>Starts the wall coming down: it crumbles, and what it held scatters out.</summary>
+    private void BeginWallFall()
+    {
+        _phase = Phase.WallFalling;
+        if (WallPatch.Length > 0)
+            Room.Terrain.ApplyPatch(WallPatch);
+        for (int drop = 0; drop < WallDrops; drop++)
+        {
+            RandomDraw draw = Random.Draw();
+            Drop(Drops, PixelPosition.FromWhole(draw.Part(0, 7) + 64, draw.Part(8, 6) + 128));
+        }
+    }
+
+    /// <summary>Moves the wall's fall on by one update: explosions work down it, and at the end the fight is over.</summary>
+    private void WallFall()
+    {
+        if (_wallAge >= WallUpdates)
+        {
+            if (VictoryMusic.Length > 0)
+                Room.Session.Sounds.RequestMusic(VictoryMusic);
+            Die();
+            return;
+        }
+
+        if (_wallAge >= 64)
+        {
+            int top = _wallAge - 8;
+            if (--_largeIn <= 0)
+            {
+                _largeIn = 13;
+                Explode(PixelPosition.FromWhole(WallX + Random.Draw().Part(0, 5), top + Random.Draw().Part(0, 5)));
+            }
+
+            if (--_smallIn <= 0)
+            {
+                _smallIn = 5;
+                for (int puff = 0; puff < 2 && SmokeEffect.Length > 0; puff++)
+                    LeaveEffect(SmokeEffect, PixelPosition.FromWhole(WallX - 8 + Random.Draw().Part(0, 6), top + Random.Draw().Part(0, 5)));
+            }
+        }
+
+        _wallAge++;
+    }
+
+    /// <summary>Puts each segment of its body where it is, pointing at the one ahead of it.</summary>
+    private void ShowBody()
+    {
+        _ripple?.Step();
+        for (int segment = 0; segment < Segments; segment++)
+        {
+            (int x, int y) = _segmentAt[segment];
+            (int X, int Y) ahead = segment == Segments - 1 ? (Position.X.Whole, Position.Y.Whole) : _segmentAt[segment + 1];
+            var offset = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
+            bool hidden = _segmentHidden[segment];
+            if (GetNodeOrNull<ActorVisual>($"Body{segment + 1}") is { } visual)
+            {
+                visual.SetShown(!hidden);
+                visual.Position = offset;
+                if (!hidden)
+                {
+                    FrameTimeline look = Timelines.Get($"{(segment == 0 ? "tail" : "body")}_{WayOf(ahead.X - x, ahead.Y - y)}");
+                    int frame = _ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count;
+                    visual.Show(look.Steps[frame].Picture);
+                }
+            }
+
+            if (GetNodeOrNull<Collider>($"BodyHit{segment + 1}") is { } hitbox)
+            {
+                hitbox.Enabled = !hidden && _death == Death.Alive;
+                hitbox.Rect = new PixelRect((int)offset.X - hitbox.Size.X / 2, (int)offset.Y - hitbox.Size.Y / 2, hitbox.Size.X, hitbox.Size.Y);
+            }
+        }
+    }
+}

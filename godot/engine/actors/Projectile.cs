@@ -215,6 +215,15 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         switch (_settings.MetByShot)
         {
             case ProjectileSettings.MetBy.Destroyed:
+                // One that leaves something when shot down rolls for it as an enemy would.
+                if (_settings.Drops is { } drops)
+                {
+                    Inventory inventory = room.Player.Inventory;
+                    string? drop = drops.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
+                    if (drop is not null)
+                        room.Spawn(Pickup.Of(PickupType.Read(room.Content.ReadData(drop)), Position));
+                }
+
                 End(room);
                 return HitResult.Destroyed;
             case ProjectileSettings.MetBy.StopsShot:

@@ -1,0 +1,52 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/bosses/spore_spawn/SporeSpawn.cs" id="1"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
+
+[node name="SporeSpawn" type="Node2D"]
+script = ExtResource("1")
+DataFile = "bosses/spore_spawn.json"
+
+[node name="Stalk1" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Stalk2" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Stalk3" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Stalk4" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Emitter1" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Emitter2" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Emitter3" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Emitter4" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Solid" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 3
+
+[node name="Hitbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Shell" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Core" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1

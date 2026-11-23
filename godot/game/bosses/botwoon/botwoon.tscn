@@ -1,0 +1,107 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/bosses/botwoon/Botwoon.cs" id="1"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
+
+[node name="Botwoon" type="Node2D"]
+script = ExtResource("1")
+DataFile = "bosses/botwoon.json"
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body1" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body2" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body3" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body4" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body5" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body6" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body7" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body8" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body9" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body10" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body11" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body12" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body13" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="BodyHit1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit6" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit7" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit8" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit9" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit10" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit11" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit12" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="BodyHit13" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

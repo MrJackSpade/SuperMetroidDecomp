@@ -16,7 +16,7 @@ internal sealed partial class EngineSheets
 {
     private readonly InstalledPictureStore _store;
     private readonly Dictionary<(string Family, string Sheet), InstalledSheetDocument> _documents = [];
-    private readonly Dictionary<(string Family, string Sheet, string Folder), EngineSheetPictures> _cut = [];
+    private readonly Dictionary<(string Family, string Sheets, string Folder), EngineSheetPictures> _cut = [];
 
     /// <summary>The sheets of the installation whose content is in <paramref name="content"/>.</summary>
     internal EngineSheets(string content)
@@ -45,21 +45,26 @@ internal sealed partial class EngineSheets
     }
 
     /// <summary>
-    /// Writes each frame of a sheet as a picture under <paramref name="folder"/> of <paramref name="tree"/>, named for
-    /// the frame, and says where each is and the offset they all share.
+    /// Writes each frame of one or more sheets as a picture under <paramref name="folder"/> of
+    /// <paramref name="tree"/>, named for the frame, and says where each is and the offset they all share. Sheets cut
+    /// together are the parts of one thing, which the Godot game shows at one offset: a body and its wings.
     /// </summary>
-    internal EngineSheetPictures Cut(EngineAssetTree tree, string family, string sheet, string folder)
+    internal EngineSheetPictures Cut(EngineAssetTree tree, string family, string folder, params ReadOnlySpan<string> sheets)
     {
-        if (_cut.TryGetValue((family, sheet, folder), out EngineSheetPictures? done))
+        string together = string.Join('+', sheets);
+        if (_cut.TryGetValue((family, together, folder), out EngineSheetPictures? done))
             return done;
-        InstalledSheetDocument document = _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
-            ? found
-            : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.");
-        SpriteImagePixels image = _store.Assemble(sheet, document);
+        var documents = new List<(string Sheet, InstalledSheetDocument Document)>();
+        foreach (string sheet in sheets)
+        {
+            documents.Add((sheet, _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
+                ? found
+                : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.")));
+        }
 
         // The canvas reaches as far each way from the thing's place as any frame does.
         int left = 0, top = 0, right = 1, bottom = 1;
-        foreach (InstalledSheetFrameDocument frame in document.Frames.Values)
+        foreach (InstalledSheetFrameDocument frame in documents.SelectMany(sheet => sheet.Document.Frames.Values))
         {
             left = Math.Min(left, -frame.Origin.X);
             top = Math.Min(top, -frame.Origin.Y);
@@ -70,32 +75,39 @@ internal sealed partial class EngineSheets
         int width = right - left, height = bottom - top;
         var paths = new Dictionary<string, string>(StringComparer.Ordinal);
         var canvas = new RgbaPixel[width * height];
-        foreach ((string name, InstalledSheetFrameDocument frame) in document.Frames)
+        foreach ((string sheet, InstalledSheetDocument document) in documents)
         {
-            if (frame.Picture is null)
+            SpriteImagePixels image = _store.Assemble(sheet, document);
+            foreach ((string name, InstalledSheetFrameDocument frame) in document.Frames)
             {
-                // A frame that shows nothing has no picture, and a step that shows it shows nothing.
-                paths[name] = "";
-                continue;
+                if (paths.ContainsKey(name))
+                    continue;
+                if (frame.Picture is null)
+                {
+                    // A frame that shows nothing has no picture, and a step that shows it shows nothing.
+                    paths[name] = "";
+                    continue;
+                }
+
+                Array.Clear(canvas);
+                int across = -frame.Origin.X - left, down = -frame.Origin.Y - top;
+                for (int y = 0; y < frame.Size.Y; y++)
+                {
+                    image.Pixels.AsSpan((frame.Corner.Y + y) * document.Size.X + frame.Corner.X, frame.Size.X)
+                        .CopyTo(canvas.AsSpan((down + y) * width + across, frame.Size.X));
+                }
+
+                string path = $"{folder}/{FileName(name)}.png";
+                tree.WritePicture(path, width, height, canvas);
+                paths[name] = path;
             }
 
-            Array.Clear(canvas);
-            int across = -frame.Origin.X - left, down = -frame.Origin.Y - top;
-            for (int y = 0; y < frame.Size.Y; y++)
-            {
-                image.Pixels.AsSpan((frame.Corner.Y + y) * document.Size.X + frame.Corner.X, frame.Size.X)
-                    .CopyTo(canvas.AsSpan((down + y) * width + across, frame.Size.X));
-            }
-
-            string path = $"{folder}/{FileName(name)}.png";
-            tree.WritePicture(path, width, height, canvas);
-            paths[name] = path;
+            foreach (string blank in document.Blank ?? [])
+                paths.TryAdd(blank, "");
         }
 
-        foreach (string blank in document.Blank ?? [])
-            paths.TryAdd(blank, "");
         var pictures = new EngineSheetPictures(left, top, width, height, paths);
-        _cut[(family, sheet, folder)] = pictures;
+        _cut[(family, together, folder)] = pictures;
         return pictures;
     }
 

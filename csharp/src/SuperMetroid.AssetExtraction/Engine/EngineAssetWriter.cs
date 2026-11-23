@@ -36,12 +36,13 @@ public sealed partial class EngineAssetWriter
     /// folder beside the file named as the file is.
     /// </summary>
     /// <param name="file">The data file, as the Godot project names it.</param>
+    /// <param name="type">The Godot type that reads the file.</param>
     /// <param name="id">The old game's enemy.</param>
     /// <param name="sheet">The installed sheet its pictures are on; the old enemy's own name when not given.</param>
-    internal EngineEnemy Enemy(string file, EnemyDefinitionId id, string? sheet = null)
+    internal EngineEnemy Enemy(string file, string type, EnemyDefinitionId id, string? sheet = null)
     {
         string folder = file[..file.LastIndexOf('.')];
         string named = _sheets.SheetNamed(GameInstallationLayout.EnemySheetDirectoryName, sheet ?? id.ToString());
-        return new EngineEnemy(_tree, file, id, _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, named, folder));
+        return new EngineEnemy(_tree, file, type, id, _sheets.Cut(_tree, GameInstallationLayout.EnemySheetDirectoryName, named, folder));
     }
 }

@@ -13,6 +13,7 @@ namespace Game.Enemies;
 /// each end and go back. The shootable shutter, the Kamer and the shutter that can be destroyed are all this, with
 /// their own settings and data; the one that can be destroyed has health like any enemy.
 /// </summary>
+/// <remarks>Its timeline is "idle".</remarks>
 public partial class Shutter : Enemy
 {
     /// <summary>What sets a shutter moving.</summary>
@@ -107,6 +108,7 @@ public partial class Shutter : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
+        Play("idle");
         int home = Position.Y.Whole;
         (_top, _bottom) = MovesUpFirst ? (home - Travel, home) : (home, home + Travel);
         (_struckOnce, _nextStrikeUp, _timer) = (false, MovesUpFirst, TriggerAmount);

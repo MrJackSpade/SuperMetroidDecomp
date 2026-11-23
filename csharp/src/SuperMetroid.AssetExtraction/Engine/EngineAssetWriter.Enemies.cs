@@ -1,29 +1,181 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Atomic;
+using SuperMetroid.Core.Enemies.Boulder;
+using SuperMetroid.Core.Enemies.Bull;
+using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Crawlers;
+using SuperMetroid.Core.Enemies.Fireflea;
+using SuperMetroid.Core.Enemies.Flies;
+using SuperMetroid.Core.Enemies.Kago;
+using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Enemies.Metroids;
+using SuperMetroid.Core.Enemies.PipeBugs;
+using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.Puyo;
+using SuperMetroid.Core.Enemies.Ripper;
+using SuperMetroid.Core.Enemies.Shutters;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
-/// <summary>The enemies' data files.</summary>
+/// <summary>
+/// The enemies' data files: for each, the Godot type that reads it, the old enemy it is, and the old animation that
+/// each timeline the type plays is.
+/// </summary>
 public sealed partial class EngineAssetWriter
 {
+    /// <summary>The colliders an ordinary enemy's scene has: what moves it through the room, and what a hit lands on.</summary>
+    private static readonly string[] Ordinary = ["Body", "Hurtbox"];
+
     /// <summary>Writes every enemy's data file.</summary>
     private void WriteEnemies()
     {
         WriteAtomic();
+        WriteCrawlers();
+        WriteSimpleEnemies();
+        WritePipeBugs();
+        WriteShutters();
     }
 
     /// <summary>The Atomic: its four ways of spinning.</summary>
-    private void WriteAtomic()
+    private void WriteAtomic() =>
+        Enemy("enemies/atomic.json", "Atomic", EnemyDefinitionId.Atomic).BodyColliders(Ordinary)
+            .Looks(AtomicAnimations.Segments, AtomicAnimations.StartingWith,
+                ("up_right_turning", AtomicSegment.UpRightTurning), ("up_left_turning", AtomicSegment.UpLeftTurning),
+                ("up_right_turning_back", AtomicSegment.UpRightTurningBack), ("up_left_turning_back", AtomicSegment.UpLeftTurningBack))
+            .Write();
+
+    /// <summary>The crawlers: one Godot type, each kind with its own pictures of itself on each surface.</summary>
+    private void WriteCrawlers()
     {
-        EngineEnemy atomic = Enemy("enemies/atomic.json", EnemyDefinitionId.Atomic).BodyColliders("Body", "Hurtbox");
-        atomic.Timeline<AtomicSegment, SuperMetroid.Core.Animation.NoAnimationCue>(
-            "up_right_turning", AtomicAnimations.Segments, AtomicAnimations.StartingWith(AtomicSegment.UpRightTurning));
-        atomic.Timeline<AtomicSegment, SuperMetroid.Core.Animation.NoAnimationCue>(
-            "up_left_turning", AtomicAnimations.Segments, AtomicAnimations.StartingWith(AtomicSegment.UpLeftTurning));
-        atomic.Timeline<AtomicSegment, SuperMetroid.Core.Animation.NoAnimationCue>(
-            "up_right_turning_back", AtomicAnimations.Segments, AtomicAnimations.StartingWith(AtomicSegment.UpRightTurningBack));
-        atomic.Timeline<AtomicSegment, SuperMetroid.Core.Animation.NoAnimationCue>(
-            "up_left_turning_back", AtomicAnimations.Segments, AtomicAnimations.StartingWith(AtomicSegment.UpLeftTurningBack));
-        atomic.Write();
+        (string File, EnemyDefinitionId Id, CrawlerAnimationFamily Family)[] kinds =
+        [
+            ("zoomer", EnemyDefinitionId.Zoomer, CrawlerAnimationFamily.Shared),
+            ("armored_zoomer", EnemyDefinitionId.ArmoredZoomer, CrawlerAnimationFamily.Shared),
+            ("orange_zoomer", EnemyDefinitionId.OrangeZoomer, CrawlerAnimationFamily.Shared),
+            ("zeela", EnemyDefinitionId.Zeela, CrawlerAnimationFamily.Shared),
+            ("sova", EnemyDefinitionId.Sova, CrawlerAnimationFamily.Shared),
+            ("sciser", EnemyDefinitionId.Sciser, CrawlerAnimationFamily.Sciser),
+            ("zero", EnemyDefinitionId.Zero, CrawlerAnimationFamily.Zero),
+            ("viola", EnemyDefinitionId.Viola, CrawlerAnimationFamily.Viola),
+        ];
+        foreach ((string file, EnemyDefinitionId id, CrawlerAnimationFamily family) in kinds)
+        {
+            Enemy($"enemies/{file}.json", "Crawler", id).BodyColliders(Ordinary)
+                // The orange Zoomer is the one that turns toward Samus.
+                .Value("pursues", id == EnemyDefinitionId.OrangeZoomer)
+                .Looks(CrawlerAnimations.Segments, CrawlerAnimations.StartingWith,
+                    ("floor", CrawlerSurfaceAnimations.AnimationFor(family, CrawlerSurfaceOrientation.OnFloor)),
+                    ("ceiling", CrawlerSurfaceAnimations.AnimationFor(family, CrawlerSurfaceOrientation.OnCeiling)),
+                    ("left_wall", CrawlerSurfaceAnimations.AnimationFor(family, CrawlerSurfaceOrientation.OnLeftWall)),
+                    ("right_wall", CrawlerSurfaceAnimations.AnimationFor(family, CrawlerSurfaceOrientation.OnRightWall)))
+                .Write();
+        }
+    }
+
+    /// <summary>The enemies whose animations raise nothing the Godot game hears, and whose values are their types' own.</summary>
+    private void WriteSimpleEnemies()
+    {
+        Enemy("enemies/boulder.json", "Boulder", EnemyDefinitionId.Boulder).BodyColliders(Ordinary)
+            .Looks(BoulderAnimations.Segments, BoulderAnimations.StartingWith, ("left", BoulderSegment.Left), ("right", BoulderSegment.Right))
+            .Write();
+        Enemy("enemies/bull.json", "Bull", EnemyDefinitionId.Bull).BodyColliders(Ordinary)
+            .Looks(BullAnimations.Segments, BullAnimations.StartingWith, ("idle", BullSegment.Idle))
+            .Timeline("shot", BullAnimations.Segments, BullAnimations.Shot)
+            .Write();
+        Enemy("enemies/multiviola.json", "Multiviola", EnemyDefinitionId.Multiviola).BodyColliders(Ordinary)
+            .Looks(MultiviolaAnimations.Segments, MultiviolaAnimations.StartingWith, ("flying", MultiviolaSegment.Flying))
+            .Write();
+        Enemy("enemies/fireflea.json", "Fireflea", EnemyDefinitionId.Fireflea).BodyColliders(Ordinary)
+            .Looks(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith, ("flying", FirefleaSegment.BrightestWingbeat))
+            .Write();
+        foreach ((string file, EnemyDefinitionId id) in new[]
+                 {
+                     ("mellow", EnemyDefinitionId.Mellow), ("mella", EnemyDefinitionId.Mella), ("maridia_fly", EnemyDefinitionId.MaridiaFly),
+                 })
+        {
+            Enemy($"enemies/{file}.json", "Fly", id).BodyColliders(Ordinary)
+                .Looks(FlyAnimations.Segments, FlyAnimations.StartingWith, ("flying", FlySegment.Flight))
+                .Write();
+        }
+
+        Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders(Ordinary)
+            .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast))
+            .Write();
+        Enemy("enemies/mochtroid.json", "Mochtroid", EnemyDefinitionId.Mochtroid).BodyColliders(Ordinary)
+            .Looks(MochtroidAnimations.Segments, MochtroidAnimations.StartingWith,
+                ("free", MochtroidSegment.FreeFlight), ("attached", MochtroidSegment.Attached))
+            .Write();
+        Enemy("enemies/puyo.json", "Puyo", EnemyDefinitionId.Puyo).BodyColliders(Ordinary)
+            .Looks(PuyoAnimations.Segments, PuyoAnimations.StartingWith,
+                ("grounded_slow", PuyoSegment.GroundedSlow), ("grounded_medium", PuyoSegment.GroundedMedium),
+                ("grounded_fast", PuyoSegment.GroundedFast), ("upright", PuyoSegment.Upright),
+                ("tilted_left", PuyoSegment.TiltedLeft), ("tilted_right", PuyoSegment.TiltedRight),
+                ("tilted_far_left", PuyoSegment.TiltedFarLeft), ("tilted_far_right", PuyoSegment.TiltedFarRight))
+            .Write();
+        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+            .Looks(DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingWith, ("corpse", DeadTorizoSegment.Stationary))
+            .Write();
+
+        // The Rippers: the plain one and the jet one fly alike; the grapple one has pictures of its own.
+        foreach ((string file, EnemyDefinitionId id, RipperSegment left, RipperSegment right) in new[]
+                 {
+                     ("ripper", EnemyDefinitionId.Ripper, RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight),
+                     ("jet_ripper", EnemyDefinitionId.JetRipper, RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight),
+                     ("grapple_ripper", EnemyDefinitionId.GrappleRipper, RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight),
+                 })
+        {
+            Enemy($"enemies/{file}.json", "Ripper", id).BodyColliders(Ordinary)
+                .Value("can_be_latched", id == EnemyDefinitionId.GrappleRipper)
+                .Looks(RipperAnimations.Segments, RipperAnimations.StartingWith, ("left", left), ("right", right))
+                .Write();
+        }
+    }
+
+    /// <summary>The bugs that live in pipes: four kinds over three Godot types.</summary>
+    private void WritePipeBugs()
+    {
+        Enemy("enemies/zeb.json", "PipeBug", EnemyDefinitionId.Zeb).BodyColliders("Hurtbox")
+            .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
+                ("rising_left", PipeBugSegment.ZebRisingLeft), ("rising_right", PipeBugSegment.ZebRisingRight),
+                ("shooting_left", PipeBugSegment.ZebShootingLeft), ("shooting_right", PipeBugSegment.ZebShootingRight))
+            .Write();
+        Enemy("enemies/zebbo.json", "PipeBug", EnemyDefinitionId.Zebbo).BodyColliders("Hurtbox")
+            .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
+                ("rising_left", PipeBugSegment.ZebboRisingLeft), ("rising_right", PipeBugSegment.ZebboRisingRight),
+                ("shooting_left", PipeBugSegment.ZebboShootingLeft), ("shooting_right", PipeBugSegment.ZebboShootingRight))
+            .Write();
+        Enemy("enemies/gamet.json", "Gamet", EnemyDefinitionId.Gamet).BodyColliders("Hurtbox")
+            .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
+                ("rising_left", PipeBugSegment.GametRisingLeft), ("rising_right", PipeBugSegment.GametRisingRight),
+                ("flying_left", PipeBugSegment.GametFlyingLeft), ("flying_right", PipeBugSegment.GametFlyingRight))
+            .Write();
+        Enemy("enemies/geega.json", "Geega", EnemyDefinitionId.Geega).BodyColliders("Hurtbox")
+            .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
+                ("flying_left", PipeBugSegment.GeegaFlyingLeft), ("flying_right", PipeBugSegment.GeegaFlyingRight),
+                ("arcing_left", PipeBugSegment.GeegaArcingLeft), ("arcing_right", PipeBugSegment.GeegaArcingRight))
+            .Write();
+    }
+
+    /// <summary>The shutters: three that slide, each one picture, and the one that grows a section at a time.</summary>
+    private void WriteShutters()
+    {
+        foreach ((string file, EnemyDefinitionId id, ShutterSegment look) in new[]
+                 {
+                     ("shutter_shootable", EnemyDefinitionId.ShutterShootable, ShutterSegment.FullyGrown),
+                     ("shutter_destroyable", EnemyDefinitionId.ShutterDestroyable, ShutterSegment.FullyGrown),
+                     ("kamer", EnemyDefinitionId.Kamer, ShutterSegment.KamerPlatform),
+                 })
+        {
+            Enemy($"enemies/{file}.json", "Shutter", id).BodyColliders("Body", "Hurtbox", "Solid")
+                .Looks(ShutterAnimations.Segments, ShutterAnimations.StartingWith, ("idle", look))
+                .Write();
+        }
+
+        Enemy("enemies/shutter_growing.json", "GrowingShutter", EnemyDefinitionId.ShutterGrowing).BodyColliders("Body", "Hurtbox", "Solid")
+            .Looks(ShutterAnimations.Segments, ShutterAnimations.StartingWith,
+                ("quarter", ShutterSegment.QuarterGrown), ("half", ShutterSegment.HalfGrown),
+                ("three_quarters", ShutterSegment.ThreeQuartersGrown), ("full", ShutterSegment.FullyGrown))
+            .Write();
     }
 }

@@ -17,15 +17,16 @@ internal sealed partial class EngineEnemy
     private readonly JsonObject _colliders = [];
 
     /// <summary>
-    /// The data file <paramref name="file"/> of the enemy the old game lists as <paramref name="id"/>, shown by the
-    /// pictures <paramref name="pictures"/>.
+    /// The data file <paramref name="file"/> of the enemy the old game lists as <paramref name="id"/>, which the Godot
+    /// type <paramref name="type"/> reads, shown by the pictures <paramref name="pictures"/>.
     /// </summary>
-    internal EngineEnemy(EngineAssetTree tree, string file, EnemyDefinitionId id, EngineSheetPictures pictures)
+    internal EngineEnemy(EngineAssetTree tree, string file, string type, EnemyDefinitionId id, EngineSheetPictures pictures)
     {
         _tree = tree;
         _file = file;
         Pictures = pictures;
         Definition = RoomEnemyDefinitionCatalog.ById[id];
+        EngineDefaults.Fill(Data, type);
         Data["health"] = Definition.Health;
         Data["contact_damage"] = Definition.Damage;
         Data["hurt_flash_updates"] = Definition.HurtFlashFrames;
@@ -48,6 +49,8 @@ internal sealed partial class EngineEnemy
     /// <summary>Gives a value by name.</summary>
     internal EngineEnemy Value(string name, JsonNode? value)
     {
+        if (!Data.ContainsKey(name))
+            throw new InvalidDataException($"The data file {_file} is given the value {name}, which its type does not read by that name.");
         Data[name] = value;
         return this;
     }
@@ -84,6 +87,34 @@ internal sealed partial class EngineEnemy
         string name, AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Animation<TSegment> animation)
         where TSegment : struct =>
         Timeline(name, segments, animation, static (TEvent _) => null);
+
+    /// <summary>
+    /// Adds a timeline for each of the old game's animations that begins at a named segment and whose events the Godot
+    /// game hears none of: the name the Godot game plays it by, and the segment.
+    /// </summary>
+    internal EngineEnemy Looks<TSegment, TEvent>(
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Func<TSegment, Animation<TSegment>> startingWith,
+        params ReadOnlySpan<(string Name, TSegment Segment)> named)
+        where TSegment : struct
+    {
+        foreach ((string name, TSegment segment) in named)
+            Timeline(name, segments, startingWith(segment));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a timeline for each of the old game's animations that begins at a named segment, with what each of its
+    /// events becomes.
+    /// </summary>
+    internal EngineEnemy Looks<TSegment, TEvent>(
+        AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Func<TSegment, Animation<TSegment>> startingWith, Func<TEvent, string?> cue,
+        params ReadOnlySpan<(string Name, TSegment Segment)> named)
+        where TSegment : struct
+    {
+        foreach ((string name, TSegment segment) in named)
+            Timeline(name, segments, startingWith(segment), cue);
+        return this;
+    }
 
     /// <summary>Adds a timeline already made.</summary>
     internal EngineEnemy Timeline(string name, JsonObject timeline)

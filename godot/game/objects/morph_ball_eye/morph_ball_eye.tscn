@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/objects/morph_ball_eye/MorphBallEye.cs" id="1"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
+
+[node name="MorphBallEye" type="Node2D"]
+script = ExtResource("1")
+DataFile = "objects/morph_ball_eye.json"
+
+[node name="Mount" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Beam" type="Polygon2D" parent="."]
+visible = false

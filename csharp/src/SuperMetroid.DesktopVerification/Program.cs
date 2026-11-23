@@ -93,7 +93,13 @@ internal static class Program
                 if (DesktopSmokeAuditCommands.TryRun(args)) return;
                 if (args is [DesktopMovieReplay.Flag, var movieName])
                 {
-                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName));
+                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName), null);
+                    return;
+                }
+                if (args is [DesktopMovieReplay.Flag, var timedMovie, DesktopMovieReplay.UntilFlag, var updates])
+                {
+                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(timedMovie),
+                        int.Parse(updates, System.Globalization.CultureInfo.InvariantCulture));
                     return;
                 }
                 VerifyAudioQueueHealth();

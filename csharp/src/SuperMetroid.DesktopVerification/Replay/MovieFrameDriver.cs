@@ -20,8 +20,23 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     private readonly TaskCompletionSource<string> outcome = new(TaskCreationOptions.RunContinuationsAsynchronously);
     /// <summary>Whether the host already started the session's game.</summary>
     private bool started;
-    /// <summary>Drives the host from <paramref name="session"/>.</summary>
-    internal MovieFrameDriver(ConvertedMovieSession session) => this.session = Ensure.NotNull(session);
+    /// <summary>The updates to run before stopping, or null to run the whole movie.</summary>
+    private readonly int? until;
+    /// <summary>Times each update from the host finishing the one before.</summary>
+    private readonly System.Diagnostics.Stopwatch sinceLast = new();
+
+    /// <summary>
+    /// How long an update may take the host before a timed run reports it (#2619): over two frames at 60 Hz, a dropped
+    /// frame a player sees.
+    /// </summary>
+    private static readonly TimeSpan SlowUpdate = TimeSpan.FromMilliseconds(34);
+
+    /// <summary>Drives the host from <paramref name="session"/>, stopping after <paramref name="until"/> updates when given.</summary>
+    internal MovieFrameDriver(ConvertedMovieSession session, int? until)
+    {
+        this.session = Ensure.NotNull(session);
+        this.until = until;
+    }
 
     /// <summary>The movie's final report line, or the exception that ended it.</summary>
     internal Task<string> Completion => outcome.Task;
@@ -56,6 +71,11 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     {
         if (outcome.Task.IsCompleted)
             return null;
+        if (until is { } last && InputsSupplied >= last)
+        {
+            outcome.SetResult($"Stopped after {InputsSupplied} updates.");
+            return null;
+        }
         ControllerButton? input = session.NextInput();
         if (input is null)
         {
@@ -69,6 +89,10 @@ internal sealed class MovieFrameDriver : IHostFrameDriver
     /// <summary>Lets the session compare the frame the host just ran; its first divergence ends the movie.</summary>
     public void FrameCompleted(FrontendFrame frame)
     {
+        // A timed run reports each update the host took long over, with where the movie stood (#2619).
+        if (until is not null && sinceLast.IsRunning && sinceLast.Elapsed > SlowUpdate)
+            Console.WriteLine($"slow update {InputsSupplied} (source frame {session.Position?.SourceFrame}, {frame.Phase}): {sinceLast.Elapsed.TotalMilliseconds:F0} ms");
+        sinceLast.Restart();
         try
         {
             session.FrameCompleted();

@@ -14,6 +14,12 @@ internal static class DesktopMovieReplay
     /// <summary>The command-line flag naming the movie to replay.</summary>
     internal const string Flag = "--desktop-movie";
 
+    /// <summary>
+    /// The flag that stops the movie after a number of updates and reports each update the host took long over (#2619):
+    /// where a player saw the game stall.
+    /// </summary>
+    internal const string UntilFlag = "--until";
+
     /// <summary>The movie a command-line name selects.</summary>
     /// <param name="name">One of <c>glitch</c>, <c>13</c>, <c>100</c>, <c>lowc</c> or <c>ridley</c>.</param>
     internal static ReplayMovieId Parse(string name) => name switch
@@ -32,13 +38,15 @@ internal static class DesktopMovieReplay
     /// failure or renderer fault is thrown to the process boundary. The movie runs unpaced (#1511); the verifier's
     /// 30-minute run limit is the only bound.
     /// </summary>
-    internal static async Task Run(ReplayMovieId movie)
+    /// <param name="movie">The movie.</param>
+    /// <param name="until">The updates to run before stopping, reporting each slow update, or null for the whole movie.</param>
+    internal static async Task Run(ReplayMovieId movie, int? until)
     {
         // The host writes player data and debugger slots into its installation root, so the movie runs on a
         // private copy of the repository installation.
         using var copy = InstalledFixtures.CreatePrivateCopy();
         using var session = ConvertedMovieSession.Open(movie);
-        var driver = new MovieFrameDriver(session);
+        var driver = new MovieFrameDriver(session, until);
         using var form = new GameForm(copy.Installation, new HostOptions { AudioEnabled = false }, driver);
         var control = form.gameControl;
         _ = form.Handle;

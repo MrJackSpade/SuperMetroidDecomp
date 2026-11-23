@@ -20,6 +20,14 @@ public partial class Carrier : RoomObject
     [Export]
     public double Speed { get; set; } = 1;
 
+    /// <summary>How much faster it goes each update it is carrying, as a number of pixels; zero for one that keeps its speed.</summary>
+    [Export]
+    public double SpeedGain { get; set; }
+
+    /// <summary>The speed it gains no more beyond; zero for no limit.</summary>
+    [Export]
+    public double TopSpeed { get; set; }
+
     /// <summary>The width and height of the region in which it takes hold of the player, in pixels; its top-left is where the carrier stands.</summary>
     [Export]
     public Vector2I Size { get; set; } = new(32, 16);
@@ -79,6 +87,13 @@ public partial class Carrier : RoomObject
         if (_path is not null)
         {
             _path.Step();
+            if (SpeedGain > 0)
+            {
+                Pixels faster = _path.Speed + Pixels.FromNumber(SpeedGain);
+                if (TopSpeed <= 0 || faster <= Pixels.FromNumber(TopSpeed))
+                    _path.Speed = faster;
+            }
+
             Position = _path.Position;
             player.Position = Position + PixelOffset.FromWhole(HoldsAt.X, HoldsAt.Y);
             if (!_path.IsFinished)

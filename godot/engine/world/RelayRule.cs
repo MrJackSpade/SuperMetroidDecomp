@@ -4,7 +4,8 @@ namespace Engine.World;
 
 /// <summary>
 /// One thing a <see cref="Relay"/> does on hearing a word. Any of its parts may be left empty: it tells a thing a
-/// word, puts a terrain patch in place or takes one back, changes the music, shakes the room, and records a fact.
+/// word, puts a terrain patch in place or takes one back, changes the music, shakes the room, puts a thing into the
+/// room, and records a fact.
 /// </summary>
 [GlobalClass]
 public partial class RelayRule : Resource
@@ -44,6 +45,14 @@ public partial class RelayRule : Resource
     /// <summary>For how many updates it shakes.</summary>
     [Export]
     public int ShakeUpdates { get; set; }
+
+    /// <summary>A thing put into the room, as its scene; null for none.</summary>
+    [Export]
+    public PackedScene? Spawns { get; set; }
+
+    /// <summary>Where it is put, in the room.</summary>
+    [Export]
+    public Vector2I SpawnsAt { get; set; }
 
     /// <summary>The fact recorded, by name; empty for none.</summary>
     [Export]

@@ -19,6 +19,10 @@ public partial class EscapeRoom : RoomSequence
     [Export]
     public int ShakeStrength { get; set; } = 1;
 
+    /// <summary>Whether the shaking turns harder, corner to corner, for a moment now and then.</summary>
+    [Export]
+    public bool TurnsHarder { get; set; } = true;
+
     /// <summary>The effects of its blasts, by the data files of their timelines: a small blast, a puff of dust, smoke, a short cloud of dust and a big one.</summary>
     [Export(PropertyHint.File)]
     public string SmallExplosionEffect { get; set; } = "";
@@ -59,6 +63,11 @@ public partial class EscapeRoom : RoomSequence
         if (_harderLeft > 0)
         {
             if (--_harderLeft == 0)
+                room.Shake(ShakeStrength, 600);
+        }
+        else if (!TurnsHarder)
+        {
+            if (room.ShakeStrength == 0)
                 room.Shake(ShakeStrength, 600);
         }
         else

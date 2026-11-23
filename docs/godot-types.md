@@ -388,8 +388,9 @@ A scene. One per room of the game.
   `CollisionWorld`, and the lists of live enemies, projectiles, pickups and effects.
 - **Manages:** setting itself up when entered, placing the player from the `RoomEntry`, admitting and removing live
   things, deciding which enemies are active (one far enough outside the camera's view does not update), marking the
-  map cell the player is in as explored, starting an earthquake when something asks, and tearing itself down when
-  left.
+  map cell the player is in as explored, starting an earthquake when something asks, putting itself on screen
+  where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
+  tearing itself down when left.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 
@@ -429,6 +430,9 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   `Hit` landed here" and answers from the block's rules. The player's body breaking a block is a `Hit` like any
   other (section 6, "The body as a weapon").
 
+**Terrain shown shifted.** `Terrain` can be shown a few pixels from where it is, for a wall that rattles; that
+changes nothing about where it is.
+
 **Terrain that changes.** A layout file may hold named patches: a rectangle of tiles to put in place of what is
 there. Anything may tell `Terrain` to apply a patch or take it back by name: a boss dropping the ceiling, a
 sequence opening a wall, a bridge giving way. Nothing edits tiles one at a time, and nothing but `Terrain` holds
@@ -449,7 +453,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
 | `Station` | Holding the player while it works, then granting or recording the result. | What it does: save; reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
-| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. | Path; speed; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
+| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues, and one whose reach changes as it is shown says so by cues ("area:left:top:width:height", "safe"). | The `Hit` or ongoing damage it does, or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after; the most updates it waits, by chance, before it first appears. |
@@ -514,7 +518,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
 | `CameraZone` | A region with its own scrolling limits, which can be opened or closed. | Anything else. |
 | `Trigger` | A region that calls one named method when the player enters it, optionally only when a `Condition` holds. | Hold logic. |
-| `Relay` | Turning a word it is told into what the room does about it, by its rules: telling another thing a word, putting a terrain patch in place or taking one back, changing the music, shaking the room, recording a fact. A boss that only knows it has woken tells a relay; the relay's rules open the camera zone and close the door. | Hold behaviour, or accept a word it has no rule for. |
+| `Relay` | Turning a word it is told into what the room does about it, by its rules: telling another thing a word, putting a terrain patch in place or taking one back, changing the music, shaking the room, putting a thing into the room, recording a fact. A boss that only knows it has woken tells a relay; the relay's rules open the camera zone and close the door. | Hold behaviour, or accept a word it has no rule for. |
 
 **Why, and extending it.** A room is a container that forgets. That one decision is why "remembered as" and
 "present when" exist: instead of each object managing its own persistence and each room having variants, there is
@@ -882,7 +886,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   vent waits a different, chance length before it first blows).
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
-- `Scenery`: the Tourian entrance statue. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
+- `Scenery`: the Tourian entrance statue, as the pictures its hall's sequence shows and moves. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
   (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, because each has a state
   machine no setting of `Scenery` gives; the face blocks and the corpses are enemies.
 
@@ -916,8 +920,12 @@ Ceres (`game/sequences/`): the elevator arrival (`CeresArrival`: the pad that se
 up, is typed out and stays up flashing, and the countdown begins); the station shaking once the self-destruct has
 begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft tilting and the elevator taking Samus
 (`CeresShaft`, which tells the `Escape` service she has left). Crateria: the gunship landing. Brinstar and
-Norfair: the Dachora shaft camera, Crocomire's room shaking. Maridia: the transport tube ride. Tourian: the
-entrance statue's descent, the rising acid. The escape: explosions and shaking in each escape room.
+Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is open to the view, the zone beside
+it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
+rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
+statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
+statue's descent), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. The escape:
+explosions and shaking in each escape room (`EscapeRoom`).
 
 ### Projectiles and effects
 

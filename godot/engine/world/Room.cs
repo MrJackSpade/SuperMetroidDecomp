@@ -514,11 +514,14 @@ public partial class Room : Node2D
     {
         Session.Camera.Follow(Player.Position, Terrain.WidthInPixels, Terrain.HeightInPixels, _zones);
         var viewTopLeft = new Vector2I(Session.Camera.Left, Session.Camera.Top);
+
+        // The room is put on screen where the view has it, thrown about by any shaking. The player is not thrown about
+        // with it: they are shown where they would be were the room still.
+        Vector2I shake = _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.ViewOffset ?? Vector2I.Zero;
+        Position = new Vector2(shake.X - viewTopLeft.X, shake.Y - viewTopLeft.Y);
         foreach (Backdrop backdrop in _backdrops)
             backdrop.Follow(viewTopLeft);
-        Player.ShowPosition();
-        if (ShownTurn is { } turn)
-            EntityNode.Show(Player, turn.Turned(Player.Position));
+        EntityNode.Show(Player, (ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position) - PixelOffset.FromWhole(shake.X, shake.Y));
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();
         foreach (Projectile projectile in _projectiles)

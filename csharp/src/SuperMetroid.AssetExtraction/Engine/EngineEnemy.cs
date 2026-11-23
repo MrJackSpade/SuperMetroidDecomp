@@ -13,6 +13,8 @@ namespace SuperMetroid.AssetExtraction.Engine;
 internal sealed partial class EngineEnemy
 {
     private readonly EngineAssetTree _tree;
+    private readonly EngineSheets _sheets;
+    private readonly EnemyDefinitionId _id;
     private readonly string _file;
     private readonly JsonObject _timelines = [];
     private readonly JsonObject _colliders = [];
@@ -21,9 +23,11 @@ internal sealed partial class EngineEnemy
     /// The data file <paramref name="file"/> of the enemy the old game lists as <paramref name="id"/>, which the Godot
     /// type <paramref name="type"/> reads, shown by the pictures <paramref name="pictures"/>.
     /// </summary>
-    internal EngineEnemy(EngineAssetTree tree, string file, string type, EnemyDefinitionId id, EngineSheetPictures pictures)
+    internal EngineEnemy(EngineAssetTree tree, EngineSheets sheets, string file, string type, EnemyDefinitionId id, EngineSheetPictures pictures)
     {
         _tree = tree;
+        _sheets = sheets;
+        _id = id;
         _file = file;
         Pictures = pictures;
         Definition = RoomEnemyDefinitionCatalog.ById[id];
@@ -146,6 +150,8 @@ internal sealed partial class EngineEnemy
             Data["colliders"] = _colliders;
         if (_timelines.Count > 0)
             Data["timelines"] = _timelines;
+        if (_shots.Count > 0)
+            Data["shots"] = _shots;
         _tree.WriteData(_file, Data);
     }
 }

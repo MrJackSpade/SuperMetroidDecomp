@@ -67,7 +67,7 @@ public sealed record ProjectileSettings
         /// <summary>In a straight line at its launch speed.</summary>
         Straight,
 
-        /// <summary>In a straight line, gaining speed each update.</summary>
+        /// <summary>In a straight line, gaining speed each update, once it has moved that update.</summary>
         Accelerating,
 
         /// <summary>Along its line while swinging from side to side.</summary>
@@ -79,7 +79,7 @@ public sealed record ProjectileSettings
         /// <summary>Not at all.</summary>
         Still,
 
-        /// <summary>Under gravity.</summary>
+        /// <summary>Under gravity, which changes its speed each update once it has moved that update.</summary>
         Falling,
     }
 

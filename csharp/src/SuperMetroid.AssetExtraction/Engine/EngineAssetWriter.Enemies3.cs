@@ -6,18 +6,52 @@ using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.Kzan;
 using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>The enemies whose old cues carry something with them: a way to throw, a place to reach.</summary>
 public sealed partial class EngineAssetWriter
 {
+    /// <summary>
+    /// What a Cacatac's spike is: it flies straight through everything and is gone once out of view, and it is shown
+    /// by a picture for the way it was thrown. One thrown to a side is shown as <paramref name="left"/> or
+    /// <paramref name="right"/>, which differ by whether the Cacatac is on the floor or the ceiling.
+    /// </summary>
+    private static void CacatacSpike(EngineEnemy cacatac, System.Text.Json.Nodes.JsonObject projectile, string name, CacatacSpikeDirection left, CacatacSpikeDirection right)
+    {
+        (string Direction, CacatacSpikeDirection Spike)[] thrown =
+        [
+            ("left", left), ("right", right), ("up_left", CacatacSpikeDirection.UpLeft), ("up", CacatacSpikeDirection.Up),
+            ("up_right", CacatacSpikeDirection.UpRight), ("down_left", CacatacSpikeDirection.DownLeft), ("down", CacatacSpikeDirection.Down),
+            ("down_right", CacatacSpikeDirection.DownRight),
+        ];
+        foreach ((string direction, CacatacSpikeDirection spike) in thrown)
+            cacatac.SpawnedTimeline($"{name}_{direction}", CacatacProjectileAnimations.Segments, CacatacProjectileAnimations.StartingAt[spike], EngineEnemy.EndsOnly);
+        projectile["timeline"] = $"{cacatac.Folder}/{name}_{{direction}}.json";
+        projectile["picture_offset"] = EngineEnemy.NoOffset();
+        projectile["meeting_terrain"] = "passes_through";
+        projectile["view_margin"] = 0;
+    }
+
     /// <summary>Writes the enemies that spit, throw and erupt by their animations.</summary>
     private void WriteSpittingEnemies()
     {
         // The Alcoon: its leap out looks up, and coming down it looks ahead. Its fire is thrown up, level or down.
         Enemy("enemies/alcoon.json", "Alcoon", EnemyDefinitionId.Alcoon).BodyColliders(Ordinary)
             .Value("emerge_sound", EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonEmergeSound))
+            .Shot("fireball", RoomEnemyProjectileKind.AlcoonFireball, static (alcoon, shot, projectile) =>
+            {
+                shot["speed"] = EngineNames.Number(AlcoonFireballLaunchDefinitions.LaunchSpeed);
+                shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonFireSound);
+                shot["scene"] = "res://game/enemies/alcoon/alcoon_fireball.tscn";
+                projectile["timeline"] = alcoon.SpawnedTimeline("fireball", AlcoonFireballAnimations.Segments,
+                    AlcoonFireballAnimations.StartingAt[AlcoonFireballSegment.Spinning], EngineEnemy.EndsOnly);
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+            })
+            .ProjectileData("enemies/alcoon_fireball.json", "AlcoonFireball",
+                ("slowing", EngineNames.Number(AlcoonFireballLaunchDefinitions.Deceleration)),
+                ("steady_speed", EngineNames.Number(AlcoonFireballLaunchDefinitions.TerminalSpeed)))
             .Looks(AlcoonAnimations.Segments, AlcoonAnimations.StartingWith,
                 static (AlcoonCue cue) => cue switch
                 {
@@ -35,6 +69,12 @@ public sealed partial class EngineAssetWriter
 
         // The Cacatac: each spike of its attack is thrown one way.
         Enemy("enemies/cacatac.json", "Cacatac", EnemyDefinitionId.Cacatac).BodyColliders(Ordinary)
+            .Value("spike_speed", EngineNames.Number(CacatacProjectileDefinitions.CardinalSpeed))
+            .Value("diagonal_spike_speed", EngineNames.Number(CacatacProjectileDefinitions.DiagonalSpeed))
+            .Shot("spike", RoomEnemyProjectileKind.CacatacSpike, static (cacatac, _, projectile) =>
+                CacatacSpike(cacatac, projectile, "spike", CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.RightFacingUp))
+            .Shot("spike_from_ceiling", RoomEnemyProjectileKind.CacatacSpike, static (cacatac, _, projectile) =>
+                CacatacSpike(cacatac, projectile, "spike_from_ceiling", CacatacSpikeDirection.LeftFacingDown, CacatacSpikeDirection.RightFacingDown))
             .Looks(CacatacAnimations.Segments, CacatacAnimations.StartingWith,
                 static (CacatacCue cue) => cue switch
                 {

@@ -116,6 +116,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(x, y) };
             AddChild(_visual);
             _visual.Bind(room.Content);
+            if (_timeline is not null)
+                _visual.Show(_timeline.Current);
         }
 
         OnLaunched(room);
@@ -170,10 +172,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         BeforeTravel(room);
         if (HasEnded)
             return;
-        ChangeSpeed(room);
+        Steer(room);
         Travel(room);
         if (HasEnded)
             return;
+        GainSpeed();
 
         if (_settings.LastsUpdates > 0)
         {
@@ -260,17 +263,36 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         };
     }
 
-    /// <summary>Changes the projectile's speed for this update, as its motion says.</summary>
-    private void ChangeSpeed(Room room)
+    /// <summary>Sets the way the projectile goes this update, for a motion that decides it before moving.</summary>
+    private void Steer(Room room)
     {
         switch (_settings.Motion)
         {
             case ProjectileSettings.Moves.Straight:
             case ProjectileSettings.Moves.Wave:
+            case ProjectileSettings.Moves.Accelerating:
+            case ProjectileSettings.Moves.Falling:
                 break;
             case ProjectileSettings.Moves.Still:
                 Velocity = PixelVelocity.Zero;
                 break;
+            case ProjectileSettings.Moves.Homing:
+                PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;
+                Velocity = new PixelVelocity(Toward(Velocity.X, target.X - Position.X), Toward(Velocity.Y, target.Y - Position.Y));
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined projectile motion {_settings.Motion}.");
+        }
+    }
+
+    /// <summary>
+    /// Changes the projectile's speed once it has moved this update, for a motion that gains speed: it leaves at the
+    /// speed it was launched with, and the change is felt from the next update.
+    /// </summary>
+    private void GainSpeed()
+    {
+        switch (_settings.Motion)
+        {
             case ProjectileSettings.Moves.Accelerating:
                 Velocity = new PixelVelocity(Faster(Velocity.X), Faster(Velocity.Y));
                 break;
@@ -280,12 +302,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
                     PlayTimeline(_settings.FallingTimeline);
                 break;
-            case ProjectileSettings.Moves.Homing:
-                PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;
-                Velocity = new PixelVelocity(Toward(Velocity.X, target.X - Position.X), Toward(Velocity.Y, target.Y - Position.Y));
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined projectile motion {_settings.Motion}.");
         }
     }
 

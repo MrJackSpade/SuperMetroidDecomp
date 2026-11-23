@@ -55,6 +55,6 @@ public sealed partial class EngineAssetWriter
             named.Add(_sheets.EnemySheet(sheet));
         if (named.Count == 0)
             named.Add(_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id)));
-        return new EngineEnemy(_tree, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
+        return new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
     }
 }

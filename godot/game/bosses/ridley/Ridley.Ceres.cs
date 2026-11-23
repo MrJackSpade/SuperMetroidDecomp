@@ -9,7 +9,7 @@ using Godot;
 namespace Game.Enemies;
 
 /// <summary>
-/// Ridley aboard Ceres station, the baby Metroid's capsule in its claws. It cannot be killed here: it hovers, then
+/// Ridley's fight aboard Ceres station, the baby Metroid's capsule in its claws. It cannot be killed here: it hovers, then
 /// breathes fire, lunges at Samus or swoops across the room, and hovers again. After enough hits it makes as if to
 /// leave, drops the capsule, snatches it back up and flies off; if Samus's energy runs low it simply goes. Once it is
 /// gone the station's self-destruct begins, which is for others to run: it tells them so.
@@ -20,7 +20,7 @@ namespace Game.Enemies;
 /// plays "baby_idle" and "baby_expressive"; their cue "reacts" livens it when it is falling, and "cries" has it cry
 /// or, as often as not when it is still, settle.
 /// </remarks>
-public partial class CeresRidley : RidleyBody
+public partial class Ridley
 {
     /// <summary>The things told once it has flown off, so that the station's last moments may begin.</summary>
     [Export]
@@ -50,7 +50,7 @@ public partial class CeresRidley : RidleyBody
     [Export, DataValue("baby_cry_sound")]
     public string BabyCrySound { get; set; } = "";
 
-    private enum Phase
+    private enum CeresPhase
     {
         LiftoffAccelerating,
         LiftoffDecelerating,
@@ -86,9 +86,9 @@ public partial class CeresRidley : RidleyBody
     private static readonly PixelPosition HoverPoint = PixelPosition.FromWhole(192, 100);
     private static readonly PixelPosition RetreatPoint = PixelPosition.FromWhole(192, -128);
 
-    private Phase _phase;
+    private CeresPhase _ceresPhase;
     private bool _fighting;
-    private int _timer;
+    private int _ceresTimer;
     private int _hoverWait;
     private int _fireballWait;
     private int _roarHold;
@@ -99,11 +99,8 @@ public partial class CeresRidley : RidleyBody
     private Pixels _babyFall;
     private TimelinePlayer? _babyTimeline;
 
-    /// <inheritdoc/>
-    protected override bool TailMayWhip => _fighting;
-
-    /// <inheritdoc/>
-    public override HitResult TakeHit(Hit hit, Collider part)
+    /// <summary>What a hit does to it aboard Ceres.</summary>
+    private HitResult CeresTakeHit(Hit hit, Collider part)
     {
         if (part.Name == "TailTip" || part.Name == "TailJoint")
             return base.TakeHit(hit, part);
@@ -113,10 +110,9 @@ public partial class CeresRidley : RidleyBody
         return HitResult.Hurt;
     }
 
-    /// <inheritdoc/>
-    protected override void OnEnterRoom()
+    /// <summary>Sets it up for its fight aboard Ceres.</summary>
+    private void EnterCeres()
     {
-        base.OnEnterRoom();
         Position = PixelPosition.FromWhole(186, 169);
         Facing = Facing.Left;
         PlayFacing("standing");
@@ -127,27 +123,18 @@ public partial class CeresRidley : RidleyBody
         Room.Session.Sounds.RequestMusic("");
     }
 
-    /// <inheritdoc/>
-    protected override void OnOpeningRoar() => _roarHold = RoarHoldUpdates;
-
-    /// <inheritdoc/>
-    protected override bool MayTakeOff() => --_roarHold <= 0;
-
-    /// <inheritdoc/>
-    protected override void OnLiftOff() => _phase = Phase.LiftoffAccelerating;
-
-    /// <inheritdoc/>
-    protected override string? CutFireballingShort()
+    /// <summary>Aboard Ceres its fireballing may be cut short: the timeline to play instead, or none.</summary>
+    private string? CeresCutFireballingShort()
     {
         // With Samus nearly spent it stops breathing fire.
         if (Room.Player.Inventory.Amount(Inventory.Energy) >= SamusLowEnergy)
             return null;
-        _timer = 9;
+        _ceresTimer = 9;
         return $"fireballing_end_{Side}";
     }
 
-    /// <inheritdoc/>
-    protected override void OnMoving(PixelPosition proposed)
+    /// <summary>Aboard Ceres, flying hard into the left wall shakes the room.</summary>
+    private void ShakeOnHittingWall(PixelPosition proposed)
     {
         // Flying hard into the left wall shakes the room.
         Pixels fastest = Velocity.X.Abs() > Velocity.Y.Abs() ? Velocity.X.Abs() : Velocity.Y.Abs();
@@ -155,15 +142,15 @@ public partial class CeresRidley : RidleyBody
             Room.Shake(3, 12);
     }
 
-    /// <inheritdoc/>
-    protected override void Behave()
+    /// <summary>One update of it aboard Ceres.</summary>
+    private void BehaveOnCeres()
     {
         Player samus = Room.Player;
         if (!HasLiftedOff)
             StepReveal();
         else
-            StepFight(samus);
-        if (_phase == Phase.Gone)
+            StepCeresFight(samus);
+        if (_ceresPhase == CeresPhase.Gone)
             return;
         if (IsInMotion)
         {
@@ -178,19 +165,19 @@ public partial class CeresRidley : RidleyBody
     }
 
     /// <summary>One update of its fight.</summary>
-    private void StepFight(Player samus)
+    private void StepCeresFight(Player samus)
     {
         int y = Position.Y.Whole;
-        switch (_phase)
+        switch (_ceresPhase)
         {
-            case Phase.LiftoffAccelerating:
+            case CeresPhase.LiftoffAccelerating:
                 Velocity = Velocity.WithY(Velocity.Y - Pixels.FromNumber(0.0625));
                 if (y >= 112)
                     break;
-                _phase = Phase.LiftoffDecelerating;
-                goto case Phase.LiftoffDecelerating;
+                _ceresPhase = CeresPhase.LiftoffDecelerating;
+                goto case CeresPhase.LiftoffDecelerating;
 
-            case Phase.LiftoffDecelerating:
+            case CeresPhase.LiftoffDecelerating:
                 Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(0.078125));
                 if (y >= 80)
                     break;
@@ -198,19 +185,19 @@ public partial class CeresRidley : RidleyBody
                 _fighting = true;
                 break;
 
-            case Phase.Hovering:
+            case CeresPhase.Hovering:
                 if (_hits >= HitsToDriveOff)
                 {
                     _fighting = false;
-                    _phase = Phase.FakeRetreatMove;
-                    goto case Phase.FakeRetreatMove;
+                    _ceresPhase = CeresPhase.FakeRetreatMove;
+                    goto case CeresPhase.FakeRetreatMove;
                 }
 
                 if (samus.Inventory.Amount(Inventory.Energy) < SamusLowEnergy)
                 {
                     _fighting = false;
                     BeginRetreat();
-                    goto case Phase.Retreat;
+                    goto case CeresPhase.Retreat;
                 }
 
                 FlyPlainlyToward(HoverPoint, 16);
@@ -218,11 +205,11 @@ public partial class CeresRidley : RidleyBody
                     break;
                 // Of sixteen chances six are to breathe fire, five to lunge and five to swoop.
                 int roll = Random.Last.Part(0, 4);
-                _phase = roll is >= 4 and < 9 ? Phase.LungeSetup : roll is >= 10 and < 15 ? Phase.SwoopSetup : Phase.FireballMove;
+                _ceresPhase = roll is >= 4 and < 9 ? CeresPhase.LungeSetup : roll is >= 10 and < 15 ? CeresPhase.SwoopSetup : CeresPhase.FireballMove;
                 _fireballWait = 48;
                 break;
 
-            case Phase.FireballMove:
+            case CeresPhase.FireballMove:
                 Pixels least = Pixels.FromNumber(0.5);
                 Velocity = Velocity.WithY(Velocity.Y.IsNegative
                     ? (Velocity.Y < -least ? Velocity.Y : -least)
@@ -231,7 +218,7 @@ public partial class CeresRidley : RidleyBody
                 if (y < 80)
                 {
                     if (--_fireballWait <= 0)
-                        _phase = Phase.SwoopSetup;
+                        _ceresPhase = CeresPhase.SwoopSetup;
                     break;
                 }
 
@@ -239,89 +226,89 @@ public partial class CeresRidley : RidleyBody
                     break;
                 _fireballBase = PixelPosition.FromWhole(Position.X.Whole, y);
                 PlayFacing("fireballing");
-                (_phase, _timer) = (Phase.FireballShooting, 225);
-                goto case Phase.FireballShooting;
+                (_ceresPhase, _ceresTimer) = (CeresPhase.FireballShooting, 225);
+                goto case CeresPhase.FireballShooting;
 
-            case Phase.FireballShooting:
+            case CeresPhase.FireballShooting:
                 // It wavers about where it began to breathe fire.
                 RandomDraw draw = Random.Last;
                 int waver = draw.Part(15, 1) == 1 ? -draw.Part(0, 3) : draw.Part(0, 3);
                 FlyPlainlyToward(_fireballBase + PixelOffset.FromWhole(waver, waver + (waver < 0 ? 1 : 0)), 16);
-                if (--_timer <= 0)
+                if (--_ceresTimer <= 0)
                     BeginHover();
                 break;
 
-            case Phase.LungeSetup:
+            case CeresPhase.LungeSetup:
                 PlayFacing("ceres_lunge");
-                (_phase, _timer) = (Phase.Lunge, 65);
-                goto case Phase.Lunge;
+                (_ceresPhase, _ceresTimer) = (CeresPhase.Lunge, 65);
+                goto case CeresPhase.Lunge;
 
-            case Phase.Lunge:
+            case CeresPhase.Lunge:
                 PixelPosition over = samus.Position.Y.Whole < 132
                     ? PixelPosition.FromWhole(samus.Position.X.Whole, 64)
                     : PixelPosition.FromWhole(samus.Position.X.Whole, samus.Position.Y.Whole - 68);
                 FlyPlainlyToward(over, 3);
                 bool reached = IsNear(over, 2, 2);
-                if (--_timer <= 0 || reached)
+                if (--_ceresTimer <= 0 || reached)
                     BeginHover();
                 break;
 
-            case Phase.SwoopSetup:
-                (_phase, SwoopHeading) = (Phase.SwoopMove, 0);
+            case CeresPhase.SwoopSetup:
+                (_ceresPhase, SwoopHeading) = (CeresPhase.SwoopMove, 0);
                 Tail.WhipsWhenIdle = false;
-                goto case Phase.SwoopMove;
+                goto case CeresPhase.SwoopMove;
 
-            case Phase.SwoopMove:
+            case CeresPhase.SwoopMove:
                 FlyPlainlyToward(PixelPosition.FromWhole(192, 80), 15);
                 if (Position.Y.Whole < 96)
-                    (_phase, _timer, SwoopHeading) = (Phase.SwoopDive, 11, 0);
+                    (_ceresPhase, _ceresTimer, SwoopHeading) = (CeresPhase.SwoopDive, 11, 0);
                 break;
 
-            case Phase.SwoopDive:
-                Swoop(32, -4 * 256, Phase.SwoopSweep, 37);
+            case CeresPhase.SwoopDive:
+                CeresSwoop(32, -4 * 256, CeresPhase.SwoopSweep, 37);
                 break;
 
-            case Phase.SwoopSweep:
-                Swoop(512, -64 * 256, Phase.SwoopClimb, 29);
-                if (_phase == Phase.SwoopClimb)
+            case CeresPhase.SwoopSweep:
+                CeresSwoop(512, -64 * 256, CeresPhase.SwoopClimb, 29);
+                if (_ceresPhase == CeresPhase.SwoopClimb)
                     Tail.WhipOrdered = true;
                 break;
 
-            case Phase.SwoopClimb:
-                Swoop(512, -120 * 256, Phase.SwoopFinalClimb, 2);
+            case CeresPhase.SwoopClimb:
+                CeresSwoop(512, -120 * 256, CeresPhase.SwoopFinalClimb, 2);
                 break;
 
-            case Phase.SwoopFinalClimb:
+            case CeresPhase.SwoopFinalClimb:
                 SetSwoopSpeed(768, true, -120 * 256, Pixels.FromWhole(3));
-                if (--_timer > 0)
+                if (--_ceresTimer > 0)
                     break;
                 BeginHover();
                 Tail.WhipsWhenIdle = true;
                 break;
 
-            case Phase.FakeRetreatMove:
+            case CeresPhase.FakeRetreatMove:
                 FlyPlainlyToward(PixelPosition.FromWhole(192, 128), 15);
                 if (Position.X.Whole >= 192)
-                    _phase = Phase.FakeRetreatRising;
+                    _ceresPhase = CeresPhase.FakeRetreatRising;
                 break;
 
-            case Phase.FakeRetreatRising:
+            case CeresPhase.FakeRetreatRising:
                 RaiseCeiling();
                 FlyPlainlyToward(RetreatPoint, 15);
                 if (Position.Y.Whole >= 32)
                     break;
                 _baby = Baby.Dropping;
-                (_phase, _timer) = (Phase.WaitBeforeRetrieving, 22);
+                (_ceresPhase, _ceresTimer) = (CeresPhase.WaitBeforeRetrieving, 22);
                 break;
 
-            case Phase.WaitBeforeRetrieving:
-                if (--_timer > 0)
+            case CeresPhase.WaitBeforeRetrieving:
+                if (--_ceresTimer > 0)
                     break;
                 PlayFacing("retrieve_baby");
-                _phase = Phase.RetrieveBaby;
-                goto case Phase.RetrieveBaby;
+                _ceresPhase = CeresPhase.RetrieveBaby;
+                goto case CeresPhase.RetrieveBaby;
 
-            case Phase.RetrieveBaby:
+            case CeresPhase.RetrieveBaby:
                 FlyPlainlyToward(_babyPosition - PixelOffset.FromWhole(10, 56), 4);
                 PixelOffset fromFeet = _babyPosition - (Position + PixelOffset.FromWhole(14, 66));
                 if (Math.Abs(fromFeet.X.Whole) >= 8 || Math.Abs(fromFeet.Y.Whole) >= 8)
@@ -331,45 +318,45 @@ public partial class CeresRidley : RidleyBody
                 BeginRetreat();
                 break;
 
-            case Phase.Retreat:
+            case CeresPhase.Retreat:
                 FlyPlainlyToward(RetreatPoint, 15);
                 if (Position.Y.Whole >= -128)
                     break;
-                (_phase, _timer) = (Phase.RetreatDelay, 65);
-                goto case Phase.RetreatDelay;
+                (_ceresPhase, _ceresTimer) = (CeresPhase.RetreatDelay, 65);
+                goto case CeresPhase.RetreatDelay;
 
-            case Phase.RetreatDelay:
-                if (_timer > 0 && --_timer > 0)
+            case CeresPhase.RetreatDelay:
+                if (_ceresTimer > 0 && --_ceresTimer > 0)
                     break;
                 Velocity = PixelVelocity.Zero;
                 Tail.Action = RidleyTail.Doing.None;
-                _phase = Phase.Gone;
+                _ceresPhase = CeresPhase.Gone;
                 foreach (NodePath path in ToldWhenGone)
                     (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Ridley is to tell \"{path}\" that it has gone, but that is nothing that can be told.")).Triggered(GoneMessage);
                 Vanish();
                 break;
 
-            case Phase.Gone:
+            case CeresPhase.Gone:
                 break;
 
             default:
-                throw new InvalidOperationException($"Ridley on Ceres has no phase {_phase}.");
+                throw new InvalidOperationException($"Ridley on Ceres has no phase {_ceresPhase}.");
         }
     }
 
     /// <summary>One update of a leg of its swoop, turning leftward toward a heading. Moves on to the next leg when its time is up.</summary>
-    private void Swoop(int turn, int heading, Phase next, int nextUpdates)
+    private void CeresSwoop(int turn, int heading, CeresPhase next, int nextUpdates)
     {
         SetSwoopSpeed(turn, true, heading, Pixels.FromWhole(3));
-        if (--_timer <= 0)
-            (_phase, _timer) = (next, nextUpdates);
+        if (--_ceresTimer <= 0)
+            (_ceresPhase, _ceresTimer) = (next, nextUpdates);
     }
 
-    private void BeginHover() => (_phase, _hoverWait) = (Phase.Hovering, 124);
+    private void BeginHover() => (_ceresPhase, _hoverWait) = (CeresPhase.Hovering, 124);
 
     private void BeginRetreat()
     {
-        _phase = Phase.Retreat;
+        _ceresPhase = CeresPhase.Retreat;
         RaiseCeiling();
     }
 

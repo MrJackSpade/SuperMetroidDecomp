@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
@@ -9,885 +10,626 @@ using Godot;
 namespace Game.Enemies;
 
 /// <summary>
-/// Ridley in its lair in Norfair. Once it has shown itself and the lava has risen it picks its attacks by what Samus
-/// is doing: a long swoop across the room; bouncing on its tail like a pogo stick, breathing fire every other
-/// bounce; sweeping from wall to wall when she spin jumps; or lunging to seize her, carry her up and drop her. A
-/// power bomb sends it lunging at once, or out of the blast's way. The more it is hurt the harder it flies. With its
-/// health gone it fights on until a lunge takes hold of her or ten have missed; then it roars, blows apart, and the
-/// lava drains away.
+/// Ridley. It fights twice, aboard Ceres station and in its lair in Norfair, and is one enemy set up for one or the
+/// other. Both fights share what is here: a body that flies with a weight of its own, wings that beat faster the
+/// faster it goes, a tail that sways and lashes, fireballs from its mouth, and the way it first shows itself, eyes
+/// in the dark and then the rest. What it does with them in each fight is told beside this, a file for each.
 /// </summary>
 /// <remarks>
-/// As well as what both fights share it plays "death_roar_left" and "death_roar_right". Its data lists
-/// "health_bands", lowest first, each for health "below" a number, with how hard it flies when it hovers
-/// ("hover_divisor") and lunges ("grab_divisor"), a "tint", and its four "pogo" launches, each with its speed
-/// "across" and "up" and the speed it gains each update rising ("rise_gain") and falling ("fall_gain"); the last
-/// band, with no "below", is for when it is unhurt. It also lists "death_explosions", the places from its middle its
-/// death's blasts go off in turn, and "breakup", the pieces it breaks into: each an "effect", where it starts ("x",
-/// "y", for when it faces left) or the link of its "tail" it was, and how many "updates" it lasts.
+/// <para>Its body plays "standing_left", "standing_right", "opening_roar_left", "opening_roar_right",
+/// "turn_left_to_right", "turn_right_to_left", "fireballing_left", "fireballing_right",
+/// "transition_to_flying_left" and "transition_to_flying_right", and what its fight adds. Their cues are "roar",
+/// "stop_roaring", "face_forward", "flip:" and the side it now faces, "claws:" and "standing", "half" or "extended",
+/// "move:" with pixels across and down, "aim", "fireball:afterburn", "fireball:plain", "cut_short" and "lift_off".</para>
+/// <para>Its visual "Wings" shows the pictures its data lists as "wing_pictures", in turn. The visuals "Tail0" to
+/// "Tail6" are its tail's links, with the pictures its data lists as "tail_pictures" and, for the tip, one of
+/// "tail_tip_pictures" by the way it points, the first pointing straight down and the rest in turn toward the
+/// right. Its hurtboxes "TailTip" and "TailJoint" stop shots. Its shot is "fireball".</para>
 /// </remarks>
-public partial class Ridley : RidleyBody
+public partial class Ridley : Enemy
 {
-    /// <summary>The music once it is dead, by name.</summary>
+    /// <summary>Whether this is its fight aboard Ceres station, not the one in Norfair.</summary>
     [Export]
-    public string VictoryMusic { get; set; } = "";
+    public bool OnCeres { get; set; }
 
-    /// <summary>How many updates the room takes to come out of the dark as it roars.</summary>
-    [Export, DataValue("arena_reveal_updates")]
-    public int ArenaRevealUpdates { get; set; } = 46;
+    /// <summary>The music of the fight, by name.</summary>
+    [Export]
+    public string FightMusic { get; set; } = "";
 
-    /// <summary>Below this health it no longer waits for Samus to be low in the room to bounce.</summary>
-    [Export, DataValue("wounded_health")]
-    public int WoundedHealth { get; set; } = 14400;
+    /// <summary>The least and greatest places its middle may be, in the room's pixels.</summary>
+    [Export]
+    public Rect2I FlightBounds { get; set; } = new(64, 64, 160, 352);
 
-    /// <summary>How many lunges it makes with its health gone before it dies without taking hold of her.</summary>
-    [Export, DataValue("death_lunges")]
-    public int DeathLunges { get; set; } = 10;
+    /// <summary>How many updates pass, once Samus is in the room, before its eyes show.</summary>
+    [Export, DataValue("reveal_delay")]
+    public int RevealDelay { get; set; } = 171;
 
-    /// <summary>The effect of dust where its tail strikes the floor, by the data file of its timeline.</summary>
-    [Export, DataValue("dust_effect")]
-    public string DustEffect { get; set; } = "";
+    /// <summary>How many updates its eyes, and then its body, take to come out of the dark.</summary>
+    [Export, DataValue("fade_updates")]
+    public int FadeUpdates { get; set; } = 16;
 
-    /// <summary>The effect of one of the blasts of its death.</summary>
-    [Export, DataValue("explosion_effect")]
-    public string ExplosionEffect { get; set; } = "";
+    /// <summary>How many updates pass between its body showing and its roar.</summary>
+    [Export, DataValue("before_roar_updates")]
+    public int BeforeRoarUpdates { get; set; } = 5;
 
-    /// <summary>The sound of its tail striking the floor, by name.</summary>
-    [Export, DataValue("bounce_sound")]
-    public string BounceSound { get; set; } = "";
+    /// <summary>The harm its tail's tip does.</summary>
+    [Export, DataValue("tail_damage")]
+    public int TailDamage { get; set; } = 120;
 
-    /// <summary>The sound of one of the blasts of its death.</summary>
-    [Export, DataValue("explosion_sound")]
-    public string ExplosionSound { get; set; } = "";
+    /// <summary>Its roar, by name.</summary>
+    [Export, DataValue("roar_sound")]
+    public string RoarSound { get; set; } = "";
 
-    /// <summary>How many things it drops when it is gone.</summary>
-    [Export, DataValue("death_drops")]
-    public int DeathDrops { get; set; } = 16;
-
-    private enum Phase
+    /// <summary>The steps of its showing itself.</summary>
+    private enum Reveal
     {
-        EnterArena,
-        SelectAttack,
-        HoverSetup,
-        Hover,
-        SwoopSetup,
-        SwoopMoveToStart,
-        SwoopAimDown,
-        SwoopAimSideways,
-        SwoopAimUp,
-        SwoopClimb,
-        SwoopRecover,
-        WallSweepSetup,
-        SweepToWallBehind,
-        SweepToWallAhead,
-        PogoMoveToSide,
-        PogoMoveToHeight,
-        PogoFall,
-        PogoRise,
-        GrabApproach,
-        PowerBombDodge,
-        CarrySetup,
-        CarryMoveToAnchor,
-        CarryRise,
-        CarryRelease,
-        MoveToDeathSpot,
-        DeathRoar,
-        DeathExplosions,
-        DeathBreakup,
-        DeathWait,
-        DeathFinish,
-        DeathComplete,
+        Delay,
+        FadeInEyes,
+        FadeInBody,
+        WaitBeforeRoar,
+        WaitBeforeLiftoff,
+        TakingOff,
+        Done,
     }
 
-    private enum Mode
+    /// <summary>How its claws hang: they reach lower the further its legs are out.</summary>
+    private enum Claws
     {
-        NotFighting,
-        Fighting,
-        PowerBombDodge,
-        Dying,
+        Standing,
+        Half,
+        Extended,
     }
 
-    private sealed record Pogo(Pixels Across, Pixels Up, Pixels RiseGain, Pixels FallGain);
+    private static readonly int[] WingPaces = [12, 14, 16, 18, 28, 32, 40, 48];
+    private static readonly Pixels MostSpeed = Pixels.FromWhole(5);
 
-    private sealed record Band(int Below, int HoverDivisor, int GrabDivisor, Color Tint, IReadOnlyList<Pogo> Pogos);
+    private readonly List<string> _wingPictures = [];
+    private readonly List<string> _tailPictures = [];
+    private readonly List<string> _tailTipPictures = [];
+    private int _wingPose;
+    private int _wingCount = 32;
+    private int _wait;
+    private int _fade;
+    private PixelVelocity _fireballSpeed;
 
-    private sealed record Piece(string Effect, int X, int Y, int TailLink, int Updates);
+    /// <summary>Its tail.</summary>
+    private RidleyTail Tail { get; } = new();
 
-    private static readonly PixelPosition ArenaEntry = PixelPosition.FromWhole(64, 256);
-    private static readonly PixelPosition DeathSpot = PixelPosition.FromWhole(128, 328);
+    /// <summary>Where it has got to in showing itself.</summary>
+    private Reveal Revealing { get; set; }
 
-    private readonly List<Band> _bands = [];
-    private readonly List<PixelOffset> _deathExplosions = [];
-    private readonly List<Piece> _breakup = [];
-    private readonly List<(Effect Sprite, PixelVelocity Speed, int Left)> _pieces = [];
-    private Phase _phase;
-    private Mode _mode;
-    private Band _band = null!;
-    private int _timer;
-    private int _swoopTimer;
-    private int _revealLeft;
-    private bool _holdsSamus;
-    private PixelOffset _grabOffset;
-    private PixelPosition _target;
-    private int _pogoBounces;
-    private Facing _pogoWay;
-    private Pixels _pogoRiseGain;
-    private Pixels _pogoFallGain;
-    private int _hurtLag;
-    private int _deathLungesMade;
-    private int _explosionWait;
-    private int _nextExplosion;
+    /// <summary>Whether it has left the ground and its fight has begun.</summary>
+    private bool HasLiftedOff => Revealing == Reveal.Done;
 
-    /// <inheritdoc/>
-    protected override bool CarriesSamus => _holdsSamus;
+    /// <summary>Whether it is turning about, facing out of the screen.</summary>
+    private bool IsTurning { get; set; }
 
-    /// <inheritdoc/>
-    protected override bool TailMayWhip => _mode != Mode.NotFighting;
+    /// <summary>Whether it is in the middle of a roar.</summary>
+    private bool IsRoaring { get; set; }
 
-    /// <inheritdoc/>
-    protected override Color RestingTint => _band?.Tint ?? Colors.White;
+    /// <summary>How its claws hang.</summary>
+    private Claws ClawHeight { get; set; }
+
+    /// <summary>Whether its last move was stopped by the edge of where it may fly.</summary>
+    private bool HitBounds { get; set; }
+
+    /// <summary>Whether it flies and its tail moves; off while it is still unseen, and once it has broken up.</summary>
+    private bool IsInMotion { get; set; }
+
+    /// <summary>Whether its body and tail pass through Samus and her shots.</summary>
+    private bool IsIntangible { get; set; } = true;
+
+    /// <summary>Whether it carries Samus in its claws.</summary>
+    private bool CarriesSamus => !OnCeres && _holdsSamus;
+
+    /// <summary>The way it faces, as its timelines name it.</summary>
+    private string Side => Facing == Facing.Right ? "right" : "left";
+
+    /// <summary>Where its claws are.</summary>
+    private PixelPosition ClawPosition => Position + PixelOffset.FromWhole(
+        IsTurning ? 0 : Facing == Facing.Left ? 12 : -12,
+        ClawHeight switch { Claws.Standing => 35, Claws.Half => 46, _ => 56 });
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _bands.Clear();
-        foreach (DataNode band in data.List("health_bands"))
+        foreach ((List<string> pictures, string name) in new[] { (_wingPictures, "wing_pictures"), (_tailPictures, "tail_pictures"), (_tailTipPictures, "tail_tip_pictures") })
         {
-            List<Pogo> pogos = [.. band.List("pogo").Select(pogo => new Pogo(pogo.Distance("across"), pogo.Distance("up"), pogo.Distance("rise_gain"), pogo.Distance("fall_gain")))];
-            if (pogos.Count != 4)
-                throw band.Problem("must list four pogo launches");
-            _bands.Add(new Band(band.Has("below") ? band.Int("below") : int.MaxValue, band.Int("hover_divisor"), band.Int("grab_divisor"), new Color(band.Text("tint")), pogos));
+            pictures.Clear();
+            pictures.AddRange(data.List(name).Select(picture => picture.AsText()));
         }
 
-        if (_bands.Count == 0 || _bands[^1].Below != int.MaxValue)
-            throw data.Problem("must list its health bands, the last of them for when it is unhurt");
-        _deathExplosions.Clear();
-        _deathExplosions.AddRange(data.List("death_explosions").Select(at => PixelOffset.FromWhole(at.Int("x"), at.Int("y"))));
-        _breakup.Clear();
-        _breakup.AddRange(data.List("breakup").Select(piece => new Piece(
-            piece.Text("effect"), piece.Has("x") ? piece.Int("x") : 0, piece.Has("y") ? piece.Int("y") : 0, piece.Has("tail") ? piece.Int("tail") : -1, piece.Int("updates"))));
+        if (_wingPictures.Count == 0 || _tailPictures.Count != Tail.Links.Count - 1 || _tailTipPictures.Count == 0)
+            throw data.Problem("must list its wing pictures, a picture for each link of its tail but the tip, and the tip's pictures");
+        if (!OnCeres)
+            ReadNorfairValues(data);
+    }
+
+    /// <inheritdoc/>
+    public override HitResult TakeHit(Hit hit, Collider part) => OnCeres ? CeresTakeHit(hit, part) : base.TakeHit(hit, part);
+
+    /// <inheritdoc/>
+    public override bool IsHitBy(HitSide side) => !IsIntangible && base.IsHitBy(side);
+
+    /// <inheritdoc/>
+    protected override Reaction ReactionTo(Hit hit, Collider part)
+    {
+        Reaction reaction = base.ReactionTo(hit, part);
+        // The tip of its tail and the joint behind it are armoured: they stop what hits them.
+        return IsTailArmour(part) ? reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never } : reaction;
+    }
+
+    /// <summary>Whether a part of it is one of the armoured places of its tail.</summary>
+    private static bool IsTailArmour(Collider part) => part.Name == "TailTip" || part.Name == "TailJoint";
+
+    /// <inheritdoc/>
+    protected override void Touch(Collider part)
+    {
+        if (!IsIntangible && !CarriesSamus && !IsTailArmour(part))
+            base.Touch(part);
     }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        base.OnEnterRoom();
-        Position = PixelPosition.FromWhole(96, 394);
-        Facing = Facing.Right;
-        PlayFacing("standing");
-        _band = _bands[^1];
+        AlwaysActive = true;
+        Revealing = Reveal.Delay;
+        _wait = RevealDelay;
+        Play($"standing_{Side}", restart: true);
+        ShowFade(0, 0);
+        if (OnCeres)
+            EnterCeres();
+        else
+            EnterNorfair();
     }
-
-    /// <inheritdoc/>
-    protected override bool DiesAtOnce(Hit hit) => false;
-
-    /// <inheritdoc/>
-    protected override void OnOpeningRoar() => _revealLeft = ArenaRevealUpdates;
-
-    /// <inheritdoc/>
-    protected override bool MayTakeOff()
-    {
-        if (--_revealLeft > 0)
-            return false;
-        // The lava rises as the room comes out of the dark.
-        Room.Liquid?.Triggered("rise");
-        return true;
-    }
-
-    /// <inheritdoc/>
-    protected override void OnLiftOff() => _phase = Phase.EnterArena;
 
     /// <inheritdoc/>
     protected override void Behave()
     {
-        Player samus = Room.Player;
-        bool hurt = IsFlashing;
-        // Hurt, it acts only every other update, and loses its grip on how it carries Samus.
-        bool acts = !hurt || Updates % 2 == 0;
-        _hurtLag = hurt ? Math.Min(8, _hurtLag + 1) : Math.Max(0, _hurtLag - 4);
-        if (acts)
+        if (OnCeres)
+            BehaveOnCeres();
+        else
+            BehaveInNorfair();
+    }
+
+    /// <summary>Called as its roar begins, before it takes off.</summary>
+    private void OnOpeningRoar()
+    {
+        if (OnCeres)
+            _roarHold = RoarHoldUpdates;
+        else
+            _revealLeft = ArenaRevealUpdates;
+    }
+
+    /// <summary>Whether it may take off yet, asked each update once its roar has begun.</summary>
+    private bool MayTakeOff() => OnCeres ? --_roarHold <= 0 : NorfairMayTakeOff();
+
+    /// <summary>Called as it leaves the ground.</summary>
+    private void OnLiftOff()
+    {
+        if (OnCeres)
+            _ceresPhase = CeresPhase.LiftoffAccelerating;
+        else
+            _phase = Phase.EnterArena;
+    }
+
+    /// <summary>Asked at the points where its fireballing may be cut short: the timeline to play instead, or none.</summary>
+    private string? CutFireballingShort() => OnCeres ? CeresCutFireballingShort() : null;
+
+    /// <summary>Its showing itself, one update of it. Its fight calls this until it has lifted off.</summary>
+    private void StepReveal()
+    {
+        switch (Revealing)
         {
-            UpdateIntangibility();
-            if (_mode is Mode.Fighting && !_holdsSamus && PowerBombIsOut())
-            {
-                // A power bomb sends it straight at Samus.
+            case Reveal.Delay:
+                if (--_wait <= 0)
+                    (Revealing, _fade) = (Reveal.FadeInEyes, 0);
+                break;
+
+            case Reveal.FadeInEyes:
+                ShowFade(++_fade, 0);
+                if (_fade < FadeUpdates)
+                    break;
+                (Revealing, _fade) = (Reveal.FadeInBody, 0);
+                IsInMotion = true;
+                break;
+
+            case Reveal.FadeInBody:
+                ShowFade(FadeUpdates, ++_fade);
+                if (_fade < FadeUpdates)
+                    break;
+                IsIntangible = false;
+                Revealing = Reveal.WaitBeforeRoar;
+                _wait = BeforeRoarUpdates;
+                if (FightMusic.Length > 0)
+                    Room.Session.Sounds.RequestMusic(FightMusic);
+                break;
+
+            case Reveal.WaitBeforeRoar:
+                if (--_wait > 0)
+                    break;
+                Play($"opening_roar_{Side}", restart: true);
+                OnOpeningRoar();
+                Revealing = Reveal.WaitBeforeLiftoff;
+                break;
+
+            case Reveal.WaitBeforeLiftoff:
+                if (!MayTakeOff())
+                    break;
+                Play($"transition_to_flying_{Side}", restart: true);
+                _wingCount = 8;
+                Tail.ActivateAll();
                 Tail.Action = RidleyTail.Doing.Neutral;
-                Tail.SwingStep = RidleyTail.SlowSwing;
-                _phase = Phase.GrabApproach;
-            }
-
-            if (HasLiftedOff)
-                StepFight(samus);
-            else
-                StepReveal();
-            if (IsInMotion)
-                StepBody();
-        }
-
-        if (_holdsSamus && (!hurt || _hurtLag >= 8))
-            CarrySamus(samus);
-        StepPieces();
-        _band = _bands.First(band => Health.Current < band.Below);
-    }
-
-    /// <summary>Whether a power bomb of Samus's lies waiting or is going off.</summary>
-    private bool PowerBombIsOut() => PowerBomb() is not null;
-
-    private Projectile? PowerBomb() => Room.Projectiles.FirstOrDefault(shot =>
-        shot.Side == HitSide.Player && !shot.HasEnded && shot.Hit.Carries(new HitKind(HitKinds.PowerBomb)));
-
-    /// <summary>Out of the view it cannot touch or be touched.</summary>
-    private void UpdateIntangibility()
-    {
-        if (_mode == Mode.Dying)
-            return;
-        if (_mode != Mode.NotFighting)
-            IsIntangible = !IsInView(64);
-    }
-
-    /// <summary>One update of its fight.</summary>
-    private void StepFight(Player samus)
-    {
-        bool right = Facing == Facing.Right && !IsTurning;
-        switch (_phase)
-        {
-            case Phase.EnterArena:
-                FlyToward(ArenaEntry, 2);
-                if (!IsNear(ArenaEntry, 8, 8))
-                    break;
-                _mode = Mode.Fighting;
-                SelectAttack(samus);
+                Revealing = Reveal.TakingOff;
                 break;
 
-            case Phase.SelectAttack:
-                SelectAttack(samus);
-                break;
-
-            case Phase.HoverSetup:
-                (_phase, _timer) = (Phase.Hover, 129);
-                goto case Phase.Hover;
-
-            case Phase.Hover:
-                if (--_timer <= 0)
-                {
-                    _phase = Phase.SelectAttack;
-                    break;
-                }
-
-                PixelPosition hover = PixelPosition.FromWhole(Across(192, 96, 96), 256);
-                FlyToward(hover, _band.HoverDivisor);
-                if (IsNear(hover, 8, 8))
-                    _phase = Phase.SelectAttack;
-                break;
-
-            case Phase.SwoopSetup:
-                (_phase, SwoopHeading) = (Phase.SwoopMoveToStart, 0);
-                goto case Phase.SwoopMoveToStart;
-
-            case Phase.SwoopMoveToStart:
-                PixelPosition start = PixelPosition.FromWhole(Across(192, 64, 64), 128);
-                FlyToward(start, 15);
-                if (!IsNear(start, 8, 8))
-                    break;
-                (_phase, _swoopTimer, SwoopHeading) = (Phase.SwoopAimDown, 33, 0);
-                break;
-
-            case Phase.SwoopAimDown:
-                Swoop(32, 512, 4.5, Phase.SwoopAimSideways, 21);
-                break;
-
-            case Phase.SwoopAimSideways:
-                if (Swoop(320, 64 * 256, 5, Phase.SwoopAimUp, 17))
-                    Tail.WhipOrdered = true;
-                break;
-
-            case Phase.SwoopAimUp:
-                Swoop(512, 120 * 256, 3, Phase.SwoopClimb, 33);
-                break;
-
-            case Phase.SwoopClimb:
-                if (Swoop(1024, 120 * 256, 3, Phase.SwoopRecover, 33))
-                    TurnToFaceRoom();
-                break;
-
-            case Phase.SwoopRecover:
-                SetSwoopSpeed(0, false, 128 * 256, Pixels.FromNumber(1.75));
-                if (--_swoopTimer > 0)
-                    break;
-                _phase = CanSeize(samus) ? Phase.GrabApproach : Phase.SelectAttack;
-                break;
-
-            case Phase.WallSweepSetup:
-                Tail.LinkSpacing = 11;
-                Tail.ExtensionSpeed = Pixels.FromNumber(1.5);
-                _phase = Phase.SweepToWallBehind;
-                _timer = Random.Last.Part(0, 5) + 33;
-                goto case Phase.SweepToWallBehind;
-
-            case Phase.SweepToWallBehind:
-            case Phase.SweepToWallAhead:
-                bool behind = _phase == Phase.SweepToWallBehind;
-                FlyToward(PixelPosition.FromWhole(behind ? Across(192, 128, 64) : Across(64, 128, 192), Math.Min(samus.Position.Y.Whole, 352)), _band.HoverDivisor);
-                Tail.WhipOrdered = true;
-                if (samus.State is not SpinJumpingState)
-                {
-                    BeginPogo();
-                    break;
-                }
-
-                if (Random.Last.Part(0, 8) >= 128 && !IsRoaring && !IsTurning)
-                    PlayFacing("fireballing");
-                if (--_timer > 0)
-                    break;
-                _phase = behind ? Phase.SweepToWallAhead : Phase.SweepToWallBehind;
-                _timer = 129;
-                TurnToFaceRoom();
-                break;
-
-            case Phase.PogoMoveToSide:
-                if (Position.Y.Whole < 288)
-                {
-                    TurnToFaceRoom();
-                    (_phase, _timer) = (Phase.PogoMoveToHeight, 33);
-                    goto case Phase.PogoMoveToHeight;
-                }
-
-                FlyToward(PixelPosition.FromWhole(Across(176, 128, 96), 288), 16);
-                break;
-
-            case Phase.PogoMoveToHeight:
-                FlyToward(PixelPosition.FromWhole(Position.X.Whole, 288), 16);
-                if (--_timer > 0)
-                    break;
-                Tail.Action = RidleyTail.Doing.PogoSetup;
-                StepPogoTail();
-                _pogoWay = Velocity.X.IsNegative ? Facing.Left : Facing.Right;
-                LaunchPogo();
-                _phase = Phase.PogoFall;
-                _timer = Random.Last.Part(0, 6) + 129;
-                break;
-
-            case Phase.PogoFall:
-                if (CanSeize(samus) && ClawsReach(samus, 4, 4))
-                {
-                    // Samus under its claws as it comes down is snatched up.
-                    Pixels lift = Velocity.Y.Abs() > Pixels.FromWhole(2) ? Velocity.Y.Abs() : Pixels.FromWhole(2);
-                    Velocity = Velocity.WithY(-lift);
-                    Tail.Action = RidleyTail.Doing.Neutral;
-                    Tail.SwingStep = RidleyTail.SlowSwing;
-                    Seize(samus);
-                    break;
-                }
-
-                Pixels fall = Velocity.Y + _pogoFallGain;
-                Velocity = Velocity.WithY(fall > Pixels.FromWhole(6) ? Pixels.FromWhole(6) : fall);
-                if (!TailTouchesTerrain())
-                    break;
-                if (DustEffect.Length > 0)
-                    LeaveEffect(DustEffect, Tail.Tip.Position + PixelOffset.FromWhole(0, 12));
-                Sound(BounceSound);
-                Room.Shake(2, 4);
-                ChoosePogoWay(samus);
-                LaunchPogo();
-                foreach (RidleyTail.Link link in Tail.Links)
-                {
-                    link.Distance = link.Rest;
-                    link.TargetDistance = Pixels.FromWhole(12);
-                }
-
-                Tail.Action = RidleyTail.Doing.Bouncing;
-                if (++_pogoBounces >= 2)
-                {
-                    _pogoBounces = 0;
-                    if (!IsTurning)
-                        PlayFacing("fireballing");
-                }
-
-                _phase = Phase.PogoRise;
-                break;
-
-            case Phase.PogoRise:
-                if (samus.Position.Y.Whole < 352 || --_timer <= 0)
-                {
-                    Tail.Action = RidleyTail.Doing.Neutral;
-                    Tail.SwingStep = RidleyTail.SlowSwing;
-                    _phase = Phase.SelectAttack;
-                    break;
-                }
-
-                Pixels rise = Velocity.Y + _pogoRiseGain;
-                if (rise.IsNegative)
-                {
-                    Velocity = Velocity.WithY(rise);
-                    break;
-                }
-
-                Velocity = Velocity.WithY(Pixels.Zero);
-                _phase = Phase.PogoFall;
-                break;
-
-            case Phase.GrabApproach:
-                if (!CanSeize(samus))
-                {
-                    MissLunge();
-                    break;
-                }
-
-                int past = Position.X.Whole - samus.Position.X.Whole;
-                bool passed = right ? past >= 0 : past < 0;
-                if (HitBounds || (passed && Math.Abs(past) >= 32) || Position.Y.Whole + 35 >= samus.Position.Y.Whole)
-                {
-                    MissLunge();
-                    break;
-                }
-
-                FlyToward(samus.Position + PixelOffset.FromWhole(Facing == Facing.Left && !IsTurning ? -16 : 16, -4), _band.GrabDivisor);
-                if (!ClawsReach(samus, 8, 12))
-                    break;
-                Velocity = Velocity.WithY(-Velocity.Y);
-                Seize(samus);
-                break;
-
-            case Phase.PowerBombDodge:
-                Dodge();
-                break;
-
-            case Phase.CarrySetup:
-                BeginCarry();
-                break;
-
-            case Phase.CarryMoveToAnchor:
-                FlyToward(_target, 16);
-                if (--_timer <= 0)
-                    (_phase, _timer) = (Phase.CarryRise, 33);
-                break;
-
-            case Phase.CarryRise:
-                if (--_timer > 0)
-                {
-                    FlyToward(new PixelPosition(_target.X, Pixels.FromWhole(256)), 16);
-                    break;
-                }
-
-                Tail.LinkSpacing = 8;
-                Tail.ExtensionSpeed = Pixels.FromNumber(0.9375);
-                LetSamusGo(samus);
-                (_phase, _timer) = (Phase.CarryRelease, 65);
-                break;
-
-            case Phase.CarryRelease:
-                if (--_timer > 0)
-                {
-                    FlyToward(PixelPosition.FromWhole(Across(176, 0, 80), 224), 16);
-                    break;
-                }
-
-                Tail.LinkSpacing = 16;
-                Tail.ExtensionSpeed = Pixels.FromNumber(0.9375);
-                _phase = Phase.SelectAttack;
-                break;
-
-            case Phase.MoveToDeathSpot:
-                StepToDeathSpot();
-                break;
-
-            case Phase.DeathRoar:
-                FlyToward(DeathSpot, 16, Pixels.FromNumber(0.0625));
-                if (--_timer > 0)
-                    break;
+            case Reveal.TakingOff:
+            case Reveal.Done:
                 Velocity = PixelVelocity.Zero;
-                Room.Liquid?.Triggered("fall");
-                (_explosionWait, _nextExplosion) = (1, 0);
-                (_phase, _timer) = (Phase.DeathExplosions, 161);
-                goto case Phase.DeathExplosions;
-
-            case Phase.DeathExplosions:
-                Explode();
-                if (--_timer > 0)
-                    break;
-                if (_holdsSamus)
-                    LetSamusGo(samus);
-                _phase = Phase.DeathBreakup;
-                Velocity = PixelVelocity.Zero;
-                BreakUp();
-                break;
-
-            case Phase.DeathBreakup:
-                Explode();
-                IsInMotion = false;
-                Visible = false;
-                (_phase, _timer) = (Phase.DeathWait, 33);
-                break;
-
-            case Phase.DeathWait:
-                if (--_timer <= 0)
-                    (_phase, _timer) = (Phase.DeathFinish, 257);
-                break;
-
-            case Phase.DeathFinish:
-                if (--_timer > 0)
-                    break;
-                for (int drop = 0; drop < DeathDrops; drop++)
-                {
-                    RandomDraw draw = Random.Draw();
-                    Drop(Drops, PixelPosition.FromWhole(64 + draw.Part(0, 7), 320 + draw.Part(8, 6)));
-                }
-
-                if (VictoryMusic.Length > 0)
-                    Room.Session.Sounds.RequestMusic(VictoryMusic);
-                _phase = Phase.DeathComplete;
-                Die();
-                break;
-
-            case Phase.DeathComplete:
                 break;
 
             default:
-                throw new InvalidOperationException($"Ridley has no phase {_phase}.");
+                throw new InvalidOperationException($"Ridley's showing itself has no step {Revealing}.");
         }
-    }
-
-    /// <summary>Picks its next attack by what Samus is doing, and begins it at once.</summary>
-    private void SelectAttack(Player samus)
-    {
-        int roll = Random.Draw().Part(0, 3);
-        if (samus.State is SpinJumpingState)
-        {
-            _phase = Phase.WallSweepSetup;
-        }
-        else if (Health.IsEmpty)
-        {
-            _deathLungesMade++;
-            _phase = Phase.GrabApproach;
-        }
-        else if (Health.Current < WoundedHealth)
-        {
-            _phase = roll < 4 ? Phase.PogoMoveToSide : Phase.SwoopSetup;
-        }
-        else if (samus.Position.Y.Whole >= 352)
-        {
-            _phase = Phase.PogoMoveToSide;
-        }
-        else if (CanSeize(samus))
-        {
-            _phase = roll < 6 ? Phase.GrabApproach : Phase.PogoMoveToSide;
-        }
-        else
-        {
-            _phase = roll < 4 ? Phase.PogoMoveToSide : Phase.SwoopSetup;
-        }
-
-        StepFight(samus);
-    }
-
-    /// <summary>A place across the room that depends on the way it faces: left, turning, or right.</summary>
-    private int Across(int facingLeft, int turning, int facingRight) => IsTurning ? turning : Facing == Facing.Left ? facingLeft : facingRight;
-
-    /// <summary>
-    /// One update of a leg of its swoop: its heading turns, by 256ths of a step, toward an angle given for when it faces
-    /// right, and its speed moves toward a speed. Returns whether the leg is over.
-    /// </summary>
-    private bool Swoop(int turn, int headingFacingRight, double speed, Phase next, int nextUpdates)
-    {
-        bool right = Facing != Facing.Left || IsTurning;
-        SetSwoopSpeed(turn, !right, right ? headingFacingRight : -headingFacingRight, Pixels.FromNumber(speed));
-        if (--_swoopTimer > 0)
-            return false;
-        (_phase, _swoopTimer) = (next, nextUpdates);
-        return true;
-    }
-
-    /// <summary>Turns about, if it has its back to the middle of the room.</summary>
-    private void TurnToFaceRoom()
-    {
-        if (IsTurning)
-            return;
-        bool rightHalf = Position.X.Whole >= 128;
-        if (Facing == Facing.Left ? rightHalf : !rightHalf)
-            return;
-        Play(Facing == Facing.Left ? "turn_left_to_right" : "turn_right_to_left", restart: true);
-    }
-
-    /// <summary>Begins its bouncing on its tail.</summary>
-    private void BeginPogo()
-    {
-        Tail.ExtensionSpeed = Pixels.FromNumber(0.9375);
-        Tail.LinkSpacing = 16;
-        Tail.Action = RidleyTail.Doing.Neutral;
-        _phase = Phase.PogoMoveToSide;
-    }
-
-    /// <summary>Throws it up from a bounce, by one of the four launches its health allows.</summary>
-    private void LaunchPogo()
-    {
-        Pogo pogo = _band.Pogos[Random.Last.Part(0, 2)];
-        (_pogoRiseGain, _pogoFallGain) = (pogo.RiseGain, pogo.FallGain);
-        Velocity = new PixelVelocity(_pogoWay.Toward(pogo.Across), -pogo.Up);
-    }
-
-    /// <summary>Picks the way its next bounce goes: back from an edge, and otherwise nearly always toward Samus.</summary>
-    private void ChoosePogoWay(Player samus)
-    {
-        int x = Position.X.Whole;
-        if (Velocity.X.IsZero)
-            _pogoWay = x < 128 ? Facing.Right : Facing.Left;
-        bool reverse;
-        if (x < FlightBounds.Position.X)
-        {
-            reverse = _pogoWay == Facing.Left;
-        }
-        else if (x >= FlightBounds.End.X)
-        {
-            reverse = _pogoWay == Facing.Right;
-        }
-        else
-        {
-            Facing towardSamus = x < samus.Position.X.Whole ? Facing.Right : Facing.Left;
-            bool away = (Random.Last.Number & 0xFFFF) < 1365;
-            reverse = _pogoWay == towardSamus ? away : !away;
-        }
-
-        if (reverse)
-            _pogoWay = _pogoWay.Opposite();
     }
 
     /// <inheritdoc/>
-    protected override void SteerTail()
+    protected override void OnCue(string cue)
     {
-        if (Tail.Action is RidleyTail.Doing.None or RidleyTail.Doing.Neutral)
-            base.SteerTail();
+        string[] parts = cue.Split(':');
+        switch (parts[0])
+        {
+            case "roar":
+                IsRoaring = true;
+                Sound(RoarSound);
+                break;
+
+            case "stop_roaring":
+                IsRoaring = false;
+                break;
+
+            case "face_forward":
+                IsTurning = true;
+                break;
+
+            case "flip":
+                Tail.Mirror();
+                IsTurning = false;
+                Facing = parts[1] == "right" ? Facing.Right : Facing.Left;
+                break;
+
+            case "claws":
+                ClawHeight = parts[1] switch
+                {
+                    "standing" => Claws.Standing,
+                    "half" => Claws.Half,
+                    "extended" => Claws.Extended,
+                    _ => throw new InvalidOperationException($"Ridley's claws have no height \"{parts[1]}\"."),
+                };
+                break;
+
+            case "move":
+                Position += PixelOffset.FromWhole(
+                    int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture),
+                    int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture));
+                break;
+
+            case "aim":
+                AimFireball();
+                break;
+
+            case "fireball":
+                var fireball = (RidleyFireball)Fire("fireball", Muzzle, _fireballSpeed);
+                fireball.Afterburns = parts[1] == "afterburn" ? 3 : 0;
+                break;
+
+            case "cut_short":
+                if (CutFireballingShort() is { } instead)
+                    Play(instead, restart: true);
+                break;
+
+            case "lift_off":
+                Revealing = Reveal.Done;
+                OnLiftOff();
+                Velocity = Velocity.WithY(Pixels.FromNumber(-1.375));
+                break;
+
+            default:
+                OnOwnCue(parts);
+                break;
+        }
+    }
+
+    /// <summary>Called for a cue that is not one both fights share.</summary>
+    private void OnOwnCue(string[] cue) =>
+        throw new InvalidOperationException($"Ridley's timeline \"{Playing}\" gives it the cue \"{string.Join(':', cue)}\", which it does not know.");
+
+    /// <summary>Where its fireballs leave its mouth.</summary>
+    private PixelPosition Muzzle => Position + PixelOffset.FromWhole(Facing == Facing.Left ? -25 : 25, -43);
+
+    /// <summary>
+    /// Aims its next fireball at Samus, within the arc ahead of and below it. Angles here are in 256ths of a turn from
+    /// straight down, growing toward the right.
+    /// </summary>
+    private void AimFireball()
+    {
+        PixelOffset toSamus = Room.Player.Position - Muzzle;
+        int angle = Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole));
+        if (Facing == Facing.Left)
+            angle = angle is < 64 or >= 235 ? 235 : Math.Max(angle, 176);
+        else
+            angle = angle is < 21 or >= 192 ? 21 : Math.Min(angle, 80);
+        Pixels speed = Shot("fireball").Speed;
+        _fireballSpeed = new PixelVelocity(Turns.Sine(angle, speed), Turns.Cosine(angle, speed));
+    }
+
+    /// <summary>Starts it on a timeline that has one for each way it faces.</summary>
+    private void PlayFacing(string timeline) => Play($"{timeline}_{Side}", restart: true);
+
+    /// <summary>
+    /// Pulls its speed toward a place, each way by a step that grows with the distance, the smaller the divisor the
+    /// harder; a speed carrying it away from the place is checked first.
+    /// </summary>
+    private void FlyToward(PixelPosition target, int divisor, Pixels reversalBoost = default)
+    {
+        divisor = Math.Clamp(divisor, 1, 16);
+        Velocity = new PixelVelocity(
+            Seek(Velocity.X, Position.X.Whole - target.X.Whole, divisor, reversalBoost),
+            Seek(Velocity.Y, Position.Y.Whole - target.Y.Whole, divisor, reversalBoost));
+    }
+
+    private static Pixels Seek(Pixels speed, int fromTarget, int divisor, Pixels reversalBoost)
+    {
+        if (fromTarget == 0)
+            return speed;
+        Pixels step = Pixels.FromNumber(Math.Max(1, Math.Abs(fromTarget) / divisor) / 256.0);
+        Pixels reversal = Pixels.FromNumber(0.03125);
+        if (fromTarget > 0)
+        {
+            if (!speed.IsNegative)
+                speed -= reversalBoost + reversal + step;
+            speed -= step;
+            return speed < -MostSpeed ? -MostSpeed : speed;
+        }
+
+        if (speed.IsNegative)
+            speed += reversalBoost + reversal + step;
+        speed += step;
+        return speed >= MostSpeed ? MostSpeed : speed;
+    }
+
+    /// <summary>
+    /// Pulls its speed toward a place as <see cref="FlyToward"/> does, but more simply: a speed carrying it away from
+    /// the place is checked by three steps and no more.
+    /// </summary>
+    private void FlyPlainlyToward(PixelPosition target, int divisor)
+    {
+        divisor = Math.Clamp(divisor, 1, 16);
+        Velocity = new PixelVelocity(
+            SeekPlainly(Velocity.X, Position.X.Whole - target.X.Whole, divisor),
+            SeekPlainly(Velocity.Y, Position.Y.Whole - target.Y.Whole, divisor));
+    }
+
+    private static Pixels SeekPlainly(Pixels speed, int fromTarget, int divisor)
+    {
+        if (fromTarget == 0)
+            return speed;
+        Pixels step = Pixels.FromNumber(Math.Max(1, Math.Abs(fromTarget) / divisor) / 256.0);
+        if (fromTarget < 0)
+        {
+            speed += speed.IsNegative ? step + step + step : step;
+            return speed > MostSpeed ? MostSpeed : speed;
+        }
+
+        speed -= speed.IsNegative ? step : step + step + step;
+        return speed < -MostSpeed ? -MostSpeed : speed;
+    }
+
+    /// <summary>
+    /// Sets its speed along a heading that turns toward a target and stops there, with its speed moving toward a speed.
+    /// Headings are in 256ths of a 256th of a turn, from straight down toward the right.
+    /// </summary>
+    private void SetSwoopSpeed(int turn, bool clockwise, int target, Pixels speed)
+    {
+        Pixels step = Pixels.FromNumber(0.125);
+        _swoopSpeed = _swoopSpeed < speed
+            ? (_swoopSpeed + step > speed ? speed : _swoopSpeed + step)
+            : (_swoopSpeed - step < speed ? speed : _swoopSpeed - step);
+        int full = Turns.PerTurn * 256;
+        int heading = SwoopHeading + (clockwise ? -turn : turn);
+        int difference = ((heading - target) % full + full + full / 2) % full - full / 2;
+        if (clockwise ? difference < 0 : difference >= 0)
+            heading = target;
+        SwoopHeading = heading;
+        int angle = Turns.Wrap(heading >> 8);
+        Velocity = new PixelVelocity(Turns.Sine(angle, _swoopSpeed), Turns.Cosine(angle, _swoopSpeed));
+    }
+
+    /// <summary>The heading of its swoop.</summary>
+    private int SwoopHeading { get; set; }
+
+    private Pixels _swoopSpeed;
+
+    /// <summary>Whether its middle is within a reach of a place, allowing for its own size.</summary>
+    private bool IsNear(PixelPosition place, int reachAcross, int reachDown)
+    {
+        PixelRect body = Body?.Rect ?? default;
+        return Math.Abs(Position.X.Whole - place.X.Whole) < body.Width / 2 + reachAcross + 1 &&
+            Math.Abs(Position.Y.Whole - place.Y.Whole) < body.Height / 2 + reachDown + 1;
+    }
+
+    /// <summary>
+    /// Moves it by its speed, stopping it dead at the edges of where it may fly, beats its wings, and moves its tail.
+    /// Its fight calls this each update that it is in motion.
+    /// </summary>
+    private void StepBody()
+    {
+        Rect2I bounds = FlightBounds;
+        PixelPosition proposed = Position + Velocity.OverOneUpdate;
+        bool outAcross = proposed.X.Whole < bounds.Position.X || proposed.X.Whole >= bounds.End.X;
+        bool outDown = proposed.Y.Whole < bounds.Position.Y || proposed.Y.Whole >= bounds.End.Y;
+        HitBounds = outAcross || outDown;
+        OnMoving(proposed);
+        Pixels x = proposed.X, y = proposed.Y;
+        if (outAcross)
+        {
+            x = x.WithWhole(proposed.X.Whole < bounds.Position.X ? bounds.Position.X : bounds.End.X);
+            Velocity = Velocity.WithX(Pixels.Zero);
+        }
+
+        if (outDown)
+        {
+            y = y.WithWhole(proposed.Y.Whole < bounds.Position.Y ? bounds.Position.Y : bounds.End.Y);
+            Velocity = Velocity.WithY(Pixels.Zero);
+        }
+
+        Position = new PixelPosition(x, y);
+        BeatWings();
+        StepTail();
+    }
+
+    /// <summary>Called as it is about to move to a place, before the edges of where it may fly have stopped it.</summary>
+    private void OnMoving(PixelPosition proposed)
+    {
+        if (OnCeres)
+            ShakeOnHittingWall(proposed);
+    }
+
+    /// <summary>Its wings beat by a count that runs down faster the faster it flies, and faster still when it climbs.</summary>
+    private void BeatWings()
+    {
+        Pixels fastest = Velocity.X.Abs() > Velocity.Y.Abs() ? Velocity.X.Abs() : Velocity.Y.Abs();
+        if (!fastest.IsZero)
+        {
+            int pace = WingPaces[Math.Min(WingPaces.Length - 1, (int)(fastest.Whole * 4L + fastest.Fraction / (Pixels.FractionsPerPixel / 4)))];
+            _wingCount -= Velocity.Y.IsNegative ? pace : pace / 2;
+            if (_wingCount <= 0)
+            {
+                _wingCount = 32;
+                _wingPose = (_wingPose + 1) % _wingPictures.Count;
+            }
+        }
+
+        if (GetNodeOrNull<ActorVisual>("Wings") is { } wings)
+        {
+            wings.Show(_wingPictures[_wingPose].Replace("{side}", Side, StringComparison.Ordinal));
+            wings.SetShown(!IsTurning);
+        }
+    }
+
+    /// <summary>Steers the tail by what it is doing: as it sways and lashes, or through its part in the pogo.</summary>
+    private void SteerTail()
+    {
+        if (OnCeres || Tail.Action is RidleyTail.Doing.None or RidleyTail.Doing.Neutral)
+            SteerTailPlainly();
         else
             StepPogoTail();
     }
 
-    /// <summary>The tail's part in the pogo: it swings round to point down, bounces, draws up and stabs.</summary>
-    private void StepPogoTail()
+    /// <summary>Steers the tail as it sways and lashes.</summary>
+    private void SteerTailPlainly()
     {
-        bool right = Facing == Facing.Right && !IsTurning;
-        Tail.SetLimits(right);
-        RidleyTail.Doing doing = Tail.Action;
-        if (doing is RidleyTail.Doing.PogoSetup or RidleyTail.Doing.PointingDown or RidleyTail.Doing.Stabbing)
+        if (Tail.Action != RidleyTail.Doing.Neutral)
+            return;
+        Tail.SetLimits(Facing == Facing.Right && !IsTurning);
+        Player samus = Room.Player;
+        if (Tail.IsAllMoving)
         {
-            Tail.SwingStep = doing == RidleyTail.Doing.Stabbing ? RidleyTail.StabSwing : RidleyTail.WhipSwing;
-            Tail.LeftwardTarget = right ? 0 : null;
-            Tail.RightwardTarget = right ? null : 0;
-        }
-
-        bool restsFalling = false;
-        if (Tail.IsAllMoving && Tail.LeftwardTarget is null && Tail.RightwardTarget is null &&
-            (Random.Last.Part(0, 8) >= 240 || Math.Abs(Room.Player.Position.X.Whole - Position.X.Whole) < 128))
-        {
-            // It lashes a whole turn round, to come down pointing at the floor.
-            Tail.LeftwardTarget = -Turns.PerTurn;
-            Tail.SwingStep = RidleyTail.WhipSwing;
-        }
-        else if (Tail.IsAtRest)
-        {
-            restsFalling = !Velocity.Y.IsNegative;
-            if (restsFalling && doing == RidleyTail.Doing.ReadyingStab)
+            bool idle = Tail.LeftwardTarget is null && Tail.RightwardTarget is null;
+            bool ordered = Tail.WhipOrdered;
+            Tail.WhipOrdered = false;
+            if (ordered && idle)
             {
-                foreach (RidleyTail.Link link in Tail.Links)
-                {
-                    link.TargetDistance = Pixels.FromWhole(10);
-                    link.Angle = 0;
-                }
+                AimTailWhip(0);
             }
+            else if (Tail.WhipsWhenIdle)
+            {
+                // Now and then it lashes out a whole turn round; with Samus near it lashes straight at her.
+                if (Random.Last.Part(0, 8) >= 240)
+                    AimTailWhip(ordered ? 0 : -1);
+                else if (Math.Abs(samus.Position.X.Whole - Position.X.Whole) < 128)
+                    AimTailWhip(0);
+            }
+        }
 
+        if (Tail.IsAtRest)
+        {
             Tail.Base.Activate();
             (Tail.LeftwardTarget, Tail.RightwardTarget) = (null, null);
-            Tail.SwingStep = 0;
+            Tail.SwingStep = samus.Position.X.Whole < 112 ? RidleyTail.SlowSwing : RidleyTail.FastSwing;
         }
 
         Tail.SwingLinks();
-        bool moving = !Tail.IsAtRest;
-        Tail.Action = doing switch
-        {
-            RidleyTail.Doing.PogoSetup => RidleyTail.Doing.PointingDown,
-            RidleyTail.Doing.PointingDown => moving ? RidleyTail.Doing.PointingDown : RidleyTail.Doing.Bouncing,
-            RidleyTail.Doing.Bouncing => restsFalling ? RidleyTail.Doing.ReadyingStab : RidleyTail.Doing.Bouncing,
-            RidleyTail.Doing.ReadyingStab => restsFalling ? RidleyTail.Doing.Stabbing : RidleyTail.Doing.ReadyingStab,
-            RidleyTail.Doing.Stabbing => RidleyTail.Doing.Stabbing,
-            _ => throw new InvalidOperationException($"Ridley's tail has no part in the pogo called {doing}."),
-        };
     }
 
-    /// <summary>Whether the end of its tail has reached the floor.</summary>
-    private bool TailTouchesTerrain()
+    /// <summary>Whether it is fighting, so that its tail may lash out.</summary>
+    private bool TailMayWhip => OnCeres ? _fighting : _mode != Mode.NotFighting;
+
+    /// <summary>Aims a lash of its tail at Samus, or at a missile of hers that is close to its tip.</summary>
+    private void AimTailWhip(int turnsBeyond)
     {
-        if (Probe(Tail.Tip.Position + PixelOffset.FromWhole(0, 16)))
-            return true;
-        return Tail.Links.Skip(1).Take(Tail.Links.Count - 2).Reverse().Take(4).Any(link => Probe(link.Position + PixelOffset.FromWhole(0, 18)));
-    }
-
-    private bool Probe(PixelPosition at) => Room.Terrain.IsSolidIn(new PixelRect(at.X.Whole, at.Y.Whole, 1, 1), SlopeTreatment.Wall);
-
-    /// <summary>Whether Samus is doing anything it can take hold of her in: not spinning, grappling, or already knocked or held.</summary>
-    private static bool CanSeize(Player samus) => samus.State is not (SpinJumpingState or GrapplingState or DamageBoostState or GrabbedState);
-
-    /// <summary>Whether its claws are within a reach of Samus's body.</summary>
-    private bool ClawsReach(Player samus, int across, int down)
-    {
-        PixelOffset fromClaw = samus.Position - ClawPosition;
-        PixelRect body = samus.BodyRect;
-        return Math.Abs(fromClaw.X.Whole) < body.Width / 2 + across && Math.Abs(fromClaw.Y.Whole) < body.Height / 2 + down;
-    }
-
-    /// <summary>Takes hold of Samus. With its health gone that is the end of it; otherwise it carries her off.</summary>
-    private void Seize(Player samus)
-    {
-        PixelOffset fromClaw = samus.Position - ClawPosition;
-        _grabOffset = PixelOffset.FromWhole(fromClaw.X.Whole, fromClaw.Y.Whole);
-        _holdsSamus = true;
-        // She cannot move in its claws, but she can still aim and fire.
-        samus.ChangeState(new GrabbedState(0));
-        if (Health.IsEmpty)
-        {
-            BeginDying();
-            StepToDeathSpot();
+        if (IsTurning || !TailMayWhip)
             return;
-        }
-
-        BeginCarry();
+        PixelPosition aim = Room.Player.Position + PixelOffset.FromWhole(0, 24);
+        PixelPosition tip = Tail.Tip.Position;
+        Projectile? missile = Room.Projectiles.FirstOrDefault(shot =>
+            shot.Side == HitSide.Player && !shot.HasEnded &&
+            shot.Hit.CarriesAny([new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]) &&
+            Math.Abs(shot.Position.X.Whole - tip.X.Whole) - shot.Area.Width / 2 < 64 &&
+            Math.Abs(shot.Position.Y.Whole - tip.Y.Whole) - shot.Area.Height / 2 < 64);
+        if (missile is not null)
+            aim = missile.Position;
+        PixelOffset toAim = aim - Tail.Base.Position;
+        Tail.AimWhip(Turns.Wrap(Turns.PerTurn / 4 - Turns.AngleOf(toAim.X.Whole, toAim.Y.Whole)), Facing == Facing.Right, turnsBeyond);
     }
 
-    /// <summary>Makes for the middle of the room, where it dies.</summary>
-    private void StepToDeathSpot()
+    /// <summary>Steers the tail, hangs it from the body, shows it, and lets its tip hurt Samus.</summary>
+    private void StepTail()
     {
-        FlyToward(DeathSpot, 16, Pixels.FromNumber(0.0625));
-        if (IsNear(DeathSpot, 4, 4))
-            BeginDeathRoar();
-    }
-
-    /// <summary>Begins carrying Samus up toward a side of the room.</summary>
-    private void BeginCarry()
-    {
-        _target = PixelPosition.FromWhole(Across(64, 0, 208), Position.Y.Whole < 320 ? 256 : Position.Y.Whole - 64);
-        (_phase, _timer) = (Phase.CarryMoveToAnchor, 33);
-        FlyToward(_target, 16);
-        _timer--;
-    }
-
-    /// <summary>Keeps Samus in its claws, drawing her in to them a little each update.</summary>
-    private void CarrySamus(Player samus)
-    {
-        _grabOffset = PixelOffset.FromWhole(TowardNothing(_grabOffset.X.Whole), TowardNothing(_grabOffset.Y.Whole));
-        samus.Position = ClawPosition + _grabOffset;
-
-        static int TowardNothing(int offset) => offset > 0 ? Math.Max(0, offset - 4) : Math.Min(0, offset + 4);
-    }
-
-    /// <summary>Lets Samus go, with a lash of its tail after her.</summary>
-    private void LetSamusGo(Player samus)
-    {
-        _holdsSamus = false;
-        Tail.WhipOrdered = true;
-        Tail.Action = RidleyTail.Doing.Neutral;
-        if (samus.State is GrabbedState)
-            samus.Release();
-    }
-
-    /// <summary>A lunge that did not take hold: with its health gone and its lunges spent it dies; otherwise it hovers, or gets out of a power bomb's way.</summary>
-    private void MissLunge()
-    {
-        if (_deathLungesMade >= DeathLunges)
+        SteerTail();
+        PixelPosition hip = Position + PixelOffset.FromWhole(IsTurning ? 0 : Facing == Facing.Left ? 32 : -32, 16);
+        Tail.Place(hip, IsTurning, Position.X.Whole);
+        for (int index = 0; index < Tail.Links.Count; index++)
         {
-            BeginDying();
-            BeginDeathRoar();
-            return;
-        }
-
-        if (PowerBombIsOut())
-        {
-            _phase = Phase.PowerBombDodge;
-            Dodge();
-            return;
-        }
-
-        _phase = Phase.HoverSetup;
-        Tail.WhipOrdered = true;
-    }
-
-    /// <summary>Keeps to the corner of the room farthest from a power bomb until it is over.</summary>
-    private void Dodge()
-    {
-        if (PowerBomb() is not { } bomb)
-        {
-            _mode = Mode.Fighting;
-            _phase = _holdsSamus ? Phase.CarrySetup : Phase.SelectAttack;
-            return;
-        }
-
-        _mode = Mode.PowerBombDodge;
-        FlyToward(PixelPosition.FromWhole(bomb.Position.X.Whole >= 128 ? 80 : 192, bomb.Position.Y.Whole >= 256 ? 192 : 384), _band.HoverDivisor);
-    }
-
-    /// <summary>Begins its death, if its health is gone: it makes for the middle of the room.</summary>
-    private void BeginDying()
-    {
-        if (!Health.IsEmpty || _mode == Mode.Dying)
-            return;
-        _mode = Mode.Dying;
-        IsIntangible = true;
-        _phase = Phase.MoveToDeathSpot;
-    }
-
-    private void BeginDeathRoar()
-    {
-        PlayFacing("death_roar");
-        (_phase, _timer) = (Phase.DeathRoar, 33);
-    }
-
-    /// <summary>Sets off the blasts of its death, one every few updates, at places that come round in turn.</summary>
-    private void Explode()
-    {
-        if (_explosionWait > 0 && --_explosionWait > 0)
-            return;
-        _explosionWait = 5;
-        if (_deathExplosions.Count == 0)
-            return;
-        PixelOffset at = _deathExplosions[_nextExplosion];
-        _nextExplosion = (_nextExplosion + 1) % _deathExplosions.Count;
-        if (ExplosionEffect.Length > 0)
-            LeaveEffect(ExplosionEffect, Position + at);
-        Sound(ExplosionSound);
-    }
-
-    /// <summary>Breaks it into its pieces, each flung a little to one side.</summary>
-    private void BreakUp()
-    {
-        foreach (Piece piece in _breakup)
-        {
-            RandomDraw draw = Random.Draw();
-            Pixels across = Pixels.FromNumber(draw.Part(0, 4) / 16.0 + draw.Part(8, 1));
-            PixelPosition at = piece.TailLink >= 0
-                ? Tail.Links[piece.TailLink].Position
-                : Position + PixelOffset.FromWhole(Facing == Facing.Right ? -piece.X : piece.X, piece.Y);
-            Effect sprite = LeaveEffect(piece.Effect.Replace("{side}", Side, StringComparison.Ordinal), at);
-            _pieces.Add((sprite, new PixelVelocity(draw.Part(15, 1) == 1 ? -across : across, Pixels.Zero), piece.Updates));
-        }
-    }
-
-    /// <summary>Moves its pieces: they slow across, fall, flicker, and each in its time goes off.</summary>
-    private void StepPieces()
-    {
-        Pixels drag = Pixels.FromNumber(0.015625);
-        for (int index = _pieces.Count - 1; index >= 0; index--)
-        {
-            (Effect sprite, PixelVelocity speed, int left) = _pieces[index];
-            Pixels across = speed.X.Abs() <= drag ? Pixels.Zero : speed.X.IsNegative ? speed.X + drag : speed.X - drag;
-            speed = new PixelVelocity(across, speed.Y + drag);
-            sprite.Position += speed.OverOneUpdate;
-            sprite.Visible = left % 2 == 0;
-            if (--left > 0)
-            {
-                _pieces[index] = (sprite, speed, left);
+            RidleyTail.Link link = Tail.Links[index];
+            if (GetNodeOrNull<ActorVisual>($"Tail{index}") is not { } visual)
                 continue;
-            }
-
-            if (ExplosionEffect.Length > 0)
-                LeaveEffect(ExplosionEffect, sprite.Position);
-            Room.Remove(sprite);
-            _pieces.RemoveAt(index);
+            PixelOffset from = link.Position - Position;
+            visual.Position = new Vector2(from.X.Whole, from.Y.Whole);
+            visual.Show(index < _tailPictures.Count
+                ? _tailPictures[index]
+                : _tailTipPictures[link.Pointing * _tailTipPictures.Count / Turns.PerTurn]);
         }
+
+        PlaceArmour("TailTip", Tail.Tip.Position, 14);
+        PlaceArmour("TailJoint", Tail.InnerJoint.Position, 10);
+        Player samus = Room.Player;
+        if (CarriesSamus || samus.IsInvincible || IsIntangible || !IsInMotion)
+            return;
+        PixelRect body = samus.BodyRect;
+        PixelOffset fromTip = samus.Position - Tail.Tip.Position;
+        if (Math.Abs(fromTip.X.Whole) >= body.Width / 2 + 14 || Math.Abs(fromTip.Y.Whole) >= body.Height / 2 + 14)
+            return;
+        var away = PixelOffset.FromWhole(samus.Position.X.Whole >= Tail.Tip.Position.X.Whole ? 1 : -1, 0);
+        samus.TakeHit(new Hit(TailDamage, HitSide.Enemies, HitKind.Contact) { Direction = away, Source = this }, samus.Hurtbox);
+    }
+
+    /// <summary>Puts one of the armoured places of its tail where the tail is.</summary>
+    private void PlaceArmour(string name, PixelPosition at, int reach)
+    {
+        if (GetNodeOrNull<Collider>(name) is not { } collider)
+            return;
+        PixelOffset from = at - Position;
+        collider.Rect = new PixelRect(from.X.Whole - reach, from.Y.Whole - reach, reach * 2, reach * 2);
+    }
+
+    /// <summary>Shows how far its eyes and its body have come out of the dark, each out of the updates that takes.</summary>
+    private void ShowFade(int eyes, int body)
+    {
+        float shown = Math.Clamp((float)body / Math.Max(1, FadeUpdates), 0f, 1f);
+        float glint = Math.Clamp((float)eyes / Math.Max(1, FadeUpdates), 0f, 1f);
+        // Until its body shows, only a glint of it does.
+        Modulate = new Color(shown, shown, shown, Math.Max(shown, glint * 0.25f));
     }
 }

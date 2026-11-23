@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -80,6 +82,9 @@ public sealed partial class EngineAssetWriter
     private void WriteSimpleEnemies()
     {
         Enemy("enemies/boulder.json", "Boulder", EnemyDefinitionId.Boulder).BodyColliders(Ordinary)
+            .Value("break_effect", DustFile(BoulderMotionDefinitions.BreakDust))
+            .Value("break_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderBreakSound))
+            .Value("impact_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderImpactSound))
             .Looks(BoulderAnimations.Segments, BoulderAnimations.StartingWith, ("left", BoulderSegment.Left), ("right", BoulderSegment.Right))
             .Write();
         Enemy("enemies/bull.json", "Bull", EnemyDefinitionId.Bull).BodyColliders(Ordinary)
@@ -106,6 +111,7 @@ public sealed partial class EngineAssetWriter
             .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast))
             .Write();
         Enemy("enemies/mochtroid.json", "Mochtroid", EnemyDefinitionId.Mochtroid).BodyColliders(Ordinary)
+            .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Looks(MochtroidAnimations.Segments, MochtroidAnimations.StartingWith,
                 ("free", MochtroidSegment.FreeFlight), ("attached", MochtroidSegment.Attached))
             .Write();
@@ -117,6 +123,8 @@ public sealed partial class EngineAssetWriter
                 ("tilted_far_left", PuyoSegment.TiltedFarLeft), ("tilted_far_right", PuyoSegment.TiltedFarRight))
             .Write();
         Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+            .Value("dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
+            .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
             .Looks(DeadTorizoAnimations.Segments, DeadTorizoAnimations.StartingWith, ("corpse", DeadTorizoSegment.Stationary))
             .Write();
 
@@ -171,11 +179,13 @@ public sealed partial class EngineAssetWriter
                  })
         {
             Enemy($"enemies/{file}.json", "Shutter", id).BodyColliders("Body", "Hurtbox", "Solid")
+                .Value("activation_sound", EngineNames.Sound(EnemySoundEffectDefinitions.ShutterActivationSound))
                 .Looks(ShutterAnimations.Segments, ShutterAnimations.StartingWith, ("idle", look))
                 .Write();
         }
 
         Enemy("enemies/shutter_growing.json", "GrowingShutter", EnemyDefinitionId.ShutterGrowing).BodyColliders("Body", "Hurtbox", "Solid")
+            .Value("activation_sound", EngineNames.Sound(EnemySoundEffectDefinitions.ShutterActivationSound))
             .Looks(ShutterAnimations.Segments, ShutterAnimations.StartingWith,
                 ("quarter", ShutterSegment.QuarterGrown), ("half", ShutterSegment.HalfGrown),
                 ("three_quarters", ShutterSegment.ThreeQuartersGrown), ("full", ShutterSegment.FullyGrown))

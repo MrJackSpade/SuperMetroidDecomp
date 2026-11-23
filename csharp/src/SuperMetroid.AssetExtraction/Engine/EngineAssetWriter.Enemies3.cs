@@ -112,6 +112,7 @@ public sealed partial class EngineAssetWriter
 
         // The Kzan's top is what Samus stands on and its underside what hurts; both are sized as the old game sizes it.
         Enemy("enemies/kzan.json", "Kzan", EnemyDefinitionId.KzanTop).BodyColliders("Solid", "Hitbox")
+            .Value("landing_sound", EngineNames.Sound(EnemySoundEffectDefinitions.KzanLandingSoundEffect))
             .Looks(KzanAnimations.Segments, KzanAnimations.StartingWith, ("idle", KzanSegment.Idle))
             .Write();
         Enemy("enemies/polyp.json", "Polyp", EnemyDefinitionId.Polyp)

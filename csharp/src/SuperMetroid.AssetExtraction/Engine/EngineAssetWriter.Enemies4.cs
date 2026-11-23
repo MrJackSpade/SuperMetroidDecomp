@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Platforms;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Spatial;
@@ -109,6 +110,7 @@ public sealed partial class EngineAssetWriter
 
         // The Rinka: it forms unseen, and then comes out to take aim.
         Enemy("enemies/rinka.json", "Rinka", EnemyDefinitionId.Rinka).BodyColliders(Ordinary)
+            .Value("puff_effect", DustFile(DustExplosionAnimation.SmallExplosion))
             .Looks(RinkaAnimations.Segments, RinkaAnimations.StartingWith,
                 static (RinkaCue cue) => cue.Kind switch
                 {

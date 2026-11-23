@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -19,6 +20,7 @@ public sealed partial class EngineAssetWriter
     private void WriteCuedEnemies()
     {
         Enemy("enemies/beetom.json", "Beetom", EnemyDefinitionId.Beetom).BodyColliders(Ordinary)
+            .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Looks(BeetomAnimations.Segments, BeetomAnimations.StartingWith,
                 static (BeetomCue cue) => cue.Kind == BeetomCueKind.ProcessOffScreen ? EngineNames.AlwaysActive : EngineNames.NotAlwaysActive,
                 ("crawling_left", BeetomSegment.CrawlingLeft), ("crawling_right", BeetomSegment.CrawlingRight),
@@ -86,6 +88,8 @@ public sealed partial class EngineAssetWriter
                  })
         {
             Enemy($"enemies/{file}.json", "Diver", id).BodyColliders(Ordinary)
+                .Value("dive_sound", EngineNames.Sound(EnemySoundEffectDefinitions.DiveSound))
+                .Value("burrow_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BurrowSound))
                 .Looks(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingWith,
                     static (SkreeMetareeCue cue) => cue.Kind == SkreeMetareeCueKind.SetAttackReady ? "ready" : EngineNames.AlwaysActive,
                     ("idle", idle), ("windup", windup), ("dive", dive))

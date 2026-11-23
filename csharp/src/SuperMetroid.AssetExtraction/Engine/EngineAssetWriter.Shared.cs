@@ -26,6 +26,9 @@ public sealed partial class EngineAssetWriter
     /// <summary>The data file of the timeline of one of the old game's lesser effects.</summary>
     internal static string EffectFile(RoomEffectActorKind kind) => $"effects/{EngineSheets.FileName(kind.ToString())}.json";
 
+    /// <summary>The data file of the timeline of one of the old game's clouds of dust and bursts, which many things leave.</summary>
+    internal static string DustFile(DustExplosionAnimation animation) => $"effects/dust_{EngineSheets.FileName(animation.ToString())}.json";
+
     /// <summary>The data file of the timeline of one of the old game's deaths of an enemy.</summary>
     internal static string DeathFile(EnemyDeathExplosion explosion) => $"effects/enemy_death_{EngineSheets.FileName(explosion.ToString())}.json";
 
@@ -45,6 +48,18 @@ public sealed partial class EngineAssetWriter
             IReadOnlyList<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> beats = RoomEffectActorAnimations.Segments.Beats(RoomEffectActorSegment.Of(kind));
             string file = EffectFile(kind);
             _tree.WriteData(file, SharedTimeline(file, beats, null, EffectFrame, static (NoAnimationCue _) => null));
+        }
+
+        foreach (DustExplosionAnimation animation in Enum.GetValues<DustExplosionAnimation>())
+        {
+            (List<IAnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>> lead, List<IAnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>>? cycle) =
+                EngineTimelines.Played(DustExplosionProjectileAnimations.Segments, DustExplosionProjectileAnimations.StartingAt[animation]);
+            string file = DustFile(animation);
+            // Each ends by taking itself away, which a timeline does by ending.
+            _tree.WriteData(file, SharedTimeline(file, lead, cycle, EnemySheetDefinitions.ProjectileFrameName,
+                static (EnemyProjectileCommonCue cue) => cue is EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }
+                    ? null
+                    : throw new InvalidDataException($"A cloud of dust raises {cue}, which this does not know.")));
         }
 
         foreach (EnemyDeathExplosion explosion in Enum.GetValues<EnemyDeathExplosion>())

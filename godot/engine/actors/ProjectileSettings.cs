@@ -113,6 +113,18 @@ public sealed record ProjectileSettings
     /// <summary>For one that moves in a wave: how many angle steps, of 256 to a full swing, it advances each update.</summary>
     public int WaveStep { get; init; } = 16;
 
+    /// <summary>For one that moves in a wave: the angle step its swing starts from; half a swing on mirrors it.</summary>
+    public int WaveStart { get; init; }
+
+    /// <summary>Whether it delivers its hit to what it meets. One that does not only carries its ending, as a bomb does.</summary>
+    public bool DeliversHit { get; init; } = true;
+
+    /// <summary>
+    /// Whether its hit lands on everything it overlaps in every update, as a blast does, instead of once on meeting a
+    /// target.
+    /// </summary>
+    public bool HitsEachUpdate { get; init; }
+
     /// <summary>How many updates it lasts; zero for no limit.</summary>
     public int LastsUpdates { get; init; }
 
@@ -122,8 +134,30 @@ public sealed record ProjectileSettings
     /// <summary>Its picture, as a path within the assets tree; empty for none.</summary>
     public string Picture { get; init; } = "";
 
+    /// <summary>
+    /// Where its picture's top-left corner lies from its centre, across and down, in pixels. Every picture of one
+    /// projectile shares it. When not given, the picture's corner is the corner of the projectile's own rectangle.
+    /// </summary>
+    public (int X, int Y)? PictureOffset { get; init; }
+
+    /// <summary>
+    /// The data file of the timeline it is shown by, when it is animated; empty for one shown by its picture alone.
+    /// "{direction}" in it, or in the picture, stands for the way the projectile was launched: "right", "up_right",
+    /// "up", "up_left", "left", "down_left", "down" or "down_right".
+    /// </summary>
+    public string Timeline { get; init; } = "";
+
     /// <summary>The data file of the timeline of the effect it leaves on ending; empty for none.</summary>
     public string EndingEffect { get; init; } = "";
+
+    /// <summary>
+    /// The data file of the burst it leaves on ending: another projectile with a hit and settings of its own, as an
+    /// explosion is; empty for none.
+    /// </summary>
+    public string EndingBurst { get; init; } = "";
+
+    /// <summary>The sound asked for as it ends, by name; empty for none.</summary>
+    public string EndingSound { get; init; } = "";
 
     /// <summary>Reads settings from a data file's group. Anything not given keeps its plain value.</summary>
     public static ProjectileSettings Read(DataNode data)
@@ -141,10 +175,17 @@ public sealed record ProjectileSettings
             SpeedLimit = data.Has("speed_limit") ? data.Distance("speed_limit") : Pixels.Zero,
             WaveSize = data.Has("wave_size") ? data.Distance("wave_size") : Pixels.Zero,
             WaveStep = data.Has("wave_step") ? data.Int("wave_step") : plain.WaveStep,
+            WaveStart = data.Has("wave_start") ? data.Int("wave_start") : 0,
+            DeliversHit = !data.Has("delivers_hit") || data.Flag("delivers_hit"),
+            HitsEachUpdate = data.Has("hits_each_update") && data.Flag("hits_each_update"),
             LastsUpdates = data.Has("lasts_updates") ? data.Int("lasts_updates") : 0,
             ViewMargin = data.Has("view_margin") ? data.Int("view_margin") : plain.ViewMargin,
             Picture = data.Has("picture") ? data.Text("picture") : "",
+            PictureOffset = data.Has("picture_offset") ? (data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y")) : null,
+            Timeline = data.Has("timeline") ? data.Text("timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
+            EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
+            EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",
         };
         if (settings.Width <= 0 || settings.Height <= 0 || settings.LastsUpdates < 0)
             throw data.Problem("gives a size that is not positive or a negative lifetime");

@@ -51,6 +51,9 @@ public static class Equipment
     /// <summary>The plasma beam.</summary>
     public const string PlasmaBeam = "plasma_beam";
 
+    /// <summary>The reserve tanks. Switched on, they refill Samus's energy by themselves when it runs out.</summary>
+    public const string ReserveTank = "reserve_tank";
+
     /// <summary>Every one of them.</summary>
-    public static IReadOnlyList<string> All { get; } = [VariaSuit, GravitySuit, MorphBall, Bombs, SpringBall, ScrewAttack, HiJumpBoots, SpaceJump, SpeedBooster, GrappleBeam, XrayScope, ChargeBeam, IceBeam, WaveBeam, Spazer, PlasmaBeam];
+    public static IReadOnlyList<string> All { get; } = [VariaSuit, GravitySuit, MorphBall, Bombs, SpringBall, ScrewAttack, HiJumpBoots, SpaceJump, SpeedBooster, GrappleBeam, XrayScope, ChargeBeam, IceBeam, WaveBeam, Spazer, PlasmaBeam, ReserveTank];
 }

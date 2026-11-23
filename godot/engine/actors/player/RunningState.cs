@@ -17,7 +17,7 @@ public sealed class RunningState : PlayerState
             return new FallingState();
         if (owner.Input.WasPressed(GameAction.Jump))
             return new JumpingState();
-        if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
+        if (owner.MayCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
         bool turning = owner.Intent != 0 && (owner.Intent > 0) != (owner.Facing == Shared.Facing.Right);
         if (turning && owner.TurnUpdates > 0)

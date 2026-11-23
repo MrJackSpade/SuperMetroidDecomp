@@ -9,7 +9,7 @@ namespace Engine.Actors;
 /// <summary>
 /// Something launched to deliver a hit, living on its own once launched. It moves, hits what it meets, and removes
 /// itself. It never decides what its target does about the hit, and never knows what its target is. How it behaves is
-/// its <see cref="ProjectileSettings"/>.
+/// its <see cref="ProjectileSettings"/>; a projectile with behaviour no setting gives is a class on this one.
 /// </summary>
 public partial class Projectile : Node2D, IRoomEntity, IHittable
 {
@@ -18,9 +18,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     private ProjectileSettings _settings = new();
     private ICollisionOwner? _launcher;
     private Collider? _hurtbox;
+    private ActorVisual? _visual;
+    private TimelinePlayer? _timeline;
     private Countdown _left;
     private int _wavePhase;
     private Pixels _waveOffset;
+    private string _direction = "right";
     private readonly HashSet<IHittable> _alreadyHurt = [];
 
     /// <summary>A projectile delivering <paramref name="hit"/>, launched from <paramref name="at"/> at <paramref name="velocity"/>.</summary>
@@ -31,9 +34,26 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// <param name="launcher">Whatever launched it, which it never hits.</param>
     public static Projectile Of(Hit hit, PixelPosition at, PixelVelocity velocity, ProjectileSettings settings, ICollisionOwner? launcher)
     {
+        var projectile = new Projectile { Name = "Projectile" };
+        projectile.Launch(hit, at, velocity, settings, launcher);
+        return projectile;
+    }
+
+    /// <summary>
+    /// Gives a projectile made from a scene, or by a class of its own, what <see cref="Of"/> gives a plain one. Called
+    /// once, before it is spawned into its room.
+    /// </summary>
+    public void Launch(Hit hit, PixelPosition at, PixelVelocity velocity, ProjectileSettings settings, ICollisionOwner? launcher)
+    {
         ArgumentNullException.ThrowIfNull(hit);
         ArgumentNullException.ThrowIfNull(settings);
-        return new Projectile { _hit = hit, Position = at, Velocity = velocity, _settings = settings, _launcher = launcher, Name = "Projectile" };
+        _hit = hit;
+        Position = at;
+        Velocity = velocity;
+        _settings = settings;
+        _launcher = launcher;
+        _direction = DirectionName(velocity);
+        _wavePhase = settings.WaveStart;
     }
 
     /// <inheritdoc/>
@@ -51,11 +71,20 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// <summary>Whose it is.</summary>
     public HitSide Side => Hit.Side;
 
+    /// <summary>Whatever launched it.</summary>
+    public ICollisionOwner? Launcher => _launcher;
+
+    /// <summary>The room it is in.</summary>
+    protected Room Room => _room ?? throw new InvalidOperationException("The projectile is not in a room.");
+
     /// <summary>The pixels it covers, in the room.</summary>
     public PixelRect Area => PixelRect.Around(Position.X.Whole, Position.Y.Whole, _settings.Width / 2, _settings.Height / 2);
 
     /// <summary>Whether it has ended.</summary>
     public bool HasEnded { get; private set; }
+
+    /// <summary>How many updates it has been in its room.</summary>
+    public int Age { get; private set; }
 
     /// <inheritdoc/>
     public void EnterRoom(Room room)
@@ -74,11 +103,20 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             room.Collision.Register(_hurtbox);
         }
 
-        if (_settings.Picture.Length > 0)
+        string picture = _settings.Picture.Replace("{direction}", _direction, StringComparison.Ordinal);
+        if (_settings.Timeline.Length > 0)
         {
-            var visual = new ActorVisual { Picture = _settings.Picture, PictureOffset = new Vector2I(-_settings.Width / 2, -_settings.Height / 2) };
-            AddChild(visual);
-            visual.Bind(room.Content);
+            string file = _settings.Timeline.Replace("{direction}", _direction, StringComparison.Ordinal);
+            _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(file)));
+            picture = _timeline.Current.Picture;
+        }
+
+        if (picture.Length > 0 || _timeline is not null)
+        {
+            (int x, int y) = _settings.PictureOffset ?? (-_settings.Width / 2, -_settings.Height / 2);
+            _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(x, y) };
+            AddChild(_visual);
+            _visual.Bind(room.Content);
         }
 
         OnLaunched(room);
@@ -92,10 +130,26 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     /// <summary>Plays one update: the projectile changes speed as its motion says, moves, and meets what is in its way.</summary>
     internal void Step()
     {
-        Room room = _room ?? throw new InvalidOperationException("The projectile is not in a room.");
+        Room room = Room;
         if (HasEnded)
             return;
 
+        Age++;
+        if (_timeline is not null)
+        {
+            _timeline.Step();
+            if (_timeline.IsOver && _settings.LastsUpdates == 0)
+            {
+                End(room);
+                return;
+            }
+
+            _visual?.Show(_timeline.Current.Picture);
+        }
+
+        BeforeTravel(room);
+        if (HasEnded)
+            return;
         ChangeSpeed(room);
         Travel(room);
         if (HasEnded)
@@ -121,13 +175,18 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         }
     }
 
+    /// <summary>Called each update before the projectile changes speed and travels. A projectile of its own class acts here.</summary>
+    protected virtual void BeforeTravel(Room room)
+    {
+    }
+
     /// <inheritdoc/>
     public bool IsHitBy(HitSide side) => _settings.MetByShot != ProjectileSettings.MetBy.Ignored && side != Side && !HasEnded;
 
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
     {
-        Room room = _room ?? throw new InvalidOperationException("The projectile is not in a room.");
+        Room room = Room;
         switch (_settings.MetByShot)
         {
             case ProjectileSettings.MetBy.Destroyed:
@@ -142,6 +201,24 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
 
     /// <inheritdoc/>
     public void ShowPosition() => EntityNode.Show(this, Position);
+
+    /// <summary>The name of the way a projectile launched at <paramref name="velocity"/> is going, for choosing its picture.</summary>
+    public static string DirectionName(PixelVelocity velocity)
+    {
+        int across = velocity.X.IsZero ? 0 : velocity.X.IsNegative ? -1 : 1;
+        int down = velocity.Y.IsZero ? 0 : velocity.Y.IsNegative ? -1 : 1;
+        return (across, down) switch
+        {
+            (1, -1) => "up_right",
+            (0, -1) => "up",
+            (-1, -1) => "up_left",
+            (-1, 0) => "left",
+            (-1, 1) => "down_left",
+            (0, 1) => "down",
+            (1, 1) => "down_right",
+            _ => "right",
+        };
+    }
 
     /// <summary>Changes the projectile's speed for this update, as its motion says.</summary>
     private void ChangeSpeed(Room room)
@@ -214,7 +291,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         Position = next;
         PixelRect area = Area;
         bool passes = _settings.MeetingTerrain is ProjectileSettings.Terrain.PassesThrough or ProjectileSettings.Terrain.PassesThroughAndHits;
-        bool hitsTerrain = _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
+        bool hitsTerrain = _settings.DeliversHit &&
+            _settings.MeetingTerrain is ProjectileSettings.Terrain.EndsAndHits or ProjectileSettings.Terrain.PassesThroughAndHits;
 
         if (passes && hitsTerrain)
             room.Terrain.TakeHit(Hit, area);
@@ -233,13 +311,26 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             }
 
             Position = previous;
+            OnMetTerrain(room);
             End(room);
             return false;
         }
 
+        if (!_settings.DeliversHit)
+            return true;
+
+        if (_settings.HitsEachUpdate)
+            _alreadyHurt.Clear();
         _alreadyHurt.Add(this);
         foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, area, from: _launcher, skipping: _alreadyHurt).ToList())
         {
+            OnMetTarget(room, target, result);
+            if (_settings.HitsEachUpdate)
+            {
+                _alreadyHurt.Add(target);
+                continue;
+            }
+
             switch (result)
             {
                 case HitResult.Ignored:
@@ -272,18 +363,38 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         return true;
     }
 
-    /// <summary>Ends the projectile where it is, leaving its ending effect if it has one.</summary>
+    /// <summary>Called as the projectile is stopped by terrain or a solid, before it ends.</summary>
+    protected virtual void OnMetTerrain(Room room)
+    {
+    }
+
+    /// <summary>Called for each target the projectile's hit landed on, with what the hit did.</summary>
+    protected virtual void OnMetTarget(Room room, IHittable target, HitResult result)
+    {
+    }
+
+    /// <summary>Ends the projectile where it is, leaving its ending effect, burst and sound if it has them.</summary>
     protected void End(Room room)
     {
         if (HasEnded)
             return;
         if (_settings.EndingEffect.Length > 0)
             room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(_settings.EndingEffect)), Position));
+        if (_settings.EndingBurst.Length > 0)
+            room.Spawn(Burst.Read(room.Content.ReadData(_settings.EndingBurst)).Launch(Position, Side, _launcher, Hit.Source));
+        if (_settings.EndingSound.Length > 0)
+            room.Session.Sounds.Request(_settings.EndingSound);
+        OnEnded(room);
         Leave(room);
     }
 
+    /// <summary>Called as the projectile ends, after it has left what its settings say it leaves.</summary>
+    protected virtual void OnEnded(Room room)
+    {
+    }
+
     /// <summary>Takes the projectile out of the room with no ending.</summary>
-    private void Leave(Room room)
+    protected void Leave(Room room)
     {
         HasEnded = true;
         room.Remove(this);

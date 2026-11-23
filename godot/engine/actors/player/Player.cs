@@ -86,6 +86,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("can_crouch")]
     public bool CanCrouch { get; set; } = true;
 
+    /// <summary>Whether pressing down while running crouches; when not, the player runs on.</summary>
+    [Export, DataValue("crouch_while_running")]
+    public bool CrouchWhileRunning { get; set; } = true;
+
     /// <summary>Whether the player can take the low form.</summary>
     [Export, DataValue("can_crawl")]
     public bool CanCrawl { get; set; }
@@ -512,6 +516,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (IsDead || IsInvincible || State is DyingState || !AcceptsHit(hit))
             return HitResult.Ignored;
+        if (hit.Carries(HitKind.Contact) && hit.Source is IHittable toucher && BodyPowerStops(toucher))
+            return HitResult.Ignored;
         Inventory.Lose(Inventory.Energy, DamageFrom(hit));
         if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
         {
@@ -806,6 +812,26 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return distance.IsNegative
             ? -(-distance).Share(liquid.Type.SpeedTimes, liquid.Type.SpeedOver)
             : distance.Share(liquid.Type.SpeedTimes, liquid.Type.SpeedOver);
+    }
+
+    /// <summary>
+    /// Whether an active body power saves the player from the touch of <paramref name="toucher"/>: the power's hit is
+    /// delivered to it there and then, and the touch does nothing when that hit hurt or destroyed it.
+    /// </summary>
+    private bool BodyPowerStops(IHittable toucher)
+    {
+        if (toucher is not Node node || !toucher.IsHitBy(HitSide.Player))
+            return false;
+        Collider? hurtbox = EntityNode.CollidersOf(node).FirstOrDefault(collider => collider.Enabled && collider.Role == ColliderRole.Hurtbox);
+        if (hurtbox is null)
+            return false;
+        foreach (BodyPower power in _bodyPowers)
+        {
+            if (power.IsActive && toucher.TakeHit(power.Hit with { Source = this }, hurtbox) is HitResult.Hurt or HitResult.Destroyed)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>Delivers each active body power's hit to whatever the body touches.</summary>

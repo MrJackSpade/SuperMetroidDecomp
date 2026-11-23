@@ -5,16 +5,24 @@ namespace Engine.Actors;
 
 /// <summary>
 /// A weapon's definition: the hit it delivers, its speed, cooldown and cost, how many of its shots may be live at once,
-/// how its projectile behaves, and the properties that switched-on equipment adds to its shots.
+/// how its projectiles behave, and how switched-on equipment changes its shots.
 /// </summary>
 /// <remarks>
+/// Equipment changes a weapon's shots in one of two ways. <c>properties</c> add to it: each switched-on piece adds its
+/// damage and kinds. <c>variants</c> replace it: the variant that applies is the one whose equipment is all switched
+/// on and that names the most of it, and its damage, kinds and projectiles are the shot's. A weapon whose combinations
+/// do not add up lists variants.
 /// <code>
 /// {
-///   "name": "beam", "damage": 20, "kinds": ["beam"], "speed": 4, "cooldown": 8, "max_live": 3,
-///   "costs": "", "cost": 0, "requires": "",
-///   "charge_updates": 60, "charged_damage_times": 3, "charged_kind": "charged",
-///   "properties": [ { "equipment": "ice beam", "kinds": ["ice"], "damage": 10 } ],
-///   "projectile": { "width": 8, "height": 4, "picture": "shots/beam.png" }
+///   "name": "beam", "damage": 20, "kinds": ["beam"], "speed": 4, "diagonal_speed": 2.668, "cooldown": 15, "max_live": 5,
+///   "costs": "", "cost": 0, "requires": "", "inherits_speed": true, "repeats_every": 25,
+///   "charge_updates": 60, "charge_needs": "charge_beam", "charged_damage_times": 3, "charged_kind": "charged", "charged_cooldown": 30,
+///   "sound": "beam", "charged_sound": "charged_beam",
+///   "properties": [ { "equipment": "ice_beam", "kinds": ["ice"], "damage": 10 } ],
+///   "projectile": { "width": 8, "height": 4, "picture": "shots/beam.png" },
+///   "variants": [ { "when": ["ice_beam", "wave_beam"], "damage": 60, "kinds": ["beam", "ice", "wave"],
+///                   "shots": [ { "side": 0, "projectile": { "motion": "wave" } } ],
+///                   "charged_shots": [ { "side": 0, "projectile": { "motion": "wave" } } ] } ]
 /// }
 /// </code>
 /// </remarks>
@@ -29,11 +37,23 @@ public sealed class WeaponStats
     /// <summary>The kinds its hit always carries.</summary>
     public IReadOnlyList<HitKind> Kinds { get; private init; } = [];
 
-    /// <summary>How fast its projectile is launched.</summary>
+    /// <summary>How fast its projectile is launched straight across or straight up or down.</summary>
     public Pixels Speed { get; private init; }
+
+    /// <summary>How fast its projectile is launched along each axis when launched diagonally.</summary>
+    public Pixels DiagonalSpeed { get; private init; }
+
+    /// <summary>Whether its projectile is launched with the launcher's own speed across added to its own.</summary>
+    public bool InheritsSpeed { get; private init; }
 
     /// <summary>How many updates must pass between shots.</summary>
     public int Cooldown { get; private init; }
+
+    /// <summary>How many updates must pass after a charged shot.</summary>
+    public int ChargedCooldown { get; private init; }
+
+    /// <summary>How many updates pass between shots while the attack is held without charging; zero when holding does not repeat.</summary>
+    public int RepeatsEvery { get; private init; }
 
     /// <summary>How many of its shots may be live at once; zero for no limit.</summary>
     public int MaxLive { get; private init; }
@@ -50,61 +70,109 @@ public sealed class WeaponStats
     /// <summary>How many updates the attack must be held to charge a shot; zero for a weapon that does not charge.</summary>
     public int ChargeUpdates { get; private init; }
 
+    /// <summary>The equipment that must be switched on for the weapon to charge; empty when it needs none.</summary>
+    public string ChargeNeeds { get; private init; } = "";
+
     /// <summary>A charged shot does its damage this many times over.</summary>
     public int ChargedDamageTimes { get; private init; } = 1;
 
     /// <summary>The kind a charged shot also carries; empty for none.</summary>
     public string ChargedKind { get; private init; } = "";
 
+    /// <summary>The sound asked for as a shot is fired, by name; empty for none.</summary>
+    public string Sound { get; private init; } = "";
+
+    /// <summary>The sound asked for as a charged shot is fired, by name; empty for the plain shot's.</summary>
+    public string ChargedSound { get; private init; } = "";
+
+    /// <summary>The scene of its projectile, when the projectile is a class of its own; empty for a plain projectile.</summary>
+    public string Scene { get; private init; } = "";
+
     /// <summary>What switched-on equipment adds to each shot.</summary>
     public IReadOnlyList<WeaponProperty> Properties { get; private init; } = [];
+
+    /// <summary>The shots that replace the weapon's own when their equipment is switched on.</summary>
+    public IReadOnlyList<WeaponVariant> Variants { get; private init; } = [];
 
     /// <summary>How its projectile behaves.</summary>
     public ProjectileSettings Projectile { get; private init; } = new();
 
+    /// <summary>Whether the weapon charges for a player carrying <paramref name="inventory"/>.</summary>
+    public bool Charges(Inventory inventory) => ChargeUpdates > 0 && (ChargeNeeds.Length == 0 || inventory.IsOn(ChargeNeeds));
+
     /// <summary>Reads a weapon from its data file.</summary>
     public static WeaponStats Read(DataNode data)
     {
+        ProjectileSettings projectile = data.Has("projectile") ? ProjectileSettings.Read(data.Get("projectile")) : new ProjectileSettings();
+        Pixels speed = data.Distance("speed");
         var stats = new WeaponStats
         {
             Name = data.Text("name"),
             Damage = data.Int("damage"),
             Kinds = data.List("kinds").Select(kind => new HitKind(kind.AsText())).ToList(),
-            Speed = data.Distance("speed"),
+            Speed = speed,
+            DiagonalSpeed = data.Has("diagonal_speed") ? data.Distance("diagonal_speed") : Diagonal(speed),
+            InheritsSpeed = data.Has("inherits_speed") && data.Flag("inherits_speed"),
             Cooldown = data.Has("cooldown") ? data.Int("cooldown") : 0,
+            ChargedCooldown = data.Has("charged_cooldown") ? data.Int("charged_cooldown") : data.Has("cooldown") ? data.Int("cooldown") : 0,
+            RepeatsEvery = data.Has("repeats_every") ? data.Int("repeats_every") : 0,
             MaxLive = data.Has("max_live") ? data.Int("max_live") : 0,
             Costs = data.Has("costs") ? data.Text("costs") : "",
             Cost = data.Has("cost") ? data.Int("cost") : 0,
             Requires = data.Has("requires") ? data.Text("requires") : "",
             ChargeUpdates = data.Has("charge_updates") ? data.Int("charge_updates") : 0,
+            ChargeNeeds = data.Has("charge_needs") ? data.Text("charge_needs") : "",
             ChargedDamageTimes = data.Has("charged_damage_times") ? data.Int("charged_damage_times") : 1,
             ChargedKind = data.Has("charged_kind") ? data.Text("charged_kind") : "",
+            Sound = data.Has("sound") ? data.Text("sound") : "",
+            ChargedSound = data.Has("charged_sound") ? data.Text("charged_sound") : "",
+            Scene = data.Has("scene") ? data.Text("scene") : "",
             Properties = data.Has("properties")
                 ? data.List("properties").Select(property => new WeaponProperty(
                     property.Text("equipment"),
                     property.Has("kinds") ? property.List("kinds").Select(kind => new HitKind(kind.AsText())).ToList() : [],
                     property.Has("damage") ? property.Int("damage") : 0)).ToList()
                 : [],
-            Projectile = data.Has("projectile") ? ProjectileSettings.Read(data.Get("projectile")) : new ProjectileSettings(),
+            Variants = data.Has("variants") ? data.List("variants").Select(variant => WeaponVariant.Read(variant, projectile)).ToList() : [],
+            Projectile = projectile,
         };
-        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.Cost < 0 || stats.Kinds.Count == 0)
+        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.Cost < 0 || stats.Kinds.Count == 0 || stats.RepeatsEvery < 0)
             throw data.Problem("gives a negative number, or a weapon whose hit carries no kind");
         return stats;
     }
 
+    /// <summary>The variant that applies for a player carrying <paramref name="inventory"/>, or null when the weapon's own shot does.</summary>
+    public WeaponVariant? VariantFor(Inventory inventory)
+    {
+        WeaponVariant? best = null;
+        foreach (WeaponVariant variant in Variants)
+        {
+            if (!variant.When.All(inventory.IsOn))
+                continue;
+            if (best is null || variant.When.Count > best.When.Count)
+                best = variant;
+        }
+
+        return best;
+    }
+
     /// <summary>The hit one shot delivers for a player carrying <paramref name="inventory"/>.</summary>
-    /// <param name="inventory">The player's inventory, which says which properties are switched on.</param>
+    /// <param name="inventory">The player's inventory, which says which equipment is switched on.</param>
     /// <param name="charged">Whether the shot is charged.</param>
     public Hit HitFor(Inventory inventory, bool charged)
     {
-        int damage = Damage;
-        var kinds = new List<HitKind>(Kinds);
-        foreach (WeaponProperty property in Properties)
+        WeaponVariant? variant = VariantFor(inventory);
+        int damage = variant?.Damage ?? Damage;
+        var kinds = new List<HitKind>(variant?.Kinds ?? Kinds);
+        if (variant is null)
         {
-            if (!inventory.IsOn(property.Equipment))
-                continue;
-            damage += property.Damage;
-            kinds.AddRange(property.Kinds);
+            foreach (WeaponProperty property in Properties)
+            {
+                if (!inventory.IsOn(property.Equipment))
+                    continue;
+                damage += property.Damage;
+                kinds.AddRange(property.Kinds);
+            }
         }
 
         if (charged)
@@ -115,5 +183,26 @@ public sealed class WeaponStats
         }
 
         return new Hit(damage, HitSide.Player, [.. kinds.Distinct()]);
+    }
+
+    /// <summary>The projectiles one shot launches for a player carrying <paramref name="inventory"/>.</summary>
+    public IReadOnlyList<WeaponShot> ShotsFor(Inventory inventory, bool charged)
+    {
+        WeaponVariant? variant = VariantFor(inventory);
+        if (variant is null)
+            return [new WeaponShot(0, Projectile)];
+        return charged ? variant.ChargedShots : variant.Shots;
+    }
+
+    /// <summary>The cooldown after one shot for a player carrying <paramref name="inventory"/>.</summary>
+    public int CooldownFor(Inventory inventory, bool charged) =>
+        charged ? ChargedCooldown : VariantFor(inventory)?.Cooldown ?? Cooldown;
+
+    /// <summary>The speed along each axis of a shot fired diagonally at <paramref name="speed"/>.</summary>
+    private static Pixels Diagonal(Pixels speed)
+    {
+        // 181/256 is the sine of an eighth of a turn, to the nearest 256th.
+        long fractions = ((long)speed.Whole * Pixels.FractionsPerPixel + speed.Fraction) * 181 / 256;
+        return Pixels.FromParts((int)(fractions / Pixels.FractionsPerPixel), (int)(fractions % Pixels.FractionsPerPixel));
     }
 }

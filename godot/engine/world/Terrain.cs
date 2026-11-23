@@ -203,6 +203,19 @@ public partial class Terrain : Node2D, ITerrainShape
             block.StandOn();
     }
 
+    /// <summary>
+    /// Tells the terrain that a line latched onto <paramref name="block"/> has let go. A block that can be latched
+    /// onto only once breaks.
+    /// </summary>
+    public void LetGoOf(Block block)
+    {
+        ArgumentNullException.ThrowIfNull(block);
+        if (block.Type.Contact != BlockContact.LatchOnce || block.Broken)
+            return;
+        block.Break();
+        QueueRedraw();
+    }
+
     /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals.</summary>
     public void RevealBySight(PixelRect area)
     {

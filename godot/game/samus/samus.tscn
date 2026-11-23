@@ -1,12 +1,44 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://game/samus/Samus.cs" id="1"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
+[ext_resource type="Script" path="res://game/samus/SamusVisual.cs" id="3"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="4"]
+[ext_resource type="Script" path="res://game/samus/SamusGrapple.cs" id="5"]
+[ext_resource type="Script" path="res://game/samus/SamusXray.cs" id="6"]
 
 [node name="Samus" type="Node2D"]
 script = ExtResource("1")
+DataFile = "samus/samus.json"
 CanCrouch = true
+CrouchWhileRunning = false
 CanCrawl = true
 CanJumpWhileCrawling = true
 CanWallJump = true
+WallJumpFromAnyJump = false
+WallJumpNeedsSteeringAway = true
 CrawlNeeds = "morph_ball"
 JumpWhileCrawlingNeeds = "spring_ball"
+JumpBoostNeeds = "hi_jump_boots"
+DashAction = "run"
+DashBoostNeeds = "speed_booster"
+
+[node name="Body" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 0
+
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Picture" type="Node2D" parent="Visual"]
+script = ExtResource("4")
+
+[node name="Grapple" type="Node2D" parent="."]
+script = ExtResource("5")
+
+[node name="Xray" type="Node2D" parent="."]
+script = ExtResource("6")

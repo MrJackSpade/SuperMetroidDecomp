@@ -1,12 +1,548 @@
 using Engine.Actors;
+using Engine.Content;
+using Engine.Input;
+using Engine.Shared;
+using Engine.World;
+using Game.Data;
+using Godot;
 
 namespace Game;
 
 /// <summary>
 /// This game's player: the engine's player controller plus what is hers. Her morph ball is the engine's low form,
-/// which the morph ball switches on and the spring ball lets jump; wall jumping and crouching are the engine's,
-/// switched on for her. Those switches, and her numbers, are settings in her scene and data file, not code.
+/// which the morph ball switches on and the spring ball lets jump; wall jumping, crouching and the dash are the
+/// engine's, switched on for her in her scene. Hers alone are the item she has selected, her suits and reserve tanks,
+/// the speed booster's boost and stored shine, and her own states.
 /// </summary>
 public partial class Samus : Player
 {
+    /// <summary>The name of the form her body takes in a spin jump.</summary>
+    public const string Spinning = "spinning";
+
+    /// <summary>The data files of her weapons.</summary>
+    [Export, DataValue("weapons")]
+    public string[] WeaponFiles { get; set; } = [];
+
+    /// <summary>With the Varia suit on, a hit does its damage over this many.</summary>
+    [Export, DataValue("varia_damage_over")]
+    public int VariaDamageOver { get; set; } = 2;
+
+    /// <summary>With the Gravity suit on, a hit does its damage over this many.</summary>
+    [Export, DataValue("gravity_damage_over")]
+    public int GravityDamageOver { get; set; } = 4;
+
+    /// <summary>The energy at or below which the warning sounds.</summary>
+    [Export, DataValue("low_energy")]
+    public int LowEnergy { get; set; } = 30;
+
+    /// <summary>How many updates pass between one sounding of the low energy warning and the next.</summary>
+    [Export, DataValue("low_energy_sound_every")]
+    public int LowEnergySoundEvery { get; set; } = 24;
+
+    /// <summary>
+    /// How many updates of dashing each stage of the speed booster's boost takes, from the first to the last. Having
+    /// run through them all, she is boosting.
+    /// </summary>
+    [Export, DataValue("boost_stage_updates")]
+    public int[] BoostStageUpdates { get; set; } = [];
+
+    /// <summary>How many updates a stored shine lasts.</summary>
+    [Export, DataValue("stored_shine_updates")]
+    public int StoredShineUpdates { get; set; } = 180;
+
+    /// <summary>How many updates a shinespark winds up for before it launches straight up by itself.</summary>
+    [Export, DataValue("shinespark_windup_updates")]
+    public int ShinesparkWindupUpdates { get; set; } = 30;
+
+    /// <summary>The speed a shinespark launches at, as a number of pixels.</summary>
+    [Export, DataValue("shinespark_speed")]
+    public double ShinesparkSpeed { get; set; } = 8;
+
+    /// <summary>The speed a shinespark gains each update.</summary>
+    [Export, DataValue("shinespark_acceleration")]
+    public double ShinesparkAcceleration { get; set; } = 0.5;
+
+    /// <summary>The most speed a shinespark reaches.</summary>
+    [Export, DataValue("shinespark_top_speed")]
+    public double ShinesparkTopSpeed { get; set; } = 15;
+
+    /// <summary>The energy below which a shinespark ends.</summary>
+    [Export, DataValue("shinespark_least_energy")]
+    public int ShinesparkLeastEnergy { get; set; } = 30;
+
+    /// <summary>How many updates she is held where a shinespark ended.</summary>
+    [Export, DataValue("shinespark_crash_updates")]
+    public int ShinesparkCrashUpdates { get; set; } = 30;
+
+    /// <summary>How much energy the reserve tanks give back each update while refilling her.</summary>
+    [Export, DataValue("reserve_refill_per_update")]
+    public int ReserveRefillPerUpdate { get; set; } = 1;
+
+    /// <summary>The energy below which a crystal flash can start.</summary>
+    [Export, DataValue("crystal_flash_energy_below")]
+    public int CrystalFlashEnergyBelow { get; set; } = 51;
+
+    /// <summary>How much of each kind of ammunition a crystal flash uses up.</summary>
+    [Export, DataValue("crystal_flash_ammunition")]
+    public int CrystalFlashAmmunition { get; set; } = 10;
+
+    /// <summary>How much energy each piece of ammunition becomes in a crystal flash.</summary>
+    [Export, DataValue("crystal_flash_energy_each")]
+    public int CrystalFlashEnergyEach { get; set; } = 50;
+
+    /// <summary>How many updates pass between one piece of ammunition and the next in a crystal flash.</summary>
+    [Export, DataValue("crystal_flash_drain_every")]
+    public int CrystalFlashDrainEvery { get; set; } = 8;
+
+    /// <summary>How many updates of the charge it takes for a spin jump to hurt what it touches.</summary>
+    [Export, DataValue("charged_spin_updates")]
+    public int ChargedSpinUpdates { get; set; } = 60;
+
+    /// <summary>How many updates the X-ray scope's cone takes to open fully.</summary>
+    [Export, DataValue("xray_opening_updates")]
+    public int XrayOpeningUpdates { get; set; } = 64;
+
+    /// <summary>How many updates collecting a suit holds her for.</summary>
+    [Export, DataValue("suit_pickup_updates")]
+    public int SuitPickupUpdates { get; set; } = 240;
+
+    /// <summary>How far the X-ray scope sees, in pixels.</summary>
+    [Export, DataValue("xray_reach")]
+    public int XrayReach { get; set; } = 256;
+
+    private readonly Dictionary<string, BodyPower> _powers = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _muzzles = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
+    private Countdown _shine = Countdown.Over;
+    private Countdown _boostStageLeft = Countdown.Over;
+    private int _boostStage = -1;
+    private bool _autoCancel;
+    private bool _wasWallJumping;
+    private bool _aimedDownLastUpdate;
+    private bool _woreVaria;
+    private bool _woreGravity;
+    private int _lowEnergySoundWait;
+
+    /// <summary>
+    /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
+    /// empty for the beam alone.
+    /// </summary>
+    public string Selected { get; private set; } = "";
+
+    /// <summary>Her timelines, by name.</summary>
+    public TimelineSet Timelines { get; private set; } = TimelineSet.None;
+
+    /// <summary>Whether the speed booster has brought her to full speed: she is boosting.</summary>
+    public bool IsBoosting => BoostStageUpdates.Length > 0 && _boostStage >= BoostStageUpdates.Length;
+
+    /// <summary>How far through the speed booster's stages she is: 0 before the first is done, up to the number of stages when boosting.</summary>
+    public int BoostStage => Math.Max(0, _boostStage);
+
+    /// <summary>Whether she has a shine stored.</summary>
+    public bool HasStoredShine => _shine.IsRunning;
+
+    /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
+    public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        Timelines = TimelineSet.ReadFrom(data);
+
+        _powers.Clear();
+        if (data.Has("body_powers"))
+        {
+            foreach ((string name, DataNode power) in data.Get("body_powers").Entries())
+            {
+                var made = new BodyPower(name, power.Int("damage"), [.. power.List("kinds").Select(kind => new HitKind(kind.AsText()))]);
+                _powers[name] = made;
+                AddBodyPower(made);
+            }
+        }
+
+        _muzzles.Clear();
+        if (data.Has("muzzles"))
+        {
+            foreach ((string stance, DataNode facings) in data.Get("muzzles").Entries())
+            {
+                _muzzles[stance] = new(StringComparer.Ordinal);
+                foreach ((string facing, DataNode aims) in facings.Entries())
+                {
+                    _muzzles[stance][facing] = new(StringComparer.Ordinal);
+                    foreach ((string aim, DataNode offset) in aims.Entries())
+                        _muzzles[stance][facing][aim] = new Vector2I(offset.Int("x"), offset.Int("y"));
+                }
+            }
+        }
+
+        _shotHeights.Clear();
+        if (data.Has("shot_heights"))
+        {
+            foreach ((string look, DataNode height) in data.Get("shot_heights").Entries())
+                _shotHeights[look] = height.AsInt();
+        }
+
+        if (data.Has("grapple"))
+            Grapple?.ReadValues(data.Get("grapple"));
+    }
+
+    /// <inheritdoc/>
+    protected override void OnReady()
+    {
+        foreach (string file in WeaponFiles)
+            Weapons.Add(WeaponStats.Read(Room.Content.ReadData(file)));
+        _woreVaria = Inventory.Owns(Equipment.VariaSuit);
+        _woreGravity = Inventory.Owns(Equipment.GravitySuit);
+    }
+
+    /// <summary>
+    /// Throws the morph ball as a bomb of her own bursts against it: straight up when the bomb was beneath her middle,
+    /// and to the side away from it otherwise. Only the ball at rest in her control is thrown.
+    /// </summary>
+    public void BombJump(PixelPosition bomb)
+    {
+        if (State is not CrawlingState)
+            return;
+        int away = Position.X.Whole - bomb.X.Whole;
+        ChangeState(new BombJumpingState(away));
+    }
+
+    /// <summary>
+    /// Where a shot starts: from her middle, raised by how high the pose she is in holds her arm, at the place her
+    /// arm points for the way she faces and aims.
+    /// </summary>
+    public override PixelPosition MuzzlePoint
+    {
+        get
+        {
+            string stance = State is RunningState or MoonwalkingState ? "running" : "standing";
+            string facing = Facing == Facing.Right ? "right" : "left";
+            if (!_muzzles.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
+                !aims.TryGetValue(AimName(Aim), out Vector2I offset))
+                return base.MuzzlePoint;
+            int height = _shotHeights.GetValueOrDefault(SamusLooks.Of(this), 0);
+            return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
+        }
+    }
+
+    /// <summary>
+    /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
+    /// while she steers; down aims down in the air, or diagonally down while she steers or runs.
+    /// </summary>
+    public override void AimFromInput()
+    {
+        bool up = Input.IsHeld(GameAction.Up), down = Input.IsHeld(GameAction.Down);
+        bool angleUp = Input.IsHeld(Actions.AngleUp), angleDown = Input.IsHeld(Actions.AngleDown);
+        bool steering = Intent != 0;
+        bool grounded = IsOnGround;
+        if (angleUp && angleDown)
+            Aim = Aim.Up;
+        else if (angleUp)
+            Aim = Aim.DiagonalUp;
+        else if (angleDown)
+            Aim = Aim.DiagonalDown;
+        else if (up)
+            Aim = steering ? Aim.DiagonalUp : Aim.Up;
+        else if (down && !grounded)
+            Aim = steering ? Aim.DiagonalDown : Aim.Down;
+        else if (down && State is RunningState)
+            Aim = Aim.DiagonalDown;
+        else
+            Aim = Aim.Forward;
+    }
+
+    /// <summary>Selects the beam alone.</summary>
+    public void SelectBeam()
+    {
+        Selected = "";
+        _autoCancel = false;
+    }
+
+    /// <summary>Stores a shine, as crouching at full boost does.</summary>
+    public void StoreShine()
+    {
+        _shine = Countdown.Of(StoredShineUpdates);
+        Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus");
+    }
+
+    /// <summary>Uses up the stored shine.</summary>
+    public void SpendShine() => _shine = Countdown.Over;
+
+    /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
+    public void BoostFully() => _boostStage = BoostStageUpdates.Length;
+
+    /// <summary>Ends her boost.</summary>
+    public void EndBoost()
+    {
+        _boostStage = -1;
+        _boostStageLeft = Countdown.Over;
+    }
+
+    /// <inheritdoc/>
+    protected override void BeforeState()
+    {
+        foreach (BodyPower power in BodyPowers)
+            power.IsActive = false;
+        _shine = _shine.Stepped();
+        ChooseItem();
+
+        // A suit that has just become hers holds her while it is put on.
+        bool varia = Inventory.Owns(Equipment.VariaSuit), gravity = Inventory.Owns(Equipment.GravitySuit);
+        if ((varia && !_woreVaria) || (gravity && !_woreGravity))
+            ChangeState(new CollectingSuitState());
+        _woreVaria = varia;
+        _woreGravity = gravity;
+    }
+
+    /// <inheritdoc/>
+    protected override PlayerState? ChooseState(PlayerState current)
+    {
+        GameInput input = Input;
+        bool wasWallJumping = _wasWallJumping;
+        _wasWallJumping = current is WallJumpingState;
+        bool aimedDown = _aimedDownLastUpdate;
+        _aimedDownLastUpdate = Aim == Aim.Down;
+
+        switch (current)
+        {
+            case StandingState or RunningState or CrouchingState:
+                if (input.WasPressed(GameAction.Jump))
+                {
+                    if (HasStoredShine)
+                        return new ShinesparkState();
+                    if (current is not CrouchingState && Intent != 0)
+                        return new SpinJumpingState();
+                    return null;
+                }
+
+                if (current is RunningState && IsBoosting && input.WasPressed(GameAction.Down))
+                {
+                    StoreShine();
+                    return new CrouchingState();
+                }
+
+                if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
+                    Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                    return new MoonwalkingState();
+                if (current is CrouchingState && Intent != 0 && Intent > 0 == (Facing == Facing.Right) && TrySetForm(Standing))
+                    return new RunningState();
+                if (current is not RunningState && Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
+                    return new XrayState();
+                if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
+                    grapple.Fire(this);
+                return null;
+
+            case JumpingState when wasWallJumping:
+                return new SpinJumpingState(keepsSpeed: true);
+
+            case JumpingState or FallingState or SpinJumpingState:
+                // Down pressed again while already aiming down curls her into the ball in the air.
+                if (input.WasPressed(GameAction.Down) && aimedDown && MayCrawl)
+                    return new CrawlingState();
+                if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } inAir)
+                    inAir.Fire(this);
+                return null;
+
+            case CrawlingState:
+                return CrystalFlashState.CanStart(this) ? new CrystalFlashState() : null;
+
+            case KnockedBackState:
+                // Jumping out of a knockback while steering carries her off in a damage boost.
+                if (input.WasPressed(GameAction.Jump) && Intent != 0 && Form != Crawling)
+                    return new DamageBoostState(Intent > 0 ? Facing.Right : Facing.Left);
+                return null;
+
+            default:
+                return null;
+        }
+    }
+
+    /// <summary>Her grapple beam, when her scene gives her one.</summary>
+    public SamusGrapple? Grapple => GetNodeOrNull<SamusGrapple>("Grapple");
+
+    /// <summary>Her X-ray scope, when her scene gives her one.</summary>
+    public SamusXray? Xray => GetNodeOrNull<SamusXray>("Xray");
+
+    /// <inheritdoc/>
+    protected override void Attack(GameInput input)
+    {
+        string weapon = WeaponInHand();
+        if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
+        {
+            Weapons.StepCooldown();
+            Weapons.DropCharge();
+            return;
+        }
+
+        Weapons.Select(weapon);
+        int liveBefore = Weapons.LiveOf(weapon).Count;
+        base.Attack(input);
+        bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
+        if (fired && _autoCancel && weapon != Arsenal.Beam)
+            SelectBeam();
+        if (Amounts.All.Contains(Selected) && Inventory.Amount(Selected) == 0)
+            SelectBeam();
+    }
+
+    /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>
+    private string WeaponInHand()
+    {
+        if (Form == Crawling)
+            return Selected == Amounts.PowerBombs ? Arsenal.PowerBomb : Arsenal.Bomb;
+        return Selected switch
+        {
+            Amounts.Missiles => Arsenal.Missile,
+            Amounts.SuperMissiles => Arsenal.SuperMissile,
+            Equipment.GrappleBeam or Equipment.XrayScope => "",
+            _ => Arsenal.Beam,
+        };
+    }
+
+    /// <summary>
+    /// Handles the item actions: cancel selects the beam alone; select moves on to the next thing she can use. An item
+    /// chosen while cancel is held is put away again once it has been used.
+    /// </summary>
+    private void ChooseItem()
+    {
+        if (!State.InControl)
+            return;
+        if (Input.WasPressed(Actions.ItemCancel))
+        {
+            SelectBeam();
+            return;
+        }
+
+        if (!Input.WasPressed(Actions.ItemSelect))
+            return;
+        string[] ring = ["", Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs, Equipment.GrappleBeam, Equipment.XrayScope];
+        int at = Array.IndexOf(ring, Selected);
+        do
+        {
+            at = (at + 1) % ring.Length;
+        }
+        while (!CanSelect(ring[at]));
+        Selected = ring[at];
+        _autoCancel = Selected.Length > 0 && Input.IsHeld(Actions.ItemCancel);
+        Room.Session.Sounds.Request(Sounds.ItemSelect, channel: "hud");
+    }
+
+    /// <summary>Whether she can select something: ammunition she has some of, or equipment that is switched on.</summary>
+    private bool CanSelect(string item) =>
+        item.Length == 0 || (Amounts.All.Contains(item) ? Inventory.Amount(item) > 0 : Inventory.IsOn(item));
+
+    /// <inheritdoc/>
+    protected override bool AcceptsHit(Hit hit) => State is not IUntouchable;
+
+    /// <summary>A hit's damage, lessened by her suit: the Gravity suit's share when it is on, else the Varia suit's.</summary>
+    protected override int DamageFrom(Hit hit) => hit.Damage / SuitDivisor;
+
+    /// <inheritdoc/>
+    protected override int OngoingDamageTaken(int hundredths) => hundredths / SuitDivisor;
+
+    /// <summary>What her suit divides damage by.</summary>
+    private int SuitDivisor =>
+        Inventory.IsOn(Equipment.GravitySuit) ? GravityDamageOver : Inventory.IsOn(Equipment.VariaSuit) ? VariaDamageOver : 1;
+
+    /// <summary>With energy gone, reserve tanks that are switched on refill her before she can die.</summary>
+    protected override bool SurvivesEmptyEnergy()
+    {
+        if (!Inventory.IsOn(Equipment.ReserveTank) || Inventory.Amount(Amounts.ReserveEnergy) == 0)
+            return false;
+        if (State is not RefillingFromReservesState)
+            ChangeState(new RefillingFromReservesState());
+        return true;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnHurt(Hit hit, Facing from)
+    {
+        Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
+        Weapons.DropCharge();
+        if (State is RefillingFromReservesState)
+            return;
+        base.OnHurt(hit, from);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnMomentumBegan()
+    {
+        if (!Inventory.IsOn(Equipment.SpeedBooster) || BoostStageUpdates.Length == 0)
+            return;
+        _boostStage = 0;
+        _boostStageLeft = Countdown.Of(BoostStageUpdates[0]);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnMomentumLost()
+    {
+        if (State is not ShinesparkState)
+            EndBoost();
+    }
+
+    /// <summary>The engine's gravity, except that her fall stops gaining speed once its whole pixels reach the limit, as the original's does.</summary>
+    protected override Pixels AfterGravity(Pixels speed, PlayerMedium medium)
+    {
+        if (!speed.IsNegative && speed.Whole == (int)medium.FallSpeedLimit)
+            return speed;
+        return speed + Pixels.FromNumber(medium.Gravity);
+    }
+
+    /// <summary>A jump's launch speed, raised by half her dash speed while the speed booster is switched on.</summary>
+    public override Pixels LaunchSpeed(bool offWall)
+    {
+        Pixels speed = base.LaunchSpeed(offWall);
+        return Inventory.IsOn(Equipment.SpeedBooster) ? speed + DashSpeed.Share(1, 2) : speed;
+    }
+
+    /// <inheritdoc/>
+    protected override void AfterState()
+    {
+        StepBoost();
+        if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
+            boost.IsActive = true;
+        WarnOfLowEnergy();
+        Grapple?.Step(this);
+        GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+    }
+
+    /// <summary>Moves the speed booster's stages on while she dashes with it switched on.</summary>
+    private void StepBoost()
+    {
+        if (_boostStage < 0 || IsBoosting || State is not RunningState || !HasMomentum || !DashIsHeld)
+            return;
+        _boostStageLeft = _boostStageLeft.Stepped();
+        if (_boostStageLeft.IsRunning)
+            return;
+        _boostStage++;
+        if (IsBoosting)
+            Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+        else
+            _boostStageLeft = Countdown.Of(BoostStageUpdates[_boostStage]);
+    }
+
+    /// <summary>Sounds the warning every so often while her energy is low.</summary>
+    private void WarnOfLowEnergy()
+    {
+        if (Inventory.Amount(Amounts.Energy) > LowEnergy || State is DyingState)
+        {
+            _lowEnergySoundWait = 0;
+            return;
+        }
+
+        if (_lowEnergySoundWait == 0)
+            Room.Session.Sounds.Request(Sounds.LowEnergy, channel: "warning");
+        _lowEnergySoundWait = (_lowEnergySoundWait + 1) % Math.Max(1, LowEnergySoundEvery);
+    }
+
+    /// <summary>The name an aim has in her data file.</summary>
+    internal static string AimName(Aim aim) => aim switch
+    {
+        Aim.Forward => "forward",
+        Aim.DiagonalUp => "diagonal_up",
+        Aim.Up => "up",
+        Aim.DiagonalDown => "diagonal_down",
+        Aim.Down => "down",
+        _ => throw new InvalidOperationException($"Undefined aim {aim}."),
+    };
 }

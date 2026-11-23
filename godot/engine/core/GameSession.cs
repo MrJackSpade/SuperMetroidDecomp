@@ -119,6 +119,30 @@ public sealed class GameSession
     /// <summary>Takes the next message waiting to be shown, or null when none is.</summary>
     public string? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
 
+    /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>
+    private (string Message, Action<bool> Answered)? _question;
+
+    /// <summary>
+    /// Asks for a message that is answered yes or no to be shown. The mode in control shows it and gives the answer to
+    /// <paramref name="answered"/>.
+    /// </summary>
+    public void RequestQuestion(string message, Action<bool> answered)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        ArgumentNullException.ThrowIfNull(answered);
+        if (_question is not null)
+            throw new InvalidOperationException($"The question \"{message}\" was asked while \"{_question.Value.Message}\" was still waiting to be shown.");
+        _question = (message, answered);
+    }
+
+    /// <summary>Takes the question waiting to be shown, or null when none is.</summary>
+    public (string Message, Action<bool> Answered)? TakeQuestion()
+    {
+        (string, Action<bool>)? question = _question;
+        _question = null;
+        return question;
+    }
+
     /// <summary>Where the game was last asked to be saved: the room's scene and the entry point in it. Null until it is asked.</summary>
     public (string Room, string EntryPoint)? SaveRequested { get; private set; }
 

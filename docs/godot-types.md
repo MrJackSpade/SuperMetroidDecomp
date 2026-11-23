@@ -345,7 +345,8 @@ select, options, game over, time up, and one per cinematic.
   stepped, and is told when control comes back (`Resume`). Any other hand-over ends the mode that finished, and
   everything it was laid over.
 - **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
-  message, `RequestSave` for a save. The mode in control takes the request and acts on it.
+  message, `RequestQuestion` for one answered yes or no (the answer comes back to whoever asked), `RequestSave`
+  for a save. The mode in control takes the request and acts on it.
 - **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
   `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
   game's is its game-over screen.
@@ -446,8 +447,8 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | --- | --- | --- |
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
-| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save; reveal the area's map; refill listed inventory amounts. |
-| `Carrier` | Taking hold of the player and moving them along a path, then letting go. | Path; what starts it; whether it ends by letting go or at a `RoomExit`. |
+| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save; reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
+| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. | Path; speed; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. | The `Hit` or ongoing damage it does, or its hold. |
@@ -480,7 +481,8 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 
 **Things built from these, not types of their own.** Apply move 1 before adding a kind.
 
-- **An elevator** is a `Carrier` whose path ends at a `RoomExit`.
+- **An elevator** is a `Carrier` whose path ends at a `RoomExit`, started by a press of up or down. The room it
+  leads to has a carrier of its own whose path ends where the player arrives, and it brings them to rest.
 - **An item held in a shell** (a statue's orb) is an `Item` with a `Barrier` around it. The item cannot be touched
   until the barrier is open, because the barrier is solid.
 - **An item hidden in the wall** is an `Item` behind a block. It cannot be seen or touched until the block is gone.

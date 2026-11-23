@@ -74,6 +74,8 @@ public partial class PlayingMode : GameMode
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
         if (Session.Player.IsDead)
             return Session.Definition.CreateModeAfterDeath();
+        if (Session.TakeQuestion() is { } question)
+            return new MessageBoxMode(this, question.Message, question.Answered);
         if (Session.TakeMessage() is { } message)
             return new MessageBoxMode(this, message);
         if (Room.ExitEntered is { } exit)

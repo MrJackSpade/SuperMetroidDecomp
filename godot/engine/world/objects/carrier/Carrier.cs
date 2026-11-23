@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Input;
 using Engine.Shared;
 using Godot;
 
@@ -6,7 +7,8 @@ namespace Engine.World.Objects;
 
 /// <summary>
 /// Something that takes hold of the player and moves them along a path, then lets go. An elevator is a carrier whose
-/// path ends at a room exit: the player is let go inside the exit, and the room transition follows.
+/// path ends at a room exit: the player is let go inside the exit, and the room transition follows. A player who
+/// arrives in the room where its path ends is brought back along it to where it rests.
 /// </summary>
 public partial class Carrier : RoomObject
 {
@@ -26,9 +28,27 @@ public partial class Carrier : RoomObject
     [Export]
     public Vector2I HoldsAt { get; set; }
 
+    /// <summary>The action whose press starts it while the player stands in its region; empty when standing there is enough.</summary>
+    [Export]
+    public string StartsOn { get; set; } = "";
+
+    /// <summary>Whether it brings a player who arrives where its path ends back to where it rests.</summary>
+    [Export]
+    public bool BringsArrivals { get; set; } = true;
+
+    /// <summary>The sound of it setting off, by name; empty for none.</summary>
+    [Export]
+    public string DepartureSound { get; set; } = "";
+
+    /// <summary>The sound of it coming to rest, by name; empty for none.</summary>
+    [Export]
+    public string ArrivalSound { get; set; } = "";
+
     private PixelPosition _home;
     private PathFollower? _path;
     private bool _mustLeave;
+    private bool _arriving;
+    private bool _lookedForArrival;
 
     /// <summary>Whether the carrier is carrying the player.</summary>
     public bool IsCarrying => _path is not null;
@@ -42,12 +62,20 @@ public partial class Carrier : RoomObject
         if (Path.Count < 2)
             throw new InvalidOperationException($"The carrier \"{Name}\" needs a path of at least two points.");
         _home = Position;
+        (_path, _mustLeave, _arriving, _lookedForArrival) = (null, false, false, false);
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
         Player player = Room.Player;
+        if (!_lookedForArrival)
+        {
+            _lookedForArrival = true;
+            if (BringsArrivals && TakeArrival(player))
+                return;
+        }
+
         if (_path is not null)
         {
             _path.Step();
@@ -57,6 +85,9 @@ public partial class Carrier : RoomObject
                 return;
             _path = null;
             _mustLeave = true;
+            if (_arriving)
+                Sound(ArrivalSound);
+            _arriving = false;
             player.Release();
             return;
         }
@@ -70,8 +101,44 @@ public partial class Carrier : RoomObject
 
         if (_mustLeave || !player.State.InControl || !player.IsOnGround)
             return;
-        var points = Path.Select(point => _home + PixelOffset.FromWhole(point.X, point.Y)).ToList();
-        _path = new PathFollower(points, Pixels.FromNumber(Speed), PathFollower.AtEnd.Stops);
+        if (StartsOn.Length > 0)
+        {
+            // Having stood on it and done something else, the player must step off before it will listen again.
+            if (!player.Input.WasPressed(new GameAction(StartsOn)))
+                return;
+        }
+
+        _path = new PathFollower(Points(), Pixels.FromNumber(Speed), PathFollower.AtEnd.Stops);
+        Sound(DepartureSound);
         player.Carry();
+    }
+
+    /// <summary>
+    /// Takes hold of a player who has arrived where the path ends, to bring them back along it. Returns whether it
+    /// did.
+    /// </summary>
+    private bool TakeArrival(Player player)
+    {
+        List<PixelPosition> points = Points();
+        PixelPosition end = points[^1];
+        var endArea = new PixelRect(end.X.Whole, end.Y.Whole, Size.X, Size.Y);
+        if (!endArea.Overlaps(player.BodyRect))
+            return false;
+        points.Reverse();
+        _path = new PathFollower(points, Pixels.FromNumber(Speed), PathFollower.AtEnd.Stops);
+        _arriving = true;
+        Position = end;
+        player.Position = Position + PixelOffset.FromWhole(HoldsAt.X, HoldsAt.Y);
+        player.Carry();
+        return true;
+    }
+
+    /// <summary>The points of its path, in the room.</summary>
+    private List<PixelPosition> Points() => [.. Path.Select(point => _home + PixelOffset.FromWhole(point.X, point.Y))];
+
+    private void Sound(string sound)
+    {
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "objects");
     }
 }

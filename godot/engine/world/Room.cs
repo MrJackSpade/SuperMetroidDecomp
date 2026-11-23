@@ -55,6 +55,9 @@ public partial class Room : Node2D
     private readonly List<Projectile> _projectiles = [];
     private readonly List<Pickup> _pickups = [];
     private readonly List<Effect> _effects = [];
+
+    /// <summary>Things waiting to be added to the room: each once what it waits for has gone, and then after its count of updates.</summary>
+    private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
     private readonly List<RoomObject> _objects = [];
     private readonly List<RoomExit> _exits = [];
     private readonly List<CameraZone> _zones = [];
@@ -261,8 +264,42 @@ public partial class Room : Node2D
         }
 
         RemoveLeaving();
+        AddArriving();
         MarkExplored();
         FollowAndShow();
+    }
+
+    /// <summary>
+    /// Adds something to the room later: once everything in <paramref name="after"/> has left the room, and then
+    /// <paramref name="updates"/> updates on. The room owns it until then, and frees it if the room is left first.
+    /// </summary>
+    public void SpawnLater(Node2D node, IEnumerable<Node> after, int updates)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        if (node is not IRoomEntity)
+            throw new ArgumentException($"A {node.GetType().Name} is not something that lives in a room.", nameof(node));
+        _arriving.Add((node, [.. after], updates));
+    }
+
+    /// <summary>Counts down what is waiting to be added to the room, and adds what is due.</summary>
+    private void AddArriving()
+    {
+        for (int index = _arriving.Count - 1; index >= 0; index--)
+        {
+            (Node2D node, List<Node> after, int updates) = _arriving[index];
+            after.RemoveAll(waited => !IsInstanceValid(waited) || waited.GetParent() != this);
+            if (after.Count > 0)
+                continue;
+            if (updates > 0)
+            {
+                _arriving[index] = (node, after, updates - 1);
+                continue;
+            }
+
+            _arriving.RemoveAt(index);
+            Spawn(node);
+        }
     }
 
     /// <summary>Adds something to the room while it is being played. It first takes part in the phase after the one it was added in.</summary>
@@ -363,6 +400,10 @@ public partial class Room : Node2D
                 Collision.Unregister(collider);
             RemoveChild(_player);
         }
+
+        foreach ((Node2D node, _, _) in _arriving)
+            node.Free();
+        _arriving.Clear();
     }
 
     /// <summary>Whether an enemy is close enough to the view to be active.</summary>

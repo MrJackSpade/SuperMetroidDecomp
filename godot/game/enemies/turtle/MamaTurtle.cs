@@ -1,0 +1,323 @@
+using Engine.Actors;
+using Engine.Collision;
+using Engine.Content;
+using Engine.Shared;
+using Engine.World;
+using Godot;
+
+namespace Game.Enemies;
+
+/// <summary>
+/// The Mama Turtle: asleep in her shell, a rounded hill that Samus and the babies can walk over. Bother one of her
+/// babies and she wakes, comes out, and spins about the room, bouncing off the walls. Samus can ride the spinning
+/// shell, which then climbs high into the room before falling back.
+/// </summary>
+/// <remarks>
+/// Her timelines are "asleep"; "leave_shell_left" and "leave_shell_right", whose cue "enter_shell" sends her back in;
+/// "enter_shell_left" and "enter_shell_right", whose cue "rise:left" or "rise:right" lifts her off spinning that way;
+/// and "spinning". Her data gives the height of her shell at each pixel out from her middle under "shell_left" and
+/// "shell_right". Her solid collider is her shell and her hitbox the part of her that hurts once she is awake.
+/// </remarks>
+public partial class MamaTurtle : Enemy
+{
+    /// <summary>Half her height once awake, in pixels.</summary>
+    [Export, DataValue("awake_half_height")]
+    public int AwakeHalfHeight { get; set; } = 16;
+
+    /// <summary>How many updates she rises before she starts to drift.</summary>
+    [Export, DataValue("rise_updates")]
+    public int RiseUpdates { get; set; } = 16;
+
+    /// <summary>The speed across she gains each update while hovering, as a number of pixels.</summary>
+    [Export, DataValue("hover_quickening")]
+    public double HoverQuickening { get; set; } = 0.0625;
+
+    /// <summary>The fastest she drifts, in pixels an update.</summary>
+    [Export, DataValue("fastest_hover")]
+    public int FastestHover { get; set; } = 3;
+
+    /// <summary>The height in the room, in pixels from its top, above which she stops climbing with a rider.</summary>
+    [Export, DataValue("ridden_peak")]
+    public int RiddenPeak { get; set; } = 488;
+
+    /// <summary>How far she climbs each update with a rider, in pixels.</summary>
+    [Export, DataValue("ridden_climb_speed")]
+    public int RiddenClimbSpeed { get; set; } = 7;
+
+    /// <summary>How many updates she hangs at the top of her climb.</summary>
+    [Export, DataValue("peak_pause")]
+    public int PeakPause { get; set; } = 30;
+
+    /// <summary>The downward speed she gains each update falling, as a number of pixels.</summary>
+    [Export, DataValue("fall_quickening")]
+    public double FallQuickening { get; set; } = 0.125;
+
+    /// <summary>The fastest she falls, in pixels an update.</summary>
+    [Export, DataValue("fastest_fall")]
+    public int FastestFall { get; set; } = 4;
+
+    /// <summary>How hard she shakes the room when she hits a wall.</summary>
+    [Export, DataValue("wall_shake_strength")]
+    public int WallShakeStrength { get; set; } = 1;
+
+    /// <summary>How many updates the room shakes for.</summary>
+    [Export, DataValue("wall_shake_updates")]
+    public int WallShakeUpdates { get; set; } = 16;
+
+    /// <summary>The sound of her hitting a wall, by name.</summary>
+    [Export, DataValue("wall_sound")]
+    public string WallSound { get; set; } = "";
+
+    private enum Doing
+    {
+        Placed,
+        PlacedAndWoken,
+        Posed,
+        Asleep,
+        Woken,
+        LeavingShell,
+        EnteringShell,
+        RisingToHover,
+        Hovering,
+        RisingToPeak,
+        HoveringAtPeak,
+        Falling,
+    }
+
+    private readonly List<int> _shellLeft = [];
+    private readonly List<int> _shellRight = [];
+    private Doing _doing;
+    private Countdown _wait;
+    private Pixels _quickening;
+    private Collider? _hurts;
+
+    /// <summary>Whether she lies in her shell, asleep or only just woken, so that her babies walk over it.</summary>
+    public bool LiesInShell => _doing is Doing.Asleep or Doing.Woken;
+
+    /// <summary>Wakes her, if she is asleep.</summary>
+    public void Rouse()
+    {
+        if (_doing == Doing.Placed)
+            _doing = Doing.PlacedAndWoken;
+        else if (_doing == Doing.Asleep)
+            _doing = Doing.Woken;
+    }
+
+    /// <summary>
+    /// How high her shell stands above her middle, in pixels and negative, under something <paramref name="across"/>
+    /// pixels to the right of her middle; null beyond the shell's edge.
+    /// </summary>
+    public int? ShellSurface(int across)
+    {
+        int distance = Math.Abs(across);
+        if (distance >= _shellLeft.Count)
+            return null;
+        return across > 0 ? _shellRight[distance - 1] : _shellLeft[distance];
+    }
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _shellLeft.Clear();
+        _shellLeft.AddRange(data.List("shell_left").Select(height => height.AsInt()));
+        _shellRight.Clear();
+        _shellRight.AddRange(data.List("shell_right").Select(height => height.AsInt()));
+        if (_shellLeft.Count == 0 || _shellRight.Count != _shellLeft.Count)
+            throw data.Problem("must list as many shell heights to the right as to the left, and at least one");
+    }
+
+    /// <inheritdoc/>
+    protected override void OnEnterRoom()
+    {
+        Play("asleep");
+        _hurts = EntityNode.CollidersOf(this).FirstOrDefault(collider => collider.Role == ColliderRole.Hitbox);
+        if (_hurts is not null)
+            _hurts.Enabled = false;
+        SetShellHeight(0);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnCue(string cue)
+    {
+        if (cue == "enter_shell")
+        {
+            _doing = Doing.EnteringShell;
+        }
+        else if (cue is "rise:left" or "rise:right")
+        {
+            _doing = Doing.RisingToHover;
+            Velocity = Velocity.WithX(Velocity.X.WithWhole(cue == "rise:left" ? -1 : 1));
+            _wait = Countdown.Of(RiseUpdates);
+            Play("spinning", restart: true);
+        }
+    }
+
+    /// <inheritdoc/>
+    protected override void Touch(Collider part)
+    {
+        // Asleep she hurts nobody; awake, only her hitbox does, and base rules decide the rest.
+        if (_hurts is { Enabled: true } && !Room.Player.IsInvincible)
+            base.Touch(part);
+    }
+
+    /// <inheritdoc/>
+    protected override void Behave()
+    {
+        switch (_doing)
+        {
+            case Doing.Placed:
+                _doing = Doing.Asleep;
+                return;
+
+            case Doing.PlacedAndWoken:
+                _doing = Doing.Woken;
+                return;
+
+            case Doing.Posed:
+                return;
+
+            case Doing.Asleep:
+                // Her shell is as tall as it stands under Samus, so that she walks over its curve.
+                int? surface = ShellSurface(Target.X.Whole - Position.X.Whole);
+                SetShellHeight(surface is { } height ? -height : 0);
+                if (surface is null || Solid is not { Enabled: true } shell)
+                    return;
+                PixelRect rider = Room.Player.BodyRect;
+                int sunk = rider.Bottom - shell.RoomRect.Top;
+                if (sunk > 0 && Room.Player.Position.Y.Whole < Position.Y.Whole)
+                    ShiftPlayer(PixelOffset.FromWhole(0, -sunk));
+                return;
+
+            case Doing.Woken:
+                _doing = Doing.LeavingShell;
+                if (_hurts is not null)
+                    _hurts.Enabled = true;
+                return;
+
+            case Doing.LeavingShell:
+                if (Room.Session.Clock.Updates % 2 != 0)
+                    return;
+                // She shudders up out of the ground a pixel at a time.
+                bool ridden = IsRiddenByPlayer;
+                MoveCarrying(PixelOffset.FromWhole(Position.Y.Whole % 2 == 0 ? -1 : 1, -1));
+                if (ridden)
+                    ShiftPlayer(PixelOffset.FromWhole(-1, 0));
+                SetShellHeight(AwakeHalfHeight);
+                if (MoveAcrossBy(Pixels.FromWhole(1)))
+                    return;
+                Play("leave_shell_left", restart: true);
+                _doing = Doing.Posed;
+                return;
+
+            case Doing.EnteringShell:
+                Play(Position.X.Whole >= Target.X.Whole ? "enter_shell_left" : "enter_shell_right", restart: true);
+                _doing = Doing.Posed;
+                return;
+
+            case Doing.RisingToHover:
+                if (Blocked(PixelOffset.FromWhole(0, -1)))
+                    return;
+                MoveCarrying(PixelOffset.FromWhole(0, -1));
+                if (_wait.IsOver)
+                    return;
+                _wait = _wait.Stepped();
+                if (_wait.IsRunning)
+                    return;
+                _quickening = Position.X.Whole < Target.X.Whole ? Pixels.FromNumber(HoverQuickening) : -Pixels.FromNumber(HoverQuickening);
+                Velocity = Velocity.WithX(Pixels.Zero);
+                _doing = Doing.Hovering;
+                return;
+
+            case Doing.Hovering:
+                var drift = new PixelOffset(Velocity.X, Pixels.Zero);
+                if (Blocked(drift))
+                {
+                    // Off a wall she comes back the other way, by the cartridge's own lopsided arithmetic.
+                    Pixels before = Velocity.X;
+                    Velocity = Velocity.WithX(Reversed(before));
+                    _quickening = Reversed(_quickening);
+                    if (before.Whole == -1)
+                        _quickening -= Pixels.FromWhole(1);
+                    Room.Shake(WallShakeStrength, WallShakeUpdates);
+                    Sound(WallSound);
+                    return;
+                }
+
+                MoveCarrying(drift);
+                if (IsRiddenByPlayer)
+                    _doing = Doing.RisingToPeak;
+                Pixels faster = Velocity.X + _quickening;
+                if (faster.Whole >= FastestHover || faster.Whole <= -FastestHover)
+                    faster = faster.WithWhole(Velocity.X.IsNegative ? -FastestHover : FastestHover);
+                Velocity = Velocity.WithX(faster);
+                return;
+
+            case Doing.RisingToPeak:
+                if (Position.Y.Whole < RiddenPeak)
+                {
+                    _wait = Countdown.Of(PeakPause);
+                    _doing = Doing.HoveringAtPeak;
+                    Velocity = Velocity.WithY(Pixels.Zero);
+                }
+                else if (IsRiddenByPlayer)
+                {
+                    MoveCarrying(PixelOffset.FromWhole(0, -RiddenClimbSpeed));
+                }
+                else
+                {
+                    _doing = Doing.Falling;
+                    Velocity = Velocity.WithY(Pixels.Zero);
+                }
+
+                return;
+
+            case Doing.HoveringAtPeak:
+                if (_wait.IsOver)
+                    return;
+                _wait = _wait.Stepped();
+                if (_wait.IsOver)
+                    _doing = Doing.Falling;
+                return;
+
+            case Doing.Falling:
+                if (Velocity.Y < Pixels.FromWhole(FastestFall))
+                    Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(FallQuickening));
+                var fall = PixelOffset.FromWhole(0, Velocity.Y.Whole);
+                if (!Blocked(fall))
+                {
+                    MoveCarrying(fall);
+                    return;
+                }
+
+                Play(Velocity.X.IsNegative ? "leave_shell_left" : "leave_shell_right", restart: true);
+                _doing = Doing.Posed;
+                return;
+
+            default:
+                throw new InvalidOperationException($"Undefined Mama Turtle stage {_doing}.");
+        }
+    }
+
+    /// <summary>Makes her shell, and the part of her that hurts, stand <paramref name="halfHeight"/> pixels each way from her middle.</summary>
+    private void SetShellHeight(int halfHeight)
+    {
+        if (Solid is not { } shell)
+            return;
+        shell.Rect = new PixelRect(-shell.Size.X / 2, -halfHeight, shell.Size.X, halfHeight * 2);
+        shell.Enabled = halfHeight > 0;
+    }
+
+    /// <summary>Whether terrain stops her shell moving by <paramref name="offset"/>.</summary>
+    private bool Blocked(PixelOffset offset)
+    {
+        if (Solid is not { } shell)
+            return false;
+        PixelRect moved = shell.RoomRect.MovedBy(offset.X.Whole, offset.Y.Whole);
+        return Room.Terrain.IsSolidIn(moved, SlopeTreatment.Wall);
+    }
+
+    /// <summary>A speed turned round as the cartridge turns it: its whole pixels complemented and its fine part negated.</summary>
+    private static Pixels Reversed(Pixels speed) =>
+        Pixels.FromParts(~speed.Whole, (Pixels.FractionsPerPixel - speed.Fraction) % Pixels.FractionsPerPixel);
+}

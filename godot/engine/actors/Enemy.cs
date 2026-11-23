@@ -58,6 +58,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     [Export]
     public bool AlwaysActive { get; set; }
 
+    /// <summary>
+    /// Whether another just like it takes its place after it is killed: once what it left behind, its death effect and
+    /// its drop, has gone, and a pause after that. Such an enemy is never recorded as gone.
+    /// </summary>
+    [Export]
+    public bool RespawnsWhenKilled { get; set; }
+
     /// <summary>How many updates it flashes for after being hurt.</summary>
     public int HurtFlashUpdates { get; private set; } = 8;
 
@@ -75,6 +82,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private readonly Dictionary<string, ShotType> _shots = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _statusSounds = new(StringComparer.Ordinal);
     private string _hurtSound = "";
+    private Enemy? _replacement;
+    private int _respawnUpdates = 64;
     private string _deathEffect = "";
     private string _deathSound = "";
 
@@ -153,6 +162,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <inheritdoc/>
     public void EnterRoom(Room room)
     {
+        // The one that takes its place is a copy of it as it was placed, taken before anything about it changes.
+        if (RespawnsWhenKilled)
+            _replacement = (Enemy)Duplicate();
         _room = room;
         Position = EntityNode.StartingPlace(this, Position);
         Facing = StartsFacing;
@@ -182,6 +194,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";
         _deathEffect = data.Has("death") && data.Get("death").Has("effect") ? data.Get("death").Text("effect") : "";
         _deathSound = data.Has("death") && data.Get("death").Has("sound") ? data.Get("death").Text("sound") : "";
+        _respawnUpdates = data.Has("respawn_updates") ? data.Int("respawn_updates") : 64;
         _statusSounds.Clear();
         if (data.Has("status_sounds"))
         {
@@ -338,6 +351,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             Sound(_hurtSound);
         if (Health.IsEmpty)
         {
+            if (!DiesAtOnce(hit))
+                return HitResult.Hurt;
             Die();
             return HitResult.Destroyed;
         }
@@ -345,6 +360,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         OnHurt(hit, part);
         return HitResult.Hurt;
     }
+
+    /// <summary>
+    /// Called when a hit has emptied the enemy's health. An enemy whose death plays out over some updates returns
+    /// false, takes no more hits, and calls <see cref="Die"/> itself when it is done.
+    /// </summary>
+    protected virtual bool DiesAtOnce(Hit hit) => true;
 
     /// <summary>
     /// The reaction to a hit that landed on <paramref name="part"/>. An enemy whose parts react differently says so here.
@@ -370,13 +391,30 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (IsDead)
             return;
         IsDead = true;
-        Room.MarkGone(Name);
+        if (!RespawnsWhenKilled)
+            Room.MarkGone(Name);
+        var leftBehind = new List<Node>();
         if (_deathEffect.Length > 0)
-            LeaveEffect(_deathEffect, Position);
+            leftBehind.Add(LeaveEffect(_deathEffect, Position));
         Sound(_deathSound);
-        Drop(_drops, Position);
+        if (Drop(_drops, Position) is { } pickup)
+            leftBehind.Add(pickup);
         OnDied();
         Room.Remove(this);
+        if (_replacement is { } replacement)
+        {
+            _replacement = null;
+            Room.SpawnLater(replacement, leftBehind, _respawnUpdates);
+        }
+    }
+
+    /// <inheritdoc/>
+    public override void _ExitTree()
+    {
+        // A copy never used, because the enemy left its room alive, goes with it.
+        if (_replacement is { } unused && IsInstanceValid(unused))
+            unused.Free();
+        _replacement = null;
     }
 
     /// <summary>Leaves an effect in the room at <paramref name="at"/>, by the data file of its timeline.</summary>
@@ -396,13 +434,16 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Room.Remove(this);
     }
 
-    /// <summary>Rolls a drop table and leaves what it gives at <paramref name="at"/>.</summary>
-    protected void Drop(DropTable table, PixelPosition at)
+    /// <summary>Rolls a drop table and leaves what it gives at <paramref name="at"/>. Returns the pickup left, if any.</summary>
+    protected Pickup? Drop(DropTable table, PixelPosition at)
     {
         Inventory inventory = Room.Player.Inventory;
         string? drop = table.Roll(Room.Session.Random, inventory, file => PickupType.Read(Room.Content.ReadData(file)).IsUsefulTo(inventory));
-        if (drop is not null)
-            Room.Spawn(Pickup.Of(PickupType.Read(Room.Content.ReadData(drop)), at));
+        if (drop is null)
+            return null;
+        Pickup pickup = Pickup.Of(PickupType.Read(Room.Content.ReadData(drop)), at);
+        Room.Spawn(pickup);
+        return pickup;
     }
 
     /// <summary>Called as the enemy is destroyed, before it leaves its room.</summary>
@@ -462,6 +503,28 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             Position += offset;
     }
 
+    /// <summary>Whether the player is standing on the enemy's solid collider.</summary>
+    protected bool IsRiddenByPlayer
+    {
+        get
+        {
+            if (Solid is not { Enabled: true } solid)
+                return false;
+            PixelRect top = solid.RoomRect, rider = Room.Player.BodyRect;
+            return rider.Bottom == top.Top && rider.Left < top.Right && rider.Right > top.Left;
+        }
+    }
+
+    /// <summary>Moves the player by <paramref name="offset"/>, as far as terrain lets them go: for an enemy that takes its rider with it.</summary>
+    protected void ShiftPlayer(PixelOffset offset)
+    {
+        MoveOptions carried = MoveOptions.Plain with { StoppedBySolids = false, Slopes = SlopeTreatment.Wall };
+        if (!offset.X.IsZero)
+            Room.Mover.MoveAcross(Room.Player.Body, offset.X, carried);
+        if (!offset.Y.IsZero)
+            Room.Mover.MoveDown(Room.Player.Body, offset.Y, carried);
+    }
+
     /// <summary>Whether the enemy stands on terrain or a solid.</summary>
     protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.Plain);
 
@@ -511,8 +574,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (Visual is null)
             return;
-        Visual.Tint(IsFrozen ? FrozenTint : _flash.IsRunning && _flash.Remaining % 2 == 0 ? HurtTint : Colors.White);
+        Visual.Tint(IsFrozen ? FrozenTint : _flash.IsRunning && _flash.Remaining % 2 == 0 ? HurtTint : RestingTint);
     }
+
+    /// <summary>The tint the enemy is shown with when nothing has happened to it. An enemy that glows says so here.</summary>
+    protected virtual Color RestingTint => Colors.White;
 
     /// <summary>The tint of a frozen enemy.</summary>
     private static readonly Color FrozenTint = new(0.6f, 0.8f, 1.5f);

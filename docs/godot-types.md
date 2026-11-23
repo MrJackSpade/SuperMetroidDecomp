@@ -324,7 +324,8 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SaveFile` | The save slots; in each, the saved form of `Progress`, the player's `Inventory`, and where the player resumes | Reading, writing, copying and clearing slots. | Exist as live state during play. |
 | `Options` | Button bindings, language, and the toggles the `GameDefinition` lists | Reading and writing them outside any save slot. | Change during an update. |
 | `SoundRequests` | What gameplay has asked to hear and, as gameplay sees it, what is still sounding | Accepting or refusing each request by priority, and answering "is this sound still going". Advanced once per update. | Play anything. |
-| `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. | Know which room the player is in. |
+| `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. | Belong to a room. |
+| `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. A session service; when time is up it hands over to its time-up mode. | Know which room the player is in. |
 
 `SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one.
 `RoomVersion` is one set of a room's settings (its layout file, which of the layout's patches are in place, its music) with the `Condition` it applies under.

@@ -217,6 +217,8 @@ public partial class Gunship : RoomObject, ITriggerTarget
             case Phase.RefillOrLeave:
                 if (Room.Session.Progress.Has(StoryEvents.EscapeStarted))
                 {
+                    // She has made it: the countdown stops.
+                    Room.Session.Service<Escape>().Stop();
                     (_phase, _timer) = (Phase.WaitForEngines, 5);
                     break;
                 }

@@ -17,6 +17,9 @@ public partial class SuperMetroid : GameDefinition
     /// <inheritdoc/>
     public override Dictionary<string, List<string>> StandardBindings => Data.Actions.StandardBindings;
 
+    /// <summary>This game adds the escape countdown.</summary>
+    public override IReadOnlyList<ISessionService> CreateServices() => [new Escape()];
+
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
 }

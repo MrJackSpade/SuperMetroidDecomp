@@ -72,8 +72,16 @@ public partial class PlayingMode : GameMode
 
         if (Session.TakeSaveRequest() is { } save)
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
+        foreach (ISessionService service in Session.Services)
+            service.Step(Session);
         if (Session.Player.IsDead)
             return Session.Definition.CreateModeAfterDeath();
+        foreach (ISessionService service in Session.Services)
+        {
+            if (service.TakesOver(this) is { } mode)
+                return mode;
+        }
+
         if (Session.TakeQuestion() is { } question)
             return new MessageBoxMode(this, question.Message, question.Answered);
         if (Session.TakeMessage() is { } message)

@@ -21,8 +21,8 @@ namespace Game.Enemies;
 /// "corpse" here. Her data gives "death_explosions", groups of four places from her body where she bursts;
 /// "escape_door_dust", the places of the dust at the way out; "escape_door_fragments", the pieces thrown from it,
 /// each with how far "down" from the door it starts and its "rise"; and "escape_door_patch", the terrain patch that
-/// opens it. She tells what listens "escape" as the alarm starts and "timer" as the countdown does, and is told
-/// "escape_text_done" when the warning has been written out.
+/// opens it. She tells what listens "escape" as the alarm starts, is told "escape_text_done" when the warning has
+/// been written out, and then starts the escape's countdown.
 /// </remarks>
 public partial class MotherBrain : ITriggerTarget
 {
@@ -475,7 +475,7 @@ public partial class MotherBrain : ITriggerTarget
                     samus.Release();
                 Room.Session.Progress.Record(StoryEvents.EscapeStarted);
                 Room.MarkGone(Name);
-                TellRoom("timer");
+                Room.Session.Service<Escape>().Begin(Escape.ZebesTime);
                 _death = Death.BlowUpEscapeDoor;
                 return false;
 

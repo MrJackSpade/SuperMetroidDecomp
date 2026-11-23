@@ -26,7 +26,7 @@ public partial class MotherBrain
     [Export]
     public PackedScene? Baby { get; set; }
 
-    /// <summary>What is told of the turns of her fight that change the room: "lights_out", "lights_back", "escape" and "timer".</summary>
+    /// <summary>What is told of the turns of her fight that change the room: "lights_out", "lights_back" and "escape".</summary>
     [Export]
     public Godot.Collections.Array<NodePath> ToldOfFight { get; set; } = [];
 

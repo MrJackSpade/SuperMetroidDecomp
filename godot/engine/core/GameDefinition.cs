@@ -106,6 +106,9 @@ public partial class GameDefinition : Resource
     /// <summary>Makes the mode that follows the player's death. The engine's reloads the session's save slot, or starts a new game.</summary>
     public virtual GameMode CreateModeAfterDeath() => new LoadingMode();
 
+    /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
+    public virtual IReadOnlyList<ISessionService> CreateServices() => [];
+
     /// <summary>Makes the session's player.</summary>
     /// <exception cref="InvalidOperationException">No player scene is set, or its root is not a player.</exception>
     public virtual Player CreatePlayer()

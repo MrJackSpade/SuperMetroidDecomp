@@ -36,6 +36,7 @@ public sealed class GameSession
         Saves = saves;
         Options = options;
         Random = new GameRandom(definition.CreateRandomSequence());
+        Services = definition.CreateServices();
         Camera = new Camera(
             ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
             ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32());
@@ -45,6 +46,16 @@ public sealed class GameSession
 
     /// <summary>The game being played.</summary>
     public GameDefinition Definition { get; }
+
+    /// <summary>The session-long services the game adds.</summary>
+    public IReadOnlyList<ISessionService> Services { get; }
+
+    /// <summary>The game's service of type <typeparamref name="T"/>.</summary>
+    /// <exception cref="InvalidOperationException">The game has no such service.</exception>
+    public T Service<T>()
+        where T : class, ISessionService =>
+        Services.OfType<T>().FirstOrDefault()
+        ?? throw new InvalidOperationException($"The game has no session service of type {typeof(T).Name}.");
 
     /// <summary>Where the game's assets are loaded from.</summary>
     public ContentLibrary Content { get; }
@@ -92,6 +103,8 @@ public sealed class GameSession
         _player = null;
         _messages.Clear();
         SaveRequested = null;
+        foreach (ISessionService service in Services)
+            service.BeginAgain();
     }
 
     /// <summary>The view onto the room being played.</summary>

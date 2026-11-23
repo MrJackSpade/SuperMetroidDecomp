@@ -58,6 +58,13 @@ public partial class Station : RoomObject
     [Export]
     public Faces MustFace { get; set; }
 
+    /// <summary>
+    /// For a station that saves: the entry point of its room a game saved here resumes at. Empty for the station
+    /// itself.
+    /// </summary>
+    [Export]
+    public string ResumesAt { get; set; } = "";
+
     /// <summary>The message that asks whether to use it, by name, answered yes or no; empty when it does not ask.</summary>
     [Export]
     public string AsksFirst { get; set; } = "";
@@ -198,7 +205,7 @@ public partial class Station : RoomObject
         switch (Kind)
         {
             case Does.Saves:
-                Room.Session.RequestSave(Room.SceneFilePath, Name);
+                Room.Session.RequestSave(Room.SceneFilePath, ResumesAt.Length > 0 ? ResumesAt : Name);
                 break;
             case Does.RevealsMap:
                 if (Room.Area.Length == 0)

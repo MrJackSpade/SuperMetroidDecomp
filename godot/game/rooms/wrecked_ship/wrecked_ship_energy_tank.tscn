@@ -1,12 +1,14 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,7 +30,7 @@ Music = "elevator"
 script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(18, 14)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -43,7 +45,11 @@ LeadsToExit = "ToWreckedShipEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
-[node name="Skultera" parent="." instance=ExtResource("6")]
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Skultera" parent="." instance=ExtResource("7")]
 position = Vector2(173, 374)
 Speed = 1
 StartsFacing = 1
@@ -51,7 +57,7 @@ Radius = 16
 AngleStep = 2
 PresentWhen = SubResource("r1")
 
-[node name="Skultera2" parent="." instance=ExtResource("6")]
+[node name="Skultera2" parent="." instance=ExtResource("7")]
 position = Vector2(576, 300)
 Speed = 1
 StartsFacing = 0
@@ -59,7 +65,7 @@ Radius = 16
 AngleStep = 2
 PresentWhen = SubResource("r1")
 
-[node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
+[node name="SuspensorPlatform" parent="." instance=ExtResource("8")]
 position = Vector2(280, 168)
 DataFile = "enemies/suspensor_platform.json"
 StartsFacing = 0
@@ -68,7 +74,7 @@ FastestMark = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="SuspensorPlatform2" parent="." instance=ExtResource("7")]
+[node name="SuspensorPlatform2" parent="." instance=ExtResource("8")]
 position = Vector2(384, 168)
 DataFile = "enemies/suspensor_platform.json"
 StartsFacing = 0
@@ -77,11 +83,17 @@ FastestMark = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="SuspensorPlatform3" parent="." instance=ExtResource("7")]
+[node name="SuspensorPlatform3" parent="." instance=ExtResource("8")]
 position = Vector2(496, 168)
 DataFile = "enemies/suspensor_platform.json"
 StartsFacing = 0
 Speed = 0
 FastestMark = 32
 AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="EnergyTank" parent="." instance=ExtResource("9")]
+position = Vector2(56, 104)
+TypeFile = "items/energy_tank.json"
+RememberedAs = "wrecked_ship_energy_tank_exposed_energy_tank"
 PresentWhen = SubResource("r1")

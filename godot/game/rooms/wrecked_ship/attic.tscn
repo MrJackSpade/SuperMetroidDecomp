@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,8 +8,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/covern/covern.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="11"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -29,14 +31,24 @@ Music = "wrecked_ship_powered_down"
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
+Kind = 8
+About = "8"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Attic" type="Node2D"]
 script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(12, 11)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -73,7 +85,7 @@ ArrivalOffset = Vector2i(32, -24)
 position = Vector2(727, 152)
 AlwaysActive = true
 RespawnsWhenKilled = true
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug" parent="." instance=ExtResource("7")]
 position = Vector2(1705, 186)
@@ -81,7 +93,7 @@ Speed = 2
 Heading = 170
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug2" parent="." instance=ExtResource("7")]
 position = Vector2(1711, 189)
@@ -89,7 +101,7 @@ Speed = 3
 Heading = 212
 ActivationDistance = 80
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug3" parent="." instance=ExtResource("7")]
 position = Vector2(1709, 197)
@@ -97,7 +109,7 @@ Speed = 2
 Heading = 208
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug4" parent="." instance=ExtResource("7")]
 position = Vector2(1721, 178)
@@ -105,7 +117,7 @@ Speed = 2
 Heading = 240
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug5" parent="." instance=ExtResource("7")]
 position = Vector2(40, 185)
@@ -113,7 +125,7 @@ Speed = 3
 Heading = 116
 ActivationDistance = 160
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug6" parent="." instance=ExtResource("7")]
 position = Vector2(37, 190)
@@ -121,7 +133,7 @@ Speed = 3
 Heading = 136
 ActivationDistance = 160
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug7" parent="." instance=ExtResource("7")]
 position = Vector2(27, 198)
@@ -129,7 +141,7 @@ Speed = 2
 Heading = 160
 ActivationDistance = 160
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug8" parent="." instance=ExtResource("7")]
 position = Vector2(51, 82)
@@ -137,7 +149,7 @@ Speed = 3
 Heading = 120
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug9" parent="." instance=ExtResource("7")]
 position = Vector2(40, 67)
@@ -145,7 +157,7 @@ Speed = 2
 Heading = 80
 ActivationDistance = 80
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug10" parent="." instance=ExtResource("7")]
 position = Vector2(1038, 230)
@@ -153,7 +165,7 @@ Speed = 3
 Heading = 130
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug11" parent="." instance=ExtResource("7")]
 position = Vector2(286, 234)
@@ -161,7 +173,7 @@ Speed = 2
 Heading = 132
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug12" parent="." instance=ExtResource("7")]
 position = Vector2(276, 230)
@@ -169,7 +181,7 @@ Speed = 3
 Heading = 130
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug13" parent="." instance=ExtResource("7")]
 position = Vector2(26, 73)
@@ -177,7 +189,7 @@ Speed = 3
 Heading = 152
 ActivationDistance = 128
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug14" parent="." instance=ExtResource("7")]
 position = Vector2(1073, 233)
@@ -185,7 +197,7 @@ Speed = 2
 Heading = 184
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug15" parent="." instance=ExtResource("7")]
 position = Vector2(1085, 237)
@@ -193,7 +205,7 @@ Speed = 4
 Heading = 186
 ActivationDistance = 128
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug16" parent="." instance=ExtResource("7")]
 position = Vector2(1475, 227)
@@ -201,7 +213,7 @@ Speed = 1
 Heading = 196
 ActivationDistance = 64
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug17" parent="." instance=ExtResource("7")]
 position = Vector2(1490, 215)
@@ -209,7 +221,7 @@ Speed = 2
 Heading = 184
 ActivationDistance = 64
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug18" parent="." instance=ExtResource("7")]
 position = Vector2(423, 148)
@@ -217,7 +229,7 @@ Speed = 3
 Heading = 64
 ActivationDistance = 64
 Runs = 2
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Sbug19" parent="." instance=ExtResource("7")]
 position = Vector2(1749, 197)
@@ -225,63 +237,84 @@ Speed = 2
 Heading = 224
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic" parent="." instance=ExtResource("8")]
 position = Vector2(224, 78)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic2" parent="." instance=ExtResource("8")]
 position = Vector2(752, 94)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic3" parent="." instance=ExtResource("8")]
 position = Vector2(1584, 110)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic4" parent="." instance=ExtResource("8")]
 position = Vector2(1488, 190)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic5" parent="." instance=ExtResource("8")]
 position = Vector2(656, 190)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic6" parent="." instance=ExtResource("8")]
 position = Vector2(304, 190)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic7" parent="." instance=ExtResource("8")]
 position = Vector2(880, 222)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic8" parent="." instance=ExtResource("8")]
 position = Vector2(1232, 126)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
 [node name="Atomic9" parent="." instance=ExtResource("8")]
 position = Vector2(1072, 126)
 Spin = "up_right_turning"
 Speed = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r6")
 
-[node name="KihunterYellow" parent="." instance=ExtResource("9")]
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "attic_grey_door_facing_right_until_area_boss_dead"
+Remembered = 1
+PresentWhen = SubResource("r6")
+
+[node name="GreyCap2" parent="." instance=ExtResource("9")]
+position = Vector2(1760, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "attic_grey_door_facing_left_until_area_boss_dead"
+Remembered = 1
+PresentWhen = SubResource("r6")
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(1120, 224)
+DataFile = "objects/door_cap_blue_up.json"
+PresentWhen = SubResource("r6")
+
+[node name="KihunterYellow" parent="." instance=ExtResource("10")]
 position = Vector2(1049, 200)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = true
@@ -289,7 +322,7 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow2" parent="." instance=ExtResource("9")]
+[node name="KihunterYellow2" parent="." instance=ExtResource("10")]
 position = Vector2(511, 142)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = false
@@ -297,7 +330,7 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow3" parent="." instance=ExtResource("9")]
+[node name="KihunterYellow3" parent="." instance=ExtResource("10")]
 position = Vector2(1493, 118)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = false
@@ -329,7 +362,7 @@ Spin = "up_right_turning"
 Speed = 0.5
 PresentWhen = SubResource("r1")
 
-[node name="KihunterYellow4" parent="." instance=ExtResource("9")]
+[node name="KihunterYellow4" parent="." instance=ExtResource("10")]
 position = Vector2(1256, 200)
 DataFile = "enemies/ki_hunter_yellow.json"
 Wingless = true
@@ -337,56 +370,101 @@ WingsLostAtHealth = 32
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Spark" parent="." instance=ExtResource("10")]
+[node name="Spark" parent="." instance=ExtResource("11")]
 position = Vector2(224, 88)
 Does = 2
 SpellUpdates = 144
 PresentWhen = SubResource("r1")
 
-[node name="Spark2" parent="." instance=ExtResource("10")]
+[node name="Spark2" parent="." instance=ExtResource("11")]
 position = Vector2(304, 184)
 Does = 1
 SpellUpdates = 80
 PresentWhen = SubResource("r1")
 
-[node name="Spark3" parent="." instance=ExtResource("10")]
+[node name="Spark3" parent="." instance=ExtResource("11")]
 position = Vector2(656, 184)
 Does = 1
 SpellUpdates = 32
 PresentWhen = SubResource("r1")
 
-[node name="Spark4" parent="." instance=ExtResource("10")]
+[node name="Spark4" parent="." instance=ExtResource("11")]
 position = Vector2(752, 104)
 Does = 2
 SpellUpdates = 128
 PresentWhen = SubResource("r1")
 
-[node name="Spark5" parent="." instance=ExtResource("10")]
+[node name="Spark5" parent="." instance=ExtResource("11")]
 position = Vector2(880, 216)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark6" parent="." instance=ExtResource("10")]
+[node name="Spark6" parent="." instance=ExtResource("11")]
 position = Vector2(1072, 136)
 Does = 2
 SpellUpdates = 128
 PresentWhen = SubResource("r1")
 
-[node name="Spark7" parent="." instance=ExtResource("10")]
+[node name="Spark7" parent="." instance=ExtResource("11")]
 position = Vector2(1232, 136)
 Does = 2
 SpellUpdates = 112
 PresentWhen = SubResource("r1")
 
-[node name="Spark8" parent="." instance=ExtResource("10")]
+[node name="Spark8" parent="." instance=ExtResource("11")]
 position = Vector2(1488, 184)
 Does = 1
 SpellUpdates = 16
 PresentWhen = SubResource("r1")
 
-[node name="Spark9" parent="." instance=ExtResource("10")]
+[node name="Spark9" parent="." instance=ExtResource("11")]
 position = Vector2(1584, 120)
 Does = 2
 SpellUpdates = 96
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap3" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r4")
+RememberedAs = "attic_grey_door_facing_right_until_enemies_killed"
+Remembered = 1
+PresentWhen = SubResource("r1")
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("12")
+StartsWhen = SubResource("r5")
+Until = SubResource("r4")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap4" parent="." instance=ExtResource("9")]
+position = Vector2(1760, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r4")
+RememberedAs = "attic_grey_door_facing_left_until_enemies_killed"
+Remembered = 1
+PresentWhen = SubResource("r1")
+
+[node name="ZebesWakes2" type="Node" parent="."]
+script = ExtResource("12")
+StartsWhen = SubResource("r5")
+Until = SubResource("r4")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap5" parent="." instance=ExtResource("9")]
+position = Vector2(1120, 224)
+DataFile = "objects/door_cap_grey_up.json"
+HeldShutBy = SubResource("r4")
+RememberedAs = "attic_grey_door_facing_up"
+Remembered = 1
+PresentWhen = SubResource("r1")
+
+[node name="ZebesWakes3" type="Node" parent="."]
+script = ExtResource("12")
+StartsWhen = SubResource("r5")
+Until = SubResource("r4")
+Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r1")

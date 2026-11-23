@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,8 +6,11 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -22,7 +25,7 @@ About = "missiles"
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("1")
 Kind = 4
-Parts = [SubResource("r1"), SubResource("r2")]
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r2")])
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("2")
@@ -37,14 +40,29 @@ Music = "crateria_arrival"
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 8
+About = "5"
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r3")]
+Parts = Array[ExtResource("1")]([SubResource("r3")])
 
 [node name="Pit" type="Node2D"]
 script = ExtResource("3")
 Area = "crateria"
 MapCell = Vector2i(20, 18)
-Versions = [SubResource("r4"), SubResource("r5")]
+Versions = Array[ExtResource("2")]([SubResource("r4"), SubResource("r5")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -74,7 +92,7 @@ Speed = 2
 Heading = 40
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
 position = Vector2(112, 52)
@@ -82,7 +100,7 @@ Speed = 3
 Heading = 120
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
 position = Vector2(90, 45)
@@ -90,7 +108,7 @@ Speed = 2
 Heading = 124
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
 position = Vector2(115, 173)
@@ -98,7 +116,7 @@ Speed = 2
 Heading = 148
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
 position = Vector2(122, 183)
@@ -106,7 +124,7 @@ Speed = 3
 Heading = 196
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
 position = Vector2(108, 195)
@@ -114,7 +132,7 @@ Speed = 3
 Heading = 124
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
 position = Vector2(127, 178)
@@ -122,7 +140,7 @@ Speed = 3
 Heading = 194
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
 position = Vector2(189, 202)
@@ -130,7 +148,7 @@ Speed = 3
 Heading = 193
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
 position = Vector2(713, 166)
@@ -138,7 +156,7 @@ Speed = 2
 Heading = 240
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
 position = Vector2(716, 171)
@@ -146,9 +164,20 @@ Speed = 4
 Heading = 236
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWalking" parent="." instance=ExtResource("7")]
+[node name="GreyCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r9")
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
+PresentWhen = SubResource("r9")
+
+[node name="PirateGreyWalking" parent="." instance=ExtResource("8")]
 position = Vector2(616, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
@@ -157,7 +186,7 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWall" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall" parent="." instance=ExtResource("9")]
 position = Vector2(717, 63)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -166,7 +195,7 @@ SlowJump = false
 JumpSpan = 32
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking2" parent="." instance=ExtResource("7")]
+[node name="PirateGreyWalking2" parent="." instance=ExtResource("8")]
 position = Vector2(505, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 0
@@ -175,7 +204,7 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking3" parent="." instance=ExtResource("7")]
+[node name="PirateGreyWalking3" parent="." instance=ExtResource("8")]
 position = Vector2(376, 112)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
@@ -184,11 +213,47 @@ FlinchesFromShots = true
 PatrolReach = 16
 PresentWhen = SubResource("r3")
 
-[node name="PirateGreyWalking4" parent="." instance=ExtResource("7")]
+[node name="PirateGreyWalking4" parent="." instance=ExtResource("8")]
 position = Vector2(104, 128)
 DataFile = "enemies/walking_pirate_grey.json"
 StartsFacing = 1
 LaserSpeed = 2
 FlinchesFromShots = true
 PatrolReach = 32
+PresentWhen = SubResource("r3")
+
+[node name="MissileTank" parent="." instance=ExtResource("10")]
+position = Vector2(88, 424)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "pit_exposed_missile_tank"
+PresentWhen = SubResource("r3")
+
+[node name="GreyCap2" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r7")
+RememberedAs = "pit_grey_door_facing_right_until_enemies_killed"
+Remembered = 1
+PresentWhen = SubResource("r3")
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r8")
+Until = SubResource("r7")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r3")
+
+[node name="GreyCap3" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r7")
+RememberedAs = "pit_grey_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r3")
+
+[node name="ZebesWakes2" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r8")
+Until = SubResource("r7")
+Records = PackedStringArray("zebes_awake")
 PresentWhen = SubResource("r3")

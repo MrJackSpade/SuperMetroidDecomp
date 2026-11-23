@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,6 +6,9 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/metroid/metroid.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka_source.tscn" id="7"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -25,14 +28,44 @@ KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 8
+About = "4"
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 8
+About = "0"
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r7"), SubResource("r5")])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r6")])
+
+[sub_resource type="Resource" id="r10"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r8"), SubResource("r9")])
 
 [node name="Metroids1" type="Node2D"]
 script = ExtResource("3")
 Area = "tourian"
 MapCell = Vector2i(14, 13)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -59,19 +92,70 @@ ArrivalOffset = Vector2i(-24, 40)
 [node name="Metroid" parent="." instance=ExtResource("6")]
 position = Vector2(268, 106)
 IceDamageToFreeze = 5
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r7")
 
 [node name="Metroid2" parent="." instance=ExtResource("6")]
 position = Vector2(637, 116)
 IceDamageToFreeze = 5
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r7")
 
 [node name="Metroid3" parent="." instance=ExtResource("6")]
 position = Vector2(877, 146)
 IceDamageToFreeze = 5
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r7")
 
 [node name="Metroid4" parent="." instance=ExtResource("6")]
 position = Vector2(1197, 140)
 IceDamageToFreeze = 5
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r7")
+
+[node name="RinkaSource" parent="." instance=ExtResource("7")]
+position = Vector2(40, 72)
+
+[node name="RinkaSource2" parent="." instance=ExtResource("7")]
+position = Vector2(536, 216)
+
+[node name="RinkaSource3" parent="." instance=ExtResource("7")]
+position = Vector2(1176, 72)
+
+[node name="RinkaSource4" parent="." instance=ExtResource("7")]
+position = Vector2(1128, 216)
+
+[node name="Cleared" type="Node" parent="."]
+script = ExtResource("8")
+StartsWhen = SubResource("r4")
+Until = SubResource("r5")
+Records = PackedStringArray("first_metroid_hall_cleared")
+PresentWhen = SubResource("r7")
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(1504, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r10")
+RememberedAs = "metroids1_grey_door_facing_right"
+Remembered = 1
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("8")
+StartsWhen = SubResource("r4")
+Until = SubResource("r5")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r7")
+
+[node name="Cleared2" type="Node" parent="."]
+script = ExtResource("8")
+StartsWhen = SubResource("r4")
+Until = SubResource("r6")
+Records = PackedStringArray("first_metroid_hall_cleared")
+PresentWhen = SubResource("r1")
+
+[node name="ZebesWakes2" type="Node" parent="."]
+script = ExtResource("8")
+StartsWhen = SubResource("r4")
+Until = SubResource("r6")
+Records = PackedStringArray("zebes_awake")
+PresentWhen = SubResource("r1")

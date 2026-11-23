@@ -38,6 +38,9 @@ public partial class Condition : Resource
         ConditionKind.Any => Parts.Any(part => part.IsTrue(room)),
         ConditionKind.None => !Parts.Any(part => part.IsTrue(room)),
         ConditionKind.PlayerCarries => room.Player.Inventory.Capacity(RequireAbout()) > 0,
+        ConditionKind.EnemiesKilled => room.EnemiesKilled >= (int.TryParse(RequireAbout(), out int kills)
+            ? kills
+            : throw new InvalidOperationException($"A condition on enemies killed is about \"{About}\", which is not a number.")),
         _ => throw new InvalidOperationException($"Undefined condition kind {Kind}."),
     };
 

@@ -1,21 +1,28 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/warehouse_zeela.json"
 Music = "red_brinstar"
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "kraid_defeated"
+
 [node name="WarehouseZeela" type="Node2D"]
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(44, 19)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -48,7 +55,7 @@ LeadsToExit = "ToWarehouseZeela"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
 
-[node name="Zeela" parent="." instance=ExtResource("5")]
+[node name="Zeela" parent="." instance=ExtResource("6")]
 position = Vector2(106, 64)
 DataFile = "enemies/zeela.json"
 StartsOn = 1
@@ -57,7 +64,7 @@ PressesUp = false
 CrawlSpeed = 0.75
 AlwaysActive = true
 
-[node name="Zeela2" parent="." instance=ExtResource("5")]
+[node name="Zeela2" parent="." instance=ExtResource("6")]
 position = Vector2(106, 104)
 DataFile = "enemies/zeela.json"
 StartsOn = 1
@@ -66,7 +73,7 @@ PressesUp = false
 CrawlSpeed = 0.75
 AlwaysActive = true
 
-[node name="Zeela3" parent="." instance=ExtResource("5")]
+[node name="Zeela3" parent="." instance=ExtResource("6")]
 position = Vector2(43, 232)
 DataFile = "enemies/zeela.json"
 StartsOn = 0
@@ -74,3 +81,18 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 AlwaysActive = true
+
+[node name="GreyCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "warehouse_zeela_grey_door_facing_right"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(352, 304)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"

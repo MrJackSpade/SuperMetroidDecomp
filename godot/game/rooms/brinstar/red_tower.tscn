@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -17,7 +18,7 @@ Music = "red_brinstar"
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(33, 10)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -130,3 +131,27 @@ position = Vector2(200, 1360)
 StartsFacing = 0
 Speed = 2
 RespawnsWhenKilled = true
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 1120)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="YellowCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 1632)
+DataFile = "objects/door_cap_yellow_right.json"
+RememberedAs = "red_tower_yellow_door_facing_right"
+Remembered = 1
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("8")]
+position = Vector2(224, 2400)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="GreenCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 2400)
+DataFile = "objects/door_cap_green_right.json"
+RememberedAs = "red_tower_green_door_facing_right"
+Remembered = 1

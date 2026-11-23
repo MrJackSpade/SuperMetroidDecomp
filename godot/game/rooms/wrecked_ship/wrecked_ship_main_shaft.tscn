@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -9,7 +9,9 @@
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -30,13 +32,13 @@ Music = "wrecked_ship_powered_down"
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="WreckedShipMainShaft" type="Node2D"]
 script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(12, 12)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -311,43 +313,84 @@ Spin = "up_right_turning"
 Speed = 0
 PresentWhen = SubResource("r4")
 
-[node name="Spark" parent="." instance=ExtResource("10")]
+[node name="MissileTank" parent="." instance=ExtResource("10")]
+position = Vector2(40, 1432)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "wrecked_ship_main_shaft_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("11")]
+position = Vector2(1040, 864)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("11")]
+position = Vector2(1120, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="GreenCap" parent="." instance=ExtResource("11")]
+position = Vector2(1120, 2000)
+DataFile = "objects/door_cap_green_up.json"
+RememberedAs = "wrecked_ship_main_shaft_green_door_facing_up"
+Remembered = 1
+
+[node name="GreyCap" parent="." instance=ExtResource("11")]
+position = Vector2(1248, 1120)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_left"
+Remembered = 1
+
+[node name="GreyCap2" parent="." instance=ExtResource("11")]
+position = Vector2(1040, 1632)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "wrecked_ship_main_shaft_grey_door_facing_right"
+Remembered = 1
+
+[node name="BlueCap3" parent="." instance=ExtResource("11")]
+position = Vector2(1504, 1632)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap4" parent="." instance=ExtResource("11")]
+position = Vector2(1248, 864)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Spark" parent="." instance=ExtResource("12")]
 position = Vector2(1176, 680)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark2" parent="." instance=ExtResource("10")]
+[node name="Spark2" parent="." instance=ExtResource("12")]
 position = Vector2(1136, 857)
 Does = 1
 SpellUpdates = 40
 PresentWhen = SubResource("r1")
 
-[node name="Spark3" parent="." instance=ExtResource("10")]
+[node name="Spark3" parent="." instance=ExtResource("12")]
 position = Vector2(1056, 1164)
 Does = 1
 SpellUpdates = 32
 PresentWhen = SubResource("r1")
 
-[node name="Spark4" parent="." instance=ExtResource("10")]
+[node name="Spark4" parent="." instance=ExtResource("12")]
 position = Vector2(1224, 1288)
 Does = 1
 SpellUpdates = 32
 PresentWhen = SubResource("r1")
 
-[node name="Spark5" parent="." instance=ExtResource("10")]
+[node name="Spark5" parent="." instance=ExtResource("12")]
 position = Vector2(1160, 1468)
 Does = 1
 SpellUpdates = 24
 PresentWhen = SubResource("r1")
 
-[node name="Spark6" parent="." instance=ExtResource("10")]
+[node name="Spark6" parent="." instance=ExtResource("12")]
 position = Vector2(1129, 1818)
 Does = 0
 SpellUpdates = 0
 PresentWhen = SubResource("r1")
 
-[node name="Spark7" parent="." instance=ExtResource("10")]
+[node name="Spark7" parent="." instance=ExtResource("12")]
 position = Vector2(1048, 1928)
 Does = 2
 SpellUpdates = 48
@@ -405,13 +448,13 @@ FallWait = 48
 FallDistance = 80
 PresentWhen = SubResource("r1")
 
-[node name="Spark8" parent="." instance=ExtResource("10")]
+[node name="Spark8" parent="." instance=ExtResource("12")]
 position = Vector2(1232, 1992)
 Does = 1
 SpellUpdates = 48
 PresentWhen = SubResource("r1")
 
-[node name="Spark9" parent="." instance=ExtResource("10")]
+[node name="Spark9" parent="." instance=ExtResource("12")]
 position = Vector2(1072, 1992)
 Does = 1
 SpellUpdates = 32

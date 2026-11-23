@@ -1,21 +1,35 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="5"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/warehouse_energy_tank.json"
 KeepsMusic = true
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 8
+About = "4"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
+
 [node name="WarehouseEnergyTank" type="Node2D"]
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(43, 20)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -30,14 +44,32 @@ LeadsToExit = "ToWarehouseEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
-[node name="Beetom" parent="." instance=ExtResource("5")]
+[node name="Beetom" parent="." instance=ExtResource("6")]
 position = Vector2(45, 152)
 
-[node name="Beetom2" parent="." instance=ExtResource("5")]
+[node name="Beetom2" parent="." instance=ExtResource("6")]
 position = Vector2(71, 152)
 
-[node name="Beetom3" parent="." instance=ExtResource("5")]
+[node name="Beetom3" parent="." instance=ExtResource("6")]
 position = Vector2(139, 168)
 
-[node name="Beetom4" parent="." instance=ExtResource("5")]
+[node name="Beetom4" parent="." instance=ExtResource("6")]
 position = Vector2(96, 152)
+
+[node name="EnergyTank" parent="." instance=ExtResource("7")]
+position = Vector2(88, 72)
+TypeFile = "items/energy_tank.json"
+RememberedAs = "warehouse_energy_tank_shot_block_energy_tank"
+
+[node name="GreyCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "warehouse_energy_tank_grey_door_facing_left"
+Remembered = 1
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("9")
+StartsWhen = SubResource("r3")
+Until = SubResource("r2")
+Records = PackedStringArray("zebes_awake")

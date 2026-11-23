@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/covern/covern.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/station/save_station.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -27,13 +29,13 @@ Music = "wrecked_ship_powered_down"
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="WreckedShipSave" type="Node2D"]
 script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(17, 15)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -141,6 +143,15 @@ Heading = 144
 ActivationDistance = 48
 Runs = 0
 PresentWhen = SubResource("r4")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="SaveStation" parent="." instance=ExtResource("9")]
+position = Vector2(112, 128)
+ResumesAt = "AtWreckedShipSave"
+PresentWhen = SubResource("r1")
 
 [node name="AtWreckedShipSave" type="Marker2D" parent="."]
 position = Vector2(128, 152)

@@ -1,22 +1,35 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/lower_norfair_farming.json"
 Music = "lower_norfair"
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "lower_norfair_farming_eye_door_facing_right"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
 [node name="LowerNorfairFarming" type="Node2D"]
 script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(24, 17)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -40,7 +53,7 @@ LeadsToExit = "ToLowerNorfairFarming"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Viola" parent="." instance=ExtResource("5")]
+[node name="Viola" parent="." instance=ExtResource("6")]
 position = Vector2(552, 136)
 DataFile = "enemies/viola.json"
 StartsOn = 1
@@ -48,7 +61,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Viola2" parent="." instance=ExtResource("5")]
+[node name="Viola2" parent="." instance=ExtResource("6")]
 position = Vector2(568, 216)
 DataFile = "enemies/viola.json"
 StartsOn = 1
@@ -56,7 +69,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Viola3" parent="." instance=ExtResource("5")]
+[node name="Viola3" parent="." instance=ExtResource("6")]
 position = Vector2(360, 136)
 DataFile = "enemies/viola.json"
 StartsOn = 3
@@ -64,7 +77,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Viola4" parent="." instance=ExtResource("5")]
+[node name="Viola4" parent="." instance=ExtResource("6")]
 position = Vector2(360, 216)
 DataFile = "enemies/viola.json"
 StartsOn = 3
@@ -72,7 +85,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Viola5" parent="." instance=ExtResource("5")]
+[node name="Viola5" parent="." instance=ExtResource("6")]
 position = Vector2(216, 152)
 DataFile = "enemies/viola.json"
 StartsOn = 1
@@ -80,38 +93,54 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Zebbo" parent="." instance=ExtResource("6")]
+[node name="Zebbo" parent="." instance=ExtResource("7")]
 position = Vector2(664, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo2" parent="." instance=ExtResource("6")]
+[node name="Zebbo2" parent="." instance=ExtResource("7")]
 position = Vector2(600, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo3" parent="." instance=ExtResource("6")]
+[node name="Zebbo3" parent="." instance=ExtResource("7")]
 position = Vector2(520, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo4" parent="." instance=ExtResource("6")]
+[node name="Zebbo4" parent="." instance=ExtResource("7")]
 position = Vector2(456, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo5" parent="." instance=ExtResource("6")]
+[node name="Zebbo5" parent="." instance=ExtResource("7")]
 position = Vector2(328, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo6" parent="." instance=ExtResource("6")]
+[node name="Zebbo6" parent="." instance=ExtResource("7")]
 position = Vector2(248, 240)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
+
+[node name="EyeCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_eye_right.json"
+HeldShutBy = SubResource("r2")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("9")]
+position = Vector2(16, 112)
+StartsFacing = 1
+DestroyedFact = "lower_norfair_farming_eye_door_facing_right"
+AlwaysActive = true
+PresentWhen = SubResource("r3")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"

@@ -1,23 +1,37 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/big_pink.json"
 Music = "green_brinstar"
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "big_pink_chozo_charge_beam"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
 [node name="BigPink" type="Node2D"]
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(15, 5)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -104,50 +118,109 @@ LeadsToExit = "ToBigPink"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Rio" parent="." instance=ExtResource("5")]
+[node name="Rio" parent="." instance=ExtResource("6")]
 position = Vector2(744, 1144)
 
-[node name="Rio2" parent="." instance=ExtResource("5")]
+[node name="Rio2" parent="." instance=ExtResource("6")]
 position = Vector2(808, 1144)
 AlwaysActive = true
 
-[node name="Rio3" parent="." instance=ExtResource("5")]
+[node name="Rio3" parent="." instance=ExtResource("6")]
 position = Vector2(821, 1449)
 
-[node name="Sidehopper" parent="." instance=ExtResource("6")]
+[node name="Sidehopper" parent="." instance=ExtResource("7")]
 position = Vector2(569, 252)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = true
 
-[node name="Sidehopper2" parent="." instance=ExtResource("6")]
+[node name="Sidehopper2" parent="." instance=ExtResource("7")]
 position = Vector2(760, 237)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = true
 
-[node name="Sidehopper3" parent="." instance=ExtResource("6")]
+[node name="Sidehopper3" parent="." instance=ExtResource("7")]
 position = Vector2(592, 1048)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="Sidehopper4" parent="." instance=ExtResource("6")]
+[node name="Sidehopper4" parent="." instance=ExtResource("7")]
 position = Vector2(688, 1048)
 DataFile = "enemies/sidehopper.json"
 OnCeiling = false
 
-[node name="Zeb" parent="." instance=ExtResource("7")]
+[node name="Zeb" parent="." instance=ExtResource("8")]
 position = Vector2(704, 152)
 DataFile = "enemies/zeb.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zeb2" parent="." instance=ExtResource("7")]
+[node name="Zeb2" parent="." instance=ExtResource("8")]
 position = Vector2(688, 552)
 DataFile = "enemies/zeb.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zeb3" parent="." instance=ExtResource("7")]
+[node name="Zeb3" parent="." instance=ExtResource("8")]
 position = Vector2(800, 1353)
 DataFile = "enemies/zeb.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
+
+[node name="MissileTank" parent="." instance=ExtResource("9")]
+position = Vector2(584, 808)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "big_pink_exposed_missile_tank_at36x50"
+
+[node name="MissileTank2" parent="." instance=ExtResource("9")]
+position = Vector2(552, 1656)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "big_pink_exposed_missile_tank_at34x103"
+
+[node name="ChargeBeam" parent="." instance=ExtResource("9")]
+position = Vector2(600, 1896)
+TypeFile = "items/charge_beam.json"
+RememberedAs = "big_pink_chozo_charge_beam"
+
+[node name="ItemShell" parent="." instance=ExtResource("10")]
+position = Vector2(592, 1888)
+PresentWhen = SubResource("r3")
+
+[node name="BlueCap" parent="." instance=ExtResource("11")]
+position = Vector2(528, 608)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("11")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "big_pink_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap2" parent="." instance=ExtResource("11")]
+position = Vector2(528, 1120)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreenCap" parent="." instance=ExtResource("11")]
+position = Vector2(992, 1632)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "big_pink_green_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap3" parent="." instance=ExtResource("11")]
+position = Vector2(1248, 1376)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="RedCap2" parent="." instance=ExtResource("11")]
+position = Vector2(16, 2400)
+DataFile = "objects/door_cap_red_right.json"
+RememberedAs = "big_pink_red_door_facing_right"
+Remembered = 1
+
+[node name="YellowCap" parent="." instance=ExtResource("11")]
+position = Vector2(992, 1120)
+DataFile = "objects/door_cap_yellow_left.json"
+RememberedAs = "big_pink_yellow_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap4" parent="." instance=ExtResource("11")]
+position = Vector2(272, 96)
+DataFile = "objects/door_cap_blue_right.json"

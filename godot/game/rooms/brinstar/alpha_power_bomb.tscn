@@ -1,21 +1,35 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/boyon/boyon.tscn" id="5"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/boyon/boyon.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/alpha_power_bomb.json"
 Music = "elevator"
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "alpha_power_bomb_chozo_power_bomb_tank"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
 [node name="AlphaPowerBomb" type="Node2D"]
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(34, 12)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -30,26 +44,44 @@ LeadsToExit = "ToAlphaPowerBomb"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
-[node name="Boyon" parent="." instance=ExtResource("5")]
+[node name="Boyon" parent="." instance=ExtResource("6")]
 position = Vector2(600, 168)
 SpeedMultiplier = 8
 JumpHeight = 48
 Reach = 32
 
-[node name="Boyon2" parent="." instance=ExtResource("5")]
+[node name="Boyon2" parent="." instance=ExtResource("6")]
 position = Vector2(616, 168)
 SpeedMultiplier = 8
 JumpHeight = 48
 Reach = 32
 
-[node name="Boyon3" parent="." instance=ExtResource("5")]
+[node name="Boyon3" parent="." instance=ExtResource("6")]
 position = Vector2(504, 168)
 SpeedMultiplier = 8
 JumpHeight = 48
 Reach = 32
 
-[node name="Boyon4" parent="." instance=ExtResource("5")]
+[node name="Boyon4" parent="." instance=ExtResource("6")]
 position = Vector2(520, 168)
 SpeedMultiplier = 8
 JumpHeight = 48
 Reach = 32
+
+[node name="PowerBombTank" parent="." instance=ExtResource("7")]
+position = Vector2(328, 152)
+TypeFile = "items/power_bomb_tank.json"
+RememberedAs = "alpha_power_bomb_chozo_power_bomb_tank"
+
+[node name="ItemShell" parent="." instance=ExtResource("8")]
+position = Vector2(320, 144)
+PresentWhen = SubResource("r3")
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(40, 136)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "alpha_power_bomb_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"

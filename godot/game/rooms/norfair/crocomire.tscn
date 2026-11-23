@@ -1,10 +1,14 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/crocomire/crocomire.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -16,17 +20,23 @@ script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/norfair/crocomire.json"
 KeepsMusic = true
+Patches = PackedStringArray("bridge_collapsed", "spike_wall_open")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/norfair/crocomire.json"
 Music = "kraid_and_phantoon_battle"
 
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
 [node name="Crocomire" type="Node2D"]
 script = ExtResource("3")
 Area = "norfair"
 MapCell = Vector2i(12, 11)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -49,3 +59,36 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_farming.tscn"
 LeadsToExit = "ToCrocomire"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Crocomire" parent="." instance=ExtResource("6")]
+position = Vector2(1152, 120)
+FightMusic = "kraid_and_phantoon_battle"
+TensionMusic = "boss_room_tension"
+BridgeCrumblePatches = Array[String](["bridge_crumbles_1", "bridge_crumbles_2"])
+BridgeCollapsePatch = "bridge_collapsed"
+SpikeWallPatch = "spike_wall_open"
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(2048, 256)
+RememberedAs = "crocomire_defeated"
+Boss = NodePath("../Crocomire")
+
+[node name="EnergyTank" parent="." instance=ExtResource("8")]
+position = Vector2(2008, 104)
+TypeFile = "items/energy_tank.json"
+RememberedAs = "crocomire_exposed_energy_tank"
+
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(864, 32)
+DataFile = "objects/door_cap_grey_down.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "crocomire_grey_door_facing_down"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"

@@ -1,22 +1,36 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/multiviola/multiviola.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/multiviola/multiviola.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/mickey_mouse.json"
 KeepsMusic = true
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 8
+About = "5"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
+
 [node name="MickeyMouse" type="Node2D"]
 script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(26, 10)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -40,62 +54,84 @@ LeadsToExit = "ToMickeyMouse"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
-[node name="DessgeegaLarge" parent="." instance=ExtResource("5")]
+[node name="DessgeegaLarge" parent="." instance=ExtResource("6")]
 position = Vector2(960, 907)
 DataFile = "enemies/dessgeega_large.json"
 OnCeiling = false
 
-[node name="DessgeegaLarge2" parent="." instance=ExtResource("5")]
+[node name="DessgeegaLarge2" parent="." instance=ExtResource("6")]
 position = Vector2(855, 906)
 DataFile = "enemies/dessgeega_large.json"
 OnCeiling = false
 
-[node name="DessgeegaLarge3" parent="." instance=ExtResource("5")]
+[node name="DessgeegaLarge3" parent="." instance=ExtResource("6")]
 position = Vector2(433, 907)
 DataFile = "enemies/dessgeega_large.json"
 OnCeiling = false
 
-[node name="DessgeegaLarge4" parent="." instance=ExtResource("5")]
+[node name="DessgeegaLarge4" parent="." instance=ExtResource("6")]
 position = Vector2(261, 896)
 DataFile = "enemies/dessgeega_large.json"
 OnCeiling = true
 
-[node name="DessgeegaLarge5" parent="." instance=ExtResource("5")]
+[node name="DessgeegaLarge5" parent="." instance=ExtResource("6")]
 position = Vector2(618, 897)
 DataFile = "enemies/dessgeega_large.json"
 OnCeiling = true
 
-[node name="Multiviola" parent="." instance=ExtResource("6")]
+[node name="Multiviola" parent="." instance=ExtResource("7")]
 position = Vector2(149, 887)
 Heading = 14
 Speed = 6
 
-[node name="Multiviola2" parent="." instance=ExtResource("6")]
+[node name="Multiviola2" parent="." instance=ExtResource("7")]
 position = Vector2(353, 912)
 Heading = 168
 Speed = 6
 
-[node name="Multiviola3" parent="." instance=ExtResource("6")]
+[node name="Multiviola3" parent="." instance=ExtResource("7")]
 position = Vector2(918, 790)
 Heading = 0
 Speed = 7
 
-[node name="Multiviola4" parent="." instance=ExtResource("6")]
+[node name="Multiviola4" parent="." instance=ExtResource("7")]
 position = Vector2(841, 763)
 Heading = 80
 Speed = 7
 
-[node name="Multiviola5" parent="." instance=ExtResource("6")]
+[node name="Multiviola5" parent="." instance=ExtResource("7")]
 position = Vector2(883, 681)
 Heading = 200
 Speed = 6
 
-[node name="Multiviola6" parent="." instance=ExtResource("6")]
+[node name="Multiviola6" parent="." instance=ExtResource("7")]
 position = Vector2(856, 568)
 Heading = 240
 Speed = 6
 
-[node name="Multiviola7" parent="." instance=ExtResource("6")]
+[node name="Multiviola7" parent="." instance=ExtResource("7")]
 position = Vector2(971, 532)
 Heading = 72
 Speed = 5
+
+[node name="MissileTank" parent="." instance=ExtResource("8")]
+position = Vector2(632, 440)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "mickey_mouse_exposed_missile_tank"
+
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 864)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "mickey_mouse_grey_door_facing_right"
+Remembered = 1
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("10")
+StartsWhen = SubResource("r3")
+Until = SubResource("r2")
+Records = PackedStringArray("zebes_awake")
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"

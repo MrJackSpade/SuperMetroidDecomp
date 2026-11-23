@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/shaktool/shaktool.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,7 +29,7 @@ KeepsMusic = true
 script = ExtResource("3")
 Area = "maridia"
 MapCell = Vector2i(28, 16)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -67,3 +68,11 @@ position = Vector2(984, 80)
 StartsOn = 1
 Clockwise = true
 CrawlSpeed = 0.5
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"

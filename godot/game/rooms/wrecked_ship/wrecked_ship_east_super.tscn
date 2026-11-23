@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -9,8 +9,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/work_robot/work_robot.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="10"]
-[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -31,13 +33,13 @@ KeepsMusic = true
 [sub_resource type="Resource" id="r4"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="WreckedShipEastSuper" type="Node2D"]
 script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(18, 18)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -256,6 +258,10 @@ Spin = "up_left_turning_back"
 Speed = 0
 PresentWhen = SubResource("r4")
 
+[node name="BlueCap" parent="." instance=ExtResource("10")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
 [node name="WorkRobot" parent="." instance=ExtResource("8")]
 position = Vector2(376, 128)
 Powered = true
@@ -270,7 +276,7 @@ Pose = "no_power_neutral"
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Bull" parent="." instance=ExtResource("10")]
+[node name="Bull" parent="." instance=ExtResource("11")]
 position = Vector2(224, 120)
 AccelerationInterval = 6
 DecelerationInterval = 2
@@ -278,7 +284,7 @@ MaximumSpeed = 6.99609375
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Bull2" parent="." instance=ExtResource("10")]
+[node name="Bull2" parent="." instance=ExtResource("11")]
 position = Vector2(528, 117)
 AccelerationInterval = 6
 DecelerationInterval = 2
@@ -286,26 +292,32 @@ MaximumSpeed = 6.99609375
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="Spark" parent="." instance=ExtResource("11")]
+[node name="Spark" parent="." instance=ExtResource("12")]
 position = Vector2(160, 80)
 Does = 1
 SpellUpdates = 128
 PresentWhen = SubResource("r1")
 
-[node name="Spark2" parent="." instance=ExtResource("11")]
+[node name="Spark2" parent="." instance=ExtResource("12")]
 position = Vector2(288, 80)
 Does = 1
 SpellUpdates = 16
 PresentWhen = SubResource("r1")
 
-[node name="Spark3" parent="." instance=ExtResource("11")]
+[node name="Spark3" parent="." instance=ExtResource("12")]
 position = Vector2(464, 80)
 Does = 1
 SpellUpdates = 160
 PresentWhen = SubResource("r1")
 
-[node name="Spark4" parent="." instance=ExtResource("11")]
+[node name="Spark4" parent="." instance=ExtResource("12")]
 position = Vector2(592, 80)
 Does = 1
 SpellUpdates = 128
+PresentWhen = SubResource("r1")
+
+[node name="SuperMissileTank" parent="." instance=ExtResource("13")]
+position = Vector2(904, 152)
+TypeFile = "items/super_missile_tank.json"
+RememberedAs = "wrecked_ship_east_super_exposed_super_missile_tank"
 PresentWhen = SubResource("r1")

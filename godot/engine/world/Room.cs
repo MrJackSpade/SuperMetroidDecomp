@@ -116,6 +116,12 @@ public partial class Room : Node2D
     /// <summary>The room's exits.</summary>
     public IReadOnlyList<RoomExit> Exits => _exits;
 
+    /// <summary>How many enemies have been killed in the room since it was set up, counting each time one that comes back is killed.</summary>
+    public int EnemiesKilled { get; private set; }
+
+    /// <summary>Counts an enemy's death.</summary>
+    internal void CountKilled() => EnemiesKilled++;
+
     /// <summary>Whether any enemy in the room is alive.</summary>
     public bool HasLiveEnemies => _enemies.Any(enemy => !enemy.IsDead && !_leaving.Contains(enemy));
 
@@ -131,6 +137,7 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
+        EnemiesKilled = 0;
         Entry = entry;
         ShownTurn = null;
         ExitEntered = null;

@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,10 +6,11 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -40,24 +41,34 @@ KeepsMusic = true
 
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
-Kind = 6
-Parts = [SubResource("r1"), SubResource("r3")]
+Kind = 5
+Parts = Array[ExtResource("1")]([])
 
 [sub_resource type="Resource" id="r7"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
 
 [sub_resource type="Resource" id="r8"]
 script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
 Kind = 4
-Parts = [SubResource("r3"), SubResource("r7")]
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r8")])
+
+[sub_resource type="Resource" id="r10"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r9"), SubResource("r7")])
 
 [node name="Parlor" type="Node2D"]
 script = ExtResource("3")
 Area = "crateria"
 MapCell = Vector2i(18, 5)
-Versions = [SubResource("r2"), SubResource("r4"), SubResource("r5")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -132,7 +143,7 @@ Speed = 2
 Heading = 170
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
 position = Vector2(1188, 201)
@@ -140,7 +151,7 @@ Speed = 2
 Heading = 181
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
 position = Vector2(1211, 207)
@@ -148,7 +159,7 @@ Speed = 3
 Heading = 208
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
 position = Vector2(1252, 65)
@@ -156,7 +167,7 @@ Speed = 4
 Heading = 72
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
 position = Vector2(1109, 42)
@@ -164,7 +175,7 @@ Speed = 3
 Heading = 96
 ActivationDistance = 160
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
 position = Vector2(1087, 46)
@@ -172,7 +183,7 @@ Speed = 3
 Heading = 108
 ActivationDistance = 160
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
 position = Vector2(1135, 39)
@@ -180,7 +191,7 @@ Speed = 2
 Heading = 120
 ActivationDistance = 160
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
 position = Vector2(984, 195)
@@ -188,7 +199,7 @@ Speed = 3
 Heading = 202
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
 position = Vector2(978, 201)
@@ -196,7 +207,7 @@ Speed = 3
 Heading = 200
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
 position = Vector2(987, 206)
@@ -204,7 +215,7 @@ Speed = 2
 Heading = 226
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug11" parent="." instance=ExtResource("6")]
 position = Vector2(283, 188)
@@ -212,7 +223,7 @@ Speed = 2
 Heading = 160
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug12" parent="." instance=ExtResource("6")]
 position = Vector2(274, 196)
@@ -220,7 +231,7 @@ Speed = 2
 Heading = 171
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug13" parent="." instance=ExtResource("6")]
 position = Vector2(300, 553)
@@ -228,7 +239,7 @@ Speed = 3
 Heading = 124
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug14" parent="." instance=ExtResource("6")]
 position = Vector2(292, 557)
@@ -236,7 +247,7 @@ Speed = 3
 Heading = 148
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug15" parent="." instance=ExtResource("6")]
 position = Vector2(323, 575)
@@ -244,7 +255,7 @@ Speed = 2
 Heading = 132
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug16" parent="." instance=ExtResource("6")]
 position = Vector2(319, 703)
@@ -252,7 +263,7 @@ Speed = 2
 Heading = 161
 ActivationDistance = 64
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug17" parent="." instance=ExtResource("6")]
 position = Vector2(325, 698)
@@ -260,7 +271,7 @@ Speed = 3
 Heading = 145
 ActivationDistance = 64
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug18" parent="." instance=ExtResource("6")]
 position = Vector2(317, 707)
@@ -268,7 +279,7 @@ Speed = 2
 Heading = 140
 ActivationDistance = 64
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug19" parent="." instance=ExtResource("6")]
 position = Vector2(269, 731)
@@ -276,7 +287,7 @@ Speed = 3
 Heading = 172
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
 [node name="Sbug20" parent="." instance=ExtResource("6")]
 position = Vector2(421, 1248)
@@ -284,9 +295,44 @@ Speed = 4
 Heading = 232
 ActivationDistance = 32
 Runs = 0
-PresentWhen = SubResource("r6")
+PresentWhen = SubResource("r7")
 
-[node name="Zoomer" parent="." instance=ExtResource("7")]
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(1248, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(272, 608)
+DataFile = "objects/door_cap_blue_right.json"
+PresentWhen = SubResource("r10")
+
+[node name="BlueCap3" parent="." instance=ExtResource("7")]
+position = Vector2(352, 1232)
+DataFile = "objects/door_cap_blue_up.json"
+PresentWhen = SubResource("r10")
+
+[node name="BlueCap4" parent="." instance=ExtResource("7")]
+position = Vector2(992, 608)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(480, 864)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "parlor_red_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r10")
+
+[node name="BlueCap5" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+PresentWhen = SubResource("r10")
+
+[node name="BlueCap6" parent="." instance=ExtResource("7")]
+position = Vector2(272, 864)
+DataFile = "objects/door_cap_blue_right.json"
+PresentWhen = SubResource("r10")
+
+[node name="Zoomer" parent="." instance=ExtResource("8")]
 position = Vector2(1176, 64)
 DataFile = "enemies/zoomer.json"
 StartsOn = 2
@@ -294,9 +340,9 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
 AlwaysActive = true
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer2" parent="." instance=ExtResource("7")]
+[node name="Zoomer2" parent="." instance=ExtResource("8")]
 position = Vector2(1055, 136)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
@@ -304,209 +350,239 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
 AlwaysActive = true
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer3" parent="." instance=ExtResource("7")]
+[node name="Zoomer3" parent="." instance=ExtResource("8")]
 position = Vector2(1096, 184)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Skree" parent="." instance=ExtResource("8")]
+[node name="Skree" parent="." instance=ExtResource("9")]
 position = Vector2(766, 59)
 DataFile = "enemies/skree.json"
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Skree2" parent="." instance=ExtResource("8")]
+[node name="Skree2" parent="." instance=ExtResource("9")]
 position = Vector2(702, 91)
 DataFile = "enemies/skree.json"
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Skree3" parent="." instance=ExtResource("8")]
+[node name="Skree3" parent="." instance=ExtResource("9")]
 position = Vector2(638, 59)
 DataFile = "enemies/skree.json"
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer4" parent="." instance=ExtResource("7")]
+[node name="Zoomer4" parent="." instance=ExtResource("8")]
 position = Vector2(416, 376)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Ripper" parent="." instance=ExtResource("9")]
+[node name="Ripper" parent="." instance=ExtResource("10")]
 position = Vector2(440, 552)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer5" parent="." instance=ExtResource("7")]
+[node name="Zoomer5" parent="." instance=ExtResource("8")]
 position = Vector2(296, 1080)
 DataFile = "enemies/zoomer.json"
 StartsOn = 3
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer6" parent="." instance=ExtResource("7")]
+[node name="Zoomer6" parent="." instance=ExtResource("8")]
 position = Vector2(468, 1080)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
 PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer7" parent="." instance=ExtResource("7")]
+[node name="Zoomer7" parent="." instance=ExtResource("8")]
 position = Vector2(384, 1032)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer8" parent="." instance=ExtResource("7")]
+[node name="Zoomer8" parent="." instance=ExtResource("8")]
 position = Vector2(360, 808)
 DataFile = "enemies/zoomer.json"
 StartsOn = 3
 PressesLeft = false
 PressesUp = true
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer9" parent="." instance=ExtResource("7")]
+[node name="Zoomer9" parent="." instance=ExtResource("8")]
 position = Vector2(490, 746)
 DataFile = "enemies/zoomer.json"
 StartsOn = 1
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer10" parent="." instance=ExtResource("7")]
+[node name="Zoomer10" parent="." instance=ExtResource("8")]
 position = Vector2(456, 632)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Zoomer11" parent="." instance=ExtResource("7")]
+[node name="Zoomer11" parent="." instance=ExtResource("8")]
 position = Vector2(385, 277)
 DataFile = "enemies/zoomer.json"
 StartsOn = 2
 PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.5
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Ripper2" parent="." instance=ExtResource("9")]
+[node name="Ripper2" parent="." instance=ExtResource("10")]
 position = Vector2(941, 488)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
-PresentWhen = SubResource("r8")
+PresentWhen = SubResource("r9")
 
-[node name="Steam" parent="." instance=ExtResource("10")]
+[node name="Steam" parent="." instance=ExtResource("11")]
 position = Vector2(325, 181)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam2" parent="." instance=ExtResource("10")]
+[node name="Steam2" parent="." instance=ExtResource("11")]
 position = Vector2(441, 186)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam3" parent="." instance=ExtResource("10")]
+[node name="Steam3" parent="." instance=ExtResource("11")]
 position = Vector2(478, 169)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam4" parent="." instance=ExtResource("10")]
+[node name="Steam4" parent="." instance=ExtResource("11")]
 position = Vector2(551, 177)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam5" parent="." instance=ExtResource("10")]
+[node name="Steam5" parent="." instance=ExtResource("11")]
 position = Vector2(573, 185)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam6" parent="." instance=ExtResource("10")]
+[node name="Steam6" parent="." instance=ExtResource("11")]
 position = Vector2(623, 192)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam7" parent="." instance=ExtResource("10")]
+[node name="Steam7" parent="." instance=ExtResource("11")]
 position = Vector2(689, 208)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam8" parent="." instance=ExtResource("10")]
+[node name="Steam8" parent="." instance=ExtResource("11")]
 position = Vector2(721, 200)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam9" parent="." instance=ExtResource("10")]
+[node name="Steam9" parent="." instance=ExtResource("11")]
 position = Vector2(779, 192)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam10" parent="." instance=ExtResource("10")]
+[node name="Steam10" parent="." instance=ExtResource("11")]
 position = Vector2(815, 160)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam11" parent="." instance=ExtResource("10")]
+[node name="Steam11" parent="." instance=ExtResource("11")]
 position = Vector2(862, 136)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam12" parent="." instance=ExtResource("10")]
+[node name="Steam12" parent="." instance=ExtResource("11")]
 position = Vector2(900, 119)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam13" parent="." instance=ExtResource("10")]
+[node name="Steam13" parent="." instance=ExtResource("11")]
 position = Vector2(988, 121)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam14" parent="." instance=ExtResource("10")]
+[node name="Steam14" parent="." instance=ExtResource("11")]
 position = Vector2(1022, 142)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam15" parent="." instance=ExtResource("10")]
+[node name="Steam15" parent="." instance=ExtResource("11")]
 position = Vector2(1055, 161)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam16" parent="." instance=ExtResource("10")]
+[node name="Steam16" parent="." instance=ExtResource("11")]
 position = Vector2(1116, 196)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam17" parent="." instance=ExtResource("10")]
+[node name="Steam17" parent="." instance=ExtResource("11")]
 position = Vector2(1151, 179)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam18" parent="." instance=ExtResource("10")]
+[node name="Steam18" parent="." instance=ExtResource("11")]
 position = Vector2(1194, 174)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam19" parent="." instance=ExtResource("10")]
+[node name="Steam19" parent="." instance=ExtResource("11")]
 position = Vector2(1228, 166)
 DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap" parent="." instance=ExtResource("7")]
+position = Vector2(272, 608)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap2" parent="." instance=ExtResource("7")]
+position = Vector2(352, 1232)
+DataFile = "objects/door_cap_grey_up.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap3" parent="." instance=ExtResource("7")]
+position = Vector2(480, 864)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap4" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap5" parent="." instance=ExtResource("7")]
+position = Vector2(272, 864)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r6")
 PresentWhen = SubResource("r1")

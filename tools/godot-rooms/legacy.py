@@ -274,6 +274,18 @@ def enemy_populations() -> dict[str, list[Placement]]:
     return result
 
 
+def death_quotas() -> dict[str, int]:
+    """For each enemy population, how many kills clear its room; none for a population that places nothing."""
+    result = {}
+    for area in AREAS:
+        text = without_comments(read('World', 'RoomStates', area + 'RoomEnemyPopulationDefinitions.cs'))
+        for name, _ in properties_of(text, r'internal static EmptyRoomEnemyPopulationDefinition (\w+) \{ get; \} ='):
+            result[name] = 0
+        for name, expression in properties_of(text, r'internal static PlacedRoomEnemyPopulationDefinition (\w+) \{ get; \} ='):
+            result[name] = int(call_arguments(expression)[2])
+    return result
+
+
 def object_populations() -> dict[str, list[str]]:
     """Each object population's entries, as text: a placement `new(new(x, y), new SomeSetup(...))` or a spread list."""
     text = without_comments(read('Rooms', 'RoomObjects', 'RoomObjectPopulationDefinitions.cs'))

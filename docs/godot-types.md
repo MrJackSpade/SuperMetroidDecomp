@@ -258,7 +258,7 @@ it settled, and new code follows them.
 | `GameClock` | The count of updates played | One per session. Anything that acts "every N updates" reads it. Nothing keeps its own global counter. |
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |
-| `Condition` | A yes-or-no question about the game's state, held as data | One of: a named fact in `Progress` is set; this room has no live enemies; the player owns a named piece of equipment; the player can carry some of a named amount; a named thing placed in this room is dead or open; or all, any or none of a list of conditions. |
+| `Condition` | A yes-or-no question about the game's state, held as data | One of: a named fact in `Progress` is set; this room has no live enemies; the player owns a named piece of equipment; the player can carry some of a named amount; at least so many enemies have been killed in this room since it was set up; a named thing placed in this room is dead or open; or all, any or none of a list of conditions. |
 | `RoomEntry` | How the player arrives in a room | Which room, through which exit or station, and what the player carries in (speed, state). The room transition builds it; the room and the player read it. |
 
 **Hits carry several kinds.** One shot can be several things at once. A hit carries every kind that is true of it,
@@ -455,7 +455,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | --- | --- | --- |
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
-| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save; reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
+| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save (and the entry point a game saved there resumes at); reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
 | `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. Its data's timelines show it at rest and moving. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |

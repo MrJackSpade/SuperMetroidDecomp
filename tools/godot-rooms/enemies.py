@@ -33,6 +33,14 @@ class Placed:
     at: tuple[int, int] | None = None
     # Whether it is an enemy, which takes the settings every enemy has.
     enemy: bool = True
+    # A condition, beyond being in one of its room's versions, that it is present under: a Condition resource.
+    only_when: str | None = None
+    # For something that is a script and no scene: the kind of node it is.
+    kind: str = 'Node2D'
+    # For a boss: the name its defeat is recorded under.
+    boss: str = ''
+    # For a Chozo statue that comes to life: which of the two it is.
+    chozo: str = ''
 
 
 Rule = Callable[[legacy.Placement, int, list[legacy.Placement]], 'Placed | None']
@@ -567,6 +575,22 @@ def steam(p, index, listed):
     return Placed(O + 'ceres_steam/ceres_steam.tscn', 'Steam', {'DataFile': quoted(f'objects/ceres_steam_{way}.json')}, enemy=False)
 
 
+# How far above an elevator's platform Samus's middle is, and the region above the platform she is taken hold of in.
+ELEVATOR_HOLDS_ABOVE = 26
+ELEVATOR_REGION = (32, 48)
+
+
+@rule('Elevator')
+def elevator(p, index, listed):
+    # It stands in its region's corner; its path runs from where it rests to where the old code starts an arrival,
+    # which is past the exit it leaves by.
+    down = legacy.last_name(p.settings['Direction']) == 'Down'
+    travel = int(p.settings['ArrivalY']) - p.at[1]
+    return Placed(O + 'elevator/elevator.tscn', 'Elevator', {
+        'Path': f'Array[Vector2i]([Vector2i(0, 0), Vector2i(0, {travel})])', 'StartsOn': quoted('down' if down else 'up')},
+        at=(p.at[0] - ELEVATOR_REGION[0] // 2, p.at[1] - ELEVATOR_REGION[1]), enemy=False)
+
+
 @rule('CeresDoor')
 def ceres_door(p, index, listed):
     way = legacy.last_name(p.settings['Facing']).lower()
@@ -604,6 +628,115 @@ def escape_dachora(p, index, listed):
     return Placed(O + 'dachora/escape_dachora.tscn', 'EscapeDachora', enemy=False)
 
 
+# Each boss the old code places: its scene, the name its defeat is recorded under, and what its placement sets.
+# The terrain patches named here are the room's layout's to hold.
+BOSSES = {
+    'Kraid': ('kraid/kraid.tscn', 'kraid', {
+        'FightMusic': '"kraid_and_phantoon_battle"', 'VictoryMusic': '"elevator"'}),
+    'Crocomire': ('crocomire/crocomire.tscn', 'crocomire', {
+        'FightMusic': '"kraid_and_phantoon_battle"', 'TensionMusic': '"boss_room_tension"',
+        'BridgeCrumblePatches': 'Array[String](["bridge_crumbles_1", "bridge_crumbles_2"])',
+        'BridgeCollapsePatch': '"bridge_collapsed"', 'SpikeWallPatch': '"spike_wall_open"'}),
+    'PhantoonBody': ('phantoon/phantoon.tscn', 'phantoon', {
+        'FightMusic': '"kraid_and_phantoon_battle"', 'VictoryMusic': '"elevator"'}),
+    'DraygonBody': ('draygon/draygon.tscn', 'draygon', {'VictoryMusic': '"elevator"'}),
+    'Ridley': ('ridley/ridley.tscn', 'ridley', {'FightMusic': '"ridley_and_draygon_battle"'}),
+    'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {'CeilingPatch': '"ceiling_open"'}),
+    'Botwoon': ('botwoon/botwoon.tscn', 'botwoon', {'WallPatch': '"wall_down"', 'VictoryMusic': '"elevator"'}),
+    'BombTorizo': ('torizo/torizo.tscn', 'bomb_torizo', {
+        'AwakeningMusic': '"torizo_awakening"', 'FightMusic': '"ridley_and_draygon_battle"', 'VictoryMusic': '"elevator"'}),
+    'GoldenTorizo': ('torizo/torizo.tscn', 'golden_torizo', {
+        'DataFile': '"bosses/golden_torizo.json"', 'Golden': 'true',
+        'AwakeningMusic': '"torizo_awakening"', 'FightMusic': '"ridley_and_draygon_battle"', 'VictoryMusic': '"elevator"'}),
+    'MotherBrainBody': ('mother_brain/mother_brain.tscn', 'mother_brain', {'FightMusic': '"mother_brain_battle"'}),
+}
+
+# The terrain patches a boss's room keeps once the boss is beaten: what its death did to the room.
+BEATEN_PATCHES = {
+    'crocomire': ['bridge_collapsed', 'spike_wall_open'], 'spore_spawn': ['ceiling_open'], 'botwoon': ['wall_down'],
+}
+
+
+def boss(kind: str) -> Rule:
+    scene, name, properties = BOSSES[kind]
+
+    def place(p: legacy.Placement, index: int, listed: list[legacy.Placement]) -> Placed:
+        return Placed(B + scene, kind.removesuffix('Body'), dict(properties), boss=name)
+    return place
+
+
+for kind in BOSSES:
+    RULES[kind] = boss(kind)
+
+RULES['NoobTubeCrack'] = part
+
+
+@rule('RidleyCeres')
+def ceres_ridley(p, index, listed):
+    return Placed(B + 'ridley/ridley.tscn', 'Ridley', {
+        'DataFile': quoted('bosses/ceres_ridley.json'), 'OnCeres': 'true', 'FightMusic': quoted('ridley_and_draygon_battle')})
+
+
+@rule('ShipTop')
+def gunship(p, index, listed):
+    return Placed(O + 'gunship/gunship.tscn', 'Gunship', {
+        'SaveQuestion': quoted('save_question'), 'SavedMessage': quoted('save_completed')}, enemy=False)
+
+
+@rule('MorphBallEye')
+def morph_ball_eye(p, index, listed):
+    if p.settings_type != 'MorphBallEyeMountSpawnSettings':
+        return None
+    return Placed(O + 'morph_ball_eye/morph_ball_eye.tscn', 'MorphBallEye', {}, enemy=False)
+
+
+# The places Rinkas form at in Mother Brain's room, in the order they are looked through.
+RINKA_PLACES = {
+    'FarRightUpper': (999, 38), 'FarRightLower': (999, 166), 'RightUpper': (823, 54), 'RightLower': (823, 166),
+    'CentreUpper': (631, 28), 'CentreLower': (631, 182), 'LeftUpper': (439, 54), 'LeftLower': (439, 166),
+    'FarLeftUpper': (247, 28), 'FarLeftLower': (247, 182), 'Leftmost': (128, 168),
+}
+
+
+@rule('Rinka')
+def rinka(p, index, listed):
+    # A Rinka comes from a source, which makes another when it is gone.
+    if p.settings_type == 'RinkaSpawnSettings.AtOwnPlacement':
+        return Placed(E + 'rinka/rinka_source.tscn', 'RinkaSource', {}, enemy=False)
+    own = list(RINKA_PLACES).index(legacy.last_name(p.settings['0']))
+    spots = ', '.join(f'Vector2i({x}, {y})' for x, y in RINKA_PLACES.values())
+    return Placed(E + 'rinka/rinka_spawner.tscn', 'RinkaSource', {
+        'EnemyScene': 'scene:' + E + 'rinka/rinka.tscn', 'IntervalUpdates': '1',
+        'Places': f'Array[Vector2i]([{spots}])', 'OwnPlace': str(own)}, enemy=False)
+
+
+@rule('Zebetite')
+def zebetite(p, index, listed):
+    # Its data says where each of the barriers stands.
+    return Placed(E + 'zebetite/zebetite.tscn', 'Zebetite', {'AlwaysActive': 'true'}, at=(0, 0))
+
+
+@rule('BabyMetroid')
+def baby_metroid(p, index, listed):
+    victim = next(at for at, other in enumerate(listed)
+                  if other.enemy == 'CorpseSidehopper' and legacy.last_name(other.settings['Layout']) == 'BabyMetroidVictim')
+    return Placed(E + 'baby_metroid/baby_metroid.tscn', 'BabyMetroid', {
+        'AttackMusic': quoted('kraid_and_phantoon_battle'), 'AfterwardMusic': quoted('baby_metroid_theme')}, {'Victim': victim})
+
+
+@rule('CorpseSidehopper')
+def dead_sidehopper(p, index, listed):
+    return Placed(E + 'corpse/dead_sidehopper.tscn', 'Sidehopper', {
+        'AlreadyDead': truth(legacy.last_name(p.settings['Layout']) == 'AlreadyDead')})
+
+
+@rule('Chozo')
+def chozo_statue(p, index, listed):
+    site = legacy.last_name(p.settings['Site'])
+    return Placed(E + 'chozo_statue/chozo_statue.tscn', 'ChozoStatue', {
+        'DataFile': quoted(f'enemies/chozo_statue_{snake(site)}.json')}, chozo=site)
+
+
 def places(listed: list[legacy.Placement], rules: dict[str, Rule], unplaced: dict[str, int] | None = None) -> list[tuple[int, Placed]]:
     """
     What a list of the old code's placements places, each with where its placement comes in the list. A kind no rule
@@ -619,7 +752,7 @@ def places(listed: list[legacy.Placement], rules: dict[str, Rule], unplaced: dic
         result = rules[p.enemy](p, index, listed)
         if result is None:
             continue
-        if result.at is None:
+        if result.at is None and result.kind == 'Node2D':
             if p.at is None:
                 raise ValueError(f'The {p.enemy} is placed nowhere, and its rule gives it no place.')
             result.at = p.at

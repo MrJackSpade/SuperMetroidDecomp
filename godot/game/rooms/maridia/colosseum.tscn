@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/metroid/mochtroid.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -15,7 +16,7 @@ KeepsMusic = true
 script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(34, 7)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -71,3 +72,25 @@ position = Vector2(360, 344)
 
 [node name="Mochtroid8" parent="." instance=ExtResource("5")]
 position = Vector2(1584, 416)
+
+[node name="GreenCap" parent="." instance=ExtResource("6")]
+position = Vector2(1760, 352)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "colosseum_green_door_facing_left_at110x22"
+Remembered = 1
+
+[node name="RedCap" parent="." instance=ExtResource("6")]
+position = Vector2(1760, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "colosseum_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreenCap2" parent="." instance=ExtResource("6")]
+position = Vector2(1248, 608)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "colosseum_green_door_facing_left_at78x38"
+Remembered = 1

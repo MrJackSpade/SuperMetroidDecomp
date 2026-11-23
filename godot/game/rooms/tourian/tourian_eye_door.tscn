@@ -1,20 +1,33 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/tourian/tourian_eye_door.json"
 KeepsMusic = true
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "tourian_eye_door_eye_door_facing_left"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
 [node name="TourianEyeDoor" type="Node2D"]
 script = ExtResource("2")
 Area = "tourian"
 MapCell = Vector2i(13, 17)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -37,3 +50,19 @@ LeadsToRoom = "res://game/rooms/tourian/seaweed.tscn"
 LeadsToExit = "ToTourianEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="EyeCap" parent="." instance=ExtResource("6")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_eye_left.json"
+HeldShutBy = SubResource("r2")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("7")]
+position = Vector2(992, 112)
+StartsFacing = 0
+DestroyedFact = "tourian_eye_door_eye_door_facing_left"
+AlwaysActive = true
+PresentWhen = SubResource("r3")

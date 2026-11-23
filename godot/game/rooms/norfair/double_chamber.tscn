@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,6 +8,10 @@
 [ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/kago/kago.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="12"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -18,7 +22,7 @@ Music = "upper_norfair"
 script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(25, 5)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -122,3 +126,30 @@ Speed = 1
 StartsFacing = 1
 PatrolLeft = 664
 PatrolRight = 824
+
+[node name="Gate" parent="." instance=ExtResource("9")]
+position = Vector2(416, 80)
+
+[node name="GateSwitch" parent="." instance=ExtResource("10")]
+position = Vector2(416, 80)
+DataFile = "objects/gate_switch_blue_left.json"
+TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
+
+[node name="MissileTank" parent="." instance=ExtResource("11")]
+position = Vector2(504, 152)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "double_chamber_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("12")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("12")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("12")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "double_chamber_red_door_facing_left"
+Remembered = 1

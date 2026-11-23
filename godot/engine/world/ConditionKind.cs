@@ -26,4 +26,7 @@ public enum ConditionKind
 
     /// <summary>The player can carry some of a named amount: they have found at least one of what holds it.</summary>
     PlayerCarries,
+
+    /// <summary>Have at least so many enemies been killed in this room since it was set up? The number is what the condition is about.</summary>
+    EnemiesKilled,
 }

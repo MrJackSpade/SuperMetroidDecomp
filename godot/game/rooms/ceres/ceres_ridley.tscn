@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/ridley/ridley.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -22,11 +23,16 @@ script = ExtResource("2")
 LayoutFile = "rooms/ceres/ceres_ridley.json"
 Music = ""
 
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
 [node name="CeresRidley" type="Node2D"]
 script = ExtResource("3")
 Area = "ceres"
 MapCell = Vector2i(20, 17)
-Versions = [SubResource("r2"), SubResource("r3")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -40,3 +46,11 @@ LeadsToRoom = "res://game/rooms/ceres/ceres_ridley_hallway.tscn"
 LeadsToExit = "ToCeresRidley"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Ridley" parent="." instance=ExtResource("6")]
+position = Vector2(186, 171)
+DataFile = "bosses/ceres_ridley.json"
+OnCeres = true
+FightMusic = "ridley_and_draygon_battle"
+AlwaysActive = true
+PresentWhen = SubResource("r4")

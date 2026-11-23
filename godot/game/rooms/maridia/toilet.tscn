@@ -17,7 +17,7 @@ KeepsMusic = true
 script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(22, 6)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")

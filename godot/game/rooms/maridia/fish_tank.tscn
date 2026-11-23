@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -16,7 +17,7 @@ KeepsMusic = true
 script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(13, 14)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -119,3 +120,21 @@ Speed = 1
 StartsFacing = 1
 Radius = 16
 AngleStep = 2
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(992, 608)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "fish_tank_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(96, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("7")]
+position = Vector2(864, 32)
+DataFile = "objects/door_cap_blue_down.json"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,28 +38,28 @@ Music = "lower_crateria"
 [sub_resource type="Resource" id="r6"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1")]
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [sub_resource type="Resource" id="r7"]
 script = ExtResource("1")
 Kind = 4
-Parts = [SubResource("r3"), SubResource("r6")]
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r6")])
 
 [sub_resource type="Resource" id="r8"]
 script = ExtResource("1")
 Kind = 6
-Parts = [SubResource("r1"), SubResource("r3")]
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
 
 [sub_resource type="Resource" id="r9"]
 script = ExtResource("1")
 Kind = 5
-Parts = [SubResource("r7"), SubResource("r8")]
+Parts = Array[ExtResource("1")]([SubResource("r7"), SubResource("r8")])
 
 [node name="Flyway" type="Node2D"]
 script = ExtResource("3")
 Area = "crateria"
 MapCell = Vector2i(22, 7)
-Versions = [SubResource("r2"), SubResource("r4"), SubResource("r5")]
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -141,3 +142,19 @@ PresentWhen = SubResource("r9")
 position = Vector2(450, 65)
 DataFile = "enemies/mellow.json"
 PresentWhen = SubResource("r9")
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "flyway_red_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r9")
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
+PresentWhen = SubResource("r1")

@@ -1,22 +1,35 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/kraid_eye_door.json"
 KeepsMusic = true
 
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "kraid_eye_door_eye_door_facing_left"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
 [node name="KraidEyeDoor" type="Node2D"]
 script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(53, 19)
-Versions = [SubResource("r1")]
+Versions = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -49,78 +62,100 @@ LeadsToExit = "ToKraidEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Zeb" parent="." instance=ExtResource("5")]
+[node name="Zeb" parent="." instance=ExtResource("6")]
 position = Vector2(144, 456)
 DataFile = "enemies/zeb.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Sbug" parent="." instance=ExtResource("6")]
+[node name="Sbug" parent="." instance=ExtResource("7")]
 position = Vector2(310, 413)
 Speed = 3
 Heading = 200
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug2" parent="." instance=ExtResource("6")]
+[node name="Sbug2" parent="." instance=ExtResource("7")]
 position = Vector2(311, 420)
 Speed = 3
 Heading = 186
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug3" parent="." instance=ExtResource("6")]
+[node name="Sbug3" parent="." instance=ExtResource("7")]
 position = Vector2(317, 427)
 Speed = 2
 Heading = 168
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug4" parent="." instance=ExtResource("6")]
+[node name="Sbug4" parent="." instance=ExtResource("7")]
 position = Vector2(307, 428)
 Speed = 3
 Heading = 180
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug5" parent="." instance=ExtResource("6")]
+[node name="Sbug5" parent="." instance=ExtResource("7")]
 position = Vector2(315, 414)
 Speed = 2
 Heading = 202
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug6" parent="." instance=ExtResource("6")]
+[node name="Sbug6" parent="." instance=ExtResource("7")]
 position = Vector2(322, 420)
 Speed = 3
 Heading = 201
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug7" parent="." instance=ExtResource("6")]
+[node name="Sbug7" parent="." instance=ExtResource("7")]
 position = Vector2(325, 423)
 Speed = 2
 Heading = 190
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug8" parent="." instance=ExtResource("6")]
+[node name="Sbug8" parent="." instance=ExtResource("7")]
 position = Vector2(323, 431)
 Speed = 3
 Heading = 194
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug9" parent="." instance=ExtResource("6")]
+[node name="Sbug9" parent="." instance=ExtResource("7")]
 position = Vector2(311, 432)
 Speed = 3
 Heading = 144
 ActivationDistance = 48
 Runs = 0
 
-[node name="Sbug10" parent="." instance=ExtResource("6")]
+[node name="Sbug10" parent="." instance=ExtResource("7")]
 position = Vector2(334, 428)
 Speed = 2
 Heading = 200
 ActivationDistance = 32
 Runs = 0
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="EyeCap" parent="." instance=ExtResource("8")]
+position = Vector2(480, 352)
+DataFile = "objects/door_cap_eye_left.json"
+HeldShutBy = SubResource("r2")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("9")]
+position = Vector2(480, 368)
+StartsFacing = 0
+DestroyedFact = "kraid_eye_door_eye_door_facing_left"
+AlwaysActive = true
+PresentWhen = SubResource("r3")
+
+[node name="GreenCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "kraid_eye_door_green_door_facing_left"
+Remembered = 1

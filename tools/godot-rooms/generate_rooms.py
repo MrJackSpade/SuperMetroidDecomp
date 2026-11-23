@@ -13,8 +13,9 @@ A room's scene holds:
 - an exit for each door, leading to the exit it arrives at in the room beyond;
 - a marker for each place play can begin at in it: where a save resumes, where an elevator sets down, where Samus
   is set down in Ceres and where her gunship lands;
-- its enemies, each with the settings its placement gives it (see enemies.py). One placed in some versions of the
-  room and not in others is present only when one of those versions is the one in force.
+- its enemies, each with the settings its placement gives it (see enemies.py), and its room objects: door caps,
+  items, stations, gates and the rest (see objects.py). One placed in some versions of the room and not in others is
+  present only when one of those versions is the one in force.
 
 It also lists every room in the game's definition, and names the room and marker a new game begins at.
 """
@@ -28,6 +29,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 import enemies  # noqa: E402
 import legacy  # noqa: E402
+import objects  # noqa: E402
 
 GODOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'godot'))
 INSTALLED = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'SuperMetroid', 'game')
@@ -140,6 +142,10 @@ class Scene:
         lines += [f'{key} = {value}' for key, value in properties.items()]
         self.nodes.append('\n'.join(lines))
 
+    def listed(self, script: str, items: list[str]) -> str:
+        """A list of resources of one script's kind, written as the editor writes it."""
+        return f'Array[{self.script(script)}]([' + ', '.join(items) + '])'
+
     def text(self) -> str:
         steps = len(self.external) + len(self.sub) + 1
         parts = [f'[gd_scene load_steps={steps} format=3]']
@@ -174,7 +180,7 @@ def condition(scene: Scene, room: legacy.Room, expression: str) -> str:
         return asks(carries, 'power_bombs')
     if name == 'MorphBallAndMissiles':
         parts = [asks(owns, 'morph_ball'), asks(carries, 'missiles')]
-        return scene.resource(script, {'Kind': str(all_of), 'Parts': '[' + ', '.join(parts) + ']'})
+        return scene.resource(script, {'Kind': str(all_of), 'Parts': scene.listed(script, parts)})
     raise ValueError(f'The room {room.name} is chosen on a condition this does not know: {expression}')
 
 
@@ -212,6 +218,51 @@ def layout_of(room: legacy.Room, state: legacy.State) -> str:
     return f'rooms/{snake(room.area)}/{snake(state.level)}.json'
 
 
+CONDITION = 'res://engine/world/Condition.cs'
+
+
+class Context:
+    """What a rule that places a room's objects may ask about the room, and the conditions it may build."""
+
+    def __init__(self, generator: 'Generator', scene: Scene, room: legacy.Room, quota: int) -> None:
+        self.scene, self.room, self.quota = scene, room, quota
+        self.unplaced = generator.unplaced
+
+    def _about(self, kind: int, about: str) -> str:
+        return self.scene.resource(CONDITION, {'Kind': str(kind), 'About': quoted(about)})
+
+    def _of(self, kind: int, parts: list[str]) -> str:
+        return self.scene.resource(CONDITION, {'Kind': str(kind), 'Parts': self.scene.listed(CONDITION, parts)})
+
+    def fact(self, name: str) -> str:
+        return self._about(0, name)
+
+    def owns(self, equipment: str) -> str:
+        return self._about(2, equipment)
+
+    def killed(self, enemies_killed: int) -> str:
+        return self._about(8, str(enemies_killed))
+
+    def all_of(self, parts: list[str]) -> str:
+        return self._of(4, parts)
+
+    def any_of(self, parts: list[str]) -> str:
+        return self._of(5, parts)
+
+    def none_of(self, parts: list[str]) -> str:
+        return self._of(6, parts)
+
+    def always(self) -> str:
+        return self.all_of([])
+
+    def never(self) -> str:
+        return self.any_of([])
+
+    def boss(self, which: str) -> str:
+        """The boss this room's area calls its "area boss", "area mini boss" or "area torizo"."""
+        return AREA_BOSSES[(self.room.area, which)]
+
+
 class Generator:
     def __init__(self) -> None:
         self.rooms = legacy.rooms()
@@ -219,6 +270,8 @@ class Generator:
         self.choices = legacy.state_choices()
         self.doors = legacy.doors()
         self.populations = legacy.enemy_populations()
+        self.quotas = legacy.death_quotas()
+        self.object_lists = legacy.object_populations()
         # The kinds of enemy no rule places yet, with how many placements of each were passed over.
         self.unplaced: dict[str, int] = {}
         with open(os.path.join(INSTALLED, 'room-level-streams', 'room-door-blocks.json'), encoding='utf-8') as source:
@@ -287,7 +340,7 @@ class Generator:
             return None
 
         def gathered(kind: int, parts: list[str]) -> str:
-            return scene.resource(script, {'Kind': str(kind), 'Parts': '[' + ', '.join(parts) + ']'})
+            return scene.resource(script, {'Kind': str(kind), 'Parts': scene.listed(script, parts)})
 
         ways = []
         for version in sorted(versions):
@@ -298,39 +351,120 @@ class Generator:
             ways.append(parts[0] if len(parts) == 1 else gathered(all_of, parts))
         return ways[0] if len(ways) == 1 else gathered(any_of, ways)
 
-    def place_enemies(self, key: str, scene: Scene, room: legacy.Room) -> None:
-        """Places the enemies of every version of the room, each once, present in the versions that list it."""
+    def boss_extras(self, ctx: Context, room: legacy.Room, boss: enemies.Placed, links: dict[int, dict[str, object]]) -> list[enemies.Placed]:
+        """
+        What a boss's room has besides the boss: the encounter that records its defeat, and for Spore Spawn the husk
+        it leaves. The boss itself is there only until it is beaten.
+        """
+        defeated = ctx.fact(boss.boss + '_defeated')
+        boss.only_when = ctx.none_of([defeated])
+        encounter = enemies.Placed('res://engine/world/objects/boss_encounter/BossEncounter.cs', 'Encounter', {
+            'Size': f'Vector2i({room.screens[0] * SCREEN}, {room.screens[1] * SCREEN})',
+            'RememberedAs': quoted(boss.boss + '_defeated')}, at=(0, 0), enemy=False)
+        links[id(encounter)] = {'Boss': boss}
+        extras = [encounter]
+        if boss.boss == 'spore_spawn':
+            extras.append(enemies.Placed(boss.scene, 'SporeSpawnHusk', {'Husk': 'true'}, at=boss.at, only_when=defeated))
+        return extras
+
+    def place_things(self, key: str, scene: Scene, room: legacy.Room) -> None:
+        """
+        Places the enemies and room objects of every version of the room, each once, present in the versions that
+        list it.
+        """
         default, conditional = self.choices[key]
         versions = [name for _, name in conditional] + [default]
-        placed: dict[tuple, tuple[enemies.Placed, set[int], dict[str, tuple]]] = {}
-        # The default version's enemies come first, in the order it lists them; the order enemies are listed in is the
+        doors_in = [door for door in self.doors.values() if door.to_room == key]
+        merged: dict[tuple, tuple[enemies.Placed, set[int], dict[str, object]]] = {}
+        # The default version's things come first, in the order it lists them; the order enemies are listed in is the
         # order they act in.
         for version in reversed(range(len(versions))):
-            listed = self.populations[self.states[versions[version]].enemies]
-            results = dict(enemies.places(listed, enemies.RULES, self.unplaced))
+            state = self.states[versions[version]]
+            things: list[enemies.Placed] = []
+            # What each thing names: for each such property, the thing or things it names.
+            links: dict[int, dict[str, object]] = {}
+            by_index = dict(enemies.places(self.populations[state.enemies], enemies.RULES, self.unplaced))
+            ctx = Context(self, scene, room, self.quotas[state.enemies])
+            for placed in by_index.values():
+                things.append(placed)
+                links[id(placed)] = {name: by_index[target] for name, target in placed.refers.items()}
+                if placed.boss:
+                    things.extend(self.boss_extras(ctx, room, placed, links))
+                if placed.chozo == 'WreckedShip':
+                    placed.properties['WakesWhen'] = ctx.fact('phantoon_defeated')
+                elif placed.chozo == 'LowerNorfair':
+                    placed.properties.update({'WakesWhen': ctx.owns('space_jump'), 'RecordsFact': quoted('lower_norfair_acid_lowered')})
+            placed_objects = objects.Objects(ctx, self.object_lists[state.objects], doors_in)
+            things.extend(placed_objects.placed)
+            for teller, name, told in placed_objects.tells:
+                links.setdefault(id(teller), {})[name] = told
+
             # Two alike in one version are two things; two alike in two versions are one thing in both.
             counts: dict[tuple, int] = {}
             plain: dict[int, tuple] = {}
-            for index, result in results.items():
-                alike = (result.scene, result.name, result.at, tuple(sorted(result.properties.items())))
+            for placed in things:
+                alike = (placed.scene, placed.name, placed.at, placed.kind, placed.only_when, tuple(sorted(placed.properties.items())))
                 counts[alike] = counts.get(alike, 0) + 1
-                plain[index] = alike + (counts[alike],)
-            for index, result in results.items():
-                refers = {name: plain[target] for name, target in result.refers.items()}
-                signature = plain[index] + tuple(sorted(refers.items()))
-                if signature not in placed:
-                    placed[signature] = (result, set(), refers)
-                placed[signature][1].add(version)
+                plain[id(placed)] = alike + (counts[alike],)
 
-        names = {signature[:5]: scene.name(result.name) for signature, (result, _, _) in placed.items()}
-        for signature, (result, present_in, refers) in placed.items():
-            properties = {'position': f'Vector2({result.at[0]}, {result.at[1]})', **result.properties}
-            for name, target in refers.items():
-                properties[name] = f'NodePath("../{names[target]}")'
+            def signature(placed: enemies.Placed) -> tuple:
+                named = []
+                for name, target in sorted(links.get(id(placed), {}).items()):
+                    named.append((name, tuple(signature(one) for one in target) if isinstance(target, list) else signature(target)))
+                return plain[id(placed)] + (tuple(named),)
+
+            for placed in things:
+                mine = signature(placed)
+                if mine not in merged:
+                    named = {name: [signature(one) for one in target] if isinstance(target, list) else signature(target)
+                             for name, target in links.get(id(placed), {}).items()}
+                    merged[mine] = (placed, set(), named)
+                merged[mine][1].add(version)
+
+        # A barrier remembered by one name is one barrier, whatever holds it shut in each version: where the versions
+        # differ only in that, it is held shut by each version's condition while that version is in force.
+        same_name: dict[tuple, list[tuple]] = {}
+        for mine, (placed, _, _) in merged.items():
+            if 'RememberedAs' in placed.properties and 'HeldShutBy' in placed.properties:
+                same_name.setdefault((placed.scene, placed.at, placed.properties['RememberedAs']), []).append(mine)
+        for group in same_name.values():
+            if len(group) < 2:
+                continue
+            ways, everywhere = [], set()
+            for mine in group:
+                placed, present_in, _ = merged[mine]
+                present = self.present_when(scene, room, key, present_in)
+                held = placed.properties['HeldShutBy']
+                ways.append(held if present is None else scene.resource(CONDITION, {'Kind': '4', 'Parts': scene.listed(CONDITION, [present, held])}))
+                everywhere |= present_in
+            kept = merged[group[0]]
+            kept[0].properties['HeldShutBy'] = scene.resource(CONDITION, {'Kind': '5', 'Parts': scene.listed(CONDITION, ways)})
+            kept[1].update(everywhere)
+            for mine in group[1:]:
+                del merged[mine]
+
+        names = {mine: scene.name(placed.name) for mine, (placed, _, _) in merged.items()}
+        for mine, (placed, present_in, named) in merged.items():
+            properties = {}
+            if placed.at is not None:
+                properties['position'] = f'Vector2({placed.at[0]}, {placed.at[1]})'
+            for name, value in placed.properties.items():
+                properties[name] = scene.packed(value[len('scene:'):]) if value.startswith('scene:') else value
+            for name, target in named.items():
+                if isinstance(target, list):
+                    properties[name] = 'Array[NodePath]([' + ', '.join(f'NodePath("../{names[one]}")' for one in target) + '])'
+                else:
+                    properties[name] = f'NodePath("../{names[target]}")'
             present = self.present_when(scene, room, key, present_in)
+            if present is not None and placed.only_when is not None:
+                present = scene.resource(CONDITION, {'Kind': '4', 'Parts': scene.listed(CONDITION, [present, placed.only_when])})
+            present = present or placed.only_when
             if present is not None:
                 properties['PresentWhen'] = present
-            scene.node(names[signature[:5]], '.', properties, instance=result.scene)
+            if placed.scene.endswith('.cs'):
+                scene.node(names[mine], '.', properties, script=placed.scene, kind=placed.kind)
+            else:
+                scene.node(names[mine], '.', properties, instance=placed.scene)
 
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
@@ -338,13 +472,20 @@ class Generator:
         default, conditional = self.choices[key]
 
         versions = []
+        base_state = self.states[default]
         for expression, state_name in conditional:
             state = self.states[state_name]
-            versions.append(scene.resource('res://engine/world/RoomVersion.cs', {
+            settings = {
                 'When': condition(scene, room, expression),
                 'LayoutFile': quoted(layout_of(room, state)),
                 **music_of(state, self.nearby_music_set(key)),
-            }))
+            }
+            if 'BossDead' in expression:
+                beaten = AREA_BOSSES[(room.area, legacy.last_name(legacy.call_arguments(expression)[0]))]
+                if beaten in enemies.BEATEN_PATCHES and any(p.enemy in enemies.BOSSES and enemies.BOSSES[p.enemy][1] == beaten
+                                                            for p in self.populations[base_state.enemies]):
+                    settings['Patches'] = 'PackedStringArray(' + ', '.join(quoted(patch) for patch in enemies.BEATEN_PATCHES[beaten]) + ')'
+            versions.append(scene.resource('res://engine/world/RoomVersion.cs', settings))
         base = self.states[default]
         versions.append(scene.resource('res://engine/world/RoomVersion.cs', {
             'LayoutFile': quoted(layout_of(room, base)),
@@ -354,7 +495,7 @@ class Generator:
         scene.node(room.name, None, {
             'Area': quoted(snake(room.area)),
             'MapCell': f'Vector2i({room.map_cell[0]}, {room.map_cell[1]})',
-            'Versions': '[' + ', '.join(versions) + ']',
+            'Versions': scene.listed('res://engine/world/RoomVersion.cs', versions),
         }, script='res://engine/world/Room.cs')
         scene.node('Terrain', '.', {'LayoutFile': quoted(layout_of(room, base))}, script='res://engine/world/Terrain.cs')
 
@@ -378,6 +519,12 @@ class Generator:
             else:
                 offset_x = width // 2
                 offset_y = ARRIVAL_INSET if door.direction == 'Up' else height - ARRIVAL_INSET
+                # Someone arriving by elevator is put where the elevator's path ends, for it to bring them to rest.
+                for elevator in self.populations[base.enemies]:
+                    if (elevator.enemy == 'Elevator' and legacy.last_name(elevator.settings['Direction']) == door.direction
+                            and x <= elevator.at[0] < x + width):
+                        offset_x = elevator.at[0] - x
+                        offset_y = int(elevator.settings['ArrivalY']) - enemies.ELEVATOR_HOLDS_ABOVE - y
             scene.node(self.exit_name(room, name), '.', {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',
@@ -388,7 +535,7 @@ class Generator:
             }, script='res://engine/world/RoomExit.cs')
             entries.append((name, x, y))
 
-        self.place_enemies(key, scene, room)
+        self.place_things(key, scene, room)
         self.scenes[key] = scene
         return room_scene(room)
 

@@ -435,6 +435,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (IsDead)
             return;
         IsDead = true;
+        Room.CountKilled();
         if (!RespawnsWhenKilled)
             Room.MarkGone(Name);
         var leftBehind = new List<Node>();

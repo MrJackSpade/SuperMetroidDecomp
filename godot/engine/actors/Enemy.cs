@@ -375,6 +375,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>The enemy's reactions as its data file gives them.</summary>
     protected Reactions Reactions => _reactions;
 
+    /// <summary>What the enemy leaves when it is destroyed, as its data file gives it.</summary>
+    protected DropTable Drops => _drops;
+
     /// <summary>Called when a hit landed on the enemy and did it no damage and gave it no status.</summary>
     protected virtual void OnAbsorbed(Hit hit, Collider part)
     {

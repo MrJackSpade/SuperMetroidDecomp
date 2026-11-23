@@ -51,6 +51,9 @@ public static class HitKinds
     /// <summary>Being seen by the X-ray scope; it reveals and never damages.</summary>
     public const string Xray = "xray";
 
+    /// <summary>A digging machine's saw, which cuts what only it can cut.</summary>
+    public const string Saw = "saw";
+
     /// <summary>Every one of them.</summary>
-    public static IReadOnlyList<string> All { get; } = [Beam, Charged, Ice, Wave, Spazer, Plasma, Missile, SuperMissile, Bomb, PowerBomb, ScrewAttack, SpeedBoost, Shinespark, ChargedSpin, Grapple, Xray];
+    public static IReadOnlyList<string> All { get; } = [Beam, Charged, Ice, Wave, Spazer, Plasma, Missile, SuperMissile, Bomb, PowerBomb, ScrewAttack, SpeedBoost, Shinespark, ChargedSpin, Grapple, Xray, Saw];
 }

@@ -6,7 +6,7 @@ using Engine.World;
 using Game.Data;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Crateria;
 
 /// <summary>
 /// The hall of the golden statue at the way into Tourian. The eyes of each of its four guardians glow and dim in

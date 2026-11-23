@@ -3,7 +3,7 @@ using Engine.Shared;
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Pieces of Ceres's ceiling coming down once Ridley has gone: every few updates one drops from the top of the room

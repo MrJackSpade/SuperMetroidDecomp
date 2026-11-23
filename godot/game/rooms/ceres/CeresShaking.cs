@@ -1,7 +1,7 @@
 using Engine.World;
 using Game.Data;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Ceres shaking itself apart: once its self-destruct has begun, the room is never still. Each time a shake dies

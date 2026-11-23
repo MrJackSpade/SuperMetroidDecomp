@@ -3,7 +3,7 @@ using Engine.Shared;
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms;
 
 /// <summary>
 /// The escape as one of its rooms shows it: the room shakes without stopping, harder and corner to corner for a moment now and then,

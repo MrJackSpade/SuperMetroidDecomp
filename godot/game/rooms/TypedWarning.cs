@@ -2,7 +2,7 @@ using Engine.Ui;
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms;
 
 /// <summary>
 /// A warning typed out across the screen a letter at a time, as when a self-destruct begins. Once it is all there

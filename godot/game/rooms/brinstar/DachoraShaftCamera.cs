@@ -1,7 +1,7 @@
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Brinstar;
 
 /// <summary>
 /// The view in the Dachora's shaft: once the top of the shaft has been opened to the view, the part of the room

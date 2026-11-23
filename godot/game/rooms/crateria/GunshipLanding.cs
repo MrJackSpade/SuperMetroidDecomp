@@ -1,7 +1,7 @@
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Crateria;
 
 /// <summary>
 /// Samus arriving on Zebes in her gunship: as the room is entered that way, the ship is told to come down and land.

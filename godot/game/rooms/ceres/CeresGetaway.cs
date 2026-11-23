@@ -3,7 +3,7 @@ using Engine.World;
 using Game.Data;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Ridley's getaway from Ceres and what follows it. Told to start as he leaves with the capsule, it shows him flying

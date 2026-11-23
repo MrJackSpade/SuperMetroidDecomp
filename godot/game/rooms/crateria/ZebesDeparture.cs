@@ -1,7 +1,7 @@
 using Engine.Ui;
 using Engine.World;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Crateria;
 
 /// <summary>
 /// Samus leaving Zebes: told to start once her gunship has left the planet, it lets the screen go dark over the

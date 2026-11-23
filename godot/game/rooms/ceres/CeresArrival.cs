@@ -4,7 +4,7 @@ using Engine.Shared;
 using Engine.World;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// Samus set down in Ceres: she stands facing forward on a pad that, after a moment, lowers her a pixel at a time to

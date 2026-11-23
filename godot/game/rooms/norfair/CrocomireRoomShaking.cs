@@ -2,7 +2,7 @@ using Engine.World;
 using Game.Enemies;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Norfair;
 
 /// <summary>
 /// The wall of Crocomire's room rattling as his skeleton gathers itself behind it: while he rumbles there, the

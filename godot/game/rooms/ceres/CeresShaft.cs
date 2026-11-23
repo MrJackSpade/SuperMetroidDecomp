@@ -4,7 +4,7 @@ using Engine.World;
 using Game.Data;
 using Godot;
 
-namespace Game.Sequences;
+namespace Game.Rooms.Ceres;
 
 /// <summary>
 /// The elevator shaft of Ceres in its last moments. Once the way to the elevator has been blown open the whole

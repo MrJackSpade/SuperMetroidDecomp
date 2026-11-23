@@ -912,10 +912,12 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 
 ### Room sequences
 
-A sequence is told "start", and one that knows other words acts on them. `TypedWarning` (`game/sequences/`) types
+A sequence is told "start", and one that knows other words acts on them. Each lives beside its room, under
+`game/rooms/<area>/`; one that rooms of several areas use (`TypedWarning`, `EscapeRoom`) lives in `game/rooms/`.
+`TypedWarning` types
 a warning across the screen and tells what is listed when it is over; Mother Brain's room uses it.
 
-Ceres (`game/sequences/`): the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
+Ceres: the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
 (`CeresGetaway`: he flies off over the turning floor and throws Samus aside, then the self-destruct's warning comes
 up, is typed out and stays up flashing, and the countdown begins); the station shaking once the self-destruct has
 begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft tilting and the elevator taking Samus

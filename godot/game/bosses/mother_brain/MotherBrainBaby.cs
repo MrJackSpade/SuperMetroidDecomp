@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Actors.Movement;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
@@ -120,6 +121,7 @@ public partial class MotherBrainBaby : Enemy
     private static readonly PixelOffset OnSamus = PixelOffset.FromWhole(0, -20);
     private static readonly Pixels Gentle = Pixels.FromNumber(1 / 16.0);
     private static readonly Pixels Hard = Pixels.FromWhole(4);
+    private static readonly Pursuit Flight = new();
 
     /// <summary>How far it reaches from its middle, across and down.</summary>
     private const int Reach = 36;
@@ -536,7 +538,7 @@ public partial class MotherBrainBaby : Enemy
 
     /// <summary>Draws it toward a place.</summary>
     private void FlyToward(PixelPosition target, int divisor, Pixels wrongWayKick) =>
-        Velocity = BabyMetroidFlight.Toward(Position, Velocity, target, divisor, wrongWayKick, Room.Session.Camera.View);
+        Velocity = Flight.Toward(Position, Velocity, target, divisor, wrongWayKick, Room.Session.Camera.View);
 
     /// <summary>Whether it is over a place, give or take <paramref name="reach"/> pixels beyond its own.</summary>
     private bool IsAt(PixelPosition place, int reach) =>

@@ -1,7 +1,9 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -9,13 +11,14 @@ namespace Game.Enemies;
 /// <summary>
 /// The Sidehopper the giant Metroid feeds on. It is alive when Samus arrives, hopping across the room, and goes on
 /// hopping with the Metroid on its back; then the life drains out of it, its colour going a shade at a time, and it
-/// is a husk like the others. One placed already dead is a husk from the start.
+/// is a husk: solid, and crumbling to dust when Samus comes to rest against it, shoots it or touches it. One placed
+/// already dead is a husk from the start.
 /// </summary>
 /// <remarks>
 /// Its timelines are "idle", "hopping", whose cue "end_hop" ends a hop, "corpse" and "initially_dead". Its "Solid"
 /// collider is the husk's, and is only there once it is one.
 /// </remarks>
-public partial class DeadSidehopper : Corpse
+public partial class DeadSidehopper : Enemy
 {
     /// <summary>Whether it is a husk from the start.</summary>
     [Export]
@@ -40,6 +43,26 @@ public partial class DeadSidehopper : Corpse
     /// <summary>How many updates each shade of its draining lasts.</summary>
     [Export, DataValue("drain_step_updates")]
     public int DrainStepUpdates { get; set; } = 8;
+
+    /// <summary>How many rows of the husk there are to crumble: the height of its picture.</summary>
+    [Export, DataValue("rows")]
+    public int Rows { get; set; } = 40;
+
+    /// <summary>How many updates after Samus comes to rest against the husk that it starts to crumble.</summary>
+    [Export, DataValue("disturbed_updates")]
+    public int DisturbedUpdates { get; set; } = 16;
+
+    /// <summary>The effect of the dust it crumbles into, by the data file of its timeline.</summary>
+    [Export, DataValue("dust_effect")]
+    public string DustEffect { get; set; } = "";
+
+    /// <summary>The sound of it crumbling, by name.</summary>
+    [Export, DataValue("dust_sound")]
+    public string DustSound { get; set; } = "";
+
+    /// <summary>Where its dust rises from, from its middle, in pixels.</summary>
+    [Export]
+    public Vector2I DustFrom { get; set; } = new(-14, 16);
 
     private enum Doing
     {
@@ -72,12 +95,7 @@ public partial class DeadSidehopper : Corpse
     private int _timer;
     private int _stage;
     private Color _tint = Colors.White;
-
-    /// <summary>Whether the life has gone out of it.</summary>
-    public bool IsDrained => _doing == Doing.Husk;
-
-    /// <inheritdoc/>
-    protected override bool IsHusk => _doing == Doing.Husk;
+    private RowCrumble? _crumble;
 
     /// <inheritdoc/>
     protected override Color RestingTint => _tint;
@@ -90,9 +108,27 @@ public partial class DeadSidehopper : Corpse
     }
 
     /// <inheritdoc/>
+    public override HitResult TakeHit(Hit hit, Collider part)
+    {
+        if (_doing != Doing.Husk)
+            return base.TakeHit(hit, part);
+        Crumble();
+        return HitResult.Absorbed;
+    }
+
+    /// <inheritdoc/>
+    protected override void Touch(Collider part)
+    {
+        if (_doing != Doing.Husk)
+            base.Touch(part);
+        else
+            Crumble();
+    }
+
+    /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        base.OnEnterRoom();
+        _crumble = null;
         if (AlreadyDead)
         {
             (_doing, _stage, _tint) = (Doing.Husk, DrainStages, DrainedTint);
@@ -103,7 +139,7 @@ public partial class DeadSidehopper : Corpse
         AlwaysActive = true;
         if (Solid is { } solid)
             solid.Enabled = false;
-        (_doing, _stage, _nextLaunch) = (Doing.WaitingForView, 0, 0);
+        (_doing, _stage, _nextLaunch, _tint) = (Doing.WaitingForView, 0, 0, Colors.White);
         _floor = Position.Y.Whole;
         _speed = new PixelVelocity(Pixels.FromNumber(0.375), Pixels.FromWhole(1));
         _timer = DrainStepUpdates;
@@ -184,9 +220,8 @@ public partial class DeadSidehopper : Corpse
     /// <summary>Carries it through one update of a hop; when it comes down, the hop is over.</summary>
     private void Hop()
     {
-        bool overTerrain = Position.X.Whole >= TerrainFrom;
         bool landed;
-        if (overTerrain)
+        if (Position.X.Whole >= TerrainFrom)
         {
             MoveAcrossBy(_speed.X);
             _speed = _speed.WithY(_speed.Y + (_speed.Y.IsNegative ? RisingGravity : FallingGravity));
@@ -205,5 +240,43 @@ public partial class DeadSidehopper : Corpse
         _nextLaunch = (_nextLaunch + 1) % Launches.Length;
         Play("hopping", restart: true);
         _doing = Doing.Landing;
+    }
+
+    /// <summary>As a husk it lies until it is disturbed, and then crumbles away.</summary>
+    private void StepHusk()
+    {
+        if (_crumble is null)
+        {
+            if (PlayerRestsAgainstIt())
+                _crumble = new RowCrumble(Rows, DisturbedUpdates);
+            return;
+        }
+
+        if (!_crumble.Step(LeaveDust))
+            return;
+        AlwaysActive = true;
+        foreach (Collider part in GetChildren().OfType<Collider>())
+            part.Enabled = false;
+        Visual?.ShowRows(_crumble.Rows);
+        if (_crumble.IsOver)
+            Vanish();
+    }
+
+    /// <summary>Starts the husk crumbling at once.</summary>
+    private void Crumble()
+    {
+        _crumble ??= new RowCrumble(Rows);
+        _crumble.StartNow();
+    }
+
+    /// <summary>Leaves the puff of dust of a row reaching the ground.</summary>
+    private void LeaveDust()
+    {
+        RandomDraw roll = Random.Last;
+        int spread = roll.Part(1, 1) * 2 + roll.Part(3, 2) * 8;
+        if (DustEffect.Length > 0)
+            LeaveEffect(DustEffect, Position + PixelOffset.FromWhole(DustFrom.X + spread, DustFrom.Y));
+        if (Room.Session.Clock.Updates % 8 == 0)
+            Sound(DustSound);
     }
 }

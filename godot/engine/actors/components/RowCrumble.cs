@@ -1,10 +1,11 @@
-namespace Game.Enemies;
+namespace Engine.Actors.Components;
 
 /// <summary>
-/// How a corpse crumbles: its picture comes apart a row at a time from the bottom up, each row sliding down through
-/// the ones below it and vanishing as it reaches the ground, each a little after the one beneath.
+/// A picture crumbling away: it comes apart a row at a time from the bottom up, each row sliding down through the
+/// ones below it and vanishing as it reaches the ground, each a little after the one beneath. It may wait a while
+/// before it starts. It only works out which rows show where; an <see cref="ActorVisual"/> shows them.
 /// </summary>
-public sealed class CorpseRot
+public sealed class RowCrumble
 {
     /// <summary>How many updates after the row below it each row starts to fall.</summary>
     private const int DelayPerRow = 2;
@@ -17,11 +18,14 @@ public sealed class CorpseRot
 
     private readonly Fall[] _falls;
     private readonly int?[] _rows;
+    private int _wait;
 
-    /// <summary>A corpse of <paramref name="rowCount"/> rows, whole.</summary>
-    public CorpseRot(int rowCount)
+    /// <summary>A picture of <paramref name="rowCount"/> rows, whole, that starts to crumble after <paramref name="waitUpdates"/>.</summary>
+    public RowCrumble(int rowCount, int waitUpdates = 0)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(rowCount, 2);
+        ArgumentOutOfRangeException.ThrowIfNegative(waitUpdates);
+        _wait = waitUpdates;
         _falls = new Fall[rowCount];
         _rows = new int?[rowCount];
         for (int row = 0; row < rowCount; row++)
@@ -34,13 +38,26 @@ public sealed class CorpseRot
     /// <summary>Which row of the picture shows at each row down from its top; null where nothing is left.</summary>
     public IReadOnlyList<int?> Rows => _rows;
 
+    /// <summary>Whether it has started to come apart.</summary>
+    public bool HasStarted => _wait == 0;
+
+    /// <summary>Whether nothing of it is left.</summary>
+    public bool IsOver { get; private set; }
+
+    /// <summary>Ends any wait: it comes apart from the next update.</summary>
+    public void StartNow() => _wait = 0;
+
     /// <summary>
-    /// Crumbles the corpse for one update, calling <paramref name="rowFallen"/> for each row that reaches the ground.
-    /// Returns whether any of it is left.
+    /// Plays one update: the wait runs down, or the picture crumbles, calling <paramref name="rowFallen"/> for each
+    /// row that reaches the ground. Returns whether it crumbled this update.
     /// </summary>
     public bool Step(Action rowFallen)
     {
         ArgumentNullException.ThrowIfNull(rowFallen);
+        if (IsOver)
+            return false;
+        if (_wait > 0 && --_wait > 0)
+            return false;
         int last = _falls.Length - 1;
         for (int index = 0; index < _falls.Length; index++)
         {
@@ -65,7 +82,11 @@ public sealed class CorpseRot
 
             rowFallen();
             if (index == last)
-                return false;
+            {
+                IsOver = true;
+                return true;
+            }
+
             fall.HasFallen = true;
         }
 

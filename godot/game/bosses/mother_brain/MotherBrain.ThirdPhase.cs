@@ -136,7 +136,7 @@ public partial class MotherBrain : ITriggerTarget
     private Pixels _brainFall;
     private bool _brainDetached;
     private Color _headTint = Colors.White;
-    private CorpseRot? _rot;
+    private RowCrumble? _rot;
     private bool _escapeTextDone;
 
     private void ReadDeathValues(DataNode data)
@@ -551,15 +551,15 @@ public partial class MotherBrain : ITriggerTarget
     /// </summary>
     private bool RotCorpse()
     {
-        _rot ??= new CorpseRot(CorpseRows);
-        bool left = _rot.Step(() =>
+        _rot ??= new RowCrumble(CorpseRows);
+        _rot.Step(() =>
         {
             Leave(CorpseDustEffect, _head + PixelOffset.FromWhole(-16 + Random.Last.Part(0, 5), 16));
             if (Room.Session.Clock.Updates % 8 == 0)
                 Sound(CorpseDustSound);
         });
         GetNodeOrNull<ActorVisual>("Head")?.ShowRows(_rot.Rows);
-        return left;
+        return !_rot.IsOver;
     }
 
     /// <summary>Dust and blasts go off at the way out, at its places in turn.</summary>

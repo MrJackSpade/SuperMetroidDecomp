@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
@@ -39,108 +40,55 @@ public partial class Corpse : Enemy
     [Export]
     public Vector2I DustFrom { get; set; } = new(-14, 16);
 
-    /// <summary>What has become of it.</summary>
-    protected enum Phase
-    {
-        /// <summary>Lying undisturbed.</summary>
-        Waiting,
-
-        /// <summary>Disturbed, about to crumble.</summary>
-        Disturbed,
-
-        /// <summary>Crumbling.</summary>
-        Crumbling,
-    }
-
-    private CorpseRot? _rot;
-    private int _wait;
-
-    /// <summary>What has become of it.</summary>
-    protected Phase Now { get; private set; }
-
-    /// <summary>Whether it can be disturbed at the moment. One that is not yet a husk says so here.</summary>
-    protected virtual bool IsHusk => true;
+    private RowCrumble? _crumble;
 
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
-        if (!IsHusk)
-            return base.TakeHit(hit, part);
         Crumble();
         return HitResult.Absorbed;
     }
 
     /// <inheritdoc/>
-    protected override void Touch(Collider part)
-    {
-        if (!IsHusk)
-        {
-            base.Touch(part);
-            return;
-        }
-
-        Crumble();
-    }
+    protected override void Touch(Collider part) => Crumble();
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        Now = Phase.Waiting;
+        _crumble = null;
         Play(Look);
     }
 
     /// <inheritdoc/>
-    protected override void Behave() => StepHusk();
-
-    /// <summary>Plays one update of it as a husk: waiting to be disturbed, or crumbling.</summary>
-    protected void StepHusk()
+    protected override void Behave()
     {
-        switch (Now)
+        if (_crumble is null)
         {
-            case Phase.Waiting:
-                if (SamusRestsAgainstIt())
-                    (Now, _wait) = (Phase.Disturbed, DisturbedUpdates);
-                break;
-
-            case Phase.Disturbed:
-                if (--_wait <= 0)
-                    Crumble();
-                break;
-
-            case Phase.Crumbling:
-                StepCrumbling();
-                break;
-
-            default:
-                throw new InvalidOperationException($"A corpse has no phase {Now}.");
-        }
-    }
-
-    /// <summary>Starts it crumbling; nothing touches it from then on.</summary>
-    protected void Crumble()
-    {
-        if (Now == Phase.Crumbling)
+            if (PlayerRestsAgainstIt())
+                _crumble = new RowCrumble(Rows, DisturbedUpdates);
             return;
-        Now = Phase.Crumbling;
+        }
+
+        if (!_crumble.Step(LeaveDust))
+            return;
+        // Once it has started to go, nothing touches it.
         AlwaysActive = true;
         foreach (Collider part in GetChildren().OfType<Collider>())
             part.Enabled = false;
-        _rot = new CorpseRot(Rows);
+        Visual?.ShowRows(_crumble.Rows);
+        if (_crumble.IsOver)
+            Vanish();
     }
 
-    /// <summary>Crumbles it for one update. Returns whether any of it is left; with none left it is gone.</summary>
-    protected bool StepCrumbling()
+    /// <summary>Starts it crumbling at once.</summary>
+    private void Crumble()
     {
-        CorpseRot rot = _rot ?? throw new InvalidOperationException("The corpse is not crumbling.");
-        bool left = rot.Step(LeaveDust);
-        Visual?.ShowRows(rot.Rows);
-        if (!left)
-            Vanish();
-        return left;
+        _crumble ??= new RowCrumble(Rows);
+        _crumble.StartNow();
     }
 
     /// <summary>Leaves the puff of dust of a row reaching the ground.</summary>
-    protected virtual void LeaveDust()
+    private void LeaveDust()
     {
         RandomDraw roll = Random.Last;
         int spread = roll.Part(1, 1) * 2 + roll.Part(3, 2) * 8;
@@ -148,15 +96,5 @@ public partial class Corpse : Enemy
             LeaveEffect(DustEffect, Position + PixelOffset.FromWhole(DustFrom.X + spread, DustFrom.Y));
         if (Room.Session.Clock.Updates % 8 == 0)
             Sound(DustSound);
-    }
-
-    /// <summary>Whether Samus is standing on it or pressed against it.</summary>
-    private bool SamusRestsAgainstIt()
-    {
-        if (Solid is not { Enabled: true } solid)
-            return false;
-        PixelRect body = Room.Player.BodyRect;
-        var reach = new PixelRect(body.Left - 1, body.Top - 1, body.Width + 2, body.Height + 2);
-        return reach.Overlaps(solid.RoomRect);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
@@ -75,17 +76,43 @@ internal static partial class EncounterArtworkDrawingDefinitions
     /// face half blown away and its face blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(ComposedEncounter.BombTorizo, [ComposedLook.Loaded(ComposedEncounter.BombTorizo), .. Bomb(L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+        new(ComposedEncounter.BombTorizo, [ComposedLook.Loaded(ComposedEncounter.BombTorizo), .. Bomb(L.ChozoCrumbled, L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
             L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
+    /// <summary>
+    /// The pieces of Bomb Torizo's statue that break off and fall as the Chozo hand holding the bombs crumbles (#2623),
+    /// before it wakes: drawn over the statue's own characters.
+    /// </summary>
+    private static readonly EnemyProjectileFrameId[] BombTorizoStatueFragmentFrames =
+    [
+        EnemyProjectileFrameId.BombTorizoStatueMossClump,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase,
+        EnemyProjectileFrameId.BombTorizoStatueSlab,
+    ];
+
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
         new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
-            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames.Except(BombTorizoStatueFragmentFrames)],
+        };
+
+    /// <summary>
+    /// Bomb Torizo's statue fragments (#2623), drawn over the debris the crumbling hand copies, in every look from it on:
+    /// they fall as the hand crumbles, and the room's load holds none of their characters.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing BombTorizoStatueFragments =
+        new(ComposedEncounter.BombTorizo, [.. Bomb(TorizoLookUploadDefinitions.BombEncounterLooks)])
+        {
+            Projectiles = BombTorizoStatueFragmentFrames,
         };
 
     /// <summary>
@@ -287,6 +314,7 @@ internal static partial class EncounterArtworkDrawingDefinitions
         CrocomireProjectiles,
         BombTorizoBody,
         BombTorizoProjectiles,
+        BombTorizoStatueFragments,
         GoldenTorizo,
         CeresDoors,
         CeresElevatorDoorBlocked,

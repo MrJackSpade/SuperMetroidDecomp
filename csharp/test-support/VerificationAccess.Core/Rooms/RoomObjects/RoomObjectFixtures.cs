@@ -124,6 +124,10 @@ internal static class RoomObjectFixtures
         /// <inheritdoc/>
         public void SpawnBombTorizoStatueBreakingProjectile(SuperMetroid.Core.Bosses.Torizo.BombTorizoStatueProjectileRequest request) =>
             throw new InvalidOperationException("A fixture's room objects spawned a statue fragment with no enemy projectiles.");
+
+        /// <inheritdoc/>
+        public void ShowChozoDebris() =>
+            throw new InvalidOperationException("A fixture's room objects showed the crumbling hand's debris with no Bomb Torizo.");
     }
 
     /// <summary>The room objects a room's enemies reach, over a room's free places, as the room loader composes them.</summary>

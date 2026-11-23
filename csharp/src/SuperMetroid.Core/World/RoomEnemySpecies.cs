@@ -637,6 +637,9 @@ internal sealed partial class RoomEnemySpecies
             bombTorizo.Attacks.SpawnBombTorizoStatueBreakingProjectile(request);
 
         /// <inheritdoc/>
+        public void ShowBombTorizoChozoDebris() => bombTorizo.ShowChozoDebris();
+
+        /// <inheritdoc/>
         public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomEffectActorKind kindLeftOpen) =>
             EscapeExplosions.SpawnEscapeExplosion(position, random, kindLeftOpen);
     }

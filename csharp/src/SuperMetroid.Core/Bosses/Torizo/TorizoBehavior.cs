@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
@@ -229,6 +230,12 @@ internal sealed partial class TorizoBehavior : IEnemySpecies, IEnemyEntityFactor
     /// </summary>
     private void ShowTorizoArtwork(TorizoEnemyState state, TorizoArtworkLook look) =>
         _presentation.ShowLook(look.Of(state.Variant.Artwork));
+
+    /// <summary>
+    /// Shows the crumbling Chozo hand's debris over Bomb Torizo's sprite characters (#2623): the hand's room object copies it
+    /// as it starts to crumble, before the statue's fragments fall.
+    /// </summary>
+    internal void ShowChozoDebris() => _presentation.ShowLook(TorizoArtworkLook.ChozoCrumbled.Of(EncounterArtwork.BombTorizo));
 
     /// <summary>What <see cref="ApplyTorizoCue"/> comes to for each <see cref="TorizoCueKind"/> member, each member's own arm.</summary>
     private IdentityTable<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>> ApplyTorizoCueForTorizoCueKind => field ??= new(new Dictionary<TorizoCueKind, Func<RoomEnemyOccupant, RoomEnemyPlace, TorizoEnemyState, TorizoCueInputs, AnimationContinuation<TorizoBodySegment>?>>

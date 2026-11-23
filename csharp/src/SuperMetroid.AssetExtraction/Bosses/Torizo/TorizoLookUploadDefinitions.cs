@@ -61,6 +61,8 @@ internal static partial class TorizoLookUploadDefinitions
             new(TorizoTilePage.SharedDeath, 0, 64, 504),
             new(TorizoTilePage.SharedDeath, 0, 32, 415),
         ],
+        // The crumbling hand's room object ($84:D376) copies its debris to VRAM word $6E00, sprite character 224.
+        [L.ChozoCrumbled] = [new(TorizoTilePage.ChozoDebris, 0, 1024, 224)],
         [L.EyesDark] = [EyesDarkUpload],
         [L.EyesGlowingFaintly] = [EyesGlowingFaintlyUpload],
         [L.EyesGlowingBrightly] = [EyesGlowingBrightlyUpload],
@@ -97,6 +99,12 @@ internal static partial class TorizoLookUploadDefinitions
         L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain,
         L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp,
     ];
+
+    /// <summary>
+    /// Bomb Torizo's encounter's looks after its room's load (#2623): the debris the crumbling Chozo hand's room object
+    /// copies before it wakes, then <see cref="BombSequence"/>.
+    /// </summary>
+    internal static readonly TorizoArtworkLook[] BombEncounterLooks = [L.ChozoCrumbled, .. BombSequence];
 
     /// <summary>
     /// Golden Torizo's looks, in the order its animations show them: its awakening, its eyes lighting up and flickering back

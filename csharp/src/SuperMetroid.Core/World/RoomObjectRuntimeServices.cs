@@ -36,6 +36,9 @@ internal sealed partial class RoomObjectRuntimeServices(RoomEnemySystem enemies,
     public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
         _enemies.RoomObjectSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
 
+    /// <summary>Shows the crumbling hand's debris over Bomb Torizo's sprite characters (#2623).</summary>
+    public void ShowChozoDebris() => _enemies.RoomObjectSpawns.ShowBombTorizoChozoDebris();
+
     /// <summary>Spawns a Noob Tube projectile at its room object's block.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
         _enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request);

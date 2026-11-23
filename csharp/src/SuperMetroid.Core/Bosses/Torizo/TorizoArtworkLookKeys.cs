@@ -9,6 +9,7 @@ internal static partial class TorizoArtworkLookKeys
     /// <summary>Each TorizoArtworkLook member's installed key.</summary>
     internal static InstalledKeys<TorizoArtworkLook> Installed { get; } = new(new Dictionary<TorizoArtworkLook, string>
     {
+        [TorizoArtworkLook.ChozoCrumbled] = "ChozoCrumbled",
         [TorizoArtworkLook.EyesDark] = "EyesDark",
         [TorizoArtworkLook.EyesGlowingFaintly] = "EyesGlowingFaintly",
         [TorizoArtworkLook.EyesGlowingBrightly] = "EyesGlowingBrightly",

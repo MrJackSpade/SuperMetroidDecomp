@@ -106,5 +106,10 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
         /// <inheritdoc/>
         public void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request) =>
             attacks.SpawnBombTorizoStatueBreakingProjectile(request);
+
+        /// <summary>The fragments' definitions do not depend on the debris the hand shows.</summary>
+        public void ShowChozoDebris()
+        {
+        }
     }
 }

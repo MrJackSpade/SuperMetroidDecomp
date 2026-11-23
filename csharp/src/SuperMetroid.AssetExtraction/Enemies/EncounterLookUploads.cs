@@ -226,7 +226,7 @@ internal static partial class EncounterLookUploads
                     Whole((installed.BossTiles.CrocomireSkeleton ?? throw new InvalidDataException(
                         "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(chunk), CrocomireSkeletonCharacterDefinitions.ChunkByteCount,
                         $"Crocomire skeleton chunk {chunk}")))])],
-        ComposedEncounter.BombTorizo => [.. TorizoLookUploadDefinitions.BombSequence.Select(look => new AuthoredLook(
+        ComposedEncounter.BombTorizo => [.. TorizoLookUploadDefinitions.BombEncounterLooks.Select(look => new AuthoredLook(
             ComposedLook.Of(encounter, look.Of(EncounterArtwork.BombTorizo)), installed => Torizo(look, installed)))],
         ComposedEncounter.GoldenTorizo => [.. TorizoLookUploadDefinitions.GoldenSequence.Select(look => new AuthoredLook(
             ComposedLook.Of(encounter, look.Of(EncounterArtwork.GoldenTorizo)), installed => Torizo(look, installed)))],

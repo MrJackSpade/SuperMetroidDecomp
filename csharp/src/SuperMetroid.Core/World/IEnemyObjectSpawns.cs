@@ -31,6 +31,9 @@ internal interface IEnemyObjectSpawns
     /// <summary>Spawns a fragment of Bomb Torizo's breaking statue.</summary>
     void SpawnBombTorizoStatueBreakingProjectile(BombTorizoStatueProjectileRequest request);
 
+    /// <summary>Shows the crumbling Chozo hand's debris over Bomb Torizo's sprite characters (#2623).</summary>
+    void ShowBombTorizoChozoDebris();
+
     /// <summary>Spawns one escape explosion, of the kind its place gives it when its draw names none.</summary>
     void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomEffectActorKind kindLeftOpen);
 }

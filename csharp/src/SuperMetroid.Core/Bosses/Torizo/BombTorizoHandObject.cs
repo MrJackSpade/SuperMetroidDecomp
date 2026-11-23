@@ -73,6 +73,8 @@ internal sealed partial class BombTorizoHandObject(BombTorizoHandObjects owner, 
         Ensure.NotNull(place);
         if (WakeArmed && _owner.SamusHasBombs())
         {
+            // The hand copies its debris over Bomb Torizo's sprite characters as it starts to crumble (#2623).
+            _fragments.ShowChozoDebris();
             Phase = BombTorizoHandPhase.Crumbling;
             _holdBeforeNextStep.LastFor(1);
         }

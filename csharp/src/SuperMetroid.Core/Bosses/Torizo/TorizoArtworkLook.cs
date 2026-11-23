@@ -11,6 +11,12 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal enum TorizoArtworkLook
 {
+    /// <summary>
+    /// The Chozo hand holding the Bombs crumbling before Bomb Torizo wakes (#2623): its debris copied over the sprite
+    /// characters its statue's falling fragments are drawn from.
+    /// </summary>
+    ChozoCrumbled,
+
     /// <summary>The first stage of the eyes lighting up as the statue wakes: the eyes still dark.</summary>
     EyesDark,
 

@@ -36,6 +36,8 @@ internal sealed class CoreModel
         "RoomEffectActorAnimations",
         // An effect actor's runs are named by the actor itself (#2369): the segment names every kind and the two cycles.
         "RoomEffectActorSegment",
+        // The effect actors drawn translucent (#2642) are named by how they draw, not by anything that spawns them.
+        "RoomEffectActorTranslucencyDefinitions",
         "EnemyFrameNameDefinitions",
     ];
 

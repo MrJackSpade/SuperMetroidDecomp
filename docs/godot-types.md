@@ -672,7 +672,9 @@ How a projectile behaves is settings, not code:
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
 
-A projectile needs its own class only for behaviour no setting gives it.
+A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
+turned on and off, stopped, shifted, scattered, ended, each by a cue) and that moves its own way is a
+`CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly.
 
 ### Pickup (base) and Effect (base)
 

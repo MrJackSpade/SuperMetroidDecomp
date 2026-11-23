@@ -939,11 +939,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
                 hundredths += amount;
         }
 
+        int blockHit = 0;
         foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
         {
-            if (block.Type.Contact == BlockContact.Hurts && !IsCancelled("blocks"))
-                hundredths += block.Type.ContactDamageHundredths;
+            if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
+                continue;
+            hundredths += block.Type.ContactDamageHundredths;
+            blockHit = Math.Max(blockHit, block.Type.ContactHit);
         }
+
+        // A block that hits, as a spike does, lands the hardest hit of those touched.
+        if (blockHit > 0)
+            TakeHit(new Hit(blockHit, HitSide.Neutral, HitKind.Hazard), Hurtbox);
 
         hundredths = OngoingDamageTaken(hundredths);
         if (hundredths == 0)

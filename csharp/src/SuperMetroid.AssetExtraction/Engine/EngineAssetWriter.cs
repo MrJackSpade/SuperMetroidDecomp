@@ -27,7 +27,9 @@ public sealed partial class EngineAssetWriter
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(installationRoot);
         ArgumentException.ThrowIfNullOrWhiteSpace(assets);
-        var writer = new EngineAssetWriter(new GameInstallation(installationRoot), assets);
+        var installation = new GameInstallation(installationRoot);
+        var writer = new EngineAssetWriter(installation, assets);
+        new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams()).WriteAll();
         writer.WriteEnemies();
     }
 

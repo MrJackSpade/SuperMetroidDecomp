@@ -424,7 +424,7 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
 | Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. |
-| On contact | Nothing; ongoing damage (spike); carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
+| On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
 
 - `Terrain` does not know the player, enemies or weapons by name. It is told "this rectangle touched you" or "this
   `Hit` landed here" and answers from the block's rules. The player's body breaking a block is a `Hit` like any

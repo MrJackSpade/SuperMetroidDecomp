@@ -111,6 +111,30 @@ internal sealed partial class EngineSheets
         return pictures;
     }
 
+    private readonly Dictionary<(string Family, string Sheet), SpriteImagePixels> _images = [];
+
+    /// <summary>
+    /// The pixels of one frame of a sheet, row by row, where the frame is of the size given; null where the sheet has
+    /// no such frame or the frame shows nothing.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The family has no such sheet, or the frame is of another size.</exception>
+    internal RgbaPixel[]? FramePixels(string family, string sheet, string frame, int width, int height)
+    {
+        InstalledSheetDocument document = _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
+            ? found
+            : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.");
+        if (!document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? placed) || placed.Picture is null)
+            return null;
+        if (placed.Size.X != width || placed.Size.Y != height)
+            throw new InvalidDataException($"The frame {frame} of the sheet {sheet} is {placed.Size.X} by {placed.Size.Y}, not {width} by {height}.");
+        if (!_images.TryGetValue((family, sheet), out SpriteImagePixels? image))
+            _images[(family, sheet)] = image = _store.Assemble(sheet, document);
+        var pixels = new RgbaPixel[width * height];
+        for (int y = 0; y < height; y++)
+            image.Pixels.AsSpan((placed.Corner.Y + y) * document.Size.X + placed.Corner.X, width).CopyTo(pixels.AsSpan(y * width, width));
+        return pixels;
+    }
+
     /// <summary>A frame's name as a file name: lower-case words joined by underscores.</summary>
     internal static string FileName(string name)
     {

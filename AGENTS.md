@@ -1,12 +1,9 @@
 # Project Working Instructions
 
-## Read the manifesto first
+## Read the v1.0.0 manifesto first
 
-- [docs/manifesto.md](docs/manifesto.md) is the reference for every design decision in
-  this repository: what the project is, where it is going, and what a correct change looks
-  like. Read it before
-  changing code, and include its section 8 rules in every subagent prompt. Where a shorter
-  rule here or in another document conflicts with it, the manifesto wins.
+- Read [the v1.0.0 manifesto](docs/v1.0.0-manifesto.md) first, then
+  [the Godot architecture guide](docs/godot-architecture.md) and [the type system](docs/godot-types.md).
 
 ## The Godot destination
 
@@ -18,12 +15,10 @@
 - The C# port is legacy reference material: it documents what the game does. It is not a
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
-- The SNES port's (`csharp/`) code analysis and cleanup tooling were removed on 2026-11-22. The v0.9.0 bugs are
-  still fixed in `csharp/`; after that it is frozen as a reference. The Godot project (`godot/`, also C#) gets its
-  own code analysis and rules later, when the owner sets them.
+- The v0.9.0 bugs are still fixed in `csharp/`; after that it is frozen as a reference.
 - For Godot work, parity means the same observable results from the same inputs, not the
-  same internal order or state (manifesto, section 4). The parity wording below describes
-  the C# port.
+  same internal order or state (v1.0.0 manifesto, section 4). The recorded movies are off
+  limits until the owner opens testing.
 - The manifesto does not authorize starting Godot work or switching away from the active
   ticket.
 
@@ -61,70 +56,31 @@
   common directory. Never commit either. If delivery is uncertain, reconcile the
   existing attempt before posting again.
 
-## Gameplay parity and hardware lag
-
-- The standing project goal is functionally exact cartridge gameplay with hardware
-  lag eliminated. Preserve the cartridge's gameplay-update order, state changes,
-  collision rules, RNG behavior, and actual input consumption. Smooth execution is
-  an intended improvement, not a parity defect.
-- Compare every gameplay update across a supplied recording, including entry,
-  transitions, combat, and the recorded ending. Do not require reproducing SNES
-  CPU stalls, repeated video refreshes, or elapsed wall-clock slowdown. Do not add
-  artificial lag merely to match an SMV's video-frame numbers.
-- Preserve behaviorally meaningful timers, deliberate waits, animation cadence,
-  and input edges. Hardware lag elimination does not authorize speeding up or
-  skipping authored gameplay behavior.
-- Keep original SMVs immutable. A reusable converter may derive a separate port
-  replay and source-frame-to-update map from a verified native input-consumption
-  trace. Never infer removable frames merely from duplicate inputs, unchanged
-  images, or unchanged actor positions. See [the replay contract](docs/smv-gameplay-parity.md).
-- Full-movie parity requires a single initial-state import followed by the
-  converted input timeline. Do not feed recorded Samus state, RNG, enemy state,
-  or expected results back into the port during replay. Isolated subsystem
-  comparisons remain useful diagnostics but do not establish full-movie parity.
-- Report the original movie coverage, compared update count, input alignment,
-  compared properties, and any remaining mismatch or unverified coverage.
-
 ## Diagnostic references
 
 - [InsaneFirebat Super Metroid disassembly](https://github.com/InsaneFirebat/sm_disassembly)
 - [Patrick Johnston's bank reference](https://patrickjohnston.org/bank/index.html)
 
-Use these references during cartridge diagnostics to cross-check routines, symbols,
-addresses, and behavior. Confirm findings against the project's ROM revision and
-pinned local sources; reference annotations do not replace reproducing a reported bug.
+Use these references to cross-check what the game does. Confirm findings against the
+project's ROM revision and pinned local sources; reference annotations do not replace
+reproducing a reported bug.
 
 ## Process-boundary error handling
 
 - No repository executable, verifier, diagnostic, replay tool, or temporary probe may
   allow an exception to escape to the CLR or Windows error reporter. This applies to
   one-off investigation programs under `test-temp` just as strictly as shipped hosts.
-- Every console entry point must install the existing Windows no-dialog process policy
+- Every console entry point must install a Windows no-dialog process policy
   before doing fallible work, wrap its outermost process boundary in `try`/`catch`, write
-  `exception.ToString()` to standard error, and return a nonzero exit code. Follow
-  `SuperMetroid.Verification` or `SuperMetroid.DebugRunner`; do not create unguarded
-  top-level statements that can throw.
-- GUI entry points must use the established `UnhandledExceptionConsole`/dispatcher
-  boundary so failures remain visible in the console or diagnostic log without a modal
-  dialog. Do not add `MessageBox`, Windows Error Reporting, or debugger-only UI as an
+  `exception.ToString()` to standard error, and return a nonzero exit code. Do not create
+  unguarded top-level statements that can throw.
+- GUI entry points must keep failures visible in the console or diagnostic log without a
+  modal dialog. Do not add `MessageBox`, Windows Error Reporting, or debugger-only UI as an
   error path.
 - Failing loudly means a full exception and failing exit code or the configured GitHub
   recoverable-error report. It never means a focus-stealing dialog. Tests for expected
   failures must catch them inside the test harness rather than leaking them from the
   process.
-
-## Recorded-movie acceptance scope
-
-- For requested SMV/movie parity, replay the entire supplied recording through
-  production gameplay without desynchronization, excluding evidenced hardware
-  lag. Initialize once; never inject later native state to repair divergence.
-- A passing end-to-end replay is the requested game-logic check. Do not turn it
-  into an exhaustive internal-state audit, rendering/audio parity campaign, or
-  unrelated whole-game validation. Missing additional coverage is not a blocker.
-- Apply this scope to larger future recordings as well. Diagnose actual replay
-  divergences and finish when the full replay passes; expand scope only when asked.
-- See [the replay contract](docs/smv-gameplay-parity.md) for timing and conversion
-  details. Passing one movie does not establish correctness of every game path.
 
 ## Testing ownership and scope
 
@@ -157,24 +113,10 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 
 ## Regression tests
 
-- Tests may use synthetic rooms, constructed cartridge data, fake address spaces, and other focused fixtures. A regression test does not need to drive a real retail room when a smaller fixture faithfully reproduces the reported failure.
+- Tests may use synthetic rooms and other focused fixtures. A regression test does not need to drive a real retail room when a smaller fixture faithfully reproduces the reported failure.
 - Prefer the smallest deterministic fixture that exercises the real production code path and makes the failure observable.
 - Match the assertion to the report. Visual, positioning, animation, timing, and state-transition bugs need assertions for those exact properties; a nearby endpoint or no-crash assertion is not sufficient evidence of a fix.
 - Use a real room or recorded controller sequence when the behavior depends on retail room data, interactions across systems, or a sequence that a synthetic fixture cannot reproduce faithfully.
-
-## ROM-free migration
-
-- Do not discover remaining cartridge reads by running gameplay, replays, unit tests,
-  or progressively longer frame probes. A passing path cannot establish that other
-  paths are ROM-free, and finding one read at a time is not a completion strategy.
-- Inventory cartridge access statically from the source and its call graph. Separate
-  extraction/startup imports from executable gameplay dependencies, and use API or
-  type-boundary changes that make unresolved gameplay reads visible at build time.
-- Tests may confirm a specifically identified conversion and its behavior, but must
-  never search for remaining reads or unrelated defects. Establish ROM-capability
-  removal through source/type ownership and compiler boundaries. A focused host
-  check may confirm a particular integration change; whole-game validation remains
-  the user's end goal, not a prerequisite for each conversion or build handoff.
 
 ## Issue report versions
 
@@ -275,7 +217,7 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - While agents are running, the main session acts only as coordinator, not as a developer: it
   assigns and divides work, merges agent branches (`--no-ff`), builds, runs the focused
   verification, fixes integration breakage, commits, pushes and drains the Discord queue.
-- Every agent prompt includes the manifesto's section 6 rules and this section.
+- Every agent prompt includes the v1.0.0 manifesto's section 6 rules and this section.
 - Before branching agents off for a ticket, merge that ticket's pre-existing WIP branches into main first, so
   agents start from all existing work.
 - No branch pile-up: when a ticket's work is complete, every branch it used (pre-existing WIP and agent branches)
@@ -314,9 +256,6 @@ constraint, not a side concern.
 
 - A commit needs one clean build and the focused checks for what changed. Do not add any
   other step to the commit path unless the user asks for it.
-- `tools/verify-all.ps1` is not a commit gate, a batch gate or a per-ticket gate. Run it
-  only when the user asks. The script refuses a second start within 120 minutes of the
-  previous one; a refused start is the rule working, not an obstacle to route around.
 - Do not invent pre-commit or per-batch checks of your own (for example a private "slice"
   or audit script run before every commit). Writing a new script is fine. Making it a
   recurring step is the user's decision.
@@ -340,19 +279,11 @@ constraint, not a side concern.
 
 - Make all the edits for a body of work, then build once and fix every reported error in
   a single pass. Never build after each unit or rebuild after each individual fix.
-- Build only the projects the change needs. The full solution builds in CI.
-- Build with `pwsh -File tools/build.ps1 [project or solution] [dotnet build arguments...]`, never `dotnet build`
-  directly. It builds once, keeps the full output in a log and prints the errors once. The project's
-  Claude Code hook (`tools/require-build-script.py`) refuses a direct `dotnet build`.
 
 ### Run only the checks that cover the change
 
-- A focused check is a command that covers only the changed code. A command that runs
-  every family's assertions (for example the whole enemy-artwork suite) is not focused for
-  a change to one family, and neither is an unrelated suite.
-- Put each family's assertions in that family's own verification class and command. Never
-  add a family's assertions to a shared suite. If the only command covering a change is a
-  suite-wide one, split the suite first and run only the split piece.
+- A focused check is a command that covers only the changed code. A command that covers
+  unrelated code is not focused, and neither is an unrelated suite.
 - Run several focused commands in one process where the runner allows it, rather than one
   process per command.
 - Run the change's suite set once and record its failures. After each fix, rerun ONLY the
@@ -403,25 +334,3 @@ constraint, not a side concern.
 
 - Per-batch progress reports are brief. The full self-contained summary required by
   "Batch handoff summaries" is for handoff.
-
-## Identities, definition data and cartridge addresses
-
-- Identities are semantic names: enum members, types, behaviour-object instances. Their
-  backing values are arbitrary and nothing reads them. An enum or constant whose value is a
-  ROM address, a code pointer or an instruction-list pointer, and whose value is read,
-  compared, indexed or switched on, is cartridge coupling and is removed, not extended.
-- Definition data (durations, speeds, shapes, damage, frame lists, names) lives in
-  domain-named catalog types with the meaning on each member's XML summary. Catalog files
-  hold data only: no `if`, `switch`, loops or decisions. Call sites read as named domain
-  operations.
-- The ROM is known only to the import and extraction pipeline. The mapping from an address
-  to a semantic identity is that pipeline's private knowledge, decoded once. An address
-  catalog inside the simulation is scaffolding on the way out: it is never the destination,
-  and no new address is added to the simulation because a catalog exists for it.
-- Use an enum only when values are a proven mutually exclusive domain. Use `[Flags]` only
-  when the cartridge demonstrably treats the values as composable bits; do not infer flag
-  semantics from suggestive values alone. The flags stay typed; one codec at the import or
-  export boundary converts them to a word.
-- Comments in functional code explain behaviour, ordering and non-obvious side effects,
-  never what a numeric value denotes. If a comment is needed to say what a number means,
-  the number should be a name.

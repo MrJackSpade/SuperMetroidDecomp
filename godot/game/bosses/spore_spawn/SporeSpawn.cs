@@ -348,7 +348,7 @@ public partial class SporeSpawn : Enemy
                 _ => (anchor.X + across / 4 + across / 2, anchor.Y + down / 4 + down / 2),
             };
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
-            visual.Show(_stalk.Current.Picture);
+            visual.Show(_stalk.Current);
         }
 
         for (int emitter = 0; emitter < Emitters; emitter++)
@@ -358,7 +358,7 @@ public partial class SporeSpawn : Enemy
             player.Step();
             PixelPosition at = _centre + _emitterPlaces[emitter];
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
-            visual.Show(player.Current.Picture);
+            visual.Show(player.Current);
         }
     }
 }

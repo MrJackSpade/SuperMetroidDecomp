@@ -58,7 +58,7 @@ public partial class Scenery : RoomObject, ITriggerTarget
             return;
         _player.Step();
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_player.Current.Picture);
+            visual.Show(_player.Current);
     }
 
     /// <inheritdoc/>

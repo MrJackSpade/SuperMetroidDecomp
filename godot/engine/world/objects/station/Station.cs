@@ -243,7 +243,7 @@ public partial class Station : RoomObject
         if (_timeline is null)
             return;
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_timeline.Current.Picture);
+            visual.Show(_timeline.Current);
     }
 
     private void Sound(string sound)

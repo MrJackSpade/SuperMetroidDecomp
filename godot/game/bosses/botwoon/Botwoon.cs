@@ -594,7 +594,7 @@ public partial class Botwoon : Enemy
                 {
                     FrameTimeline look = Timelines.Get($"{(segment == 0 ? "tail" : "body")}_{WayOf(ahead.X - x, ahead.Y - y)}");
                     int frame = _ripple is null ? 0 : _ripple.StepIndex % look.Steps.Count;
-                    visual.Show(look.Steps[frame].Picture);
+                    visual.Show(look.Steps[frame]);
                 }
             }
 

@@ -133,7 +133,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     protected void PlayTimeline(string file)
     {
         _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
-        _visual?.Show(_timeline.Current.Picture);
+        _visual?.Show(_timeline.Current);
     }
 
     /// <summary>Called once as the projectile enters its room.</summary>
@@ -164,7 +164,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 return;
             }
 
-            _visual?.Show(_timeline.Current.Picture);
+            _visual?.Show(_timeline.Current);
         }
 
         BeforeTravel(room);

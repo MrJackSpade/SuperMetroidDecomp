@@ -32,7 +32,10 @@ public sealed class PickupType
     /// <summary>Its picture, as a path within the assets tree; empty for none.</summary>
     public string Picture { get; private init; } = "";
 
-    /// <summary>The data file of the timeline it is shown by, when it is animated; empty for one shown by its picture alone.</summary>
+    /// <summary>
+    /// The data file of the timeline it is shown by, when it is animated; empty for one shown by its picture alone.
+    /// A lone picture is centred on the pickup; a timeline's pictures lie where the timeline's offset puts them.
+    /// </summary>
     public string Timeline { get; private init; } = "";
 
     /// <summary>The sound asked for as it is collected, by name; empty for none.</summary>

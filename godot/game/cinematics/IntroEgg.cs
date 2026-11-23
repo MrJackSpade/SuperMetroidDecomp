@@ -106,8 +106,8 @@ public partial class IntroEgg : RoomObject
         _thrown.Clear();
         _egg = new TimelinePlayer(_timelines.Get("intact"));
         _babyLook = new TimelinePlayer(_timelines.Get("baby"));
-        Visual("Egg").Show(_egg.Current.Picture);
-        Visual("Baby").Show(_babyLook.Current.Picture);
+        Visual("Egg").Show(_egg.Current);
+        Visual("Baby").Show(_babyLook.Current);
     }
 
     /// <inheritdoc/>
@@ -136,7 +136,7 @@ public partial class IntroEgg : RoomObject
             }
         }
 
-        Visual("Egg").Show(egg.Current.Picture);
+        Visual("Egg").Show(egg.Current);
         StepBaby(samus);
         StepThrown();
     }
@@ -225,7 +225,7 @@ public partial class IntroEgg : RoomObject
         TimelinePlayer look = _babyLook ?? throw new InvalidOperationException("The egg is not in a room.");
         look.Step();
         ActorVisual baby = Visual("Baby");
-        baby.Show(look.Current.Picture);
+        baby.Show(look.Current);
         PixelOffset from = _babyAt - Position;
         baby.Position = new Vector2(from.X.ToDisplay(), from.Y.ToDisplay());
         baby.ZIndex = BabyIsInFront ? 1 : -1;

@@ -21,6 +21,7 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(4, 4)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")

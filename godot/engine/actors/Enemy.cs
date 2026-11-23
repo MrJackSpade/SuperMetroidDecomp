@@ -19,9 +19,12 @@ namespace Engine.Actors;
 /// "reactions": [ ... ], "drops": { ... }, "colliders": { ... }, "timelines": { ... },
 /// "shots": { "spit": { "damage": 10, "speed": 2, "projectile": { ... } } },
 /// "hurt_flash_updates": 8, "stunned_while_hurt": true, "hurt_sound": "cry", "status_sounds": { "frozen": "enemy_frozen" },
-/// "death": { "effect": "effects/small_explosion.json", "sound": "enemy_killed" },
+/// "death": { "effect": "effects/small_explosion.json", "sound": "enemy_killed",
+///            "by_kind": { "power_bomb": "effects/other_explosion.json" } },
 /// "picture_offset": { "x": -8, "y": -8 }
 /// </code>
+/// "death" names the timeline its death plays, which its <see cref="Remains"/> play out before its drop appears;
+/// "by_kind" names another for a death by a hit carrying a kind, the first listed that the hit carries.
 /// </remarks>
 public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, IHasValues, Movement.IMoves
 {
@@ -85,6 +88,8 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     private Enemy? _replacement;
     private int _respawnUpdates = 64;
     private string _deathEffect = "";
+    private readonly List<(HitKind Kind, string Effect)> _deathEffectsByKind = [];
+    private Hit? _destroyedBy;
     private string _deathSound = "";
 
     /// <inheritdoc/>
@@ -197,6 +202,13 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         _hurtSound = data.Has("hurt_sound") ? data.Text("hurt_sound") : "";
         _deathEffect = data.Has("death") && data.Get("death").Has("effect") ? data.Get("death").Text("effect") : "";
         _deathSound = data.Has("death") && data.Get("death").Has("sound") ? data.Get("death").Text("sound") : "";
+        _deathEffectsByKind.Clear();
+        if (data.Has("death") && data.Get("death").Has("by_kind"))
+        {
+            foreach ((string kind, DataNode effect) in data.Get("death").Get("by_kind").Entries())
+                _deathEffectsByKind.Add((new HitKind(kind), effect.AsText()));
+        }
+
         _respawnUpdates = data.Has("respawn_updates") ? data.Int("respawn_updates") : 64;
         _statusSounds.Clear();
         if (data.Has("status_sounds"))
@@ -374,7 +386,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         bool takesStatus = reaction.StatusWhen == StatusWhen.Always ||
             (reaction.StatusWhen == StatusWhen.InsteadOfDying && lethal && Status != reaction.Status);
         if (takesStatus)
+        {
             BeginStatus(reaction.Status, Room.StatusUpdatesFor(reaction.Status, reaction.StatusUpdates));
+            _unhittable = Countdown.Of(reaction.StatusUnhittableUpdates);
+        }
+
         if (reaction.StatusWhen == StatusWhen.InsteadOfDying && takesStatus)
             return HitResult.Hurt;
         if (damage == 0)
@@ -392,6 +408,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             Sound(_hurtSound);
         if (Health.IsEmpty)
         {
+            _destroyedBy = hit;
             if (!DiesAtOnce(hit))
                 return HitResult.Hurt;
             Die();
@@ -429,7 +446,10 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
     }
 
-    /// <summary>Destroys the enemy: it is recorded as gone, leaves its death effect and its drop, and is taken out of its room.</summary>
+    /// <summary>
+    /// Destroys the enemy: it is recorded as gone and taken out of its room, and it leaves its <see cref="Remains"/>,
+    /// which play its death and then leave its drop. One with no death to play leaves its drop at once.
+    /// </summary>
     public void Die()
     {
         if (IsDead)
@@ -438,19 +458,41 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Room.CountKilled();
         if (!RespawnsWhenKilled)
             Room.MarkGone(Name);
-        var leftBehind = new List<Node>();
-        if (_deathEffect.Length > 0)
-            leftBehind.Add(LeaveEffect(_deathEffect, Position));
         Sound(_deathSound);
-        if (Drop(_drops, Position) is { } pickup)
-            leftBehind.Add(pickup);
+        Enemy? replacement = _replacement;
+        _replacement = null;
+        string death = DeathEffectFor(_destroyedBy);
+        if (death.Length > 0)
+        {
+            var remains = Remains.Of(FrameTimeline.Read(Room.Content.ReadData(death)), Position, _drops);
+            if (replacement is not null)
+                remains.ReplaceWith(replacement, _respawnUpdates);
+            Room.Spawn(remains);
+        }
+        else
+        {
+            Pickup? pickup = Drop(_drops, Position);
+            if (replacement is not null)
+                Room.SpawnLater(replacement, pickup is null ? [] : [pickup], _respawnUpdates);
+        }
+
         OnDied();
         Room.Remove(this);
-        if (_replacement is { } replacement)
+    }
+
+    /// <summary>The timeline of its death by <paramref name="hit"/>; of its death by nothing in particular when that is null.</summary>
+    private string DeathEffectFor(Hit? hit)
+    {
+        if (hit is { } by)
         {
-            _replacement = null;
-            Room.SpawnLater(replacement, leftBehind, _respawnUpdates);
+            foreach ((HitKind kind, string effect) in _deathEffectsByKind)
+            {
+                if (by.Carries(kind))
+                    return effect;
+            }
         }
+
+        return _deathEffect;
     }
 
     /// <inheritdoc/>
@@ -482,13 +524,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Rolls a drop table and leaves what it gives at <paramref name="at"/>. Returns the pickup left, if any.</summary>
     protected Pickup? Drop(DropTable table, PixelPosition at)
     {
-        Inventory inventory = Room.Player.Inventory;
-        string? drop = table.Roll(Room.Session.Random, inventory, file => PickupType.Read(Room.Content.ReadData(file)).IsUsefulTo(inventory));
-        if (drop is null)
-            return null;
-        Pickup pickup = Pickup.Of(PickupType.Read(Room.Content.ReadData(drop)), at);
-        Room.Spawn(pickup);
-        return pickup;
+        return Pickup.Dropped(Room, table, at);
     }
 
     /// <summary>Called as the enemy is destroyed, before it leaves its room.</summary>

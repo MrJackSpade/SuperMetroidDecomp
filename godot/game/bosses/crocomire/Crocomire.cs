@@ -333,7 +333,7 @@ public partial class Crocomire : Enemy
         {
             _tongue.Step();
             tongue.SetShown(_dying is Dying.Fighting or Dying.InAcid);
-            tongue.Show(_tongue.Current.Picture);
+            tongue.Show(_tongue.Current);
         }
     }
 

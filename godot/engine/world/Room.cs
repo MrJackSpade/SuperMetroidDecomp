@@ -55,6 +55,7 @@ public partial class Room : Node2D
     private readonly List<Projectile> _projectiles = [];
     private readonly List<Pickup> _pickups = [];
     private readonly List<Effect> _effects = [];
+    private readonly List<Remains> _remains = [];
 
     /// <summary>Things waiting to be added to the room: each once what it waits for has gone, and then after its count of updates.</summary>
     private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
@@ -218,8 +219,8 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the room, in a fixed order: the player, triggers and exits, enemies, projectiles and
-    /// pickups, room objects and the room itself, then effects. Groups named in <paramref name="stopped"/> do not run.
+    /// Plays one update of the room, in a fixed order: the player, triggers and exits, enemies, projectiles,
+    /// pickups and the remains of the destroyed, room objects and the room itself, then effects. Groups named in <paramref name="stopped"/> do not run.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
@@ -255,6 +256,13 @@ public partial class Room : Node2D
             {
                 if (!_leaving.Contains(pickup))
                     pickup.Step();
+            }
+
+            // After the pickups, so that a drop the remains leave is first stepped in the update after it appears.
+            foreach (Remains remains in _remains.ToList())
+            {
+                if (!_leaving.Contains(remains))
+                    remains.Step();
             }
         }
 
@@ -459,6 +467,9 @@ public partial class Room : Node2D
             case Effect effect:
                 _effects.Add(effect);
                 break;
+            case Remains remains:
+                _remains.Add(remains);
+                break;
             case RoomObject roomObject:
                 _objects.Add(roomObject);
                 break;
@@ -508,6 +519,9 @@ public partial class Room : Node2D
                 case Effect effect:
                     _effects.Remove(effect);
                     break;
+                case Remains remains:
+                    _remains.Remove(remains);
+                    break;
                 case RoomObject roomObject:
                     _objects.Remove(roomObject);
                     break;
@@ -550,6 +564,8 @@ public partial class Room : Node2D
             pickup.ShowPosition();
         foreach (Effect effect in _effects)
             effect.ShowPosition();
+        foreach (Remains remains in _remains)
+            remains.ShowPosition();
         foreach (RoomObject roomObject in _objects)
         {
             roomObject.ShowPosition();

@@ -99,7 +99,7 @@ public partial class Carrier : RoomObject
         else
             _showing.Step();
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
-            visual.Show(_showing.Current.Picture);
+            visual.Show(_showing.Current);
     }
 
     /// <inheritdoc/>

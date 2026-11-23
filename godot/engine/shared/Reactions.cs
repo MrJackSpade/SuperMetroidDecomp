@@ -36,13 +36,15 @@ public sealed class Reactions
     /// <summary>
     /// Reads reactions from a data file's list. Each entry names its kinds and, optionally, its damage (as "none",
     /// "half", "full", "double" or a whole-number multiple), a status with when and how long, how long the target is
-    /// unhittable afterwards, and whether the projectile is turned back.
+    /// unhittable after taking the damage ("unhittable_updates") and after being put in the status
+    /// ("status_unhittable_updates"), and whether the projectile is turned back.
     /// </summary>
     /// <remarks>
     /// <code>
     /// "reactions": [
     ///   { "kinds": ["beam"], "damage": "none" },
-    ///   { "kinds": ["beam", "ice"], "damage": "none", "status": "frozen", "status_when": "always", "status_updates": 400 }
+    ///   { "kinds": ["beam", "ice"], "damage": "none", "status": "frozen", "status_when": "always", "status_updates": 400,
+    ///     "status_unhittable_updates": 10 }
     /// ]
     /// </code>
     /// </remarks>
@@ -63,6 +65,7 @@ public sealed class Reactions
                 [.. kinds], times, over, status, when,
                 entry.Has("status_updates") ? entry.Int("status_updates") : 0,
                 entry.Has("unhittable_updates") ? entry.Int("unhittable_updates") : 0,
+                entry.Has("status_unhittable_updates") ? entry.Int("status_unhittable_updates") : 0,
                 entry.Has("turns_back") && entry.Flag("turns_back")));
         }
 

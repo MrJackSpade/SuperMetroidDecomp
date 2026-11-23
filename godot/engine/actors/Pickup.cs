@@ -47,9 +47,31 @@ public partial class Pickup : Node2D, IRoomEntity
 
         if (picture.Length == 0 && _timeline is null)
             return;
-        _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(-Type.Size / 2, -Type.Size / 2) };
+        // A lone picture is centred on the pickup; a timeline's pictures lie where the timeline puts them.
+        _visual = new ActorVisual { Picture = picture };
+        if (_timeline is null)
+            _visual.PictureOffset = new Vector2I(-Type.Size / 2, -Type.Size / 2);
         AddChild(_visual);
         _visual.Bind(room.Content);
+        if (_timeline is not null)
+            _visual.Show(_timeline.Current);
+    }
+
+    /// <summary>
+    /// Rolls <paramref name="table"/> for the player of <paramref name="room"/> and leaves what it gives at
+    /// <paramref name="at"/>. Returns the pickup left, if any.
+    /// </summary>
+    public static Pickup? Dropped(Room room, DropTable table, PixelPosition at)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        ArgumentNullException.ThrowIfNull(table);
+        Inventory inventory = room.Player.Inventory;
+        string? drop = table.Roll(room.Session.Random, inventory, file => PickupType.Read(room.Content.ReadData(file)).IsUsefulTo(inventory));
+        if (drop is null)
+            return null;
+        Pickup pickup = Of(PickupType.Read(room.Content.ReadData(drop)), at);
+        room.Spawn(pickup);
+        return pickup;
     }
 
     /// <summary>Gives the pickup to the player now, as something that reaches out for it does.</summary>
@@ -77,7 +99,7 @@ public partial class Pickup : Node2D, IRoomEntity
         if (_timeline is not null)
         {
             _timeline.Step();
-            _visual?.Show(_timeline.Current.Picture);
+            _visual?.Show(_timeline.Current);
         }
 
         _left = _left.Stepped();

@@ -1,4 +1,5 @@
 using Engine.Content;
+using Engine.Shared;
 using Godot;
 
 namespace Engine.Actors.Components;
@@ -17,6 +18,9 @@ public partial class ActorVisual : Node2D
     /// <summary>Where the picture's top-left corner lies from the actor's origin, in whole pixels.</summary>
     [Export]
     public Vector2I PictureOffset { get; set; }
+
+    /// <summary>Where the step of a timeline being shown puts its picture, beyond <see cref="PictureOffset"/>.</summary>
+    private Vector2I _stepOffset;
 
     /// <summary>Where pictures are loaded from.</summary>
     private ContentLibrary? _content;
@@ -40,9 +44,18 @@ public partial class ActorVisual : Node2D
     /// <summary>Shows the picture at <paramref name="path"/>; empty shows nothing.</summary>
     public void Show(string path)
     {
+        _stepOffset = Vector2I.Zero;
         Picture = path;
         _texture = path.Length > 0 && _content is not null ? _content.LoadTexture(path) : null;
         QueueRedraw();
+    }
+
+    /// <summary>Shows the picture of a timeline's step, where the step puts it.</summary>
+    public void Show(TimelineStep step)
+    {
+        ArgumentNullException.ThrowIfNull(step);
+        Show(step.Picture);
+        _stepOffset = new Vector2I(step.Offset.X, step.Offset.Y);
     }
 
     /// <summary>Mirrors the picture left to right, or not.</summary>
@@ -82,6 +95,7 @@ public partial class ActorVisual : Node2D
         if (_texture is null)
             return;
         var size = _texture.GetSize();
+        Vector2I offset = PictureOffset + _stepOffset;
         if (_rows is { } rows)
         {
             for (int row = 0; row < rows.Count && row < (int)size.Y; row++)
@@ -90,17 +104,17 @@ public partial class ActorVisual : Node2D
                     continue;
                 var from = new Rect2(0, shown, size.X, 1);
                 Rect2 at = _mirrored
-                    ? new Rect2(-PictureOffset.X, PictureOffset.Y + row, -size.X, 1)
-                    : new Rect2(PictureOffset.X, PictureOffset.Y + row, size.X, 1);
+                    ? new Rect2(-offset.X, offset.Y + row, -size.X, 1)
+                    : new Rect2(offset.X, offset.Y + row, size.X, 1);
                 DrawTextureRectRegion(_texture, at, from);
             }
 
             return;
         }
 
-        var area = new Rect2(PictureOffset, size);
+        var area = new Rect2(offset, size);
         if (_mirrored)
-            area = new Rect2(new Vector2(-PictureOffset.X, PictureOffset.Y), new Vector2(-size.X, size.Y));
+            area = new Rect2(new Vector2(-offset.X, offset.Y), new Vector2(-size.X, size.Y));
         DrawTextureRect(_texture, area, tile: false);
     }
 }

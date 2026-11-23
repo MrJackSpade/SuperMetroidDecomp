@@ -70,7 +70,7 @@ public partial class Item : RoomObject
         {
             visual.SetShown(!covered);
             if (_timeline is not null)
-                visual.Show(_timeline.Current.Picture);
+                visual.Show(_timeline.Current);
         }
 
         if (covered || !Area.Overlaps(Room.Player.BodyRect))

@@ -381,7 +381,7 @@ public partial class MotherBrain : Enemy
             head.SetShown(_headShown);
             head.Tint(IsFlashing && Updates % 2 == 0 ? new Color(2f, 2f, 2f) : _brainDetached ? _headTint : _tint);
             if (_headTimeline is not null)
-                head.Show(_headTimeline.Current.Picture);
+                head.Show(_headTimeline.Current);
         }
 
         if (GetNodeOrNull<Collider>("Brain") is { } brain)

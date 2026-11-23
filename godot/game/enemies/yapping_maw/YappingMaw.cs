@@ -269,7 +269,7 @@ public partial class YappingMaw : Enemy
         if (_root is not null && GetNodeOrNull<ActorVisual>("Root") is { } root)
         {
             root.Position = new Vector2(_origin.X.Whole - Position.X.Whole, _origin.Y.Whole + (StrikesDown ? -RootDistance : RootDistance) - Position.Y.Whole);
-            root.Show(_root.Current.Picture);
+            root.Show(_root.Current);
         }
 
         for (int link = 0; link < Links; link++)
@@ -278,7 +278,7 @@ public partial class YappingMaw : Enemy
                 continue;
             PixelPosition at = _doing == Doing.Striking ? Along(link) : _origin;
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
-            visual.Show(_link.Current.Picture);
+            visual.Show(_link.Current);
         }
     }
 }

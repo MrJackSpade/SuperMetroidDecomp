@@ -867,7 +867,7 @@ public partial class Phantoon : Enemy
                 }
             }
 
-            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current.Picture);
+            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
         }
     }
 }

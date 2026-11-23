@@ -78,7 +78,7 @@ godot/
     input/         InputSampler, GameInput, GameAction, the input sources (the player's devices, a recording)
     audio/         AudioDirector
     content/       ContentLibrary, the values-from-files mechanism, the asset file formats
-    actors/        Enemy, Projectile, Pickup, Effect
+    actors/        Enemy, Projectile, Pickup, Effect, Remains
       player/      Player, its standard states, Inventory, Weapons
       movement/    the shared ways of moving (section 6)
       components/  Health, StateMachine, State, TimelinePlayer, ActorVisual
@@ -271,7 +271,8 @@ charged.
 - A reaction says:
   - how much of the damage is taken: none, a fraction, all, a multiple;
   - any status it puts the thing in (frozen, for one), and when: always, only in place of dying, or never;
-  - whether the thing is briefly unhittable afterwards, and for how long;
+  - whether the thing is briefly unhittable afterwards, and for how long: after taking the damage, and after
+    being put in the status;
   - whether the projectile that delivered it is turned back.
 - So a simple enemy needs one or two reactions ("beam: none", "plasma: all") and an awkward one lists the exact
   combination it treats specially. Nothing is computed from the parts.
@@ -695,12 +696,23 @@ A projectile needs its own class only for behaviour no setting gives it. One who
 turned on and off, stopped, shifted, scattered, ended, each by a cue) and that moves its own way is a
 `CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly.
 
-### Pickup (base) and Effect (base)
+### Pickup (base), Effect (base) and Remains
 
 - A `Pickup` is a temporary drop of a `PickupType`. It owns its position, what it gives and how long it lasts; it
   gives itself to the player on contact and expires. It records nothing in `Progress`.
 - An `Effect` is a short-lived visual. It owns its position and animation. It does not collide, deal damage, change
-  gameplay state or use `GameRandom`.
+  gameplay state or use `GameRandom`. Its timeline's cues may ask for sounds.
+- `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
+  that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
+  play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;
+  as the death ends they roll the enemy's `DropTable` and leave the pickup; and they hand the enemy that takes its
+  place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
+  not under it. An enemy with no death to play leaves its drop at once.
+
+**Where a timeline's pictures lie.** A timeline's data may give an offset: where the top-left corner of each of its
+pictures lies from the place of the thing shown. It is added to whatever offset the thing has of its own, so
+pictures cut to one shared size need no thing to know that size. A pickup shown by a timeline is drawn where the
+timeline's offset puts it; one shown by a lone picture has it centred.
 
 ### Components (`engine/actors/components/`, `engine/collision/`)
 

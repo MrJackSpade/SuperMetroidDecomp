@@ -99,7 +99,7 @@ public partial class CinematicSprite : Node2D
         _step = next;
         TimelineStep step = timeline.Steps[next];
         _left = step.Updates;
-        _visual?.Show(step.Picture);
+        _visual?.Show(step);
         return step.Cues;
     }
 

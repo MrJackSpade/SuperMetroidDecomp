@@ -164,6 +164,11 @@ class Scene:
         return '\n\n'.join(parts) + '\n'
 
 
+# How long something frozen stays frozen in the rooms of an area where that is not as long as a hit says: the heat
+# of Norfair thaws it sooner (the old code's NorfairFreezeUpdates).
+FROZEN_UPDATES = {'Norfair': 300}
+
+
 def quoted(text: str) -> str:
     return '"' + text.replace('\\', '\\\\').replace('"', '\\"') + '"'
 
@@ -551,11 +556,14 @@ class Generator:
             **music_of(base, self.nearby_music_set(key)),
         }))
 
-        scene.node(room.name, None, {
+        room_settings = {
             'Area': quoted(snake(room.area)),
             'MapCell': f'Vector2i({room.map_cell[0]}, {room.map_cell[1]})',
             'Versions': scene.listed('res://engine/world/RoomVersion.cs', versions),
-        }, script='res://engine/world/Room.cs')
+        }
+        if room.area in FROZEN_UPDATES:
+            room_settings['StatusUpdates'] = 'Dictionary[String, int]({"frozen": %d})' % FROZEN_UPDATES[room.area]
+        scene.node(room.name, None, room_settings, script='res://engine/world/Room.cs')
         scene.node('Terrain', '.', {'LayoutFile': quoted(layout_of(room, base))}, script='res://engine/world/Terrain.cs')
 
         entries: list[tuple[str, int, int]] = []

@@ -580,6 +580,10 @@ class Generator:
                             and x <= elevator.at[0] < x + width):
                         offset_x = elevator.at[0] - x
                         offset_y = int(elevator.settings['ArrivalY']) - enemies.ELEVATOR_HOLDS_ABOVE - y
+            if base.main == 'MaridiaElevatube':
+                # Someone arriving in Maridia's tube is put where its ride from that end begins.
+                arrives = sequences.TUBE_ARRIVES_ABOVE if y == 0 else sequences.TUBE_ARRIVES_BELOW
+                offset_x, offset_y = arrives[0] - x, arrives[1] - y
             scene.node(self.exit_name(room, name), '.', {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',

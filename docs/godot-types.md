@@ -914,7 +914,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies.
-- `Backdrop`: room backgrounds, the scrolling sky; the Ceres rotating floor and the tilting picture of its
+- `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
   elevator shaft are `TurningFloor`s.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
 - Room versions: every case where the old code had more than one "state" of a room.

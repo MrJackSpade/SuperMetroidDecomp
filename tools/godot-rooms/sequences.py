@@ -31,6 +31,13 @@ ESCAPES = {
 # The terrain patches a room's escape version has in place, by the old setup routine that made the change.
 ESCAPE_PATCHES = {'AutoDestroyWallDuringEscape': 'escape_wall_destroyed', 'TurnWallIntoShotBlocksDuringEscape': 'wall_shot_blocks'}
 
+# Where Samus is put as she comes into Maridia's tube from above and from below; how far past an end of it a ride
+# rests, which is past that end's exit; and where a ride holds her from its corner.
+TUBE_ARRIVES_ABOVE = (128, 64)
+TUBE_ARRIVES_BELOW = (128, 2496)
+TUBE_PAST_END = -8
+TUBE_HOLDS = (16, 22)
+
 # The guardians of the Tourian statue, each with a visual and a grey one over it.
 GUARDIANS = ['Kraid', 'Phantoon', 'Draygon', 'Ridley']
 
@@ -99,6 +106,15 @@ class Sequences:
             self.links.append((shaking, 'Crocomire', named['Crocomire']))
         if state.setup == 'RunStatueUnlockingAnimations':
             self.statue_hall(ctx, named)
+        if state.main == 'MaridiaElevatube':
+            # The tube takes whoever comes in at one end out at the other: each ride rests past the far end and
+            # brings an arrival back to it, which carries them out by that end's exit.
+            height = room.screens[1] * SCREEN
+            for name, rest, arrives in (('RideUp', TUBE_PAST_END, TUBE_ARRIVES_BELOW[1]), ('RideDown', height + TUBE_PAST_END + 18, TUBE_ARRIVES_ABOVE[1])):
+                top = rest - TUBE_HOLDS[1]
+                self.placed.append(Placed('res://game/objects/elevator/tube_ride.tscn', name, {
+                    'Path': f'Array[Vector2i]([Vector2i(0, 0), Vector2i(0, {arrives - rest})])'},
+                    at=(TUBE_ARRIVES_BELOW[0] - TUBE_HOLDS[0], top), enemy=False))
 
     def ceres(self, state: legacy.State, ridley_gone: bool, ctx, named: dict[str, Placed], landing: tuple[str, str]) -> None:
         shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})

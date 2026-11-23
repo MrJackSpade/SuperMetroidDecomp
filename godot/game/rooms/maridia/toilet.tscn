@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/elevator/tube_ride.tscn" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -47,7 +48,7 @@ Size = Vector2i(64, 16)
 LeadsToRoom = "res://game/rooms/maridia/oasis.tscn"
 LeadsToExit = "ToToilet"
 Style = 1
-ArrivalOffset = Vector2i(32, -24)
+ArrivalOffset = Vector2i(32, -48)
 
 [node name="ToPlasmaSpark" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -56,7 +57,7 @@ Size = Vector2i(64, 16)
 LeadsToRoom = "res://game/rooms/maridia/plasma_spark.tscn"
 LeadsToExit = "ToToilet"
 Style = 1
-ArrivalOffset = Vector2i(32, 40)
+ArrivalOffset = Vector2i(32, 64)
 
 [node name="Mochtroid" parent="." instance=ExtResource("6")]
 position = Vector2(160, 904)
@@ -104,3 +105,11 @@ TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 PresentWhen = SubResource("r4")
+
+[node name="RideUp" parent="." instance=ExtResource("10")]
+position = Vector2(112, -30)
+Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 2504)])
+
+[node name="RideDown" parent="." instance=ExtResource("10")]
+position = Vector2(112, 2548)
+Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, -2506)])

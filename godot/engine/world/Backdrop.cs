@@ -47,9 +47,14 @@ public partial class Backdrop : Node2D
     private Vector2I _roomSize;
 
     /// <summary>Loads the layer's picture.</summary>
+    /// <summary>How far behind the rest of its room a backdrop is drawn.</summary>
+    private const int BehindTheRoom = -100;
+
     internal virtual void Setup(ContentLibrary content, Vector2I roomSize)
     {
         _roomSize = roomSize;
+        // A backdrop lies behind everything else in its room, wherever it comes among the room's things.
+        ZIndex = BehindTheRoom;
         _texture = Picture.Length > 0 ? content.LoadTexture(Picture) : null;
         QueueRedraw();
     }

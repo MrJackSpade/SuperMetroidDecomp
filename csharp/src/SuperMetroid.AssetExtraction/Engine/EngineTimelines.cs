@@ -12,6 +12,9 @@ namespace SuperMetroid.AssetExtraction.Engine;
 /// </summary>
 internal static partial class EngineTimelines
 {
+    /// <summary>What stands between the cues of an event that becomes more than one.</summary>
+    internal const char And = '|';
+
     /// <summary>The timeline of one of the old game's animations.</summary>
     /// <typeparam name="TSegment">The animation's segments.</typeparam>
     /// <typeparam name="TFrame">Its frames.</typeparam>
@@ -19,7 +22,10 @@ internal static partial class EngineTimelines
     /// <param name="segments">The beats of every segment.</param>
     /// <param name="animation">The animation.</param>
     /// <param name="picture">The picture of a frame, as its path in the asset tree.</param>
-    /// <param name="cue">The cue an event becomes, or null for an event the Godot game does not hear.</param>
+    /// <param name="cue">
+    /// The cue an event becomes, or null for an event the Godot game does not hear. An event that is two things to the
+    /// Godot game gives both, with <see cref="And"/> between them.
+    /// </param>
     internal static JsonObject Of<TSegment, TFrame, TEvent>(
         AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, Func<TFrame, string> picture, Func<TEvent, string?> cue)
         where TSegment : struct
@@ -92,11 +98,11 @@ internal static partial class EngineTimelines
                         break;
                     case AnimationBeat<TFrame, TEvent>.Event raised:
                         if (cue(raised.Raised) is { } heard)
-                            pending.Add(heard);
+                            pending.AddRange(heard.Split(And));
                         break;
                     case AnimationBeat<TFrame, TEvent>.Marker marked:
                         if (cue(marked.Raised) is { } reached)
-                            pending.Add(reached);
+                            pending.AddRange(reached.Split(And));
                         break;
                     case AnimationBeat<TFrame, TEvent>.HeldFrame held:
                         // The animation rests here: a step that comes round to itself.

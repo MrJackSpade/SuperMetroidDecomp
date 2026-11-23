@@ -3,7 +3,10 @@ using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Rios;
+using SuperMetroid.Core.Enemies.Sbug;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies.Sparks;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -101,6 +104,28 @@ public sealed partial class EngineAssetWriter
                 ("crawling_left", BabyTurtleSegment.CrawlingLeft), ("crawling_right", BabyTurtleSegment.CrawlingRight),
                 ("hiding_left", BabyTurtleSegment.HidingLeft), ("hiding_right", BabyTurtleSegment.HidingRight),
                 ("leave_shell", BabyTurtleSegment.LeaveShell), ("spinning", BabyTurtleSegment.Spinning))
+            .Write();
+
+        // The Rinka: it forms unseen, and then comes out to take aim.
+        Enemy("enemies/rinka.json", "Rinka", EnemyDefinitionId.Rinka).BodyColliders(Ordinary)
+            .Looks(RinkaAnimations.Segments, RinkaAnimations.StartingWith,
+                static (RinkaCue cue) => cue.Kind switch
+                {
+                    RinkaCueKind.Fire => "fire",
+                    RinkaCueKind.Hide => "hide",
+                    RinkaCueKind.HideAndProcessOffScreen => $"hide{EngineTimelines.And}{EngineNames.AlwaysActive}",
+                    _ => throw new InvalidDataException($"A Rinka's animation raises {cue.Kind}, which this does not know."),
+                },
+                ("life", RinkaSegment.Ordinary))
+            .Write();
+
+        // The Sbug: a look for each of the eight ways it can point.
+        Enemy("enemies/sbug.json", "Sbug", EnemyDefinitionId.Sbug).BodyColliders("Hurtbox")
+            .Looks(SbugAnimations.Segments, SbugAnimations.StartingWith,
+                ("facing_right", CompassDirection.Right), ("facing_up_right", CompassDirection.UpRight), ("facing_up", CompassDirection.Up),
+                ("facing_up_left", CompassDirection.UpLeft), ("facing_left", CompassDirection.Left),
+                ("facing_down_left", CompassDirection.DownLeft), ("facing_down", CompassDirection.Down),
+                ("facing_down_right", CompassDirection.DownRight))
             .Write();
 
         Enemy("enemies/spark.json", "Spark", EnemyDefinitionId.Spark).BodyColliders(Ordinary)

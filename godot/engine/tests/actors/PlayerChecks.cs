@@ -28,7 +28,7 @@ public sealed class PlayerChecks
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80).Setup();
         world.Step(30, GameAction.Right);
         Expect.True(world.Player.State is RunningState);
-        Expect.Equal(Pixels.FromNumber(world.Player.RunSpeed), world.Player.Velocity.X);
+        Expect.Equal(world.Player.Moves(PlayerState.RunningMoves).Top, world.Player.Velocity.X);
         Expect.True(world.Player.Position.X > Pixels.FromWhole(60));
         Expect.Equal(Facing.Right, world.Player.Facing);
 
@@ -91,11 +91,11 @@ public sealed class PlayerChecks
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80).Setup();
         world.Press(GameAction.Down);
         Expect.True(world.Player.State is CrouchingState);
-        Expect.Equal(world.Player.CrouchingHeight, world.Player.BodyRect.Height);
+        Expect.Equal(world.Player.HalfHeightOf(Player.Crouching) * 2, world.Player.BodyRect.Height);
 
         world.Press(GameAction.Up);
         Expect.True(world.Player.State is StandingState);
-        Expect.Equal(world.Player.StandingHeight, world.Player.BodyRect.Height);
+        Expect.Equal(world.Player.HalfHeightOf(Player.Standing) * 2, world.Player.BodyRect.Height);
     }
 
     [Check]
@@ -109,7 +109,7 @@ public sealed class PlayerChecks
         world.Player.CanCrawl = true;
         world.Press(GameAction.Down);
         Expect.True(world.Player.State is CrawlingState);
-        Expect.Equal(world.Player.CrawlingHeight, world.Player.BodyRect.Height);
+        Expect.Equal(world.Player.HalfHeightOf(Player.Crawling) * 2, world.Player.BodyRect.Height);
     }
 
     [Check]
@@ -145,7 +145,7 @@ public sealed class PlayerChecks
 
         world.Press(GameAction.Up);
         Expect.True(world.Player.State is CrawlingState);
-        Expect.Equal(world.Player.CrawlingHeight, world.Player.BodyRect.Height);
+        Expect.Equal(world.Player.HalfHeightOf(Player.Crawling) * 2, world.Player.BodyRect.Height);
     }
 
     [Check]

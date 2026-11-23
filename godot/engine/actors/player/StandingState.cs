@@ -7,7 +7,7 @@ namespace Engine.Actors;
 public sealed class StandingState : PlayerState
 {
     /// <inheritdoc/>
-    public override void Enter(Player owner) => owner.TrySetForm(BodyForm.Standing);
+    public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
 
     /// <inheritdoc/>
     public override State<Player> Step(Player owner)
@@ -25,7 +25,9 @@ public sealed class StandingState : PlayerState
             return turning && owner.TurnUpdates > 0 ? new TurningState() : new RunningState();
         }
 
-        owner.SlowToRest();
+        // Standing still ends any momentum a dash had built.
+        owner.LoseMomentum();
+        owner.Slow(owner.Moves(StandingMoves));
         owner.MoveAcross();
         return this;
     }

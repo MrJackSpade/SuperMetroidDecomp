@@ -25,7 +25,10 @@ public static class DataValues
 
         DataNode data = content.ReadData(target.DataFile);
         foreach ((PropertyInfo property, DataValueAttribute value) in ValueProperties(target.GetType()))
-            property.SetValue(target, Convert(data.Get(value.Name), property.PropertyType));
+        {
+            if (!value.ReadByOwner)
+                property.SetValue(target, Convert(data.Get(value.Name), property.PropertyType));
+        }
 
         target.ReadValues(data);
     }

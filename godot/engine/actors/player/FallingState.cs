@@ -7,16 +7,22 @@ namespace Engine.Actors;
 public sealed class FallingState : PlayerState
 {
     /// <inheritdoc/>
+    public override void Enter(Player owner) => owner.TrySetForm(owner.FormOr(Player.Falling), aroundMiddle: true);
+
+    /// <inheritdoc/>
     public override State<Player> Step(Player owner)
     {
         owner.AimFromInput();
-        if (WallJumpingState.CanStart(owner))
+        if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
             return new WallJumpingState();
 
-        owner.Fall();
-        owner.Steer(owner.AirAcceleration, owner.RunSpeed);
+        owner.StepDash(building: false);
+        owner.Steer(owner.Moves(FallingMoves));
         owner.MoveAcross();
+        // The fall moves by the speed it had, and gravity adds to it afterwards: a fall from rest moves nothing in its
+        // first update.
         MoveResult down = owner.MoveDown();
+        owner.Fall();
         if (down.Blocked || owner.IsOnGround)
             return owner.Intent != 0 ? new RunningState() : new StandingState();
         return this;

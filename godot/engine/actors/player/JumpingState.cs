@@ -16,31 +16,37 @@ public sealed class JumpingState : PlayerState
     }
 
     /// <summary>A jump that carries on with the upward speed the player already has.</summary>
-    internal JumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
+    public JumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.TrySetForm(BodyForm.Standing);
+        owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         if (!_keepsSpeed)
-            owner.Velocity = owner.Velocity.WithY(-Pixels.FromNumber(owner.JumpSpeed));
+            owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
     }
 
     /// <inheritdoc/>
     public override State<Player> Step(Player owner)
     {
         owner.AimFromInput();
-        if (WallJumpingState.CanStart(owner))
+        if (owner.WallJumpFromAnyJump && WallJumpingState.CanStart(owner))
             return new WallJumpingState();
 
-        Pixels cut = -Pixels.FromNumber(owner.JumpCutSpeed);
-        if (!owner.Input.IsHeld(GameAction.Jump) && owner.Velocity.Y < cut)
-            owner.Velocity = owner.Velocity.WithY(cut);
-
-        owner.Steer(owner.AirAcceleration, owner.RunSpeed);
+        CutShort(owner);
+        owner.StepDash(building: false);
+        owner.Steer(owner.Moves(JumpingMoves));
         owner.MoveAcross();
         owner.MoveDown();
         owner.Fall();
         return owner.Velocity.Y.IsNegative ? this : new FallingState();
+    }
+
+    /// <summary>Cuts a rising jump to the cut speed once the jump action is no longer held.</summary>
+    public static void CutShort(Player owner)
+    {
+        Pixels cut = -Pixels.FromNumber(owner.JumpCutSpeed);
+        if (!owner.Input.IsHeld(GameAction.Jump) && owner.Velocity.Y < cut)
+            owner.Velocity = owner.Velocity.WithY(cut);
     }
 }

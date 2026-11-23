@@ -24,20 +24,25 @@ public sealed class KnockedBackState : PlayerState
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
-        owner.Velocity = new PixelVelocity(
-            _toward.Toward(Pixels.FromNumber(owner.KnockbackAcrossSpeed)), -Pixels.FromNumber(owner.KnockbackUpSpeed));
+        owner.LoseMomentum();
+        owner.Velocity = new PixelVelocity(Pixels.Zero, -Pixels.FromNumber(owner.Medium.KnockbackUpSpeed));
         _left = Countdown.Of(owner.KnockbackUpdates);
     }
 
     /// <inheritdoc/>
     public override State<Player> Step(Player owner)
     {
+        // The throw gains speed away from the hit, up to its top speed, whatever the player holds.
+        MoveValues moves = owner.Moves(KnockedBackMoves);
+        Pixels faster = owner.Velocity.X.Abs() + moves.Gain;
+        owner.Velocity = owner.Velocity.WithX(_toward.Toward(faster > moves.Top ? moves.Top : faster));
         owner.MoveAcross();
         owner.MoveDown();
         owner.Fall();
         _left = _left.Stepped();
         if (_left.IsRunning)
             return this;
-        return owner.IsOnGround ? new StandingState() : new FallingState();
+        owner.Velocity = owner.Velocity.WithX(Pixels.Zero);
+        return owner.StateAtRest();
     }
 }

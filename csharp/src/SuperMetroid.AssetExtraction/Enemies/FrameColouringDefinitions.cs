@@ -35,15 +35,19 @@ internal static partial class FrameColouringDefinitions
 
     /// <summary>
     /// The bosses' projectile frames: Crocomire's bridge fragments and spike-wall pieces, drawn in his wall colours with
-    /// his wall spikes' row his death sequence loads before they fall; Draygon's goop, drawn in his opening's colours; and
-    /// Mother Brain's falling tubes and glass shards, drawn in the colours her room entry loads for them.
+    /// his wall spikes' row his death sequence loads before they fall; Draygon's flying goop, drawn in his opening's colours
+    /// in the row its initialization stores (#2655), while its bursting frames ink the row after it, which his opening
+    /// leaves as his room loads it; and Mother Brain's falling tubes and glass shards, drawn in the colours her room entry
+    /// loads for them.
     /// </summary>
     private static readonly Dictionary<EnemyProjectileFrameId, FrameColouring> BossProjectiles = new()
     {
         [EnemyProjectileFrameId.CrocomireBridgeFragment] = CrocomireWall,
         [EnemyProjectileFrameId.CrocomireSpikeWallPiece] = CrocomireWall,
-        [EnemyProjectileFrameId.DraygonGoopCurled] = DraygonOpening,
-        [EnemyProjectileFrameId.DraygonGoopScattered] = DraygonOpening,
+        [EnemyProjectileFrameId.DraygonGoopSpiky] = DraygonOpening,
+        [EnemyProjectileFrameId.DraygonGoopPuffed] = DraygonOpening,
+        [EnemyProjectileFrameId.DraygonGoopRounded] = DraygonOpening,
+        [EnemyProjectileFrameId.DraygonGoopLopsided] = DraygonOpening,
         [EnemyProjectileFrameId.MotherBrainTopTubeTopRight] = MotherBrainRoomEntry,
         [EnemyProjectileFrameId.MotherBrainTopTubeTopLeft] = MotherBrainRoomEntry,
         [EnemyProjectileFrameId.MotherBrainTopTubeTopMiddleLeft] = MotherBrainRoomEntry,

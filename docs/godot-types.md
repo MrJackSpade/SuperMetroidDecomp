@@ -843,8 +843,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 
 ### Room objects
 
-- `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors; the three
-  shutters; the downward gate, opened by its switch; the Maridia glass tube; the old Tourian escape wall; the wall
+- `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors; the downward
+  gate, opened by its switch; the Maridia glass tube; the old Tourian escape wall; the wall
   the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
@@ -852,7 +852,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Carrier`: every elevator; the Maridia transport tube. The two Chozo statues that come to life are one enemy
   scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
   Samus in its hand, and the other lowers the room's liquid.
-- `Platform`: Tripper, Kamer, the suspensor platform.
+- `Platform`: the suspensor platform. The Tripper is an enemy (it can be frozen and shot). The shutters are
+  enemies too, because shots set some of them off and destroy others: `Shutter` (the shootable shutter, the Kamer
+  and the destroyable shutter, one scene whose settings say what sets it moving, how far and whether it comes
+  back) and `GrowingShutter`.
 - `Station`: save, energy refill, missile refill, map.
 - `Item`: every upgrade and expansion.
 - `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her own state, in the gunship.

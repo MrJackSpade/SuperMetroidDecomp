@@ -737,7 +737,7 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. | Decide what is explored. |
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done. | Know why it was asked. |
 | `TypedText` | `engine/ui/` | Showing text one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
-| `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. | Run gameplay rules. |
+| `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. One that waits on the player reads what they are doing this update; one that shows remembered play steps a room of its own from recorded input. | Run gameplay rules of its own. |
 | `CinematicSprite` | `engine/ui/` | One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts at a speed (round a loop, if it has one), and is over when its timeline has played out. Its cinematic steps it and acts on the cues it reports. | Decide what its cues mean. |
 | `MosaicPicture` | `engine/ui/` | A picture that can be shown in coarse blocks, each taking the colour of its top-left pixel. | Anything else. |
 | `GameHud` (base) | `engine/ui/` | Being what is shown over play: kept on screen by `PlayingMode`, presented once as play begins and told to show things as they are as each room is set up and after each update. The `GameDefinition` names a game's scene of one. | Know what a particular game shows. |
@@ -942,7 +942,11 @@ explosions and shaking in each escape room (`EscapeRoom`).
   with facing and aim as separate values.
 - `GameMode`s: section 4. `Cinematic`s: the intro, Ceres departure, Ceres destruction, the ending and the credits.
   The departure (`CeresDeparture`) darkens the screen over the shaft and leads to the destruction
-  (`CeresDestruction`), which is also where time running out on Ceres leads, with Samus still aboard.
+  (`CeresDestruction`), which is also where time running out on Ceres leads, with Samus still aboard. The intro
+  (`Intro`, written across three files: its pages, the scenes between them, and the flight to the colony) is what a
+  new game begins with. Its two flashbacks are rooms played by Samus herself from recorded input, each with the
+  thing she met there in it: `IntroMotherBrain` (an enemy) and `IntroEgg` (a room object), both in
+  `game/cinematics/` because they exist only for the intro.
 - The pause screen's map and equipment pages, the HUD, the minimap and message boxes: section 8.
 
 ### Not carried over

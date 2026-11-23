@@ -1,5 +1,6 @@
 using Engine.Core;
 using Engine.Shared;
+using Game.Cinematics;
 using Godot;
 
 namespace Game;
@@ -22,6 +23,9 @@ public partial class SuperMetroid : GameDefinition
 
     /// <summary>Pausing brings up the map and equipment screens.</summary>
     public override GameMode CreatePauseMode(PlayingMode playing) => new PauseScreen(playing);
+
+    /// <summary>A new game begins with the opening.</summary>
+    public override GameMode CreateModeForNewGame() => new Intro();
 
     /// <summary>After a death comes the game over screen.</summary>
     public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();

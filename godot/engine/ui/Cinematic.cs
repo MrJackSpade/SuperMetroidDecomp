@@ -12,12 +12,16 @@ public abstract partial class Cinematic : GameMode
     /// <summary>How many updates the cinematic has played.</summary>
     public int Elapsed { get; private set; }
 
+    /// <summary>What the player is doing this update, for a cinematic that waits on them.</summary>
+    protected GameInput Input { get; private set; } = GameInput.None;
+
     /// <summary>Whether confirming skips to the end.</summary>
     protected virtual bool CanBeSkipped => true;
 
     /// <inheritdoc/>
     public sealed override GameMode Step(GameInput input)
     {
+        Input = input;
         bool finished = (CanBeSkipped && Elapsed > 0 && input.WasPressed(GameAction.Confirm)) || Play(Elapsed);
         Elapsed++;
         return finished ? Next() : this;

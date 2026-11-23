@@ -151,7 +151,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         Age++;
         if (_timeline is not null)
         {
-            _timeline.Step();
+            foreach (string cue in _timeline.Step())
+            {
+                OnCue(room, cue);
+                if (HasEnded)
+                    return;
+            }
+
             if (_timeline.IsOver && _settings.LastsUpdates == 0)
             {
                 End(room);
@@ -187,6 +193,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             if (!allowed.Overlaps(Area))
                 Leave(room);
         }
+    }
+
+    /// <summary>Called for each cue the projectile's timeline reaches. A projectile of its own class acts on its cues here.</summary>
+    protected virtual void OnCue(Room room, string cue)
+    {
     }
 
     /// <summary>Called each update before the projectile changes speed and travels. A projectile of its own class acts here.</summary>

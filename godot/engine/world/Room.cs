@@ -125,6 +125,7 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
+        Entry = entry;
         ShownTurn = null;
         ExitEntered = null;
 
@@ -323,6 +324,9 @@ public partial class Room : Node2D
 
     /// <summary>Whether something has been taken out of the room during this update.</summary>
     public bool IsLeaving(IRoomEntity entity) => _leaving.Contains(entity);
+
+    /// <summary>How the room was entered this time.</summary>
+    public RoomEntry? Entry { get; private set; }
 
     /// <summary>
     /// The turn the room is shown with, or null while it is level. The player and the room's objects are drawn where

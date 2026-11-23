@@ -5,7 +5,8 @@ namespace Engine.World;
 /// <summary>
 /// A scripted sequence belonging to one room. It owns its own timeline, and at the right moments tells the room's
 /// objects, terrain, effects and camera what to do through their own methods. It holds no behaviour that belongs to
-/// something in the room. It can be told to "start".
+/// something in the room. It starts when it is told to "start", or by itself as the room is set up if its condition
+/// holds or the room was entered at the entry point it names.
 /// </summary>
 public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRemembered
 {
@@ -15,6 +16,10 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     /// <summary>The condition under which the sequence starts by itself as the room is set up; null when it waits to be told.</summary>
     [Export]
     public Condition? StartsWhen { get; set; }
+
+    /// <summary>The entry point whose use starts the sequence as the room is set up; empty for none.</summary>
+    [Export]
+    public string StartsAtEntry { get; set; } = "";
 
     /// <summary>The fact recorded when the sequence finishes; empty for none.</summary>
     [Export]
@@ -35,7 +40,7 @@ public abstract partial class RoomSequence : Node, IPlaced, ITriggerTarget, IRem
     {
         IsRunning = false;
         Elapsed = 0;
-        if (StartsWhen is not null && StartsWhen.IsTrue(room))
+        if ((StartsWhen is not null && StartsWhen.IsTrue(room)) || (StartsAtEntry.Length > 0 && room.Entry?.EntryPoint == StartsAtEntry))
             Start();
     }
 

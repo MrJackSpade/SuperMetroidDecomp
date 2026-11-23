@@ -104,6 +104,9 @@ public partial class GameDefinition : Resource
     /// <summary>Makes the mode laid over play when the player pauses.</summary>
     public virtual GameMode CreatePauseMode(PlayingMode playing) => new PausedMode(playing);
 
+    /// <summary>Makes the mode a new game begins in. The engine's is play in the first room; a game with something to show first says so.</summary>
+    public virtual GameMode CreateModeForNewGame() => new PlayingMode();
+
     /// <summary>Makes the mode that follows the player's death. The engine's reloads the session's save slot, or starts a new game.</summary>
     public virtual GameMode CreateModeAfterDeath() => new LoadingMode();
 

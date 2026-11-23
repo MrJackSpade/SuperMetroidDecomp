@@ -109,9 +109,39 @@ internal sealed partial class EngineEnemy
     {
         (List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>> lead, List<IAnimationBeat<RoomEffectActorPicture, NoAnimationCue>>? cycle) =
             EngineTimelines.Played(RoomEffectActorAnimations.Segments, RoomEffectActorAnimations.StartingWith(kind));
-        IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EffectFrame(frame!.Value));
+        return SpawnedLook(name, lead, cycle, EffectFrame, static (NoAnimationCue _) => null);
+    }
+
+    /// <summary>
+    /// Adds a timeline of its own that the old game drew as something the enemy launched and kept by it: a part of
+    /// it, shown by pictures on the sheets of what it spawns.
+    /// </summary>
+    internal EngineEnemy SpawnedLook<TSegment, TEvent, TBeat, TShown>(
+        string name, AnimationSegmentPlay<TSegment, EnemyProjectileFrameId, TEvent, TBeat, TShown> segments, Animation<TSegment> animation,
+        Func<TEvent, string?> cue)
+        where TSegment : struct
+        where TEvent : notnull
+        where TBeat : class, IAnimationBeat<EnemyProjectileFrameId, TEvent>
+        where TShown : class
+    {
+        (List<IAnimationBeat<EnemyProjectileFrameId, TEvent>> lead, List<IAnimationBeat<EnemyProjectileFrameId, TEvent>>? cycle) =
+            EngineTimelines.Played(segments, animation);
+        return SpawnedLook(name, lead, cycle, EnemySheetDefinitions.ProjectileFrameName, cue);
+    }
+
+    /// <summary>
+    /// Adds a timeline of its own whose pictures are on the sheets of what it spawns. They are cut to a size of their
+    /// own, so the timeline says where they lie beyond where the enemy's own pictures do.
+    /// </summary>
+    internal EngineEnemy SpawnedLook<TFrame, TEvent>(
+        string name, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> lead, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> frameName,
+        Func<TEvent, string?> cue)
+        where TFrame : struct
+        where TEvent : notnull
+    {
+        IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => frameName(frame!.Value));
         EngineSheetPictures pictures = _sheets.CutSpawned(_tree, $"{Folder}/{name}", EnemyDefinitionIdKeys.Installed.Of(_id), frames);
-        JsonObject timeline = EngineTimelines.Of(lead, cycle, picture => pictures.Of(EffectFrame(picture)), static (NoAnimationCue _) => null);
+        JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => pictures.Of(frameName(frame)), cue);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX - Pictures.OffsetX, ["y"] = pictures.OffsetY - Pictures.OffsetY };
         return Timeline(name, timeline);
     }

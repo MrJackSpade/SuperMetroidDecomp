@@ -4,6 +4,8 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.Rios;
+using SuperMetroid.Core.Enemies.YappingMaws;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Engine;
 
@@ -81,5 +83,40 @@ public sealed partial class EngineAssetWriter
             .SpawnedLook("electricity", RoomEffectActorKind.MetroidElectricity)
             .SpawnedLook("shell", RoomEffectActorKind.MetroidShell)
             .Write();
+
+        // The Yapping Maw: a look for each way it bites, and its root, its neck and its drawing back for each of the
+        // two ways it can be set: striking upward or downward.
+        static string Way(YappingMawAim aim) => EngineSheets.FileName(aim.ToString());
+        static string? MawCue(YappingMawCue cue) => cue switch
+        {
+            YappingMawCue.HoldSamus hold => "hold:" + Way(hold.Aim),
+            YappingMawCue.Signal { Kind: YappingMawCueKind.PlayBiteSound } => "bite",
+            _ => throw new InvalidDataException($"A Yapping Maw's animation raises {cue}, which this does not know."),
+        };
+        var heldOffsets = new JsonObject();
+        EngineEnemy maw = Enemy("enemies/yapping_maw.json", "YappingMaw", EnemyDefinitionId.YappingMaw).BodyColliders("Hurtbox")
+            .Value("safety_distance", YappingMawAttackDefinitions.GrabSafetyDistance)
+            .Value("grab_cooldown", YappingMawAttackDefinitions.GrabCooldown)
+            .Value("retracted_hold", YappingMawAttackDefinitions.RetractedHold)
+            .Value("root_distance", YappingMawAttackDefinitions.RootDistance)
+            .Value("bite_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YappingMawAttackSound))
+            .Group("held_offsets", heldOffsets);
+        foreach (YappingMawAim aim in Enum.GetValues<YappingMawAim>())
+        {
+            Offset16<RoomPixels> held = YappingMawHoldDefinitions.HeldSamusOffsets[aim];
+            heldOffsets[Way(aim)] = new JsonObject { ["x"] = held.X, ["y"] = held.Y };
+            maw.Timeline("attack_" + Way(aim), YappingMawAnimations.Segments, YappingMawAnimations.StartingWith(YappingMawAnimationDefinitions.Attacks[aim]), MawCue);
+        }
+
+        foreach ((string after, YappingMawReach reach) in new[] { ("", YappingMawReach.Up), ("_down", YappingMawReach.Down) })
+        {
+            maw.Timeline("cooldown_straight" + after, YappingMawAnimations.Segments, YappingMawAnimations.StartingWith(reach.StraightCooldown), MawCue)
+                .Timeline("cooldown_right" + after, YappingMawAnimations.Segments, YappingMawAnimations.StartingWith(reach.RightCooldown), MawCue)
+                .Timeline("cooldown_left" + after, YappingMawAnimations.Segments, YappingMawAnimations.StartingWith(reach.LeftCooldown), MawCue)
+                .SpawnedLook("root" + after, reach.Root)
+                .SpawnedLook("link" + after, YappingMawBodyProjectileAnimations.Segments, YappingMawBodyProjectileAnimations.StartingAt[reach.Body], EngineEnemy.EndsOnly);
+        }
+
+        maw.Write();
     }
 }

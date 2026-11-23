@@ -17,7 +17,8 @@ namespace Game.Enemies;
 /// Its mouth plays "attack_up", "attack_up_right" and so on round the eight ways it can strike, each with the cue
 /// "bite" for its sound, and once it has drawn back "cooldown_straight", "cooldown_right" or "cooldown_left", whose
 /// cue "hold:&lt;way&gt;" moves where it holds Samus. The visual named "Root" plays "root" and those named "Link1"
-/// through "Link4" play "link". Its data gives where it holds Samus for each way under "held_offsets". How fast it
+/// through "Link4" play "link". One that strikes downward plays "cooldown_straight_down", "cooldown_right_down",
+/// "cooldown_left_down", "root_down" and "link_down" instead. Its data gives where it holds Samus for each way under "held_offsets". How fast it
 /// darts follows the speed curve its data names.
 /// </remarks>
 public partial class YappingMaw : Enemy
@@ -103,8 +104,8 @@ public partial class YappingMaw : Enemy
         _curve = SpeedCurve.Read(Room.Content.ReadData(SpeedCurveFile));
         _origin = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         _drawnBack = Countdown.Of(RetractedHold);
-        _link = new TimelinePlayer(Timelines.Get("link"));
-        _root = new TimelinePlayer(Timelines.Get("root"));
+        _link = new TimelinePlayer(Timelines.Get(Oriented("link")));
+        _root = new TimelinePlayer(Timelines.Get(Oriented("root")));
         Play(StrikesDown ? "attack_down" : "attack_up");
         ShowNeck();
     }
@@ -228,7 +229,7 @@ public partial class YappingMaw : Enemy
         _doing = Doing.DrawnBack;
         _cooldown = GrabCooldown;
         string side = _way == "right" ? "right" : _way == "left" ? "left" : "straight";
-        Play($"cooldown_{side}", restart: true);
+        Play(Oriented($"cooldown_{side}"), restart: true);
         // Drawn back from a strike straight across, or by one that strikes downward, Samus is brought along at once.
         if (_holds && (StrikesDown || side != "straight"))
             HoldSamus();
@@ -260,6 +261,12 @@ public partial class YappingMaw : Enemy
     /// <summary>Where it holds Samus when it has struck the given way.</summary>
     private PixelOffset HeldOffset(string way) =>
         _heldOffsets.TryGetValue(way, out PixelOffset offset) ? offset : throw new InvalidOperationException($"The Yapping Maw \"{Name}\" has no held offset for \"{way}\".");
+
+    /// <summary>
+    /// The name of a timeline that differs by which way it strikes: one that strikes downward has its own, named
+    /// with "_down" after.
+    /// </summary>
+    private string Oriented(string timeline) => StrikesDown ? timeline + "_down" : timeline;
 
     /// <summary>Puts its root and the links of its neck where they are.</summary>
     private void ShowNeck()

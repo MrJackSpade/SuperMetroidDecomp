@@ -705,8 +705,8 @@ turned on and off, stopped, shifted, scattered, ended, each by a cue) and that m
 - `Remains` are what a destroyed enemy leaves where it died, when its data names a death to play: the timeline of
   that death, which may differ by the kind of hit that destroyed it. The enemy itself is gone at once. The remains
   play the death, asking for the sounds its cues name and scattering the effects they name, placed by `GameRandom`;
-  as the death ends they roll the enemy's `DropTable` and leave the pickup; and they hand the enemy that takes its
-  place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
+  on the death's "drop" cue, or as it ends, they roll the enemy's `DropTable` and leave the pickup; and they hand
+  the enemy that takes its place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
   not under it. An enemy with no death to play leaves its drop at once.
 
 **Where a timeline's pictures lie.** A timeline's data may give an offset: where the top-left corner of each of its

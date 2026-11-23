@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>
 /// Turns the old game's animations into the Godot game's timelines. An old animation is beats: a frame shown for so
-/// many updates, a frame held for good, a pause, and events raised between frames. A timeline is steps, each a
+/// many updates, a frame held for good, a pause, a while with nothing shown, and events raised between frames. A timeline is steps, each a
 /// picture shown for so many updates with the cues reached as it begins. An event becomes a cue of the step that
 /// follows it, which the Godot game reaches on that step's first update, as the old game raised it on the update the
 /// frame before it ran out.
@@ -26,39 +26,64 @@ internal static partial class EngineTimelines
     /// The cue an event becomes, or null for an event the Godot game does not hear. An event that is two things to the
     /// Godot game gives both, with <see cref="And"/> between them.
     /// </param>
-    internal static JsonObject Of<TSegment, TFrame, TEvent>(
-        AnimationSegments<TSegment, TFrame, TEvent> segments, Animation<TSegment> animation, Func<TFrame, string> picture, Func<TEvent, string?> cue)
+    internal static JsonObject Of<TSegment, TFrame, TEvent, TBeat, TShown>(
+        AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown> segments, Animation<TSegment> animation, Func<TFrame, string> picture,
+        Func<TEvent, string?> cue)
         where TSegment : struct
         where TFrame : struct
+        where TEvent : notnull
+        where TBeat : class, IAnimationBeat<TFrame, TEvent>
+        where TShown : class
+    {
+        (List<IAnimationBeat<TFrame, TEvent>> lead, List<IAnimationBeat<TFrame, TEvent>>? cycle) = Played(segments, animation);
+        return Of<TFrame, TEvent>(lead, cycle, picture, cue);
+    }
+
+    /// <summary>
+    /// The beats one of the old game's animations plays: those it plays once, and then those it plays over and over,
+    /// where it does.
+    /// </summary>
+    internal static (List<IAnimationBeat<TFrame, TEvent>> Lead, List<IAnimationBeat<TFrame, TEvent>>? Cycle) Played<TSegment, TFrame, TEvent, TBeat, TShown>(
+        AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown> segments, Animation<TSegment> animation)
+        where TSegment : struct
+        where TFrame : struct
+        where TEvent : notnull
+        where TBeat : class, IAnimationBeat<TFrame, TEvent>
+        where TShown : class
     {
         int loopsFrom = animation.End is AnimationEnd.Loop loop ? loop.Phase : animation.Phases.Count;
-        var lead = new List<AnimationBeat<TFrame, TEvent>>();
-        var cycle = new List<AnimationBeat<TFrame, TEvent>>();
+        var lead = new List<IAnimationBeat<TFrame, TEvent>>();
+        var cycle = new List<IAnimationBeat<TFrame, TEvent>>();
         for (int phase = 0; phase < animation.Phases.Count; phase++)
         {
             AnimationPhase<TSegment> played = animation.Phases[phase];
-            IEnumerable<AnimationBeat<TFrame, TEvent>> beats = segments.Beats(played.Segment).Skip(played.FirstBeat).Take(played.BeatCount);
+            IEnumerable<IAnimationBeat<TFrame, TEvent>> beats = segments.Beats(played.Segment).Skip(played.FirstBeat).Take(played.BeatCount);
             for (int play = 0; play < played.Plays; play++)
                 (phase < loopsFrom ? lead : cycle).AddRange(beats);
         }
 
-        return Of(lead, animation.End is AnimationEnd.Loop ? cycle : null, picture, cue);
+        return (lead, animation.End is AnimationEnd.Loop ? cycle : null);
     }
 
     /// <summary>The timeline of one whole segment, played once or over and over.</summary>
-    internal static JsonObject Of<TSegment, TFrame, TEvent>(
-        AnimationSegments<TSegment, TFrame, TEvent> segments, TSegment segment, bool loops, Func<TFrame, string> picture, Func<TEvent, string?> cue)
+    internal static JsonObject Of<TSegment, TFrame, TEvent, TBeat, TShown>(
+        AnimationSegmentPlay<TSegment, TFrame, TEvent, TBeat, TShown> segments, TSegment segment, bool loops, Func<TFrame, string> picture,
+        Func<TEvent, string?> cue)
         where TSegment : struct
-        where TFrame : struct =>
-        loops ? Of([], segments.Beats(segment), picture, cue) : Of(segments.Beats(segment), null, picture, cue);
+        where TFrame : struct
+        where TEvent : notnull
+        where TBeat : class, IAnimationBeat<TFrame, TEvent>
+        where TShown : class =>
+        loops ? Of<TFrame, TEvent>([], segments.Beats(segment), picture, cue) : Of<TFrame, TEvent>(segments.Beats(segment), null, picture, cue);
 
     /// <summary>
     /// The timeline of beats played once and then, where there is a cycle, of the cycle's beats played over and over.
     /// </summary>
     internal static JsonObject Of<TFrame, TEvent>(
-        IEnumerable<AnimationBeat<TFrame, TEvent>> lead, IEnumerable<AnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> picture,
+        IEnumerable<IAnimationBeat<TFrame, TEvent>> lead, IEnumerable<IAnimationBeat<TFrame, TEvent>>? cycle, Func<TFrame, string> picture,
         Func<TEvent, string?> cue)
         where TFrame : struct
+        where TEvent : notnull
     {
         var steps = new JsonArray();
         var pending = new List<string>();
@@ -84,12 +109,15 @@ internal static partial class EngineTimelines
         }
 
         // Plays beats into steps; false once a frame held for good has ended them.
-        bool Play(IEnumerable<AnimationBeat<TFrame, TEvent>> beats)
+        bool Play(IEnumerable<IAnimationBeat<TFrame, TEvent>> beats)
         {
-            foreach (AnimationBeat<TFrame, TEvent> beat in beats)
+            foreach (IAnimationBeat<TFrame, TEvent> beat in beats)
             {
                 switch (beat)
                 {
+                    case AnimationHiddenBeat<TFrame, TEvent> hidden:
+                        Add("", hidden.Duration);
+                        break;
                     case AnimationBeat<TFrame, TEvent>.Frame frame:
                         Add(picture(frame.Shown), frame.Duration);
                         break;
@@ -123,7 +151,7 @@ internal static partial class EngineTimelines
             // Cues left over from the lead are reached once, as the cycle first begins; cues left over at the cycle's
             // end are reached each time it comes round. Where there are either, the cycle is written twice: once to
             // be entered, once to come round to.
-            IReadOnlyList<AnimationBeat<TFrame, TEvent>> round = [.. cycle];
+            IReadOnlyList<IAnimationBeat<TFrame, TEvent>> round = [.. cycle];
             int first = steps.Count;
             bool carriesIn = pending.Count > 0;
             if (Play(round))

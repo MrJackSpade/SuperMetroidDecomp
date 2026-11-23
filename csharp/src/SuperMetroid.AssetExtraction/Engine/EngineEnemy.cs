@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -32,8 +33,16 @@ internal sealed partial class EngineEnemy
             Data["speed_curve"] = EngineAssetWriter.SpeedCurveFile;
         Data["health"] = Definition.Health;
         Data["contact_damage"] = Definition.Damage;
-        Data["hurt_flash_updates"] = Definition.HurtFlashFrames;
+        // A weapon's hit makes the old enemy flash that much longer than its own flash, and nearly every hit is a weapon's.
+        Data["hurt_flash_updates"] = Definition.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
         Data["picture_offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+        Data["reactions"] = EngineReactions.Of(Definition);
+        if (EngineAssetWriter.Drops(Definition.Drops) is { } drops)
+            Data["drops"] = drops;
+        Data["death"] = EngineAssetWriter.Death(Definition.DeathExplosion);
+        if (Definition.HurtSoundEffect is { } cry && EngineNames.Sound(cry) is { } cryName)
+            Data["hurt_sound"] = cryName;
+        Data["status_sounds"] = new JsonObject { ["frozen"] = EngineNames.Sound(RoomSound.EnemyFrozen) };
     }
 
     /// <summary>What the old game's list of enemies says of it.</summary>
@@ -80,6 +89,7 @@ internal sealed partial class EngineEnemy
     internal EngineEnemy Timeline<TSegment, TEvent>(
         string name, AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Animation<TSegment> animation, Func<TEvent, string?> cue)
         where TSegment : struct
+        where TEvent : notnull
     {
         _timelines[name] = EngineTimelines.Of(segments, animation, Picture, cue);
         return this;
@@ -88,7 +98,8 @@ internal sealed partial class EngineEnemy
     /// <summary>Adds the timeline of an animation whose events the Godot game hears none of.</summary>
     internal EngineEnemy Timeline<TSegment, TEvent>(
         string name, AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Animation<TSegment> animation)
-        where TSegment : struct =>
+        where TSegment : struct
+        where TEvent : notnull =>
         Timeline(name, segments, animation, static (TEvent _) => null);
 
     /// <summary>
@@ -99,6 +110,7 @@ internal sealed partial class EngineEnemy
         AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Func<TSegment, Animation<TSegment>> startingWith,
         params ReadOnlySpan<(string Name, TSegment Segment)> named)
         where TSegment : struct
+        where TEvent : notnull
     {
         foreach ((string name, TSegment segment) in named)
             Timeline(name, segments, startingWith(segment));
@@ -113,6 +125,7 @@ internal sealed partial class EngineEnemy
         AnimationSegments<TSegment, EnemyFrameId, TEvent> segments, Func<TSegment, Animation<TSegment>> startingWith, Func<TEvent, string?> cue,
         params ReadOnlySpan<(string Name, TSegment Segment)> named)
         where TSegment : struct
+        where TEvent : notnull
     {
         foreach ((string name, TSegment segment) in named)
             Timeline(name, segments, startingWith(segment), cue);

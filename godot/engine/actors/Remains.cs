@@ -6,17 +6,19 @@ using Godot;
 namespace Engine.Actors;
 
 /// <summary>
-/// What a destroyed enemy leaves where it died. The timeline of its death plays; as that ends, what the enemy drops
-/// appears; and the enemy that takes its place, if one does, comes once the drop is gone. Unlike an effect it is part
-/// of play: it decides the drop, and it places what it scatters by the gameplay random generator.
+/// What a destroyed enemy leaves where it died. The timeline of its death plays; what the enemy drops appears when
+/// the timeline says, or as it ends; and the enemy that takes its place, if one does, comes once the drop is gone.
+/// Unlike an effect it is part of play: it decides the drop, and it places what it scatters by the gameplay random
+/// generator.
 /// </summary>
 /// <remarks>
-/// Its timeline's cues: "sound:" and a sound's name asks for that sound. "scatter:", the data file of an effect's
-/// timeline, ":" and a reach in pixels leaves that effect near by, as far as the reach to either side and above or
-/// below. One number is drawn for each: its lowest digits settle how far across and its second eight how far down.
-/// The reach is a power of two.
+/// Its timeline's cues: "sound:" and a sound's name asks for that sound. "drop" leaves the drop, after which the
+/// remains show nothing. "scatter:", the data file of an effect's timeline, ":" and a reach in pixels leaves that
+/// effect near by, as far as the reach to either side and above or below. One number is drawn for each: its lowest
+/// digits settle how far across and its second eight how far down. The reach is a power of two.
 /// <code>
-/// { "steps": [ { "updates": 8, "cues": ["scatter:effects/small_explosion.json:16", "sound:enemy_small_explosion"] } ] }
+/// { "steps": [ { "updates": 8, "cues": ["scatter:effects/small_explosion.json:16", "sound:enemy_small_explosion"] },
+///              { "updates": 1, "cues": ["drop"] } ] }
 /// </code>
 /// </remarks>
 public partial class Remains : Node2D, IRoomEntity
@@ -28,6 +30,7 @@ public partial class Remains : Node2D, IRoomEntity
     private DropTable _drops = DropTable.Nothing;
     private Node2D? _replacement;
     private int _replacementUpdates;
+    private bool _dropped;
 
     /// <summary>
     /// The remains of something destroyed at <paramref name="at"/>, whose death plays <paramref name="timeline"/> and
@@ -76,6 +79,8 @@ public partial class Remains : Node2D, IRoomEntity
         {
             if (cue.StartsWith("sound:", StringComparison.Ordinal))
                 room.Session.Sounds.Request(cue["sound:".Length..], channel: "enemies");
+            else if (cue == "drop")
+                LeaveDrop(room);
             else if (cue.StartsWith("scatter:", StringComparison.Ordinal))
                 Scatter(room, cue["scatter:".Length..]);
             else
@@ -84,18 +89,28 @@ public partial class Remains : Node2D, IRoomEntity
 
         if (!player.IsOver)
         {
-            _visual?.Show(player.Current);
+            if (!_dropped)
+                _visual?.Show(player.Current);
             return;
         }
 
+        LeaveDrop(room);
+        room.Remove(this);
+    }
+
+    /// <summary>Leaves the drop, once, and hands what takes the destroyed thing's place to the room.</summary>
+    private void LeaveDrop(Room room)
+    {
+        if (_dropped)
+            return;
+        _dropped = true;
+        _visual?.Show("");
         Pickup? pickup = Pickup.Dropped(room, _drops, Position);
         if (_replacement is { } replacement)
         {
             _replacement = null;
             room.SpawnLater(replacement, pickup is null ? [] : [pickup], _replacementUpdates);
         }
-
-        room.Remove(this);
     }
 
     /// <summary>Leaves an effect near by, as a "scatter:" cue asks.</summary>

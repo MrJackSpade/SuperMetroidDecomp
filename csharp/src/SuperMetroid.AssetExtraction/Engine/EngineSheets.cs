@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Assets;
@@ -24,6 +25,140 @@ internal sealed partial class EngineSheets
         _store = InstalledPictureStore.Open(Path.Combine(content, PictureStoreFiles.DirectoryName));
         foreach (InstalledSheetManifest manifest in InstalledSheetManifests.Read(content))
             _documents[(manifest.Family, manifest.Sheet)] = manifest.Document;
+        string looks = Path.Combine(content, GameInstallationLayout.EnemySheetDirectoryName, EnemySheetFiles.ManifestFileName);
+        _enemyLooks = JsonNode.Parse(File.ReadAllText(looks))?.AsObject()
+            ?? throw new InvalidDataException($"The list of the enemies' sheets {looks} is empty.");
+    }
+
+    /// <summary>
+    /// The installed list of which sheet each room's enemies, and the things they spawn, are drawn from. The old game
+    /// draws some of them differently from room to room; the Godot game's data names one look of each.
+    /// </summary>
+    private readonly JsonObject _enemyLooks;
+
+    /// <summary>The name of the sheets' family that holds the enemies and what they spawn.</summary>
+    private const string EnemyFamily = GameInstallationLayout.EnemySheetDirectoryName;
+
+    /// <summary>The one of <paramref name="counted"/> met most often; of those met equally often, the first by name.</summary>
+    private static string? MostCommon(IEnumerable<string> counted) => counted
+        .GroupBy(name => name, StringComparer.Ordinal)
+        .OrderByDescending(group => group.Count())
+        .ThenBy(group => group.Key, StringComparer.Ordinal)
+        .Select(group => group.Key)
+        .FirstOrDefault();
+
+    /// <summary>
+    /// The sheet an enemy is drawn from: the one the most rooms draw it from, where the installation lists rooms that
+    /// hold it, and otherwise the sheet of its name.
+    /// </summary>
+    internal string EnemySheet(string enemy)
+    {
+        string? look = MostCommon(_enemyLooks["populations"]!.AsObject()
+            .Select(population => population.Value!["enemies"]![enemy]?.GetValue<string>())
+            .OfType<string>());
+        return look is null ? SheetNamed(EnemyFamily, enemy) : _enemyLooks["variants"]![look]!["sheet"]!.GetValue<string>();
+    }
+
+    /// <summary>The look of what <paramref name="spawner"/> spawns that the most rooms show.</summary>
+    private JsonObject SpawnedLook(string spawner)
+    {
+        string look = MostCommon(_enemyLooks["populations"]!.AsObject()
+            .Select(population => population.Value!["spawned"]![spawner]?.GetValue<string>())
+            .OfType<string>())
+            ?? throw new InvalidDataException($"The installation lists no room that draws what {spawner} spawns.");
+        return _enemyLooks["spawnedVariants"]![look]!.AsObject();
+    }
+
+    /// <summary>The look of the shared things in a room that holds no enemies, which has some pictures no other look has.</summary>
+    private JsonObject StandardLook() =>
+        _enemyLooks["spawnedVariants"]![_enemyLooks["standard"]!["spawned"]![SharedSpawner]!.GetValue<string>()]!.AsObject();
+
+    /// <summary>The name the installation gives the things every room's enemies share: explosions, drops, dust.</summary>
+    internal const string SharedSpawner = "Shared";
+
+    /// <summary>
+    /// Where a look keeps the picture named <paramref name="frame"/>: its sheet, or an empty name for a picture that
+    /// shows nothing; null when the look has no such picture.
+    /// </summary>
+    private string? SheetOfSpawned(JsonObject look, string frame)
+    {
+        if (look["sheet"]?.GetValue<string>() is { } own && _documents[(EnemyFamily, own)].Frames.ContainsKey(frame))
+            return own;
+        foreach ((string sheet, JsonNode? held) in look["commonPictures"]!.AsObject())
+        {
+            if (held!.AsArray().Any(name => name!.GetValue<string>() == frame))
+                return sheet;
+        }
+
+        return look["empty"]?.AsArray().Any(name => name!.GetValue<string>() == frame) == true ? "" : null;
+    }
+
+    /// <summary>
+    /// Cuts named pictures of what an enemy spawns, or of what every room shares, into one picture each, all on one
+    /// canvas of their own, under <paramref name="folder"/>. A picture is looked for among the spawner's own, then
+    /// among the shared ones as most rooms show them, then among those of a room that holds no enemies.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A picture is on no sheet.</exception>
+    internal EngineSheetPictures CutSpawned(EngineAssetTree tree, string folder, string spawner, IEnumerable<string> frames)
+    {
+        JsonObject own = SpawnedLook(spawner), shared = SpawnedLook(SharedSpawner), standard = StandardLook();
+        var placed = new List<(string Name, string Sheet)>();
+        foreach (string frame in frames.Distinct(StringComparer.Ordinal))
+        {
+            string sheet = SheetOfSpawned(own, frame) ?? SheetOfSpawned(shared, frame) ?? SheetOfSpawned(standard, frame)
+                ?? throw new InvalidDataException($"No sheet of what {spawner} spawns holds the picture {frame}.");
+            placed.Add((frame, sheet));
+        }
+
+        return CutFrames(tree, EnemyFamily, folder, placed);
+    }
+
+    /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>
+    private EngineSheetPictures CutFrames(EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames)
+    {
+        InstalledSheetFrameDocument FrameOf((string Name, string Sheet) frame) =>
+            _documents[(family, frame.Sheet)].Frames.TryGetValue(frame.Name, out InstalledSheetFrameDocument? found)
+                ? found
+                : throw new InvalidDataException($"The sheet {frame.Sheet} has no frame {frame.Name}.");
+
+        int left = 0, top = 0, right = 1, bottom = 1;
+        foreach ((string Name, string Sheet) frame in frames.Where(frame => frame.Sheet.Length > 0))
+        {
+            InstalledSheetFrameDocument placed = FrameOf(frame);
+            left = Math.Min(left, -placed.Origin.X);
+            top = Math.Min(top, -placed.Origin.Y);
+            right = Math.Max(right, placed.Size.X - placed.Origin.X);
+            bottom = Math.Max(bottom, placed.Size.Y - placed.Origin.Y);
+        }
+
+        int width = right - left, height = bottom - top;
+        var paths = new Dictionary<string, string>(StringComparer.Ordinal);
+        var canvas = new RgbaPixel[width * height];
+        foreach ((string Name, string Sheet) frame in frames)
+        {
+            if (frame.Sheet.Length == 0 || FrameOf(frame) is not { Picture: not null } placed)
+            {
+                paths[frame.Name] = "";
+                continue;
+            }
+
+            InstalledSheetDocument document = _documents[(family, frame.Sheet)];
+            if (!_images.TryGetValue((family, frame.Sheet), out SpriteImagePixels? image))
+                _images[(family, frame.Sheet)] = image = _store.Assemble(frame.Sheet, document);
+            Array.Clear(canvas);
+            int across = -placed.Origin.X - left, down = -placed.Origin.Y - top;
+            for (int y = 0; y < placed.Size.Y; y++)
+            {
+                image.Pixels.AsSpan((placed.Corner.Y + y) * document.Size.X + placed.Corner.X, placed.Size.X)
+                    .CopyTo(canvas.AsSpan((down + y) * width + across, placed.Size.X));
+            }
+
+            string path = $"{folder}/{FileName(frame.Name)}.png";
+            tree.WritePicture(path, width, height, canvas);
+            paths[frame.Name] = path;
+        }
+
+        return new EngineSheetPictures(left, top, width, height, paths);
     }
 
     /// <summary>The names of a family's sheets that begin with <paramref name="prefix"/>, in order.</summary>

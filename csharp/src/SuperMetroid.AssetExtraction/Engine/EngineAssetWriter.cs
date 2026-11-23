@@ -35,18 +35,6 @@ public sealed partial class EngineAssetWriter
         writer.WriteEnemies();
     }
 
-    /// <summary>The data file of the curve of speeds that hops, lunges and swings follow.</summary>
-    internal const string SpeedCurveFile = "curves/quadratic.json";
-
-    /// <summary>Writes what many things share: the curve of speeds.</summary>
-    private void WriteShared()
-    {
-        var speeds = new JsonArray();
-        foreach (QuadraticCurveSpeed mark in QuadraticSpeedCurveDefinitions.Speeds)
-            speeds.Add(EngineNames.Number(mark.Speed));
-        _tree.WriteData(SpeedCurveFile, new JsonObject { ["speeds"] = speeds });
-    }
-
     /// <summary>
     /// Starts an enemy's data file: its pictures are cut from the installed sheet named for the old enemy, into a
     /// folder beside the file named as the file is.
@@ -64,9 +52,9 @@ public sealed partial class EngineAssetWriter
         string folder = file[..file.LastIndexOf('.')];
         var named = new List<string>();
         foreach (string sheet in sheets)
-            named.Add(_sheets.SheetNamed(family, sheet));
+            named.Add(_sheets.EnemySheet(sheet));
         if (named.Count == 0)
-            named.Add(_sheets.SheetNamed(family, id.ToString()));
+            named.Add(_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id)));
         return new EngineEnemy(_tree, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
     }
 }

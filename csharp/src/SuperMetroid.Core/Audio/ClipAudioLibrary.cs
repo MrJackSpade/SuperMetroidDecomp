@@ -16,7 +16,7 @@ public sealed partial class ClipAudioLibrary
     /// <summary>Sound-effect entries by sound.</summary>
     private readonly Dictionary<SoundEffectId, SoundEffectClipEntry> soundEffects;
     /// <summary>Each sound's entry in the music data sets that play it differently, by set and sound (#2645).</summary>
-    private readonly Dictionary<(MusicDataSet DataSet, SoundEffectId Sound), SoundEffectClipEntry> setSoundEffects = [];
+    private readonly Dictionary<MusicDataSet, Dictionary<SoundEffectId, SoundEffectClipEntry>> setSoundEffects = [];
 
     /// <summary>Creates a catalog over the import's songs and sound effects, whose clips <paramref name="source"/> supplies.</summary>
     /// <param name="initialBeat">How long the music's beat lasts before any song has played.</param>
@@ -49,7 +49,9 @@ public sealed partial class ClipAudioLibrary
         {
             if (!this.soundEffects.ContainsKey(entry.Entry.Sound))
                 throw new InvalidDataException($"Clip manifest gives {entry.Entry.Sound} a {entry.DataSet} clip but no clip of its own.");
-            if (!this.setSoundEffects.TryAdd((entry.DataSet, entry.Entry.Sound), entry.Entry))
+            if (!this.setSoundEffects.TryGetValue(entry.DataSet, out Dictionary<SoundEffectId, SoundEffectClipEntry>? inSet))
+                this.setSoundEffects.Add(entry.DataSet, inSet = []);
+            if (!inSet.TryAdd(entry.Entry.Sound, entry.Entry))
                 throw new InvalidDataException($"Clip manifest repeats {entry.Entry.Sound} in {entry.DataSet}.");
         }
     }
@@ -80,7 +82,8 @@ public sealed partial class ClipAudioLibrary
     /// </summary>
     /// <exception cref="KeyNotFoundException">The library has no such effect.</exception>
     public SoundEffectClipEntry GetSoundEffect(MusicDataSet clipSet, SoundEffectId sound) =>
-        setSoundEffects.TryGetValue((clipSet, sound), out SoundEffectClipEntry? entry) ? entry : GetSoundEffect(sound);
+        setSoundEffects.TryGetValue(clipSet, out Dictionary<SoundEffectId, SoundEffectClipEntry>? inSet)
+            && inSet.TryGetValue(sound, out SoundEffectClipEntry? entry) ? entry : GetSoundEffect(sound);
 
     /// <summary>A clip's interleaved stereo samples from the source, checked against the manifest's frame count.</summary>
     /// <exception cref="InvalidDataException">The source's samples do not match the manifest.</exception>

@@ -89,6 +89,20 @@ public sealed class D3D11RenderWorker
     /// <summary>Thread-safe count of successful DXGI presentation results, including retained redraws; excludes occlusion/stale-generation attempts and is not a simulation-frame counter.</summary>
     public long PresentedFrames => Interlocked.Read(ref presented);
 
+    /// <summary>How many packets the worker has submitted and presented, or found occluded or stale, since it started.</summary>
+    public long SubmittedFrames => Interlocked.Read(ref presented) + Interlocked.Read(ref occluded) + Interlocked.Read(ref stale);
+
+    /// <summary>Each packet's timing since <see cref="StartFrameLog"/>, in the order the worker submitted them; null before.</summary>
+    private System.Collections.Concurrent.ConcurrentQueue<RenderedFrameTiming>? frameLog;
+
+    /// <summary>Starts recording every packet's timing (#2653), for a measurement that reads each frame's render and present.</summary>
+    public void StartFrameLog() => Volatile.Write(ref frameLog, new System.Collections.Concurrent.ConcurrentQueue<RenderedFrameTiming>());
+
+    /// <summary>Every packet's timing since <see cref="StartFrameLog"/>.</summary>
+    /// <exception cref="InvalidOperationException">No frame log was started.</exception>
+    public IReadOnlyList<RenderedFrameTiming> FrameLog() =>
+        Volatile.Read(ref frameLog)?.ToArray() ?? throw new InvalidOperationException("The render worker keeps no frame log.");
+
     /// <summary>Starts a background render-owner thread with a latest-frame mailbox and generation gate; creates GPU resources asynchronously, so the UI must await <see cref="Ready"/> without blocking its message pump.</summary>
     /// <param name="window">Existing HWND kept alive through <see cref="StopAsync"/> completion; window validation/device creation failures are reported asynchronously.</param>
     /// <param name="clientSize">Positive initial client size in pixels, validated by swapchain startup on the worker.</param>
@@ -280,11 +294,14 @@ public sealed class D3D11RenderWorker
                         long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         var uploadBefore = renderer.UploadStatistics;
                         renderer.Render(packet.Display);
-                        cpuCompositionTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds);
+                        double compositionMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds;
+                        cpuCompositionTiming.Record(compositionMilliseconds);
                         if (timed) gpuTimer.MarkCompositionFinished();
                         long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         var presentationResult = presenter.Present(renderer, packet, gate, timed ? gpuTimer : null);
-                        cpuPresentationTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds);
+                        double presentMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds;
+                        cpuPresentationTiming.Record(presentMilliseconds);
+                        Volatile.Read(ref frameLog)?.Enqueue(new RenderedFrameTiming(packet.Identity.Sequence, compositionMilliseconds, presentMilliseconds, presentationResult));
                         var uploadAfter = renderer.UploadStatistics;
                         cpuUploadTiming.Record(uploadAfter.CpuMilliseconds - uploadBefore.CpuMilliseconds);
                         Interlocked.Add(ref submittedUploadBytes, uploadAfter.Bytes - uploadBefore.Bytes);

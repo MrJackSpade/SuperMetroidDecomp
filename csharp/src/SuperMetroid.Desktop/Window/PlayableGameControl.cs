@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Input;
@@ -90,6 +91,8 @@ public sealed class PlayableGameControl : UserControl
     private ControllerInputRecorder? inputRecorder;
     /// <summary>Persistent debugger snapshots bound to installed content identity.</summary>
     private DebuggerSaveStateStore stateStore;
+    /// <summary>Whether the session's store has readied its debugger states, which the first gameplay frame does (#2619).</summary>
+    private bool debuggerStatesPrepared;
     /// <summary>Room last shown in the window caption.</summary>
     private RoomDefinition? displayedRoom;
     /// <summary>Most recent frame timing sample used by the toolbar.</summary>
@@ -289,8 +292,7 @@ public sealed class PlayableGameControl : UserControl
         if (stateStore is not null)
             stateStore.Dispose();
         stateStore = CreateStateStore();
-        // The store readies itself here, as the session loads, so no door's automatic save state stalls the game (#2619).
-        stateStore.Prepare(game);
+        debuggerStatesPrepared = false;
         if (driver is null)
         {
             // The reset seed is captured after disk SRAM has been validated/copied but
@@ -518,6 +520,14 @@ public sealed class PlayableGameControl : UserControl
                         InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
                 });
             }
+            // The first gameplay frame, as the save finishes loading, readies the debugger states the door autosaves
+            // capture, so no door stalls the game building them (#2619); a title-screen game holds content no state names.
+            if (!debuggerStatesPrepared && hostOptions.DoorTransitionAutosave && driver is null
+                && game.GameState == SuperMetroidGameState.MainGameplay)
+            {
+                stateStore.Prepare(game);
+                debuggerStatesPrepared = true;
+            }
             DoorTransitionAutosave.TrySave(hostOptions.DoorTransitionAutosave, driver is not null,
                 previousGameState, stateStore, game);
             frameTimings.RecordGameUpdate(Stopwatch.GetTimestamp() - frameStarted);
@@ -615,6 +625,31 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
+    /// Runs frames back to back for one timer interval, publishing each and waiting until the render worker has submitted
+    /// it before the next runs (#2653), so every frame is rendered and presented once for a measurement.
+    /// </summary>
+    private void AdvanceEachFramePresented()
+    {
+        var worker = gpuWorker ?? throw new InvalidOperationException("A measured replay presents through the Direct3D 11 worker.");
+        long budget = Stopwatch.Frequency * playbackTimer.Interval / 1000;
+        long started = Stopwatch.GetTimestamp();
+        do
+        {
+            long submitted = worker.SubmittedFrames;
+            PlaybackBatchResult batch = PlaybackFrameBatch.Run(1, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
+            if (batch.LastFrame is not { } frame)
+                return;
+            RefreshFrame(frame);
+            while (worker.SubmittedFrames == submitted)
+            {
+                worker.ThrowIfFaulted();
+                Thread.Yield();
+            }
+        }
+        while (Stopwatch.GetTimestamp() - started < budget);
+    }
+
+    /// <summary>
     /// Advances the translated dispatcher according to measured wall-clock time.
     /// </summary>
     private void AdvancePlaybackClock()
@@ -622,6 +657,11 @@ public sealed class PlayableGameControl : UserControl
         if (driver?.Pacing == HostFramePacing.Unpaced)
         {
             AdvanceUnpaced();
+            return;
+        }
+        if (driver?.Pacing == HostFramePacing.EachFramePresented)
+        {
+            AdvanceEachFramePresented();
             return;
         }
 
@@ -851,6 +891,9 @@ public sealed class PlayableGameControl : UserControl
 
     /// <summary>Gives a display the game published the next presentation sequence in the current generation.</summary>
     private RenderFrame PresentationFrame(DisplayPacket display) => new(new(++displaySequence, displayGeneration), display);
+
+    /// <summary>The publication sequence of the latest frame the host published (#2653).</summary>
+    internal long DisplaySequence => displaySequence;
     /// <summary>Asynchronous Direct3D worker owning the canvas window when enabled.</summary>
     internal D3D11RenderWorker? gpuWorker;
     /// <summary>Prevents duplicate renderer initialization for this control.</summary>

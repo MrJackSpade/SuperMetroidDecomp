@@ -97,7 +97,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     }
 
     /// <summary>
-    /// Readies the store to capture <paramref name="game"/> without stalling it (#2619), where its session loads: indexes every
+    /// Readies the store to capture <paramref name="game"/> without stalling it (#2619), as its save loads: indexes every
     /// definition catalog a capture can name an object of, which runs the catalogs' initialization, and writes the game once
     /// to nowhere, so the writers a capture runs are built. A first capture made them otherwise, which stalled the session's
     /// first door transition, whose automatic save state is its first capture, and a door into a room whose objects were

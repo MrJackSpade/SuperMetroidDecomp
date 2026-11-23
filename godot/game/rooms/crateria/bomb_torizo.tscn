@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -11,8 +11,9 @@
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://game/bosses/torizo/bomb_torizo_hand.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
-[ext_resource type="PackedScene" path="res://game/objects/dachora/escape_dachora.tscn" id="12"]
-[ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="13"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/objects/dachora/escape_dachora.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/objects/etecoon/escape_etecoon.tscn" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -162,25 +163,31 @@ RememberedAs = "bomb_torizo_grey_door"
 Remembered = 1
 PresentWhen = SubResource("r16")
 
-[node name="EscapeDachora" parent="." instance=ExtResource("12")]
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="EscapeDachora" parent="." instance=ExtResource("13")]
 position = Vector2(224, 184)
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon" parent="." instance=ExtResource("13")]
+[node name="EscapeEtecoon" parent="." instance=ExtResource("14")]
 position = Vector2(128, 200)
 Waits = false
 StartsFacing = 0
 RunSpeed = 2
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon2" parent="." instance=ExtResource("13")]
+[node name="EscapeEtecoon2" parent="." instance=ExtResource("14")]
 position = Vector2(160, 200)
 Waits = false
 StartsFacing = 1
 RunSpeed = 2.5
 PresentWhen = SubResource("r1")
 
-[node name="EscapeEtecoon3" parent="." instance=ExtResource("13")]
+[node name="EscapeEtecoon3" parent="." instance=ExtResource("14")]
 position = Vector2(232, 200)
 Waits = true
 StartsFacing = 1

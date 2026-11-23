@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,8 +7,10 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -223,7 +225,416 @@ position = Vector2(16, 2144)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r6")
 
-[node name="PirateGreyWall" parent="." instance=ExtResource("8")]
+[node name="Screen0x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+StartsOpen = false
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 512)
+StartsOpen = false
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen0x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1024)
+StartsOpen = false
+
+[node name="Screen0x5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1280)
+StartsOpen = false
+
+[node name="Screen0x6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1536)
+StartsOpen = false
+
+[node name="Screen0x7" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1792)
+StartsOpen = false
+
+[node name="Screen0x8" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 2048)
+StartsOpen = false
+
+[node name="Screen1x8" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 2048)
+StartsOpen = true
+
+[node name="Screen2x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 0)
+StartsOpen = false
+
+[node name="Screen2x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 256)
+StartsOpen = false
+
+[node name="Screen2x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 512)
+StartsOpen = false
+
+[node name="Screen2x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 768)
+StartsOpen = false
+
+[node name="Screen2x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1024)
+StartsOpen = false
+
+[node name="Screen2x5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1280)
+StartsOpen = false
+
+[node name="Screen2x6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1536)
+StartsOpen = false
+
+[node name="Screen2x7" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1792)
+StartsOpen = false
+
+[node name="Screen2x8" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 2048)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x5Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x6Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x8Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 2272)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x8Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 2272)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x5Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x6Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x8Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 2272)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(464, 80)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x0")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(464, 80)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x0Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 80)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen2x0")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 80)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x0Foot")
+
+[node name="Scroll5" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(464, 1888)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x7")
+
+[node name="Scroll6" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(464, 1888)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x7Foot")
+
+[node name="Scroll7" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1888)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen2x7")
+
+[node name="Scroll8" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1888)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x7Foot")
+
+[node name="Scroll9" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(320, 2128)
+Size = Vector2i(16, 80)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x8")
+
+[node name="Scroll10" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(320, 2128)
+Size = Vector2i(16, 80)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x8Foot")
+
+[node name="Scroll11" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(288, 2128)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x8")
+
+[node name="Scroll12" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(288, 2128)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x8Foot")
+
+[node name="Scroll13" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(240, 2144)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x8")
+
+[node name="Scroll14" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(240, 2144)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x8Foot")
+
+[node name="Scroll15" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(208, 2144)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x8")
+
+[node name="Scroll16" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(208, 2144)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x8Foot")
+
+[node name="Scroll17" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(128, 2144)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x8")
+
+[node name="Scroll18" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(128, 2144)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x8Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToCrateriaSuperUpper"
+What = "open"
+Target = NodePath("../Screen2x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToCrateriaSuperUpper"
+What = "close"
+Target = NodePath("../Screen2x0Foot")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToCrateriaSuperLower"
+What = "open"
+Target = NodePath("../Screen2x7")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToCrateriaSuperLower"
+What = "close"
+Target = NodePath("../Screen2x7Foot")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToTourianEscape4"
+What = "open"
+Target = NodePath("../Screen0x8")
+
+[node name="Arriving6" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToTourianEscape4"
+What = "close"
+Target = NodePath("../Screen0x8Foot")
+
+[node name="Arriving7" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToTourianEscape4"
+What = "close"
+Target = NodePath("../Screen1x8")
+
+[node name="Arriving8" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToTourianEscape4"
+What = "close"
+Target = NodePath("../Screen1x8Foot")
+
+[node name="PirateGreyWall" parent="." instance=ExtResource("10")]
 position = Vector2(304, 216)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -232,7 +643,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall2" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall2" parent="." instance=ExtResource("10")]
 position = Vector2(464, 296)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -241,7 +652,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall3" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall3" parent="." instance=ExtResource("10")]
 position = Vector2(304, 472)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -250,7 +661,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall4" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall4" parent="." instance=ExtResource("10")]
 position = Vector2(304, 824)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -259,7 +670,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall5" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall5" parent="." instance=ExtResource("10")]
 position = Vector2(464, 984)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -268,7 +679,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall6" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall6" parent="." instance=ExtResource("10")]
 position = Vector2(304, 1208)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -277,7 +688,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall7" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall7" parent="." instance=ExtResource("10")]
 position = Vector2(464, 1448)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -286,7 +697,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall8" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall8" parent="." instance=ExtResource("10")]
 position = Vector2(301, 1688)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -295,7 +706,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall9" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall9" parent="." instance=ExtResource("10")]
 position = Vector2(464, 632)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -304,7 +715,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall10" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall10" parent="." instance=ExtResource("10")]
 position = Vector2(464, 1800)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 1
@@ -313,7 +724,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateGreyWall11" parent="." instance=ExtResource("8")]
+[node name="PirateGreyWall11" parent="." instance=ExtResource("10")]
 position = Vector2(304, 1992)
 DataFile = "enemies/wall_pirate_grey.json"
 Wall = 0
@@ -322,7 +733,7 @@ SlowJump = true
 JumpSpan = 160
 PresentWhen = SubResource("r9")
 
-[node name="PirateSilverNinja" parent="." instance=ExtResource("9")]
+[node name="PirateSilverNinja" parent="." instance=ExtResource("11")]
 position = Vector2(128, 2176)
 DataFile = "enemies/ninja_pirate_silver.json"
 StartsAtLeftPost = false
@@ -330,7 +741,7 @@ PostDistance = 0
 AlwaysActive = true
 PresentWhen = SubResource("r1")
 
-[node name="PirateSilverNinja2" parent="." instance=ExtResource("9")]
+[node name="PirateSilverNinja2" parent="." instance=ExtResource("11")]
 position = Vector2(192, 2176)
 DataFile = "enemies/ninja_pirate_silver.json"
 StartsAtLeftPost = false

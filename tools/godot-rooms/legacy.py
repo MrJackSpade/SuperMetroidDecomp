@@ -330,6 +330,69 @@ def doors() -> dict[str, Door]:
     return result
 
 
+def _screen_states(text: str) -> list[tuple[tuple[int, int], str]]:
+    """Every `new(new(x, y), RoomScrollState.S)` in a piece of text: a screen and the state it is given."""
+    found = re.findall(r'new\(new\((\d+), (\d+)\), RoomScrollState\.(\w+)\)', text)
+    return [((int(x), int(y)), state) for x, y, state in found]
+
+
+def scroll_layouts() -> dict[str, object]:
+    """
+    Each scroll layout a room state can name: the state of every screen, row by row; or, for a layout that fits
+    any room, the one state its bottom row has.
+    """
+    text = without_comments(read('Rooms', 'Scrolling', 'RoomScrollDefinitions.cs'))
+    short = {'Closed': 'Closed', 'Top': 'OpenAlignedToTop', 'Open': 'Open'}
+    shared: dict[str, list[str]] = {}
+
+    def states_of(expression: str) -> list[str]:
+        expression = expression.strip()
+        if not expression.startswith('['):
+            return shared[last_name(expression)]
+        states = []
+        for item in split_arguments(expression[1:matching(expression, 0) - 1]):
+            if item.startswith('..'):
+                spread = item[2:].strip()
+                if spread.startswith('Repeated('):
+                    what, times = call_arguments(spread)
+                    states.extend([short[what.strip()]] * int(times))
+                else:
+                    states.extend(shared[last_name(spread)])
+            else:
+                states.append(short[item])
+        return states
+
+    for name, expression in properties_of(text, r'private static readonly RoomScrollState\[\] (\w+) ='):
+        shared[name] = states_of(expression)
+    result: dict[str, object] = {}
+    for name, expression in properties_of(text, r'public static RoomScrollDefinition (\w+) \{ get; \} ='):
+        result[name] = last_name(call_arguments(expression)[1])
+    for name, expression in properties_of(text, r'public static RoomScrollDefinition\.ExplicitLayout (\w+) \{ get; \} ='):
+        result[name] = states_of(call_arguments(expression)[1])
+    return result
+
+
+def scroll_changes() -> dict[str, list[tuple[tuple[int, int], str]]]:
+    """Each change a scroll trigger can make: the screens it sets and the state it gives each."""
+    text = without_comments(read('Rooms', 'RoomObjects', 'RoomObjectScrollChangeDefinitions.Generated.cs'))
+    result = {}
+    for match in re.finditer(r'\[RoomScrollChange\.(\w+)\] = \[', text):
+        open_at = match.end() - 1
+        result[match.group(1)] = _screen_states(text[open_at:matching(text, open_at)])
+    return result
+
+
+def door_setups() -> dict[str, list[tuple[tuple[int, int], str]]]:
+    """Each door setup that changes the scrolling of the room it leads into: the screens it sets."""
+    text = without_comments(read('Rooms', 'Doors', 'DoorSetupDefinitions.cs'))
+    result = {}
+    for name, expression in properties_of(text, r'public static DoorSetup (\w+) \{ get; \} ='):
+        states = _screen_states(expression)
+        if states:
+            result[name] = states
+    return result
+
+
 def load_stations() -> dict[str, tuple[str, tuple[int, int]]]:
     """The places play can begin at: for each, the door that leads to its room, and where Samus is put there."""
     text = without_comments(read('Rooms', 'RoomObjects', 'LoadStationPlacementDefinitions.cs'))

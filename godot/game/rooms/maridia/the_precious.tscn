@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -83,3 +85,78 @@ StartsFacing = 1
 DestroyedFact = "the_precious_eye_door_facing_right"
 AlwaysActive = true
 PresentWhen = SubResource("r5")
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen1x2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 512)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")

@@ -13,6 +13,7 @@ A room's scene holds:
 - an exit for each door, leading to the exit it arrives at in the room beyond;
 - a marker for each place play can begin at in it: where a save resumes, where an elevator sets down, where Samus
   is set down in Ceres and where her gunship lands;
+- its camera zones, and the triggers that open and close them (see camera.py);
 - its enemies, each with the settings its placement gives it (see enemies.py), and its room objects: door caps,
   items, stations, gates and the rest (see objects.py). One placed in some versions of the room and not in others is
   present only when one of those versions is the one in force.
@@ -27,6 +28,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
+import camera  # noqa: E402
 import enemies  # noqa: E402
 import legacy  # noqa: E402
 import objects  # noqa: E402
@@ -271,6 +273,9 @@ class Generator:
         self.doors = legacy.doors()
         self.populations = legacy.enemy_populations()
         self.quotas = legacy.death_quotas()
+        self.scroll_layouts = legacy.scroll_layouts()
+        self.scroll_changes = legacy.scroll_changes()
+        self.door_setups = legacy.door_setups()
         self.object_lists = legacy.object_populations()
         # The kinds of enemy no rule places yet, with how many placements of each were passed over.
         self.unplaced: dict[str, int] = {}
@@ -398,6 +403,14 @@ class Generator:
             things.extend(placed_objects.placed)
             for teller, name, told in placed_objects.tells:
                 links.setdefault(id(teller), {})[name] = told
+            # The camera's zones, and what opens and closes them: blocks Samus touches, and doors she comes in by.
+            entry_points = [(self.arrival_in(key, door) or 'From' + name, door.setup)
+                            for name, door in self.doors.items() if door.to_room == key]
+            view = camera.Camera(self.scroll_layouts, self.scroll_changes, self.door_setups, room, state,
+                                 self.object_lists[state.objects], entry_points)
+            things.extend(view.placed)
+            for trigger, zone in view.links:
+                links[id(trigger)] = {'Target': zone}
 
             # Two alike in one version are two things; two alike in two versions are one thing in both.
             counts: dict[tuple, int] = {}

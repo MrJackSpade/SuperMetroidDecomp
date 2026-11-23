@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/boyon/boyon.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -77,3 +78,243 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="BlueCap2" parent="." instance=ExtResource("7")]
 position = Vector2(16, 1888)
 DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 512)
+StartsOpen = false
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen0x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1024)
+StartsOpen = false
+
+[node name="Screen0x5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1280)
+StartsOpen = false
+
+[node name="Screen0x6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1536)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen1x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 512)
+StartsOpen = false
+
+[node name="Screen1x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 768)
+StartsOpen = false
+
+[node name="Screen1x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1024)
+StartsOpen = false
+
+[node name="Screen1x5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1280)
+StartsOpen = false
+
+[node name="Screen1x6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1536)
+StartsOpen = false
+
+[node name="Screen2x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 256)
+StartsOpen = false
+
+[node name="Screen2x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 512)
+StartsOpen = false
+
+[node name="Screen2x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 768)
+StartsOpen = false
+
+[node name="Screen2x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1024)
+StartsOpen = false
+
+[node name="Screen2x5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1280)
+StartsOpen = false
+
+[node name="Screen2x6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1536)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x5Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x6Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x5Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x6Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x5Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x6Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x7Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false

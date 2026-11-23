@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,7 +7,9 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/gunship/gunship.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -156,112 +158,279 @@ RememberedAs = "landing_site_green_door_facing_left"
 Remembered = 1
 PresentWhen = SubResource("r14")
 
-[node name="Steam" parent="." instance=ExtResource("8")]
+[node name="Screen0x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+StartsOpen = false
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen1x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 0)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen1x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 512)
+StartsOpen = false
+
+[node name="Screen1x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 768)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1024, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1536, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1792, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen8x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(2048, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(480, 592)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x2")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(480, 592)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEntrance"
+What = "open"
+Target = NodePath("../Screen1x2")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEntrance"
+What = "close"
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Steam" parent="." instance=ExtResource("10")]
 position = Vector2(81, 1194)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam2" parent="." instance=ExtResource("8")]
+[node name="Steam2" parent="." instance=ExtResource("10")]
 position = Vector2(128, 1212)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam3" parent="." instance=ExtResource("8")]
+[node name="Steam3" parent="." instance=ExtResource("10")]
 position = Vector2(161, 1232)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam4" parent="." instance=ExtResource("8")]
+[node name="Steam4" parent="." instance=ExtResource("10")]
 position = Vector2(229, 1239)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam5" parent="." instance=ExtResource("8")]
+[node name="Steam5" parent="." instance=ExtResource("10")]
 position = Vector2(347, 1239)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam6" parent="." instance=ExtResource("8")]
+[node name="Steam6" parent="." instance=ExtResource("10")]
 position = Vector2(413, 1237)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam7" parent="." instance=ExtResource("8")]
+[node name="Steam7" parent="." instance=ExtResource("10")]
 position = Vector2(448, 1225)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam8" parent="." instance=ExtResource("8")]
+[node name="Steam8" parent="." instance=ExtResource("10")]
 position = Vector2(546, 1224)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam9" parent="." instance=ExtResource("8")]
+[node name="Steam9" parent="." instance=ExtResource("10")]
 position = Vector2(579, 1220)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam10" parent="." instance=ExtResource("8")]
+[node name="Steam10" parent="." instance=ExtResource("10")]
 position = Vector2(636, 1230)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam11" parent="." instance=ExtResource("8")]
+[node name="Steam11" parent="." instance=ExtResource("10")]
 position = Vector2(791, 1239)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam12" parent="." instance=ExtResource("8")]
+[node name="Steam12" parent="." instance=ExtResource("10")]
 position = Vector2(831, 1225)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam13" parent="." instance=ExtResource("8")]
+[node name="Steam13" parent="." instance=ExtResource("10")]
 position = Vector2(876, 1206)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam14" parent="." instance=ExtResource("8")]
+[node name="Steam14" parent="." instance=ExtResource("10")]
 position = Vector2(912, 1193)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam15" parent="." instance=ExtResource("8")]
+[node name="Steam15" parent="." instance=ExtResource("10")]
 position = Vector2(985, 1207)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam16" parent="." instance=ExtResource("8")]
+[node name="Steam16" parent="." instance=ExtResource("10")]
 position = Vector2(1050, 1241)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam17" parent="." instance=ExtResource("8")]
+[node name="Steam17" parent="." instance=ExtResource("10")]
 position = Vector2(1180, 1240)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam18" parent="." instance=ExtResource("8")]
+[node name="Steam18" parent="." instance=ExtResource("10")]
 position = Vector2(1273, 1226)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam19" parent="." instance=ExtResource("8")]
+[node name="Steam19" parent="." instance=ExtResource("10")]
 position = Vector2(1317, 1211)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam20" parent="." instance=ExtResource("8")]
+[node name="Steam20" parent="." instance=ExtResource("10")]
 position = Vector2(1367, 1225)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam21" parent="." instance=ExtResource("8")]
+[node name="Steam21" parent="." instance=ExtResource("10")]
 position = Vector2(1478, 1236)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam22" parent="." instance=ExtResource("8")]
+[node name="Steam22" parent="." instance=ExtResource("10")]
 position = Vector2(1572, 1236)
 DataFile = "objects/ceres_steam_up.json"
 PresentWhen = SubResource("r1")

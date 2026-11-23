@@ -5,7 +5,7 @@ namespace Engine.World;
 
 /// <summary>
 /// A region that tells one thing to do one thing when the player enters it, optionally only while a condition holds.
-/// It holds no logic of its own.
+/// One can instead fire as the room is entered at a named entry point. It holds no logic of its own.
 /// </summary>
 [Tool]
 public partial class Trigger : Node2D, IPlaced
@@ -30,6 +30,13 @@ public partial class Trigger : Node2D, IPlaced
     [Export]
     public bool Once { get; set; } = true;
 
+    /// <summary>
+    /// The entry point of the room whose use fires it, once, as play in the room begins, wherever the player is.
+    /// Empty for a trigger the player walks into.
+    /// </summary>
+    [Export]
+    public string AtEntry { get; set; } = "";
+
     /// <inheritdoc/>
     [Export]
     public Condition? PresentWhen { get; set; }
@@ -53,7 +60,9 @@ public partial class Trigger : Node2D, IPlaced
     /// <summary>Fires if the player has just entered the region and the trigger may fire.</summary>
     internal void Step(Room room, PixelRect playerBody)
     {
-        bool inside = Area.Overlaps(playerBody);
+        // One that fires for an entry point counts the player as inside it from the start if they came in that way,
+        // and never otherwise.
+        bool inside = AtEntry.Length > 0 ? room.Entry?.EntryPoint == AtEntry : Area.Overlaps(playerBody);
         bool entered = inside && !_playerWasInside;
         _playerWasInside = inside;
         if (!entered || (Once && _fired) || (OnlyWhen is not null && !OnlyWhen.IsTrue(room)))

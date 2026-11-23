@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -155,3 +157,44 @@ position = Vector2(16, 2400)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "red_tower_green_door_facing_right"
 Remembered = 1
+
+[node name="Screen0x7" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1792)
+StartsOpen = false
+
+[node name="Screen0x6Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x7Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1696)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x6Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1696)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x7")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1696)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x7Foot")

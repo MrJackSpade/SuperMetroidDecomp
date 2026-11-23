@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -133,3 +135,66 @@ position = Vector2(224, 1632)
 DataFile = "objects/door_cap_red_left.json"
 RememberedAs = "green_pirates_shaft_red_door_facing_left"
 Remembered = 1
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x6Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(112, 1072)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x3")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(112, 1072)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x3Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1120)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x3")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1120)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x3Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEnergyTank"
+What = "open"
+Target = NodePath("../Screen0x3")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEnergyTank"
+What = "open"
+Target = NodePath("../Screen0x3Foot")

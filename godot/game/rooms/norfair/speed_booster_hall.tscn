@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -76,3 +77,75 @@ Remembered = 1
 [node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(768, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(1024, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(1280, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(1536, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(1792, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen8x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(2048, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen9x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(2304, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen10x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(2560, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen11x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(2816, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false

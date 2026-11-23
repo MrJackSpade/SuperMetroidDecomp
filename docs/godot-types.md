@@ -551,6 +551,9 @@ in `engine/actors/player/`.
 | Being moved | Anything that moves the player against their will asks for the matching state and passes its data. Nothing sets flags or velocities on the player. | Extra such states. |
 
 - Facing and aim are separate values, never part of a state's name.
+- Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
+  wait before their next shot (`Weapons.WaitAtLeast`), and halve their speed across a number of times
+  (`SpeedHalvings`).
 - **Does not:** know any enemy, boss, room object or item by type. It contains nothing only Samus does.
 
 **The body as a weapon.** A body power, while active, makes the player's own body deliver a `Hit` of a named kind
@@ -577,7 +580,7 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | On the ground | Moonwalking. |
 | In the air | Spin jumping. |
 | Abilities | Grappling, shinesparking, crystal flash, X-ray. |
-| Done to her | Bomb jumping, drained. |
+| Done to her | Bomb jumping, drained, grabbed. |
 | Not in control | In the gunship, collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
@@ -590,6 +593,14 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **Grabbed** is being seized and carried by something that still lets her aim and fire (Draygon, Ridley). The
+  holder says how many fresh presses of a direction free her, or none.
+- **Drained** is what Mother Brain's beam and the giant Metroid leave her in. Whatever drains her puts her in a
+  pose: pinned in the beam, on her knees, standing, or frozen while she takes in the hyper beam. On her knees, Up
+  gets her to her feet and back in control if she has the strength, and otherwise she sinks back. She can glow
+  through every colour, slower as told. `DrainedState.GiveHyperBeam` gives her the hyper beam: the equipment
+  `hyper_beam`, which nothing collects or switches, with charge, wave and plasma on and ice and spazer off; her
+  beam's data says what it fires while `hyper_beam` is on.
 
 If something here turns out to be what any metroidvania player would do, it moves down into `Player`.
 
@@ -604,6 +615,11 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **Does not:** read or write another enemy's state, depend on its place in any list, or reach into the player. If
   two enemies must cooperate, one owns the other as a child, or they share a link set when the room places them.
 - **Colour and strength variants** are one scene with different data files.
+- **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
+  that starts another timeline taking effect in the same update; marking its place in a timeline and resuming there;
+  judging a hit itself (`TakeHit` can be overridden, part by part); firing its data's shots; leaving effects and
+  drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time; and asking whether
+  the player rests against its solid.
 - **A boss is an `Enemy`.** One scene. Its parts are child nodes with their own hurtboxes, and the boss decides what
   a hit on each part does. There is no boss base class.
 - A part that comes off and then only falls or fades is an `Effect`. One that can still hit the player is a
@@ -629,6 +645,7 @@ decides what to do about it.
 | Orbit | Circling a point or another thing at a set radius and speed. |
 | Bounce | Travelling straight and reflecting off what it meets. |
 | Follow path | Moving along a set path. Platforms and carriers use this one too. |
+| Pursuit | Working out the speed of a flier drawn toward a place: harder the farther off, turned about sharply when going the wrong way, more sharply when well out of view. The flier moves itself. |
 
 Taking hold of the player (a Metroid, a Beetom, a Yapping Maw) is not a movement component. The enemy asks the
 player to enter the held state, moves with them, and adds ongoing damage while it holds.
@@ -673,7 +690,8 @@ A projectile needs its own class only for behaviour no setting gives it.
 | `Health` | Current and maximum health, and reporting when it runs out. |
 | `StateMachine`, `State` (base) | One current state; each state holds its own data and names what it changes to. |
 | `TimelinePlayer` | Stepping a `FrameTimeline` once per update when its owner says, and reporting the step and any cue reached. The owner acts on the cue. |
-| `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. Never advances gameplay. |
+| `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. It can show its picture row by row, each row naming the row of the picture drawn there. Never advances gameplay. |
+| `RowCrumble` | Working out which rows of a picture show where as it crumbles away from the bottom up, after an optional wait. An `ActorVisual` shows them. |
 
 **Why, and extending it.** The base classes are the engine's answer to "what is one of these?", written so the
 fork gets a working player, enemy and projectile by supplying only what is its own. So the pressure is always
@@ -795,24 +813,37 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   Yapping Maw; Boulder; Oum; Mama Turtle with her Baby Turtles as children; Evir; Dragon; Shaktool; Work Robot (the
   unpowered one is the same scene, switched off).
 - Pipe bugs: Zeb, Zebbo, Gamet, Geega. Each pipe is a `Spawner`.
-- Metroids: Metroid; Mochtroid; the Baby Metroid.
+- Metroids: Metroid; Mochtroid; the giant Metroid of Tourian (`BabyMetroid`, with the Sidehopper it feeds on,
+  `DeadSidehopper`); and the giant Metroid of Mother Brain's fight (`MotherBrainBaby`, which she makes). The two
+  share only the engine's `Pursuit`.
+- The husks of Tourian are enemies, not scenery, because shots and bombs set them crumbling: `Corpse` (the Zoomers,
+  Rippers and Skree, one scene with a data file each), `DeadSidehopper`, and `DeadTorizo` with its heap of sand.
 - Ki-Hunters: green, yellow, red. Wings are part of the Ki-Hunter; shed wings are an `Effect`.
 - Space Pirates: wall, walking, ninja. Three scenes, their colours data files.
 - Kzan: one enemy; its top and bottom are parts.
-- Rinka: an enemy; its source is a `Spawner`.
-- Zebetite; Draygon's wall cannons; the eye of an eye door: an enemy each.
+- Rinka: an enemy; its source is a `RinkaSpawner`, a `Spawner` that shares its places with the others in the room.
+- Zebetite (one node that stands again as each barrier in turn); Draygon's wall cannons; the eye of an eye door
+  (`EyeDoorEye`, with the growth around its door as two visuals and its spit a `Projectile` of its own): an enemy
+  each. An eye door's cap is a `Barrier` held shut by "the eye placed here is gone", and the eye is placed only
+  while its destroyed fact is not recorded.
 - Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files); Spore Spawn;
   Fake Kraid; Kraid (arm, foot and belly spikes are parts; thrown nails and spikes are `Projectile`s); Crocomire
   (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
-  Ridley and Ceres Ridley (one scene, two setups; breakup pieces are `Effect`s); Mother Brain (head and body are
-  parts; her glass is a `Barrier`).
+  Ridley and Ceres Ridley (two scenes over one shared body class, `RidleyBody`, because the two fights share only
+  how the body flies and its tail; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck
+  and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her
+  turrets are enemies; her rings, bombs, drool and the glow at her hand are `Projectile`s of their own).
+- What a boss does to the room (the camera's limits, doors, lights, the alarm and its countdown) is not in the
+  boss. It tells the things listed on it (`ToldOf...`, `ToldWhen...`) a word, and a room object or the room's
+  sequence acts on it; a change to the tile grid is a named terrain patch.
 
 ### Room objects
 
 - `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors; the three
-  shutters; the downward gate, opened by its switch; Mother Brain's escape gate; the Maridia glass tube; Mother
-  Brain's glass; the falling tubes of her room; the old Tourian escape wall; the wall the animals break; Botwoon's
-  wall; the shell around a statue-held item.
+  shutters; the downward gate, opened by its switch; the Maridia glass tube; the old Tourian escape wall; the wall
+  the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
+  enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
+  clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
 - `RoomExit`: every door, and the far end of every elevator.
 - `Carrier`: every elevator; the Maridia transport tube; the Chozo statues that lower Samus.
 - `Platform`: Tripper, Kamer, the suspensor platform.
@@ -824,7 +855,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Spawner`: pipe bug pipes; Rinka sources.
 - `Hazard`: the Samus-eating plants; Ceres steam.
 - `Creature`: the Etecoons and the Dachora, during play and during the escape.
-- `Scenery`: the morph ball eye; face blocks; the Tourian entrance statue; the corpses; Bomb Torizo's hand.
+- `Scenery`: the Tourian entrance statue. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
+  (`MorphBallEye`, in `game/objects/morph_ball_eye/`) are room objects of their own, because each has a state
+  machine no setting of `Scenery` gives; the face blocks and the corpses are enemies.
 
 ### Terrain
 

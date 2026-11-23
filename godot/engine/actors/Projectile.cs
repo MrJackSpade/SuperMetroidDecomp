@@ -103,11 +103,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             room.Collision.Register(_hurtbox);
         }
 
-        string picture = _settings.Picture.Replace("{direction}", _direction, StringComparison.Ordinal);
+        string picture = Named(_settings.Picture);
         if (_settings.Timeline.Length > 0)
         {
-            string file = _settings.Timeline.Replace("{direction}", _direction, StringComparison.Ordinal);
-            _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(file)));
+            _timeline = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(Named(_settings.Timeline))));
             picture = _timeline.Current.Picture;
         }
 
@@ -120,6 +119,21 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         }
 
         OnLaunched(room);
+    }
+
+    /// <summary>
+    /// A picture's or timeline's name with its placeholders filled in: "{direction}" with the way the projectile was
+    /// launched, and "{side}" with "left" or "right", the way across it is going now.
+    /// </summary>
+    private string Named(string name) => name
+        .Replace("{direction}", _direction, StringComparison.Ordinal)
+        .Replace("{side}", Velocity.X.IsNegative ? "left" : "right", StringComparison.Ordinal);
+
+    /// <summary>Starts the projectile on another timeline, by its data file.</summary>
+    protected void PlayTimeline(string file)
+    {
+        _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
+        _visual?.Show(_timeline.Current.Picture);
     }
 
     /// <summary>Called once as the projectile enters its room.</summary>
@@ -235,7 +249,10 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 Velocity = new PixelVelocity(Faster(Velocity.X), Faster(Velocity.Y));
                 break;
             case ProjectileSettings.Moves.Falling:
+                bool wasRising = Velocity.Y.IsNegative;
                 Velocity = Velocity.WithY(Limit(Velocity.Y + _settings.Acceleration));
+                if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
+                    PlayTimeline(_settings.FallingTimeline);
                 break;
             case ProjectileSettings.Moves.Homing:
                 PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;

@@ -143,9 +143,16 @@ public sealed record ProjectileSettings
     /// <summary>
     /// The data file of the timeline it is shown by, when it is animated; empty for one shown by its picture alone.
     /// "{direction}" in it, or in the picture, stands for the way the projectile was launched: "right", "up_right",
-    /// "up", "up_left", "left", "down_left", "down" or "down_right".
+    /// "up", "up_left", "left", "down_left", "down" or "down_right"; "{side}" stands for "left" or "right", the way
+    /// across it is going.
     /// </summary>
     public string Timeline { get; init; } = "";
+
+    /// <summary>
+    /// For a falling projectile launched upward, the data file of the timeline it changes to at the top of its arc;
+    /// empty for one that keeps the timeline it left with. It takes the same placeholders.
+    /// </summary>
+    public string FallingTimeline { get; init; } = "";
 
     /// <summary>The data file of the timeline of the effect it leaves on ending; empty for none.</summary>
     public string EndingEffect { get; init; } = "";
@@ -183,6 +190,7 @@ public sealed record ProjectileSettings
             Picture = data.Has("picture") ? data.Text("picture") : "",
             PictureOffset = data.Has("picture_offset") ? (data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y")) : null,
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",
+            FallingTimeline = data.Has("falling_timeline") ? data.Text("falling_timeline") : "",
             EndingEffect = data.Has("ending_effect") ? data.Text("ending_effect") : "",
             EndingBurst = data.Has("ending_burst") ? data.Text("ending_burst") : "",
             EndingSound = data.Has("ending_sound") ? data.Text("ending_sound") : "",

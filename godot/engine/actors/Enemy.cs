@@ -99,6 +99,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether it is frozen.</summary>
     public bool IsFrozen => Status == Frozen;
 
+    /// <summary>How many more updates the enemy's status lasts; none when it is in no status.</summary>
+    public int StatusUpdatesLeft => Status.Length > 0 ? _statusLeft.Remaining : 0;
+
     /// <summary>Whether it has been destroyed.</summary>
     public bool IsDead { get; private set; }
 
@@ -369,11 +372,19 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         IsDead = true;
         Room.MarkGone(Name);
         if (_deathEffect.Length > 0)
-            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(_deathEffect)), Position));
+            LeaveEffect(_deathEffect, Position);
         Sound(_deathSound);
         Drop(_drops, Position);
         OnDied();
         Room.Remove(this);
+    }
+
+    /// <summary>Leaves an effect in the room at <paramref name="at"/>, by the data file of its timeline.</summary>
+    protected Effect LeaveEffect(string file, PixelPosition at)
+    {
+        Effect effect = Effect.Of(FrameTimeline.Read(Room.Content.ReadData(file)), at);
+        Room.Spawn(effect);
+        return effect;
     }
 
     /// <summary>Takes the enemy out of its room with no death: no effect, no drop, and not recorded as gone.</summary>
@@ -442,6 +453,14 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether the enemy stands on terrain or a solid.</summary>
     protected bool IsOnGround => Room.Mover.IsOnGround(RequireBody(), MoveOptions.Plain);
 
+    /// <summary>Whether the enemy's place is in the camera's view, or within <paramref name="margin"/> pixels of it.</summary>
+    protected bool IsInView(int margin)
+    {
+        PixelRect view = Room.Session.Camera.View;
+        int x = Position.X.Whole, y = Position.Y.Whole;
+        return x >= view.Left - margin && x < view.Left + view.Width + margin && y >= view.Top - margin && y < view.Top + view.Height + margin;
+    }
+
     /// <summary>Whether the player's body is within the given distances of the enemy, across and down.</summary>
     protected bool PlayerIsWithin(int across, int down)
     {
@@ -502,17 +521,30 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Whether the enemy's solid collider is on when it is not frozen.</summary>
     private bool _solidWhenNotFrozen;
 
-    /// <summary>Hurts the player if the enemy's hitboxes, or failing those its hurtboxes, overlap the player's body.</summary>
+    /// <summary>Lets the enemy touch the player if a part of it overlaps the player's body.</summary>
     private void TouchPlayer()
     {
-        if (ContactDamage <= 0)
-            return;
+        if (PartTouchingPlayer() is { } part)
+            Touch(part);
+    }
+
+    /// <summary>The part of the enemy that overlaps the player's body, if one does: a hitbox, or failing any hitboxes a hurtbox.</summary>
+    protected Collider? PartTouchingPlayer()
+    {
         var touching = EntityNode.CollidersOf(this).Where(collider => collider.Enabled && collider.Role == ColliderRole.Hitbox).ToList();
         if (touching.Count == 0)
             touching = EntityNode.CollidersOf(this).Where(collider => collider.Enabled && collider.Role == ColliderRole.Hurtbox).ToList();
         PixelRect player = Room.Player.BodyRect;
-        Collider? met = touching.FirstOrDefault(collider => collider.RoomRect.Overlaps(player));
-        if (met is null)
+        return touching.FirstOrDefault(collider => collider.RoomRect.Overlaps(player));
+    }
+
+    /// <summary>
+    /// Called each update that a part of the enemy touches the player. The engine's enemy hurts the player with its
+    /// contact damage; an enemy that does something else to whoever it touches says so here.
+    /// </summary>
+    protected virtual void Touch(Collider part)
+    {
+        if (ContactDamage <= 0)
             return;
         var direction = new PixelOffset(Room.Player.Position.X >= Position.X ? Pixels.FromWhole(1) : Pixels.FromWhole(-1), Pixels.Zero);
         Collider hurtbox = Room.Player.Hurtbox;

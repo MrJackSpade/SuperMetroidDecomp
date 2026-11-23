@@ -153,6 +153,8 @@ public partial class Room : Node2D
         }
 
         Join(player);
+        // The player is put where they arrive before anything else enters, so that what enters finds them there.
+        PlacePlayer(entry);
         foreach (Node child in GetChildren())
         {
             switch (child)
@@ -192,7 +194,6 @@ public partial class Room : Node2D
             }
         }
 
-        PlacePlayer(entry);
         foreach (RoomSequence sequence in _sequences)
             sequence.Setup(this);
         FollowAndShow();
@@ -410,7 +411,7 @@ public partial class Room : Node2D
         PixelPosition place = point switch
         {
             RoomExit exit => exit.ArrivalPoint,
-            IRoomEntity entity => entity.Position,
+            IRoomEntity entity and Node2D placed => EntityNode.StartingPlace(placed, entity.Position),
             Node2D node => EntityNode.PlaceOf(node),
             _ => throw new InvalidOperationException($"The entry point \"{entry.EntryPoint}\" has no place in the room."),
         };

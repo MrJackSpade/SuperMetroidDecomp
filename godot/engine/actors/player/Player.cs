@@ -531,6 +531,19 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         return HitResult.Hurt;
     }
 
+    /// <summary>
+    /// Takes a hit's energy from the player and nothing more: they are not knocked back and not made invincible. For
+    /// something that feeds on the player while it clings to them.
+    /// </summary>
+    public void Sap(Hit hit)
+    {
+        if (IsDead || State is DyingState)
+            return;
+        Inventory.Lose(Inventory.Energy, DamageFrom(hit));
+        if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
+            Die();
+    }
+
     /// <summary>Whether a hit can land on the player at the moment. A game with states in which the player cannot be hit says so here.</summary>
     protected virtual bool AcceptsHit(Hit hit) => true;
 

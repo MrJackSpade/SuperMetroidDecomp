@@ -14,9 +14,10 @@ namespace Engine.World.Objects;
 /// </summary>
 /// <remarks>
 /// Its data may name the timelines that show it: "closed", "sealed" (while its condition holds it shut), "hurt"
-/// (played once when a hit wears it down without opening it), "opening", "open" and "closing". One with an
-/// "opening" timeline goes on blocking until that has played. Its data may also name its "open_sound",
-/// "close_sound", "hurt_sound" and "sealed_sound".
+/// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
+/// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
+/// on blocking until that has played. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
+/// "sealed_sound".
 /// </remarks>
 public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 {
@@ -74,6 +75,13 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>What they are told.</summary>
     [Export]
     public string TellsWhat { get; set; } = "open";
+
+    /// <summary>
+    /// How near the player must come, in pixels both across and down from where it stands, for it to open by itself;
+    /// it closes again once they are farther. Zero for one that does not. One held shut stays shut however near they are.
+    /// </summary>
+    [Export]
+    public int OpensWhenNear { get; set; }
 
     /// <summary>The sound of it opening, by name; empty for none.</summary>
     [Export, DataValue("open_sound")]
@@ -143,7 +151,8 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             }
         }
 
-        Show(IsOpen ? "open" : IsSealed ? "sealed" : "closed");
+        // One that is held shut as the room is entered may show itself shutting first.
+        Show(IsOpen ? "open" : IsSealed ? _timelines.Has("sealing") ? "sealing" : "sealed" : "closed");
     }
 
     /// <inheritdoc/>
@@ -220,6 +229,12 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     protected override void OnStep()
     {
         StepLook();
+        if (OpensWhenNear > 0)
+        {
+            StepNearness();
+            return;
+        }
+
         if (!IsOpen || ComesBack != ComesBackWhen.AfterPassing)
             return;
         Collider? solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
@@ -229,6 +244,32 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (_playerWasInside && !inside)
             Close();
         _playerWasInside = inside;
+    }
+
+    /// <summary>Opens it while the player is near and closes it when they are not.</summary>
+    private void StepNearness()
+    {
+        PixelOffset apart = Room.Player.Position - Position;
+        bool near = apart.X.Abs().Whole < OpensWhenNear && apart.Y.Abs().Whole < OpensWhenNear;
+        if (IsOpen)
+        {
+            if (!near && !_opening)
+                Close();
+        }
+        else if (near && !IsSealed && _showingName is "closed" or "sealed")
+        {
+            // It opens for now, not for good: nothing is remembered and nothing is told.
+            IsOpen = true;
+            Sound(OpenSound);
+            _opening = _timelines.Has("opening");
+            if (_opening)
+                Show("opening");
+            else
+            {
+                SetSolid(false);
+                Show("open");
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -287,6 +328,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
                     break;
                 case "closing":
                 case "hurt":
+                case "sealing":
                     Show(IsSealed ? "sealed" : "closed");
                     break;
             }

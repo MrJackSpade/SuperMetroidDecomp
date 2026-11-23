@@ -60,6 +60,18 @@ public static class StoryEvents
     /// <summary>Samus outran the rising lava after the speed booster.</summary>
     public const string OutranLavaQuake = "outran_lava_quake";
 
+    /// <summary>Samus has been set down in Ceres.</summary>
+    public const string CeresArrived = "ceres_arrived";
+
+    /// <summary>Ridley has left Ceres with the capsule.</summary>
+    public const string CeresRidleyEscaped = "ceres_ridley_escaped";
+
+    /// <summary>Ceres's self-destruct has begun.</summary>
+    public const string CeresSelfDestructStarted = "ceres_self_destruct_started";
+
+    /// <summary>The way to Ceres's elevator has been blown open.</summary>
+    public const string CeresElevatorDoorDestroyed = "ceres_elevator_door_destroyed";
+
     /// <summary>Every one of them.</summary>
-    public static IReadOnlyList<string> All { get; } = [ZebesAwake, BabyMetroidAteSidehopper, MotherBrainGlassDestroyed, PhantoonStatueGrey, RidleyStatueGrey, DraygonStatueGrey, KraidStatueGrey, TourianUnlocked, MaridiaTubeBroken, LowerNorfairAcidLowered, ShaktoolClearedPath, EscapeStarted, AnimalsEscaped, FirstMetroidHallCleared, FirstMetroidShaftCleared, SecondMetroidHallCleared, SecondMetroidShaftCleared, BabyMetroidMusicSkipped, OutranLavaQuake];
+    public static IReadOnlyList<string> All { get; } = [ZebesAwake, BabyMetroidAteSidehopper, MotherBrainGlassDestroyed, PhantoonStatueGrey, RidleyStatueGrey, DraygonStatueGrey, KraidStatueGrey, TourianUnlocked, MaridiaTubeBroken, LowerNorfairAcidLowered, ShaktoolClearedPath, EscapeStarted, AnimalsEscaped, FirstMetroidHallCleared, FirstMetroidShaftCleared, SecondMetroidHallCleared, SecondMetroidShaftCleared, BabyMetroidMusicSkipped, OutranLavaQuake, CeresArrived, CeresRidleyEscaped, CeresSelfDestructStarted, CeresElevatorDoorDestroyed];
 }

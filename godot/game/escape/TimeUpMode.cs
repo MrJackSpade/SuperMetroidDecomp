@@ -1,12 +1,15 @@
 using Engine.Core;
 using Engine.Input;
 using Engine.Ui;
+using Game.Cinematics;
+using Game.Data;
 using Godot;
 
 namespace Game;
 
 /// <summary>
-/// Time is up. The screen goes white over what was being played, then black, and what follows a death follows.
+/// Time is up. The screen goes white over what was being played, then black. On Zebes what follows a death follows;
+/// on Ceres the station is first seen blowing up with Samus still aboard.
 /// </summary>
 public partial class TimeUpMode : GameMode
 {
@@ -22,10 +25,10 @@ public partial class TimeUpMode : GameMode
     }
 
     /// <summary>How many updates the screen takes to go white.</summary>
-    public int WhiteOutUpdates { get; set; } = 32;
+    public int WhiteOutUpdates { get; set; } = 10;
 
     /// <summary>How many updates it then takes to go black.</summary>
-    public int BlackOutUpdates { get; set; } = 32;
+    public int BlackOutUpdates { get; set; } = 15;
 
     /// <inheritdoc/>
     public override GameMode? Keeps => _playing;
@@ -62,6 +65,8 @@ public partial class TimeUpMode : GameMode
             return this;
         }
 
-        return Session.Definition.CreateModeAfterDeath();
+        return Session.Progress.Has(StoryEvents.EscapeStarted)
+            ? Session.Definition.CreateModeAfterDeath()
+            : new CeresDestruction { SamusAboard = true };
     }
 }

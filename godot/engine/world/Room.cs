@@ -125,6 +125,7 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
+        ShownTurn = null;
         ExitEntered = null;
 
         _terrain = GetChildren().OfType<Terrain>().SingleOrDefault()
@@ -323,6 +324,12 @@ public partial class Room : Node2D
     /// <summary>Whether something has been taken out of the room during this update.</summary>
     public bool IsLeaving(IRoomEntity entity) => _leaving.Contains(entity);
 
+    /// <summary>
+    /// The turn the room is shown with, or null while it is level. The player and the room's objects are drawn where
+    /// the turn puts them; where they are, and everything that acts on it, is unchanged.
+    /// </summary>
+    public RoomTurn? ShownTurn { get; set; }
+
     /// <summary>Records that the thing placed in the room under <paramref name="name"/> is gone: dead, or opened.</summary>
     public void MarkGone(string name) => _gone.Add(name);
 
@@ -374,7 +381,7 @@ public partial class Room : Node2D
     public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.Strength ?? 0;
 
     /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
-    public void Shake(int strength, int updates)
+    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
     {
         Earthquake? quake = _roomEffects.OfType<Earthquake>().FirstOrDefault();
         if (quake is null)
@@ -385,7 +392,7 @@ public partial class Room : Node2D
             _roomEffects.Add(quake);
         }
 
-        quake.Shake(strength, updates);
+        quake.Shake(strength, updates, way);
     }
 
     /// <summary>
@@ -510,6 +517,8 @@ public partial class Room : Node2D
         foreach (Backdrop backdrop in _backdrops)
             backdrop.Follow(viewTopLeft);
         Player.ShowPosition();
+        if (ShownTurn is { } turn)
+            EntityNode.Show(Player, turn.Turned(Player.Position));
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();
         foreach (Projectile projectile in _projectiles)
@@ -519,7 +528,11 @@ public partial class Room : Node2D
         foreach (Effect effect in _effects)
             effect.ShowPosition();
         foreach (RoomObject roomObject in _objects)
+        {
             roomObject.ShowPosition();
+            if (ShownTurn is { } turned)
+                EntityNode.Show(roomObject, turned.Turned(roomObject.Position));
+        }
     }
 
     /// <summary>The error for using a room before it is set up.</summary>

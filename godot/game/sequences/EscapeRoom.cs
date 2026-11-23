@@ -6,7 +6,7 @@ using Godot;
 namespace Game.Sequences;
 
 /// <summary>
-/// The escape as one of its rooms shows it: the room shakes without stopping, harder for a moment now and then,
+/// The escape as one of its rooms shows it: the room shakes without stopping, harder and corner to corner for a moment now and then,
 /// and blasts and smoke go off all over what the camera shows. It goes on for as long as the room is there.
 /// </summary>
 public partial class EscapeRoom : RoomSequence
@@ -68,7 +68,7 @@ public partial class EscapeRoom : RoomSequence
             if (harder)
             {
                 _harderLeft = HarderUpdates;
-                room.Shake(ShakeStrength + 1, HarderUpdates);
+                room.Shake(ShakeStrength + 1, HarderUpdates, ShakeWay.Both);
             }
             else if (room.ShakeStrength == 0)
             {

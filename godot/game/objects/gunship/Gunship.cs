@@ -128,7 +128,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
             throw new ArgumentException($"The gunship can be told to \"land\", not \"{what}\".", nameof(what));
         // It starts high above with Samus aboard.
         Player samus = Room.Player;
-        samus.ChangeState(new InGunshipState());
+        samus.ChangeState(new FacingForwardState());
         Position = new PixelPosition(Position.X, Pixels.FromWhole(-ArrivesFromAbove));
         samus.Position = new PixelPosition(Position.X, Position.Y + Pixels.FromWhole(TopAboveSamus));
         (_phase, _hoverWait) = (Phase.DescendToLand, 1);
@@ -321,7 +321,7 @@ public partial class Gunship : RoomObject, ITriggerTarget
         PixelOffset from = samus.Position - Position;
         if (from.X.Whole <= -8 || from.X.Whole > 8 || from.Y.Whole <= -64 || from.Y.Whole > 0)
             return;
-        samus.ChangeState(new InGunshipState());
+        samus.ChangeState(new FacingForwardState());
         samus.Position = new PixelPosition(Position.X, samus.Position.Y);
         OpenHatch();
         _phase = Phase.WaitForHatchToOpen;

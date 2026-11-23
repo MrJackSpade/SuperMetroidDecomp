@@ -23,11 +23,16 @@ public partial class Earthquake : RoomEffect
     /// <summary>How far the view is offset this update.</summary>
     public Vector2I ViewOffset { get; private set; }
 
-    /// <summary>Starts a shake of the given strength and length.</summary>
-    public void Shake(int strength, int updates)
+    /// <summary>The way the view is thrown about.</summary>
+    [Export]
+    public ShakeWay Way { get; set; } = ShakeWay.Across;
+
+    /// <summary>Starts a shake of the given strength, length and way.</summary>
+    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
     {
         Strength = strength;
         Updates = updates;
+        Way = way;
         _left = Countdown.Of(updates);
         SetActive(true);
     }
@@ -45,7 +50,8 @@ public partial class Earthquake : RoomEffect
             return;
         }
 
-        ViewOffset = new Vector2I(_left.Remaining % 2 == 0 ? Strength : -Strength, 0);
+        int by = _left.Remaining % 2 == 0 ? Strength : -Strength;
+        ViewOffset = new Vector2I(Way == ShakeWay.Down ? 0 : by, Way == ShakeWay.Across ? 0 : by);
         _left = _left.Stepped();
     }
 
@@ -53,7 +59,7 @@ public partial class Earthquake : RoomEffect
     public override void Triggered(string what)
     {
         if (what == "start")
-            Shake(Strength, Updates);
+            Shake(Strength, Updates, Way);
         else
             base.Triggered(what);
     }

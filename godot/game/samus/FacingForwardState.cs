@@ -5,10 +5,10 @@ using Engine.Shared;
 namespace Game;
 
 /// <summary>
-/// In her gunship, or on her way into or out of it: she faces forward, does nothing, and goes where the ship puts
-/// her until it lets her go.
+/// Facing forward and still, in the hands of something else: in her gunship or on her way into or out of it, or on
+/// the pad that sets her down in Ceres. She does nothing and goes where she is put until she is let go.
 /// </summary>
-public sealed class InGunshipState : PlayerState, ISamusLook
+public sealed class FacingForwardState : PlayerState, ISamusLook
 {
     /// <inheritdoc/>
     public string Look => "facing_forward";

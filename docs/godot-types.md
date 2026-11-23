@@ -452,7 +452,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. | Path; speed; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
-| `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues. | The `Hit` or ongoing damage it does, or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after. |
+| `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues, and one whose reach changes as it is shown says so by cues ("area:left:top:width:height", "safe"). | The `Hit` or ongoing damage it does, or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after; the most updates it waits, by chance, before it first appears. |
 | `BossEncounter` | Changing the music, starting the boss, and recording the defeat in `Progress`. | Which boss; remembered as. |
 | `Creature` | A harmless animal that moves by its own behaviour and cannot be hurt. The base shows the timelines its data names, passes it their cues, and moves it through terrain. | — |
 | `Scenery` | A fixture that reacts visibly to the player or events, with no effect on play beyond an optional solid body. | — |
@@ -473,12 +473,12 @@ Every kind here is the engine's except `Gunship`.
 | Health | How much damage opens it. | A blue door, 1. A red door, 5. |
 | What damages it | The amount each accepted `HitKind` takes off. A kind not listed does nothing. | Blue: any, 1. Red: missile 1, super missile 5. Green: super missile only. Yellow: power bomb only. |
 | Held shut by | An optional `Condition`. While it is false, nothing damages the barrier and it shows as sealed. | Grey doors: enemies cleared, a boss defeated, a story event. Eye doors: the eye, an ordinary enemy, is dead. |
-| Opened by | Its health running out; or being told to open by a trigger, a switch or a sequence. | Shutters and gates are told to. |
+| Opened by | Its health running out; or being told to open by a trigger, a switch or a sequence; or the player coming within a set distance of it, in which case it closes again when they have gone. | Shutters and gates are told to. The Ceres doors open when Samus is near. |
 | When open | Gone; or slid aside and able to close again. | A door cap is gone; a gate slides. |
 | Comes back | Never; when the player has passed; when its room is next set up. | A door cap returns when the room is next set up. |
 | Remembered as | A name; once opened and remembered, it is set up open, or as a plain barrier. | A red door, once opened, is a blue door from then on. |
 | Tells when opened | Things told a word as it opens. | A gate's switch tells its gate to open. |
-| Looks and sounds | From its data: how it shows shut, held shut, hurt, opening, open and closing, and the sounds of opening, closing, a hit that wears it down and a hit while it is held shut. One that shows itself opening goes on blocking until it has. | A door cap flashes when a missile wears it down and swings open. |
+| Looks and sounds | From its data: how it shows shut, held shut, hurt, opening, open and closing, and the sounds of opening, closing, a hit that wears it down and a hit while it is held shut. One that shows itself opening goes on blocking until it has, and one held shut as its room is entered may show itself shutting first. | A door cap flashes when a missile wears it down and swings open. |
 
 Door caps, gates, shutters, breakable walls and the shell around a held item are all `Barrier`s.
 
@@ -508,8 +508,9 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
 | `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake, `OverlayEffect` (a picture tiled over the view and drifting: fog, rain, spores, heat's shimmer) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
-| `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. | Affect play. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (a picture tiled over the view and drifting: fog, rain, spores, heat's shimmer) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
+| `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
+| `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
 | `CameraZone` | A region with its own scrolling limits, which can be opened or closed. | Anything else. |
 | `Trigger` | A region that calls one named method when the player enters it, optionally only when a `Condition` holds. | Hold logic. |
@@ -586,8 +587,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 | On the ground | Moonwalking. |
 | In the air | Spin jumping. |
 | Abilities | Grappling, shinesparking, crystal flash, X-ray. |
-| Done to her | Bomb jumping, drained, grabbed. |
-| Not in control | In the gunship, collecting a suit, refilling from reserves. |
+| Done to her | Bomb jumping, drained, grabbed, shoved (thrown aside by Ridley as he leaves Ceres). |
+| Not in control | Facing forward where something puts her (in the gunship, on the pad that sets her down in Ceres), collecting a suit, refilling from reserves. |
 
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
   switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
@@ -730,9 +731,11 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | --- | --- | --- | --- |
 | `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. | Grant the item it announces or perform the save it asks about. |
 | `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. | Decide what is explored. |
-| `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, and reporting when it is done. | Know why it was asked. |
-| `TypedText` | `engine/ui/` | Showing text one character at a time with its sound. | Hold the words; they come from `GameText`. |
+| `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done. | Know why it was asked. |
+| `TypedText` | `engine/ui/` | Showing text one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
 | `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. | Run gameplay rules. |
+| `CinematicSprite` | `engine/ui/` | One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts at a speed (round a loop, if it has one), and is over when its timeline has played out. Its cinematic steps it and acts on the cues it reports. | Decide what its cues mean. |
+| `MosaicPicture` | `engine/ui/` | A picture that can be shown in coarse blocks, each taking the colour of its top-left pixel. | Anything else. |
 | `GameHud` (base) | `engine/ui/` | Being what is shown over play: kept on screen by `PlayingMode`, presented once as play begins and told to show things as they are as each room is set up and after each update. The `GameDefinition` names a game's scene of one. | Know what a particular game shows. |
 | `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon, the minimap and, during an escape, the countdown; its places and pictures come from its data file. | Change any of them. |
 | `PauseScreen` | `game/pause/` | The map and equipment screens; switching equipment through the player's `Inventory`. | Hold inventory state. |
@@ -849,7 +852,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 
 ### Room objects
 
-- `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors; the downward
+- `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors (they open by
+  themselves while Samus is near, and the one to Ridley's room shows itself shutting as she comes in and is held
+  shut until he has gone); the downward
   gate, opened by its switch; the old Tourian escape wall; the wall
   the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
@@ -866,12 +871,15 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Item`: every upgrade and expansion.
 - `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
   bomb only arms it, and it bursts when Samus next acts, holding her while it does.
-- `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her own state, in the gunship.
+- `CeresElevatorDoor` (this game's, `game/objects/ceres_elevator_door/`): the blocked way to Ceres's elevator,
+  blown apart once the self-destruct has begun; it also keeps the shaft's platform and glow flickering.
+- `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her state of facing forward and being put where something puts her.
   It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their
   barriers are held shut by "this room has no live enemies".
 - `Spawner`: pipe bug pipes; Rinka sources.
-- `Hazard`: the Samus-eating plants; Ceres steam.
+- `Hazard`: the Samus-eating plants; Ceres steam (its reach follows its plume by its timeline's cues, and each
+  vent waits a different, chance length before it first blows).
 - `Creature`: the Etecoons and the Dachora, during play (`Etecoon`, `Dachora`) and during the escape
   (`EscapeEtecoon`, `EscapeDachora`), in `game/objects/etecoon/` and `game/objects/dachora/`.
 - `Scenery`: the Tourian entrance statue. Bomb Torizo's hand (`BombTorizoHand`) and the morph ball eye
@@ -893,16 +901,21 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies.
-- `Backdrop`: room backgrounds, the scrolling sky, the Ceres rotating floor.
+- `Backdrop`: room backgrounds, the scrolling sky; the Ceres rotating floor and the tilting picture of its
+  elevator shaft are `TurningFloor`s.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
 - Room versions: every case where the old code had more than one "state" of a room.
 
 ### Room sequences
 
 A sequence is told "start", and one that knows other words acts on them. `TypedWarning` (`game/sequences/`) types
-a warning across the screen and tells what is listed when it is over; Mother Brain's room and Ceres use it.
+a warning across the screen and tells what is listed when it is over; Mother Brain's room uses it.
 
-Ceres: the elevator arrival, the falling debris, Ridley's getaway. Crateria: the gunship landing. Brinstar and
+Ceres (`game/sequences/`): the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
+(`CeresGetaway`: he flies off over the turning floor and throws Samus aside, then the self-destruct's warning comes
+up, is typed out and stays up flashing, and the countdown begins); the station shaking once the self-destruct has
+begun (`CeresShaking`); the falling debris (`CeresDebris`); the elevator shaft tilting and the elevator taking Samus
+(`CeresShaft`, which tells the `Escape` service she has left). Crateria: the gunship landing. Brinstar and
 Norfair: the Dachora shaft camera, Crocomire's room shaking. Maridia: the transport tube ride. Tourian: the
 entrance statue's descent, the rising acid. The escape: explosions and shaking in each escape room.
 
@@ -920,6 +933,8 @@ entrance statue's descent, the rising acid. The escape: explosions and shaking i
 - Samus: section 6. The old code's pose list and movement types reduce to the engine's standard states plus hers,
   with facing and aim as separate values.
 - `GameMode`s: section 4. `Cinematic`s: the intro, Ceres departure, Ceres destruction, the ending and the credits.
+  The departure (`CeresDeparture`) darkens the screen over the shaft and leads to the destruction
+  (`CeresDestruction`), which is also where time running out on Ceres leads, with Samus still aboard.
 - The pause screen's map and equipment pages, the HUD, the minimap and message boxes: section 8.
 
 ### Not carried over

@@ -1,5 +1,6 @@
 using Engine.Core;
 using Engine.Shared;
+using Game.Cinematics;
 
 namespace Game;
 
@@ -52,6 +53,7 @@ public sealed class Escape : ISessionService
         Stopped,
     }
 
+    private (string Room, string EntryPoint)? _leavingFor;
     private Phase _phase;
     private int _wait;
     private PixelPosition _place;
@@ -86,6 +88,16 @@ public sealed class Escape : ISessionService
         (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
     }
 
+    /// <summary>
+    /// Samus has left Ceres: the countdown stops, and after this update the screen goes dark and the station is seen
+    /// blowing up behind her, before play goes on in <paramref name="room"/>, entered at <paramref name="entryPoint"/>.
+    /// </summary>
+    public void Depart(string room, string entryPoint)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(room);
+        _leavingFor = (room, entryPoint);
+    }
+
     /// <summary>Stops the countdown where it stands, as when the escape is over.</summary>
     public void Stop() => _phase = Phase.Stopped;
 
@@ -93,6 +105,7 @@ public sealed class Escape : ISessionService
     public void BeginAgain()
     {
         _phase = Phase.Inactive;
+        _leavingFor = null;
         Remaining = 0;
     }
 
@@ -141,6 +154,13 @@ public sealed class Escape : ISessionService
     /// <inheritdoc/>
     public GameMode? TakesOver(PlayingMode playing)
     {
+        if (_leavingFor is { } landing)
+        {
+            _leavingFor = null;
+            Stop();
+            return new CeresDeparture(playing) { LandingRoom = landing.Room, LandingEntry = landing.EntryPoint };
+        }
+
         if (!IsExpired)
             return null;
         Stop();

@@ -18,8 +18,12 @@ public sealed partial class InstalledSamusBodyArtwork
 {
     /// <summary>Each pose's art origin, independent of physical collision offsets.</summary>
     private readonly Dictionary<SamusPoseId, int> artOrigins;
-    /// <summary>Where each pose's installed animation frames place the body, by frame of the pose's animation.</summary>
-    private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, int>> originRises;
+    /// <summary>
+    /// Where each pose's installed animation frames place the body, by frame of the pose's animation: the catalog's own
+    /// maps, whatever kind of map the import kept them in (#2656), as a debugger state names what the game holds of the
+    /// installed content by the kinds of collection it declares.
+    /// </summary>
+    private readonly Dictionary<SamusPoseId, Dictionary<SamusAnimationFrame, int>> originRises;
 
     /// <summary>The order her death sequence steps through and the room's whiteout colours (#1512).</summary>
     public SamusDeathSteps DeathSteps { get; }
@@ -47,7 +51,7 @@ public sealed partial class InstalledSamusBodyArtwork
             content.OriginRises.Keys.Any(pose => !content.ArtOrigins.ContainsKey(pose)))
             throw new InvalidDataException("Samus art origins do not cover exactly the poses with body frames.");
         this.artOrigins = content.ArtOrigins.ToDictionary();
-        this.originRises = content.OriginRises.ToDictionary();
+        this.originRises = content.OriginRises.ToDictionary(pose => pose.Key, pose => pose.Value.ToDictionary());
         DeathSteps = content.DeathSteps;
         ArmCannon = content.ArmCannon;
     }
@@ -77,7 +81,7 @@ public sealed partial class InstalledSamusBodyArtwork
     internal bool TryOriginRise(SamusPoseId pose, SamusAnimationFrame animationFrame, out int rise)
     {
         rise = 0;
-        return originRises.TryGetValue(pose, out IReadOnlyDictionary<SamusAnimationFrame, int>? frames) &&
+        return originRises.TryGetValue(pose, out Dictionary<SamusAnimationFrame, int>? frames) &&
             frames.TryGetValue(animationFrame, out rise);
     }
 }

@@ -591,13 +591,15 @@ internal sealed partial class StateGraphRun
 
     /// <summary>
     /// Registers another assembly's class no registration names, such as a serializer's options a definition keeps: a
-    /// state reaches nothing through it and refuses to hold it.
+    /// state reaches nothing through it and refuses to hold it. A game type of an assembly whose members this compilation
+    /// cannot see registers itself when first met instead (#2656): registered unheld here first, the installed content an
+    /// assembly holds (the host's <c>GameArtwork</c>) reached nothing, so a state could name nothing within it.
     /// </summary>
     private void Unheld(INamedTypeSymbol named, List<string> lines)
     {
         if (named.TypeKind == TypeKind.Class && !named.IsStatic && !IsGenericContext(named) &&
             named.SpecialType is SpecialType.None && named.ToDisplayString() is not ("System.Type" or "System.Exception") &&
-            !named.IsUnboundGenericType && !HasMembers(named) &&
+            !named.IsUnboundGenericType && !HasMembers(named) && !DescribesItself(named) &&
             !SymbolEqualityComparer.Default.Equals(named.ContainingAssembly, Compilation.Assembly))
             lines.Add($"__registry.Unheld<{Code(named)}>();");
     }

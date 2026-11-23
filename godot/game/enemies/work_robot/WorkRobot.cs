@@ -1,0 +1,172 @@
+using System.Globalization;
+using Engine.Actors;
+using Engine.Collision;
+using Engine.Content;
+using Engine.Shared;
+using Godot;
+
+namespace Game.Enemies;
+
+/// <summary>
+/// A Work Robot of the Wrecked Ship. With the power off it stands dead, a solid thing to climb on. With the power on
+/// it tramps back and forth, turning at walls and ledges, and fires lasers level, up and down as it goes. It cannot be
+/// destroyed, but a shot makes it flinch and holds its fire for a while, and Samus can ride on its head.
+/// </summary>
+/// <remarks>
+/// Everything it does is written in its timelines, as cues. "step:&lt;pixels&gt;:&lt;left|right&gt;:&lt;timeline at a
+/// wall&gt;" takes a step facing that way, and with ":&lt;left|right&gt;:&lt;timeline at a ledge&gt;:&lt;left|right&gt;"
+/// added also feels for floor on that side and, finding none, plays that timeline facing the last way.
+/// "laser:&lt;up|level|down&gt;:&lt;timeline&gt;" fires if it may and then plays that timeline. "footstep" sounds its
+/// step and "cool" counts its cooldown down. It starts on "standing_left"; a shot plays "shot_left_ahead",
+/// "shot_left_behind", "shot_right_ahead" or "shot_right_behind". Its shots are "laser_level" and "laser_diagonal".
+/// </remarks>
+public partial class WorkRobot : Enemy
+{
+    /// <summary>Whether the ship's power is on, so that it walks.</summary>
+    [Export]
+    public bool Powered { get; set; } = true;
+
+    /// <summary>For one without power, the timeline of the pose it stands in.</summary>
+    [Export]
+    public string Pose { get; set; } = "no_power_neutral";
+
+    /// <summary>The downward speed it gains each update in the air, as a number of pixels.</summary>
+    [Export, DataValue("gravity")]
+    public double Gravity { get; set; } = 0.5;
+
+    /// <summary>The fewest updates between lasers; by chance up to 31 more.</summary>
+    [Export, DataValue("laser_cooldown")]
+    public int LaserCooldown { get; set; } = 16;
+
+    /// <summary>How many updates turning round adds to its cooldown.</summary>
+    [Export, DataValue("turn_delay")]
+    public int TurnDelay { get; set; } = 8;
+
+    /// <summary>How many updates being shot adds to its cooldown.</summary>
+    [Export, DataValue("recoil_delay")]
+    public int RecoilDelay { get; set; } = 64;
+
+    /// <summary>How far in front of its middle its lasers leave from, in pixels.</summary>
+    [Export, DataValue("muzzle_ahead")]
+    public int MuzzleAhead { get; set; } = 4;
+
+    /// <summary>How far above its middle its lasers leave from, in pixels.</summary>
+    [Export, DataValue("muzzle_above")]
+    public int MuzzleAbove { get; set; } = 16;
+
+    /// <summary>How fast a slanting laser rises or falls, as a number of pixels an update.</summary>
+    [Export, DataValue("laser_slant_speed")]
+    public double LaserSlantSpeed { get; set; } = 0.5;
+
+    /// <summary>The sound of its step, by name, heard only while it is in view.</summary>
+    [Export, DataValue("footstep_sound")]
+    public string FootstepSound { get; set; } = "";
+
+    private int _cooldown;
+    private Pixels _fallSpeed;
+
+    /// <inheritdoc/>
+    protected override void OnEnterRoom()
+    {
+        Facing = Facing.Left;
+        Play(Powered ? "standing_left" : Pose);
+    }
+
+    /// <inheritdoc/>
+    protected override void Behave()
+    {
+        // In the air its timeline waits, and it falls faster; landed, it keeps the speed it landed with.
+        bool landed = MoveDownBy(_fallSpeed);
+        HoldsTimeline = !landed;
+        if (!landed)
+            _fallSpeed += Pixels.FromNumber(Gravity);
+    }
+
+    /// <inheritdoc/>
+    protected override void OnHurt(Hit hit, Collider part) => Flinch();
+
+    /// <inheritdoc/>
+    protected override void OnAbsorbed(Hit hit, Collider part) => Flinch();
+
+    /// <inheritdoc/>
+    protected override void OnCue(string cue)
+    {
+        if (!Powered)
+            return;
+        string[] parts = cue.Split(':');
+        switch (parts[0])
+        {
+            case "footstep":
+                if (IsInView(0))
+                    Sound(FootstepSound);
+                break;
+            case "cool":
+                Cool();
+                break;
+            case "step":
+                Step(parts);
+                break;
+            case "laser":
+                if (_cooldown != 0)
+                {
+                    Cool();
+                    break;
+                }
+
+                // How long until the next is read from the number last drawn.
+                _cooldown = Random.Last.Part(0, 5) + LaserCooldown;
+                Pixels slant = Pixels.FromNumber(LaserSlantSpeed);
+                Pixels down = parts[1] == "up" ? -slant : parts[1] == "down" ? slant : Pixels.Zero;
+                string shot = parts[1] == "level" ? "laser_level" : "laser_diagonal";
+                PixelPosition muzzle = PixelPosition.FromWhole(Position.X.Whole + (Facing == Facing.Left ? -MuzzleAhead : MuzzleAhead), Position.Y.Whole - MuzzleAbove);
+                Fire(shot, muzzle, new PixelVelocity(Facing.Toward(Shot(shot).Speed), down));
+                Play(parts[2], restart: true);
+                break;
+        }
+    }
+
+    /// <summary>Counts its cooldown down by one.</summary>
+    private void Cool()
+    {
+        if (_cooldown > 0)
+            _cooldown--;
+    }
+
+    /// <summary>Takes the step a cue describes: a wall or a ledge turns it round.</summary>
+    private void Step(string[] parts)
+    {
+        Cool();
+        int pixels = int.Parse(parts[1], CultureInfo.InvariantCulture);
+        Facing = parts[2] == "left" ? Facing.Left : Facing.Right;
+        bool ridden = IsRiddenByPlayer;
+        if (MoveAcrossBy(Pixels.FromWhole(pixels)))
+        {
+            _cooldown += TurnDelay;
+            Play(parts[3], restart: true);
+            return;
+        }
+
+        if (ridden)
+            ShiftPlayer(PixelOffset.FromWhole(pixels, 0));
+        if (parts.Length < 7 || Body is not { } body)
+            return;
+        // It feels for floor a body's width to one side of itself.
+        int reach = (parts[4] == "left" ? -2 : 2) * (body.Size.X / 2);
+        PixelRect under = body.RoomRect.MovedBy(reach, 1);
+        if (Room.Terrain.IsSolidIn(under, SlopeTreatment.Wall))
+            return;
+        _cooldown += TurnDelay;
+        Facing = parts[6] == "left" ? Facing.Left : Facing.Right;
+        Play(parts[5], restart: true);
+    }
+
+    /// <summary>Flinches from a shot, toward or away from Samus, and holds its fire a while longer.</summary>
+    private void Flinch()
+    {
+        if (!Powered)
+            return;
+        bool ahead = Facing == Facing.Left ? Target.X.Whole < Position.X.Whole : Target.X.Whole >= Position.X.Whole;
+        Play($"shot_{(Facing == Facing.Left ? "left" : "right")}_{(ahead ? "ahead" : "behind")}", restart: true);
+        _cooldown += RecoilDelay;
+    }
+}

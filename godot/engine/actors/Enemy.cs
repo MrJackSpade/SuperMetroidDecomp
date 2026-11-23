@@ -138,6 +138,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>The name of the timeline it is showing; empty for none.</summary>
     public string Playing { get; private set; } = "";
 
+    /// <summary>Whether its timeline is held where it is rather than moving on each update. An enemy sets this for as long as something keeps it from acting.</summary>
+    protected bool HoldsTimeline { get; set; }
+
     /// <summary>Whether the timeline it is showing, one that does not loop, has played through.</summary>
     public bool AnimationIsOver => _animation is { IsOver: true };
 
@@ -552,7 +555,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Moves the enemy's timeline on by one update and hands it the cues reached.</summary>
     private void StepAnimation()
     {
-        if (_animation is null)
+        if (_animation is null || HoldsTimeline)
             return;
         foreach (string cue in _animation.Step())
         {

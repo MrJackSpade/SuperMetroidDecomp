@@ -849,7 +849,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 ### Room objects
 
 - `Barrier`: blue, red, green, yellow, grey and eye door caps, in every facing; the Ceres doors; the downward
-  gate, opened by its switch; the Maridia glass tube; the old Tourian escape wall; the wall
+  gate, opened by its switch; the old Tourian escape wall; the wall
   the animals break; Botwoon's wall; the shell around a statue-held item. Mother Brain's glass turned out to be an
   enemy (missiles that reach her count against it), the tubes of her room `Effect`s that fall as terrain patches
   clear where they stood, and her escape gate a terrain patch with thrown pieces as `Effect`s.
@@ -863,6 +863,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   back) and `GrowingShutter`.
 - `Station`: save, energy refill, missile refill, map.
 - `Item`: every upgrade and expansion.
+- `GlassTube` (this game's, `game/objects/glass_tube/`): the Maridia glass tube. It is not a barrier: a power
+  bomb only arms it, and it bursts when Samus next acts, holding her while it does.
 - `Gunship`: the ship, as one object (`game/objects/gunship/`). Samus aboard it is in her own state, in the gunship.
   It is told to "land" by the landing's room sequence and tells what is listed on it when it has left the planet.
 - `BossEncounter`: one per boss room. The Metroid rooms whose doors open when the room is cleared need none; their

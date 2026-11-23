@@ -1,3 +1,4 @@
+using Engine.Ui;
 using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
@@ -105,6 +106,21 @@ public partial class GameDefinition : Resource
 
     /// <summary>Makes the mode that follows the player's death. The engine's reloads the session's save slot, or starts a new game.</summary>
     public virtual GameMode CreateModeAfterDeath() => new LoadingMode();
+
+    /// <summary>The scene of what is shown over play. Its root is a <see cref="GameHud"/>. None for a game that shows nothing.</summary>
+    [Export]
+    public PackedScene? Hud { get; set; }
+
+    /// <summary>Makes what is shown over play, or null when the game shows nothing.</summary>
+    /// <exception cref="InvalidOperationException">The scene's root is not a HUD.</exception>
+    public virtual GameHud? CreateHud()
+    {
+        if (Hud is null)
+            return null;
+        Node root = Hud.Instantiate();
+        return root as GameHud
+            ?? throw new InvalidOperationException($"The HUD scene's root is a {root.GetType().Name}, not a GameHud.");
+    }
 
     /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
     public virtual IReadOnlyList<ISessionService> CreateServices() => [];

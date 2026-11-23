@@ -730,7 +730,8 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, and reporting when it is done. | Know why it was asked. |
 | `TypedText` | `engine/ui/` | Showing text one character at a time with its sound. | Hold the words; they come from `GameText`. |
 | `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. | Run gameplay rules. |
-| `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon and the minimap. | Change any of them. |
+| `GameHud` (base) | `engine/ui/` | Being what is shown over play: kept on screen by `PlayingMode`, presented once as play begins and told to show things as they are as each room is set up and after each update. The `GameDefinition` names a game's scene of one. | Know what a particular game shows. |
+| `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon, the minimap and, during an escape, the countdown; its places and pictures come from its data file. | Change any of them. |
 | `PauseScreen` | `game/pause/` | The map and equipment screens; switching equipment through the player's `Inventory`. | Hold inventory state. |
 | Menus | `game/menus/` | Title, file select, options, game over. Each is a `GameMode`. | Touch a running session. |
 | `AudioDirector` | `engine/audio/` | Playing the music a room or event asks for and the sounds `SoundRequests` accepted. | Affect gameplay by its timing. |

@@ -1,3 +1,4 @@
+using Engine.Ui;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
@@ -31,6 +32,11 @@ public partial class PlayingMode : GameMode
         _firstEntryPoint = entryPoint;
     }
 
+    private GameHud? _hud;
+
+    /// <summary>What is shown over play, if the game shows anything.</summary>
+    public GameHud? Hud => _hud;
+
     /// <summary>The room being played.</summary>
     public Room Room => _room ?? throw new InvalidOperationException("Play has no room yet.");
 
@@ -44,6 +50,13 @@ public partial class PlayingMode : GameMode
         string entryPoint = _firstRoom.Length > 0 ? _firstEntryPoint : Session.Definition.FirstEntryPoint;
         if (room.Length == 0)
             throw new InvalidOperationException("The game definition names no first room.");
+        _hud = Session.Definition.CreateHud();
+        if (_hud is not null)
+        {
+            AddChild(_hud);
+            _hud.Present(Session);
+        }
+
         ChangeRoom(room, new RoomEntry(entryPoint, PixelVelocity.Zero, Facing.Right));
     }
 
@@ -62,6 +75,7 @@ public partial class PlayingMode : GameMode
         AddChild(_room);
         _room.Setup(Session, Session.Player, entry);
         Session.Sounds.RequestMusic(_room.Version?.Music ?? "");
+        _hud?.Refresh(Session, _room);
     }
 
     /// <inheritdoc/>
@@ -74,6 +88,7 @@ public partial class PlayingMode : GameMode
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
         foreach (ISessionService service in Session.Services)
             service.Step(Session);
+        _hud?.Refresh(Session, Room);
         if (Session.Player.IsDead)
             return Session.Definition.CreateModeAfterDeath();
         foreach (ISessionService service in Session.Services)

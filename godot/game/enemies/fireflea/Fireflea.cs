@@ -1,0 +1,88 @@
+using Engine.Actors;
+using Engine.Shared;
+using Engine.World;
+using Godot;
+
+namespace Game.Enemies;
+
+/// <summary>
+/// A Fireflea: a glowing insect that bobs up and down, or circles, lighting its room. Touching Samus hurts her and
+/// kills it; and each one that dies, however it dies, makes the room darker.
+/// </summary>
+/// <remarks>Its timeline is "flying". Nothing in the room stops it.</remarks>
+public partial class Fireflea : Enemy
+{
+    /// <summary>Whether it circles; one that does not bobs up and down.</summary>
+    [Export]
+    public bool Circles { get; set; }
+
+    /// <summary>How far above and below where it starts it bobs, or how far from its middle it circles, in pixels.</summary>
+    [Export]
+    public int Radius { get; set; } = 16;
+
+    /// <summary>For one that bobs: how far it moves each update, as a number of pixels.</summary>
+    [Export]
+    public double Speed { get; set; } = 0.5;
+
+    /// <summary>For one that bobs: whether it starts by going up.</summary>
+    [Export]
+    public bool StartsUpward { get; set; }
+
+    /// <summary>For one that circles: how far round it goes each update, in 256ths of a turn; negative goes the other way.</summary>
+    [Export]
+    public double TurnPerUpdate { get; set; } = 1;
+
+    /// <summary>The room effect that is told to "darken" as it dies.</summary>
+    [Export]
+    public NodePath Darkens { get; set; } = new();
+
+    private PixelPosition _middle;
+    private bool _goingUp;
+    private Pixels _angle;
+
+    /// <inheritdoc/>
+    protected override void OnEnterRoom()
+    {
+        _middle = Position;
+        _goingUp = StartsUpward;
+        if (Circles)
+            Position = OnCircle();
+        Play("flying");
+    }
+
+    /// <inheritdoc/>
+    protected override void Behave()
+    {
+        if (Circles)
+        {
+            Position = OnCircle();
+            _angle += Pixels.FromNumber(TurnPerUpdate);
+            return;
+        }
+
+        Pixels speed = Pixels.FromNumber(Speed);
+        Position += new PixelOffset(Pixels.Zero, _goingUp ? -speed : speed);
+        if (Position.Y.Whole < _middle.Y.Whole - Radius || Position.Y.Whole >= _middle.Y.Whole + Radius)
+            _goingUp = !_goingUp;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnTouchedPlayer() => Die();
+
+    /// <inheritdoc/>
+    protected override void OnDied()
+    {
+        if (!Darkens.IsEmpty && GetNodeOrNull(Darkens) is ITriggerTarget darkness)
+            darkness.Triggered("darken");
+    }
+
+    /// <summary>Where on its circle it is now, on whole pixels.</summary>
+    private PixelPosition OnCircle()
+    {
+        Pixels radius = Pixels.FromWhole(Radius);
+        int angle = _angle.Whole;
+        return PixelPosition.FromWhole(
+            _middle.X.Whole + Turns.Cosine(angle, radius, Turns.Fineness.Coarse).Whole,
+            _middle.Y.Whole - Turns.Sine(angle, radius, Turns.Fineness.Coarse).Whole);
+    }
+}

@@ -111,6 +111,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     /// <summary>Wakes the enemy.</summary>
     public void Wake() => IsAsleep = false;
 
+    /// <summary>How many updates it has been stepped for while awake.</summary>
+    public int Updates { get; private set; }
+
     /// <summary>Whether it was hurt in this update.</summary>
     public bool WasJustHurt { get; private set; }
 
@@ -212,6 +215,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         WasJustHurt = false;
         if (IsAsleep)
             return;
+        Updates++;
         _unhittable = _unhittable.Stepped();
         bool wasFlashing = _flash.IsRunning;
         _flash = _flash.Stepped();
@@ -317,7 +321,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (reaction.StatusWhen == StatusWhen.InsteadOfDying && takesStatus)
             return HitResult.Hurt;
         if (damage == 0)
+        {
+            if (!takesStatus)
+                OnAbsorbed(hit, part);
             return takesStatus ? HitResult.Hurt : HitResult.Absorbed;
+        }
 
         Health.Take(damage);
         _unhittable = Countdown.Of(reaction.UnhittableUpdates);
@@ -342,6 +350,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
 
     /// <summary>The enemy's reactions as its data file gives them.</summary>
     protected Reactions Reactions => _reactions;
+
+    /// <summary>Called when a hit landed on the enemy and did it no damage and gave it no status.</summary>
+    protected virtual void OnAbsorbed(Hit hit, Collider part)
+    {
+    }
 
     /// <summary>Called when a hit hurt the enemy without destroying it.</summary>
     protected virtual void OnHurt(Hit hit, Collider part)

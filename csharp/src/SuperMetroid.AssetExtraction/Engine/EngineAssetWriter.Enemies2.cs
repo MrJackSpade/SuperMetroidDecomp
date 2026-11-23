@@ -122,13 +122,22 @@ public sealed partial class EngineAssetWriter
                 ("moving_left", OwtchSegment.MovingLeft), ("moving_right", OwtchSegment.MovingRight))
             .Write();
 
-        // The divers: the Skree and the Metaree, alike but for their pictures.
-        foreach ((string file, EnemyDefinitionId id, SkreeMetareeSegment idle, SkreeMetareeSegment windup, SkreeMetareeSegment dive, SkreeMetareeParticleSegment debris) in new[]
+        // The divers: the Skree and the Metaree. The Metaree is set off from further away, steers harder, and dives the
+        // faster the further below it Samus is: its slowest dive, and how much further down she must be for each pixel more.
+        int slowestMetareeDive = SuperMetroid.Core.Compatibility.MetareeDiveSpeed.Of(0, 0);
+        int distanceForFasterDive = Enumerable.Range(1, 4096).First(below => SuperMetroid.Core.Compatibility.MetareeDiveSpeed.Of(0, below) > slowestMetareeDive);
+        foreach ((string file, EnemyDefinitionId id, SkreeMetareeSegment idle, SkreeMetareeSegment windup, SkreeMetareeSegment dive, SkreeMetareeParticleSegment debris,
+                     int reach, int diveSpeed, int distancePerSpeed, int drift, int burrowUpdates, int debrisAt) in new[]
                  {
                      ("skree", EnemyDefinitionId.Skree, SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving,
-                         SkreeMetareeParticleSegment.Skree),
+                         SkreeMetareeParticleSegment.Skree,
+                         SkreeMotionDefinitions.WindUpDistance, SkreeMotionDefinitions.DiveStep, 0, SkreeMotionDefinitions.DiveDrift,
+                         SkreeMotionDefinitions.BurrowDuration, SkreeMotionDefinitions.DebrisBurstAt),
                      ("metaree", EnemyDefinitionId.Metaree, SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving,
-                         SkreeMetareeParticleSegment.Metaree),
+                         SkreeMetareeParticleSegment.Metaree,
+                         SuperMetroid.Core.Enemies.Metaree.MetareeMotionDefinitions.ActivationDistance, slowestMetareeDive, distanceForFasterDive,
+                         SuperMetroid.Core.Enemies.Metaree.MetareeMotionDefinitions.DiveSteer,
+                         SuperMetroid.Core.Enemies.Metaree.MetareeMotionDefinitions.BurrowLifetime, SuperMetroid.Core.Enemies.Metaree.MetareeMotionDefinitions.BurstCountdown),
                  })
         {
             // The debris it throws up: two pieces to each side, an outer and an inner, which fall through everything.
@@ -144,6 +153,12 @@ public sealed partial class EngineAssetWriter
             }
 
             Enemy($"enemies/{file}.json", "Diver", id).BodyColliders(Ordinary)
+                .Value("reach", reach)
+                .Value("dive_speed", diveSpeed)
+                .Value("distance_per_speed", distancePerSpeed)
+                .Value("drift", drift)
+                .Value("burrow_updates", burrowUpdates)
+                .Value("debris_at", debrisAt)
                 .Group("debris", pieces)
                 .Shot("debris", RoomEnemyProjectileKind.SkreeMetareeParticle, (diver, _, projectile) =>
                 {

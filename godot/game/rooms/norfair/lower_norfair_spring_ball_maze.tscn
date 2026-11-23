@@ -197,7 +197,7 @@ Target = NodePath("../Screen1x0")
 script = ExtResource("9")
 position = Vector2(192, 96)
 Size = Vector2i(16, 64)
-What = "close"
+What = "open"
 Once = false
 Target = NodePath("../Screen1x0Foot")
 
@@ -324,7 +324,7 @@ Target = NodePath("../Screen1x0")
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToLowerNorfairEscapePowerBombs"
-What = "close"
+What = "open"
 Target = NodePath("../Screen1x0Foot")
 
 [node name="Arriving3" type="Node2D" parent="."]

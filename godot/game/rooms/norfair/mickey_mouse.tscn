@@ -323,7 +323,7 @@ Target = NodePath("../Screen3x1")
 script = ExtResource("12")
 position = Vector2(720, 352)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
 Target = NodePath("../Screen3x1Foot")
 

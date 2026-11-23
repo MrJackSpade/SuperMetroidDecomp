@@ -430,6 +430,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen3x3Foot")
 
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(880, 720)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen3x2Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
@@ -457,6 +465,13 @@ position = Vector2(0, 0)
 AtEntry = "ToCrumbleShaft"
 What = "close"
 Target = NodePath("../Screen3x3Foot")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToCrumbleShaft"
+What = "open"
+Target = NodePath("../Screen3x2Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")

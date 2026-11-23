@@ -180,6 +180,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x3Foot")
 
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(112, 720)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x2Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
@@ -193,6 +201,13 @@ position = Vector2(0, 0)
 AtEntry = "ToAqueduct"
 What = "close"
 Target = NodePath("../Screen0x3Foot")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToAqueduct"
+What = "open"
+Target = NodePath("../Screen0x2Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

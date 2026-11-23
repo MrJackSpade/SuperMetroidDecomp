@@ -149,6 +149,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x1Foot")
 
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(112, 224)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("13")
 position = Vector2(0, 0)

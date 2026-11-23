@@ -160,7 +160,7 @@ position = Vector2(80, 464)
 Size = Vector2i(96, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen0x2")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll7" type="Node2D" parent="."]
 script = ExtResource("9")
@@ -168,7 +168,23 @@ position = Vector2(80, 464)
 Size = Vector2i(96, 16)
 What = "open"
 Once = false
+Target = NodePath("../Screen0x2")
+
+[node name="Scroll8" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(80, 464)
+Size = Vector2i(96, 16)
+What = "open"
+Once = false
 Target = NodePath("../Screen0x2Foot")
+
+[node name="Scroll9" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(80, 464)
+Size = Vector2i(96, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("9")
@@ -208,15 +224,15 @@ Target = NodePath("../Screen0x1Foot")
 [node name="Arriving6" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-AtEntry = "ToEastTunnel"
-What = "close"
-Target = NodePath("../Screen0x0")
+AtEntry = "ToWestTunnel"
+What = "open"
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Arriving7" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-AtEntry = "ToEastTunnel"
-What = "close"
+AtEntry = "ToWestTunnel"
+What = "open"
 Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving8" type="Node2D" parent="."]
@@ -224,21 +240,49 @@ script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToEastTunnel"
 What = "close"
-Target = NodePath("../Screen0x2")
+Target = NodePath("../Screen0x0")
 
 [node name="Arriving9" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToEastTunnel"
 What = "close"
-Target = NodePath("../Screen0x2Foot")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving10" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToEastTunnel"
 What = "close"
+Target = NodePath("../Screen0x2")
+
+[node name="Arriving11" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToEastTunnel"
+What = "close"
+Target = NodePath("../Screen0x2Foot")
+
+[node name="Arriving12" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToEastTunnel"
+What = "close"
 Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving13" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToEastTunnel"
+What = "open"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving14" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToEastTunnel"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("10")

@@ -157,7 +157,7 @@ Target = NodePath("../Screen0x1")
 script = ExtResource("8")
 position = Vector2(0, 0)
 AtEntry = "ToShaktool"
-What = "close"
+What = "open"
 Target = NodePath("../Screen0x1Foot")
 
 [node name="Arriving3" type="Node2D" parent="."]

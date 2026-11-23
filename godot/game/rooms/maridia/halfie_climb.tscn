@@ -287,7 +287,7 @@ Target = NodePath("../Screen0x1")
 script = ExtResource("10")
 position = Vector2(176, 608)
 Size = Vector2i(16, 64)
-What = "close"
+What = "open"
 Once = false
 Target = NodePath("../Screen0x1Foot")
 
@@ -323,6 +323,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x2Foot")
 
+[node name="Scroll11" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(224, 656)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
@@ -341,10 +349,17 @@ Target = NodePath("../Screen0x2Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToMaridiaMissileRefill"
+What = "close"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToMaridiaMissileRefill"
 What = "open"
 Target = NodePath("../Screen1x2")
 
-[node name="Arriving4" type="Node2D" parent="."]
+[node name="Arriving5" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToMaridiaMissileRefill"

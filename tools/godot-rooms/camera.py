@@ -5,6 +5,10 @@ kept from the screen's bottom rows. A screen here is two zones the view can be k
 fills, and the 32 rows under them. Closed, both are shut; open but kept from the bottom rows, only the lower one
 is; fully open, neither. A zone is only made where something can shut it.
 
+Being kept from a screen's bottom rows is about where the view comes to rest, not a wall: the old camera still
+scrolled down through them into an open screen below. So the lower zone of such a screen is shut only while there
+is nothing open beneath it, and opening or closing a screen opens or shuts the lower zone of the one above it.
+
 The old code changes a screen's state from blocks Samus touches, and as she comes in by certain doors. Each of
 those becomes triggers, one for each zone told to open or close: a region where the blocks were, or one that fires
 as the room is entered at that door's entry point.
@@ -84,9 +88,11 @@ class Camera:
                 upper[screen] = Placed(ZONE, f'Screen{x}x{y}', {
                     'StartsOpen': 'true' if initial[screen] != 'Closed' else 'false'}, at=(x * SCREEN, y * SCREEN), enemy=False)
             if ever(screen, ('Closed', 'OpenAlignedToTop')):
+                below = initial.get((x, y + 1), 'Closed')
+                rests_open = initial[screen] == 'Open' or (initial[screen] == 'OpenAlignedToTop' and below != 'Closed')
                 lower[screen] = Placed(ZONE, f'Screen{x}x{y}Foot', {
                     'Size': f'Vector2i({SCREEN}, {SCREEN - VIEW_HEIGHT})',
-                    'StartsOpen': 'true' if initial[screen] == 'Open' else 'false'}, at=(x * SCREEN, y * SCREEN + VIEW_HEIGHT), enemy=False)
+                    'StartsOpen': 'true' if rests_open else 'false'}, at=(x * SCREEN, y * SCREEN + VIEW_HEIGHT), enemy=False)
         self.placed.extend(list(upper.values()) + list(lower.values()))
 
         def tell(change, make) -> None:
@@ -94,11 +100,18 @@ class Camera:
                 if screen not in initial:
                     # Some doors set a screen the room does not have.
                     continue
-                for zones, opens in ((upper, new != 'Closed'), (lower, new == 'Open')):
-                    if screen in zones:
+                below = initial.get((screen[0], screen[1] + 1), 'Closed')
+                above = (screen[0], screen[1] - 1)
+                told = [(upper.get(screen), new != 'Closed'),
+                        (lower.get(screen), new == 'Open' or (new == 'OpenAlignedToTop' and below != 'Closed'))]
+                # The screen above rests on this one: its bottom rows are passed through while this one is open.
+                if initial.get(above, 'Closed') != 'Closed':
+                    told.append((lower.get(above), new != 'Closed'))
+                for zone, opens in told:
+                    if zone is not None:
                         trigger = make('open' if opens else 'close')
                         self.placed.append(trigger)
-                        self.links.append((trigger, zones[screen]))
+                        self.links.append((trigger, zone))
 
         for (left, top, across, down), change in regions:
             tell(change, lambda what: Placed(TRIGGER, 'Scroll', {

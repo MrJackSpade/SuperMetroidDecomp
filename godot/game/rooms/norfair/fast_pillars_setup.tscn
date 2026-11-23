@@ -190,6 +190,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x2Foot")
 
+[node name="Scroll7" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(112, 432)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
@@ -221,30 +229,44 @@ Target = NodePath("../Screen0x2Foot")
 [node name="Arriving5" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-AtEntry = "ToPillar"
-What = "close"
-Target = NodePath("../Screen0x1")
+AtEntry = "ToFastRipper"
+What = "open"
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Arriving6" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToPillar"
 What = "close"
-Target = NodePath("../Screen0x1Foot")
+Target = NodePath("../Screen0x1")
 
 [node name="Arriving7" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToPillar"
+What = "close"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving8" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToPillar"
 What = "open"
 Target = NodePath("../Screen0x2")
 
-[node name="Arriving8" type="Node2D" parent="."]
+[node name="Arriving9" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToPillar"
 What = "close"
 Target = NodePath("../Screen0x2Foot")
+
+[node name="Arriving10" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToPillar"
+What = "open"
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Heat" type="Node2D" parent="."]
 script = ExtResource("11")

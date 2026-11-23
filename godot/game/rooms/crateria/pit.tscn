@@ -258,7 +258,7 @@ Target = NodePath("../Screen0x1Foot")
 
 [node name="Scroll4" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(96, 240)
+position = Vector2(64, 240)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
@@ -270,7 +270,7 @@ position = Vector2(96, 240)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen0x1")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll6" type="Node2D" parent="."]
 script = ExtResource("9")
@@ -278,23 +278,23 @@ position = Vector2(96, 240)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen0x1Foot")
+Target = NodePath("../Screen0x1")
 
 [node name="Scroll7" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(80, 144)
+position = Vector2(96, 240)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
-Target = NodePath("../Screen0x0Foot")
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Scroll8" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(80, 144)
+position = Vector2(96, 240)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
-Target = NodePath("../Screen0x1")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll9" type="Node2D" parent="."]
 script = ExtResource("9")
@@ -302,7 +302,31 @@ position = Vector2(80, 144)
 Size = Vector2i(16, 16)
 What = "close"
 Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll10" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(80, 144)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll11" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(80, 144)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
 Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll12" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(80, 144)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Fog" type="Node2D" parent="."]
 script = ExtResource("10")

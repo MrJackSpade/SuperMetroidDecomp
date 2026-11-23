@@ -232,6 +232,14 @@ What = "close"
 Once = false
 Target = NodePath("../Screen0x1Foot")
 
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 176)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
@@ -252,6 +260,13 @@ position = Vector2(0, 0)
 AtEntry = "ToFirstMissile"
 What = "close"
 Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToFirstMissile"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")

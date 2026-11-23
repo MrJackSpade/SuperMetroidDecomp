@@ -286,7 +286,7 @@ StartsOpen = false
 script = ExtResource("10")
 position = Vector2(592, 656)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
 Target = NodePath("../Screen1x2Foot")
 
@@ -305,6 +305,14 @@ Size = Vector2i(16, 16)
 What = "close"
 Once = false
 Target = NodePath("../Screen1x3Foot")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(592, 656)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x2Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("11")

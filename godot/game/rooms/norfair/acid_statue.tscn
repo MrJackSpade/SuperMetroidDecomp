@@ -226,7 +226,7 @@ position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen1x2")
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Scroll8" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -234,21 +234,21 @@ position = Vector2(192, 480)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen1x2Foot")
+Target = NodePath("../Screen1x2")
 
 [node name="Scroll9" type="Node2D" parent="."]
 script = ExtResource("11")
-position = Vector2(192, 560)
+position = Vector2(192, 480)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
-Target = NodePath("../Screen1x1")
+Target = NodePath("../Screen1x2Foot")
 
 [node name="Scroll10" type="Node2D" parent="."]
 script = ExtResource("11")
-position = Vector2(192, 560)
+position = Vector2(192, 480)
 Size = Vector2i(16, 16)
-What = "close"
+What = "open"
 Once = false
 Target = NodePath("../Screen1x1Foot")
 
@@ -256,9 +256,9 @@ Target = NodePath("../Screen1x1Foot")
 script = ExtResource("11")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
-What = "open"
+What = "close"
 Once = false
-Target = NodePath("../Screen0x2")
+Target = NodePath("../Screen1x1")
 
 [node name="Scroll12" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -266,7 +266,7 @@ position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "close"
 Once = false
-Target = NodePath("../Screen0x2Foot")
+Target = NodePath("../Screen1x1Foot")
 
 [node name="Scroll13" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -274,7 +274,7 @@ position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen1x2")
+Target = NodePath("../Screen0x2")
 
 [node name="Scroll14" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -282,7 +282,7 @@ position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "close"
 Once = false
-Target = NodePath("../Screen1x2Foot")
+Target = NodePath("../Screen0x2Foot")
 
 [node name="Scroll15" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -290,9 +290,41 @@ position = Vector2(192, 560)
 Size = Vector2i(16, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen2x2")
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Scroll16" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(192, 560)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x2")
+
+[node name="Scroll17" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(192, 560)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Scroll18" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(192, 560)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Scroll19" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(192, 560)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen2x2")
+
+[node name="Scroll20" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(192, 560)
 Size = Vector2i(16, 16)
@@ -347,23 +379,37 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "open"
-Target = NodePath("../Screen1x2")
+Target = NodePath("../Screen0x1Foot")
 
 [node name="Arriving8" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToGoldenTorizo"
+What = "open"
+Target = NodePath("../Screen1x2")
+
+[node name="Arriving9" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "close"
 Target = NodePath("../Screen1x2Foot")
 
-[node name="Arriving9" type="Node2D" parent="."]
+[node name="Arriving10" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToGoldenTorizo"
+What = "open"
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Arriving11" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"
 What = "open"
 Target = NodePath("../Screen2x2")
 
-[node name="Arriving10" type="Node2D" parent="."]
+[node name="Arriving12" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToGoldenTorizo"

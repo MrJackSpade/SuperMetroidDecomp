@@ -185,9 +185,17 @@ position = Vector2(64, 192)
 Size = Vector2i(128, 16)
 What = "open"
 Once = false
-Target = NodePath("../Screen1x1")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Scroll7" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll8" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(64, 192)
 Size = Vector2i(128, 16)
@@ -195,11 +203,19 @@ What = "close"
 Once = false
 Target = NodePath("../Screen1x1Foot")
 
+[node name="Scroll9" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x0Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToAcidStatue"
-What = "close"
+What = "open"
 Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving2" type="Node2D" parent="."]
@@ -235,14 +251,28 @@ script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToAcidStatue"
 What = "close"
-Target = NodePath("../Screen1x1")
+Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving7" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToAcidStatue"
 What = "close"
+Target = NodePath("../Screen1x1")
+
+[node name="Arriving8" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
 Target = NodePath("../Screen1x1Foot")
+
+[node name="Arriving9" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x0Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("12")

@@ -887,6 +887,14 @@ What = "open"
 Once = false
 Target = NodePath("../Screen4x7Foot")
 
+[node name="Scroll12" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(1136, 1744)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen4x6Foot")
+
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("13")
 position = Vector2(0, 0)
@@ -911,11 +919,18 @@ Target = NodePath("../Screen4x7Foot")
 [node name="Arriving4" type="Node2D" parent="."]
 script = ExtResource("13")
 position = Vector2(0, 0)
+AtEntry = "ToBasement"
+What = "open"
+Target = NodePath("../Screen4x6Foot")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
 AtEntry = "ToWreckedShipEastSuper"
 What = "open"
 Target = NodePath("../Screen5x6")
 
-[node name="Arriving5" type="Node2D" parent="."]
+[node name="Arriving6" type="Node2D" parent="."]
 script = ExtResource("13")
 position = Vector2(0, 0)
 AtEntry = "ToWreckedShipEastSuper"

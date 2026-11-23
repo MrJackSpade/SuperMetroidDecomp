@@ -14,10 +14,23 @@ internal static partial class EnemyProjectilePaletteRowDefinitions
     /// </summary>
     private const int KraidRocksRow = 3;
 
+    /// <summary>
+    /// The row Draygon's goop is drawn in (#2655), which his opening's colours run on into: the row its initialization stores
+    /// ($86:8D37 stores palette index $0400 for every frame of instruction lists $86:8C3A and $86:8C58). Its bursting frames'
+    /// parts name the row after their own, so they show the row after this one.
+    /// </summary>
+    private const int DraygonGoopRow = 2;
+
     /// <summary>The row each listed projectile frame's initialization ORs into its parts.</summary>
     internal static IReadOnlyDictionary<EnemyProjectileFrameId, int> Rows { get; } = new Dictionary<EnemyProjectileFrameId, int>
     {
         [EnemyProjectileFrameId.KraidRockLarge] = KraidRocksRow,
         [EnemyProjectileFrameId.KraidRockSmall] = KraidRocksRow,
+        [EnemyProjectileFrameId.DraygonGoopSpiky] = DraygonGoopRow,
+        [EnemyProjectileFrameId.DraygonGoopPuffed] = DraygonGoopRow,
+        [EnemyProjectileFrameId.DraygonGoopRounded] = DraygonGoopRow,
+        [EnemyProjectileFrameId.DraygonGoopLopsided] = DraygonGoopRow,
+        [EnemyProjectileFrameId.DraygonGoopCurled] = DraygonGoopRow,
+        [EnemyProjectileFrameId.DraygonGoopScattered] = DraygonGoopRow,
     };
 }

@@ -50,7 +50,8 @@ internal static partial class BossBodySourceDefinitions
     /// The frames the cartridge writes only in part, over the frame the same part of the boss showed before it in each of
     /// its programs: each is pictured whole as that frame with its own cells written over it. Mother Brain's hand beam
     /// charges over her standing pose a frame at a time; Phantoon's eyeball looks each way out of his open eye; Draygon's mouth
-    /// opens on his body, and his dying arms' second frames redraw only the cells that change.
+    /// opens on his body, and his dying arm drops over it (#2654): each of its four frames redraws only his arm's cells, the
+    /// first over his body as he shows it with his jaw shut, each later one over the frame before it.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesDrawnOver { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
     {
@@ -65,11 +66,17 @@ internal static partial class BossBodySourceDefinitions
         [EnemyFrameId.PhantoonEyeLookingDownLeft] = EnemyFrameId.PhantoonEyeballCentered,
         [EnemyFrameId.PhantoonEyeLookingLeft] = EnemyFrameId.PhantoonEyeballCentered,
         [EnemyFrameId.PhantoonEyeLookingUpLeft] = EnemyFrameId.PhantoonEyeballCentered,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawRaised] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
         [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = EnemyFrameId.DraygonLimpArmFacingLeftClawRaised,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawDropped] = EnemyFrameId.DraygonLimpArmFacingLeftClawDropping,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawCurled] = EnemyFrameId.DraygonLimpArmFacingLeftClawDropped,
         [EnemyFrameId.DraygonBodyFacingLeftJawParting] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
         [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
         [EnemyFrameId.DraygonBodyFacingLeftJawWide] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawRaised] = EnemyFrameId.DraygonBodyFacingRightJawShut,
         [EnemyFrameId.DraygonLimpArmFacingRightClawDropping] = EnemyFrameId.DraygonLimpArmFacingRightClawRaised,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawDropped] = EnemyFrameId.DraygonLimpArmFacingRightClawDropping,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawCurled] = EnemyFrameId.DraygonLimpArmFacingRightClawDropped,
         [EnemyFrameId.DraygonBodyFacingRightJawParting] = EnemyFrameId.DraygonBodyFacingRightJawShut,
         [EnemyFrameId.DraygonBodyFacingRightJawOpen] = EnemyFrameId.DraygonBodyFacingRightJawShut,
         [EnemyFrameId.DraygonBodyFacingRightJawWide] = EnemyFrameId.DraygonBodyFacingRightJawShut,

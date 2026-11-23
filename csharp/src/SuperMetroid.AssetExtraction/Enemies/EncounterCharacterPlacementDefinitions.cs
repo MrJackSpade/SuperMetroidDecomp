@@ -9,6 +9,18 @@ internal static partial class EncounterCharacterPlacementDefinitions
     /// <summary>The character the gunship's first liftoff page begins at, $160, from the destination list at $A2:AC11.</summary>
     internal const int GunshipFirstCharacter = 352;
 
+    /// <summary>
+    /// The character Ridley's statue's eye pictures land on, $122: its animated-tile object copies them to VRAM word $7220,
+    /// among the sprite characters named from word $6000 (#2625).
+    /// </summary>
+    internal const int RidleyStatueEyesFirstCharacter = 290;
+
+    /// <summary>
+    /// The character Phantoon's statue's eye pictures land on, $180: its animated-tile object copies them to VRAM word $7800,
+    /// among the sprite characters named from word $6000 (#2625).
+    /// </summary>
+    internal const int PhantoonStatueEyesFirstCharacter = 384;
+
     /// <summary>The character the Ceres door's characters begin at, $100.</summary>
     internal const int CeresDoorFirstCharacter = 256;
 

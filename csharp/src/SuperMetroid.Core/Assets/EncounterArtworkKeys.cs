@@ -15,6 +15,8 @@ internal static partial class EncounterArtworkKeys
         [EncounterArtwork.GoldenTorizo] = "GoldenTorizo",
         [EncounterArtwork.CeresElevatorDoor] = "CeresElevatorDoor",
         [EncounterArtwork.CeresEscape] = "CeresEscape",
+        [EncounterArtwork.RidleyStatue] = "RidleyStatue",
+        [EncounterArtwork.PhantoonStatue] = "PhantoonStatue",
     });
 
     /// <summary>The EncounterArtwork members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
@@ -26,5 +28,7 @@ internal static partial class EncounterArtworkKeys
         EncounterArtwork.GoldenTorizo,
         EncounterArtwork.CeresElevatorDoor,
         EncounterArtwork.CeresEscape,
+        EncounterArtwork.RidleyStatue,
+        EncounterArtwork.PhantoonStatue,
     ];
 }

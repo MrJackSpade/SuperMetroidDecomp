@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -37,6 +39,8 @@ internal static partial class EncounterLookUploads
         ComposedEncounter.CeresEscape,
         ComposedEncounter.CeresElevatorDoor,
         ComposedEncounter.MotherBrain,
+        ComposedEncounter.RidleyStatue,
+        ComposedEncounter.PhantoonStatue,
     ]);
 
     /// <summary>The escape timer's tile pages in the order their copies are uploaded (#2567): the first, then the second.</summary>
@@ -46,16 +50,41 @@ internal static partial class EncounterLookUploads
         EscapeTimerTilePage.Second,
     ]);
 
-    /// <summary>The encounter each enemy whose graphics set loads it plays, and which a room placing it shows.</summary>
-    private static readonly Dictionary<EnemyDefinitionId, ComposedEncounter> ByEncounter = new()
+    /// <summary>
+    /// The encounters each enemy whose graphics set loads it plays, and which a room placing it shows: the Tourian statue
+    /// scene plays both sprite statues' eyes.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, ComposedEncounter[]> ByEncounter = new()
     {
-        [EnemyDefinitionId.DraygonBody] = ComposedEncounter.DraygonEvirs,
-        [EnemyDefinitionId.ShipTop] = ComposedEncounter.Gunship,
-        [EnemyDefinitionId.Crocomire] = ComposedEncounter.Crocomire,
-        [EnemyDefinitionId.BombTorizo] = ComposedEncounter.BombTorizo,
-        [EnemyDefinitionId.GoldenTorizo] = ComposedEncounter.GoldenTorizo,
-        [EnemyDefinitionId.RidleyCeres] = ComposedEncounter.CeresEscape,
-        [EnemyDefinitionId.MotherBrainHead] = ComposedEncounter.MotherBrain,
+        [EnemyDefinitionId.DraygonBody] = [ComposedEncounter.DraygonEvirs],
+        [EnemyDefinitionId.ShipTop] = [ComposedEncounter.Gunship],
+        [EnemyDefinitionId.Crocomire] = [ComposedEncounter.Crocomire],
+        [EnemyDefinitionId.BombTorizo] = [ComposedEncounter.BombTorizo],
+        [EnemyDefinitionId.GoldenTorizo] = [ComposedEncounter.GoldenTorizo],
+        [EnemyDefinitionId.RidleyCeres] = [ComposedEncounter.CeresEscape],
+        [EnemyDefinitionId.MotherBrainHead] = [ComposedEncounter.MotherBrain],
+        [EnemyDefinitionId.TourianStatue] = [ComposedEncounter.RidleyStatue, ComposedEncounter.PhantoonStatue],
+    };
+
+    /// <summary>The sprite statue each statue-eye encounter is, which the statue's eye pictures are of.</summary>
+    private static readonly Dictionary<ComposedEncounter, TourianSpriteStatue> StatueEyes = new()
+    {
+        [ComposedEncounter.RidleyStatue] = TourianSpriteStatue.Ridley,
+        [ComposedEncounter.PhantoonStatue] = TourianSpriteStatue.Phantoon,
+    };
+
+    /// <summary>The boss statue each sprite statue is, whose window of the statue strip holds its eye pictures.</summary>
+    private static readonly Dictionary<TourianSpriteStatue, TourianStatue> StatueOf = new()
+    {
+        [TourianSpriteStatue.Ridley] = TourianStatue.Ridley,
+        [TourianSpriteStatue.Phantoon] = TourianStatue.Phantoon,
+    };
+
+    /// <summary>The sprite character each sprite statue's eye pictures land on.</summary>
+    private static readonly Dictionary<TourianSpriteStatue, int> StatueEyesFirstCharacter = new()
+    {
+        [TourianSpriteStatue.Ridley] = EncounterCharacterPlacementDefinitions.RidleyStatueEyesFirstCharacter,
+        [TourianSpriteStatue.Phantoon] = EncounterCharacterPlacementDefinitions.PhantoonStatueEyesFirstCharacter,
     };
 
     /// <summary>Draygon's look once her opening has readied the Evirs she releases.</summary>
@@ -129,7 +158,7 @@ internal static partial class EncounterLookUploads
     {
         RoomEnemyGraphicsSetMember[] records = Ensure.NotNull(set).Records.ToArray();
         IEnumerable<ComposedEncounter> members = records.Select(record => record.DefinitionId).OfType<EnemyDefinitionId>()
-            .Where(ByEncounter.ContainsKey).Select(enemy => ByEncounter[enemy]);
+            .Where(ByEncounter.ContainsKey).SelectMany(enemy => ByEncounter[enemy]);
         IEnumerable<ComposedEncounter> artwork = records.Select(record => record.Unplaced).OfType<UnplacedEnemyArtwork>()
             .Where(ByArtwork.ContainsKey).Select(unplaced => ByArtwork[unplaced]);
         HashSet<ComposedEncounter> played = [.. members.Concat(artwork)];
@@ -145,8 +174,9 @@ internal static partial class EncounterLookUploads
     {
         foreach (RoomEnemyPlacement record in Ensure.NotNull(state).EnemyPopulation.Placements.Span)
         {
-            if ((ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter played)
-                    || ShownByArtworkLook.TryGetValue(record.DefinitionId, out played)) && played == encounter)
+            if (ByEncounter.TryGetValue(record.DefinitionId, out ComposedEncounter[]? played) && played.Contains(encounter))
+                return true;
+            if (ShownByArtworkLook.TryGetValue(record.DefinitionId, out ComposedEncounter shown) && shown == encounter)
                 return true;
         }
         return false;
@@ -166,6 +196,7 @@ internal static partial class EncounterLookUploads
         ComposedEncounter.GoldenTorizo => EncounterArtwork.GoldenTorizo,
         ComposedEncounter.CeresEscape => EncounterArtwork.CeresEscape,
         ComposedEncounter.CeresElevatorDoor => EncounterArtwork.CeresElevatorDoor,
+        ComposedEncounter.RidleyStatue or ComposedEncounter.PhantoonStatue => TourianSpriteStatueEyeLookDefinitions.Encounters[StatueEyes[encounter]],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
 
@@ -207,8 +238,21 @@ internal static partial class EncounterLookUploads
                 Whole((installed.AreaTiles.CeresDoor ?? throw new InvalidDataException("Installed area artwork has no Ceres door visuals.")).Characters,
                     CeresDoorVisualFormat.CharacterBytes, "the Ceres door characters"))])],
         ComposedEncounter.MotherBrain => [.. MotherBrainLooks.Select(look => new AuthoredLook(look.Look, installed => MotherBrainPages(look.Sheet, installed)))],
+        ComposedEncounter.RidleyStatue or ComposedEncounter.PhantoonStatue => [.. StatueEyeLooks(StatueEyes[encounter])],
         _ => throw new InvalidDataException($"Undefined {nameof(ComposedEncounter)} {encounter}."),
     };
+
+    /// <summary>
+    /// <paramref name="statue"/>'s eye looks (#2625): each of its eye pictures, which its animation copies whole over the
+    /// statue's sprite characters, so each look shows its own picture whichever showed before it.
+    /// </summary>
+    private static IEnumerable<AuthoredLook> StatueEyeLooks(TourianSpriteStatue statue) =>
+        RoomFxBlockAnimationPictures.TourianStatuePictures.Select(picture => new AuthoredLook(
+            new ComposedLook(StatueEyeEncounter(statue), TourianSpriteStatueEyeLookDefinitions.LookNames[picture]),
+            installed => [new EncounterArtworkUpload(StatueEyesFirstCharacter[statue], installed.AnimatedTiles.TourianStatuePicture(StatueOf[statue], picture))]));
+
+    /// <summary>The statue-eye encounter of <paramref name="statue"/>.</summary>
+    private static ComposedEncounter StatueEyeEncounter(TourianSpriteStatue statue) => StatueEyes.Single(entry => entry.Value == statue).Key;
 
     /// <summary>The turn of <paramref name="look"/> in <paramref name="encounter"/>'s authored sequence of looks, zero for the room's load.</summary>
     /// <exception cref="InvalidDataException">The look is none of the encounter's.</exception>

@@ -139,7 +139,7 @@ internal sealed partial class RoomEnemySpecies
             var statueScene = new TourianEntranceStatueBehavior(enemies.Projectiles, statueRoom);
             var unlockEffects = new TourianUnlockBehavior(enemies.Room, enemies.Projectiles, enemies.Earthquake, enemies.Audio, statueScene, statueRoom);
             tourianEntranceStatueBehavior = statueScene;
-            TourianStatue = new RoomTourianStatues(statueRoom, new TourianStatueActors(statueScene, unlockEffects));
+            TourianStatue = new RoomTourianStatues(statueRoom, new TourianStatueActors(statueScene, unlockEffects, enemies.Presentation));
         }
         var sporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = enemies.Audio, Room = enemies.Room, Presentation = enemies.Presentation, Projectiles = enemies.Projectiles, EffectActors = enemies.EffectActors, FrameContext = enemies.FrameContext, Collision = enemies.Collision, DeathsAndDrops = enemies.DeathsAndDrops, PassEvents = enemies.PassEvents, CameraFloor = enemies.CameraFloor });
         var fallingSparksBehavior = new FallingSparksBehavior(enemies.Room, enemies.Projectiles, enemies.EffectActors, enemies.FallingSparkFloorProbe);

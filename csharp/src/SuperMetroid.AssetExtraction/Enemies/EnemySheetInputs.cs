@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -80,6 +81,9 @@ internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, 
 
     /// <inheritdoc/>
     AreaSourceArtwork IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
+
+    /// <inheritdoc/>
+    RoomFxBlockAnimationAtlas IInstalledAnimatedTileArtwork.AnimatedTiles => Maps.BlockAnimationAtlas;
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>

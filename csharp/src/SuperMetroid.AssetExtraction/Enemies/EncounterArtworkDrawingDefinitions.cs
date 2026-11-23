@@ -268,6 +268,15 @@ internal static partial class EncounterArtworkDrawingDefinitions
             Projectiles = [.. DustExplosionProjectileAnimations.Segments.Frames],
         };
 
+    /// <summary>
+    /// Ridley's and Phantoon's statues, drawn in each eye picture their animations copy over them (#2625), and in their
+    /// room's load before the first.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing RidleyStatueEyes = StatueEyes(ComposedEncounter.RidleyStatue, EnemyProjectileFrameId.TourianStatueRidley);
+
+    /// <summary>Phantoon's statue, drawn in each eye picture its animation copies over it (#2625).</summary>
+    private static readonly EncounterArtworkDrawing PhantoonStatueEyes = StatueEyes(ComposedEncounter.PhantoonStatue, EnemyProjectileFrameId.TourianStatuePhantoon);
+
     /// <summary>Every entry, by encounter.</summary>
     internal static IReadOnlyList<EncounterArtworkDrawing> All { get; } =
     [
@@ -294,7 +303,13 @@ internal static partial class EncounterArtworkDrawingDefinitions
         MotherBrainSubtitleDrawn,
         MotherBrainHandBeam,
         MotherBrainDust,
+        RidleyStatueEyes,
+        PhantoonStatueEyes,
     ];
+
+    /// <summary>A sprite statue's picture, <paramref name="frame"/>, drawn in every look of <paramref name="encounter"/>.</summary>
+    private static EncounterArtworkDrawing StatueEyes(ComposedEncounter encounter, EnemyProjectileFrameId frame) =>
+        new(encounter, EncounterLookUploads.Looks(encounter)) { Projectiles = [frame] };
 
     /// <summary>Bomb Torizo's <paramref name="looks"/>.</summary>
     private static IEnumerable<ComposedLook> Bomb(params TorizoArtworkLook[] looks) =>

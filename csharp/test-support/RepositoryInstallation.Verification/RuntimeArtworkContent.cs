@@ -35,6 +35,9 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     /// <summary>The installation's area artwork, which only the import reads; the runtime binds none (#1512).</summary>
     public AreaSourceArtwork AreaTiles => InstalledFixtures.AreaArtwork;
 
+    /// <summary>The installation's room-FX atlas, whose Tourian statue eye pictures the sprite statues' looks copy (#2625).</summary>
+    public SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlas AnimatedTiles => InstalledFixtures.ImportMaps.BlockAnimationAtlas;
+
     /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation's escape-timer characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No bound catalog holds characters for the asset.</exception>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>

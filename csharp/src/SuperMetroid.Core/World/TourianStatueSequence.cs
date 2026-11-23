@@ -181,7 +181,12 @@ public sealed partial class TourianStatueSequence : IDisplayLatch
             TourianStatueBlockAnimations animations = statueAnimation.Animations;
             var target = new StatueCueTarget(this, definition, animations);
             if (statueAnimation.Player.StepToNewFrame(cue => cue.Run(target)) is { } picture)
+            {
                 _artworkFrames.Select(definition.Picture(picture));
+                // A sprite statue's animation copies the picture over its sprite's characters instead (#2625).
+                if (definition.GreyedSprite is { } sprite)
+                    _statue.ShowSpriteStatuePicture(sprite, picture);
+            }
         }
     }
 

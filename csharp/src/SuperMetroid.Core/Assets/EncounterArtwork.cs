@@ -26,4 +26,10 @@ public enum EncounterArtwork
 
     /// <summary>The Ceres self-destruct, whose escape timer and warning the Ridley arena's backgrounds show.</summary>
     CeresEscape,
+
+    /// <summary>Ridley's statue at the Tourian entrance, whose eye animation shows its eye pictures on its sprite (#2625).</summary>
+    RidleyStatue,
+
+    /// <summary>Phantoon's statue at the Tourian entrance, whose eye animation shows its eye pictures on its sprite (#2625).</summary>
+    PhantoonStatue,
 }

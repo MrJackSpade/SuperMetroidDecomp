@@ -32,4 +32,10 @@ internal enum ComposedEncounter
 
     /// <summary>Mother Brain's legs, the Baby, her attacks, her corpse and the escape.</summary>
     MotherBrain,
+
+    /// <summary>Ridley's statue's eyes, which its animation copies over the statue's sprite characters (#2625).</summary>
+    RidleyStatue,
+
+    /// <summary>Phantoon's statue's eyes, which its animation copies over the statue's sprite characters (#2625).</summary>
+    PhantoonStatue,
 }

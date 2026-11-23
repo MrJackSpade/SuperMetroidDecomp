@@ -5,4 +5,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// characters, all of which an encounter's composition reads, so none is reached by a cast that can fail.
 /// </summary>
 internal interface IInstalledEncounterArtwork : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork,
-    IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork;
+    IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork, IInstalledAnimatedTileArtwork;

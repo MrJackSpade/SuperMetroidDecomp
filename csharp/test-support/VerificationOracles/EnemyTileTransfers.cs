@@ -27,6 +27,9 @@ internal sealed class EnemyTileTransfers(ImportEnemyArtwork installed,
     /// <inheritdoc/>
     public AreaSourceArtwork AreaTiles => installed.Areas;
 
+    /// <summary>The installation's room-FX atlas, whose Tourian statue eye pictures the sprite statues' looks copy (#2625).</summary>
+    public SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlas AnimatedTiles => SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.BlockAnimationAtlas;
+
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
         timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer,

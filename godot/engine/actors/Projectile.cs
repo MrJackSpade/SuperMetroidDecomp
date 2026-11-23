@@ -215,7 +215,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     protected virtual bool DeliversHitNow => _settings.DeliversHit;
 
     /// <inheritdoc/>
-    public HitResult TakeHit(Hit hit, Collider part)
+    public virtual HitResult TakeHit(Hit hit, Collider part)
     {
         Room room = Room;
         switch (_settings.MetByShot)

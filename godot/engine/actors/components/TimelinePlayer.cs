@@ -17,6 +17,22 @@ public sealed class TimelinePlayer
     /// <summary>A player at the start of <paramref name="timeline"/>.</summary>
     public TimelinePlayer(FrameTimeline timeline) => Play(timeline);
 
+    /// <summary>
+    /// A player picking <paramref name="timeline"/> up at the start of one of its steps, with the first
+    /// <paramref name="cuesPassed"/> of that step's cues already behind it.
+    /// </summary>
+    public static TimelinePlayer Resuming(FrameTimeline timeline, int step, int cuesPassed)
+    {
+        ArgumentNullException.ThrowIfNull(timeline);
+        ArgumentOutOfRangeException.ThrowIfNegative(cuesPassed);
+        if (step < 0 || step >= timeline.Steps.Count)
+            throw new ArgumentOutOfRangeException(nameof(step), step, "A timeline is picked up at one of its own steps.");
+        var player = new TimelinePlayer(timeline);
+        player.Begin(step);
+        player._pendingCues = [.. timeline.Steps[step].Cues.Skip(cuesPassed)];
+        return player;
+    }
+
     /// <summary>The timeline being played.</summary>
     public FrameTimeline Timeline { get; private set; } = null!;
 
@@ -28,6 +44,9 @@ public sealed class TimelinePlayer
 
     /// <summary>Whether a timeline that does not loop has played through its last step.</summary>
     public bool IsOver { get; private set; }
+
+    /// <summary>Whether the step it is on has only just begun: no update has fallen in it yet, and its cues are still to come.</summary>
+    public bool IsAtStepStart { get; private set; }
 
     /// <summary>Starts <paramref name="timeline"/> from its first step.</summary>
     public void Play(FrameTimeline timeline)
@@ -48,6 +67,7 @@ public sealed class TimelinePlayer
             return [];
         IReadOnlyList<string> cues = _pendingCues;
         _pendingCues = [];
+        IsAtStepStart = false;
         _updatesLeft--;
         if (_updatesLeft == 0)
         {
@@ -68,5 +88,6 @@ public sealed class TimelinePlayer
         StepIndex = index;
         _updatesLeft = Timeline.Steps[index].Updates;
         _pendingCues = Timeline.Steps[index].Cues;
+        IsAtStepStart = true;
     }
 }

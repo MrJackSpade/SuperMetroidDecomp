@@ -155,7 +155,9 @@ public partial class SamusGrapple : Node2D
         IsLatched = true;
         held?.Latched();
         samus.Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons");
-        samus.ChangeState(new GrapplingState());
+        // Seized, she holds the line but hangs where she is held; otherwise she swings from it.
+        if (samus.State is not GrabbedState)
+            samus.ChangeState(new GrapplingState());
         QueueRedraw();
     }
 

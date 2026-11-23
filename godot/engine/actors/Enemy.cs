@@ -272,8 +272,43 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
             return;
         Playing = name;
         _animation = new TimelinePlayer(Timelines.Get(name));
-        Visual?.Show(_animation.Current.Picture);
+        Visual?.Show(PictureOf(_animation.Current));
     }
+
+    /// <summary>
+    /// The place its timeline has reached, to pick it up from again later. Asked while a cue is being acted on, that is
+    /// just past that cue, with the rest of the step still to come; asked at any other time, it is the start of the
+    /// step that follows the one showing.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">It shows no timeline, or the one it shows has ended.</exception>
+    protected TimelineMark MarkTimeline()
+    {
+        TimelinePlayer playing = _animation ?? throw new InvalidOperationException($"The enemy \"{Name}\" shows no timeline to mark a place in.");
+        if (_cueBeingActedOn >= 0)
+            return new TimelineMark(Playing, _cueStep, _cueBeingActedOn + 1);
+        if (playing.IsOver)
+            throw new InvalidOperationException($"The timeline \"{Playing}\" of the enemy \"{Name}\" has ended and has no place to mark.");
+        if (playing.IsAtStepStart)
+            return new TimelineMark(Playing, playing.StepIndex, 0);
+        int next = playing.StepIndex + 1 < playing.Timeline.Steps.Count
+            ? playing.StepIndex + 1
+            : playing.Timeline.LoopsTo ?? throw new InvalidOperationException($"The timeline \"{Playing}\" of the enemy \"{Name}\" ends after the step showing.");
+        return new TimelineMark(Playing, next, 0);
+    }
+
+    /// <summary>Picks its timeline up again from a place marked earlier.</summary>
+    protected void ResumeTimeline(TimelineMark mark)
+    {
+        Playing = mark.Name;
+        _animation = TimelinePlayer.Resuming(Timelines.Get(mark.Name), mark.Step, mark.CuesPassed);
+        Visual?.Show(PictureOf(_animation.Current));
+    }
+
+    /// <summary>
+    /// The picture shown for a step of its timeline. The engine's enemy shows the step's own; an enemy whose pictures
+    /// depend on something more, such as what state its body is in, says which here.
+    /// </summary>
+    protected virtual string PictureOf(TimelineStep step) => step.Picture;
 
     /// <summary>
     /// Called for each cue the enemy's timeline reaches that is the enemy's own. The base acts on three itself:
@@ -557,23 +592,46 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     {
         if (_animation is null || HoldsTimeline)
             return;
-        foreach (string cue in _animation.Step())
+        // A cue may start another timeline. The rest of the old step's cues are then dropped, and the new timeline's
+        // first step begins in this same update, so that nothing is lost between the two.
+        for (int switches = 0; ; switches++)
         {
-            // Three cues mean the same for every enemy; the rest are the enemy's own.
-            if (cue.StartsWith("sound:", StringComparison.Ordinal))
-                Sound(cue["sound:".Length..]);
-            else if (cue == "always_active")
-                AlwaysActive = true;
-            else if (cue == "not_always_active")
-                AlwaysActive = false;
-            else
-                OnCue(cue);
-            if (IsDead)
-                return;
+            if (switches > MostTimelineSwitches)
+                throw new InvalidOperationException($"The timelines of the enemy \"{Name}\" start one another without end; the last was \"{Playing}\".");
+            TimelinePlayer playing = _animation;
+            _cueStep = playing.StepIndex;
+            IReadOnlyList<string> cues = playing.Step();
+            for (int index = 0; index < cues.Count && _animation == playing; index++)
+            {
+                string cue = cues[index];
+                _cueBeingActedOn = playing.Timeline.Steps[_cueStep].Cues.Count - cues.Count + index;
+                // Three cues mean the same for every enemy; the rest are the enemy's own.
+                if (cue.StartsWith("sound:", StringComparison.Ordinal))
+                    Sound(cue["sound:".Length..]);
+                else if (cue == "always_active")
+                    AlwaysActive = true;
+                else if (cue == "not_always_active")
+                    AlwaysActive = false;
+                else
+                    OnCue(cue);
+                _cueBeingActedOn = -1;
+                if (IsDead)
+                    return;
+            }
+
+            if (_animation == playing)
+                break;
         }
 
-        Visual?.Show(_animation.Current.Picture);
+        Visual?.Show(PictureOf(_animation.Current));
     }
+
+    /// <summary>How many times in one update its timelines may start one another before that is taken for a mistake in them.</summary>
+    private const int MostTimelineSwitches = 64;
+
+    /// <summary>The step whose cues are being acted on, and which of them; the latter is below nothing when none is.</summary>
+    private int _cueStep;
+    private int _cueBeingActedOn = -1;
 
     /// <summary>Shows the enemy as it is: flashing when hurt, tinted when frozen.</summary>
     private void ShowLook()

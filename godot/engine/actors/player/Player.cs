@@ -734,7 +734,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             ClimbPerPixel = grounded ? ClimbPerPixel : 1,
             FollowGroundDown = grounded ? FollowGroundDown : 0,
         };
-        MoveResult result = Room.Mover.MoveAcross(Body, InLiquid(SpeedAcross), options);
+        MoveResult result = Room.Mover.MoveAcross(Body, Slowed(InLiquid(SpeedAcross)), options);
         if (result.Blocked)
             StopAcross();
         return result;
@@ -811,6 +811,23 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Liquid? liquid = HinderingLiquid(Feet);
         PlayerMedium? inLiquid = liquid is null ? null : Mediums.FirstOrDefault(medium => medium.MediumName == liquid.Type.Name);
         return inLiquid ?? Mediums.First(medium => medium.MediumName == PlayerMedium.Air);
+    }
+
+    /// <summary>
+    /// How many times over the player's speed across is halved by things clinging to them. Whatever clings raises it
+    /// and lowers it again; it is never taken above <see cref="MostSpeedHalvings"/>.
+    /// </summary>
+    public int SpeedHalvings { get; set; }
+
+    /// <summary>The most times the player's speed across can be halved.</summary>
+    [Export]
+    public int MostSpeedHalvings { get; set; } = 4;
+
+    /// <summary>A distance across moved this update, halved as many times as the player is slowed.</summary>
+    private Pixels Slowed(Pixels distance)
+    {
+        int halvings = Math.Clamp(SpeedHalvings, 0, MostSpeedHalvings);
+        return halvings == 0 ? distance : distance.Share(1, 1 << halvings);
     }
 
     /// <summary>

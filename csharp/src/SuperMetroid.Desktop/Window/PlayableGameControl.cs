@@ -624,12 +624,20 @@ public sealed class PlayableGameControl : UserControl
             RefreshFrame(frame);
     }
 
+    /// <summary>Whether a measured run's next batch is already queued on the message loop, which the timer then leaves to it.</summary>
+    private bool measuredBatchQueued;
+
     /// <summary>
     /// Runs frames back to back for one timer interval, publishing each and waiting until the render worker has submitted
-    /// it before the next runs (#2653), so every frame is rendered and presented once for a measurement.
+    /// it before the next runs (#2653), so every frame is rendered and presented once for a measurement. The next batch is
+    /// queued at once behind the window's pending messages rather than left to the timer's next tick.
     /// </summary>
     private void AdvanceEachFramePresented()
     {
+        measuredBatchQueued = false;
+        // A paused run queues nothing further; the timer resumes it when playback starts again.
+        if (!playbackTimer.Enabled)
+            return;
         var worker = gpuWorker ?? throw new InvalidOperationException("A measured replay presents through the Direct3D 11 worker.");
         long budget = Stopwatch.Frequency * playbackTimer.Interval / 1000;
         long started = Stopwatch.GetTimestamp();
@@ -647,6 +655,10 @@ public sealed class PlayableGameControl : UserControl
             }
         }
         while (Stopwatch.GetTimestamp() - started < budget);
+        // The queued batch runs itself: the timer's ticks leave a queued batch to it, so queuing the timer's own entry
+        // would find the batch queued and run nothing.
+        measuredBatchQueued = true;
+        BeginInvoke(AdvanceEachFramePresented);
     }
 
     /// <summary>
@@ -661,7 +673,8 @@ public sealed class PlayableGameControl : UserControl
         }
         if (driver?.Pacing == HostFramePacing.EachFramePresented)
         {
-            AdvanceEachFramePresented();
+            if (!measuredBatchQueued)
+                AdvanceEachFramePresented();
             return;
         }
 

@@ -98,6 +98,15 @@ public sealed class D3D11RenderWorker
     /// <summary>Each packet's timing since <see cref="StartFrameLog"/>, in the order the worker submitted them; null before.</summary>
     private System.Collections.Concurrent.ConcurrentQueue<RenderedFrameTiming>? frameLog;
 
+    /// <summary>Whether presents no longer wait for the display's refresh, as a frame-time measurement asks (#2653).</summary>
+    private bool presentsUnsynchronized;
+
+    /// <summary>
+    /// Presents from now on without waiting for the display's refresh (#2653): a frame-time measurement reads how long each
+    /// frame's work takes, which a wait for the refresh would pad.
+    /// </summary>
+    public void PresentUnsynchronized() => Volatile.Write(ref presentsUnsynchronized, true);
+
     /// <summary>Starts recording every packet's timing (#2653), for a measurement that reads each frame's render and present.</summary>
     public void StartFrameLog() => Volatile.Write(ref frameLog, new System.Collections.Concurrent.ConcurrentQueue<RenderedFrameTiming>());
 
@@ -301,7 +310,7 @@ public sealed class D3D11RenderWorker
                         cpuCompositionTiming.Record(compositionMilliseconds);
                         if (timed) gpuTimer.MarkCompositionFinished();
                         long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
-                        var presentationResult = presenter.Present(renderer, packet, gate, timed ? gpuTimer : null);
+                        var presentationResult = presenter.Present(renderer, packet, gate, timed ? gpuTimer : null, !Volatile.Read(ref presentsUnsynchronized));
                         double presentMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds;
                         cpuPresentationTiming.Record(presentMilliseconds);
                         Volatile.Read(ref frameLog)?.Enqueue(new RenderedFrameTiming(packet.Identity.Sequence, compositionMilliseconds, presentMilliseconds, presentationResult));

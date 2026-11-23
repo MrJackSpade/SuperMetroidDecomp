@@ -244,13 +244,13 @@ internal static partial class SwapchainTests
             var packet = new RenderFrame(new(1, 1), new DisplayPacket(0, new RgbaPixel(173,91,27)));
             renderer.Render(packet.Display);
             _ = presenter.TryAcquireFrameOpportunity();
-            var outcome = presenter.Present(renderer, packet, gate, null);
+            var outcome = presenter.Present(renderer, packet, gate, null, waitForVerticalBlank: true);
             if (outcome == D3D11PresentationResult.StaleGeneration) throw new InvalidOperationException("Current frame was rejected.");
             gate.AdvanceGeneration(2);
-            if (presenter.Present(renderer, packet, gate, null) != D3D11PresentationResult.StaleGeneration)
+            if (presenter.Present(renderer, packet, gate, null, waitForVerticalBlank: true) != D3D11PresentationResult.StaleGeneration)
                 throw new InvalidOperationException("Swapchain presented stale generation.");
             bool mismatch = false;
-            try { presenter.Present(renderer, new RenderFrame(new(2, 2), new DisplayPacket(0, new RgbaPixel(173,91,27))), gate, null); }
+            try { presenter.Present(renderer, new RenderFrame(new(2, 2), new DisplayPacket(0, new RgbaPixel(173,91,27))), gate, null, waitForVerticalBlank: true); }
             catch (InvalidOperationException) { mismatch = true; }
             if (!mismatch) throw new InvalidOperationException("Swapchain accepted mismatched GPU frame identity.");
             foreach (var size in new Extent16<DisplayPixels>[] { new(319, 601), new(1, 1), new(800, 600) })
@@ -258,7 +258,7 @@ internal static partial class SwapchainTests
                 presenter.Resize(size);
                 packet = new RenderFrame(new(packet.Identity.Sequence + 1, 2), new DisplayPacket(0, new RgbaPixel(27,91,173)));
                 renderer.Render(packet.Display);
-                outcome = presenter.Present(renderer, packet, gate, null);
+                outcome = presenter.Present(renderer, packet, gate, null, waitForVerticalBlank: true);
                 if (outcome == D3D11PresentationResult.StaleGeneration) throw new InvalidOperationException("Resized frame was rejected.");
             }
             Console.WriteLine($"{device.Kind}: hidden flip swapchain creation, readiness, resize and generation checks passed; last status {outcome}.");

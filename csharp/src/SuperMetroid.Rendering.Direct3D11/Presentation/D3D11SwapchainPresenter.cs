@@ -60,8 +60,9 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     public bool TryAcquireFrameOpportunity() { Verify(); return latency.WaitOne(0); }
 
     /// <summary>Draws the submitted display and presents only if the frame still belongs to the current generation.</summary>
+    /// <param name="waitForVerticalBlank">Whether the present waits for the display's refresh; a frame-time measurement does not (#2653).</param>
     internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrame frame,
-        RenderPresentationGate gate, D3D11GpuTimer? timer)
+        RenderPresentationGate gate, D3D11GpuTimer? timer, bool waitForVerticalBlank)
     {
         Verify();
         if (!ReferenceEquals(renderer.DeviceOwner, owner)) throw new InvalidOperationException("Renderer and swapchain must share a device owner.");
@@ -74,7 +75,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         D3D11PresentationResult outcome = D3D11PresentationResult.StaleGeneration;
         gate.TryPresent(frame.Identity, () =>
         {
-            var result = swapchain.Present(1, PresentFlags.None);
+            var result = swapchain.Present(waitForVerticalBlank ? 1u : 0u, PresentFlags.None);
             result.CheckError();
             if (result.Code == (int)DxgiPresentationStatus.Occluded) outcome = D3D11PresentationResult.Occluded;
             else if (result.Code == 0) outcome = D3D11PresentationResult.Presented;

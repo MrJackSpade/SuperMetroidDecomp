@@ -27,6 +27,9 @@ internal sealed partial class EngineEnemy
         Pictures = pictures;
         Definition = RoomEnemyDefinitionCatalog.ById[id];
         EngineDefaults.Fill(Data, type);
+        // Every enemy that moves by a curve of speeds moves by the one curve the old game has.
+        if (Data.ContainsKey("speed_curve"))
+            Data["speed_curve"] = EngineAssetWriter.SpeedCurveFile;
         Data["health"] = Definition.Health;
         Data["contact_damage"] = Definition.Damage;
         Data["hurt_flash_updates"] = Definition.HurtFlashFrames;

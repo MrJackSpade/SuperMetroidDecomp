@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Core.Spatial;
@@ -126,6 +127,18 @@ public sealed partial class EngineAssetWriter
                 ("facing_up_left", CompassDirection.UpLeft), ("facing_left", CompassDirection.Left),
                 ("facing_down_left", CompassDirection.DownLeft), ("facing_down", CompassDirection.Down),
                 ("facing_down_right", CompassDirection.DownRight))
+            .Write();
+
+        // The Tripper, and the suspensor platform, which is the same thing with one look whether it sinks or not.
+        Enemy("enemies/tripper.json", "Tripper", EnemyDefinitionId.Tripper).BodyColliders("Body", "Solid", "Hurtbox")
+            .Looks(PlatformAnimations.Segments, PlatformAnimations.StartingWith, static (PlatformCue _) => null,
+                ("moving_left", PlatformSegment.TripperMovingLeft), ("moving_right", PlatformSegment.TripperMovingRight),
+                ("still_left", PlatformSegment.TripperStillMovingLeft), ("still_right", PlatformSegment.TripperStillMovingRight))
+            .Write();
+        Enemy("enemies/suspensor_platform.json", "Tripper", EnemyDefinitionId.SuspensorPlatform).BodyColliders("Body", "Solid", "Hurtbox")
+            .Looks(PlatformAnimations.Segments, PlatformAnimations.StartingWith, static (PlatformCue _) => null,
+                ("moving_left", PlatformSegment.SuspensorPlatformHeadingLeft), ("moving_right", PlatformSegment.SuspensorPlatformHeadingRight),
+                ("still_left", PlatformSegment.SuspensorPlatformHeadingLeft), ("still_right", PlatformSegment.SuspensorPlatformHeadingRight))
             .Write();
 
         Enemy("enemies/spark.json", "Spark", EnemyDefinitionId.Spark).BodyColliders(Ordinary)

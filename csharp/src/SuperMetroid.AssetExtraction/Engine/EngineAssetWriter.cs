@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Enemies;
 
@@ -29,8 +30,21 @@ public sealed partial class EngineAssetWriter
         ArgumentException.ThrowIfNullOrWhiteSpace(assets);
         var installation = new GameInstallation(installationRoot);
         var writer = new EngineAssetWriter(installation, assets);
+        writer.WriteShared();
         new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams()).WriteAll();
         writer.WriteEnemies();
+    }
+
+    /// <summary>The data file of the curve of speeds that hops, lunges and swings follow.</summary>
+    internal const string SpeedCurveFile = "curves/quadratic.json";
+
+    /// <summary>Writes what many things share: the curve of speeds.</summary>
+    private void WriteShared()
+    {
+        var speeds = new JsonArray();
+        foreach (QuadraticCurveSpeed mark in QuadraticSpeedCurveDefinitions.Speeds)
+            speeds.Add(EngineNames.Number(mark.Speed));
+        _tree.WriteData(SpeedCurveFile, new JsonObject { ["speeds"] = speeds });
     }
 
     /// <summary>

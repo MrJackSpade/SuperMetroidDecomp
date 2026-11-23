@@ -124,8 +124,6 @@ public partial class Ridley : RidleyBody
     private Band _band = null!;
     private int _timer;
     private int _swoopTimer;
-    private int _swoopHeading;
-    private Pixels _swoopSpeed;
     private int _revealLeft;
     private bool _holdsSamus;
     private PixelOffset _grabOffset;
@@ -283,7 +281,7 @@ public partial class Ridley : RidleyBody
                 break;
 
             case Phase.SwoopSetup:
-                (_phase, _swoopHeading) = (Phase.SwoopMoveToStart, 0);
+                (_phase, SwoopHeading) = (Phase.SwoopMoveToStart, 0);
                 goto case Phase.SwoopMoveToStart;
 
             case Phase.SwoopMoveToStart:
@@ -291,7 +289,7 @@ public partial class Ridley : RidleyBody
                 FlyToward(start, 15);
                 if (!IsNear(start, 8, 8))
                     break;
-                (_phase, _swoopTimer, _swoopHeading) = (Phase.SwoopAimDown, 33, 0);
+                (_phase, _swoopTimer, SwoopHeading) = (Phase.SwoopAimDown, 33, 0);
                 break;
 
             case Phase.SwoopAimDown:
@@ -597,26 +595,6 @@ public partial class Ridley : RidleyBody
             return false;
         (_phase, _swoopTimer) = (next, nextUpdates);
         return true;
-    }
-
-    /// <summary>
-    /// Sets its speed along its swoop's heading. The heading is in 256ths of a 256th of a turn, from straight down
-    /// toward the right; it turns the given way and stops at its target.
-    /// </summary>
-    private void SetSwoopSpeed(int turn, bool clockwise, int target, Pixels speed)
-    {
-        Pixels step = Pixels.FromNumber(0.125);
-        _swoopSpeed = _swoopSpeed < speed
-            ? (_swoopSpeed + step > speed ? speed : _swoopSpeed + step)
-            : (_swoopSpeed - step < speed ? speed : _swoopSpeed - step);
-        int full = Turns.PerTurn * 256;
-        int heading = _swoopHeading + (clockwise ? -turn : turn);
-        int difference = ((heading - target) % full + full + full / 2) % full - full / 2;
-        if (clockwise ? difference < 0 : difference >= 0)
-            heading = target;
-        _swoopHeading = heading;
-        int angle = Turns.Wrap(heading >> 8);
-        Velocity = new PixelVelocity(Turns.Sine(angle, _swoopSpeed), Turns.Cosine(angle, _swoopSpeed));
     }
 
     /// <summary>Turns about, if it has its back to the middle of the room.</summary>

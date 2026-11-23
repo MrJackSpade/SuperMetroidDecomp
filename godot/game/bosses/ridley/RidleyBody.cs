@@ -366,6 +366,58 @@ public abstract partial class RidleyBody : Enemy
         return speed >= MostSpeed ? MostSpeed : speed;
     }
 
+    /// <summary>
+    /// Pulls its speed toward a place as <see cref="FlyToward"/> does, but more simply: a speed carrying it away from
+    /// the place is checked by three steps and no more.
+    /// </summary>
+    protected void FlyPlainlyToward(PixelPosition target, int divisor)
+    {
+        divisor = Math.Clamp(divisor, 1, 16);
+        Velocity = new PixelVelocity(
+            SeekPlainly(Velocity.X, Position.X.Whole - target.X.Whole, divisor),
+            SeekPlainly(Velocity.Y, Position.Y.Whole - target.Y.Whole, divisor));
+    }
+
+    private static Pixels SeekPlainly(Pixels speed, int fromTarget, int divisor)
+    {
+        if (fromTarget == 0)
+            return speed;
+        Pixels step = Pixels.FromNumber(Math.Max(1, Math.Abs(fromTarget) / divisor) / 256.0);
+        if (fromTarget < 0)
+        {
+            speed += speed.IsNegative ? step + step + step : step;
+            return speed > MostSpeed ? MostSpeed : speed;
+        }
+
+        speed -= speed.IsNegative ? step : step + step + step;
+        return speed < -MostSpeed ? -MostSpeed : speed;
+    }
+
+    /// <summary>
+    /// Sets its speed along a heading that turns toward a target and stops there, with its speed moving toward a speed.
+    /// Headings are in 256ths of a 256th of a turn, from straight down toward the right.
+    /// </summary>
+    protected void SetSwoopSpeed(int turn, bool clockwise, int target, Pixels speed)
+    {
+        Pixels step = Pixels.FromNumber(0.125);
+        _swoopSpeed = _swoopSpeed < speed
+            ? (_swoopSpeed + step > speed ? speed : _swoopSpeed + step)
+            : (_swoopSpeed - step < speed ? speed : _swoopSpeed - step);
+        int full = Turns.PerTurn * 256;
+        int heading = SwoopHeading + (clockwise ? -turn : turn);
+        int difference = ((heading - target) % full + full + full / 2) % full - full / 2;
+        if (clockwise ? difference < 0 : difference >= 0)
+            heading = target;
+        SwoopHeading = heading;
+        int angle = Turns.Wrap(heading >> 8);
+        Velocity = new PixelVelocity(Turns.Sine(angle, _swoopSpeed), Turns.Cosine(angle, _swoopSpeed));
+    }
+
+    /// <summary>The heading of its swoop.</summary>
+    protected int SwoopHeading { get; set; }
+
+    private Pixels _swoopSpeed;
+
     /// <summary>Whether its middle is within a reach of a place, allowing for its own size.</summary>
     protected bool IsNear(PixelPosition place, int reachAcross, int reachDown)
     {

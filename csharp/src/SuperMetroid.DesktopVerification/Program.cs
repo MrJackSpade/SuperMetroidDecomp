@@ -57,7 +57,7 @@ internal static class Program
     private static void Run(string[] args)
     {
         // The fixtures this assembly writes into debugger states are registered beside the game's types (#2602).
-        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(SuperMetroid.DesktopVerification.GeneratedStateGraph.Register);
+        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.AddAssembly(SuperMetroid.DesktopVerification.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.DesktopVerification.GeneratedStateGraph.Register);
         NativeConsoleErrors.DisableDialogs();
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.DesktopVerification " + string.Join(' ', args));
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);

@@ -20,12 +20,6 @@ public static partial class StateGraphCatalogInitializations
     /// <summary>The catalogs whose type initializers have begun, in the order they began.</summary>
     public static IReadOnlyList<Type> Initialized => Volatile.Read(ref initialized);
 
-    /// <summary>
-    /// Raised on the thread running a catalog's initializer after the catalog is marked. A handler runs inside that type
-    /// initializer, so it only signals: it reads no catalog and takes no lock a capture holds.
-    /// </summary>
-    public static event Action? Marked;
-
     /// <summary>Marks <paramref name="catalog"/> as initialized; its type initializer calls this as it runs.</summary>
     /// <param name="catalog">The catalog's type.</param>
     /// <returns>True, which the catalog's generated marker field holds.</returns>
@@ -39,7 +33,6 @@ public static partial class StateGraphCatalogInitializations
             next = [.. seen, catalog];
         }
         while (!ReferenceEquals(Interlocked.CompareExchange(ref initialized, next, seen), seen));
-        Marked?.Invoke();
         return true;
     }
 }

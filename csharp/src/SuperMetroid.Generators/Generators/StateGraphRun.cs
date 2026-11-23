@@ -70,8 +70,11 @@ internal sealed partial class StateGraphRun
     /// <summary>The registrations each type's own registration adds: delegate methods and catalogs.</summary>
     private readonly Dictionary<INamedTypeSymbol, List<string>> extraRegistrations = new(SymbolEqualityComparer.Default);
 
-    /// <summary>The assembly registrar's own lines: the enums no covered type registers.</summary>
-    private readonly List<string> assemblyRegistrations = [];
+    /// <summary>
+    /// The assembly registrar's own lines: the enums no covered type registers, each under the name of the top-level type
+    /// it is declared in, or its own.
+    /// </summary>
+    private readonly List<(string TopLevel, string Line)> assemblyRegistrations = [];
 
     internal StateGraphRun(Compilation compilation, SourceProductionContext output, bool partialOnly, bool catalogs)
     {

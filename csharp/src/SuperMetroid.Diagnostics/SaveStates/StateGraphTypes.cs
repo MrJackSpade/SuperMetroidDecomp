@@ -10,6 +10,13 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// (a frozen collection, the read-only list the compiler makes for a collection expression) by asking each registration
 /// that accepts it; it names nothing it was not told about.
 /// </summary>
+/// <remarks>
+/// A type is registered the first time a state needs it (#2619), not as the registry is built: a game object registers its
+/// type when first met (<see cref="IStateGraphNode"/>), and any other lookup that misses first registers what the
+/// top-level type declaring the type it asks about declares, through each assembly's generated lookup by name. Building
+/// every type's handling first, some seventeen thousand of them, took seconds at startup. A state naming a type no lookup
+/// has reached registers what its names' top-level types declare, and then every type.
+/// </remarks>
 internal sealed partial class StateGraphTypes : IStateGraphRegistry
 {
     /// <summary>The process's registry: the game's assemblies, and whatever verification adds.</summary>
@@ -18,9 +25,9 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     private static readonly Lazy<StateGraphTypes> shared = new(static () =>
     {
         var types = new StateGraphTypes();
-        types.Add(SuperMetroid.Core.GeneratedStateGraph.Register);
-        types.Add(SuperMetroid.AssetExtraction.GeneratedStateGraph.Register);
-        types.Add(SuperMetroid.Diagnostics.GeneratedStateGraph.Register);
+        types.AddAssembly(SuperMetroid.Core.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.Core.GeneratedStateGraph.Register);
+        types.AddAssembly(SuperMetroid.AssetExtraction.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.AssetExtraction.GeneratedStateGraph.Register);
+        types.AddAssembly(SuperMetroid.Diagnostics.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.Diagnostics.GeneratedStateGraph.Register);
         return types;
     });
 
@@ -51,6 +58,15 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     /// <summary>The registrations whose names are not indexed yet: handlings and probes, and named types with their names.</summary>
     private readonly List<object> unnamed = [];
 
+    /// <summary>Each assembly's generated registrations: what a top-level type declares, by its name, and every type.</summary>
+    private readonly List<(Func<string, IStateGraphRegistry, bool> DeclaredIn, Action<IStateGraphRegistry> Everything)> assemblies = [];
+
+    /// <summary>The top-level type names whose declarations were registered, or were asked for and found in no assembly.</summary>
+    private readonly HashSet<string> declaredInAsked = new(StringComparer.Ordinal);
+
+    /// <summary>Whether every assembly's every type is registered.</summary>
+    private bool everythingRegistered;
+
     /// <summary>Starts a registry holding the scalars, strings and the framework's own stateless objects.</summary>
     internal StateGraphTypes()
     {
@@ -69,15 +85,112 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     /// <summary>The catalogs registered: each type, its name and its static read-only members holding objects.</summary>
     internal List<(Type Catalog, StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> Catalogs { get; } = [];
 
-    /// <summary>Adds an assembly's registration.</summary>
-    /// <param name="registration">The assembly's generated registration.</param>
+    /// <summary>Runs a registration now, such as one naming a type no assembly's generated registrations declare.</summary>
+    /// <param name="registration">The registration.</param>
     internal void Add(Action<IStateGraphRegistry> registration)
     {
         Ensure.NotNull(registration);
         lock (gate)
-        {
             registration(this);
+    }
+
+    /// <summary>Adds an assembly's generated registrations, none of which runs until a lookup needs one of its types.</summary>
+    /// <param name="declaredIn">Registers what a top-level type declares, by the type's name; false for a name it does not declare.</param>
+    /// <param name="everything">Registers every type of the assembly.</param>
+    internal void AddAssembly(Func<string, IStateGraphRegistry, bool> declaredIn, Action<IStateGraphRegistry> everything)
+    {
+        Ensure.NotNull(declaredIn);
+        Ensure.NotNull(everything);
+        lock (gate)
+        {
+            assemblies.Add((declaredIn, everything));
+            if (everythingRegistered)
+                everything(this);
         }
+    }
+
+    /// <summary>Registers what the top-level type declaring <paramref name="type"/> declares, and its type arguments' and element type's.</summary>
+    internal void RegisterDeclaring(Type type)
+    {
+        Ensure.NotNull(type);
+        lock (gate)
+            Declaring(type);
+    }
+
+    /// <summary>Registers what the top-level types the names within a state's <paramref name="name"/> name declare.</summary>
+    internal void RegisterNamed(string name)
+    {
+        Ensure.NotNull(name);
+        lock (gate)
+            Named(name.AsSpan());
+    }
+
+    /// <summary>Registers every type of every assembly, as a lookup that must see them all needs.</summary>
+    internal void RegisterEverything()
+    {
+        lock (gate)
+            Everything();
+    }
+
+    /// <summary>The catalogs registered so far.</summary>
+    internal IReadOnlyList<(Type Catalog, StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> CatalogsRegistered()
+    {
+        lock (gate)
+            return [.. Catalogs];
+    }
+
+    /// <summary>Registers what the top-level type declaring <paramref name="type"/> declares; callers hold the lock.</summary>
+    private void Declaring(Type type)
+    {
+        while (type.HasElementType)
+            type = type.GetElementType()!;
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+        {
+            foreach (Type argument in type.GetGenericArguments())
+                Declaring(argument);
+        }
+        Type topLevel = type;
+        while (topLevel.DeclaringType is { } outer)
+            topLevel = outer;
+        // A generic top-level type has no registration of its own: each construction registers itself when first met.
+        if (!topLevel.IsGenericType && topLevel.FullName is { } name)
+            DeclaredIn(name);
+    }
+
+    /// <summary>Registers what the top-level types named within <paramref name="name"/> declare; callers hold the lock.</summary>
+    private void Named(ReadOnlySpan<char> name)
+    {
+        foreach (Range part in name.SplitAny("<>,[]():"))
+        {
+            ReadOnlySpan<char> named = name[part].Trim();
+            int nested = named.IndexOf('+');
+            if (nested >= 0)
+                named = named[..nested];
+            if (!named.IsEmpty)
+                DeclaredIn(named.ToString());
+        }
+    }
+
+    /// <summary>Registers what the top-level type <paramref name="name"/> declares unless asked for before; callers hold the lock.</summary>
+    private void DeclaredIn(string name)
+    {
+        if (everythingRegistered || !declaredInAsked.Add(name))
+            return;
+        foreach ((Func<string, IStateGraphRegistry, bool> declaredIn, Action<IStateGraphRegistry> _) in assemblies)
+        {
+            if (declaredIn(name, this))
+                return;
+        }
+    }
+
+    /// <summary>Registers every type of every assembly; callers hold the lock.</summary>
+    private void Everything()
+    {
+        if (everythingRegistered)
+            return;
+        everythingRegistered = true;
+        foreach ((Func<string, IStateGraphRegistry, bool> _, Action<IStateGraphRegistry> everything) in assemblies)
+            everything(this);
     }
 
     /// <summary>The handling of <paramref name="value"/>'s type.</summary>
@@ -101,6 +214,18 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
             if (byType.TryGetValue(type, out known))
                 return known;
         }
+        lock (gate)
+        {
+            Declaring(type);
+            // A delegate's type is registered by the types declaring the methods it is made from.
+            if (value is Delegate made)
+            {
+                foreach (Delegate call in made.GetInvocationList())
+                    Declaring(call.Method.DeclaringType ?? type);
+            }
+        }
+        if (byType.TryGetValue(type, out known))
+            return known;
         StateGraphType? found = null;
         // A framework collection is accepted only by a probe of a collection, which is not asked about any other object.
         bool enumerates = value is System.Collections.IEnumerable;
@@ -118,7 +243,18 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     }
 
     /// <summary>The registered handling of values of exactly <paramref name="type"/>, or none.</summary>
-    internal StateGraphType? Registered(Type type) => byType.TryGetValue(type, out StateGraphType? known) ? known : null;
+    internal StateGraphType? Registered(Type type)
+    {
+        if (byType.TryGetValue(type, out StateGraphType? known))
+            return known;
+        // A type registered by no declaration is asked about once; a later registration of it is found above.
+        if (declaringAsked.TryAdd(type, true))
+            RegisterDeclaring(type);
+        return byType.TryGetValue(type, out known) ? known : null;
+    }
+
+    /// <summary>The types <see cref="Registered"/> has registered the declarations of.</summary>
+    private readonly ConcurrentDictionary<Type, bool> declaringAsked = new();
 
     /// <summary>The name a state gives <paramref name="type"/>.</summary>
     /// <exception cref="NotSupportedException">No registration names the type.</exception>
@@ -165,6 +301,15 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
             IndexNames(everything: false);
             if (index.TryGetValue(name, out known))
                 return known;
+            IndexNames(everything: true);
+            if (index.TryGetValue(name, out known))
+                return known;
+            // A state written by another process names types no lookup here has reached (#2619).
+            Named(name.AsSpan());
+            IndexNames(everything: true);
+            if (index.TryGetValue(name, out known))
+                return known;
+            Everything();
             IndexNames(everything: true);
             return index.TryGetValue(name, out known) ? known : null;
         }
@@ -266,12 +411,12 @@ internal sealed partial class StateGraphTypes : IStateGraphRegistry
     /// <summary>The handling of the enum <typeparamref name="TEnum"/>.</summary>
     /// <exception cref="NotSupportedException">The enum is not registered.</exception>
     internal EnumStateType<TEnum> EnumOf<TEnum>() where TEnum : struct, Enum =>
-        byType.TryGetValue(typeof(TEnum), out StateGraphType? type)
+        Registered(typeof(TEnum)) is { } type
             ? (EnumStateType<TEnum>)type
             : throw new NotSupportedException($"Debugger state cannot hold the enum {typeof(TEnum).FullName}: no registration names it.");
 
     /// <summary>The handling of the game's value type <typeparamref name="T"/>, or none.</summary>
-    internal NodeStateType<T>? NodeOf<T>() => byType.TryGetValue(typeof(T), out StateGraphType? type) ? type as NodeStateType<T> : null;
+    internal NodeStateType<T>? NodeOf<T>() => Registered(typeof(T)) as NodeStateType<T>;
 
     // ---------------------------------------------------------------- IStateGraphRegistry
 

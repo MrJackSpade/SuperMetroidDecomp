@@ -45,13 +45,37 @@ internal sealed class DelegateStateType<TDelegate>(StateGraphTypes types) : Stat
     /// <exception cref="NotSupportedException">No registered method makes the call: it calls a lambda or another assembly's method.</exception>
     private string MethodOf(Delegate call)
     {
+        if (Made(call) is { } name)
+            return name;
+        // The type declaring the method registers it, the first time a state needs it (#2619).
+        Types.RegisterDeclaring(call.Method.DeclaringType ?? typeof(TDelegate));
+        if (Made(call) is { } registered)
+            return registered;
+        throw new NotSupportedException(
+            $"Debugger state cannot hold a {DelegateName()} made from a method no type registers, such as a lambda; its target is {call.Target?.GetType().FullName ?? "none"}");
+    }
+
+    /// <summary>The name of the registered method that makes <paramref name="call"/>, or none.</summary>
+    private string? Made(Delegate call)
+    {
         foreach ((string name, Func<object?, TDelegate?> create) in methods)
         {
             if (create(call.Target) is { } remade && remade.Equals(call))
                 return name;
         }
-        throw new NotSupportedException(
-            $"Debugger state cannot hold a {DelegateName()} made from a method no type registers, such as a lambda; its target is {call.Target?.GetType().FullName ?? "none"}");
+        return null;
+    }
+
+    /// <summary>The registration of the method <paramref name="name"/> names, registering the types it names, then every type, until found.</summary>
+    private Func<object?, TDelegate?>? Method(string name)
+    {
+        if (byName.TryGetValue(name, out Func<object?, TDelegate?>? create))
+            return create;
+        Types.RegisterNamed(name);
+        if (byName.TryGetValue(name, out create))
+            return create;
+        Types.RegisterEverything();
+        return byName.TryGetValue(name, out create) ? create : null;
     }
 
     /// <inheritdoc/>
@@ -66,7 +90,7 @@ internal sealed class DelegateStateType<TDelegate>(StateGraphTypes types) : Stat
         for (int index = 0; index < count; index++)
         {
             string name = reader.ReadName();
-            if (!byName.TryGetValue(name, out Func<object?, TDelegate?>? create))
+            if (Method(name) is not { } create)
                 throw new InvalidDataException($"{DebuggerObjectGraphSerializer.UnsupportedVersion}: a saved {DelegateName()} calls {name}, which this build does not have.");
             object? target = reader.Read();
             TDelegate call = create(target) ?? throw new InvalidDataException(

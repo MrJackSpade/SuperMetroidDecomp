@@ -14,13 +14,10 @@ namespace SuperMetroid.Diagnostics.SaveStates;
 /// which the compiler registers (#2602). Each declaring type is a <see cref="DefinitionCatalog"/>. One index holds the
 /// objects of every catalog whose type initializer has run (<see cref="StateGraphCatalogInitializations"/>, #2619): an
 /// object a catalog's members hold exists only once its initializer has run, so a catalog not yet initialized holds nothing
-/// a game can reach. A lookup first indexes the catalogs initialized since the last one, so the index never runs a
-/// catalog's initializer. A host that captures as the game runs also indexes each catalog on a thread of its own as soon as
-/// it is initialized (<see cref="IndexInBackground"/>), so a capture finds them indexed and walks none: initializing and
-/// walking every catalog where a capture first needed them stalled the session for seconds, and walking the catalogs
-/// initialized by then still stalled the first capture. The walk reads only definition data, fixed once its catalog is
-/// initialized, and the field names the compiler gives each type, held apart from the type so reading them runs none of the
-/// game's initializers. A restore indexes the catalog its path names, initializing it. An object keeps the path it was
+/// a game can reach. A lookup first indexes the catalogs initialized since the last one (<see cref="IndexInitialized"/>),
+/// so the index never runs a catalog's initializer and walks each catalog once; initializing and walking every catalog
+/// where a capture first needed them stalled the session for seconds. A catalog's registration is found through its type
+/// when it is first indexed. A restore indexes the catalog its path names, initializing it. An object keeps the path it was
 /// first indexed under, its shortest from the roots indexed with it.
 /// </remarks>
 /// <param name="types">The registry holding the catalogs.</param>
@@ -43,56 +40,23 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
     /// <summary>How many of the initialized catalogs (<see cref="StateGraphCatalogInitializations.Initialized"/>) were indexed.</summary>
     private int initializedIndexed;
 
-    /// <summary>Set when a catalog is initialized, so the background indexer indexes it.</summary>
-    private readonly ManualResetEventSlim catalogsInitialized = new(initialState: true);
+    /// <summary>Each registered catalog by its declaring type.</summary>
+    private readonly Dictionary<Type, DefinitionCatalog> byType = [];
 
-    /// <summary>The thread indexing catalogs as they are initialized, once a host has started it.</summary>
-    private Thread? indexer;
+    /// <summary>Each registered catalog by the prefix its roots' names begin with.</summary>
+    private readonly Dictionary<string, DefinitionCatalog> byPrefix = new(StringComparer.Ordinal);
 
-    /// <summary>Why the background indexer stopped, which every later lookup reports.</summary>
-    private Exception? indexingFailure;
+    /// <summary>How many of the registry's catalogs are in <see cref="byType"/> and <see cref="byPrefix"/>.</summary>
+    private int catalogsKnown;
 
     /// <summary>
-    /// Starts indexing each catalog on a thread of its own as soon as it is initialized, unless that has started: the
-    /// catalogs initialized already now, and each catalog initialized later as its initializer finishes. A lookup waits for
-    /// a walk in progress. A failed walk stops the indexer and fails every later lookup with the failure.
+    /// Indexes the catalogs initialized since the last lookup, as every lookup first does; a store calls it as the session
+    /// loads, so its first capture walks only the catalogs initialized since.
     /// </summary>
-    internal void IndexInBackground()
+    internal void IndexInitialized()
     {
         lock (gate)
-        {
-            if (indexer is not null)
-                return;
-            StateGraphCatalogInitializations.Marked += catalogsInitialized.Set;
-            indexer = new Thread(IndexAsInitialized)
-            {
-                IsBackground = true,
-                Name = "Debugger state definition index",
-                Priority = ThreadPriority.BelowNormal,
-            };
-            indexer.Start();
-        }
-    }
-
-    /// <summary>Indexes the catalogs initialized since the last walk each time one is initialized, until a walk fails.</summary>
-    private void IndexAsInitialized()
-    {
-        try
-        {
-            while (true)
-            {
-                catalogsInitialized.Wait();
-                catalogsInitialized.Reset();
-                lock (gate)
-                    _ = Current();
-            }
-        }
-        catch (Exception exception)
-        {
-            // The indexer's thread is a process boundary: the failure is kept and reported by every later lookup.
-            lock (gate)
-                indexingFailure = exception;
-        }
+            _ = Current();
     }
 
     /// <summary>
@@ -123,7 +87,7 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
         lock (gate)
         {
             int separator = path.IndexOf(DefinitionCatalog.MemberSeparator, StringComparison.Ordinal);
-            if (separator < 0 || !Declared.ByPrefix.TryGetValue(path[..(separator + DefinitionCatalog.MemberSeparator.Length)], out DefinitionCatalog? catalog))
+            if (separator < 0 || CatalogNamed(path[..(separator + DefinitionCatalog.MemberSeparator.Length)]) is not { } catalog)
                 throw new InvalidDataException($"Debugger state names definition '{path}', which no type of this build declares as a static member.");
             BoundObjectGraph current = Current();
             Index(current, catalog);
@@ -131,21 +95,26 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
         }
     }
 
-    /// <summary>The catalogs, by prefix and by type; callers hold the lock.</summary>
-    internal Declarations Declared => field ??= Declare();
+    /// <summary>Every catalog of the game's static members, in their prefixes' ordinal order, registering every type first.</summary>
+    internal IReadOnlyList<DefinitionCatalog> AllCatalogs()
+    {
+        lock (gate)
+        {
+            types.RegisterEverything();
+            Learn();
+            return [.. byPrefix.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry => entry.Value)];
+        }
+    }
 
     /// <summary>The index holding every initialized catalog's objects; callers hold the lock.</summary>
-    /// <exception cref="InvalidOperationException">The background indexer failed.</exception>
     private BoundObjectGraph Current()
     {
-        if (indexingFailure is not null)
-            throw new InvalidOperationException("Indexing the definition catalogs for debugger states failed.", indexingFailure);
         BoundObjectGraph current = index ??= new BoundObjectGraph(types, []);
         IReadOnlyList<Type> initialized = StateGraphCatalogInitializations.Initialized;
         for (; initializedIndexed < initialized.Count; initializedIndexed++)
         {
             // A type marked here that this registry does not hold as a catalog holds nothing a state of it names.
-            if (Declared.ByType.TryGetValue(initialized[initializedIndexed], out DefinitionCatalog? catalog))
+            if (CatalogOf(initialized[initializedIndexed]) is { } catalog)
                 Index(current, catalog);
         }
         return current;
@@ -158,18 +127,43 @@ internal sealed class DefinitionObjects(StateGraphTypes types)
             current.Add(catalog.Roots());
     }
 
-    private Declarations Declare()
+    /// <summary>The catalog <paramref name="type"/> declares, registering its declarations first; callers hold the lock.</summary>
+    private DefinitionCatalog? CatalogOf(Type type)
     {
-        var catalogs = types.Catalogs
-            .Select(catalog => new DefinitionCatalog(catalog.Catalog, types.Format(catalog.Type), catalog.Members))
-            .ToList();
-        return new Declarations(
-            catalogs.ToDictionary(catalog => catalog.Prefix, StringComparer.Ordinal),
-            catalogs.ToDictionary(catalog => catalog.Type));
+        if (byType.TryGetValue(type, out DefinitionCatalog? catalog))
+            return catalog;
+        types.RegisterDeclaring(type);
+        Learn();
+        return byType.GetValueOrDefault(type);
     }
 
-    /// <summary>The catalogs of the game's static members.</summary>
-    /// <param name="ByPrefix">Each catalog by the prefix its roots' names begin with.</param>
-    /// <param name="ByType">Each catalog by its declaring type.</param>
-    internal sealed record Declarations(IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix, IReadOnlyDictionary<Type, DefinitionCatalog> ByType);
+    /// <summary>
+    /// The catalog whose roots' names begin with <paramref name="prefix"/>, registering the types its name names, then every
+    /// type, until it is found; callers hold the lock.
+    /// </summary>
+    private DefinitionCatalog? CatalogNamed(string prefix)
+    {
+        if (byPrefix.TryGetValue(prefix, out DefinitionCatalog? catalog))
+            return catalog;
+        types.RegisterNamed(prefix[..^DefinitionCatalog.MemberSeparator.Length]);
+        Learn();
+        if (byPrefix.TryGetValue(prefix, out catalog))
+            return catalog;
+        types.RegisterEverything();
+        Learn();
+        return byPrefix.GetValueOrDefault(prefix);
+    }
+
+    /// <summary>Takes in the catalogs registered since the last time; callers hold the lock.</summary>
+    private void Learn()
+    {
+        IReadOnlyList<(Type Catalog, StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> registered = types.CatalogsRegistered();
+        for (; catalogsKnown < registered.Count; catalogsKnown++)
+        {
+            (Type declaring, StateGraphName name, IReadOnlyList<StateGraphCatalogMember> members) = registered[catalogsKnown];
+            var catalog = new DefinitionCatalog(declaring, types.Format(name), members);
+            byType.Add(declaring, catalog);
+            byPrefix.Add(catalog.Prefix, catalog);
+        }
+    }
 }

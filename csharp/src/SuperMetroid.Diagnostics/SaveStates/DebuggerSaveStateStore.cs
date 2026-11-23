@@ -36,8 +36,8 @@ internal sealed class DebuggerSaveStateStore : IDisposable
     /// </summary>
     private readonly BoundObjectGraph bound;
     /// <summary>
-    /// What the game's static members hold, each named by its path among them (#1623): the catalogs the game has initialized,
-    /// each indexed on the index's own thread as soon as it is initialized (#2619), so no capture stalls the game walking them.
+    /// What the game's static members hold, each named by its path among them (#1623): the catalogs the game has initialized
+    /// (#2619), those initialized by the time the store is created indexed as it is, and each later one by the next capture.
     /// </summary>
     private readonly DefinitionObjects definitions;
 
@@ -56,7 +56,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
         var indexing = System.Diagnostics.Stopwatch.StartNew();
         bound = new BoundObjectGraph([content]);
         definitions = DefinitionObjects.Process;
-        definitions.IndexInBackground();
+        definitions.IndexInitialized();
         Console.WriteLine($"Indexed the installed content for debugger states in {indexing.ElapsedMilliseconds} ms.");
         // Null preserves the captured policy for exact replay. Interactive hosts
         // explicitly supply their active INI options instead of trusting old state.

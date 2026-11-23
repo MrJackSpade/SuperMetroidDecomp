@@ -121,29 +121,20 @@ internal sealed partial class StateGraphRun
     {
         string access = level.Access;
         string s = level.Suffix;
-        // Field names, the way a state names each field, held by a class of their own (#2619): reading one runs only that
-        // class's initializer, never the type's, so walking a value of the type off the game thread runs none of the game's
-        // static initializers.
-        int parameters = level.Primary?.Parameters.Length ?? 0;
-        if (level.Own.Count > 0 || level.InlineLength > 0 || parameters > 0)
+        // Field names, the way a state names each field.
+        for (int index = 0; index < level.Own.Count; index++)
+            code.AppendLine($"    private static readonly {FieldType} __StateField_{s}_{index} = new({Literal(level.Declared)}, {Literal(level.Own[index].Name)});");
+        if (level.InlineLength > 0)
         {
-            code.AppendLine($"    private static class __StateFields_{s}");
-            code.AppendLine("    {");
-            for (int index = 0; index < level.Own.Count; index++)
-                code.AppendLine($"        internal static readonly {FieldType} __StateField_{s}_{index} = new({Literal(level.Declared)}, {Literal(level.Own[index].Name)});");
-            if (level.InlineLength > 0)
-            {
-                code.Append($"        internal static readonly {FieldType}[] __StateElements_{s} = [");
-                code.Append(string.Join(", ", Enumerable.Range(0, level.InlineLength).Select(index => $"new({Literal(level.Declared)}, \"#{index}\")")));
-                code.AppendLine("];");
-            }
-            for (int index = 0; index < parameters; index++)
-                code.AppendLine($"        internal static readonly {FieldType} __StateArgumentField_{s}_{index} = new({Literal(level.Declared)}, {Literal("(" + level.Primary!.Parameters[index].Name + ")")});");
-            code.AppendLine("    }");
+            code.Append($"    private static readonly {FieldType}[] __StateElements_{s} = [");
+            code.Append(string.Join(", ", Enumerable.Range(0, level.InlineLength).Select(index => $"new({Literal(level.Declared)}, \"#{index}\")")));
+            code.AppendLine("];");
         }
         int mapped = level.Arguments.Count(argument => argument is not null);
         if (level.Primary is not null)
         {
+            for (int index = 0; index < level.Primary.Parameters.Length; index++)
+                code.AppendLine($"    private static readonly {FieldType} __StateArgumentField_{s}_{index} = new({Literal(level.Declared)}, {Literal("(" + level.Primary.Parameters[index].Name + ")")});");
             if (!level.IsSealed)
             {
                 for (int index = 0; index < level.Primary.Parameters.Length; index++)
@@ -167,7 +158,7 @@ internal sealed partial class StateGraphRun
                 {
                     if (level.Arguments[index] is not { } argument)
                         continue;
-                    code.AppendLine($"        __writer.Field(__StateFields_{s}.__StateArgumentField_{s}_{index});");
+                    code.AppendLine($"        __writer.Field(__StateArgumentField_{s}_{index});");
                     code.AppendLine("        " + WriteValue(level.Primary.Parameters[index].Type, argument));
                 }
             }
@@ -191,7 +182,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        __writer.Fields({level.InlineLength});");
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
-            code.AppendLine($"            __writer.Field(__StateFields_{s}.__StateElements_{s}[__index]);");
+            code.AppendLine($"            __writer.Field(__StateElements_{s}[__index]);");
             code.AppendLine("            " + WriteValue(InlineElementOf(level), "this[__index]"));
             code.AppendLine("        }");
         }
@@ -219,14 +210,14 @@ internal sealed partial class StateGraphRun
         if (level.InlineLength > 0)
         {
             if (level.InlineElement is { } inlineElement && HoldsReferences(inlineElement, []))
-                code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++) __visitor.Child(__StateFields_{s}.__StateElements_{s}[__index], this[__index]);");
+                code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++) __visitor.Child(__StateElements_{s}[__index], this[__index]);");
         }
         else
         {
             for (int index = 0; index < level.Own.Count; index++)
             {
                 if (HoldsReferences(level.Own[index].Type, []))
-                    code.AppendLine($"        __visitor.Child(__StateFields_{s}.__StateField_{s}_{index}, {level.Own[index].Expression});");
+                    code.AppendLine($"        __visitor.Child(__StateField_{s}_{index}, {level.Own[index].Expression});");
             }
         }
         code.AppendLine("    }");
@@ -246,7 +237,7 @@ internal sealed partial class StateGraphRun
             for (int index = 0; index < level.Own.Count; index++)
             {
                 Member member = level.Own[index];
-                code.AppendLine($"        __reader.Field(__StateFields_{s}.__StateField_{s}_{index});");
+                code.AppendLine($"        __reader.Field(__StateField_{s}_{index});");
                 string read = ReadValue(member.Type);
                 code.AppendLine("        " + (member.Kind switch
                 {
@@ -276,7 +267,7 @@ internal sealed partial class StateGraphRun
                 IParameterSymbol parameter = level.Primary.Parameters[index];
                 arguments.Add(level.Arguments[index] is null
                     ? "default"
-                    : $"__reader.Argument<{Code(parameter.Type)}>({ordinal++}, {mapped}, __StateFields_{s}.__StateArgumentField_{s}_{index}, out {Code(parameter.Type)} __argument{index})");
+                    : $"__reader.Argument<{Code(parameter.Type)}>({ordinal++}, {mapped}, __StateArgumentField_{s}_{index}, out {Code(parameter.Type)} __argument{index})");
             }
             code.AppendLine($" : this({string.Join(", ", arguments)})");
         }
@@ -296,7 +287,7 @@ internal sealed partial class StateGraphRun
             code.AppendLine($"        __reader.Fields({level.InlineLength});");
             code.AppendLine($"        for (int __index = 0; __index < {level.InlineLength}; __index++)");
             code.AppendLine("        {");
-            code.AppendLine($"            __reader.Field(__StateFields_{s}.__StateElements_{s}[__index]);");
+            code.AppendLine($"            __reader.Field(__StateElements_{s}[__index]);");
             code.AppendLine($"            this[__index] = {ReadValue(InlineElementOf(level))};");
             code.AppendLine("        }");
         }
@@ -308,7 +299,7 @@ internal sealed partial class StateGraphRun
                 Member member = level.Own[index];
                 if (level.Exact.Contains(member.Name))
                     continue;
-                code.AppendLine($"        __reader.Field(__StateFields_{s}.__StateField_{s}_{index});");
+                code.AppendLine($"        __reader.Field(__StateField_{s}_{index});");
                 // A captured parameter is set by the primary constructor's argument; its value is read past.
                 code.AppendLine(member.Kind == MemberKind.Captured
                     ? $"        _ = {ReadValue(member.Type)};"
@@ -332,7 +323,7 @@ internal sealed partial class StateGraphRun
         {
             if (!all && level.Exact.Contains(level.Own[index].Name))
                 continue;
-            code.AppendLine($"        __writer.Field(__StateFields_{level.Suffix}.__StateField_{level.Suffix}_{index});");
+            code.AppendLine($"        __writer.Field(__StateField_{level.Suffix}_{index});");
             code.AppendLine("        " + WriteValue(level.Own[index].Type, level.Own[index].Expression));
         }
     }
@@ -580,7 +571,7 @@ internal sealed partial class StateGraphRun
                 if (named.IsImplicitlyDeclared || named.IsFileLocal || IsGenericContext(named))
                     continue;
                 if (named.ContainingType is not { } owner || Accessible(named))
-                    assemblyRegistrations.Add(EnumRegistration(named));
+                    assemblyRegistrations.Add((Declared(TopLevel(named)), EnumRegistration(named)));
                 else if (covered.Contains(owner))
                     AddRegistration(owner, EnumRegistration(named));
                 continue;
@@ -759,11 +750,103 @@ internal sealed partial class StateGraphRun
         code.AppendLine("        Types(registry);");
         code.AppendLine("        Enums(registry);");
         code.AppendLine("    }");
-        EmitChunked(code, "Types", [.. types.Where(type => covered.Contains(type) && type.ContainingType is null && type.TypeParameters.Length == 0)
-            .Select(type => $"{Code(type)}.__StateRegister(__registry);")]);
-        EmitChunked(code, "Enums", assemblyRegistrations);
+        INamedTypeSymbol[] topLevel = [.. types.Where(type => covered.Contains(type) && type.ContainingType is null && type.TypeParameters.Length == 0)];
+        EmitChunked(code, "Types", [.. topLevel.Select(type => $"{Code(type)}.__StateRegister(__registry);")]);
+        EmitChunked(code, "Enums", [.. assemblyRegistrations.Select(registration => registration.Line)]);
+        EmitDeclaredIn(code, topLevel);
         code.AppendLine("}");
         return code.ToString();
+    }
+
+    /// <summary>
+    /// Emits the registration of what each top-level type declares, found by the type's name (#2619): the type's own
+    /// registration, which registers its nested types, and the enums the assembly registers under it. A registry asks for
+    /// a type's only when it first needs one, so a session registers the types it reaches rather than every type of the
+    /// assembly: building all of them first took seconds. The names are split into buckets by a hash the emitted code also
+    /// computes, so a lookup compiles and runs one bucket's switch.
+    /// </summary>
+    private void EmitDeclaredIn(StringBuilder code, IReadOnlyList<INamedTypeSymbol> topLevel)
+    {
+        var lines = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var order = new List<string>();
+        void Add(string name, string line)
+        {
+            if (!lines.TryGetValue(name, out List<string>? list))
+            {
+                lines.Add(name, list = []);
+                order.Add(name);
+            }
+            list.Add(line);
+        }
+        foreach (INamedTypeSymbol type in topLevel)
+            Add(Declared(type), $"{Code(type)}.__StateRegister(__registry);");
+        foreach ((string name, string line) in assemblyRegistrations)
+            Add(name, line);
+        int buckets = Math.Max(1, order.Count / DeclaredInBucketNames);
+        code.AppendLine("    /// <summary>");
+        code.AppendLine("    /// Registers what the top-level type <paramref name=\"name\"/> declares with <paramref name=\"registry\"/>: the type");
+        code.AppendLine("    /// and its nested types, and the enums registered under it; false when this assembly declares no such type.");
+        code.AppendLine("    /// </summary>");
+        code.AppendLine($"    public static bool RegisterDeclaredIn(string name, {Registry} registry)");
+        code.AppendLine("    {");
+        code.AppendLine("        switch (Bucket(name))");
+        code.AppendLine("        {");
+        for (int bucket = 0; bucket < buckets; bucket++)
+            code.AppendLine($"            case {bucket}: return DeclaredIn{bucket}(name, registry);");
+        code.AppendLine("            default: return false;");
+        code.AppendLine("        }");
+        code.AppendLine("    }");
+        code.AppendLine("    /// <summary>The bucket a top-level type's name is in; the generator computes it the same way.</summary>");
+        code.AppendLine("    private static int Bucket(string name)");
+        code.AppendLine("    {");
+        code.AppendLine("        uint hash = 2166136261;");
+        code.AppendLine("        foreach (char character in name)");
+        code.AppendLine("            hash = unchecked((hash ^ character) * 16777619);");
+        code.AppendLine($"        return (int)(hash % {buckets}u);");
+        code.AppendLine("    }");
+        var byBucket = new List<string>[buckets];
+        for (int bucket = 0; bucket < buckets; bucket++)
+            byBucket[bucket] = [];
+        foreach (string name in order)
+            byBucket[Bucket(name, buckets)].Add(name);
+        for (int bucket = 0; bucket < buckets; bucket++)
+        {
+            code.AppendLine($"    private static bool DeclaredIn{bucket}(string name, {Registry} __registry)");
+            code.AppendLine("    {");
+            code.AppendLine("        switch (name)");
+            code.AppendLine("        {");
+            foreach (string name in byBucket[bucket])
+            {
+                code.AppendLine($"            case {Literal(name)}:");
+                foreach (string line in lines[name])
+                    code.Append("                ").AppendLine(line);
+                code.AppendLine("                return true;");
+            }
+            code.AppendLine("            default:");
+            code.AppendLine("                return false;");
+            code.AppendLine("        }");
+            code.AppendLine("    }");
+        }
+    }
+
+    /// <summary>About how many top-level names one bucket of <see cref="EmitDeclaredIn"/> holds.</summary>
+    private const int DeclaredInBucketNames = 48;
+
+    /// <summary>The bucket of a top-level type's name, as the emitted <c>Bucket</c> computes it.</summary>
+    private static int Bucket(string name, int buckets)
+    {
+        uint hash = 2166136261;
+        foreach (char character in name)
+            hash = unchecked((hash ^ character) * 16777619);
+        return (int)(hash % (uint)buckets);
+    }
+
+    /// <summary>The outermost type containing <paramref name="type"/>, or the type itself.</summary>
+    private static INamedTypeSymbol TopLevel(INamedTypeSymbol type)
+    {
+        while (type.ContainingType is { } container)
+            type = container;
+        return type;
     }
 
     /// <summary>The lines of one registration, split into methods of a few hundred lines, which the runtime compiles quickly.</summary>

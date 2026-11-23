@@ -28,8 +28,8 @@ try
     // Owner rule: no verification run may exceed thirty minutes; the limit ends it with a failure.
     SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.Verification " + string.Join(' ', args));
     // The fixtures this assembly writes into debugger states are registered beside the game's types (#2602).
-    SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(SuperMetroid.Verification.GeneratedStateGraph.Register);
-    SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(SuperMetroid.Tooling.GeneratedStateGraph.Register);
+    SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.AddAssembly(SuperMetroid.Verification.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.Verification.GeneratedStateGraph.Register);
+    SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.AddAssembly(SuperMetroid.Tooling.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.Tooling.GeneratedStateGraph.Register);
     // A shared fixture loaded inside a suite is timed as its own entry under it; one loaded outside any suite runs untimed.
     SharedFixtureTiming.Timer = (name, load) =>
     {

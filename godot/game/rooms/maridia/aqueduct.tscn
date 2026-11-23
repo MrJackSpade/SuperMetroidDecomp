@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/aqueduct.json"
+Music = "east_maridia"
+
+[node name="Aqueduct" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(20, 10)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/aqueduct.json"
+
+[node name="ToAqueductSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/aqueduct_save.tscn"
+LeadsToExit = "ToAqueduct"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToBelowBotwoonEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1520, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/below_botwoon_energy_tank.tscn"
+LeadsToExit = "ToAqueduct"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToBotwoonHallway" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/botwoon_hallway.tscn"
+LeadsToExit = "ToAqueduct"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="ToCrabShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/crab_shaft.tscn"
+LeadsToExit = "ToAqueduct"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToEastAqueductQuicksand" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(800, 752)
+Size = Vector2i(192, 16)
+LeadsToRoom = "res://game/rooms/maridia/east_aqueduct_quicksand.tscn"
+LeadsToExit = "FromAqueductToEastAqueductQuicksand"
+Style = 1
+ArrivalOffset = Vector2i(96, -24)
+
+[node name="ToWestAqueductQuicksand" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(288, 752)
+Size = Vector2i(192, 16)
+LeadsToRoom = "res://game/rooms/maridia/west_aqueduct_quicksand.tscn"
+LeadsToExit = "FromAqueductToWestAqueductQuicksand"
+Style = 1
+ArrivalOffset = Vector2i(96, -24)

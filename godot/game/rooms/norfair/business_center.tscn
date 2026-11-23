@@ -1,0 +1,87 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/business_center.json"
+Music = "upper_norfair"
+
+[node name="BusinessCenter" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(10, 1)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/business_center.json"
+
+[node name="ToCathedralEntrance" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/cathedral_entrance.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrocomireEscape" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/crocomire_escape.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToFrogSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1376)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/frog_save.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToHiJumpEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1376)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/hi_jump_energy_tank.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToIceBeamGate" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ice_beam_gate.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToNorfairMap" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/norfair_map.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToWarehouseEntrance" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(112, 0)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/brinstar/warehouse_entrance.tscn"
+LeadsToExit = "ToBusinessCenter"
+Style = 1
+ArrivalOffset = Vector2i(16, 40)
+
+[node name="AtBusinessCenterElevator" type="Marker2D" parent="."]
+position = Vector2(128, 680)

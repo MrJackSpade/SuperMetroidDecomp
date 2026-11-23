@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/crab_shaft.json"
+Music = "west_maridia"
+
+[node name="CrabShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(18, 8)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/crab_shaft.json"
+
+[node name="ToAqueduct" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/aqueduct.tscn"
+LeadsToExit = "ToCrabShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToMtEverest" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/mt_everest.tscn"
+LeadsToExit = "ToCrabShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToPseudoPlasmaSpark" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/pseudo_plasma_spark.tscn"
+LeadsToExit = "ToCrabShaft"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)

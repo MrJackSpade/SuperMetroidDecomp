@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/bug_sand_hole.json"
+KeepsMusic = true
+
+[node name="BugSandHole" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(26, 6)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/bug_sand_hole.json"
+
+[node name="ToPlasmaBeachQuicksand" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(64, 240)
+Size = Vector2i(128, 16)
+LeadsToRoom = "res://game/rooms/maridia/plasma_beach_quicksand.tscn"
+LeadsToExit = "FromBugSandHoleToPlasmaBeachQuicksand"
+Style = 1
+ArrivalOffset = Vector2i(64, -24)
+
+[node name="ToPlasmaSpark" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/plasma_spark.tscn"
+LeadsToExit = "ToBugSandHole"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToThreadTheNeedle" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/thread_the_needle.tscn"
+LeadsToExit = "ToBugSandHole"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

@@ -1,0 +1,78 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/caterpillar.json"
+Music = "red_brinstar"
+
+[node name="Caterpillar" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(37, 5)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/caterpillar.json"
+
+[node name="ToAlphaPowerBomb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1888)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/alpha_power_bomb.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToBetaPowerBomb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/beta_power_bomb.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToHellway" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1376)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/hellway.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToRedBrinstarElevator" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(112, 0)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/crateria/red_brinstar_elevator.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 1
+ArrivalOffset = Vector2i(16, 40)
+
+[node name="ToRedBrinstarSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/red_brinstar_save.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToRedFish" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/red_fish.tscn"
+LeadsToExit = "ToCaterpillar"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="AtCaterpillarElevator" type="Marker2D" parent="."]
+position = Vector2(128, 680)

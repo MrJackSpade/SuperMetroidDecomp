@@ -1,0 +1,57 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/ice_beam_gate.json"
+KeepsMusic = true
+
+[node name="IceBeamGate" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(3, 2)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/ice_beam_gate.json"
+
+[node name="ToBusinessCenter" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1776, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/business_center.tscn"
+LeadsToExit = "ToIceBeamGate"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrumbleShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/crumble_shaft.tscn"
+LeadsToExit = "ToIceBeamGate"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToIceBeamAcid" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(768, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ice_beam_acid.tscn"
+LeadsToExit = "ToIceBeamGate"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToIceBeamTutorial" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(768, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ice_beam_tutorial.tscn"
+LeadsToExit = "ToIceBeamGate"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

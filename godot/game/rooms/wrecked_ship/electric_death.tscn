@@ -1,0 +1,60 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "phantoon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/wrecked_ship/electric_death.json"
+Music = "wrecked_ship_powered_up"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/wrecked_ship/electric_death.json"
+Music = "wrecked_ship_powered_down"
+
+[node name="ElectricDeath" type="Node2D"]
+script = ExtResource("3")
+Area = "wrecked_ship"
+MapCell = Vector2i(21, 14)
+Versions = [SubResource("r2"), SubResource("r3")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/wrecked_ship/electric_death.json"
+
+[node name="ToEastOcean" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/east_ocean.tscn"
+LeadsToExit = "ToElectricDeath"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToSpikyDeath" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/spiky_death.tscn"
+LeadsToExit = "ToElectricDeath"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToWreckedShipEnergyTank" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_energy_tank.tscn"
+LeadsToExit = "ToElectricDeath"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

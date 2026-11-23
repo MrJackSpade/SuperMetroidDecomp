@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/grapple_tutorial3.json"
+KeepsMusic = true
+
+[node name="GrappleTutorial3" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(7, 13)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/grapple_tutorial3.json"
+
+[node name="ToGrappleTutorial2" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/grapple_tutorial2.tscn"
+LeadsToExit = "ToGrappleTutorial3"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToPostCrocomireShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
+LeadsToExit = "ToGrappleTutorial3"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

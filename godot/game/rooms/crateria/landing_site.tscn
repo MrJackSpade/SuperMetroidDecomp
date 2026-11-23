@@ -1,0 +1,97 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "escape_started"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/crateria/landing_site.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 7
+About = "power_bombs"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/landing_site.json"
+Music = "samus_theme"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 0
+About = "zebes_awake"
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("2")
+When = SubResource("r5")
+LayoutFile = "rooms/crateria/landing_site.json"
+Music = "crateria_arrival_zebes_awake"
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/landing_site.json"
+Music = "crateria_arrival"
+
+[node name="LandingSite" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(23, 1)
+Versions = [SubResource("r2"), SubResource("r4"), SubResource("r6"), SubResource("r7")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/landing_site.json"
+
+[node name="ToCrateriaPowerBombs" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(2288, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_power_bombs.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrateriaTube" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(2288, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_tube.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGauntletEntrance" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/gauntlet_entrance.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToParlor" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="AtGunship" type="Marker2D" parent="."]
+position = Vector2(1152, 1088)
+
+[node name="AtZebesArrival" type="Marker2D" parent="."]
+position = Vector2(1152, 128)

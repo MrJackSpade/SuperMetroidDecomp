@@ -1,0 +1,84 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/bubble_mountain.json"
+KeepsMusic = true
+
+[node name="BubbleMountain" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(22, 3)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/bubble_mountain.json"
+
+[node name="ToBatCave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/bat_cave.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToBubbleMountainSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/bubble_mountain_save.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToGreenBubblesMissiles" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/green_bubbles_missiles.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToPurpleShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 1008)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/norfair/purple_shaft.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToRisingTide" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/rising_tide.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSingleChamber" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/single_chamber.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToUpperNorfairFarming" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/upper_norfair_farming.tscn"
+LeadsToExit = "ToBubbleMountain"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

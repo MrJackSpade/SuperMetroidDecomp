@@ -37,6 +37,7 @@ public partial class Condition : Resource
         ConditionKind.All => Parts.All(part => part.IsTrue(room)),
         ConditionKind.Any => Parts.Any(part => part.IsTrue(room)),
         ConditionKind.None => !Parts.Any(part => part.IsTrue(room)),
+        ConditionKind.PlayerCarries => room.Player.Inventory.Capacity(RequireAbout()) > 0,
         _ => throw new InvalidOperationException($"Undefined condition kind {Kind}."),
     };
 

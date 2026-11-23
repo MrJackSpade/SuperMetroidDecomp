@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/tourian/tourian_escape4.json"
+KeepsMusic = true
+
+[node name="TourianEscape4" type="Node2D"]
+script = ExtResource("2")
+Area = "tourian"
+MapCell = Vector2i(18, 17)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/tourian/tourian_escape4.json"
+
+[node name="ToClimb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/climb.tscn"
+LeadsToExit = "ToTourianEscape4"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToTourianEscape3" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/tourian_escape3.tscn"
+LeadsToExit = "ToTourianEscape4"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/red_tower.json"
+Music = "red_brinstar"
+
+[node name="RedTower" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(33, 10)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/red_tower.json"
+
+[node name="ToHellway" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/hellway.tscn"
+LeadsToExit = "ToRedTower"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToNoobBridge" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/noob_bridge.tscn"
+LeadsToExit = "ToRedTower"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToRedBrinstarFirefleas" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/red_brinstar_firefleas.tscn"
+LeadsToExit = "ToRedTower"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToRedTowerRefill" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 2400)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/red_tower_refill.tscn"
+LeadsToExit = "ToRedTower"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSkreeBoost" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 2400)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/skree_boost.tscn"
+LeadsToExit = "ToRedTower"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

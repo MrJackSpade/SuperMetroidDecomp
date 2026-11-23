@@ -317,6 +317,18 @@ def doors() -> dict[str, Door]:
     return result
 
 
+def load_stations() -> dict[str, tuple[str, tuple[int, int]]]:
+    """The places play can begin at: for each, the door that leads to its room, and where Samus is put there."""
+    text = without_comments(read('Rooms', 'RoomObjects', 'LoadStationPlacementDefinitions.cs'))
+    result = {}
+    for match in re.finditer(r'\[LoadStationDefinitions\.(\w+)\] = new\(', text):
+        open_at = match.end() - 1
+        arguments = split_arguments(text[open_at + 1:matching(text, open_at) - 1])
+        samus = numbers(arguments[2])
+        result[match.group(1)] = (last_name(arguments[0]), (samus[0], samus[1]))
+    return result
+
+
 if __name__ == '__main__':
     all_rooms, all_states, choices = rooms(), states(), state_choices()
     populations, objects, all_doors = enemy_populations(), object_populations(), doors()

@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/ice_beam_tutorial.json"
+KeepsMusic = true
+
+[node name="IceBeamTutorial" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(4, 2)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/ice_beam_tutorial.json"
+
+[node name="ToIceBeamGate" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ice_beam_gate.tscn"
+LeadsToExit = "ToIceBeamTutorial"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToIceBeamSnake" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ice_beam_snake.tscn"
+LeadsToExit = "ToIceBeamTutorial"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

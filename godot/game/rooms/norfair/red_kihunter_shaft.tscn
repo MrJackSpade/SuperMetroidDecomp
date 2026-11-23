@@ -1,0 +1,57 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/red_kihunter_shaft.json"
+KeepsMusic = true
+
+[node name="RedKihunterShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(35, 10)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/red_kihunter_shaft.json"
+
+[node name="ToAmphitheatre" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/amphitheatre.tscn"
+LeadsToExit = "ToRedKihunterShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToLowerNorfairFireflea" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/lower_norfair_fireflea.tscn"
+LeadsToExit = "ToRedKihunterShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLowerNorfairSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/lower_norfair_save.tscn"
+LeadsToExit = "ToRedKihunterShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToWasteland" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(608, 1264)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/norfair/wasteland.tscn"
+LeadsToExit = "ToRedKihunterShaft"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)

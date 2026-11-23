@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/crocomire_speedway.json"
+Music = "upper_norfair"
+
+[node name="CrocomireSpeedway" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(3, 8)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/crocomire_speedway.json"
+
+[node name="ToAcidSnakesTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(3312, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/acid_snakes_tunnel.tscn"
+LeadsToExit = "ToCrocomireSpeedway"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrocomire" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(3168, 752)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/norfair/crocomire.tscn"
+LeadsToExit = "ToCrocomireSpeedway"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToCrocomireEscape" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(3072, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/crocomire_escape.tscn"
+LeadsToExit = "ToCrocomireSpeedway"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToCrocomireSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(3312, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/crocomire_save.tscn"
+LeadsToExit = "ToCrocomireSpeedway"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrumbleShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/crumble_shaft.tscn"
+LeadsToExit = "ToCrocomireSpeedway"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

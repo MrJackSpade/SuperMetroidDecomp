@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/plasma_spark.json"
+Music = "east_maridia"
+
+[node name="PlasmaSpark" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(22, 3)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/plasma_spark.json"
+
+[node name="ToBugSandHole" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/bug_sand_hole.tscn"
+LeadsToExit = "ToPlasmaSpark"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToButterfly" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(1024, 1088)
+LeadsToRoom = "res://game/rooms/maridia/butterfly.tscn"
+LeadsToExit = "ToPlasmaSpark"
+Style = 0
+ArrivalOffset = Vector2i(984, 1064)
+
+[node name="ToKassiuz" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/kassiuz.tscn"
+LeadsToExit = "ToPlasmaSpark"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToToilet" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 752)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/toilet.tscn"
+LeadsToExit = "ToPlasmaSpark"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="FromPseudoPlasmaSparkToPlasmaSpark" type="Marker2D" parent="."]
+position = Vector2(128, 640)

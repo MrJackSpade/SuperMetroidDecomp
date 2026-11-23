@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/lower_norfair_elevator.json"
+Music = "upper_norfair"
+
+[node name="LowerNorfairElevator" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(21, 11)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/lower_norfair_elevator.json"
+
+[node name="ToLavaDive" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/lava_dive.tscn"
+LeadsToExit = "ToLowerNorfairElevator"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLowerNorfairElevatorSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/lower_norfair_elevator_save.tscn"
+LeadsToExit = "ToLowerNorfairElevator"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMainHall" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(112, 240)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/norfair/main_hall.tscn"
+LeadsToExit = "ToLowerNorfairElevator"
+Style = 1
+ArrivalOffset = Vector2i(16, -24)
+
+[node name="AtLowerNorfairElevator" type="Marker2D" parent="."]
+position = Vector2(128, 136)

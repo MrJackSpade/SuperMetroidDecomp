@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/three_musketeers.json"
+Music = "lower_norfair"
+
+[node name="ThreeMusketeers" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(29, 4)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/three_musketeers.json"
+
+[node name="ToLowerNorfairSpringBallMaze" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/lower_norfair_spring_ball_maze.tscn"
+LeadsToExit = "ToThreeMusketeers"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToSingleChamber" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(256, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/single_chamber.tscn"
+LeadsToExit = "ToThreeMusketeers"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

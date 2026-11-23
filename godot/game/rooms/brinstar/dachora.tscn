@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/dachora.json"
+KeepsMusic = true
+
+[node name="Dachora" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(10, 7)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/dachora.json"
+
+[node name="ToBigPink" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1776, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/big_pink.tscn"
+LeadsToExit = "ToDachora"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToDachoraEnergyRefill" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/dachora_energy_refill.tscn"
+LeadsToExit = "ToDachora"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToGreenBrinstarMainShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
+LeadsToExit = "ToDachora"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

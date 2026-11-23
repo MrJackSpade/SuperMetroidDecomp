@@ -1,0 +1,69 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "maridia_tube_broken"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/maridia/glass_tunnel_when_maridia_noob_tube_broken.json"
+Music = "red_brinstar"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/maridia/glass_tunnel_default.json"
+Music = "red_brinstar"
+
+[node name="GlassTunnel" type="Node2D"]
+script = ExtResource("3")
+Area = "maridia"
+MapCell = Vector2i(11, 18)
+Versions = [SubResource("r2"), SubResource("r3")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/maridia/glass_tunnel_default.json"
+
+[node name="ToEastTunnel" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/east_tunnel.tscn"
+LeadsToExit = "ToGlassTunnel"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGlassTunnelSave" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/glass_tunnel_save.tscn"
+LeadsToExit = "ToGlassTunnel"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToMainStreet" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(96, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/main_street.tscn"
+LeadsToExit = "ToGlassTunnel"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="ToWestTunnel" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/west_tunnel.tscn"
+LeadsToExit = "ToGlassTunnel"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

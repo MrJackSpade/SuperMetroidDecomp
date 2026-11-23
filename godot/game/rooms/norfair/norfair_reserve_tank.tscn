@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/norfair_reserve_tank.json"
+KeepsMusic = true
+
+[node name="NorfairReserveTank" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(18, 3)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/norfair_reserve_tank.json"
+
+[node name="ToGreenBubblesMissiles" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/green_bubbles_missiles.tscn"
+LeadsToExit = "ToNorfairReserveTank"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

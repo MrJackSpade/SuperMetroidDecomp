@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "kraid_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/brinstar/kraid.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/brinstar/kraid.json"
+Music = "boss_room_tension"
+
+[node name="Kraid" type="Node2D"]
+script = ExtResource("3")
+Area = "brinstar"
+MapCell = Vector2i(55, 19)
+Versions = [SubResource("r2"), SubResource("r3")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/brinstar/kraid.json"
+
+[node name="ToKraidEyeDoor" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/kraid_eye_door.tscn"
+LeadsToExit = "ToKraid"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToVariaSuit" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/varia_suit.tscn"
+LeadsToExit = "ToKraid"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

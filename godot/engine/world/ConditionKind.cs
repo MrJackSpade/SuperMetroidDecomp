@@ -23,4 +23,7 @@ public enum ConditionKind
 
     /// <summary>Is none of the listed conditions true?</summary>
     None,
+
+    /// <summary>The player can carry some of a named amount: they have found at least one of what holds it.</summary>
+    PlayerCarries,
 }

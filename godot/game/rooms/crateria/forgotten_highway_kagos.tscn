@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/forgotten_highway_kagos.json"
+KeepsMusic = true
+
+[node name="ForgottenHighwayKagos" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(56, 5)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/forgotten_highway_kagos.json"
+
+[node name="ToCrabMaze" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 1008)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/crateria/crab_maze.tscn"
+LeadsToExit = "ToForgottenHighwayKagos"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToEastOcean" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/east_ocean.tscn"
+LeadsToExit = "ToForgottenHighwayKagos"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

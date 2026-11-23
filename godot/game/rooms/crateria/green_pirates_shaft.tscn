@@ -1,0 +1,57 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/green_pirates_shaft.json"
+Music = "lower_crateria"
+
+[node name="GreenPiratesShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(11, 3)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/green_pirates_shaft.json"
+
+[node name="ToGauntletEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/gauntlet_energy_tank.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLowerMushrooms" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/lower_mushrooms.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToStatuesHallway" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/statues_hallway.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToTerminator" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/terminator.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

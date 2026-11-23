@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "crocomire_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/norfair/crocomire.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/norfair/crocomire.json"
+Music = "kraid_and_phantoon_battle"
+
+[node name="Crocomire" type="Node2D"]
+script = ExtResource("3")
+Area = "norfair"
+MapCell = Vector2i(12, 11)
+Versions = [SubResource("r2"), SubResource("r3")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/norfair/crocomire.json"
+
+[node name="ToCrocomireSpeedway" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(864, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/norfair/crocomire_speedway.tscn"
+LeadsToExit = "ToCrocomire"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="ToPostCrocomireFarming" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/post_crocomire_farming.tscn"
+LeadsToExit = "ToCrocomire"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

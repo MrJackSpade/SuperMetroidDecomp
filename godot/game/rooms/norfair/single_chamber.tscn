@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/single_chamber.json"
+Music = "upper_norfair"
+
+[node name="SingleChamber" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(24, 4)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/single_chamber.json"
+
+[node name="ToBubbleMountain" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/bubble_mountain.tscn"
+LeadsToExit = "ToSingleChamber"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToDoubleChamberLower" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/double_chamber.tscn"
+LeadsToExit = "ToSingleChamberLower"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToDoubleChamberUpper" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/double_chamber.tscn"
+LeadsToExit = "ToSingleChamberUpper"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToSpikyPlatformsTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/spiky_platforms_tunnel.tscn"
+LeadsToExit = "ToSingleChamber"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToThreeMusketeers" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1520, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/three_musketeers.tscn"
+LeadsToExit = "ToSingleChamber"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/below_spazer.json"
+Music = "red_brinstar"
+
+[node name="BelowSpazer" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(36, 18)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/below_spazer.json"
+
+[node name="ToSkreeBoost" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/skree_boost.tscn"
+LeadsToExit = "ToBelowSpazer"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSpazer" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/spazer.tscn"
+LeadsToExit = "ToBelowSpazer"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToWestTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/west_tunnel.tscn"
+LeadsToExit = "ToBelowSpazer"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

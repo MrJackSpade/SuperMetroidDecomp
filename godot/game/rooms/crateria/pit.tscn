@@ -1,0 +1,61 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 2
+About = "morph_ball"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("1")
+Kind = 7
+About = "missiles"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 4
+Parts = [SubResource("r1"), SubResource("r2")]
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/pit.json"
+Music = "lower_crateria"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/pit.json"
+Music = "crateria_arrival"
+
+[node name="Pit" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(20, 18)
+Versions = [SubResource("r4"), SubResource("r5")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/pit.json"
+
+[node name="ToClimb" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/climb.tscn"
+LeadsToExit = "ToPit"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToElevatorToBlueBrinstar" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/elevator_to_blue_brinstar.tscn"
+LeadsToExit = "ToPit"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

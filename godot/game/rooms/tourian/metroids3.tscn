@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "second_metroid_hall_cleared"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/tourian/metroids3.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/tourian/metroids3.json"
+KeepsMusic = true
+
+[node name="Metroids3" type="Node2D"]
+script = ExtResource("3")
+Area = "tourian"
+MapCell = Vector2i(14, 14)
+Versions = [SubResource("r2"), SubResource("r3")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/tourian/metroids3.json"
+
+[node name="ToMetroids2" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/metroids2.tscn"
+LeadsToExit = "ToMetroids3"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMetroids4" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1520, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/metroids4.tscn"
+LeadsToExit = "ToMetroids3"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

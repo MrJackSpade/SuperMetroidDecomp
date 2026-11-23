@@ -1,0 +1,107 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "escape_started"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/crateria/parlor.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 0
+About = "zebes_awake"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/parlor.json"
+Music = "lower_crateria"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/parlor.json"
+KeepsMusic = true
+
+[node name="Parlor" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(18, 5)
+Versions = [SubResource("r2"), SubResource("r4"), SubResource("r5")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/parlor.json"
+
+[node name="ToClimb" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(352, 1264)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/crateria/climb.tscn"
+LeadsToExit = "ToParlor"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToCrateriaSave" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(256, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_save.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToFinalMissileBombway" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(256, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/final_missile_bombway.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToFlyway" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1008, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/flyway.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLandingSite" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1264, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/landing_site.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToPreMapFlyway" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/pre_map_flyway.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToTerminator" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/terminator.tscn"
+LeadsToExit = "ToParlor"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)

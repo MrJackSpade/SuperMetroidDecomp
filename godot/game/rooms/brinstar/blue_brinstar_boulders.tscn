@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/blue_brinstar_boulders.json"
+KeepsMusic = true
+
+[node name="BlueBrinstarBoulders" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(30, 9)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/blue_brinstar_boulders.json"
+
+[node name="ToBillyMays" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/billy_mays.tscn"
+LeadsToExit = "ToBlueBrinstarBoulders"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToBlueBrinstarEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/blue_brinstar_energy_tank.tscn"
+LeadsToExit = "ToBlueBrinstarBoulders"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)

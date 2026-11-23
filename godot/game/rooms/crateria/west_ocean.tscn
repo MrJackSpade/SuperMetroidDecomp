@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/west_ocean.json"
+Music = "samus_theme"
+
+[node name="WestOcean" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(38, 1)
+Versions = [SubResource("r1")]
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/west_ocean.json"
+
+[node name="ToAttic" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(2032, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/attic.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToBowlingAlley" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(2032, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/bowling_alley.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToBowlingAlleyPath" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/bowling_alley_path.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGravitySuit" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1520, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/gravity_suit.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToMoat" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(1296, 576)
+LeadsToRoom = "res://game/rooms/crateria/moat.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(40, 552)
+
+[node name="ToWreckedShipEntrance" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1264, 608)
+Size = Vector2i(784, 576)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_entrance.tscn"
+LeadsToExit = "ToWestOcean"
+Style = 0
+ArrivalOffset = Vector2i(744, 552)

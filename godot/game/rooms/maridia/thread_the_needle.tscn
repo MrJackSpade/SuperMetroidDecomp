@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/choot/choot.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,86 @@ LeadsToRoom = "res://game/rooms/maridia/maridia_elevator.tscn"
 LeadsToExit = "ToThreadTheNeedle"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Puyo" parent="." instance=ExtResource("5")]
+position = Vector2(280, 140)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo2" parent="." instance=ExtResource("5")]
+position = Vector2(324, 172)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo3" parent="." instance=ExtResource("5")]
+position = Vector2(708, 140)
+HopCooldown = 64
+BigHopDistance = 22
+
+[node name="Puyo4" parent="." instance=ExtResource("5")]
+position = Vector2(1528, 108)
+HopCooldown = 48
+BigHopDistance = 22
+
+[node name="Puyo5" parent="." instance=ExtResource("5")]
+position = Vector2(1040, 108)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo6" parent="." instance=ExtResource("5")]
+position = Vector2(1136, 140)
+HopCooldown = 64
+BigHopDistance = 22
+
+[node name="Puyo7" parent="." instance=ExtResource("5")]
+position = Vector2(1088, 92)
+HopCooldown = 16
+BigHopDistance = 22
+
+[node name="Choot" parent="." instance=ExtResource("6")]
+position = Vector2(216, 140)
+FallingPath = "very_wide"
+PatternLoops = 1
+JumpDelay = 0
+
+[node name="Choot2" parent="." instance=ExtResource("6")]
+position = Vector2(432, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot3" parent="." instance=ExtResource("6")]
+position = Vector2(792, 108)
+FallingPath = "very_wide"
+PatternLoops = 1
+JumpDelay = 0
+
+[node name="Choot4" parent="." instance=ExtResource("6")]
+position = Vector2(1304, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot5" parent="." instance=ExtResource("6")]
+position = Vector2(1448, 140)
+FallingPath = "wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot6" parent="." instance=ExtResource("6")]
+position = Vector2(632, 172)
+FallingPath = "normal"
+PatternLoops = 3
+JumpDelay = 0
+
+[node name="Choot7" parent="." instance=ExtResource("6")]
+position = Vector2(936, 172)
+FallingPath = "normal"
+PatternLoops = 3
+JumpDelay = 0
+
+[node name="Choot8" parent="." instance=ExtResource("6")]
+position = Vector2(1628, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0

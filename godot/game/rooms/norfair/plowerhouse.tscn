@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,45 @@ LeadsToRoom = "res://game/rooms/norfair/metal_pirates.tscn"
 LeadsToExit = "ToPlowerhouse"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Holtz" parent="." instance=ExtResource("5")]
+position = Vector2(600, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Holtz2" parent="." instance=ExtResource("5")]
+position = Vector2(648, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Holtz3" parent="." instance=ExtResource("5")]
+position = Vector2(280, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Holtz4" parent="." instance=ExtResource("5")]
+position = Vector2(456, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Holtz5" parent="." instance=ExtResource("5")]
+position = Vector2(104, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Holtz6" parent="." instance=ExtResource("5")]
+position = Vector2(152, 88)
+DataFile = "enemies/holtz.json"
+
+[node name="Zebbo" parent="." instance=ExtResource("6")]
+position = Vector2(192, 184)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo2" parent="." instance=ExtResource("6")]
+position = Vector2(384, 184)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo3" parent="." instance=ExtResource("6")]
+position = Vector2(576, 184)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true

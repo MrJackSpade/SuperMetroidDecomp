@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/boyon/boyon.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +48,63 @@ LeadsToRoom = "res://game/rooms/brinstar/warehouse_entrance.tscn"
 LeadsToExit = "ToEastTunnel"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Boyon" parent="." instance=ExtResource("5")]
+position = Vector2(136, 192)
+SpeedMultiplier = 10
+JumpHeight = 64
+Reach = 8
+
+[node name="Boyon2" parent="." instance=ExtResource("5")]
+position = Vector2(488, 208)
+SpeedMultiplier = 10
+JumpHeight = 48
+Reach = 8
+
+[node name="Boyon3" parent="." instance=ExtResource("5")]
+position = Vector2(536, 208)
+SpeedMultiplier = 10
+JumpHeight = 64
+Reach = 32
+
+[node name="Boyon4" parent="." instance=ExtResource("5")]
+position = Vector2(632, 208)
+SpeedMultiplier = 10
+JumpHeight = 96
+Reach = 8
+
+[node name="Boyon5" parent="." instance=ExtResource("5")]
+position = Vector2(728, 208)
+SpeedMultiplier = 16
+JumpHeight = 96
+Reach = 8
+
+[node name="Boyon6" parent="." instance=ExtResource("5")]
+position = Vector2(776, 208)
+SpeedMultiplier = 10
+JumpHeight = 96
+Reach = 8
+
+[node name="Boyon7" parent="." instance=ExtResource("5")]
+position = Vector2(872, 208)
+SpeedMultiplier = 10
+JumpHeight = 48
+Reach = 8
+
+[node name="Zebbo" parent="." instance=ExtResource("6")]
+position = Vector2(184, 200)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo2" parent="." instance=ExtResource("6")]
+position = Vector2(680, 200)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo3" parent="." instance=ExtResource("6")]
+position = Vector2(584, 200)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true

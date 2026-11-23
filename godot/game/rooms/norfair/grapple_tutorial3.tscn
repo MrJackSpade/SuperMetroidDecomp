@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/gamet.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,73 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
 LeadsToExit = "ToGrappleTutorial3"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Gamet" parent="." instance=ExtResource("5")]
+position = Vector2(208, 360)
+TriggerWidth = 48
+Speed = 3
+SpreadDown = 0
+DepartureWait = 104
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Gamet2" parent="." instance=ExtResource("5")]
+position = Vector2(208, 360)
+Speed = 3
+SpreadDown = -16
+DepartureWait = 96
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet3" parent="." instance=ExtResource("5")]
+position = Vector2(208, 360)
+Speed = 3
+SpreadDown = -32
+DepartureWait = 88
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet4" parent="." instance=ExtResource("5")]
+position = Vector2(208, 360)
+Speed = 3
+SpreadDown = 16
+DepartureWait = 112
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet5" parent="." instance=ExtResource("5")]
+position = Vector2(208, 360)
+Speed = 3
+SpreadDown = 32
+DepartureWait = 120
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Puyo" parent="." instance=ExtResource("6")]
+position = Vector2(461, 332)
+HopCooldown = 0
+BigHopDistance = 0
+
+[node name="Puyo2" parent="." instance=ExtResource("6")]
+position = Vector2(442, 276)
+HopCooldown = 0
+BigHopDistance = 0
+
+[node name="Puyo3" parent="." instance=ExtResource("6")]
+position = Vector2(520, 418)
+HopCooldown = 0
+BigHopDistance = 0
+
+[node name="Puyo4" parent="." instance=ExtResource("6")]
+position = Vector2(572, 423)
+HopCooldown = 0
+BigHopDistance = 0
+
+[node name="Puyo5" parent="." instance=ExtResource("6")]
+position = Vector2(624, 417)
+HopCooldown = 0
+BigHopDistance = 0

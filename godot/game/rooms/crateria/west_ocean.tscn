@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -73,3 +77,53 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_entrance.tscn"
 LeadsToExit = "ToWestOcean"
 Style = 0
 ArrivalOffset = Vector2i(744, 552)
+
+[node name="Skultera" parent="." instance=ExtResource("5")]
+position = Vector2(1188, 1392)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera2" parent="." instance=ExtResource("5")]
+position = Vector2(971, 1402)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+
+[node name="Zeb" parent="." instance=ExtResource("6")]
+position = Vector2(632, 704)
+DataFile = "enemies/zeb.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="GrappleRipper" parent="." instance=ExtResource("7")]
+position = Vector2(1424, 1072)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 1
+StartsFacing = 1
+PatrolLeft = 1376
+PatrolRight = 1472
+AlwaysActive = true
+
+[node name="Tripper" parent="." instance=ExtResource("8")]
+position = Vector2(336, 216)
+DataFile = "enemies/tripper.json"
+StartsFacing = 0
+Speed = 1
+FastestMark = 0
+
+[node name="Tripper2" parent="." instance=ExtResource("8")]
+position = Vector2(904, 88)
+DataFile = "enemies/tripper.json"
+StartsFacing = 0
+Speed = 1
+FastestMark = 0
+
+[node name="Tripper3" parent="." instance=ExtResource("8")]
+position = Vector2(880, 352)
+DataFile = "enemies/tripper.json"
+StartsFacing = 1
+Speed = 1
+FastestMark = 0

@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +57,49 @@ LeadsToRoom = "res://game/rooms/crateria/terminator.tscn"
 LeadsToExit = "ToGreenPiratesShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateGreenWalking" parent="." instance=ExtResource("5")]
+position = Vector2(128, 1232)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(141, 1312)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(139, 1392)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking4" parent="." instance=ExtResource("5")]
+position = Vector2(132, 1472)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking5" parent="." instance=ExtResource("5")]
+position = Vector2(150, 1552)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="Beetom" parent="." instance=ExtResource("6")]
+position = Vector2(184, 984)
+
+[node name="Beetom2" parent="." instance=ExtResource("6")]
+position = Vector2(72, 984)

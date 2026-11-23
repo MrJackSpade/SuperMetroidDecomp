@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,79 @@ LeadsToRoom = "res://game/rooms/norfair/ridley.tscn"
 LeadsToExit = "ToLowerNorfairFarming"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Viola" parent="." instance=ExtResource("5")]
+position = Vector2(552, 136)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola2" parent="." instance=ExtResource("5")]
+position = Vector2(568, 216)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola3" parent="." instance=ExtResource("5")]
+position = Vector2(360, 136)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola4" parent="." instance=ExtResource("5")]
+position = Vector2(360, 216)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola5" parent="." instance=ExtResource("5")]
+position = Vector2(216, 152)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Zebbo" parent="." instance=ExtResource("6")]
+position = Vector2(664, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo2" parent="." instance=ExtResource("6")]
+position = Vector2(600, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo3" parent="." instance=ExtResource("6")]
+position = Vector2(520, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo4" parent="." instance=ExtResource("6")]
+position = Vector2(456, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo5" parent="." instance=ExtResource("6")]
+position = Vector2(328, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo6" parent="." instance=ExtResource("6")]
+position = Vector2(248, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true

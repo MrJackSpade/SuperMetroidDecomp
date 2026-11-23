@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/metroid/mochtroid.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +47,27 @@ LeadsToRoom = "res://game/rooms/maridia/the_precious.tscn"
 LeadsToExit = "ToColosseum"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Mochtroid" parent="." instance=ExtResource("5")]
+position = Vector2(128, 120)
+
+[node name="Mochtroid2" parent="." instance=ExtResource("5")]
+position = Vector2(656, 104)
+
+[node name="Mochtroid3" parent="." instance=ExtResource("5")]
+position = Vector2(1104, 176)
+
+[node name="Mochtroid4" parent="." instance=ExtResource("5")]
+position = Vector2(1168, 96)
+
+[node name="Mochtroid5" parent="." instance=ExtResource("5")]
+position = Vector2(1632, 136)
+
+[node name="Mochtroid6" parent="." instance=ExtResource("5")]
+position = Vector2(168, 416)
+
+[node name="Mochtroid7" parent="." instance=ExtResource("5")]
+position = Vector2(360, 344)
+
+[node name="Mochtroid8" parent="." instance=ExtResource("5")]
+position = Vector2(1584, 416)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -73,3 +74,37 @@ LeadsToRoom = "res://game/rooms/maridia/west_aqueduct_quicksand.tscn"
 LeadsToExit = "FromAqueductToWestAqueductQuicksand"
 Style = 1
 ArrivalOffset = Vector2i(96, -24)
+
+[node name="Yard" parent="." instance=ExtResource("5")]
+position = Vector2(1348, 472)
+StartsOn = 0
+Clockwise = true
+CrawlSpeed = 1.25
+AlwaysActive = true
+
+[node name="Yard2" parent="." instance=ExtResource("5")]
+position = Vector2(544, 660)
+StartsOn = 0
+Clockwise = false
+CrawlSpeed = 1
+AlwaysActive = true
+
+[node name="Yard3" parent="." instance=ExtResource("5")]
+position = Vector2(1056, 612)
+StartsOn = 2
+Clockwise = true
+CrawlSpeed = 1.5
+AlwaysActive = true
+
+[node name="Yard4" parent="." instance=ExtResource("5")]
+position = Vector2(472, 304)
+StartsOn = 1
+Clockwise = false
+CrawlSpeed = 2
+AlwaysActive = true
+
+[node name="Yard5" parent="." instance=ExtResource("5")]
+position = Vector2(1360, 696)
+StartsOn = 2
+Clockwise = true
+CrawlSpeed = 0.75

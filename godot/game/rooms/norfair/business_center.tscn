@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -82,6 +83,54 @@ LeadsToRoom = "res://game/rooms/brinstar/warehouse_entrance.tscn"
 LeadsToExit = "ToBusinessCenter"
 Style = 1
 ArrivalOffset = Vector2i(16, 40)
+
+[node name="Sova" parent="." instance=ExtResource("5")]
+position = Vector2(123, 856)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova2" parent="." instance=ExtResource("5")]
+position = Vector2(144, 1000)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova3" parent="." instance=ExtResource("5")]
+position = Vector2(97, 1080)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova4" parent="." instance=ExtResource("5")]
+position = Vector2(160, 1304)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova5" parent="." instance=ExtResource("5")]
+position = Vector2(96, 1352)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.25
+
+[node name="Sova6" parent="." instance=ExtResource("5")]
+position = Vector2(129, 1512)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
 
 [node name="AtBusinessCenterElevator" type="Marker2D" parent="."]
 position = Vector2(128, 680)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/evir/evir.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,6 +38,24 @@ LeadsToRoom = "res://game/rooms/maridia/pants.tscn"
 LeadsToExit = "ToEastSandHall"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Evir" parent="." instance=ExtResource("5")]
+position = Vector2(168, 160)
+BobSpeed = 0.5
+BobUpdates = 248
+FirstBobUpdates = 0
+
+[node name="Evir2" parent="." instance=ExtResource("5")]
+position = Vector2(256, 120)
+BobSpeed = 0.75
+BobUpdates = 208
+FirstBobUpdates = 1
+
+[node name="Evir3" parent="." instance=ExtResource("5")]
+position = Vector2(544, 120)
+BobSpeed = 0.75
+BobUpdates = 208
+FirstBobUpdates = 1
 
 [node name="FromEastSandHoleToEastSandHall" type="Marker2D" parent="."]
 position = Vector2(384, 128)

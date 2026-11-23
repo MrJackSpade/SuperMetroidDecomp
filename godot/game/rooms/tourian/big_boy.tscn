@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/corpse/corpse.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +50,35 @@ LeadsToRoom = "res://game/rooms/tourian/seaweed.tscn"
 LeadsToExit = "ToBigBoy"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="CorpseZoomer" parent="." instance=ExtResource("6")]
+position = Vector2(240, 64)
+DataFile = "enemies/corpse_zoomer_on_its_back.json"
+
+[node name="CorpseZoomer2" parent="." instance=ExtResource("6")]
+position = Vector2(664, 200)
+DataFile = "enemies/corpse_zoomer_upright.json"
+
+[node name="CorpseZoomer3" parent="." instance=ExtResource("6")]
+position = Vector2(264, 54)
+DataFile = "enemies/corpse_zoomer_on_its_back.json"
+
+[node name="CorpseRipper" parent="." instance=ExtResource("6")]
+position = Vector2(800, 168)
+DataFile = "enemies/corpse_ripper_level.json"
+
+[node name="CorpseRipper2" parent="." instance=ExtResource("6")]
+position = Vector2(194, 200)
+DataFile = "enemies/corpse_ripper_tilted.json"
+
+[node name="CorpseSkree" parent="." instance=ExtResource("6")]
+position = Vector2(896, 71)
+DataFile = "enemies/corpse_skree.json"
+
+[node name="CorpseSkree2" parent="." instance=ExtResource("6")]
+position = Vector2(608, 71)
+DataFile = "enemies/corpse_skree.json"
+
+[node name="CorpseSkree3" parent="." instance=ExtResource("6")]
+position = Vector2(384, 71)
+DataFile = "enemies/corpse_skree.json"

@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,33 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_map.tscn"
 LeadsToExit = "ToBrinstarPreMap"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sidehopper" parent="." instance=ExtResource("5")]
+position = Vector2(580, 59)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Zeela" parent="." instance=ExtResource("6")]
+position = Vector2(376, 88)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Zeela2" parent="." instance=ExtResource("6")]
+position = Vector2(424, 88)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Zeela3" parent="." instance=ExtResource("6")]
+position = Vector2(73, 64)
+DataFile = "enemies/zeela.json"
+StartsOn = 1
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.25

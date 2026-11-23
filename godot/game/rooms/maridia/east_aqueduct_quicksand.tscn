@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,6 +29,48 @@ LeadsToRoom = "res://game/rooms/maridia/east_sand_hole.tscn"
 LeadsToExit = "FromEastAqueductQuicksandToEastSandHole"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+
+[node name="Bull" parent="." instance=ExtResource("5")]
+position = Vector2(56, 216)
+AccelerationInterval = 12
+DecelerationInterval = 5
+MaximumSpeed = 4.99609375
+AlwaysActive = true
+
+[node name="Bull2" parent="." instance=ExtResource("5")]
+position = Vector2(216, 152)
+AccelerationInterval = 13
+DecelerationInterval = 5
+MaximumSpeed = 4.99609375
+AlwaysActive = true
+
+[node name="Bull3" parent="." instance=ExtResource("5")]
+position = Vector2(88, 376)
+AccelerationInterval = 10
+DecelerationInterval = 4
+MaximumSpeed = 5.99609375
+AlwaysActive = true
+
+[node name="Bull4" parent="." instance=ExtResource("5")]
+position = Vector2(184, 312)
+AccelerationInterval = 11
+DecelerationInterval = 4
+MaximumSpeed = 5.99609375
+AlwaysActive = true
+
+[node name="Bull5" parent="." instance=ExtResource("5")]
+position = Vector2(40, 40)
+AccelerationInterval = 13
+DecelerationInterval = 5
+MaximumSpeed = 3.99609375
+AlwaysActive = true
+
+[node name="Bull6" parent="." instance=ExtResource("5")]
+position = Vector2(152, 456)
+AccelerationInterval = 10
+DecelerationInterval = 4
+MaximumSpeed = 5.99609375
+AlwaysActive = true
 
 [node name="FromAqueductToEastAqueductQuicksand" type="Marker2D" parent="."]
 position = Vector2(128, 128)

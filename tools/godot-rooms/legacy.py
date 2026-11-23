@@ -239,7 +239,8 @@ def _placements_in(listed: str, shared: dict[str, list[Placement]]) -> list[Plac
                 placements.extend(shared[last_name(spread)])
             continue
         a = call_arguments(entry)
-        at = numbers(a[1]) if a[1].startswith('EnemyPlacing.At') else []
+        # A place off the room's edge is written inside a wrapper whose own name holds a number; the place is the last two.
+        at = numbers(a[1])[-2:] if a[1].startswith('EnemyPlacing.At') else []
         settings = a[6] if len(a) > 6 else 'EnemySpawnSettings.None'
         settings_type = re.match(r'new (\w+)', settings).group(1) if settings.startswith('new ') else settings
         named = {}

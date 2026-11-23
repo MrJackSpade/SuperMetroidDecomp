@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,68 @@ LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
 LeadsToExit = "ToTerminator"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Waver" parent="." instance=ExtResource("5")]
+position = Vector2(790, 348)
+StartsFacing = 1
+AlwaysActive = true
+
+[node name="Waver2" parent="." instance=ExtResource("5")]
+position = Vector2(531, 480)
+StartsFacing = 0
+AlwaysActive = true
+
+[node name="Waver3" parent="." instance=ExtResource("5")]
+position = Vector2(258, 610)
+StartsFacing = 1
+AlwaysActive = true
+
+[node name="Zoomer" parent="." instance=ExtResource("6")]
+position = Vector2(888, 304)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+AlwaysActive = true
+
+[node name="Zoomer2" parent="." instance=ExtResource("6")]
+position = Vector2(1176, 160)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Zoomer3" parent="." instance=ExtResource("6")]
+position = Vector2(745, 470)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Zoomer4" parent="." instance=ExtResource("6")]
+position = Vector2(519, 586)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Zoomer5" parent="." instance=ExtResource("6")]
+position = Vector2(376, 560)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+AlwaysActive = true
+
+[node name="Zoomer6" parent="." instance=ExtResource("6")]
+position = Vector2(664, 416)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75

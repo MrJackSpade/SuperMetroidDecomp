@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,24 @@ LeadsToRoom = "res://game/rooms/brinstar/spore_spawn.tscn"
 LeadsToExit = "ToSporeSpawnKihunters"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="KihunterGreen" parent="." instance=ExtResource("5")]
+position = Vector2(217, 104)
+DataFile = "enemies/ki_hunter_green.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true
+
+[node name="KihunterGreen2" parent="." instance=ExtResource("5")]
+position = Vector2(725, 98)
+DataFile = "enemies/ki_hunter_green.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true
+
+[node name="KihunterGreen3" parent="." instance=ExtResource("5")]
+position = Vector2(983, 104)
+DataFile = "enemies/ki_hunter_green.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true

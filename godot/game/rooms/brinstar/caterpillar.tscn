@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/cacatac/cacatac.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -73,6 +75,46 @@ LeadsToRoom = "res://game/rooms/maridia/red_fish.tscn"
 LeadsToExit = "ToCaterpillar"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Zero" parent="." instance=ExtResource("5")]
+position = Vector2(95, 1928)
+DataFile = "enemies/zero.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.25
+
+[node name="Zero2" parent="." instance=ExtResource("5")]
+position = Vector2(23, 1758)
+DataFile = "enemies/zero.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.25
+
+[node name="Zero3" parent="." instance=ExtResource("5")]
+position = Vector2(120, 1679)
+DataFile = "enemies/zero.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.25
+
+[node name="Cacatac" parent="." instance=ExtResource("6")]
+position = Vector2(113, 1139)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0.1875
+
+[node name="Cacatac2" parent="." instance=ExtResource("6")]
+position = Vector2(192, 1283)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0.1875
 
 [node name="AtCaterpillarElevator" type="Marker2D" parent="."]
 position = Vector2(128, 680)

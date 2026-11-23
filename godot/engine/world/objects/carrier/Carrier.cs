@@ -1,4 +1,6 @@
 using Engine.Actors;
+using Engine.Actors.Components;
+using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
 using Godot;
@@ -10,6 +12,7 @@ namespace Engine.World.Objects;
 /// path ends at a room exit: the player is let go inside the exit, and the room transition follows. A player who
 /// arrives in the room where its path ends is brought back along it to where it rests.
 /// </summary>
+/// <remarks>Its data may name the timelines that show it: "rest", and "moving" while it carries.</remarks>
 public partial class Carrier : RoomObject
 {
     /// <summary>The points of the path, in pixels from where the carrier stands, visited in order. The carrier starts at the first.</summary>
@@ -57,6 +60,16 @@ public partial class Carrier : RoomObject
     private bool _mustLeave;
     private bool _arriving;
     private bool _lookedForArrival;
+    private TimelineSet _timelines = TimelineSet.None;
+    private TimelinePlayer? _showing;
+    private string _showingName = "";
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _timelines = TimelineSet.ReadFrom(data);
+    }
 
     /// <summary>Whether the carrier is carrying the player.</summary>
     public bool IsCarrying => _path is not null;
@@ -71,12 +84,29 @@ public partial class Carrier : RoomObject
             throw new InvalidOperationException($"The carrier \"{Name}\" needs a path of at least two points.");
         _home = Position;
         (_path, _mustLeave, _arriving, _lookedForArrival) = (null, false, false, false);
+        (_showing, _showingName) = (null, "");
+        ShowLook();
+    }
+
+    /// <summary>Shows the timeline for what it is doing, where its data has one, and moves it on an update.</summary>
+    private void ShowLook()
+    {
+        string name = _path is not null && _timelines.Has("moving") ? "moving" : "rest";
+        if (!_timelines.Has(name))
+            return;
+        if (_showing is null || _showingName != name)
+            (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(name)), name);
+        else
+            _showing.Step();
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            visual.Show(_showing.Current.Picture);
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
         Player player = Room.Player;
+        ShowLook();
         if (!_lookedForArrival)
         {
             _lookedForArrival = true;

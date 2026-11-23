@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,99 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape2.tscn"
 LeadsToExit = "ToTourianEscape1"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+
+[node name="ShutterDestroyable" parent="." instance=ExtResource("5")]
+position = Vector2(440, 64)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 16
+MovesUpFirst = false
+Speed = 0.5
+Travel = 32
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterDestroyable2" parent="." instance=ExtResource("5")]
+position = Vector2(440, 192)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 16
+MovesUpFirst = true
+Speed = 0.5
+Travel = 32
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterDestroyable3" parent="." instance=ExtResource("5")]
+position = Vector2(360, 64)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 16
+MovesUpFirst = false
+Speed = 0.5
+Travel = 32
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterDestroyable4" parent="." instance=ExtResource("5")]
+position = Vector2(360, 192)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 16
+MovesUpFirst = true
+Speed = 0.5
+Travel = 32
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterDestroyable5" parent="." instance=ExtResource("5")]
+position = Vector2(280, 64)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 24
+MovesUpFirst = false
+Speed = 0.5
+Travel = 32
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterDestroyable6" parent="." instance=ExtResource("5")]
+position = Vector2(280, 192)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 24
+MovesUpFirst = true
+Speed = 0.5
+Travel = 32
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterDestroyable7" parent="." instance=ExtResource("5")]
+position = Vector2(200, 64)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 32
+MovesUpFirst = false
+Speed = 0.5
+Travel = 32
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterDestroyable8" parent="." instance=ExtResource("5")]
+position = Vector2(200, 192)
+DataFile = "enemies/shutter_destroyable.json"
+Trigger = 0
+TriggerAmount = 32
+MovesUpFirst = true
+Speed = 0.5
+Travel = 32
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true

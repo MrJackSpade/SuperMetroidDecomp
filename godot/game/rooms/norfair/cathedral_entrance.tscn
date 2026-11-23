@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,46 @@ LeadsToRoom = "res://game/rooms/norfair/cathedral.tscn"
 LeadsToExit = "ToCathedralEntrance"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sova" parent="." instance=ExtResource("5")]
+position = Vector2(40, 256)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sova2" parent="." instance=ExtResource("5")]
+position = Vector2(24, 312)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+AlwaysActive = true
+
+[node name="Sova3" parent="." instance=ExtResource("5")]
+position = Vector2(248, 152)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sova4" parent="." instance=ExtResource("5")]
+position = Vector2(176, 216)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Dessgeega" parent="." instance=ExtResource("6")]
+position = Vector2(392, 415)
+DataFile = "enemies/dessgeega.json"
+OnCeiling = false
+
+[node name="Dessgeega2" parent="." instance=ExtResource("6")]
+position = Vector2(559, 414)
+DataFile = "enemies/dessgeega.json"
+OnCeiling = false

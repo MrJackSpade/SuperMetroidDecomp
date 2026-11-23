@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/face_block/face_block.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -21,6 +23,11 @@ Music = "lower_crateria"
 script = ExtResource("2")
 LayoutFile = "rooms/brinstar/morph_ball.json"
 Music = "blue_brinstar_arrival"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
 
 [node name="MorphBall" type="Node2D"]
 script = ExtResource("3")
@@ -58,6 +65,72 @@ LeadsToRoom = "res://game/rooms/brinstar/green_hill_zone.tscn"
 LeadsToExit = "ToMorphBall"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="FaceBlock" parent="." instance=ExtResource("6")]
+position = Vector2(1352, 576)
+TriggerDistance = 64
+StartsFacing = 1
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock2" parent="." instance=ExtResource("6")]
+position = Vector2(1464, 576)
+TriggerDistance = 64
+StartsFacing = 0
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock3" parent="." instance=ExtResource("6")]
+position = Vector2(1160, 696)
+TriggerDistance = 64
+StartsFacing = 0
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock4" parent="." instance=ExtResource("6")]
+position = Vector2(1064, 696)
+TriggerDistance = 64
+StartsFacing = 1
+PresentWhen = SubResource("r4")
+
+[node name="SidehopperLarge" parent="." instance=ExtResource("7")]
+position = Vector2(152, 678)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = false
+PresentWhen = SubResource("r1")
+
+[node name="SidehopperLarge2" parent="." instance=ExtResource("7")]
+position = Vector2(380, 678)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = false
+PresentWhen = SubResource("r1")
+
+[node name="SidehopperLarge3" parent="." instance=ExtResource("7")]
+position = Vector2(263, 620)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = true
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock5" parent="." instance=ExtResource("6")]
+position = Vector2(1352, 576)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock6" parent="." instance=ExtResource("6")]
+position = Vector2(1464, 576)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock7" parent="." instance=ExtResource("6")]
+position = Vector2(1160, 696)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock8" parent="." instance=ExtResource("6")]
+position = Vector2(1064, 696)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")
 
 [node name="AtMorphBallElevator" type="Marker2D" parent="."]
 position = Vector2(1408, 680)

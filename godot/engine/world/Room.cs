@@ -66,6 +66,12 @@ public partial class Room : Node2D
     private readonly List<RoomSequence> _sequences = [];
     private readonly List<Backdrop> _backdrops = [];
     private readonly List<IRoomEntity> _leaving = [];
+
+    /// <summary>
+    /// The exit the player arrived at, until they have been in control and clear of it once. It takes no one until
+    /// then, so that a player something brings in through it, as an elevator does, is not taken straight back.
+    /// </summary>
+    private RoomExit? _arrivedAt;
     private readonly HashSet<string> _gone = new(StringComparer.Ordinal);
 
     /// <summary>The session the room is being played in.</summary>
@@ -216,7 +222,9 @@ public partial class Room : Node2D
             PixelRect body = Player.BodyRect;
             foreach (Trigger trigger in _triggers.ToList())
                 trigger.Step(this, body);
-            ExitEntered ??= _exits.FirstOrDefault(exit => exit.Area.Overlaps(body));
+            if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
+                _arrivedAt = null;
+            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
         }
 
         if (!stopped.HasFlag(Stopped.Enemies))
@@ -460,6 +468,7 @@ public partial class Room : Node2D
     {
         Node point = GetNodeOrNull(entry.EntryPoint)
             ?? throw new InvalidOperationException($"The room \"{Name}\" has no entry point named \"{entry.EntryPoint}\".");
+        _arrivedAt = point as RoomExit;
         PixelPosition place = point switch
         {
             RoomExit exit => exit.ArrivalPoint,

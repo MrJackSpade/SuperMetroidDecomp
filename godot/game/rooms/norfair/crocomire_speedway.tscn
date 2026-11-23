@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/multiviola/multiviola.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/cacatac/cacatac.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -64,3 +67,79 @@ LeadsToRoom = "res://game/rooms/norfair/crumble_shaft.tscn"
 LeadsToExit = "ToCrocomireSpeedway"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="PirateRedWalking" parent="." instance=ExtResource("5")]
+position = Vector2(2232, 624)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 0
+
+[node name="Multiviola" parent="." instance=ExtResource("6")]
+position = Vector2(1043, 204)
+Heading = 240
+Speed = 3
+
+[node name="PirateRedWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(756, 176)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 48
+
+[node name="Multiviola2" parent="." instance=ExtResource("6")]
+position = Vector2(1165, 278)
+Heading = 48
+Speed = 3
+
+[node name="PirateRedWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(922, 224)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 32
+
+[node name="Multiviola3" parent="." instance=ExtResource("6")]
+position = Vector2(1292, 344)
+Heading = 104
+Speed = 3
+
+[node name="Multiviola4" parent="." instance=ExtResource("6")]
+position = Vector2(1455, 456)
+Heading = 208
+Speed = 3
+
+[node name="PirateRedWalking4" parent="." instance=ExtResource("5")]
+position = Vector2(2555, 624)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 0
+
+[node name="PirateRedWalking5" parent="." instance=ExtResource("5")]
+position = Vector2(1767, 656)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 16
+
+[node name="Cacatac" parent="." instance=ExtResource("7")]
+position = Vector2(3160, 483)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac2" parent="." instance=ExtResource("7")]
+position = Vector2(3240, 483)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0

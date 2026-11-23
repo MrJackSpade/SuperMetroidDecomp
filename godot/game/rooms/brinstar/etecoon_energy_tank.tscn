@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +57,36 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
 LeadsToExit = "ToEtecoonEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Zebbo" parent="." instance=ExtResource("5")]
+position = Vector2(592, 472)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo2" parent="." instance=ExtResource("5")]
+position = Vector2(752, 472)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo3" parent="." instance=ExtResource("5")]
+position = Vector2(1072, 472)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Beetom" parent="." instance=ExtResource("6")]
+position = Vector2(472, 408)
+
+[node name="Beetom2" parent="." instance=ExtResource("6")]
+position = Vector2(632, 408)
+
+[node name="Beetom3" parent="." instance=ExtResource("6")]
+position = Vector2(864, 424)
+
+[node name="Beetom4" parent="." instance=ExtResource("6")]
+position = Vector2(984, 424)
+
+[node name="Beetom5" parent="." instance=ExtResource("6")]
+position = Vector2(1112, 424)

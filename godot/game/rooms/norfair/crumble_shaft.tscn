@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,51 @@ LeadsToRoom = "res://game/rooms/norfair/ice_beam_gate.tscn"
 LeadsToExit = "ToCrumbleShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sova" parent="." instance=ExtResource("5")]
+position = Vector2(120, 262)
+DataFile = "enemies/sova.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova2" parent="." instance=ExtResource("5")]
+position = Vector2(56, 312)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova3" parent="." instance=ExtResource("5")]
+position = Vector2(192, 472)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova4" parent="." instance=ExtResource("5")]
+position = Vector2(128, 598)
+DataFile = "enemies/sova.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova5" parent="." instance=ExtResource("5")]
+position = Vector2(128, 758)
+DataFile = "enemies/sova.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sova6" parent="." instance=ExtResource("5")]
+position = Vector2(192, 838)
+DataFile = "enemies/sova.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5

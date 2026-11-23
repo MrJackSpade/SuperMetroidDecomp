@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/work_robot/work_robot.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -40,3 +42,72 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/attic.tscn"
 LeadsToExit = "ToAssemblyLine"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Spark" parent="." instance=ExtResource("6")]
+position = Vector2(464, 93)
+Does = 2
+SpellUpdates = 152
+PresentWhen = SubResource("r1")
+
+[node name="Spark2" parent="." instance=ExtResource("6")]
+position = Vector2(624, 91)
+Does = 1
+SpellUpdates = 64
+PresentWhen = SubResource("r1")
+
+[node name="Spark3" parent="." instance=ExtResource("6")]
+position = Vector2(144, 88)
+Does = 2
+SpellUpdates = 160
+PresentWhen = SubResource("r1")
+
+[node name="Spark4" parent="." instance=ExtResource("6")]
+position = Vector2(240, 88)
+Does = 1
+SpellUpdates = 48
+PresentWhen = SubResource("r1")
+
+[node name="Spark5" parent="." instance=ExtResource("6")]
+position = Vector2(301, 88)
+Does = 1
+SpellUpdates = 16
+PresentWhen = SubResource("r1")
+
+[node name="Spark6" parent="." instance=ExtResource("6")]
+position = Vector2(400, 88)
+Does = 2
+SpellUpdates = 128
+PresentWhen = SubResource("r1")
+
+[node name="Spark7" parent="." instance=ExtResource("6")]
+position = Vector2(560, 88)
+Does = 1
+SpellUpdates = 40
+PresentWhen = SubResource("r1")
+
+[node name="Spark8" parent="." instance=ExtResource("6")]
+position = Vector2(728, 72)
+Does = 1
+SpellUpdates = 32
+PresentWhen = SubResource("r1")
+
+[node name="WorkRobot" parent="." instance=ExtResource("7")]
+position = Vector2(592, 128)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="WorkRobot2" parent="." instance=ExtResource("7")]
+position = Vector2(272, 128)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="WorkRobot3" parent="." instance=ExtResource("7")]
+position = Vector2(432, 128)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")

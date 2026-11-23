@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/dragon/dragon.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,22 @@ LeadsToRoom = "res://game/rooms/norfair/crocomire_speedway.tscn"
 LeadsToExit = "ToCrocomireEscape"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Dragon" parent="." instance=ExtResource("5")]
+position = Vector2(896, 488)
+
+[node name="Geruta" parent="." instance=ExtResource("6")]
+position = Vector2(918, 127)
+DataFile = "enemies/geruta.json"
+
+[node name="Dragon2" parent="." instance=ExtResource("5")]
+position = Vector2(704, 488)
+
+[node name="Dragon3" parent="." instance=ExtResource("5")]
+position = Vector2(512, 488)
+
+[node name="Dragon4" parent="." instance=ExtResource("5")]
+position = Vector2(320, 488)
+
+[node name="Dragon5" parent="." instance=ExtResource("5")]
+position = Vector2(128, 488)

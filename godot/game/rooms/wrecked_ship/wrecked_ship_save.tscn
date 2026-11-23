@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/covern/covern.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -21,6 +23,11 @@ Music = "wrecked_ship_powered_up"
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/save_room_door_on_left.json"
 Music = "wrecked_ship_powered_down"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
 
 [node name="WreckedShipSave" type="Node2D"]
 script = ExtResource("3")
@@ -40,6 +47,100 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn"
 LeadsToExit = "ToWreckedShipSave"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Coven" parent="." instance=ExtResource("6")]
+position = Vector2(136, 136)
+AlwaysActive = true
+RespawnsWhenKilled = true
+PresentWhen = SubResource("r4")
+
+[node name="Sbug" parent="." instance=ExtResource("7")]
+position = Vector2(131, 186)
+Speed = 2
+Heading = 176
+ActivationDistance = 48
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug2" parent="." instance=ExtResource("7")]
+position = Vector2(123, 181)
+Speed = 2
+Heading = 202
+ActivationDistance = 48
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug3" parent="." instance=ExtResource("7")]
+position = Vector2(142, 192)
+Speed = 2
+Heading = 250
+ActivationDistance = 48
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug4" parent="." instance=ExtResource("7")]
+position = Vector2(116, 196)
+Speed = 2
+Heading = 131
+ActivationDistance = 48
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug5" parent="." instance=ExtResource("7")]
+position = Vector2(185, 46)
+Speed = 2
+Heading = 123
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug6" parent="." instance=ExtResource("7")]
+position = Vector2(193, 53)
+Speed = 2
+Heading = 224
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug7" parent="." instance=ExtResource("7")]
+position = Vector2(186, 54)
+Speed = 2
+Heading = 248
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug8" parent="." instance=ExtResource("7")]
+position = Vector2(203, 64)
+Speed = 2
+Heading = 24
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug9" parent="." instance=ExtResource("7")]
+position = Vector2(197, 70)
+Speed = 2
+Heading = 253
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug10" parent="." instance=ExtResource("7")]
+position = Vector2(51, 171)
+Speed = 2
+Heading = 136
+ActivationDistance = 48
+Runs = 1
+PresentWhen = SubResource("r4")
+
+[node name="Sbug11" parent="." instance=ExtResource("7")]
+position = Vector2(56, 172)
+Speed = 2
+Heading = 144
+ActivationDistance = 48
+Runs = 0
+PresentWhen = SubResource("r4")
 
 [node name="AtWreckedShipSave" type="Marker2D" parent="."]
 position = Vector2(128, 152)

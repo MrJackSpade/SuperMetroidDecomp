@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/powamp/powamp.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -73,3 +75,69 @@ LeadsToRoom = "res://game/rooms/maridia/red_fish.tscn"
 LeadsToExit = "ToMtEverest"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="Powamp" parent="." instance=ExtResource("5")]
+position = Vector2(512, 384)
+GrappleTravelDistance = 112
+Untouchable = false
+AlwaysActive = true
+
+[node name="Powamp2" parent="." instance=ExtResource("5")]
+position = Vector2(776, 512)
+GrappleTravelDistance = 288
+Untouchable = false
+AlwaysActive = true
+
+[node name="Powamp3" parent="." instance=ExtResource("5")]
+position = Vector2(1024, 560)
+GrappleTravelDistance = 48
+Untouchable = false
+AlwaysActive = true
+
+[node name="Sciser" parent="." instance=ExtResource("6")]
+position = Vector2(752, 903)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser2" parent="." instance=ExtResource("6")]
+position = Vector2(552, 15200)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1.25
+
+[node name="Sciser3" parent="." instance=ExtResource("6")]
+position = Vector2(360, 576)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser4" parent="." instance=ExtResource("6")]
+position = Vector2(960, 952)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser5" parent="." instance=ExtResource("6")]
+position = Vector2(616, 672)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1.25
+
+[node name="Sciser6" parent="." instance=ExtResource("6")]
+position = Vector2(1177, 856)
+DataFile = "enemies/sciser.json"
+StartsOn = 1
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75

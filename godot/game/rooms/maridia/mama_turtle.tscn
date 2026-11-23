@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/turtle/mama_turtle.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/turtle/baby_turtle.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,3 +30,31 @@ LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
 LeadsToExit = "ToMamaTurtle"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="MamaTurtle" parent="." instance=ExtResource("5")]
+position = Vector2(472, 973)
+AlwaysActive = true
+
+[node name="BabyTurtle" parent="." instance=ExtResource("6")]
+position = Vector2(432, 973)
+StartsFacing = 0
+AlwaysActive = true
+Mother = NodePath("../MamaTurtle")
+
+[node name="BabyTurtle2" parent="." instance=ExtResource("6")]
+position = Vector2(472, 973)
+StartsFacing = 0
+AlwaysActive = true
+Mother = NodePath("../MamaTurtle")
+
+[node name="BabyTurtle3" parent="." instance=ExtResource("6")]
+position = Vector2(488, 973)
+StartsFacing = 1
+AlwaysActive = true
+Mother = NodePath("../MamaTurtle")
+
+[node name="BabyTurtle4" parent="." instance=ExtResource("6")]
+position = Vector2(536, 973)
+StartsFacing = 1
+AlwaysActive = true
+Mother = NodePath("../MamaTurtle")

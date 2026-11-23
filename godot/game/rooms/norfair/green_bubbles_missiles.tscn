@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,31 @@ LeadsToRoom = "res://game/rooms/norfair/norfair_reserve_tank.tscn"
 LeadsToExit = "ToGreenBubblesMissiles"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="ShutterShootable" parent="." instance=ExtResource("5")]
+position = Vector2(296, 256)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("5")]
+position = Vector2(296, 256)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 128
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="Geruta" parent="." instance=ExtResource("6")]
+position = Vector2(388, 96)
+DataFile = "enemies/geruta.json"

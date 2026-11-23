@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,23 @@ LeadsToRoom = "res://game/rooms/norfair/speed_booster.tscn"
 LeadsToExit = "ToSpeedBoosterHall"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Geruta" parent="." instance=ExtResource("5")]
+position = Vector2(904, 296)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta2" parent="." instance=ExtResource("5")]
+position = Vector2(1160, 296)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta3" parent="." instance=ExtResource("5")]
+position = Vector2(1580, 392)
+DataFile = "enemies/geruta.json"
+
+[node name="Metaree" parent="." instance=ExtResource("6")]
+position = Vector2(288, 100)
+DataFile = "enemies/metaree.json"
+
+[node name="Metaree2" parent="." instance=ExtResource("6")]
+position = Vector2(240, 86)
+DataFile = "enemies/metaree.json"

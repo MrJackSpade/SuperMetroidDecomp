@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +57,62 @@ LeadsToRoom = "res://game/rooms/maridia/shaktool.tscn"
 LeadsToExit = "ToEastPants"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="MaridiaFly" parent="." instance=ExtResource("5")]
+position = Vector2(80, 80)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly2" parent="." instance=ExtResource("5")]
+position = Vector2(48, 120)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly3" parent="." instance=ExtResource("5")]
+position = Vector2(184, 80)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="Puyo" parent="." instance=ExtResource("6")]
+position = Vector2(368, 668)
+HopCooldown = 128
+BigHopDistance = 22
+
+[node name="Puyo2" parent="." instance=ExtResource("6")]
+position = Vector2(352, 508)
+HopCooldown = 128
+BigHopDistance = 22
+
+[node name="MaridiaFly4" parent="." instance=ExtResource("5")]
+position = Vector2(368, 120)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly5" parent="." instance=ExtResource("5")]
+position = Vector2(408, 112)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly6" parent="." instance=ExtResource("5")]
+position = Vector2(144, 112)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="Puyo3" parent="." instance=ExtResource("6")]
+position = Vector2(448, 732)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo4" parent="." instance=ExtResource("6")]
+position = Vector2(384, 812)
+HopCooldown = 48
+BigHopDistance = 22
+
+[node name="Puyo5" parent="." instance=ExtResource("6")]
+position = Vector2(416, 412)
+HopCooldown = 64
+BigHopDistance = 22
+
+[node name="Puyo6" parent="." instance=ExtResource("6")]
+position = Vector2(336, 1008)
+HopCooldown = 16
+BigHopDistance = 8
+
+[node name="Puyo7" parent="." instance=ExtResource("6")]
+position = Vector2(432, 1008)
+HopCooldown = 8
+BigHopDistance = 8

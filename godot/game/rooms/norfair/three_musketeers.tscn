@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hibashi/hibashi.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/ki_hunter/ki_hunter.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +40,56 @@ LeadsToRoom = "res://game/rooms/norfair/single_chamber.tscn"
 LeadsToExit = "ToThreeMusketeers"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Hibashi" parent="." instance=ExtResource("5")]
+position = Vector2(663, 640)
+RestUpdates = 48
+
+[node name="Hibashi2" parent="." instance=ExtResource("5")]
+position = Vector2(823, 640)
+RestUpdates = 48
+
+[node name="KihunterRed" parent="." instance=ExtResource("6")]
+position = Vector2(341, 498)
+DataFile = "enemies/ki_hunter_red.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true
+
+[node name="KihunterRed2" parent="." instance=ExtResource("6")]
+position = Vector2(357, 372)
+DataFile = "enemies/ki_hunter_red.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true
+
+[node name="KihunterRed3" parent="." instance=ExtResource("6")]
+position = Vector2(330, 264)
+DataFile = "enemies/ki_hunter_red.json"
+Wingless = false
+WingsLostAtHealth = 32
+AlwaysActive = true
+
+[node name="ShutterShootable" parent="." instance=ExtResource("7")]
+position = Vector2(744, 602)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = false
+Speed = 0.5
+Travel = 64
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("7")]
+position = Vector2(904, 570)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = false
+Speed = 0.5
+Travel = 64
+RestAfterUp = 0
+RestAfterDown = -1
+AlwaysActive = true

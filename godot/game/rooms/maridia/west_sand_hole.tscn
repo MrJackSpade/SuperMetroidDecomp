@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/boulder/boulder.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,6 +29,42 @@ LeadsToRoom = "res://game/rooms/maridia/west_sand_hall.tscn"
 LeadsToExit = "FromWestSandHoleToWestSandHall"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+
+[node name="Boulder" parent="." instance=ExtResource("5")]
+position = Vector2(464, 144)
+TriggerHeight = 80
+TriggerReach = 4
+DropHeight = 98
+Rolls = 0
+BreaksOnLanding = true
+AlwaysActive = true
+
+[node name="Boulder2" parent="." instance=ExtResource("5")]
+position = Vector2(176, 320)
+TriggerHeight = 128
+TriggerReach = 4
+DropHeight = 160
+Rolls = 0
+BreaksOnLanding = true
+AlwaysActive = true
+
+[node name="Boulder3" parent="." instance=ExtResource("5")]
+position = Vector2(240, 352)
+TriggerHeight = 240
+TriggerReach = 4
+DropHeight = 240
+Rolls = 0
+BreaksOnLanding = true
+AlwaysActive = true
+
+[node name="Boulder4" parent="." instance=ExtResource("5")]
+position = Vector2(48, 144)
+TriggerHeight = 64
+TriggerReach = 4
+DropHeight = 82
+Rolls = 0
+BreaksOnLanding = true
+AlwaysActive = true
 
 [node name="FromWestAqueductQuicksandToWestSandHole" type="Marker2D" parent="."]
 position = Vector2(384, 128)

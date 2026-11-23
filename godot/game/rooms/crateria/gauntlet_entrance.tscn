@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/yapping_maw/yapping_maw.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +51,36 @@ LeadsToRoom = "res://game/rooms/crateria/landing_site.tscn"
 LeadsToExit = "ToGauntletEntrance"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="YappingMaw" parent="." instance=ExtResource("6")]
+position = Vector2(1032, 56)
+ActivationDistance = 112
+StrikesDown = true
+
+[node name="YappingMaw2" parent="." instance=ExtResource("6")]
+position = Vector2(760, 200)
+ActivationDistance = 112
+StrikesDown = false
+
+[node name="YappingMaw3" parent="." instance=ExtResource("6")]
+position = Vector2(504, 56)
+ActivationDistance = 112
+StrikesDown = true
+
+[node name="Waver" parent="." instance=ExtResource("7")]
+position = Vector2(881, 101)
+StartsFacing = 0
+
+[node name="Waver2" parent="." instance=ExtResource("7")]
+position = Vector2(570, 125)
+StartsFacing = 1
+AlwaysActive = true
+
+[node name="Waver3" parent="." instance=ExtResource("7")]
+position = Vector2(358, 119)
+StartsFacing = 0
+
+[node name="YappingMaw4" parent="." instance=ExtResource("6")]
+position = Vector2(264, 200)
+ActivationDistance = 112
+StrikesDown = false

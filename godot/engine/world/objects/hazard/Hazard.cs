@@ -24,11 +24,11 @@ public partial class Hazard : RoomObject
     public Vector2I Size { get; set; } = new(16, 16);
 
     /// <summary>The damage of the hit it delivers on contact; zero for none.</summary>
-    [Export]
+    [Export, DataValue("hit_damage")]
     public int HitDamage { get; set; }
 
     /// <summary>The ongoing damage it does each update of contact, in hundredths of a point; zero for none.</summary>
-    [Export]
+    [Export, DataValue("ongoing_hundredths")]
     public int OngoingHundredths { get; set; }
 
     /// <summary>The name of its ongoing damage, which equipment may cancel.</summary>
@@ -36,7 +36,7 @@ public partial class Hazard : RoomObject
     public string OngoingSource { get; set; } = "hazard";
 
     /// <summary>How many updates it holds a player it catches; zero when it does not hold, or holds for as long as its "hold" timeline.</summary>
-    [Export]
+    [Export, DataValue("hold_updates")]
     public int HoldUpdates { get; set; }
 
     /// <summary>Whether it keeps the player at one place while it holds them.</summary>
@@ -48,11 +48,11 @@ public partial class Hazard : RoomObject
     public Vector2I HoldsAt { get; set; }
 
     /// <summary>The energy each "bite" of its hold takes.</summary>
-    [Export]
+    [Export, DataValue("bite_damage")]
     public int BiteDamage { get; set; }
 
     /// <summary>How many updates the player cannot be hurt after it lets go.</summary>
-    [Export]
+    [Export, DataValue("release_invincible_updates")]
     public int ReleaseInvincibleUpdates { get; set; }
 
     /// <summary>

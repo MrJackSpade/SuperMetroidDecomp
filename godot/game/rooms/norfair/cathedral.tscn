@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,47 @@ LeadsToRoom = "res://game/rooms/norfair/rising_tide.tscn"
 LeadsToExit = "ToCathedral"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Geruta" parent="." instance=ExtResource("5")]
+position = Vector2(161, 83)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta2" parent="." instance=ExtResource("5")]
+position = Vector2(478, 321)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta3" parent="." instance=ExtResource("5")]
+position = Vector2(548, 125)
+DataFile = "enemies/geruta.json"
+
+[node name="Sova" parent="." instance=ExtResource("6")]
+position = Vector2(320, 229)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sova2" parent="." instance=ExtResource("6")]
+position = Vector2(110, 278)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sova3" parent="." instance=ExtResource("6")]
+position = Vector2(216, 184)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.75
+
+[node name="Sova4" parent="." instance=ExtResource("6")]
+position = Vector2(668, 244)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +56,35 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_missile.tscn"
 LeadsToExit = "ToPostCrocomireShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Viola" parent="." instance=ExtResource("5")]
+position = Vector2(119, 840)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola2" parent="." instance=ExtResource("5")]
+position = Vector2(96, 936)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola3" parent="." instance=ExtResource("5")]
+position = Vector2(147, 1016)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola4" parent="." instance=ExtResource("5")]
+position = Vector2(125, 1144)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75

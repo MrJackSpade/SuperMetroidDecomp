@@ -1,10 +1,13 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/ninja_pirate.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -32,6 +35,21 @@ Music = "lower_crateria"
 script = ExtResource("2")
 LayoutFile = "rooms/crateria/climb.json"
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1"), SubResource("r3")]
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 4
+Parts = [SubResource("r3"), SubResource("r7")]
 
 [node name="Climb" type="Node2D"]
 script = ExtResource("3")
@@ -87,3 +105,198 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape4.tscn"
 LeadsToExit = "ToClimb"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(276, 76)
+Speed = 3
+Heading = 80
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(272, 88)
+Speed = 2
+Heading = 144
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(269, 114)
+Speed = 3
+Heading = 172
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(491, 150)
+Speed = 4
+Heading = 200
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(499, 154)
+Speed = 3
+Heading = 195
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(277, 294)
+Speed = 3
+Heading = 146
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(276, 291)
+Speed = 3
+Heading = 96
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(273, 296)
+Speed = 2
+Heading = 156
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(494, 535)
+Speed = 4
+Heading = 240
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(278, 1721)
+Speed = 2
+Heading = 188
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="PirateGreyWall" parent="." instance=ExtResource("7")]
+position = Vector2(304, 216)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall2" parent="." instance=ExtResource("7")]
+position = Vector2(464, 296)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 1
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall3" parent="." instance=ExtResource("7")]
+position = Vector2(304, 472)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall4" parent="." instance=ExtResource("7")]
+position = Vector2(304, 824)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall5" parent="." instance=ExtResource("7")]
+position = Vector2(464, 984)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 1
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall6" parent="." instance=ExtResource("7")]
+position = Vector2(304, 1208)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall7" parent="." instance=ExtResource("7")]
+position = Vector2(464, 1448)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 1
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall8" parent="." instance=ExtResource("7")]
+position = Vector2(301, 1688)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall9" parent="." instance=ExtResource("7")]
+position = Vector2(464, 632)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 1
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall10" parent="." instance=ExtResource("7")]
+position = Vector2(464, 1800)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 1
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateGreyWall11" parent="." instance=ExtResource("7")]
+position = Vector2(304, 1992)
+DataFile = "enemies/wall_pirate_grey.json"
+Wall = 0
+LaserSpeed = 2
+SlowJump = true
+JumpSpan = 160
+PresentWhen = SubResource("r8")
+
+[node name="PirateSilverNinja" parent="." instance=ExtResource("8")]
+position = Vector2(128, 2176)
+DataFile = "enemies/ninja_pirate_silver.json"
+StartsAtLeftPost = false
+PostDistance = 0
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="PirateSilverNinja2" parent="." instance=ExtResource("8")]
+position = Vector2(192, 2176)
+DataFile = "enemies/ninja_pirate_silver.json"
+StartsAtLeftPost = false
+PostDistance = 0
+AlwaysActive = true
+PresentWhen = SubResource("r1")

@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/gamet.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +58,65 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
 LeadsToExit = "ToPostCrocomireFarming"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+
+[node name="Gamet" parent="." instance=ExtResource("5")]
+position = Vector2(304, 456)
+TriggerWidth = 48
+Speed = 3
+SpreadDown = 0
+DepartureWait = 104
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Gamet2" parent="." instance=ExtResource("5")]
+position = Vector2(304, 456)
+Speed = 3
+SpreadDown = -16
+DepartureWait = 96
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet3" parent="." instance=ExtResource("5")]
+position = Vector2(304, 456)
+Speed = 3
+SpreadDown = -32
+DepartureWait = 88
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet4" parent="." instance=ExtResource("5")]
+position = Vector2(304, 456)
+Speed = 3
+SpreadDown = 16
+DepartureWait = 112
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet5" parent="." instance=ExtResource("5")]
+position = Vector2(304, 456)
+Speed = 3
+SpreadDown = 32
+DepartureWait = 120
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="GrappleRipper" parent="." instance=ExtResource("6")]
+position = Vector2(256, 80)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 1
+StartsFacing = 1
+PatrolLeft = 232
+PatrolRight = 304
+AlwaysActive = true
+
+[node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
+position = Vector2(344, 328)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+AlwaysActive = true

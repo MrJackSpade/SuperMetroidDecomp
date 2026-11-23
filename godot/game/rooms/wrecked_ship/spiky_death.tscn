@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +50,41 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/sponge_bath.tscn"
 LeadsToExit = "ToSpikyDeath"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Kzan" parent="." instance=ExtResource("6")]
+position = Vector2(80, 96)
+FallSpeed = 4
+FallWait = 16
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Kzan2" parent="." instance=ExtResource("6")]
+position = Vector2(160, 96)
+FallSpeed = 4
+FallWait = 12
+FallDistance = 104
+PresentWhen = SubResource("r1")
+
+[node name="Kzan3" parent="." instance=ExtResource("6")]
+position = Vector2(256, 96)
+FallSpeed = 4
+FallWait = 17
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Kzan4" parent="." instance=ExtResource("6")]
+position = Vector2(352, 96)
+FallSpeed = 4
+FallWait = 10
+FallDistance = 104
+PresentWhen = SubResource("r1")
+
+[node name="Kzan5" parent="." instance=ExtResource("6")]
+position = Vector2(432, 96)
+FallSpeed = 4
+FallWait = 20
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")

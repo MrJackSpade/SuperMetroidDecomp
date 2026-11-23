@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +48,79 @@ LeadsToRoom = "res://game/rooms/brinstar/mini_kraid.tscn"
 LeadsToExit = "ToKraidEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Zeb" parent="." instance=ExtResource("5")]
+position = Vector2(144, 456)
+DataFile = "enemies/zeb.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(310, 413)
+Speed = 3
+Heading = 200
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(311, 420)
+Speed = 3
+Heading = 186
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(317, 427)
+Speed = 2
+Heading = 168
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(307, 428)
+Speed = 3
+Heading = 180
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(315, 414)
+Speed = 2
+Heading = 202
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(322, 420)
+Speed = 3
+Heading = 201
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(325, 423)
+Speed = 2
+Heading = 190
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(323, 431)
+Speed = 3
+Heading = 194
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(311, 432)
+Speed = 3
+Heading = 144
+ActivationDistance = 48
+Runs = 0
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(334, 428)
+Speed = 2
+Heading = 200
+ActivationDistance = 32
+Runs = 0

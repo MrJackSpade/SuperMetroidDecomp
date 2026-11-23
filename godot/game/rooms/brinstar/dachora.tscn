@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/dachora/dachora.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +50,45 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
 LeadsToExit = "ToDachora"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Zeela" parent="." instance=ExtResource("5")]
+position = Vector2(224, 184)
+DataFile = "enemies/zeela.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+AlwaysActive = true
+
+[node name="Zeela2" parent="." instance=ExtResource("5")]
+position = Vector2(264, 184)
+DataFile = "enemies/zeela.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Metaree" parent="." instance=ExtResource("6")]
+position = Vector2(1581, 108)
+DataFile = "enemies/metaree.json"
+
+[node name="Metaree2" parent="." instance=ExtResource("6")]
+position = Vector2(1624, 76)
+DataFile = "enemies/metaree.json"
+
+[node name="Metaree3" parent="." instance=ExtResource("6")]
+position = Vector2(1651, 76)
+DataFile = "enemies/metaree.json"
+
+[node name="Rio" parent="." instance=ExtResource("7")]
+position = Vector2(304, 96)
+
+[node name="Rio2" parent="." instance=ExtResource("7")]
+position = Vector2(432, 96)
+
+[node name="Rio3" parent="." instance=ExtResource("7")]
+position = Vector2(744, 96)
+
+[node name="Dachora" parent="." instance=ExtResource("8")]
+position = Vector2(96, 1704)
+StartsFacing = 1

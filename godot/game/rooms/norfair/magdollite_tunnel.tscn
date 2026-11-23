@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/magdollite/magdollite.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/multiviola/multiviola.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,31 @@ LeadsToRoom = "res://game/rooms/norfair/purple_shaft.tscn"
 LeadsToExit = "ToMagdolliteTunnel"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Magdollite" parent="." instance=ExtResource("5")]
+position = Vector2(248, 184)
+Speed = 3.625
+Range = 96
+AlwaysActive = true
+
+[node name="Magdollite2" parent="." instance=ExtResource("5")]
+position = Vector2(488, 184)
+Speed = 3.625
+Range = 96
+AlwaysActive = true
+
+[node name="Magdollite3" parent="." instance=ExtResource("5")]
+position = Vector2(584, 184)
+Speed = 3.625
+Range = 96
+AlwaysActive = true
+
+[node name="Multiviola" parent="." instance=ExtResource("6")]
+position = Vector2(120, 88)
+Heading = 96
+Speed = 2
+
+[node name="Multiviola2" parent="." instance=ExtResource("6")]
+position = Vector2(572, 93)
+Heading = 48
+Speed = 2

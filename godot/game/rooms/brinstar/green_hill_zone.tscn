@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +48,58 @@ LeadsToRoom = "res://game/rooms/brinstar/noob_bridge.tscn"
 LeadsToExit = "ToGreenHillZone"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sidehopper" parent="." instance=ExtResource("5")]
+position = Vector2(1024, 672)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper2" parent="." instance=ExtResource("5")]
+position = Vector2(1280, 768)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper3" parent="." instance=ExtResource("5")]
+position = Vector2(1671, 950)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Geega" parent="." instance=ExtResource("6")]
+position = Vector2(368, 288)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega2" parent="." instance=ExtResource("6")]
+position = Vector2(560, 480)
+StartsFacing = 1
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega3" parent="." instance=ExtResource("6")]
+position = Vector2(896, 544)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega4" parent="." instance=ExtResource("6")]
+position = Vector2(1376, 736)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega5" parent="." instance=ExtResource("6")]
+position = Vector2(1280, 832)
+StartsFacing = 1
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Sidehopper4" parent="." instance=ExtResource("5")]
+position = Vector2(1744, 848)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Sidehopper5" parent="." instance=ExtResource("5")]
+position = Vector2(1816, 848)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true

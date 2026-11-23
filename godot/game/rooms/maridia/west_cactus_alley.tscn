@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/cacatac/cacatac.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,35 @@ LeadsToRoom = "res://game/rooms/maridia/east_cactus_alley.tscn"
 LeadsToExit = "ToWestCactusAlley"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Cacatac" parent="." instance=ExtResource("5")]
+position = Vector2(72, 180)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac2" parent="." instance=ExtResource("5")]
+position = Vector2(176, 308)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac3" parent="." instance=ExtResource("5")]
+position = Vector2(104, 436)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac4" parent="." instance=ExtResource("5")]
+position = Vector2(160, 74)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = true
+TravelDistance = 16
+Speed = 0

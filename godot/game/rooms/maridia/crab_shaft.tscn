@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +47,37 @@ LeadsToRoom = "res://game/rooms/maridia/pseudo_plasma_spark.tscn"
 LeadsToExit = "ToCrabShaft"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="Sciser" parent="." instance=ExtResource("5")]
+position = Vector2(368, 871)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 1
+AlwaysActive = true
+
+[node name="Sciser2" parent="." instance=ExtResource("5")]
+position = Vector2(48, 952)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser3" parent="." instance=ExtResource("5")]
+position = Vector2(224, 871)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser4" parent="." instance=ExtResource("5")]
+position = Vector2(128, 184)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1.25
+AlwaysActive = true

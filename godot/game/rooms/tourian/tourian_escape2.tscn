@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,19 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape3.tscn"
 LeadsToExit = "ToTourianEscape2"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateSilverWall" parent="." instance=ExtResource("5")]
+position = Vector2(43, 216)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="PirateSilverWall2" parent="." instance=ExtResource("5")]
+position = Vector2(208, 296)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160

@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/cacatac/cacatac.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -82,3 +86,56 @@ LeadsToRoom = "res://game/rooms/norfair/upper_norfair_farming.tscn"
 LeadsToExit = "ToBubbleMountain"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="JetRipper" parent="." instance=ExtResource("5")]
+position = Vector2(376, 880)
+DataFile = "enemies/jet_ripper.json"
+Speed = 2
+StartsFacing = 0
+AlwaysActive = true
+
+[node name="Sova" parent="." instance=ExtResource("6")]
+position = Vector2(280, 896)
+DataFile = "enemies/sova.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.75
+
+[node name="Sova2" parent="." instance=ExtResource("6")]
+position = Vector2(337, 730)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sova3" parent="." instance=ExtResource("6")]
+position = Vector2(72, 809)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Waver" parent="." instance=ExtResource("7")]
+position = Vector2(185, 440)
+StartsFacing = 0
+AlwaysActive = true
+
+[node name="Waver2" parent="." instance=ExtResource("7")]
+position = Vector2(448, 544)
+StartsFacing = 1
+
+[node name="Waver3" parent="." instance=ExtResource("7")]
+position = Vector2(147, 222)
+StartsFacing = 0
+AlwaysActive = true
+
+[node name="Cacatac" parent="." instance=ExtResource("8")]
+position = Vector2(268, 149)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0

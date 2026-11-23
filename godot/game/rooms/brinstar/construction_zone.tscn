@@ -1,10 +1,13 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/face_block/face_block.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -21,6 +24,11 @@ KeepsMusic = true
 script = ExtResource("2")
 LayoutFile = "rooms/brinstar/construction_zone.json"
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
 
 [node name="ConstructionZone" type="Node2D"]
 script = ExtResource("3")
@@ -58,3 +66,133 @@ LeadsToRoom = "res://game/rooms/brinstar/morph_ball.tscn"
 LeadsToExit = "ToConstructionZone"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(46, 192)
+Speed = 3
+Heading = 138
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(222, 179)
+Speed = 3
+Heading = 200
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(219, 183)
+Speed = 2
+Heading = 248
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(217, 177)
+Speed = 2
+Heading = 236
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(215, 193)
+Speed = 3
+Heading = 244
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(179, 467)
+Speed = 2
+Heading = 196
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(185, 475)
+Speed = 3
+Heading = 208
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(187, 490)
+Speed = 3
+Heading = 220
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(174, 476)
+Speed = 2
+Heading = 187
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(213, 496)
+Speed = 3
+Heading = 3
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock" parent="." instance=ExtResource("7")]
+position = Vector2(72, 136)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock2" parent="." instance=ExtResource("7")]
+position = Vector2(184, 136)
+TriggerDistance = 0
+StartsFacing = 1
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock3" parent="." instance=ExtResource("7")]
+position = Vector2(232, 278)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock4" parent="." instance=ExtResource("7")]
+position = Vector2(232, 358)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock5" parent="." instance=ExtResource("7")]
+position = Vector2(24, 278)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="Zoomer" parent="." instance=ExtResource("8")]
+position = Vector2(88, 120)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+PresentWhen = SubResource("r1")
+
+[node name="Zoomer2" parent="." instance=ExtResource("8")]
+position = Vector2(168, 148)
+DataFile = "enemies/zoomer.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock6" parent="." instance=ExtResource("7")]
+position = Vector2(184, 136)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")

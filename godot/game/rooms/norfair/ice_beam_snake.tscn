@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +48,54 @@ LeadsToRoom = "res://game/rooms/norfair/ice_beam_tutorial.tscn"
 LeadsToExit = "ToIceBeamSnake"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sova" parent="." instance=ExtResource("5")]
+position = Vector2(344, 440)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Sova2" parent="." instance=ExtResource("5")]
+position = Vector2(408, 440)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Sova3" parent="." instance=ExtResource("5")]
+position = Vector2(376, 440)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Fune" parent="." instance=ExtResource("6")]
+position = Vector2(176, 452)
+StartsFacing = 0
+CooldownUpdates = 80
+LaunchSpeed = 2
+
+[node name="Fune2" parent="." instance=ExtResource("6")]
+position = Vector2(32, 256)
+StartsFacing = 1
+CooldownUpdates = 80
+LaunchSpeed = 2
+
+[node name="Fune3" parent="." instance=ExtResource("6")]
+position = Vector2(176, 324)
+StartsFacing = 0
+CooldownUpdates = 80
+LaunchSpeed = 2
+
+[node name="Fune4" parent="." instance=ExtResource("6")]
+position = Vector2(32, 656)
+StartsFacing = 1
+CooldownUpdates = 80
+LaunchSpeed = 2

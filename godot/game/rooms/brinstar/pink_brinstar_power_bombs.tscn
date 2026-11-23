@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,37 @@ LeadsToRoom = "res://game/rooms/brinstar/big_pink.tscn"
 LeadsToExit = "ToPinkBrinstarPowerBombsUpper"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ShutterShootable" parent="." instance=ExtResource("5")]
+position = Vector2(56, 400)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 4
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 96
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("5")]
+position = Vector2(408, 496)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 4
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="SidehopperLarge" parent="." instance=ExtResource("6")]
+position = Vector2(241, 166)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = false
+
+[node name="SidehopperLarge2" parent="." instance=ExtResource("6")]
+position = Vector2(104, 100)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = true

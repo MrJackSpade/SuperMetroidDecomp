@@ -6,7 +6,7 @@
 
 [node name="Corpse" type="Node2D"]
 script = ExtResource("1")
-DataFile = "enemies/corpse_zoomer.json"
+DataFile = "enemies/corpse_zoomer_upright.json"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")

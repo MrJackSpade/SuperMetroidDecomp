@@ -12,7 +12,9 @@ A room's scene holds:
 - its terrain, which loads the layout of the version in force;
 - an exit for each door, leading to the exit it arrives at in the room beyond;
 - a marker for each place play can begin at in it: where a save resumes, where an elevator sets down, where Samus
-  is set down in Ceres and where her gunship lands.
+  is set down in Ceres and where her gunship lands;
+- its enemies, each with the settings its placement gives it (see enemies.py). One placed in some versions of the
+  room and not in others is present only when one of those versions is the one in force.
 
 It also lists every room in the game's definition, and names the room and marker a new game begins at.
 """
@@ -24,6 +26,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
+import enemies  # noqa: E402
 import legacy  # noqa: E402
 
 GODOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'godot'))
@@ -75,7 +78,22 @@ class Scene:
         self.external: dict[tuple[str, str], str] = {}
         self.sub: list[str] = []
         self.nodes: list[str] = []
+        self.names: set[str] = set()
+        self.promised: set[str] = set()
+        self.resources: dict[tuple, str] = {}
         self._sub_count = 0
+
+    def name(self, base: str) -> str:
+        """
+        A name no node of the scene has or has been promised: the base, or the base with the first free number after
+        it. The name is promised to whoever asked.
+        """
+        name, number = base, 1
+        while name in self.names or name in self.promised:
+            number += 1
+            name = f'{base}{number}'
+        self.promised.add(name)
+        return name
 
     def script(self, path: str) -> str:
         return self._external('Script', path)
@@ -90,15 +108,25 @@ class Scene:
         return f'ExtResource("{self.external[key]}")'
 
     def resource(self, script: str, properties: dict[str, str]) -> str:
+        # A resource holds values only, so two that would be alike are one.
+        alike = (script, tuple(properties.items()))
+        if alike in self.resources:
+            return self.resources[alike]
         self._sub_count += 1
         ident = f'r{self._sub_count}'
         lines = [f'[sub_resource type="Resource" id="{ident}"]', f'script = {self.script(script)}']
         lines += [f'{key} = {value}' for key, value in properties.items()]
         self.sub.append('\n'.join(lines))
-        return f'SubResource("{ident}")'
+        self.resources[alike] = f'SubResource("{ident}")'
+        return self.resources[alike]
 
     def node(self, name: str, parent: str | None, properties: dict[str, str], script: str | None = None,
              instance: str | None = None, kind: str = 'Node2D') -> None:
+        # The root's name is its own; everything else here is placed straight under it and must differ.
+        if parent is not None:
+            if name in self.names:
+                raise ValueError(f'Two nodes of one scene are named {name}.')
+            self.names.add(name)
         head = f'[node name="{name}"'
         if instance is None:
             head += f' type="{kind}"'
@@ -190,6 +218,9 @@ class Generator:
         self.states = legacy.states()
         self.choices = legacy.state_choices()
         self.doors = legacy.doors()
+        self.populations = legacy.enemy_populations()
+        # The kinds of enemy no rule places yet, with how many placements of each were passed over.
+        self.unplaced: dict[str, int] = {}
         with open(os.path.join(INSTALLED, 'room-level-streams', 'room-door-blocks.json'), encoding='utf-8') as source:
             self.door_blocks = json.load(source)['rooms']
         self.by_name = {room.name: key for key, room in self.rooms.items()}
@@ -242,6 +273,64 @@ class Generator:
                 best, best_distance = name, distance
         # A door with none facing it in the screen it leads to arrives at the nearest one that faces it, if any.
         return self.exit_name(self.rooms[key], best) if best else None
+
+    def present_when(self, scene: Scene, room: legacy.Room, key: str, versions: set[int]) -> str | None:
+        """
+        The condition under which one of the room's versions in `versions` is the one in force, as a Condition
+        resource; None when that is every version. Versions are numbered in the order they are tried, the one with no
+        condition last.
+        """
+        script = 'res://engine/world/Condition.cs'
+        any_of, none_of, all_of = 5, 6, 4
+        expressions = [expression for expression, _ in self.choices[key][1]]
+        if versions == set(range(len(expressions) + 1)):
+            return None
+
+        def gathered(kind: int, parts: list[str]) -> str:
+            return scene.resource(script, {'Kind': str(kind), 'Parts': '[' + ', '.join(parts) + ']'})
+
+        ways = []
+        for version in sorted(versions):
+            earlier = [condition(scene, room, expression) for expression in expressions[:version]]
+            parts = [gathered(none_of, earlier)] if earlier else []
+            if version < len(expressions):
+                parts.insert(0, condition(scene, room, expressions[version]))
+            ways.append(parts[0] if len(parts) == 1 else gathered(all_of, parts))
+        return ways[0] if len(ways) == 1 else gathered(any_of, ways)
+
+    def place_enemies(self, key: str, scene: Scene, room: legacy.Room) -> None:
+        """Places the enemies of every version of the room, each once, present in the versions that list it."""
+        default, conditional = self.choices[key]
+        versions = [name for _, name in conditional] + [default]
+        placed: dict[tuple, tuple[enemies.Placed, set[int], dict[str, tuple]]] = {}
+        # The default version's enemies come first, in the order it lists them; the order enemies are listed in is the
+        # order they act in.
+        for version in reversed(range(len(versions))):
+            listed = self.populations[self.states[versions[version]].enemies]
+            results = dict(enemies.places(listed, enemies.RULES, self.unplaced))
+            # Two alike in one version are two things; two alike in two versions are one thing in both.
+            counts: dict[tuple, int] = {}
+            plain: dict[int, tuple] = {}
+            for index, result in results.items():
+                alike = (result.scene, result.name, result.at, tuple(sorted(result.properties.items())))
+                counts[alike] = counts.get(alike, 0) + 1
+                plain[index] = alike + (counts[alike],)
+            for index, result in results.items():
+                refers = {name: plain[target] for name, target in result.refers.items()}
+                signature = plain[index] + tuple(sorted(refers.items()))
+                if signature not in placed:
+                    placed[signature] = (result, set(), refers)
+                placed[signature][1].add(version)
+
+        names = {signature[:5]: scene.name(result.name) for signature, (result, _, _) in placed.items()}
+        for signature, (result, present_in, refers) in placed.items():
+            properties = {'position': f'Vector2({result.at[0]}, {result.at[1]})', **result.properties}
+            for name, target in refers.items():
+                properties[name] = f'NodePath("../{names[target]}")'
+            present = self.present_when(scene, room, key, present_in)
+            if present is not None:
+                properties['PresentWhen'] = present
+            scene.node(names[signature[:5]], '.', properties, instance=result.scene)
 
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
@@ -299,6 +388,7 @@ class Generator:
             }, script='res://engine/world/RoomExit.cs')
             entries.append((name, x, y))
 
+        self.place_enemies(key, scene, room)
         self.scenes[key] = scene
         return room_scene(room)
 
@@ -324,6 +414,8 @@ class Generator:
         exits = sum(len(doors) for doors in self.room_doors.values())
         markers = sum(len(markers) for markers in self.markers.values())
         print(f'{len(paths)} rooms written, with {exits} exits and {markers} arrival markers')
+        if self.unplaced:
+            print('not placed yet: ' + ', '.join(f'{kind} x{count}' for kind, count in sorted(self.unplaced.items())))
         self.write_definition(sorted(paths))
 
     def write_definition(self, paths: list[str]) -> None:

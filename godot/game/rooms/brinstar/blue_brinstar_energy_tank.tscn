@@ -1,10 +1,14 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/face_block/face_block.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +53,61 @@ LeadsToRoom = "res://game/rooms/brinstar/construction_zone.tscn"
 LeadsToExit = "ToBlueBrinstarEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="FaceBlock" parent="." instance=ExtResource("6")]
+position = Vector2(56, 552)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock2" parent="." instance=ExtResource("6")]
+position = Vector2(56, 680)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock3" parent="." instance=ExtResource("6")]
+position = Vector2(744, 696)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock4" parent="." instance=ExtResource("6")]
+position = Vector2(616, 136)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock5" parent="." instance=ExtResource("6")]
+position = Vector2(648, 136)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="Zoomer" parent="." instance=ExtResource("7")]
+position = Vector2(168, 712)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Zoomer2" parent="." instance=ExtResource("7")]
+position = Vector2(216, 712)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+PresentWhen = SubResource("r1")
+
+[node name="Skree" parent="." instance=ExtResource("8")]
+position = Vector2(222, 587)
+DataFile = "enemies/skree.json"
+PresentWhen = SubResource("r1")
+
+[node name="Skree2" parent="." instance=ExtResource("8")]
+position = Vector2(254, 571)
+DataFile = "enemies/skree.json"
+PresentWhen = SubResource("r1")
+
+[node name="Rio" parent="." instance=ExtResource("9")]
+position = Vector2(496, 576)
+PresentWhen = SubResource("r1")

@@ -456,7 +456,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
 | `Station` | Holding the player while it works, then granting or recording the result. | What it does: save; reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
-| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
+| `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. Its data's timelines show it at rest and moving. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
 | `Hazard` | Hurting or grabbing the player on contact, without being killable. Its data's timelines show it at rest, holding and letting go; one that holds by its timeline bites on that timeline's cues, and one whose reach changes as it is shown says so by cues ("area:left:top:width:height", "safe"). | The `Hit` or ongoing damage it does, or its hold: for how long, whether at one place, what each bite takes, and how long the player is safe after; the most updates it waits, by chance, before it first appears. |
@@ -471,7 +471,9 @@ Every kind here is the engine's except `Gunship`.
 
 - A `RoomExit` is a region at the edge of a room. When the player enters it, the room transition begins. Its
   settings are the room and exit it leads to, and how the transition looks: scrolling across, scrolling up or down,
-  or fading. Every way out of a room is one, whether or not anything stands in front of it.
+  or fading. Every way out of a room is one, whether or not anything stands in front of it. The exit a player
+  arrived at takes no one until they have been in control and clear of it once, so that a player something brings
+  in through it is not taken straight back.
 - A `Barrier` is a solid object with health that only certain damage wears down. It stands wherever something must
   be got through. It knows nothing about exits.
 
@@ -492,7 +494,9 @@ Door caps, gates, shutters, breakable walls and the shell around a held item are
 **Things built from these, not types of their own.** Apply move 1 before adding a kind.
 
 - **An elevator** is a `Carrier` whose path ends at a `RoomExit`, started by a press of up or down. The room it
-  leads to has a carrier of its own whose path ends where the player arrives, and it brings them to rest.
+  leads to has a carrier of its own whose path ends where the player arrives, and it brings them to rest. The path
+  runs on past the exit, so the exit takes the player on the way; where it ends is where a player coming the other
+  way arrives.
 - **An item held in a shell** (a statue's orb) is an `Item` with a `Barrier` around it. The item cannot be touched
   until the barrier is open, because the barrier is solid.
 - **An item hidden in the wall** is an `Item` behind a block. It cannot be seen or touched until the block is gone.
@@ -651,7 +655,7 @@ decides what to do about it.
 
 | Component | Moves its owner by |
 | --- | --- |
-| Surface crawl | Following the surface it is on, around corners, in a set direction. |
+| Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. |
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
 | Wave flight | Travelling in a direction while rising and falling in a wave. |
 | Dive | Waiting, then dropping or swooping at a target and returning or not. |
@@ -871,7 +875,8 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `Carrier`: every elevator; the Maridia transport tube. The two Chozo statues that come to life are one enemy
   scene (`ChozoStatue`) with two setups, not carriers: the one walks through terrain by its timeline's strides with
   Samus in its hand, and the other lowers the room's liquid.
-- `Platform`: the suspensor platform. The Tripper is an enemy (it can be frozen and shot). The shutters are
+- `Platform`: none placed. The Tripper is an enemy (it can be frozen and shot), and the suspensor platform is the
+  Tripper's scene with its own data, because it sinks under Samus's weight the same way. The shutters are
   enemies too, because shots set some of them off and destroy others: `Shutter` (the shootable shutter, the Kamer
   and the destroyable shutter, one scene whose settings say what sets it moving, how far and whether it comes
   back) and `GrowingShutter`.

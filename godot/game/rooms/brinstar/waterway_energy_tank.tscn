@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,3 +31,49 @@ LeadsToRoom = "res://game/rooms/brinstar/big_pink.tscn"
 LeadsToExit = "ToWaterwayEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Skultera" parent="." instance=ExtResource("5")]
+position = Vector2(320, 174)
+Speed = 1
+StartsFacing = 1
+Radius = 1
+AngleStep = 16
+AlwaysActive = true
+
+[node name="Puyo" parent="." instance=ExtResource("6")]
+position = Vector2(361, 179)
+HopCooldown = 2
+BigHopDistance = 1
+
+[node name="Puyo2" parent="." instance=ExtResource("6")]
+position = Vector2(503, 179)
+HopCooldown = 2
+BigHopDistance = 1
+
+[node name="Puyo3" parent="." instance=ExtResource("6")]
+position = Vector2(548, 181)
+HopCooldown = 2
+BigHopDistance = 1
+
+[node name="Skultera2" parent="." instance=ExtResource("5")]
+position = Vector2(587, 174)
+Speed = 1
+StartsFacing = 1
+Radius = 1
+AngleStep = 16
+
+[node name="Zero" parent="." instance=ExtResource("7")]
+position = Vector2(1072, 184)
+DataFile = "enemies/zero.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.25
+
+[node name="Zero2" parent="." instance=ExtResource("7")]
+position = Vector2(1520, 88)
+DataFile = "enemies/zero.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.25

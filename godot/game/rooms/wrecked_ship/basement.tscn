@@ -1,10 +1,14 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/work_robot/work_robot.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -21,6 +25,11 @@ Music = "wrecked_ship_powered_up"
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/basement.json"
 Music = "wrecked_ship_powered_down"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
 
 [node name="Basement" type="Node2D"]
 script = ExtResource("3")
@@ -58,3 +67,215 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_map.tscn"
 LeadsToExit = "ToBasement"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(875, 187)
+Speed = 3
+Heading = 194
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(880, 184)
+Speed = 4
+Heading = 220
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(880, 188)
+Speed = 3
+Heading = 222
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(872, 195)
+Speed = 2
+Heading = 196
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(882, 201)
+Speed = 3
+Heading = 216
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(78, 170)
+Speed = 2
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(81, 173)
+Speed = 3
+Heading = 140
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(72, 200)
+Speed = 2
+Heading = 112
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(82, 194)
+Speed = 4
+Heading = 144
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(41, 170)
+Speed = 2
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug11" parent="." instance=ExtResource("6")]
+position = Vector2(45, 185)
+Speed = 2
+Heading = 152
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug12" parent="." instance=ExtResource("6")]
+position = Vector2(48, 191)
+Speed = 2
+Heading = 146
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug13" parent="." instance=ExtResource("6")]
+position = Vector2(482, 218)
+Speed = 2
+Heading = 184
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug14" parent="." instance=ExtResource("6")]
+position = Vector2(477, 227)
+Speed = 3
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug15" parent="." instance=ExtResource("6")]
+position = Vector2(504, 227)
+Speed = 3
+Heading = 224
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug16" parent="." instance=ExtResource("6")]
+position = Vector2(1011, 175)
+Speed = 3
+Heading = 208
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug17" parent="." instance=ExtResource("6")]
+position = Vector2(1007, 179)
+Speed = 2
+Heading = 200
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug18" parent="." instance=ExtResource("6")]
+position = Vector2(1002, 203)
+Speed = 2
+Heading = 208
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug19" parent="." instance=ExtResource("6")]
+position = Vector2(972, 222)
+Speed = 4
+Heading = 200
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug20" parent="." instance=ExtResource("6")]
+position = Vector2(974, 222)
+Speed = 2
+Heading = 196
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="UnpoweredWorkRobot" parent="." instance=ExtResource("7")]
+position = Vector2(77, 192)
+Powered = false
+Pose = "no_power_leaning_left"
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="UnpoweredWorkRobot2" parent="." instance=ExtResource("7")]
+position = Vector2(880, 192)
+Powered = false
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="WorkRobot" parent="." instance=ExtResource("7")]
+position = Vector2(77, 176)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="WorkRobot2" parent="." instance=ExtResource("7")]
+position = Vector2(880, 176)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Atomic" parent="." instance=ExtResource("8")]
+position = Vector2(152, 77)
+Spin = "up_right_turning"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Atomic2" parent="." instance=ExtResource("8")]
+position = Vector2(638, 168)
+Spin = "up_right_turning_back"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Atomic3" parent="." instance=ExtResource("8")]
+position = Vector2(852, 73)
+Spin = "up_right_turning_back"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Spark" parent="." instance=ExtResource("9")]
+position = Vector2(1145, 106)
+Does = 1
+SpellUpdates = 32
+PresentWhen = SubResource("r1")

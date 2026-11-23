@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +40,86 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
 LeadsToExit = "ToPostCrocomireJump"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="Mella" parent="." instance=ExtResource("5")]
+position = Vector2(1475, 595)
+DataFile = "enemies/mella.json"
+
+[node name="Mella2" parent="." instance=ExtResource("5")]
+position = Vector2(1433, 616)
+DataFile = "enemies/mella.json"
+
+[node name="Mella3" parent="." instance=ExtResource("5")]
+position = Vector2(1521, 626)
+DataFile = "enemies/mella.json"
+
+[node name="Mella4" parent="." instance=ExtResource("5")]
+position = Vector2(1362, 604)
+DataFile = "enemies/mella.json"
+
+[node name="Mella5" parent="." instance=ExtResource("5")]
+position = Vector2(1403, 637)
+DataFile = "enemies/mella.json"
+
+[node name="GrappleRipper" parent="." instance=ExtResource("6")]
+position = Vector2(209, 155)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 1
+StartsFacing = 1
+PatrolLeft = 177
+PatrolRight = 273
+
+[node name="GrappleRipper2" parent="." instance=ExtResource("6")]
+position = Vector2(408, 104)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 2
+StartsFacing = 1
+PatrolLeft = 360
+PatrolRight = 456
+AlwaysActive = true
+
+[node name="GrappleRipper3" parent="." instance=ExtResource("6")]
+position = Vector2(552, 152)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 2
+StartsFacing = 1
+PatrolLeft = 528
+PatrolRight = 616
+AlwaysActive = true
+
+[node name="GrappleRipper4" parent="." instance=ExtResource("6")]
+position = Vector2(864, 88)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 1
+StartsFacing = 1
+PatrolLeft = 768
+PatrolRight = 960
+AlwaysActive = true
+
+[node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
+position = Vector2(176, 664)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+
+[node name="SuspensorPlatform2" parent="." instance=ExtResource("7")]
+position = Vector2(272, 664)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+
+[node name="SuspensorPlatform3" parent="." instance=ExtResource("7")]
+position = Vector2(368, 664)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+
+[node name="SuspensorPlatform4" parent="." instance=ExtResource("7")]
+position = Vector2(464, 664)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -28,3 +29,27 @@ LeadsToRoom = "res://game/rooms/brinstar/red_brinstar_firefleas.tscn"
 LeadsToExit = "ToXrayScope"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ShutterShootable" parent="." instance=ExtResource("5")]
+position = Vector2(360, 160)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 4
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("5")]
+position = Vector2(184, 224)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 4
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = -1
+AlwaysActive = true

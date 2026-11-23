@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +50,11 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn"
 LeadsToExit = "ToSpongeBath"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Bull" parent="." instance=ExtResource("6")]
+position = Vector2(240, 136)
+AccelerationInterval = 6
+DecelerationInterval = 2
+MaximumSpeed = 6.99609375
+AlwaysActive = true
+PresentWhen = SubResource("r1")

@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,18 @@ LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
 LeadsToExit = "ToPreMapFlyway"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Mellow" parent="." instance=ExtResource("5")]
+position = Vector2(332, 110)
+DataFile = "enemies/mellow.json"
+
+[node name="Mellow2" parent="." instance=ExtResource("5")]
+position = Vector2(251, 89)
+DataFile = "enemies/mellow.json"
+
+[node name="Mellow3" parent="." instance=ExtResource("5")]
+position = Vector2(423, 90)
+DataFile = "enemies/mellow.json"
+
+[node name="Rio" parent="." instance=ExtResource("6")]
+position = Vector2(331, 69)

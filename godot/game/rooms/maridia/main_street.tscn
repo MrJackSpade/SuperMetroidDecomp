@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -64,3 +66,96 @@ LeadsToRoom = "res://game/rooms/maridia/mt_everest.tscn"
 LeadsToExit = "ToMainStreetUpper"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Skultera" parent="." instance=ExtResource("5")]
+position = Vector2(256, 416)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera2" parent="." instance=ExtResource("5")]
+position = Vector2(240, 984)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera3" parent="." instance=ExtResource("5")]
+position = Vector2(288, 1264)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera4" parent="." instance=ExtResource("5")]
+position = Vector2(208, 1440)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera5" parent="." instance=ExtResource("5")]
+position = Vector2(256, 1828)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Sciser" parent="." instance=ExtResource("6")]
+position = Vector2(144, 280)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser2" parent="." instance=ExtResource("6")]
+position = Vector2(240, 664)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sciser3" parent="." instance=ExtResource("6")]
+position = Vector2(248, 1159)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser4" parent="." instance=ExtResource("6")]
+position = Vector2(264, 1624)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser5" parent="." instance=ExtResource("6")]
+position = Vector2(360, 599)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser6" parent="." instance=ExtResource("6")]
+position = Vector2(352, 71)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser7" parent="." instance=ExtResource("6")]
+position = Vector2(151, 1952)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true

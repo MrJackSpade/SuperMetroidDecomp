@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,90 @@ LeadsToRoom = "res://game/rooms/brinstar/hopper_energy_tank.tscn"
 LeadsToExit = "ToPinkBrinstarHoppers"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="SidehopperLarge" parent="." instance=ExtResource("5")]
+position = Vector2(181, 437)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = false
+
+[node name="Sidehopper" parent="." instance=ExtResource("5")]
+position = Vector2(248, 416)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper2" parent="." instance=ExtResource("5")]
+position = Vector2(106, 449)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="ShutterShootable" parent="." instance=ExtResource("6")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("6")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 128
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable3" parent="." instance=ExtResource("6")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 192
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable4" parent="." instance=ExtResource("6")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 240
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable5" parent="." instance=ExtResource("6")]
+position = Vector2(328, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 0
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0
+Travel = 0
+RestAfterUp = 0
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable6" parent="." instance=ExtResource("6")]
+position = Vector2(360, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 0
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0
+Travel = 0
+RestAfterUp = 0
+RestAfterDown = 0
+AlwaysActive = true

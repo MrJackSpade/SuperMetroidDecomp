@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/choot/choot.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +40,91 @@ LeadsToRoom = "res://game/rooms/crateria/forgotten_highway_kagos.tscn"
 LeadsToExit = "ToEastOcean"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Choot" parent="." instance=ExtResource("5")]
+position = Vector2(336, 1356)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 16
+
+[node name="Choot2" parent="." instance=ExtResource("5")]
+position = Vector2(400, 1292)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 16
+
+[node name="Choot3" parent="." instance=ExtResource("5")]
+position = Vector2(532, 1340)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 16
+
+[node name="Choot4" parent="." instance=ExtResource("5")]
+position = Vector2(1480, 1470)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 16
+
+[node name="Choot5" parent="." instance=ExtResource("5")]
+position = Vector2(176, 1308)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 16
+
+[node name="Skultera" parent="." instance=ExtResource("6")]
+position = Vector2(252, 1379)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera2" parent="." instance=ExtResource("6")]
+position = Vector2(469, 1393)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera3" parent="." instance=ExtResource("6")]
+position = Vector2(788, 1415)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera4" parent="." instance=ExtResource("6")]
+position = Vector2(964, 1387)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera5" parent="." instance=ExtResource("6")]
+position = Vector2(1237, 1399)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
+position = Vector2(1216, 1264)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+
+[node name="SuspensorPlatform2" parent="." instance=ExtResource("7")]
+position = Vector2(960, 1264)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40
+
+[node name="SuspensorPlatform3" parent="." instance=ExtResource("7")]
+position = Vector2(712, 1264)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 40

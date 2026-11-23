@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,59 @@ LeadsToRoom = "res://game/rooms/norfair/upper_norfair_farming.tscn"
 LeadsToExit = "ToRedPirateShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateRedWalking" parent="." instance=ExtResource("5")]
+position = Vector2(80, 512)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateRedWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(176, 384)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateRedWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(80, 256)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="ArmoredZoomer" parent="." instance=ExtResource("6")]
+position = Vector2(128, 616)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer2" parent="." instance=ExtResource("6")]
+position = Vector2(128, 472)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer3" parent="." instance=ExtResource("6")]
+position = Vector2(128, 344)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer4" parent="." instance=ExtResource("6")]
+position = Vector2(128, 216)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75

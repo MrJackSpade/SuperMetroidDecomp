@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,59 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape4.tscn"
 LeadsToExit = "ToTourianEscape3"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateSilverWalking" parent="." instance=ExtResource("5")]
+position = Vector2(192, 352)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(1336, 352)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(1160, 352)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking4" parent="." instance=ExtResource("5")]
+position = Vector2(984, 352)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking5" parent="." instance=ExtResource("5")]
+position = Vector2(1144, 80)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking6" parent="." instance=ExtResource("5")]
+position = Vector2(1248, 80)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking7" parent="." instance=ExtResource("5")]
+position = Vector2(1376, 80)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16

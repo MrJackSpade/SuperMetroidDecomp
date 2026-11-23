@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,51 @@ LeadsToRoom = "res://game/rooms/norfair/lower_norfair_elevator.tscn"
 LeadsToExit = "ToLavaDive"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Namihe" parent="." instance=ExtResource("5")]
+position = Vector2(496, 264)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5
+
+[node name="Namihe2" parent="." instance=ExtResource("5")]
+position = Vector2(288, 464)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5
+
+[node name="Namihe3" parent="." instance=ExtResource("5")]
+position = Vector2(288, 584)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5
+
+[node name="Namihe4" parent="." instance=ExtResource("5")]
+position = Vector2(639, 568)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5
+
+[node name="Namihe5" parent="." instance=ExtResource("5")]
+position = Vector2(912, 280)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5
+
+[node name="Namihe6" parent="." instance=ExtResource("5")]
+position = Vector2(832, 408)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 128
+LaunchSpeed = 1.5

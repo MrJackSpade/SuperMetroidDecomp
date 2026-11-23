@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,28 @@ LeadsToRoom = "res://game/rooms/maridia/shaktool.tscn"
 LeadsToExit = "ToEastPants"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Puyo" parent="." instance=ExtResource("5")]
+position = Vector2(128, 556)
+HopCooldown = 48
+BigHopDistance = 22
+
+[node name="Puyo2" parent="." instance=ExtResource("5")]
+position = Vector2(192, 476)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo3" parent="." instance=ExtResource("5")]
+position = Vector2(112, 412)
+HopCooldown = 128
+BigHopDistance = 22
+
+[node name="Puyo4" parent="." instance=ExtResource("5")]
+position = Vector2(80, 752)
+HopCooldown = 16
+BigHopDistance = 8
+
+[node name="Puyo5" parent="." instance=ExtResource("5")]
+position = Vector2(176, 752)
+HopCooldown = 8
+BigHopDistance = 8

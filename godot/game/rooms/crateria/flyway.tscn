@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -33,6 +34,26 @@ script = ExtResource("2")
 LayoutFile = "rooms/crateria/flyway.json"
 Music = "lower_crateria"
 
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1")]
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 4
+Parts = [SubResource("r3"), SubResource("r6")]
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 6
+Parts = [SubResource("r1"), SubResource("r3")]
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
+Kind = 5
+Parts = [SubResource("r7"), SubResource("r8")]
+
 [node name="Flyway" type="Node2D"]
 script = ExtResource("3")
 Area = "crateria"
@@ -60,3 +81,63 @@ LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
 LeadsToExit = "ToFlyway"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Mellow" parent="." instance=ExtResource("6")]
+position = Vector2(237, 97)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow2" parent="." instance=ExtResource("6")]
+position = Vector2(350, 92)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow3" parent="." instance=ExtResource("6")]
+position = Vector2(283, 96)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow4" parent="." instance=ExtResource("6")]
+position = Vector2(306, 73)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow5" parent="." instance=ExtResource("6")]
+position = Vector2(314, 101)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow6" parent="." instance=ExtResource("6")]
+position = Vector2(234, 66)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow7" parent="." instance=ExtResource("6")]
+position = Vector2(458, 107)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow8" parent="." instance=ExtResource("6")]
+position = Vector2(256, 118)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow9" parent="." instance=ExtResource("6")]
+position = Vector2(410, 88)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow10" parent="." instance=ExtResource("6")]
+position = Vector2(400, 126)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow11" parent="." instance=ExtResource("6")]
+position = Vector2(383, 62)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")
+
+[node name="Mellow12" parent="." instance=ExtResource("6")]
+position = Vector2(450, 65)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r9")

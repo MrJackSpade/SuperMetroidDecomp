@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/polyp/polyp.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,51 @@ LeadsToRoom = "res://game/rooms/norfair/spiky_platforms_tunnel.tscn"
 LeadsToExit = "ToVolcano"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Fune" parent="." instance=ExtResource("5")]
+position = Vector2(464, 640)
+StartsFacing = 0
+CooldownUpdates = 128
+LaunchSpeed = 1.5
+
+[node name="Fune2" parent="." instance=ExtResource("5")]
+position = Vector2(736, 528)
+StartsFacing = 0
+CooldownUpdates = 128
+LaunchSpeed = 2
+
+[node name="Fune3" parent="." instance=ExtResource("5")]
+position = Vector2(544, 456)
+StartsFacing = 1
+CooldownUpdates = 128
+LaunchSpeed = 2
+
+[node name="Fune4" parent="." instance=ExtResource("5")]
+position = Vector2(736, 376)
+StartsFacing = 0
+CooldownUpdates = 128
+LaunchSpeed = 2
+
+[node name="Fune5" parent="." instance=ExtResource("5")]
+position = Vector2(544, 296)
+StartsFacing = 1
+CooldownUpdates = 128
+LaunchSpeed = 2
+
+[node name="Fune6" parent="." instance=ExtResource("5")]
+position = Vector2(736, 216)
+StartsFacing = 0
+CooldownUpdates = 128
+LaunchSpeed = 2
+
+[node name="Polyp" parent="." instance=ExtResource("6")]
+position = Vector2(248, 712)
+
+[node name="Polyp2" parent="." instance=ExtResource("6")]
+position = Vector2(128, 712)
+
+[node name="Polyp3" parent="." instance=ExtResource("6")]
+position = Vector2(136, 712)
+
+[node name="Polyp4" parent="." instance=ExtResource("6")]
+position = Vector2(264, 712)

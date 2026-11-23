@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hibashi/hibashi.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="8"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +41,55 @@ LeadsToRoom = "res://game/rooms/norfair/red_kihunter_shaft.tscn"
 LeadsToExit = "ToWasteland"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="Hibashi" parent="." instance=ExtResource("5")]
+position = Vector2(1472, 224)
+RestUpdates = 8
+
+[node name="DessgeegaLarge" parent="." instance=ExtResource("6")]
+position = Vector2(648, 90)
+DataFile = "enemies/dessgeega_large.json"
+OnCeiling = true
+
+[node name="DessgeegaLarge2" parent="." instance=ExtResource("6")]
+position = Vector2(552, 168)
+DataFile = "enemies/dessgeega_large.json"
+OnCeiling = false
+
+[node name="DessgeegaLarge3" parent="." instance=ExtResource("6")]
+position = Vector2(752, 168)
+DataFile = "enemies/dessgeega_large.json"
+OnCeiling = false
+
+[node name="DessgeegaLarge4" parent="." instance=ExtResource("6")]
+position = Vector2(312, 88)
+DataFile = "enemies/dessgeega_large.json"
+OnCeiling = true
+
+[node name="Hibashi2" parent="." instance=ExtResource("5")]
+position = Vector2(1344, 224)
+RestUpdates = 0
+
+[node name="ShutterShootable" parent="." instance=ExtResource("7")]
+position = Vector2(1320, 224)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 32
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="Kzan" parent="." instance=ExtResource("8")]
+position = Vector2(384, 604)
+FallSpeed = 4
+FallWait = 112
+FallDistance = 80
+
+[node name="Kzan2" parent="." instance=ExtResource("8")]
+position = Vector2(384, 348)
+FallSpeed = 4
+FallWait = 112
+FallDistance = 128

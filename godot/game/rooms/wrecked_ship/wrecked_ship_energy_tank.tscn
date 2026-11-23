@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -40,3 +42,46 @@ LeadsToRoom = "res://game/rooms/wrecked_ship/electric_death.tscn"
 LeadsToExit = "ToWreckedShipEnergyTank"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Skultera" parent="." instance=ExtResource("6")]
+position = Vector2(173, 374)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+PresentWhen = SubResource("r1")
+
+[node name="Skultera2" parent="." instance=ExtResource("6")]
+position = Vector2(576, 300)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+PresentWhen = SubResource("r1")
+
+[node name="SuspensorPlatform" parent="." instance=ExtResource("7")]
+position = Vector2(280, 168)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 32
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="SuspensorPlatform2" parent="." instance=ExtResource("7")]
+position = Vector2(384, 168)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 32
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="SuspensorPlatform3" parent="." instance=ExtResource("7")]
+position = Vector2(496, 168)
+DataFile = "enemies/suspensor_platform.json"
+StartsFacing = 0
+Speed = 0
+FastestMark = 32
+AlwaysActive = true
+PresentWhen = SubResource("r1")

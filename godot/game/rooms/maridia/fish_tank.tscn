@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,3 +57,65 @@ LeadsToRoom = "res://game/rooms/maridia/mt_everest.tscn"
 LeadsToExit = "ToFishTankRight"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+
+[node name="Skultera" parent="." instance=ExtResource("5")]
+position = Vector2(112, 152)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera2" parent="." instance=ExtResource("5")]
+position = Vector2(184, 680)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera3" parent="." instance=ExtResource("5")]
+position = Vector2(400, 240)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="PirateMagentaWalking" parent="." instance=ExtResource("6")]
+position = Vector2(424, 672)
+DataFile = "enemies/walking_pirate_magenta.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateMagentaWalking2" parent="." instance=ExtResource("6")]
+position = Vector2(400, 320)
+DataFile = "enemies/walking_pirate_magenta.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateMagentaWalking3" parent="." instance=ExtResource("6")]
+position = Vector2(672, 208)
+DataFile = "enemies/walking_pirate_magenta.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateMagentaWalking4" parent="." instance=ExtResource("6")]
+position = Vector2(888, 432)
+DataFile = "enemies/walking_pirate_magenta.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 40
+
+[node name="Skultera4" parent="." instance=ExtResource("5")]
+position = Vector2(872, 184)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2

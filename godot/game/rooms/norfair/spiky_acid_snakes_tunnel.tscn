@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/yapping_maw/yapping_maw.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,18 @@ LeadsToRoom = "res://game/rooms/norfair/upper_norfair_refill.tscn"
 LeadsToExit = "ToSpikyAcidSnakesTunnel"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="YappingMaw" parent="." instance=ExtResource("5")]
+position = Vector2(392, 216)
+ActivationDistance = 128
+StrikesDown = false
+
+[node name="YappingMaw2" parent="." instance=ExtResource("5")]
+position = Vector2(537, 215)
+ActivationDistance = 128
+StrikesDown = false
+
+[node name="YappingMaw3" parent="." instance=ExtResource("5")]
+position = Vector2(760, 216)
+ActivationDistance = 128
+StrikesDown = false

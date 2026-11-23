@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/owtch/owtch.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/choot/choot.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +49,62 @@ LeadsToRoom = "res://game/rooms/maridia/plasma_spark.tscn"
 LeadsToExit = "FromPseudoPlasmaSparkToPlasmaSpark"
 Style = 0
 ArrivalOffset = Vector2i(-24, -8)
+
+[node name="Owtch" parent="." instance=ExtResource("5")]
+position = Vector2(384, 696)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 48
+
+[node name="Choot" parent="." instance=ExtResource("6")]
+position = Vector2(240, 420)
+FallingPath = "very_wide"
+PatternLoops = 3
+JumpDelay = 2
+
+[node name="Choot2" parent="." instance=ExtResource("6")]
+position = Vector2(528, 380)
+FallingPath = "normal"
+PatternLoops = 4
+JumpDelay = 4
+
+[node name="Choot3" parent="." instance=ExtResource("6")]
+position = Vector2(680, 316)
+FallingPath = "wide"
+PatternLoops = 2
+JumpDelay = 16
+
+[node name="Choot4" parent="." instance=ExtResource("6")]
+position = Vector2(784, 220)
+FallingPath = "normal"
+PatternLoops = 2
+JumpDelay = 8
+
+[node name="Choot5" parent="." instance=ExtResource("6")]
+position = Vector2(872, 156)
+FallingPath = "normal"
+PatternLoops = 2
+JumpDelay = 4
+
+[node name="Skultera" parent="." instance=ExtResource("7")]
+position = Vector2(112, 600)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera2" parent="." instance=ExtResource("7")]
+position = Vector2(448, 640)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Choot6" parent="." instance=ExtResource("6")]
+position = Vector2(952, 480)
+FallingPath = "normal"
+PatternLoops = 5
+JumpDelay = 8

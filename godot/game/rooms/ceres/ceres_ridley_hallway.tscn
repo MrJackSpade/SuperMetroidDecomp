@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -49,3 +50,11 @@ LeadsToRoom = "res://game/rooms/ceres/dead_scientist.tscn"
 LeadsToExit = "ToCeresRidleyHallway"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="CeresDoor" parent="." instance=ExtResource("6")]
+position = Vector2(32, 127)
+DataFile = "objects/ceres_door_right.json"
+
+[node name="CeresDoor2" parent="." instance=ExtResource("6")]
+position = Vector2(480, 127)
+DataFile = "objects/ceres_door_left.json"

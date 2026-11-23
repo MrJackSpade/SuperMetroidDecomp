@@ -1,9 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/owtch/owtch.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +39,72 @@ LeadsToRoom = "res://game/rooms/maridia/watering_hole.tscn"
 LeadsToExit = "ToNorthwestMaridiaBug"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Owtch" parent="." instance=ExtResource("5")]
+position = Vector2(64, 456)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.25
+TravelDistance = 16
+
+[node name="Owtch2" parent="." instance=ExtResource("5")]
+position = Vector2(184, 456)
+StartsBy = 0
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 32
+
+[node name="Owtch3" parent="." instance=ExtResource("5")]
+position = Vector2(368, 456)
+StartsBy = 0
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 64
+
+[node name="Owtch4" parent="." instance=ExtResource("5")]
+position = Vector2(408, 456)
+StartsBy = 1
+UndergroundWait = 128
+Speed = 0.25
+TravelDistance = 32
+
+[node name="Owtch5" parent="." instance=ExtResource("5")]
+position = Vector2(656, 440)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 16
+
+[node name="Owtch6" parent="." instance=ExtResource("5")]
+position = Vector2(776, 456)
+StartsBy = 0
+UndergroundWait = 192
+Speed = 0.25
+TravelDistance = 32
+
+[node name="Owtch7" parent="." instance=ExtResource("5")]
+position = Vector2(888, 456)
+StartsBy = 1
+UndergroundWait = 192
+Speed = 0.5
+TravelDistance = 32
+
+[node name="MaridiaFly" parent="." instance=ExtResource("6")]
+position = Vector2(32, 272)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly2" parent="." instance=ExtResource("6")]
+position = Vector2(24, 320)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly3" parent="." instance=ExtResource("6")]
+position = Vector2(16, 368)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly4" parent="." instance=ExtResource("6")]
+position = Vector2(752, 352)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly5" parent="." instance=ExtResource("6")]
+position = Vector2(864, 320)
+DataFile = "enemies/maridia_fly.json"

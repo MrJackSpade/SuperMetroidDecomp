@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/etecoon/etecoon.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -109,6 +112,71 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
 LeadsToExit = "ToItsLeftSide"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Zeela" parent="." instance=ExtResource("5")]
+position = Vector2(218, 715)
+DataFile = "enemies/zeela.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Zeela2" parent="." instance=ExtResource("5")]
+position = Vector2(112, 920)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="JetRipper" parent="." instance=ExtResource("6")]
+position = Vector2(108, 1014)
+DataFile = "enemies/jet_ripper.json"
+Speed = 1.5
+StartsFacing = 1
+
+[node name="Zeela3" parent="." instance=ExtResource("5")]
+position = Vector2(121, 1768)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="JetRipper2" parent="." instance=ExtResource("6")]
+position = Vector2(67, 1352)
+DataFile = "enemies/jet_ripper.json"
+Speed = 1.5
+StartsFacing = 1
+
+[node name="Zeela4" parent="." instance=ExtResource("5")]
+position = Vector2(123, 1528)
+DataFile = "enemies/zeela.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.5
+
+[node name="Zeela5" parent="." instance=ExtResource("5")]
+position = Vector2(39, 972)
+DataFile = "enemies/zeela.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Etecoon" parent="." instance=ExtResource("7")]
+position = Vector2(607, 2968)
+Route = 0
+
+[node name="Etecoon2" parent="." instance=ExtResource("7")]
+position = Vector2(623, 2968)
+Route = 1
+
+[node name="Etecoon3" parent="." instance=ExtResource("7")]
+position = Vector2(639, 2968)
+Route = 2
 
 [node name="AtGreenBrinstarMainShaftElevator" type="Marker2D" parent="."]
 position = Vector2(128, 680)

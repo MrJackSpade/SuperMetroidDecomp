@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -46,3 +49,91 @@ LeadsToRoom = "res://game/rooms/norfair/pillar.tscn"
 LeadsToExit = "ToWorstRoomInTheGame"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Namihe" parent="." instance=ExtResource("5")]
+position = Vector2(218, 1399)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWall" parent="." instance=ExtResource("6")]
+position = Vector2(208, 1272)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="PirateGoldWall2" parent="." instance=ExtResource("6")]
+position = Vector2(48, 1168)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="PirateGoldWall3" parent="." instance=ExtResource("6")]
+position = Vector2(208, 1088)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="Namihe2" parent="." instance=ExtResource("5")]
+position = Vector2(39, 800)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking" parent="." instance=ExtResource("7")]
+position = Vector2(48, 688)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 1
+
+[node name="Namihe3" parent="." instance=ExtResource("5")]
+position = Vector2(218, 904)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking2" parent="." instance=ExtResource("7")]
+position = Vector2(208, 736)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 0
+
+[node name="Namihe4" parent="." instance=ExtResource("5")]
+position = Vector2(218, 576)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="Namihe5" parent="." instance=ExtResource("5")]
+position = Vector2(39, 480)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking3" parent="." instance=ExtResource("7")]
+position = Vector2(128, 368)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16

@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/rio/rio.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -100,3 +103,51 @@ LeadsToRoom = "res://game/rooms/brinstar/waterway_energy_tank.tscn"
 LeadsToExit = "ToBigPink"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Rio" parent="." instance=ExtResource("5")]
+position = Vector2(744, 1144)
+
+[node name="Rio2" parent="." instance=ExtResource("5")]
+position = Vector2(808, 1144)
+AlwaysActive = true
+
+[node name="Rio3" parent="." instance=ExtResource("5")]
+position = Vector2(821, 1449)
+
+[node name="Sidehopper" parent="." instance=ExtResource("6")]
+position = Vector2(569, 252)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Sidehopper2" parent="." instance=ExtResource("6")]
+position = Vector2(760, 237)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Sidehopper3" parent="." instance=ExtResource("6")]
+position = Vector2(592, 1048)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper4" parent="." instance=ExtResource("6")]
+position = Vector2(688, 1048)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Zeb" parent="." instance=ExtResource("7")]
+position = Vector2(704, 152)
+DataFile = "enemies/zeb.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zeb2" parent="." instance=ExtResource("7")]
+position = Vector2(688, 552)
+DataFile = "enemies/zeb.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zeb3" parent="." instance=ExtResource("7")]
+position = Vector2(800, 1353)
+DataFile = "enemies/zeb.json"
+AlwaysActive = true
+RespawnsWhenKilled = true

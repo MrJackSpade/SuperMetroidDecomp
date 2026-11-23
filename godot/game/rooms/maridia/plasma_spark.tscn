@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/owtch/owtch.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/choot/choot.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -55,6 +58,80 @@ LeadsToRoom = "res://game/rooms/maridia/toilet.tscn"
 LeadsToExit = "ToPlasmaSpark"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+
+[node name="Owtch" parent="." instance=ExtResource("5")]
+position = Vector2(848, 1272)
+StartsBy = 0
+UndergroundWait = 64
+Speed = 0.25
+TravelDistance = 64
+
+[node name="Owtch2" parent="." instance=ExtResource("5")]
+position = Vector2(824, 1272)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.25
+TravelDistance = 48
+
+[node name="Owtch3" parent="." instance=ExtResource("5")]
+position = Vector2(368, 1384)
+StartsBy = 1
+UndergroundWait = 128
+Speed = 0.125
+TravelDistance = 16
+
+[node name="Owtch4" parent="." instance=ExtResource("5")]
+position = Vector2(416, 1480)
+StartsBy = 1
+UndergroundWait = 192
+Speed = 0.25
+TravelDistance = 48
+
+[node name="Choot" parent="." instance=ExtResource("6")]
+position = Vector2(256, 668)
+FallingPath = "normal"
+PatternLoops = 1
+JumpDelay = 16
+
+[node name="Choot2" parent="." instance=ExtResource("6")]
+position = Vector2(560, 924)
+FallingPath = "normal"
+PatternLoops = 5
+JumpDelay = 0
+
+[node name="Choot3" parent="." instance=ExtResource("6")]
+position = Vector2(768, 932)
+FallingPath = "very_wide"
+PatternLoops = 7
+JumpDelay = 0
+
+[node name="Choot4" parent="." instance=ExtResource("6")]
+position = Vector2(480, 172)
+FallingPath = "normal"
+PatternLoops = 1
+JumpDelay = 16
+
+[node name="Choot5" parent="." instance=ExtResource("6")]
+position = Vector2(624, 236)
+FallingPath = "normal"
+PatternLoops = 1
+JumpDelay = 16
+
+[node name="Skultera" parent="." instance=ExtResource("7")]
+position = Vector2(768, 1056)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera2" parent="." instance=ExtResource("7")]
+position = Vector2(624, 1160)
+Speed = 1
+StartsFacing = 0
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
 
 [node name="FromPseudoPlasmaSparkToPlasmaSpark" type="Marker2D" parent="."]
 position = Vector2(128, 640)

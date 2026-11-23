@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fireflea/fireflea.tscn" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -37,3 +38,40 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_missile_refill.tscn"
 LeadsToExit = "ToGreenBrinstarFirefleas"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+
+[node name="Fireflea" parent="." instance=ExtResource("5")]
+position = Vector2(384, 95)
+Radius = 24
+Darkens = NodePath("../Darkness")
+Circles = true
+TurnPerUpdate = -1
+
+[node name="Fireflea2" parent="." instance=ExtResource("5")]
+position = Vector2(225, 106)
+Radius = 24
+Darkens = NodePath("../Darkness")
+Circles = true
+TurnPerUpdate = 1
+
+[node name="Fireflea3" parent="." instance=ExtResource("5")]
+position = Vector2(69, 91)
+Radius = 24
+Darkens = NodePath("../Darkness")
+Circles = true
+TurnPerUpdate = -1
+
+[node name="Fireflea4" parent="." instance=ExtResource("5")]
+position = Vector2(112, 280)
+Radius = 32
+Darkens = NodePath("../Darkness")
+Circles = false
+Speed = 0.5
+StartsUpward = true
+
+[node name="Fireflea5" parent="." instance=ExtResource("5")]
+position = Vector2(160, 312)
+Radius = 40
+Darkens = NodePath("../Darkness")
+Circles = false
+Speed = 0.5
+StartsUpward = true

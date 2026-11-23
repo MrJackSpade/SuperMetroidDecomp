@@ -192,8 +192,16 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         {
             PixelRect view = room.Session.Camera.View;
             int margin = _settings.ViewMargin;
-            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin * 2);
+            int below = _settings.ViewMarginBelow >= 0 ? _settings.ViewMarginBelow : margin;
+            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin + below);
             if (!allowed.Overlaps(Area))
+                Leave(room);
+        }
+        else if (_settings.ViewMarginBelow >= 0)
+        {
+            // It may go anywhere but too far below the view.
+            PixelRect view = room.Session.Camera.View;
+            if (Area.Top >= view.Top + view.Height + _settings.ViewMarginBelow)
                 Leave(room);
         }
     }

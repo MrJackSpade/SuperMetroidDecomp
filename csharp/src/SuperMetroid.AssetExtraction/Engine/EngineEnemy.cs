@@ -71,6 +71,13 @@ internal sealed partial class EngineEnemy
         return this;
     }
 
+    /// <summary>Gives a group of its data that is not one of its type's named values.</summary>
+    internal EngineEnemy Group(string name, JsonNode value)
+    {
+        Data[name] = value;
+        return this;
+    }
+
     /// <summary>
     /// Sizes the scene's colliders of these names by the half-width and half-height the old game gives the enemy,
     /// about its place.

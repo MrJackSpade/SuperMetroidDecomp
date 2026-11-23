@@ -79,6 +79,26 @@ internal sealed partial class EngineEnemy
     /// </summary>
     internal static JsonObject NoOffset() => new() { ["x"] = 0, ["y"] = 0 };
 
+    /// <summary>The height of the view, in pixels.</summary>
+    private const int ViewHeight = 224;
+
+    /// <summary>
+    /// Makes a projectile one the old game takes away once it is out of the enemies' view of the room, which is the
+    /// screen and as far again below it as that view is taller than the screen.
+    /// </summary>
+    internal static void GoneOutOfView(JsonObject projectile)
+    {
+        projectile["view_margin"] = 0;
+        projectile["view_margin_below"] = EnemyView.Extent - ViewHeight;
+    }
+
+    /// <summary>Makes a projectile one the old game takes away only once it has fallen its limit below the top of the view.</summary>
+    internal static void GoneFarBelowView(JsonObject projectile)
+    {
+        projectile["view_margin"] = -1;
+        projectile["view_margin_below"] = EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth - ViewHeight;
+    }
+
     /// <summary>The cue of something launched that only ever takes itself away, which a timeline does by ending.</summary>
     internal static string? EndsOnly(EnemyProjectileCommonCue cue) => cue is EnemyProjectileCommonCue.Signal { Kind: EnemyProjectileCommonCueKind.Delete }
         ? null

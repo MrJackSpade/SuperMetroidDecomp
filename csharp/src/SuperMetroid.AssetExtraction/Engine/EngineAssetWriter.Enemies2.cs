@@ -6,6 +6,8 @@ using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.Core.Enemies.Owtch;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Waver;
@@ -48,6 +50,31 @@ public sealed partial class EngineAssetWriter
 
         // The Dragon's attack tells it when it has spat its last.
         Enemy("enemies/dragon.json", "Dragon", EnemyDefinitionId.Dragon).BodyColliders(Ordinary)
+            .Value("fireball_rise", EngineNames.Number(-DragonFireballDefinitions.LaunchRise))
+            .Value("muzzle_across", DragonFireballDefinitions.MuzzleFacingRight.X)
+            .Value("muzzle_up", -DragonFireballDefinitions.MuzzleFacingRight.Y)
+            // Its fireball rises and falls through everything, shown by other pictures once it falls.
+            .Shot("fireball", RoomEnemyProjectileKind.DragonFireball, static (dragon, shot, projectile) =>
+            {
+                shot["speed"] = EngineNames.Number(DragonFireballDefinitions.SidewaysSpeed);
+                shot["sound"] = EngineNames.Sound(EnemySoundEffectDefinitions.DragonFireballSound);
+                foreach ((string name, DragonFireballSegment segment) in new[]
+                         {
+                             ("fireball_rising_left", DragonFireballSegment.RisingLeft), ("fireball_rising_right", DragonFireballSegment.RisingRight),
+                             ("fireball_falling_left", DragonFireballSegment.FallingLeft), ("fireball_falling_right", DragonFireballSegment.FallingRight),
+                         })
+                {
+                    dragon.SpawnedTimeline(name, DragonFireballAnimations.Segments, DragonFireballAnimations.StartingAt[segment], EngineEnemy.EndsOnly);
+                }
+
+                projectile["timeline"] = $"{dragon.Folder}/fireball_rising_{{side}}.json";
+                projectile["falling_timeline"] = $"{dragon.Folder}/fireball_falling_{{side}}.json";
+                projectile["picture_offset"] = EngineEnemy.NoOffset();
+                projectile["motion"] = "falling";
+                projectile["acceleration"] = EngineNames.Number(DragonFireballDefinitions.Gravity);
+                projectile["meeting_terrain"] = "passes_through";
+                EngineEnemy.GoneFarBelowView(projectile);
+            })
             .Looks(DragonAnimations.Segments, DragonAnimations.StartingWith, static (DragonCue _) => "spit",
                 ("idle_left", DragonSegment.IdleFacingLeft), ("idle_right", DragonSegment.IdleFacingRight),
                 ("wings_left", DragonSegment.WingsFacingLeft), ("wings_right", DragonSegment.WingsFacingRight),
@@ -81,13 +108,38 @@ public sealed partial class EngineAssetWriter
             .Write();
 
         // The divers: the Skree and the Metaree, alike but for their pictures.
-        foreach ((string file, EnemyDefinitionId id, SkreeMetareeSegment idle, SkreeMetareeSegment windup, SkreeMetareeSegment dive) in new[]
+        foreach ((string file, EnemyDefinitionId id, SkreeMetareeSegment idle, SkreeMetareeSegment windup, SkreeMetareeSegment dive, SkreeMetareeParticleSegment debris) in new[]
                  {
-                     ("skree", EnemyDefinitionId.Skree, SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving),
-                     ("metaree", EnemyDefinitionId.Metaree, SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving),
+                     ("skree", EnemyDefinitionId.Skree, SkreeMetareeSegment.SkreeIdling, SkreeMetareeSegment.SkreePreparingAttack, SkreeMetareeSegment.SkreeDiving,
+                         SkreeMetareeParticleSegment.Skree),
+                     ("metaree", EnemyDefinitionId.Metaree, SkreeMetareeSegment.MetareeIdling, SkreeMetareeSegment.MetareePreparingAttack, SkreeMetareeSegment.MetareeDiving,
+                         SkreeMetareeParticleSegment.Metaree),
                  })
         {
+            // The debris it throws up: two pieces to each side, an outer and an inner, which fall through everything.
+            var pieces = new System.Text.Json.Nodes.JsonArray();
+            foreach (PixelVelocity<RoomPixels> thrown in new[] { MetalParticleBurstDefinitions.OuterRightVelocity, MetalParticleBurstDefinitions.InnerRightVelocity })
+            {
+                pieces.Add(new System.Text.Json.Nodes.JsonObject
+                {
+                    ["side"] = MetalParticleBurstDefinitions.SideOffset,
+                    ["across"] = EngineNames.Number(thrown.X),
+                    ["up"] = EngineNames.Number(-thrown.Y),
+                });
+            }
+
             Enemy($"enemies/{file}.json", "Diver", id).BodyColliders(Ordinary)
+                .Group("debris", pieces)
+                .Shot("debris", RoomEnemyProjectileKind.SkreeMetareeParticle, (diver, _, projectile) =>
+                {
+                    projectile["timeline"] = diver.SpawnedTimeline("debris", SkreeMetareeParticleAnimations.Segments,
+                        SkreeMetareeParticleAnimations.StartingAt[debris], EngineEnemy.EndsOnly);
+                    projectile["picture_offset"] = EngineEnemy.NoOffset();
+                    projectile["motion"] = "falling";
+                    projectile["acceleration"] = EngineNames.Number(MetalParticleBurstDefinitions.Gravity);
+                    projectile["meeting_terrain"] = "passes_through";
+                    EngineEnemy.GoneOutOfView(projectile);
+                })
                 .Value("dive_sound", EngineNames.Sound(EnemySoundEffectDefinitions.DiveSound))
                 .Value("burrow_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BurrowSound))
                 .Looks(SkreeMetareeAnimations.Segments, SkreeMetareeAnimations.StartingWith,

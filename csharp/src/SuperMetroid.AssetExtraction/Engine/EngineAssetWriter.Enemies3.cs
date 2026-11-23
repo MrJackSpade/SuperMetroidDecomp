@@ -31,7 +31,21 @@ public sealed partial class EngineAssetWriter
         projectile["timeline"] = $"{cacatac.Folder}/{name}_{{direction}}.json";
         projectile["picture_offset"] = EngineEnemy.NoOffset();
         projectile["meeting_terrain"] = "passes_through";
-        projectile["view_margin"] = 0;
+        EngineEnemy.GoneOutOfView(projectile);
+    }
+
+    /// <summary>
+    /// What a Fune's or a Namihe's fireball is: it flies level through everything and is gone once out of view, shown
+    /// by its pictures for the side it flies to.
+    /// </summary>
+    private static void FuneFireball(EngineEnemy fune, System.Text.Json.Nodes.JsonObject projectile)
+    {
+        fune.SpawnedTimeline("fireball_left", FuneNamiheFireballAnimations.Segments, FuneNamiheFireballAnimations.StartingAt[FuneNamiheFireballSegment.Left], EngineEnemy.EndsOnly);
+        fune.SpawnedTimeline("fireball_right", FuneNamiheFireballAnimations.Segments, FuneNamiheFireballAnimations.StartingAt[FuneNamiheFireballSegment.Right], EngineEnemy.EndsOnly);
+        projectile["timeline"] = $"{fune.Folder}/fireball_{{side}}.json";
+        projectile["picture_offset"] = EngineEnemy.NoOffset();
+        projectile["meeting_terrain"] = "passes_through";
+        EngineEnemy.GoneOutOfView(projectile);
     }
 
     /// <summary>Writes the enemies that spit, throw and erupt by their animations.</summary>
@@ -107,11 +121,15 @@ public sealed partial class EngineAssetWriter
             _ => throw new InvalidDataException($"A Fune's animation raises {cue}, which this does not know."),
         };
         Enemy("enemies/fune.json", "Fune", EnemyDefinitionId.Fune).BodyColliders(Ordinary)
+            .Shot("fireball", RoomEnemyProjectileKind.FuneFireball, static (fune, _, projectile) => FuneFireball(fune, projectile))
             .Looks(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingWith, FuneCue,
                 ("idle_left", FuneNamiheSegment.FuneIdleLeft), ("idle_right", FuneNamiheSegment.FuneIdleRight),
                 ("active_left", FuneNamiheSegment.FuneActiveLeft), ("active_right", FuneNamiheSegment.FuneActiveRight))
             .Write();
         Enemy("enemies/namihe.json", "Fune", EnemyDefinitionId.Namihe).BodyColliders(Ordinary)
+            // The Namihe's mouth is lower in its pictures than the Fune's.
+            .Value("mouth_drop", 4)
+            .Shot("fireball", RoomEnemyProjectileKind.NamiheFireball, static (namihe, _, projectile) => FuneFireball(namihe, projectile))
             .Looks(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingWith, FuneCue,
                 ("idle_left", FuneNamiheSegment.NamiheIdleLeft), ("idle_right", FuneNamiheSegment.NamiheIdleRight),
                 ("active_left", FuneNamiheSegment.NamiheActiveLeft), ("active_right", FuneNamiheSegment.NamiheActiveRight))
